@@ -1,34 +1,49 @@
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 
 /**
- * The faces, UVs, corner coordinates and patch grids of a surface rig's cage as
- * its patches are laid out, from `layoutSurfacePatches`.
+ * Mutable cage layout writer with vertex quads, UV buffers and one normalized
+ * chart per face corner.
+ *
+ * Emit faces before checking the accumulated directed edges. At a wrapped grid
+ * seam, the same geometry ordinal can carry distinct UV values on either side.
  */
 export interface IAutoMovieSurfaceLayout {
-  /** Quads as four vertex indices, counterclockwise seen from outside. */
+  /**
+   * Accumulated quads of zero-based cage vertex ordinals in the patch's
+   * counterclockwise chart order.
+   */
   faces: number[][];
 
-  /** Packed UV values. */
+  /**
+   * Packed UV pairs generated from each patch texture rectangle or its default
+   * band of the unit square.
+   */
   uvs: number[];
 
-  /** UV indices per face corner. */
+  /** Zero-based UV pair ordinals in the same face and corner order as faces. */
   uvFaces: number[][];
 
-  /** Surface coordinate of each face corner. */
+  /**
+   * Parallel patch addresses for each face's four corners, indexed by face and
+   * local corner.
+   */
   corners: IAutoMovieSurfaceCage["corners"];
 
-  /** Each patch's grid, by patch index. */
+  /**
+   * One accumulated patch layout at each emitted network patch ordinal,
+   * carrying that patch's original name and face list.
+   */
   grids: IAutoMovieSurfaceCage.IPatch[];
 
   /**
-   * Lay out one patch's grid of faces.
+   * Append one regular patch as row-major quads, with s across columns and t
+   * across rows.
    *
-   * @param patch Index of the patch in the network
-   * @param grid Vertex indices by row from `t` 0 and column from `s` 0
-   * @param columns Faces along `s`
-   * @param rows Faces along `t`
-   * @param wrap Whether column `columns` is column 0, for a patch closing on
-   *   itself
+   * @param patch Ordinal of the network patch.
+   * @param grid Cage vertex ordinals by row and column from zero.
+   * @param columns Positive face count along s.
+   * @param rows Positive face count along t.
+   * @param wrap Whether the last geometry column wraps to the first.
    */
   emit(
     patch: number,
@@ -39,14 +54,14 @@ export interface IAutoMovieSurfaceLayout {
   ): void;
 
   /**
-   * Lay out a patch whose faces are not a grid, each corner with its own patch
-   * coordinates.
+   * Append explicit charted quads for a non-grid patch, preserving input face
+   * and corner order.
    *
-   * @param patch Index of the patch in the network
-   * @param quads Each face's four corners counterclockwise: vertex index and
-   *   patch coordinates
-   * @param columns The count the patch's record reports along `s`
-   * @param rows The count the patch's record reports along `t`
+   * @param patch Ordinal of the network patch.
+   * @param quads Four triples per face in chart winding order, each with vertex
+   *   ordinal, s and t.
+   * @param columns Column count recorded in the patch layout.
+   * @param rows Row count recorded in the patch layout.
    */
   emitFaces(
     patch: number,
@@ -56,9 +71,10 @@ export interface IAutoMovieSurfaceLayout {
   ): void;
 
   /**
-   * Refuse a layout in which a directed edge appears twice.
+   * Throw when an ordered cage edge occurs more than once in the accumulated
+   * faces.
    *
-   * @throws Error when patches overlap or wind inconsistently
+   * @throws Error identifying the first repeated directed edge.
    */
   check(): void;
 }

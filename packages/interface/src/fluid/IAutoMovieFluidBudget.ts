@@ -4,9 +4,8 @@
  *
  * No step is integrated. validateFluidDomain checks record budgets of 65,536
  * cells, 100,000 maximum steps, 32 emitters and 4,096 particles per emitter,
- * and rejects a computed Courant value above one; a derived NaN is not rejected
- * by that comparison. measureRenderSimulation reads cells and sprayParticleCap
- * for bound water bodies.
+ * and rejects a computed Courant value above one. measureRenderSimulation reads
+ * cells and sprayParticleCap for bound water bodies.
  */
 export interface IAutoMovieFluidBudget {
   /** Id of the measured domain. */
@@ -40,9 +39,9 @@ export interface IAutoMovieFluidBudget {
 
   /**
    * Courant number dt * sqrt(g * referenceDepth) * sqrt(1/dx² + 1/dz²),
-   * computed at design depth rather than solved depth. The analytic bound is at
-   * most one; direct intermediate products may overflow or produce NaN, and the
-   * budget reports that result without validation.
+   * computed from the authored design depth. Final binary64 rounding can yield
+   * zero or Infinity. The budget reports the number; validateFluidDomain
+   * requires a value at most one.
    */
   courant: number;
 }

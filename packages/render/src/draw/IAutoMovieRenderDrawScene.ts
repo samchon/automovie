@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieClassifyPlaybackBoundary,
   IAutoMovieDeliveryContentAudit,
   IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
@@ -6,11 +7,13 @@ import type {
   IAutoMovieFilmSound,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
+  IAutoMoviePlaybackEvent,
   IAutoMoviePlaybackTimeline,
   IAutoMovieSequence,
 } from "@automovie/interface";
 import type * as THREE from "three";
 import type { IAutoMovieRenderDrawView } from "./IAutoMovieRenderDrawView";
+import type { IAutoMovieRenderMotionTrailSource } from "./IAutoMovieRenderMotionTrailSource";
 
 /**
  * A subject made ready to draw: its scene, its delivery camera, its clock and
@@ -111,6 +114,13 @@ export interface IAutoMovieRenderDrawScene<TRenderer = THREE.WebGLRenderer> {
   instants?: readonly { seconds: number; label: string }[];
 
   /**
+   * Source events admitted by the subject's actual played sequence, including
+   * one record per occurrence of a replayed event. The capture host uses the
+   * source id and sequence entry to identify the played output second.
+   */
+  playedCues?: readonly IAutoMoviePlaybackEvent[];
+
+  /**
    * Kind names the subject declares for its lifetime. Capture planning, drawing
    * and Viewer controls admit them at empty frames. `marks` supplies geometry
    * and styles at each second and can supply additional kinds.
@@ -122,6 +132,20 @@ export interface IAutoMovieRenderDrawScene<TRenderer = THREE.WebGLRenderer> {
    * asked for right after it; absent when it supplies none.
    */
   marks?: (seconds: number) => readonly IAutoMovieMark[];
+
+  /**
+   * Optional source evidence for selected motion trails. Read after an admitted
+   * trail seek, once per measured object and second. A request with no trail
+   * paths performs no source reads.
+   */
+  inspectMotionTrail?: IAutoMovieRenderMotionTrailSource;
+
+  /**
+   * Deliberate shot-local breaks in the authored playback. A trail separates
+   * any two measured samples that cross a declared break of their played
+   * take. Uses the same sequence and timeline as the subject's cut.
+   */
+  trailDiscontinuities?: IAutoMovieClassifyPlaybackBoundary.IProps["discontinuities"];
 
   /**
    * The film's camera response for the last placement at a second, asked for

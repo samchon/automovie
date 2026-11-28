@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  *    0.03 m withdrawal, and nothing past a 0.2 m one.
  * 2. A bone turning 90 degrees about +Y at the origin carries the point away to
  *    (0, 0, -1), and pushes nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains how a virtual contact point follows a moving bone and contributes only positive remaining displacement along its normal.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the same local point under forward translation and quarter turn with smaller and larger withdrawal.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.1 m movement less 0.03 m withdrawal gives 0.07 m. Larger withdrawal and a rotation carrying the point away add no push.
  */
 export function test_motions_striking_ride(): void {
   const met = { point: { x: 1, y: 0, z: 0 }, normal: { x: 1, y: 0, z: 0 } };

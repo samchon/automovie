@@ -2,26 +2,34 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** Collapsed profile ends retained between face publication and skin closure. */
 export namespace IAutoMovieConstructionProfileBody {
-  /** An actual collapsed endpoint and its existing neighboring regular ring. */
+  /**
+   * Collapsed source end and its neighboring regular ring in the realized body.
+   * Stations use kernel millimetres. The retained surface and face checks let
+   * skin closure query the original tip and verify which ring arcs survived.
+   */
   export interface IEnd {
-    /** Original collapsed point belongs to this actual retained surface. */
+    /** Original retained surface used for a point read at the collapsed tip. */
     surface: IAutoMovieSolidSurface;
 
-    /** Actual physical station mm, not the first regular tessellation row. */
+    /** Physical station of the collapsed tip in kernel millimetres. */
     station: number;
 
     /**
-     * Actual neighboring regular ring station mm; its original cap strip is not
-     * a trimmed patch.
+     * Physical station in kernel millimetres of the nearest emitted regular
+     * ring.
      */
     regular: number;
 
-    /** Positive native boundary traversal: bottom reverses the loop clock. */
+    /**
+     * Shared mesh vertex IDs of the ring in positive boundary traversal. The
+     * bottom reverses the loop clock.
+     */
     vertices: number[];
 
     /**
-     * One check per arc in piece traversal order, independent of the bottom
-     * end's reversed vertex traversal.
+     * One arc record per retained piece segment. The face index locates the
+     * actual body face, phase is the arc midpoint in normalized [0, 1], and
+     * from and to are the shared vertex IDs at its ends.
      */
     checks: {
       /** Index of the retained face in the same body's faces array. */

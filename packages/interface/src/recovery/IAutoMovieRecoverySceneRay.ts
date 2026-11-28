@@ -1,8 +1,11 @@
-/** One actual registered camera's world-frame point direction. */
+/**
+ * One registered camera's direction toward the evaluated point in the common
+ * world frame.
+ */
 export interface IAutoMovieRecoverySceneRay {
-  /** Index in the original source array. */
+  /** Original source index of the camera that supplied this ray. */
   view: number;
 
-  /** Three unit direction coefficients in the common world frame. */
+  /** Normalized X, Y and Z components in the common reconstruction world frame. */
   unit: number[];
 }

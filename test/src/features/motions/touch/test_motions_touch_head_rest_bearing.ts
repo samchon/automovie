@@ -16,15 +16,20 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Finite paired contact uses the bones at the same displayed second.
+ * Check finite contact between two displayed head colliders.
  *
  * Scenarios:
  *
- * 1. Two 0.125 m spherical profile shapes at 0.25 m separation touch.
- * 2. Moving one at 0.5 m/s puts a 50 ms sample behind by 25 mm, beyond the 10 mm
- *    tolerance. Current moving frames recover the same local witness.
- * 3. A vertical offset at the same horizontal separation and reversed outward
- *    frames both remove bearing.
+ * 1. Two 0.125 m spheres separated by 0.25 m report zero clearance and their
+ *    local exterior points. A stale frame displaced by 25 mm, a vertical
+ *    offset and matching outward directions each remove bearing.
+ * 2. A 2 mm overlap reports signed clearance and the same exterior points.
+ *    When a tangent pair and a shallow intersection coexist, select the
+ *    tangent pair.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the collider size, observed local points, absent contact and overlap selection.
+ * @evidence contracts/development/testing.md#behavioral-verification The prepared reader receives resolved bones and opposing directions for each geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Two radii set the tangent separation, and the 25 mm stale displacement exceeds the 10 mm admission margin.
  */
 export async function test_motions_touch_head_rest_bearing(): Promise<void> {
   const fixture: IAutoMovieMotionHumanBody =

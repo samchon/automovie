@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  * 1. Level over 2 m: launched at `sqrt(2 g)` and 45 degrees, rising at `sqrt(g)`,
  *    flying `2 / sqrt(g)`, the time the rise takes to come back down.
  * 2. Rising 1.5 m over 2 m: the lift is 1.5 + 2.5 = 4 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the least-speed ballistic arc for level or rising destination geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves a 2 m level flight and a 2 m flight rising 1.5 m through the owning helper.
+ * @evidence contracts/development/testing.md#independent-expectations The analytical level flight has speed √(2g), vertical speed √g and time 2/√g. The raised case has geometric lift 1.5 + 2.5 = 4 m.
  */
 export function test_motions_sport_squat_vault(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

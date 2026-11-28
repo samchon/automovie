@@ -31,6 +31,10 @@ function course(film: number): IAutoMovieRigidTransform {
  * 1. Read before, during and after a one-metre, 90-degree turn of the carrier.
  * 2. The pelvis stays aligned to the carrier and the seat stays in its
  *    original cushion coordinates. Repeat earlier times in a different order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a seated pelvis following its cushion through translation, rotation and repeated out-of-order reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the placed carrier around a one-metre translation and 90° turn, reads the played pelvis and repeats an earlier time.
+ * @evidence contracts/development/testing.md#independent-expectations The authored rigid transform fixes world motion and pelvis alignment. The seat's original cushion-local coordinates are the invariant across times.
  */
 export function test_motions_lexicon_ride_cushion(): void {
   const posture: IAutoMovieMotionHumanPosture = {

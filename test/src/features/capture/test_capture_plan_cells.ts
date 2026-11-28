@@ -43,9 +43,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans real requests through the public reader and planner and reads the cells' order, names, captions, selections and requests; a planner that ordered cells otherwise, named them by position, or left a cell's request on the plan's shade fails.
  * @evidence contracts/development/testing.md#independent-expectations Frames are seconds times 30, names and captions follow the documented forms, the eight-cell order is the documented selection, time, view, pass nesting, and the sweep's neighbours follow from the hand-placed boxes: arm and torso share x = 0.5, the lamp is metres away.
- * @evidence contracts/development/testing.md#distinguishing-cases Several views and passes against one of each, a swept selection with and without a neighbour, and a repeated plan. Refusals are owned by `test_capture_plan_refusals`, sheet sizes by `test_capture_layout_budget`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_plan_cells`; it plans in memory and draws nothing.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Cell plans check ordered times, views and passes, repeatable names and captions, off-frame seconds, selection sweeps and row grouping.
  */
 export function test_capture_plan_cells(): void {
   const plan: (text: string) => IAutoMovieCapturePlan = (

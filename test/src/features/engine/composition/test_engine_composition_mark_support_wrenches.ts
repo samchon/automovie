@@ -24,7 +24,11 @@ import { nclose } from "../../internal/nclose";
  * 3. A residual of 5e-5 N on a 100 N request, inside the 1e-4 N the allocator
  *    admits, draws no shortfall; a zero allocation draws only the whole request
  *    as shortfall.
- * 4. A step or a scale that is zero or not finite is refused.
+ * 4. A nonpositive step or scale is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the allocated and residual arrows, per-body time selection, admitted error, zero allocation and nonpositive timing and scale inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes prepared vertical wrenches at known times directly to CompositionContact.markSupportWrenches, then reads arrow geometry, flag and ownership paths.
+ * @evidence contracts/development/testing.md#independent-expectations Sixty allocated and forty residual newtons give 0.12 m and 0.08 m arrows at 0.002 m/N. With zero allocation the full 0.2 m starts at the centre of mass. A 5e-5 N residual lies below the 1e-4 N admitted error.
  */
 export function test_engine_composition_mark_support_wrenches(): void {
   const interval: number = 1 / 120;

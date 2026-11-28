@@ -35,6 +35,10 @@ const HALF: number = 0.125;
  *    on.
  * 3. Failed landing: the same push after a failed landing is unrecoverable, and
  *    the failure is kept.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains capture state, outside distance and failure history when a planted body is quiet or pushed.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans balance for two fixed soles and a center above them at rest, with forward velocity and after a failed landing.
+ * @evidence contracts/development/testing.md#independent-expectations At rest the capture point is the center's floor projection and frequency is √(g/h). At 1 m/s and 3 Hz the forward lead is 1/3 m and the explicit landing failure remains.
  */
 export function test_engine_physics_physical_balance_plan(): void {
   const failures: string[] = [];

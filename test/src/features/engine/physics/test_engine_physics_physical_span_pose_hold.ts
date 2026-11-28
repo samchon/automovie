@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A restore, which clones the state, prepares it once again: a new response on
  *    the first substep after, then that one held, sampling the same values.
  * 3. Before the push and after the response settles, nothing plays.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents one prepared response per ownership span, re-preparation after restore and the time window where it plays.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads consecutive substeps of the same binding, restores cloned recovery state and samples before push and after settlement.
+ * @evidence contracts/development/testing.md#independent-expectations Prepared response identity is stable across normal ticks. A restored response has a fresh identity with equal samples, and outside the response window playback is absent.
  */
 export function test_engine_physics_physical_span_pose_hold(): void {
   const failures: string[] = [];

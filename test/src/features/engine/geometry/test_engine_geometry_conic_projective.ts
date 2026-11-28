@@ -48,6 +48,10 @@ import { ConstructionConicOracle } from "../../internal/construction/Constructio
  *    the unit tangent and the radial jet equal the implicit ellipse's within
  *    2e-9 of the larger of the scale and the value; two queries share no result
  *    array.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the rational clock fixtures, extreme scales, angular derivatives, normalized log weights and freshness checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the public Hermite and arc owners at extreme positive and negative clocks, observing radial jets, ray results, log weights and output ownership.
+ * @evidence contracts/development/testing.md#independent-expectations Multiplying control weight i by k to power i reparametrizes the same conic. The implicit ellipse yields its point, tangent and radial jet. Independent log-sum-exp gives normalized weights.
  */
 export function test_engine_geometry_conic_projective(): void {
   const w: number = Math.SQRT1_2;

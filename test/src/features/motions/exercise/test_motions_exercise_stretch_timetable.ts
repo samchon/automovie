@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenario: held 5 s in a neutral manner, the reach ends at 1.5 s, the shift is
  * at 0.75 s, the release at 6.5 s, the lowering at 7.25 s and the end at 8 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The stretch clock keeps the full hold between fixed arrival and departure phases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the timetable with a five-second hold and a neutral manner.
+ * @evidence contracts/development/testing.md#independent-expectations Two 1.5-second transitions plus the hold determine eight seconds. Halfway markers and the hold endpoints fix each cue.
  */
 export function test_motions_exercise_stretch_timetable(): void {
   const clock: IAutoMovieMotionClock = stretch.timetable(

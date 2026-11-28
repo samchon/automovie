@@ -22,11 +22,9 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  * 6. Acquisition inputs stay unchanged, and changing returned clinical records
  *    or vectors cannot corrupt later measurements or the primary source table.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists geometric invariants, oriented boundaries, independently sourced mean/SD arithmetic, missing-data behavior, malformed acquisition refusals and ownership checks.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the public marker measurement, primary lookup and comparison APIs; assertions catch lost orientation, skipped projection, incompatible source pooling, fabricated constraints and shared mutable clinical data.
- * @evidence contracts/development/testing.md#independent-expectations Cartesian orthogonal/equal/opposite rays define literal 90/270/0/180 degrees without using the measured angle as an oracle. Adair 2016 Table 1 reports carpal flexion 31±4 and standing extension 183±3, so a 90-degree observation has deviations (90-31)/4=14.75 and (90-183)/3=-31; the 1e-12 degree/numeric tolerance covers binary64 arithmetic only. Geometry cannot verify that real-world markers were anatomically acquired correctly.
- * @evidence contracts/development/testing.md#distinguishing-cases Positive and reversed normals, shifted/scaled and out-of-plane points, collinear-but-nonzero boundaries, compatible/incompatible sources, unknown joints, each finite/degenerate refusal and mutation isolation distinguish the promised acquisition and source semantics.
- * @evidence contracts/development/testing.md#execution-ownership One exported synchronous in-memory unit is discovered by its test name and starts no process, viewer, compiler, capture or other host; all acquisition points and expected measurements are owned here.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines oriented projection, planar boundaries, source-specific reference arithmetic, missing data, malformed acquisition and record ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public marker measurement, reference lookup and comparison operations. Reversed normals, non-planar inputs and collinear boundaries exercise orientation. Source mismatches and mutations expose unsupported references and shared records.
+ * @evidence contracts/development/testing.md#independent-expectations Orthogonal, equal and opposite Cartesian rays give 90, 270, 0 and 180 degrees under the stated orientations. Adair Table 1 gives 31 ± 4 and 183 ± 3 degrees, so the 90-degree observation yields 14.75 and -31 standard deviations.
  */
 export function test_archetype_animal_equine_goniometry(): void {
   const input: AutoMovieArchetypeEquineGoniometry.IInput = {

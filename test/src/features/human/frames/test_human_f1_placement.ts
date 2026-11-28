@@ -45,9 +45,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Placement.point`, `direction`, `frames` and `place`, `AutoMovieHumanF1.assemble` and the frame law's `world` on tables and made chains.
  * @evidence contracts/development/testing.md#independent-expectations A hand-solved two-segment chain, step 1's stored world numbers, a rigid rotation about one joint centre and a reflection in z = 0 are each derived apart from the chain's composition.
- * @evidence contracts/development/testing.md#distinguishing-cases A made chain, the reference pose, a pose that turns one arm joint and one leg joint, segments on and off the turned branches, and both sides of the median plane.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit over f1's placing tables, reached by `--include human_f1_placement`; it lofts nothing and reads no reference body.
- * @evidence contracts/development/common.md#meaningful-documentation Numbers each scenario with its closed form or stored value and its tolerance.
+ * @evidence contracts/development/common.md#meaningful-documentation A synthetic chain, stored datums, moved joints, reference and posed source assembly and their reflected counterparts check one placement frame at a time.
  */
 export function test_human_f1_placement(): void {
   const failures: string[] = [];

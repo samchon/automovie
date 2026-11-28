@@ -6,47 +6,48 @@ import type { IAutoMovieRecoveryCameraPolicy } from "./IAutoMovieRecoveryCameraP
 import type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraView";
 
 /**
- * Three calibrated fixed RGB charts for an automatic partial sparse camera map.
- * Views zero and one are the explicitly ordered seed. The third is registered
- * only against their triangulated points, then all three poses/points are
- * jointly refined with the first pose and seed baseline scale fixed. Intrinsics
- * remain supplied assertions; this operation neither estimates them nor
- * recovers a surface.
+ * Three fixed RGB8 views of one asserted rigid scene, each with supplied
+ * corrected pinhole intrinsics. Views zero and one form the ordered seed; view
+ * two is registered against points triangulated from that seed. Keep each
+ * borrowed raster unchanged until the synchronous call returns.
  */
 export interface IAutoMovieRecoveryCameraMapInput {
-  /** Versioned three-view resident input. */
+  /** Resident three-view camera-map schema. */
   schema: "automovie-recovery-camera-map-input-v1";
 
-  /** Caller-asserted fixed scene identity. */
+  /** Nonblank identity of the asserted common scene. */
   objectId: string;
 
-  /** Caller asserts that all views observe one rigid scene. */
+  /** Caller assertion that the views observe a single fixed scene. */
   rigidity: IAutoMovieRecoveryCameraPairInput["rigidity"];
 
-  /**
-   * Keeps analytic, photographic and inconsistent-control measurements
-   * separate.
-   */
+  /** Acquisition cohort retained in the output evidence. */
   cohort: IAutoMovieRecoveryCameraPairInput["cohort"];
 
   /**
-   * Exactly three unique identities; indices zero and one are the seed. Keep
-   * all borrowed RGB bytes unchanged until synchronous return.
+   * Exactly three views with unique IDs and exact RGB8 populations. The first
+   * two define the seed, and the third is the resection target.
    */
   views: IAutoMovieRecoveryCameraView[];
 
-  /** Unchanged feature, matching and two-view qualification operating point. */
+  /**
+   * Operating point for feature extraction, appearance matching, and two-view
+   * qualification.
+   */
   seedPolicy: IAutoMovieRecoveryCameraPolicy;
 
   /**
-   * Existing pair limits: maxPixels covers the seed pair; candidate/features
-   * limits apply per image and descriptor pairs per pair.
+   * Limits for seed-pair pixels, feature work per view, descriptor comparisons
+   * per pair, and pair qualification.
    */
   seedBudget: IAutoMovieRecoveryCameraBudget;
 
-  /** Explicit per-point and 3D-to-2D reprojection operating point. */
+  /**
+   * Operating thresholds for seed-point geometry, third-view resection, and
+   * joint pixel reprojection.
+   */
   policy: IAutoMovieRecoveryCameraMapPolicy;
 
-  /** Aggregate map and new numerical work limits. */
+  /** Aggregate map limits and bounded work for resection and joint refinement. */
   budget: IAutoMovieRecoveryCameraMapBudget;
 }

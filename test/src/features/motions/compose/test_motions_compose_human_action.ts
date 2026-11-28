@@ -32,6 +32,10 @@ import { throwsError } from "../../internal/throwsError";
  *    writing order; the claimed channels are the plan's.
  * 4. Two primitives on one channel at once, and a window past the action, are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names preparation order, active-window writes, support preservation, ready order, channel claims and two incompatible compositions.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actions with two counted primitive callbacks and an in-memory base. Reads early and late postures and preparation events, then attempts overlapping and out-of-range writes.
+ * @evidence contracts/development/testing.md#independent-expectations The input writers assign ten degrees per second, yielding 7.5 degrees while both are active and 15 degrees on the late elbow alone. Literal callback lists fix the head-before-arm and base-before-ready orders.
  */
 export function test_motions_compose_human_action(): void {
   const calls: string[] = [];

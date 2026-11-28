@@ -153,19 +153,23 @@ export function environmentLiftActor(input: {
   };
   const cabDepth: number = depth(props[0]!);
   const landingDepth: number = depth(props[2]!);
+  // The stock rider's heel projects 137 mm toward the sill from the
+  // flat sole center at the staged heading. Use a 150 mm inset
+  // on both arrivals so the full sole has room within the short transfer.
+  const soleInset: number = 0.15;
   const board: Crossing = {
     stop: "ground",
     direction: "board",
     seconds: 2,
     lead: "left",
-    landing: { x: passageX, z: cabDepth / 2 - 0.12 },
+    landing: { x: passageX, z: cabDepth / 2 - soleInset },
   };
   const exit: Crossing = {
     stop: "upper",
     direction: "exit",
     seconds: 2,
     lead: "right",
-    landing: { x: passageX, z: 0.14 - landingDepth / 2 },
+    landing: { x: passageX, z: soleInset - landingDepth / 2 },
   };
   const film: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance({
     seed: "environment-lift",
@@ -193,7 +197,8 @@ export function environmentLiftActor(input: {
       )
       .registered(walkAcross.name, board)
       .walk({
-        to: local(passageX, -0.3),
+        // Turn with both soles still inside the cab and within reach of the landing.
+        to: local(passageX, -0.26),
         face: yaw,
         pace: "normal",
         on: { prop: cab },

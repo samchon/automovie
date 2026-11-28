@@ -24,6 +24,10 @@ type Created = IAutoMovieViewOutline.IResult;
  * 3. Angle map over [0, 4] (allowance 0.02): station 4.004 reads the endpoint's
  *    value and parameter; station 4.1 is "not finite inside the source
  *    parameter domain".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names accepted relative scalar excess, pole closure and parameter-domain endpoint clamping or refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Constructs and reads outlines and an angle map both slightly and materially outside their declared bounds.
+ * @evidence contracts/development/testing.md#independent-expectations A relative 5e−3 of the extent distinguishes 100.1 from 101 and 4.004 from 4.1. The finite pole's 0.05 allowance admits only the tiny negative offset.
  */
 export function test_engine_geometry_view_outline_tolerance(): void {
   const outline = (

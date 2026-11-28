@@ -37,11 +37,9 @@ const refusal = (call: () => unknown): AutoMovieArchetypeRefusal | null => {
  * 3. The multi-use cart draws its horse inside its 14.2 to 16.3 hh and the horse's own 1.58 to 1.80 m; with the horse fixed taller than 16.3 hh, only the gig is picked.
  * 4. A fixed shaft length on the multi-use cart, whose shafts are read, and a model on a trolley, which has none, are refused at their axes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each kind with models for 200 seeds and compares the figures it was built at with every read model's, and a gig's shafts with the horse's length; a draw that mixes two models, a model that never appears, shafts that reach into the horse or a cart drawn for a horse it is not made for is caught.
- * @evidence contracts/development/testing.md#independent-expectations The models' figures are written here from their sources (Wanzl's EL series, the multi-use cart's seller, the Carriage Foundation's and the museums' records, Carter's notes), the point of buttock's 185/172 from Jensen et al. and the clearance from IVC Carriage.
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind with read models, both cart models and both shafts, a free and a fixed horse, and a refused figure and a refused axis.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies measured vehicle entries, attachment-shaft clearance, horse height admission and the fixed-figure and missing-model refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each public cart kind across its seeded catalogue and reads wheel, track, length and mass figures together with the paired horse and shafts. Tests fixed values at the owning catalogue axes.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated manufacturer and museum dimensions as whole entries. The gig's far attachment position follows from 185/172 of the horse's withers height and the literal 8 to 20 inch clearance.
  */
 export function test_archetype_cart_models(): void {
   TestValidator.equals(

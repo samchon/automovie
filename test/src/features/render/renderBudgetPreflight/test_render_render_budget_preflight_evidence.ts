@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    over, and names each over-budget shot, with the tier, when one is.
  * 3. `AutoMovieRenderBudgetPreflight.targetRendererOfGraphics` is null without
  *    graphics and names blank fields `unknown`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines per-shot ordering, severity rollup, digest updates, over-budget refusal and renderer identity fallback.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds evidence from reordered and changed shot states, checks missing budget and graphics cases and reads a refusal for over-budget shots.
+ * @evidence contracts/development/testing.md#independent-expectations Authored status ordering makes over the worst. Repeated input preserves its digest while changed status changes it, and the refusal names the requested tier and actual offending shots.
  */
 export function test_render_render_budget_preflight_evidence(): void {
   const assessment = (

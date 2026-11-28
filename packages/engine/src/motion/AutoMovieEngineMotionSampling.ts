@@ -387,9 +387,11 @@ export namespace AutoMovieEngineMotionSampling {
   }
 
   /**
-   * Return the endpoint-inclusive seconds grid from zero to duration at a
-   * positive Hz rate. The window sampler owns grid arithmetic and duplicate-end
-   * removal; zero duration returns one instant.
+   * Return a new endpoint-inclusive seconds grid from zero to duration.
+   *
+   * Supply a finite nonnegative duration and a finite positive rate in Hz.
+   * A valid zero duration returns `[0]`. Instants that round together share one
+   * entry. Invalid inputs or a grid beyond array capacity throw a RangeError.
    */
   export function sampleTimes(duration: number, sampleRate: number): number[] {
     return sampleTimesImplementation(duration, sampleRate);
@@ -420,9 +422,12 @@ export namespace AutoMovieEngineMotionSampling {
   }
 
   /**
-   * Sample a finite ordered seconds window at a finite positive Hz rate,
-   * retaining both endpoints and coalescing instants that round together. A
-   * zero-width window returns one instant; the caller owns the new array.
+   * Sample a finite ordered seconds window, including both endpoints.
+   *
+   * The rate must be finite and positive in Hz, including for a zero-width
+   * window. The new array then contains the single endpoint. Rounded duplicate
+   * instants share one entry. Invalid inputs or a grid beyond array capacity
+   * throw a RangeError.
    */
   export function windowSampleTimes(start: number, end: number, sampleRate: number): number[] {
     return windowSampleTimesImplementation(start, end, sampleRate);

@@ -38,6 +38,10 @@ const BENT: KickThrust.ILeg = {
  * 4. A foot carried within its 20 degree give stays; carried 90 degrees it turns
  *    70.
  * 5. Thrust to a reach of 1.2 m, the leg ends straight at the 1 m longest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains articulated posed leg geometry, authored range limits and foot rotation after ankle travel is consumed.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves planted, drawn, foot-adjusted and reaching virtual poses with aligned and far targets and a fallback hint.
+ * @evidence contracts/development/testing.md#independent-expectations Two 0.5 m links over 0.8 m vertical span give a 3–4–5 construction. Draw elevation and total reach clamp at the declared limits.
  */
 export function test_motions_striking_kick_thrust(): void {
   const hip: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

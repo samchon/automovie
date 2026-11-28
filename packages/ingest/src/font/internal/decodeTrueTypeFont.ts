@@ -78,54 +78,56 @@ export function decodeTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   for (const name of REQUIRED)
     if (!tables.has(name))
       throw new Error(`The TrueType font is missing required table "${name}"`);
-  function table(name: string, minimum: number): number {
+  function table(name: string, minimum: number): TrueTypeByteReader {
     const found: { offset: number; length: number } = tables.get(name)!;
     if (found.length < minimum)
       throw new Error(
-        `TrueType table "${name}" is ${found.length} bytes, shorter than its ${minimum}-byte header`,
+        `TrueType table "${name}" is ${found.length} bytes and requires at least ${minimum}`,
       );
-    return found.offset;
+    return reader.slice(found.offset, found.length, `"${name}" table`);
   }
 
-  const head: number = table("head", 54);
-  if (reader.u32(head + 12, "head") !== 0x5f0f3cf5)
+  const head: TrueTypeByteReader = table("head", 54);
+  if (head.u32(12, "head") !== 0x5f0f3cf5)
     throw new Error("TrueType head table magic number is not 0x5F0F3CF5");
-  const unitsPerEm: number = reader.u16(head + 18, "head");
+  const unitsPerEm: number = head.u16(18, "head");
   if (unitsPerEm < 16 || unitsPerEm > 16384)
     throw new Error(
       `TrueType units per em ${unitsPerEm} is outside the 16 to 16384 range the format allows`,
     );
-  const longOffsets: boolean = reader.i16(head + 50, "head") === 1;
+  const longOffsets: boolean = head.i16(50, "head") === 1;
 
-  const hhea: number = table("hhea", 36);
-  const ascender: number = reader.i16(hhea + 4, "hhea");
-  const descender: number = reader.i16(hhea + 6, "hhea");
-  const lineGap: number = reader.i16(hhea + 8, "hhea");
-  const metrics: number = reader.u16(hhea + 34, "hhea");
-  const glyphCount: number = reader.u16(table("maxp", 6) + 4, "maxp");
+  const hhea: TrueTypeByteReader = table("hhea", 36);
+  const ascender: number = hhea.i16(4, "hhea");
+  const descender: number = hhea.i16(6, "hhea");
+  const lineGap: number = hhea.i16(8, "hhea");
+  const metrics: number = hhea.u16(34, "hhea");
+  const glyphCount: number = table("maxp", 6).u16(4, "maxp");
   if (metrics === 0 || metrics > glyphCount)
     throw new Error(
       `TrueType hhea declares ${metrics} horizontal metrics for ${glyphCount} glyphs`,
     );
 
   // Glyphs past the last full metric repeat its advance.
-  const hmtx: number = table("hmtx", 0);
-  reader.require(hmtx, metrics * 4 + (glyphCount - metrics) * 2, "hmtx table");
+  const hmtx: TrueTypeByteReader = table(
+    "hmtx",
+    metrics * 4 + (glyphCount - metrics) * 2,
+  );
   function advance(glyph: number): number {
-    return reader.u16(hmtx + Math.min(glyph, metrics - 1) * 4, "hmtx");
+    return hmtx.u16(Math.min(glyph, metrics - 1) * 4, "hmtx");
   }
 
   // loca: one offset per glyph and one past the last, increasing within glyf.
   const glyf: { offset: number; length: number } = tables.get("glyf")!;
-  const locaAt: number = table(
+  const locaTable: TrueTypeByteReader = table(
     "loca",
     (glyphCount + 1) * (longOffsets ? 4 : 2),
   );
   const loca: number[] = [];
   for (let glyph: number = 0; glyph <= glyphCount; ++glyph) {
     const value: number = longOffsets
-      ? reader.u32(locaAt + glyph * 4, "loca")
-      : reader.u16(locaAt + glyph * 2, "loca") * 2;
+      ? locaTable.u32(glyph * 4, "loca")
+      : locaTable.u16(glyph * 2, "loca") * 2;
     if (value > glyf.length)
       throw new Error(
         `TrueType loca offset ${value} for glyph ${glyph} lies past the end of the ${glyf.length}-byte glyf table`,
@@ -138,7 +140,6 @@ export function decodeTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   }
 
   const characters: Map<number, number> = readTrueTypeCharacterMap(
-    reader,
     table("cmap", 4),
     glyphCount,
   );
@@ -175,7 +176,7 @@ export function decodeTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   // Kerning by glyph pair, expanded to every code point pair that maps to it.
   const kerning: IAutoMovieFontKerning[] = [];
   if (tables.has("kern"))
-    for (const [key, value] of readTrueTypeKerning(reader, table("kern", 4))) {
+    for (const [key, value] of readTrueTypeKerning(table("kern", 4))) {
       if (value === 0) continue;
       for (const left of codePoints.get(Math.floor(key / 65536)) ?? [])
         for (const right of codePoints.get(key % 65536) ?? [])
@@ -193,11 +194,9 @@ export function decodeTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
     lineGap,
     glyphs,
     kerning,
-    fsType: tables.has("OS/2")
-      ? reader.u16(table("OS/2", 10) + 8, "OS/2")
-      : null,
+    fsType: tables.has("OS/2") ? table("OS/2", 10).u16(8, "OS/2") : null,
     names: tables.has("name")
-      ? readTrueTypeNames(reader, table("name", 6))
+      ? readTrueTypeNames(table("name", 6))
       : { family: null, licenseDescription: null, licenseUrl: null },
   };
 }

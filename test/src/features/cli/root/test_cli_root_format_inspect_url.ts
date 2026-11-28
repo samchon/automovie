@@ -10,6 +10,10 @@ import { AutoMovieCliInspect } from "automovie";
  *
  * 1. No pair: the base.
  * 2. [["parts", "hero/torso"], ["at", "1 2"]]: "parts=hero%2Ftorso&at=1+2".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines passing through a bare inspection URL and ordered query encoding for provided pairs.
+ * @evidence contracts/development/testing.md#behavioral-verification Formats the same base without any values and with a path and a spaced time value.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit expected query encodes slash as %2F and space as +, keeping the input pair order.
  */
 export function test_cli_root_format_inspect_url(): void {
   TestValidator.equals(

@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    identifies its hex field, independent of the image and both scalar
  *    faults.
  * 2. Zero intensity and positive exposure admit even a flat, unlit scene.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers independent background, swatch, exposure and intensity decisions and the valid zero-intensity boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateSceneEnvironment on literal lighting records carrying either a valid flat scene or conflicting fields together.
+ * @evidence contracts/development/testing.md#independent-expectations An image and a flat background are mutually exclusive. White linear channels encode white independently of the conflicting swatch, and zero intensity remains valid with strictly positive exposure.
  */
 export function test_engine_validation_scene_environment(): void {
   const base: IAutoMovieSceneEnvironment = {

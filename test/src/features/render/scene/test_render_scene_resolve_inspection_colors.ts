@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    whose pattern matches the kind replaces it, the last match winning.
  * 2. A kind given two different legend entries is refused.
  * 3. A kind whose colour is a reserved one is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe recorded legend facts, ordered override rules, conflicting entries and reserved colors.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that a kind retains its legend entry with the last matching color override, and refuses conflicting or reserved entries.
+ * @evidence contracts/development/testing.md#independent-expectations Uses fixed marks and a specified set of color patterns to write the final legend entries independently.
  */
 export function test_render_scene_resolve_inspection_colors(): void {
   const mark = (kind: string, label: string, color: number): IAutoMovieMark => ({

@@ -45,9 +45,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds field vectors through the production layout, conversion and feature placement and reads the production chain's admission and radius.
  * @evidence contracts/development/testing.md#independent-expectations The groove's depth and the tangents' meetings are the made geometry's closed forms stated above; the plain section's radii are the plain layout's own chain, a second production path the lined layout must agree with.
- * @evidence contracts/development/testing.md#distinguishing-cases The plain section, the full groove, and 121 stations of the fade, the stretch where a groove's anchors pass from a concavity onto a smooth arc; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous section arithmetic on made field vectors; no family, loft, fit or person.
- * @evidence contracts/development/common.md#meaningful-documentation States the made sections, the wall and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation The plain and grooved sections provide two shape controls. Full and narrowed fade ranges test where the tangent constraint refuses or admits, with explicit width and shoulder bounds.
  */
 export function test_human_conic_lined_fade(): void {
   const failures: string[] = [];

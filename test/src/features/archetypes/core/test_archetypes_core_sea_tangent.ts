@@ -8,7 +8,13 @@ import { vclose } from "../../internal/vclose";
 /** Covers projection, tilt composition and conversion back to world axes. */
 const TANGENT_ROUNDING: number = 128 * Number.EPSILON;
 
-/** A heaved deck's up axis is the plane normal at its world position. */
+/**
+ * A heaved deck's up axis is the plane normal at its world position.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States authored surface elevation and slope, deck heave and the world-up axis after tilting.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes an analytic sea plane to the actual floated transform and reads its translation and rotated local up direction under a yaw.
+ * @evidence contracts/development/testing.md#independent-expectations The plane value at X 2, Z 4, time 3 is 3. Its upward normal is the normalized gradient complement `(-2,4,1)`, independent of deck yaw.
+ */
 export function test_archetypes_core_sea_tangent(): void {
   const sea: AutoMovieArchetypeSea.ISea = {
     heading: 0,

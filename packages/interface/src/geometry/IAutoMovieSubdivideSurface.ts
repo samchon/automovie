@@ -30,11 +30,11 @@ export namespace IAutoMovieSubdivideSurface {
    * layout keeps its chart outlines exactly. The surface is deterministic: the
    * same cage and level give the same numbers in the same order on every host.
    *
-   * Refused before refinement: every defect `admitSubdivisionCage` lists, and a
-   * level that is not an integer from 1 to 6. The cap exists because each level
-   * multiplies the quad count by four, so the output is at most 1,024 quads per
-   * cage corner. A vertex whose limit normal vanishes, such as an interior
-   * vertex of valence two or a collapsed cage, is refused after refinement.
+   * Supply a whole refinement count from 1 to 6 and an admissible control cage.
+   * After the first subdivision of each polygon, each step turns one quad into
+   * four, for at most 1,024 quads per original cage corner. Invalid counts
+   * throw before refinement. Evaluation refuses a vanishing limit normal or
+   * nonfinite represented surface.
    */
   export type IProps = {
     /** The control cage, only read. */

@@ -35,10 +35,9 @@ export namespace AutoMovieEngineFluid {
    * checked against that design depth, but later inflow can exceed it without
    * another Courant check.
    *
-   * Direct binary64 products and reciprocals can underflow or overflow, yielding
-   * zero, `Infinity` or `NaN` even for positive finite inputs. The validator
-   * rejects a result above one, including `Infinity`, but its comparison misses
-   * `NaN`; this number alone is not a certificate of a stable solve.
+   * Pass positive finite timestep, gravity, design depth and cell dimensions.
+   * Extreme inputs are scaled before combining their magnitudes. The final
+   * number rounds to zero or `Infinity` at the limits of binary64.
    */
   export function fluidCourantNumber(domain: IAutoMovieFluidDomain): number {
     return fluidCourantNumberImplementation(domain);
@@ -50,8 +49,8 @@ export namespace AutoMovieEngineFluid {
    *
    * No step is integrated. `measureRenderSimulation` consumes the cell count and
    * spray cap; `validateFluidDomain` separately enforces authored population
-   * budgets. The record is not validated here, so invalid or extreme fields can
-   * produce non-finite estimates.
+   * budgets. The `courant` field uses the same calculation as the validator.
+   * Estimates from an unvalidated record can be nonfinite.
    *
    * `stateBytes` counts eight bytes per depth or face velocity, excluding
    * JavaScript array/object overhead, solver scratch arrays, surface buffers and
@@ -254,10 +253,9 @@ export namespace AutoMovieEngineFluid {
    *   dt · √(g · referenceDepth) · √(1/dx² + 1/dz²) ≤ 1
    * ```
    *
-   * `fluidCourantNumber` evaluates this expression directly. The validator's
-   * greater-than comparison misses derived NaN, and sources can raise depths
-   * beyond referenceDepth without another check, so passing admission does not
-   * prove stability throughout replay.
+   * `fluidCourantNumber` scales extreme operands before evaluating the bound.
+   * Admission checks the authored design depth. Sources can raise the simulated
+   * depth beyond that value during replay.
    *
    * ## Determinism
    *
@@ -301,8 +299,8 @@ export namespace AutoMovieEngineFluid {
    * inputs are not modified.
    *
    * The Courant comparison runs only when its five authored inputs are finite and
-   * positive. A computed value above one, including Infinity, is refused; derived
-   * NaN is missed by that comparison. Admission also does not bound finite area,
+   * positive. A computed value above one, including Infinity, is refused at
+   * `solver.fixedStepSeconds`. Admission also does not bound finite area,
    * damping, clock, flow accumulation or spray-index products, and later water
    * depth may exceed referenceDepth. It does not certify every derived
    * solver/surface/spray result or perform general unknown-object shape

@@ -13,6 +13,10 @@ import * as THREE from "three";
  * 2. Under the clay shade the material is a lit one.
  * 3. Restoring brings the first material back and disposes the one made.
  * 4. A colour under another shade is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shade-dependent material choice, override precedence, borrowed material restoration and refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the native inspection material owner on two named meshes, reads the replacement's exposed fields and attaches a disposal listener before restoring it. Also requests clay and an unsupported shade.
+ * @evidence contracts/development/testing.md#independent-expectations The final matching color wins on the named mesh while the lamp's material stays identical. Beauty uses unlit double-sided material, clay uses a lit material and the original material returns after one disposal.
  */
 export function test_render_scene_color_inspection_objects(): void {
   const original: THREE.Material = new THREE.MeshStandardMaterial();

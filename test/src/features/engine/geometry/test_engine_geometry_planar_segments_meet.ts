@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Parallel, and collinear but disjoint, segments do not meet.
  * 4. A zero-length segment at (0.5, 0) meets the segment through it; one at (5,
  *    0), on that segment's line beyond its end, does not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names proper crossing, closed endpoint and collinear contact, disjoint edges and point segments.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the public segment predicate on explicit crossing and non-crossing coordinates, including a stem one micrometre short.
+ * @evidence contracts/development/testing.md#independent-expectations The diagonals intersect and endpoint-inclusive intervals meet on the written touches. The short stem's gap exceeds the declared tolerance. A point outside the closed interval cannot meet.
  */
 export function test_engine_geometry_planar_segments_meet(): void {
   const p = (x: number, y: number): IAutoMoviePlanarPoint => ({ x, y });

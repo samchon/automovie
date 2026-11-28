@@ -9,11 +9,9 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Parts whose material no record states declare none: the longbow's string, a musket ball's lead, a grenade's fuze.
  * 3. Each body carries its resting pair against concrete, as the sources give them: wood 0.61 to 0.88 static (0.745) with no kinetic for the longbow, the arrow and the bolt; steel 0.52 static and 0.46 kinetic for the cutlery, the round shot and the grenade; stone 0.57 and 0.53 for the cobble and the boulder; the musket ball, whose lead has no measured pair, no friction, static or kinetic.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds each model and reads its parts' declared surfaces and its body's friction; a material the record does not state, a part left bare that should not be, a body resting on another material, or a body given a coefficient no source measured is caught.
- * @evidence contracts/development/testing.md#independent-expectations The materials are the cited pages' (IKEA's stainless cutlery, Rösle's ladle, Aston and Spencer's elm bows and poplar arrows, the Met's steel-and-oak bolts, Roberts' cast-iron shot, the M67's steel sphere, Britannica's granite), and the coefficients the friction table's sources' (Araki et al. 2009, Ikenaga et al. 2008 with Gomez et al. 2011, Badika et al. 2022), written here as literals.
- * @evidence contracts/development/testing.md#distinguishing-cases Four producers, steel, wood and stone, declared and bare parts, three measured resting pairs and an unmeasured one.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the material-bearing and unspecified parts and the complete wood, steel and stone resting pairs against concrete.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and reads the actual producer outputs. Checks complete surface labels for selected parts and static and kinetic friction recorded by each body, including intentionally unspecified material and friction fields.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal material labels from the documented objects and separately states the measured steel and stone coefficient pairs and wood's static midpoint. The record for lead contains neither coefficient.
  */
 export function test_archetype_props_surfaces(): void {
   const findings: string[] = [];

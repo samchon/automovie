@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeHorse, AutoMovieArchetypeRefusal, AutoMovieArchetypeSite } from "@automovie/archetypes";
 import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -17,6 +17,11 @@ import { vclose } from "../../internal/vclose";
  * 1. Equine tread ends are 50 mm apart.
  * 2. A duplicate position on another part cannot carry the tread.
  * 3. A depthless stirrup stays on its centreline.
+ * 4. Serialized strings refuse as normalized site coordinates and opacity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the named material owner, measured extent, depthless contact and raw ratio refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries horse and fixture equipment, compares articulated and independently posed sites, and supplies raw ratios through the builder and site entry points.
+ * @evidence contracts/development/testing.md#independent-expectations A 50 mm tread extends 25 mm from centre in each direction. Its part transform carries those endpoints. A coincident decoy and a depthless contact distinguish extent and identity. A serialized string remains distinct from a finite numeric ratio.
  */
 export function test_archetypes_core_finite_material_site(): void {
   const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> = AutoMovieArchetypeHorse.create({ tack: "saddle" });
@@ -72,6 +77,15 @@ export function test_archetypes_core_finite_material_site(): void {
   };
   builder.affordance(tread);
   builder.affordance({ ...tread, id: "loop", depth: undefined });
+  const ratio: number = JSON.parse('"0.4"');
+  const failures: string[] = [];
+  try {
+    builder.box("bad-opacity", dimensions, at, { opacity: ratio });
+    failures.push("builder opacity accepted a serialized string");
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes("opacity"))
+      failures.push("builder opacity lost its input-specific refusal");
+  }
   const model = builder.build(1);
   const narrow = model.prepareArticulateSite()!;
   for (const pivot of [90, 10, 0, 60, 10]) {
@@ -124,4 +138,18 @@ export function test_archetypes_core_finite_material_site(): void {
       1e-12,
     ),
   );
+  const badCoordinates: readonly [string, number, number][] = [
+    ["u", ratio, 0.5],
+    ["v", 0.5, ratio],
+  ];
+  for (const [axis, u, v] of badCoordinates) {
+    try {
+      AutoMovieArchetypeSite.at("stirrup fixture", tread, u, v);
+      failures.push(`site ${axis} accepted a serialized string`);
+    } catch (error) {
+      if (!(error instanceof AutoMovieArchetypeRefusal) || error.axis !== `tread.${axis}`)
+        failures.push(`site ${axis} lost its input-specific refusal`);
+    }
+  }
+  TestValidator.equals("normalized numeric input refusals", failures, []);
 }

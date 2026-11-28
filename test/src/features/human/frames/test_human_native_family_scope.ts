@@ -25,9 +25,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls NativeFamily.create and actual ConicLoft.part/mirror consumers, detecting double material transport, radial station-warp scaling, discarded cap requests and angle winding loss.
  * @evidence contracts/development/testing.md#independent-expectations Literal height/window/shift arithmetic separates radial and longitudinal units; caller cap behavior is compared with the independently generated requested native source; uniform positive scaling preserves tangent direction.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes both reflected sides, unchanged/changed/bare scope, four cap controls and a branch-cut middle knot beside normal endpoints, collecting all findings.
- * @evidence contracts/development/testing.md#execution-ownership Small made control tables and native scalar factories only; no person, mesh reference, emitted loft, renderer, process or global cache.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three stage/scope scenarios and distinguishes height from station-shift units.
+ * @evidence contracts/development/common.md#meaningful-documentation The three scopes distinguish radial heights from station shifts, propagate requested caps and preserve intermediate tangent direction across the angular cut.
  */
 export function test_human_native_family_scope(): void {
   const failures: string[] = [];

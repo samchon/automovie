@@ -14,6 +14,10 @@ const POSITION_TOLERANCE: number = 1e-9;
  *    is half diagonal sqrt(3) over sin 30 degrees times 1.25.
  * 2. The front view stands on +Z and the top view on +Y at that distance, both
  *    aimed at the centre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenario defines the subject bounds, square lens, framing factor, and axes used to judge front and top views.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the front and top views target the bounding box center and keep the subject at the expected distance along their respective axes.
+ * @evidence contracts/development/testing.md#independent-expectations Uses center `(2, 3, 4)` and derives the clearance of a 2 m cube independently from its half-diagonal, the 30 degree half-angle, and the 1.25 factor.
  */
 export function test_render_scene_frame_viewer_subject(): void {
   const bounds: IAutoMovieRenderViewerSubjectBounds = {

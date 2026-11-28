@@ -45,9 +45,7 @@ const NOISE: IAutoMovieTerrainRecipe.Relief = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds terrains through the public environment producer and reads the baked rule, the pad height, path refusals, the sample-budget refusal and the tessellated ground, which catches a relief outside its amplitude, a seed that does not reach the noise, a periodic base, grades that no longer pin pads and paths, and a mesh that leaves the height source.
  * @evidence contracts/development/testing.md#independent-expectations The amplitude bound, the pad's authored height, the required slope 1 / (20 - 2 landings), the 0.25 m finest wavelength and the 0.01 m tolerance follow from the recipe and the documented grading rules; the rolling relief's exact 40 m period gives the contrasting near-zero difference.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs the passing and refused slope limits, the noise and rolling relief at the same wavelength, two seeds, and an admitted and a refused lattice; `test_location_terrain` keeps the rolling relief's own cases.
- * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory recipes; it starts no renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks seeded relief amplitude, periodic rolling contrast, pad elevation and mesh error. Exercises passing and refused slope limits and lattices on opposite sides of the sample budget.
  */
 export function test_location_terrain_noise(): void {
   const build: (

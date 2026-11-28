@@ -6,48 +6,71 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** Data and callback contracts shared by the LoftViewSource operations. */
 export namespace IAutoMovieLoftViewSource {
-  /** Borrowed original scalar/domain data, without a completed part or frame. */
+  /**
+   * Authored station domain, front and side outlines, fullness and pole flags
+   * borrowed from a view part. Provide direct shoulder or top fullness for
+   * native scalar preparation. The girth owner uses a separate construction
+   * route.
+   */
   export type IInput = Pick<
     IAutoMovieViewPart,
     "stations" | "front" | "side" | "fullness" | "pole"
   >;
 
-  /** Value-copyable original scalar definition of a direct view field. */
+  /**
+   * Prepared original scalar field for a direct view loft. Keep the signed
+   * extent outlines, fullness records, station bounds and cap laws unchanged
+   * during repeated reads. This source's authored domain can extend beyond the
+   * principal layers of a receiving chain.
+   */
   export interface ISource {
     /**
-     * Explicit source discriminator; a malformed present source is not legacy
-     * absence.
+     * Discriminator for original prepared view data. A reader rejects an
+     * invalid present discriminator.
      */
     kind: "view";
 
     /**
-     * Original signed outlines in +u,+v,-u,-v order, with opposite signs
-     * retained.
+     * Four prepared signed extent outlines in +u, +v, −u, −v order. The reader
+     * converts the last two signed values to extents.
      */
     extents: AutoMovieLoftViewSourceOutlines;
 
-    /** Direct shoulder plus departures, or four independent top shoulders. */
+    /**
+     * Prepared direct shoulder law with optional quarter departures, or four
+     * top-view shoulders with optional contact geometry.
+     */
     fullness: IAutoMovieLoftViewSourceFullness;
 
     /**
-     * Original declared station interval in mm; final chain ownership may be
-     * narrower.
+     * Original declared lower and upper station in millimetres. Chain
+     * operations may expose a shorter interval.
      */
     domain: readonly [number, number];
 
     /**
-     * Existing quintic cap-shoulder spans; null span means a constant weight of
-     * one.
+     * Prepared cap shoulder support at each active original tip. A record with
+     * null span selects the constant ellipse weight.
      */
     caps: readonly IAutoMovieLoftViewSourceCap[];
   }
 
-  /** Scalar admission with all independent source failures preserved. */
+  /**
+   * Outcome of preparing the direct scalar field. Source holds the complete
+   * prepared field or null on refusal. Diagnostics preserve the independently
+   * collected input problems.
+   */
   export interface IResult {
-    /** Null when any scalar admission premise failed. */
+    /**
+     * Complete prepared scalar field, or null if the requested direct source
+     * could not be admitted.
+     */
     source: IAutoMovieLoftViewSource.ISource | null;
 
-    /** Every original curve failure, with its existing contract and source name. */
+    /**
+     * Collected scalar admission failures, each using the source name, contract
+     * and detail of its outline diagnostic.
+     */
     diagnostics: IAutoMovieViewOutline.IFailure[];
   }
 }

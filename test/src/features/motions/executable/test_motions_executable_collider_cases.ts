@@ -38,6 +38,10 @@ const CUBE: THREE.Triangle[] = (
  * 1. The unit cube's centre is inside; a point 1 m off its side is not.
  * 2. A point 2 m along +X lies 1 m from the far corner of the right triangle with
  *    1 m legs along +X and +Y at the origin.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines mesh containment and point-to-nearest-triangle distance for capture fixtures.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries a unit cube at its center and beyond one face, and queries the explicit right triangle with an external point.
+ * @evidence contracts/development/testing.md#independent-expectations Cube bounds independently distinguish inside and outside. The closest point on the unit triangle for (2, 0, 0) is its (1, 0, 0) corner, giving distance 1.
  */
 export function test_motions_executable_collider_cases(): void {
   TestValidator.equals(

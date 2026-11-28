@@ -21,9 +21,7 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the lettering through the public engine function and measures its divergence-theorem volume and z range; it catches an open or inward mesh, a wrong depth, a letter not lifted onto the face and nondeterministic buffers.
  * @evidence contracts/development/testing.md#independent-expectations The L's area is 100 000 font units² from its written corners, so the prism volume is that area times the depth, per #4098's acceptance.
- * @evidence contracts/development/testing.md#distinguishing-cases A positive depth beside a zero depth, and a straight-edged glyph whose area is exact. Flat geometry is owned by test_engine_glyph_geometry.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test over a font written and decoded in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the expected result.
+ * @evidence contracts/development/common.md#meaningful-documentation The extruded glyph's area and depth determine its checked volume and Z bounds. Zero depth refuses, and repeated extrusion keeps the same buffers.
  */
 export function test_engine_raised_lettering(): void {
   const font: IAutoMovieFont = AutoMovieIngestFont.decode(

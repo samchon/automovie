@@ -16,6 +16,10 @@ import { vclose } from "../../internal/vclose";
  * 1. A level bore along +Z rising 10 degrees points `(0, sin 10, cos 10)` at the
  *    peak and no further after it, about -X.
  * 2. A bore held straight up rises about the hand's `axis × edge`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a stage prop's displayed orientation at the top of its animated motion, including the vertical-axis fallback.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples virtual prop pose for a level local axis at and after its peak, then resolves the vertical-axis fixture.
+ * @evidence contracts/development/testing.md#independent-expectations Applying the specified 10° rotation produces the known unit-vector direction. The vertical-axis case selects the prop's local cross-product axis.
  */
 export function test_motions_lexicon_weapon_present_fire(): void {
   const level: humanWeaponFireRecoil.IRecoil = humanWeaponFireRecoil(

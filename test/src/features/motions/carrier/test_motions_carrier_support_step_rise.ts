@@ -7,12 +7,17 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The nominally level step admits its signed bearing interval.
+ * Check the signed bearing limit for a step between supports.
  *
  * Scenarios:
  *
- * 1. Both 0.1 m limits bear. Just beyond either one gives the intended climb
- *    direction and the same closed bearing interval.
+ * 1. Admit both -0.1 and +0.1 m.
+ * 2. At +0.101 m report the closed interval on `to` and recommend climbing up
+ *    onto the named deck. At -0.101 m recommend climbing down.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the signed bearing interval and the expected climb guidance.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture checks inclusive endpoints, upward and downward correction and the destination name.
+ * @evidence contracts/development/testing.md#independent-expectations The sample heights straddle the specified signed tenth-metre limit by exactly 1 mm on either side.
  */
 export function test_motions_carrier_support_step_rise(): void {
   HumanSupportStep.admitRise(-0.1, undefined);

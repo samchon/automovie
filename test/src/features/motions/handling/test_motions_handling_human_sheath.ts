@@ -40,6 +40,10 @@ const ROUNDING: number = 1e-12;
  * 3. Drawing grips the handle with no lift and then draws from the seat out of the
  *    entry on the slider; sheathing puts the blade down through the entry onto
  *    the seat along the same guide.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines an animated holder guide, mounted prop and opposite draw and return paths and their admissions.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a virtual sheath with fixed mouth and tip locations, samples its slider, builds both chain actions and submits four invalid parameters.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.8 m prop plus 0.1 m clearance gives 0.9 m travel. Socket movement follows the slider and clamps at entry, while independent invalid inputs identify their own axes.
  */
 export function test_motions_handling_human_sheath(): void {
   const site: (

@@ -18,6 +18,10 @@ import { createFilmResponseRendererDouble } from "../../internal/createFilmRespo
  *    frame's alpha mode.
  * 4. Every draw renders the scene into the linear target and the response into the
  *    canvas, the same two renders whatever the mode.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names transparent and coverage alpha, reset on opaque output and fixed draw count.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs four frame modes through the native response stage and records the actual pass uniforms and renderer target calls.
+ * @evidence contracts/development/testing.md#independent-expectations Opaque starts and ends with the alpha path off. Transparent and coverage each turn it on for their own frame. Every mode has one linear scene draw and one canvas response, so an extra draw or stale flag fails.
  */
 export function test_render_scene_film_response_stage_film_optics_alpha(): void {
   const scene: THREE.Scene = new THREE.Scene();

@@ -55,10 +55,8 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *    the ambiguity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage and reads the comparison in each record and the files written; a comparison over only the matching cells, one that measured across backends, or one that paired cells seen through different cameras fails.
- * @evidence contracts/development/testing.md#independent-expectations Every still is a flat colour this test chooses, so which pixels change, where, and whether hashes agree is known by hand; the pairing and unmatched rules are those of `.agents/skills/visual-debugging/comparison.md`.
- * @evidence contracts/development/testing.md#distinguishing-cases An unchanged pair, a one-pixel change, a cell only in the earlier round, a cell only in the later round, a backend change, a camera change, an earlier failure, and several same-time cells with either uniquely corresponding or ambiguous views. Folder refusals of a missing round are owned by `test_capture_folder_ownership`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_round_comparison`; it draws in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, each naming the input and the behavior it pins.
+ * @evidence contracts/development/testing.md#independent-expectations The test authors fixed raster colors and changes exactly one pixel. That pixel determines the changed count, bounds and highlighted difference. Literal camera descriptors, backends, times and views determine comparisons, side-by-side results and refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures include identical and changed stills, missing cells, backend and camera compatibility, failed draws, sheet layout and unique or ambiguous time pairing.
  */
 export async function test_capture_round_comparison(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();

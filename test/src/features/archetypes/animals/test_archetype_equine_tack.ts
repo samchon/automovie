@@ -31,11 +31,9 @@ import { nclose } from "../../internal/nclose";
  *    metalwork preserve the same geometry when a handler carries it. A trick
  *    saddle has actual material under its wider declared pommel grips.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the six scenarios and their sources.
- * @evidence contracts/development/testing.md#behavioral-verification Builds actual horses under every new tack and reads their parts, masses and contacts; a tack that moves the body, invents a weight, mirrors the side saddle or breaks a published limit fails.
- * @evidence contracts/development/testing.md#independent-expectations The limits are the vaulting rules' and the side saddle's weight the press figure; the body comparison is against the untacked horse of the same seed, not against stored output.
- * @evidence contracts/development/testing.md#distinguishing-cases Near against off side, one stirrup against two, a seat astride against one sat sideways, and the horse against a pony.
- * @evidence contracts/development/testing.md#execution-ownership In-memory archetype construction only; the motion specs own the riders on these tacks.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes four tack layouts, preserved body geometry, distinct seats, clear stirrups and pony compatibility.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each actual tack layout and reads bone parts, mass and physical contacts. It compares the untacked horse at the same seed, checks the near-side stirrup clearance and checks the two-handle rig and pony route.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the cited 10 kg side saddle weight, 240 mm vaulting grip spacing and pad limits. An untacked model at the same seed provides the independent invariance reference for the horse's bone parts.
  */
 export function test_archetype_equine_tack(): void {
   const findings: string[] = [];

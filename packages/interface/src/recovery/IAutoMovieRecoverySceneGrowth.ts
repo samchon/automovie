@@ -1,16 +1,22 @@
 import type { IAutoMovieRecoveryMapLandmark } from "..";
 
-/** Detached point/measurement growth proposal before joint acceptance. */
+/**
+ * Detached increase proposal for the scene's point and observation population.
+ * A zero increase in both counts closes the current population.
+ */
 export interface IAutoMovieRecoverySceneGrowth {
-  /** Complete detached proposed landmark population. */
+  /**
+   * Complete detached landmark population proposed for the next joint
+   * evaluation.
+   */
   landmarks: IAutoMovieRecoveryMapLandmark[];
 
-  /** Strict count increase in proposed points. */
+  /** Number of newly admitted point tracks, possibly zero. */
   addedLandmarks: number;
 
   /**
-   * Strict count increase in retained measurements, including new-point
-   * observations.
+   * Number of new retained measurements, including those attached to new
+   * points, possibly zero.
    */
   addedObservations: number;
 }

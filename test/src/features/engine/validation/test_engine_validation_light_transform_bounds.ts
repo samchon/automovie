@@ -204,6 +204,10 @@ const IDENTITY: number[] = [0, 0, 0, 1];
  *    unit faults without counting every finding.
  * 6. Tiny nonzero dyadic scalar tangents still cross zero between valid zero keys;
  *    reversing their signs is an adjacent admitted curve.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers light-kind placement, unit rotation keys, shape refusal and different cubic scalar and rotation contracts.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateShotArtifact on authored spot, point and directional track variants with explicit key values and tangents.
+ * @evidence contracts/development/testing.md#independent-expectations A component can lie inside [-1, 1] without its quaternion being unit. The sampler normalizes cubic rotation interiors, while known Hermite scalar tangents drive intensity below zero. Shape faults precede unit checks for an incomplete key.
  */
 export function test_engine_validation_light_transform_bounds(): void {
   // 1. the kind split.

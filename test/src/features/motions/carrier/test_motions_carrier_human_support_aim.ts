@@ -27,25 +27,21 @@ const ROUNDING: number = 1e-9;
 const CHEST: number = 0.6;
 
 /**
- * `HumanSupportAim` keeps an aim on a world target from a moving support: the
- * `correction` is the wanted line from the carried pivot to the target against
- * the carried line, its turn about the vertical and its rise; `posture` turns
- * the free arm goals by it about the vertical through the root, the trunk
- * twisting by as much of the turn as its axial range holds, shared 0.6 to the
- * chest; `check` refuses an act whose arms would present the line past the
- * aim's bound.
+ * Check world-fixed aim from a translating or rotating support.
  *
- * Scenarios, an eye at (0, 1.6, 0) aiming at (0, 1.6, 10):
+ * Scenarios:
  *
- * 1. A support that has slid 1 m along +X asks a turn of atan(-1 / 10), -5.711
- *    degrees, and no rise; one that has turned 90 degrees about +Y in place
- *    asks -90.
- * 2. Re-aiming an upright posture by the slide twists the chest by 0.6 and the
- *    spine by 0.4 of the turn and turns a free hand goal about the root's
- *    vertical by it, leaving a goal held on a bone.
- * 3. Over a second's 150-degree turn the arms present the line past a 30-degree
- *    bound, more than the trunk's axial range takes, and are refused on
- *    `target`; a support that stays put is admitted.
+ * 1. For a target 10 m ahead, move the support 1 m right and correct by
+ *    atan(-1 / 10) with level pitch. A quarter turn in place needs a
+ *    -90-degree correction.
+ * 2. Split the sliding correction 60/40 between the chest and spine, turn the
+ *    free hand about the root and preserve the bone-held goal.
+ * 3. Admit a still support. Refuse the target when a 150-degree support turn
+ *    exceeds the aim's bound.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify target geometry, posture effects and its refused bound.
+ * @evidence contracts/development/testing.md#behavioral-verification Readbacks cover geometry, applied posture and admission under distinct support motion.
+ * @evidence contracts/development/testing.md#independent-expectations The expected yaw follows the eye-to-target triangle, and the fixture calculates root-pivot rotation and the authored trunk proportions directly.
  */
 export function test_motions_carrier_human_support_aim(): void {
   const aim: IAutoMovieMotionHumanSupportAim.IAim = {

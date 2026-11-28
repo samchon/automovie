@@ -23,6 +23,10 @@ import { createBicubicPlaneRecipe } from "../../internal/createBicubicPlaneRecip
  * 3. A five-vertex budget stays partial with parameters for its kept triangles;
  *    no patches give an empty buffer; a collapsed patch omits its zero-area
  *    triangles and publishes no pairs.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names local versus shared index coordinates, optional retention, partial work and empty or collapsed patches.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes adjacent affine patches with retention enabled and disabled, then compares buffers, per-corner coordinates, sharing and the incomplete cases.
+ * @evidence contracts/development/testing.md#independent-expectations Each patch's affine map makes local u equal world x minus its offset. The shared edge therefore has u = 1 and u = 0 on opposite charts. An omitted triangle contributes zero corner pairs.
  */
 export function test_engine_geometry_bicubic_atlas_parameters(): void {
   const recipe: Atlas = createBicubicPlaneRecipe();

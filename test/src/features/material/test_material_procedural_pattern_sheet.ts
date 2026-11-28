@@ -38,12 +38,11 @@ import { throwsError } from "../internal/throwsError";
  *    at their centres, and one board samples the same values on every run.
  * 4. A sample whose form does not match the surface, a point for a piece or a UV
  *    for a surface without one, throws.
+ * 5. A nonfinite object coordinate, UV component or normal offset throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Lays a real pattern with `generateSurfacePattern`, takes each board's transform from `patternTextureTransforms` and samples through `sampleProceduralSurfaceImplementation`; a face sheet that added a per-piece offset, a module sheet that did not, or an id that entered a face sample fails.
- * @evidence contracts/development/testing.md#independent-expectations A face point is mapped to each board's own UV from the board's placement alone, `(point − corner) / size`, without the transform; continuity across joints then follows from the face sheet's definition, and module differences from its per-occurrence offset.
- * @evidence contracts/development/testing.md#distinguishing-cases End joints and long joints, face against module, and a renamed id; admission of zero tiles and missing UV0 is owned by `test_material_procedural_admission`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_procedural_pattern_sheet`, with in-memory inputs only.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Lays a running bond and samples authored joint points through the public material sampler. Face and module samples compare continuity and identity. Direct typed object, UV and offset witnesses exercise malformed sampling.
+ * @evidence contracts/development/testing.md#independent-expectations The authored board corners and sizes give each joint UV by (point minus corner) divided by size. Shared face points keep their value and module identity gives a separate offset. Nonfinite sample positions cannot identify a finite pattern point.
+ * @evidence contracts/development/common.md#meaningful-documentation End and long joints exercise face continuity, and renamed IDs distinguish face from module sampling. Mismatched forms and nonfinite coordinates exercise refusals.
  */
 export function test_material_procedural_pattern_sheet(): void {
   const field: IAutoMovieSurfacePatternResult =
@@ -160,6 +159,21 @@ export function test_material_procedural_pattern_sheet(): void {
       } as IAutoMovieSampleProceduralSurface.IPiece),
     ),
   );
+
+  const invalid: readonly [string, IAutoMovieSampleProceduralSurface.IProps][] = [
+    ["object point", { surface: plain, point: { x: NaN, y: 0, z: 0 } }],
+    ["piece UV", { surface, uv: { u: Infinity, v: 0 }, offset: 0 }],
+    ["normal offset", { surface, uv: { u: 0, v: 0 }, offset: Number.NEGATIVE_INFINITY }],
+  ];
+  for (const [name, input] of invalid)
+    TestValidator.predicate(
+      `a nonfinite ${name} throws`,
+      throwsError(
+        (): IAutoMovieSampleProceduralSurface.IResult =>
+          AutoMovieEngineMaterial.sampleProceduralSurface(input),
+        "sample coordinates must be finite",
+      ),
+    );
 }
 
 /** Transforms of a field's occurrences by id. */

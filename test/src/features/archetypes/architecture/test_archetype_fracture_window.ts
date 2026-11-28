@@ -22,11 +22,9 @@ import { TestValidator } from "@nestia/e2e";
  *    zero, negative and non-finite calibrations are refused.
  * 5. BREAKING remains a converted historical bag-test reference, not a default.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States authored construction and energy premises separately from measured material failure, and lists geometry, fracture, consumer and admission scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls real createWindow, broken, affordance and articulate consumers and validateModel; tests actual rail/pane solids, surviving ownership and post-fracture operation rather than inspecting a configuration alone.
- * @evidence contracts/development/testing.md#independent-expectations Width/height endpoints and the authored 80 mm rails derive clear pane dimensions, rail centres and a gapless nonoverlapping partition. A 90 degree casement maps centre (0,y,0) to (width/2,y,-width/2); vertical and horizontal sliders translate by their declared travel. The 50 J test budget and zero momentum are authored mechanics inputs, not a glass measurement.
- * @evidence contracts/development/testing.md#distinguishing-cases All three kinds, both size endpoints, unknown and explicit calibration, below and exact threshold, intact and broken operation, and five invalid calibration values.
- * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory unit owns its objects and reads engine admission; it starts no renderer, compiler, watcher or host and makes no visual claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the three window kinds, size endpoints, authored calibration, pane partition, fracture thresholds and motion before and after fracture.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds public windows and exercises their physical admission, break and articulation calls. It checks pane and rail geometry, intact supported motion, shattered pane ownership, continued sash motion and invalid or omitted calibration.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 80 mm rails give pane size and centres by partitioning the fixed outer rectangle. A quarter-turn casement moves its centre to (width/2, y, -width/2). Slider movement follows the declared axis and travel. The 50 J budget and zero momentum are explicit fixture inputs.
  */
 export function test_archetype_fracture_window(): void {
   const findings: string[] = [];

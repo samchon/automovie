@@ -3,26 +3,25 @@ import type { IAutoMovieConstructionKnownPort } from "./IAutoMovieConstructionKn
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
- * Actual original field and chart-map owners of a known port.
- *
- * The immutable invocation owns these functions before either side is lofted.
- * Maps read original field-chart coordinates, with their actual parameter
- * units; their input order is (original clock, normalized transverse), while
- * the returned kernel surface uses (transverse, clock) and transposed total2.
- * world fields use kernel millimetres. A null map total2 stays unavailable.
- * Runtime evaluators preserve foreign callback/getter exceptions unchanged.
+ * Actual field and map implementations supplied with a known-port declaration.
+ * Map queries take original clock then normalized transverse position. Returned
+ * components use the neighboring chart's units. Preserve these owners while the
+ * band reads them.
  */
 export interface IAutoMovieConstructionKnownPortSource {
-  /** Closed original-port declaration, immutable during consumption. */
+  /**
+   * Pure declaration naming the band and its two sides. The prepared band
+   * copies it.
+   */
   definition: IAutoMovieConstructionKnownPort;
 
-  /**
-   * Actual original neighboring fields, not completed-loft contact
-   * reconstructions.
-   */
+  /** Original neighboring surfaces keyed by the declaration's field references. */
   fields: ReadonlyMap<string, IAutoMovieSolidSurface>;
 
-  /** Actual maps into those field charts, covering the whole declared rectangle. */
+  /**
+   * Original correspondences keyed by the declaration's map references. Each
+   * side covers the full band rectangle.
+   */
   maps: ReadonlyMap<string, IAutoMovieConstructionKnownPortSource.IMap>;
 }
 
@@ -32,28 +31,28 @@ export interface IAutoMovieConstructionKnownPortSource {
  */
 export namespace IAutoMovieConstructionKnownPortSource {
   /**
-   * Complete total2 of the actual map from band clock u and normalized
-   * transverse v.
-   *
-   * Each tuple component keeps the corresponding target field-chart unit;
-   * derivative orders divide those units by the indicated source variables.
-   * KnownPort reads these arrays without modifying or retaining the jet
-   * record.
+   * Complete derivatives of a chart map with respect to original band clock u
+   * and normalized transverse v. Each component retains the matching target
+   * field-chart unit, divided by the indicated source coordinate for
+   * derivatives.
    */
   export interface IJet {
-    /** Actual field-chart point. */
+    /** Target field-chart point in its actual two coordinate units. */
     p: AutoMovieVector2Tuple;
 
-    /** First derivative per band tangential-clock unit. */
+    /** First derivative of both target coordinates per original band-clock unit. */
     u: AutoMovieVector2Tuple;
 
-    /** First derivative per normalized band transverse unit. */
+    /**
+     * First derivative of both target coordinates per normalized transverse
+     * unit.
+     */
     v: AutoMovieVector2Tuple;
 
-    /** Second derivative per squared original tangential-clock unit. */
+    /** Second derivative in the original band clock, per squared clock unit. */
     uu: AutoMovieVector2Tuple;
 
-    /** Mixed derivative per original-clock unit and normalized transverse unit. */
+    /** Mixed derivative in original clock and normalized transverse coordinates. */
     uv: AutoMovieVector2Tuple;
 
     /** Second derivative per squared normalized transverse unit. */
@@ -61,35 +60,32 @@ export namespace IAutoMovieConstructionKnownPortSource {
   }
 
   /**
-   * One original source-chart correspondence over the full band rectangle.
-   *
-   * KnownPort retains the map by reference. Keep its callbacks, domains and
-   * dependencies immutable for the prepared surface's lifetime. Both methods
-   * receive `(original clock, normalized transverse)` and return the target
-   * field's chart coordinates or their derivatives; callback throws propagate.
+   * Actual coordinate correspondence into a neighboring field over the complete
+   * source rectangle. Both queries take original clock and normalized
+   * transverse coordinate. Keep the domains and callbacks unchanged during
+   * reuse. Point reads can remain available when complete derivatives are
+   * unavailable.
    */
   export interface IMap {
-    /** Actual tangential-clock domain in the same units as definition.domain. */
+    /**
+     * Supported tangential interval in the same clock units as the band
+     * declaration.
+     */
     domain: readonly [number, number];
 
-    /**
-     * Actual normalized transverse domain, containing the entire interval
-     * [0,1].
-     */
+    /** Supported interval of normalized transverse input, containing [0, 1]. */
     transverse: readonly [number, number];
 
     /**
-     * Target field-chart point at clock u and transverse v in [0,1],
-     * independent of derivative availability. The consumer checks finite
-     * components and the target field's declared u domain; it does not modify
-     * the returned tuple.
+     * Read the target chart point at original clock u and normalized transverse
+     * v. The target chart defines both returned component units.
      */
     point(u: number, v: number): AutoMovieVector2Tuple;
 
     /**
-     * Complete derivatives of this map at clock u and transverse v, or null
-     * where unavailable. KnownPort turns null into an admission exception for a
-     * jet query; a point query remains independent. Foreign throws propagate.
+     * Read all chart-map partials at original clock u and normalized transverse
+     * v. Null causes a complete derivative query to fail. Callback exceptions
+     * propagate.
      */
     jet(
       u: number,

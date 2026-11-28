@@ -37,6 +37,10 @@ const AT: IAutoMovieRigidTransform = {
  * 4. A mount on a prop that does not exist, or on an affordance its prop does not
  *    declare, is refused on that field.
  * 5. An offset whose rotation is not a unit quaternion is refused on the offset.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Admitted chains and rejected cycles sit alongside competing placement, unknown targets, and malformed offset cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The mount validator receives typed prop maps for a two-level valid chain and each malformed variant. The test checks the refusal axis and the declared cycle path when applicable.
+ * @evidence contracts/development/testing.md#independent-expectations The rack supplies peg, the cup supplies rim, and the lid can therefore mount through both. Making a and b reference each other returns to a. A missing carrier or absent named point cannot supply a world frame, and a non-unit quaternion cannot represent the offset.
  */
 export function test_motions_perform_initial_prop_mounts(): void {
   const origin = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };

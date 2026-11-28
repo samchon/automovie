@@ -21,6 +21,10 @@ import { nclose } from "../../internal/nclose";
  * 3. Missing motion, unresolved diagonal bounds and exhausted work remain
  *    deferred. A depth allowance larger than the summed radii proves no
  *    violation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers interval crossing, proven clearance, proxy scope, unresolved motion and permission-depth handling.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls measureSweptCapsuleCollision on explicit moving and fixed capsule samples and changes their paths, evidence kind and work budget.
+ * @evidence contracts/development/testing.md#independent-expectations The moving segment crosses the fixed sphere within an analytically bounded time interval. Line-to-centre distance fixes the signed gap at the observed sample. Parallel separation and a depth allowance above both radii give independent no-violation controls.
  */
 export function test_engine_validation_swept_capsule_collision(): void {
   const cord: Sweep.ISpan = {

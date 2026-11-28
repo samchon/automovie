@@ -30,6 +30,10 @@ const FROM: IAutoMovieMotionHumanPosture = {
  *    up and its hips folded 90 degrees, and bears its seat on the horse from
  *    the cue to the end.
  * 2. A drape of no length is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines animated cross-saddle drape, body orientation, seat contact window and nonempty hold admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans an authored right-facing drape from a torso fixture and submits a zero hold.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.24 m torso depth gives 0.12 m root height. The layout cue occurs at 0.6 s in a 2.6 s clip and bearing starts at that cue.
  */
 export function test_motions_lexicon_drape(): void {
   const drape: humanDrapeLying.IDrape = humanDrapeLying(

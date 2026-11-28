@@ -33,6 +33,10 @@ import {
  * 3. A 3 m drift under tolerance 5 passes quietly.
  * 4. Position tolerance -1 and facing tolerance 400 degrees are range findings at
  *    their option paths.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers advisory position, facing, mount and membership drift, along with explicit tolerances and invalid options.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateContinuity on typed adjacent actor records with held or changed position, facing and mount. It tests the warning paths separately from invalid limits.
+ * @evidence contracts/development/testing.md#independent-expectations The authored positions differ by known floor distances and +X differs from +Z. Matching mount requires the same parent and bone. A three-metre shift is within the explicit five-metre limit.
  */
 export function test_engine_validation_validate_continuity(): void {
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };

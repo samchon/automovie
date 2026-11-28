@@ -32,6 +32,10 @@ const PROJECTED_ANGLE: number = 1e-5;
  *    support in both directions, for candidate and external references.
  * 4. Numeric-looking string identities remain valid; a missing shape selector
  *    refuses without mutating borrowed input.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains directional support in arbitrary reference frames and admission of exact shape identities.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits projected support against displaced external spheres and a moving same-body ancestor, queries capsule and box support and tries an absent selector.
+ * @evidence contracts/development/testing.md#independent-expectations Sine inversion gives the expected hinge angles. Capsule endpoints and eight transformed box corners independently give support extrema in each direction.
  */
 export async function test_engine_physics_physical_point_projection(): Promise<void> {
   const profile: P = PhysicalPointFixtures.profile();

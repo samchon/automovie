@@ -7,7 +7,11 @@ import type { IAutoMovieHumanShoulderGirdlePoseSchema } from "./IAutoMovieHumanS
 import type { IAutoMovieHumanShoulderPoseSchema } from "./IAutoMovieHumanShoulderPoseSchema";
 import type { IAutoMovieHumanWristPoseSchema } from "./IAutoMovieHumanWristPoseSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanArmPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * One arm's optional pose controls for typia validation, from the shoulder
+ * girdle through the fingers. All angles use degrees from anatomical neutral.
+ * The parent pose supplies the anatomical side.
+ */
 export type IAutoMovieHumanArmPoseSchema = IAutoMovieHumanArmPose & {
   /** Clavicle and scapula. */
   shoulderGirdle?: IAutoMovieHumanShoulderGirdlePoseSchema;

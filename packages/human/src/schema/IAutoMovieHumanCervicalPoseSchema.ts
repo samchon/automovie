@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanCervicalPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanCervicalPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Lower cervical flexion, side bend and rotation in degrees from neutral.
+ * Positive flexion bends forward. Positive side bend and rotation move toward
+ * the person's left.
+ */
 export type IAutoMovieHumanCervicalPoseSchema = IAutoMovieHumanCervicalPose & {
   /** Forward bend 35, backward bend 30. */
   flexion?: number & tags.Minimum<-30> & tags.Maximum<35>;

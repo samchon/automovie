@@ -17,6 +17,10 @@ const ROUNDING: number = 1e-12;
  *    above it (0.875 at 0.75).
  * 3. Step is 0 until t reaches 1.
  * 4. T outside [0, 1] clamps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the linear and quadratic profiles, step endpoint, and clamping outside normalized progress.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `ease` with each easing name at a point that distinguishes its branch. The step checks just before 1 and exactly 1, and the linear easing receives progress below 0 and above 1.
+ * @evidence contracts/development/testing.md#independent-expectations At progress 1/2, linear, quadratic ease-in, and quadratic ease-out give 1/2, 1/4, and 3/4. For ease-in-out, the two branch formulas give 1/8 at 1/4 and 7/8 at 3/4. Clamped and step endpoints are exact.
  */
 export function test_engine_motion_ease(): void {
   TestValidator.predicate(

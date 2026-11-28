@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. An input equal to the value clears a running count.
  * 4. Windows of zero and one follow the input at once.
  * 5. `set` gives the value with no count, and a new filter is false.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the consecutive-sample window, the count reset, and immediate acceptance for zero or one sample.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances boolean state directly for repeated disagreements, alternating inputs and agreement after one disagreement.
+ * @evidence contracts/development/testing.md#independent-expectations Two consecutive updates switch false to true and reset the count. A matching input clears the pending count and alternating singleton changes never switch it.
  */
 export function test_engine_physics_glitch_filter(): void {
   const step = (

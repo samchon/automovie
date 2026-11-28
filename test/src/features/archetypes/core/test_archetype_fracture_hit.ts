@@ -36,11 +36,9 @@ import { TestValidator } from "@nestia/e2e";
  * 6. Invalid or underflowed piece masses are refused before computing their mass
  *    properties, rather than leaking a generic arithmetic error.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Derives the authored equal-mass fixture and p=Mv expectation, and lists numeric admission, threshold, overflow and ownership scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Builds real breakable and unbreakable archetypes, calls their public broken method and observes refusals, fragment momenta and mutable return isolation; malformed hits cannot silently fracture or create non-finite playback.
- * @evidence contracts/development/testing.md#independent-expectations Equal-volume equal-density boxes share 3 kg equally; two departing kilograms require velocity p/2 and kinetic energy ||p||²/4. The threshold is an explicit input. For p=(2,0,0), the exact energy floor is 1 J, and the immediately lower binary64 number is 1-Number.EPSILON/2.
- * @evidence contracts/development/testing.md#distinguishing-cases Uses zero, below and exact-threshold energy; negative, NaN and both infinities; each momentum axis; no-fracture objects; finite division overflow; exact and adjacent energy budgets; zero/negative/non-finite and underflowed mass; and mutation across fragments and calls.
- * @evidence contracts/development/testing.md#execution-ownership One in-memory generic archetype fixture uses the public builder and fracture API, discovered by its exported test name; no host, compiler, renderer or foreign method is started or replaced.
+ * @evidence contracts/development/common.md#meaningful-documentation Derives the equal-mass fixture and identifies hit admission, energy thresholds, arithmetic overflow and returned fragment ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds breakable and rigid archetypes and calls `broken` with legal and malformed hits. It measures departing momentum, exact energy admission, invalid numeric values and mutable return isolation.
+ * @evidence contracts/development/testing.md#independent-expectations Equal solids divide 3 kg equally. The two departing kilograms have velocity `p/2` and energy `||p||^2/4`. For momentum (2, 0, 0) the exact floor is 1 J and the adjacent lower representable value is `1 - Number.EPSILON / 2`.
  */
 export function test_archetype_fracture_hit(): void {
   const findings: string[] = [];

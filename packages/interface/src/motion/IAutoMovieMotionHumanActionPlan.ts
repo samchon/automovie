@@ -2,22 +2,22 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieHumanoidSurfaces } from "../pose/IAutoMovieHumanoidSurfaces";
 import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMoviePoseResolution } from "../pose/IAutoMoviePoseResolution";
-import type { IAutoMovieMotionEvent } from "./IAutoMovieMotionEvent";
 import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 import type { AutoMovieMotionHumanChannelClaim } from "./AutoMovieMotionHumanChannelClaim";
-import type { IAutoMovieMotionHumanEvaluation } from "./IAutoMovieMotionHumanEvaluation";
-import type { IAutoMovieMotionHumanPlayback } from "./IAutoMovieMotionHumanPlayback";
 import type { IAutoMovieHumanPostureRotation } from "./IAutoMovieHumanPostureRotation";
-import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
-import type { IAutoMovieMotionHumanKickGeometry } from "./IAutoMovieMotionHumanKickGeometry";
-import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHumanStrikingRecord";
-import type { IAutoMovieMotionHumanUseTool } from "./IAutoMovieMotionHumanUseTool";
+import type { IAutoMovieMotionEvent } from "./IAutoMovieMotionEvent";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionHumanEvaluation } from "./IAutoMovieMotionHumanEvaluation";
 import type { IAutoMovieMotionHumanFlight } from "./IAutoMovieMotionHumanFlight";
 import type { IAutoMovieMotionHumanFollow } from "./IAutoMovieMotionHumanFollow";
+import type { IAutoMovieMotionHumanKickGeometry } from "./IAutoMovieMotionHumanKickGeometry";
 import type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHumanPerformerReader";
+import type { IAutoMovieMotionHumanPlayback } from "./IAutoMovieMotionHumanPlayback";
+import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHumanStrikingRecord";
+import type { IAutoMovieMotionHumanUseTool } from "./IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
 import type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
@@ -199,9 +199,17 @@ export interface IAutoMovieMotionHumanActionPlan {
   /**
    * Verify participant body contacts after the placed body display records
    * exist and before preparing grip hand courses, hits or soft props. The
-   * supplied reader takes film seconds and reads this role's displayed bones.
+   * reader takes film seconds and resolves the displayed bones for this role.
+   * The interval is supplied when the performance places the plan and uses that
+   * action's actual entry and end, including any cut.
+   *
+   * @param bones The displayed bone reader on the film clock.
+   * @param interval The inclusive film-second range played by this action.
    */
-  verifyDisplayed?(bones: IAutoMovieMotionHumanPerformerReader["bones"]): void;
+  verifyDisplayed?(
+    bones: IAutoMovieMotionHumanPerformerReader["bones"],
+    interval?: IAutoMovieMotionHumanActionPlan.IDisplayedInterval,
+  ): void;
 
   /**
    * The native playback phases a law attached to this plan
@@ -241,8 +249,8 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Articulations of props this action moves: a door's hinge the hand swings, a
    * trigger it presses, a slider it draws. Each writes the travel of one
    * articulation over a window of the action; the performance poses the prop by
-   * them (`AutoMovieMotionHumanPerformance.state`), and after a drive ends its last travel
-   * holds. A drive writes travel only, never the prop's frame.
+   * them (`AutoMovieMotionHumanPerformance.state`), and after a drive ends its
+   * last travel holds. A drive writes travel only, never the prop's frame.
    */
   drives?: readonly IAutoMovieMotionPropDrive[];
 
@@ -324,6 +332,15 @@ export interface IAutoMovieMotionHumanActionPlan {
 
 /** Prepared terms shared by an action plan and its readers. */
 export namespace IAutoMovieMotionHumanActionPlan {
+  /** The closed range of the placed action, in film seconds. */
+  export interface IDisplayedInterval {
+    /** The instant the action becomes active. */
+    readonly entryTime: number;
+
+    /** The action's realized end, including a cut when present. */
+    readonly end: number;
+  }
+
   /** The closed physical phase on the plan's own clock, in seconds. */
   export interface IPhysicalWindow {
     /** Seconds from the action start to the beginning of the physical phase. */

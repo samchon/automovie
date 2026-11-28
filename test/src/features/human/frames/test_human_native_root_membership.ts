@@ -30,9 +30,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the existing calibrate/prepare/resolve public source law and the complete native Point0 reader on small made definitions; no person, loft, mesh or reference is built.
  * @evidence contracts/development/testing.md#independent-expectations The cylinder equation x²+z²=100 and the normalized ellipse equation give the changed boundary point in closed form. Literal controls are checked with Object.is; source calipers come from independent opposite guide readings.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes unit-input identity, an actual anisotropic ellipse, a curved parent that rejects off-surface affine projection, and positive-hemisphere branch/clock counterparts. The old world-target and a correct source intersection give different z and x here.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU source unit discovered as human_native_root_membership. The supervisor runs the combined RED after its one type-check watch; this test starts no process and consumes no saved body.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios, source mm/radian units, literal-control scope and the independent curved-surface oracle. This is an engineering root-law contract, not clinical measurement evidence.
+ * @evidence contracts/development/common.md#meaningful-documentation Zero change retains root controls, breadth-only edits keep depth, and the radius-ten host fixes the expected nonlinear boundary point.
  */
 export function test_human_native_root_membership(): void {
   const failures: string[] = [];

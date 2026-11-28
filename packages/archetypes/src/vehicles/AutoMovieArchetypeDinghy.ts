@@ -15,19 +15,21 @@ import { AutoMovieArchetypeDinghyData } from "./internal/AutoMovieArchetypeDingh
 /** The canonical producer and authoring contract for a sailing dinghy. */
 export namespace AutoMovieArchetypeDinghy {
   /**
-   * A two-person open sailing dinghy. The hull's reference waterline is Y = 0 and
-   * +Z points at the bow. Two standing areas share the footwell, the helm's aft
-   * of the crew's. The boom pivots about the mast and carries the mainsail and
-   * clew; the visible sheet runs from the clew to a floor block and its tail up
-   * to the helm's hand end, which stays fixed in the hull. The tiller and the
-   * rudder pivot together about the stern, and the tiller extension swings and
-   * lifts on a universal joint at the tiller's end. Hull envelope and club sail
-   * area follow the Feva Mk2. Intermediate sections, the spars and prepared part
-   * dimensions are staged estimates.
+   * Build a two-person sailing dinghy with an open footwell.
    *
-   * @param params Optional scene identity and reference dimensions.
-   * @param seed Provenance seed. The reference dimensions are fixed.
-   * @returns A hull with an open footwell and the two independent controls.
+   * The bow points along local `+Z` and the waterline is `Y = 0`. `helmDeck`
+   * lies aft of `crewDeck`. `boom` moves the sail and its `clew`. The sheet
+   * runs via `sheetBlock` to the `mainSheet` hand site, which rides the sheet
+   * swing and lift. `rudder` moves the blade and tiller, and the `tiller` hand
+   * site rides the extension's swing and lift.
+   *
+   * The hull envelope and mainsail area use Feva Mk2 figures. The sections,
+   * spars, and rig mass include staging estimates.
+   *
+   * @param params Optional scene ID and fixed figures in metres or kilograms.
+   * @param seed Optional seed for the factory. The dimension bands are fixed.
+   * @returns The hull with its standing surfaces and articulated controls.
+   * @throws {AutoMovieArchetypeRefusal} For a value other than the fixed figure.
    */
   export function create(
     params: AutoMovieArchetypeDinghy.IParams = {},
@@ -58,7 +60,13 @@ export namespace AutoMovieArchetypeDinghy {
   }
 
   /* Reference dimensions and the model's named crew and rig contacts. */
-  /** Two deck stations, rotation drivers and real hand and line attachments. */
+  /**
+   * Standing surfaces, control joints, line guides, and grip sites.
+   *
+   * `helmDeck` and `crewDeck` bound the two stands. `boom` carries `clew`.
+   * `sheetBlock`, `sheetSwing`, and `sheetLift` locate and pose `mainSheet`.
+   * `rudder` carries `tillerEnd` and the extension joints that pose `tiller`.
+   */
   export type Affordance =
     | "helmDeck"
     | "crewDeck"
@@ -79,11 +87,17 @@ export namespace AutoMovieArchetypeDinghy {
    */
   export const EXTENSION: number = 0.75;
 
-  /** Overall length, beam and estimated rigged mass. */
+  /**
+   * Overall length and beam in metres, hull and rig mass in kilograms.
+   */
   export type Dimension = "length" | "beam" | "mass";
-  /** Scene identity and published dimension overrides. */
+  /**
+   * Optional scene ID and values equal to the figures in {@link BANDS}.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
+    /**
+     * Scene subject ID. Defaults to `dinghy`.
+     */
     id?: string;
   }
   /** Units of fixed reference dimensions. */
@@ -94,7 +108,11 @@ export namespace AutoMovieArchetypeDinghy {
     beam: "m",
     mass: "kg",
   };
-  /** Published hull and mainsail, plus an estimated complete mass. */
+  /**
+   * Fixed reference hull envelope and estimated complete mass.
+   *
+   * The 82 kg includes the published 73 kg hull and a staged 9 kg rig.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(3.64, 3.64, AutoMovieArchetypeDinghyData.HULL),
     beam: AutoMovieArchetypeBand.metres(1.42, 1.42, AutoMovieArchetypeDinghyData.HULL),

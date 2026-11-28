@@ -1,4 +1,5 @@
 import { jump as jumpLaw } from "../actions/internal/jump";
+import { jumpTwoFootVertical as jumpTwoFootVerticalLaw } from "../actions/internal/jumpTwoFootVertical";
 import { HumanAirborneShape as HumanAirborneShapeSource } from "../lexicon/internal/HumanAirborneShape";
 import { AutoMovieMotionHumanHighJump as highJumpLaw } from "../sport/internal/AutoMovieMotionHumanHighJump";
 import { horizontalJump as horizontalJumpLaw } from "../sport/internal/horizontalJump";
@@ -56,7 +57,9 @@ export namespace AutoMovieMotionHumanJump {
    * the heel during that rocker, then the metatarsal joint. The free ankle
    * withdraws to 0.3 hip heights while the shoulders rise to 60 degrees, the
    * arm action that contributes to takeoff velocity (Ashby and Heegaard 2002,
-   * "Role of arm motion in the standing long jump", J. Biomech. 35).
+   * "Role of arm motion in the standing long jump", J. Biomech. 35). The
+   * interruption snapshot supplies the predecessor action and its nearest
+   * declared foot-ground window when a cut has neither foot planted.
    *
    * The push's carried entry rates and acceleration use the existing engine
    * bases and available floor room (`jumpPush`). Its pure terminal writer is
@@ -105,6 +108,20 @@ export namespace AutoMovieMotionHumanJump {
    * likewise prepares distinct approach and push-off phases.
    */
   export import jump = jumpLaw;
+
+  /**
+   * Spring vertically into a high-hands contest and land on the same real
+   * footprints. Register the law with `AutoMovieMotionHumanChain.extend` and
+   * the performance's `laws`.
+   *
+   * Enter from a settled, centred stance with both feet planted on the level
+   * ground. The fitted body lowers and drives over the fixed feet with equal
+   * load shares. Both hands stay raised through ballistic flight and the
+   * following two-foot absorption. The apex is the rise of the actual centre of
+   * mass in metres. The law refuses an unsuitable stance, reach or timing.
+   */
+  export const verticalContest: typeof jumpTwoFootVerticalLaw =
+    jumpTwoFootVerticalLaw;
 
   /**
    * A long jump out of a run: the run is cut at the take-off foot's footfall on
@@ -191,9 +208,9 @@ export namespace AutoMovieMotionHumanJump {
    * the pole, lets go as the pole stands upright, and flies on to come down
    * lying on the landing surface.
    *
-   * The pole is a held prop (`motionHumanHeld`): taken up before, in
-   * one hand or two (a vaulter's top hand and lower hand), and rigid in them.
-   * Its planted end is the prop's `tip` affordance, or the one named.
+   * The pole is a held prop (`motionHumanHeld`): taken up before, in one hand
+   * or two (a vaulter's top hand and lower hand), and rigid in them. Its
+   * planted end is the prop's `tip` affordance, or the one named.
    *
    * 1. Take-off: the jump's push-off (`GymnasticsTakeoff`) at the run's speed,
    *    kept, rising at `ANGLE`. Over it the hands carry the pole on from the

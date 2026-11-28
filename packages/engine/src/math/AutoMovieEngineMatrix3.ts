@@ -7,7 +7,13 @@ import { overflowsBinary64 } from "./internal/overflowsBinary64";
  * data.
  */
 export namespace AutoMovieEngineMatrix3 {
-  /** Matrix whose action on x is the right-handed cross product vector cross x. */
+  /**
+   * Build the row-major matrix that crosses the supplied vector with another
+   * vector.
+   *
+   * Provide three finite Cartesian coordinates. The result is a fresh
+   * nine-element matrix. A vector of another length throws.
+   */
   export function skew(vector: readonly number[]): number[] {
     if (vector.length !== 3)
       throw new Error(
@@ -26,7 +32,12 @@ export namespace AutoMovieEngineMatrix3 {
     ];
   }
 
-  /** Multiply two finite row-major arrays without changing either operand. */
+  /**
+   * Multiply two row-major three-by-three matrices into a fresh matrix.
+   *
+   * Provide nine finite entries per operand. Products and partial sums follow
+   * binary64 arithmetic. If either overflows, the operation throws.
+   */
   export function multiply(
     left: readonly number[],
     right: readonly number[],
@@ -53,7 +64,12 @@ export namespace AutoMovieEngineMatrix3 {
     return result;
   }
 
-  /** Swap row and column indices into a fresh finite nine-number array. */
+  /**
+   * Swap rows and columns of a row-major three-by-three matrix.
+   *
+   * Provide nine finite entries. The result is a fresh array, and a different
+   * input length throws.
+   */
   export function transpose(matrix: readonly number[]): number[] {
     if (matrix.length !== 9)
       throw new Error("matrix3: complete finite row-major matrix required");
@@ -71,8 +87,11 @@ export namespace AutoMovieEngineMatrix3 {
   }
 
   /**
-   * Apply a row-major matrix to a finite three-coordinate column vector. The
-   * returned third coordinate is retained; no projective divide is performed.
+   * Apply a row-major three-by-three matrix to a column vector.
+   *
+   * Provide nine finite matrix entries and three finite vector entries. The
+   * result is a fresh Cartesian tuple. A product or partial sum that overflows
+   * throws.
    */
   export function apply(
     matrix: readonly number[],

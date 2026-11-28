@@ -28,6 +28,10 @@ import { vclose } from "../../internal/vclose";
  *    outer result survives its nested query; an owned getter exception
  *    propagates unchanged and the next query retains the numeric answer without
  *    more live-moment reads than its ordinary positive baseline.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains current dynamic mass, inertia, clock and positions with reusable rotation algebra, including reentrance and failure.
+ * @evidence contracts/development/testing.md#behavioral-verification Changes interval endpoints and mass records in place, performs getter-triggered nested reads across three consumers and observes post-throw results.
+ * @evidence contracts/development/testing.md#independent-expectations Cardinal spin follows Iθ/Δt. The outer and inner fixtures yield 2X and 8Z, and opposite point travel yields -2Z before doubling displacement and mass.
  */
 export function test_engine_physics_resolve_momentum_intervals(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

@@ -17,6 +17,7 @@ import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbIncumbent } from "./HumanLimbIncumbent";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import { HumanLimbVanishedRefusal } from "./HumanLimbVanishedRefusal";
 import { HumanLimbView } from "./HumanLimbView";
 import { mirrorHumanLimbSource } from "./mirrorHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
@@ -180,21 +181,26 @@ function solved(
     frame === null || coming === undefined
       ? coming
       : HumanLimbFitFrame.point(frame, coming);
-  const out: IAutoMovieSeededChainFit = HumanLimbFit.direct(
-    body,
-    own,
-    chain,
-    aim,
-    others,
-    away,
-    near,
-    reader,
-    policy,
-    (): void => HumanLimbView.admitted(body, pose, admission),
-    // A seed held for this limb (`HumanLimbIncumbent`) starts a swept
-    // fit's bounded search; a continued fit has its own seed.
-    near === undefined ? HumanLimbIncumbent(body, limb) : undefined,
-  );
+  let out: IAutoMovieSeededChainFit;
+  try {
+    out = HumanLimbFit.direct(
+      body,
+      own,
+      chain,
+      aim,
+      others,
+      away,
+      near,
+      reader,
+      policy,
+      (): void => HumanLimbView.admitted(body, pose, admission),
+      // A seed held for this limb (`HumanLimbIncumbent`) starts a swept
+      // fit's bounded search; a continued fit has its own seed.
+      near === undefined ? HumanLimbIncumbent(body, limb) : undefined,
+    );
+  } catch (error) {
+    throw left ? HumanLimbVanishedRefusal.reflected(error) : error;
+  }
 
   // The solved records go back into the whole pose, a left limb's renamed
   // to its own side; a leg's toes are replaced where they stand.

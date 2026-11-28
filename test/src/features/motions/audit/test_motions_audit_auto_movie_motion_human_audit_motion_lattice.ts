@@ -16,6 +16,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. 1 to 1.9 s: 5 instants, index 2 at 1.5 s, index 4 at 1.9 s.
  * 2. 0 to 1 s: 5 instants, the last at 1 s.
  * 3. A negative rate is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names indexed samples before an off-tick endpoint, an exact endpoint and a negative-rate refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Obtains two lattice records from AuditMotion.lattice, then checks their sample count and selected indexed readings.
+ * @evidence contracts/development/testing.md#independent-expectations At 4 Hz the interval from 1 to 1.9 s has four lattice instants and its explicit endpoint, giving length 5. Index 2 is 1.5 s. From 0 to 1 the fifth instant already lies on the grid.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_motion_lattice(): void {
   const between: AutoMovieMotionHumanAuditMotion.IGrid =

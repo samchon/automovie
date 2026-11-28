@@ -8,7 +8,7 @@ import type {
 import { AutoMovieEngineQuaternion } from "../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../math/AutoMovieEngineVector3";
 import { AutoMovieEngineRomTolerance } from "../rom/AutoMovieEngineRomTolerance";
-import { AutoMovieEngineKinematics } from "./AutoMovieEngineKinematics";
+import { aimRotationImplementation } from "./internal/aimRotationImplementation";
 import { hingedArmSpan } from "./internal/hingedArmSpan";
 
 /**
@@ -58,17 +58,18 @@ export namespace AutoMovieEngineHingedArmSwivel {
   export const RESOLUTION: number = 2 * STEP * GOLDEN ** REFINEMENTS;
 
   /**
-   * The chain's bend branches toward its target: the two hinge angles whose
-   * span is the target's distance, `phase + acos` first, or the fully extended
-   * or folded one outside the span, each stopped at the nearer limit of the
-   * range. The fully extended branch is the rest hinge angle, zero, wherever
-   * zero's span is the extended span itself in floating point: a limb straight
-   * at rest to within rounding of its bones' offsets then stands straight, on
-   * either side of a mirrored body alike.
+   * Find the hinge angles that bring a two-bone chain to the target's distance.
    *
-   * @param chain The chain.
-   * @returns The branches, in that order, or null for a degenerate chain
-   *   (`hingedArmArticulation`).
+   * Within the span, the larger unwrapped bend angle comes first.
+   * Outside the span, use full extension or full flexion. When rest already
+   * gives full extension, keep the rest angle. Stop each angle at the nearest
+   * supplied hinge limit. With no limits, use the geometry alone.
+   *
+   * @param chain World target, root pose, bone-local offsets and optional
+   *   hinge limits in radians.
+   * @returns Bend stops in radians and their shortfalls in metres. Returns
+   *   null when the chain is degenerate or the target distance or any bend
+   *   stop has no finite representation.
    */
   export function branches(
     chain: IAutoMovieHingedChainGeometry,
@@ -279,7 +280,7 @@ export namespace AutoMovieEngineHingedArmSwivel {
     return {
       lower,
       line: AutoMovieEngineVector3.normalize(mid),
-      aim: AutoMovieEngineKinematics.aimRotation(mid, goal),
+      aim: aimRotationImplementation.run(mid, goal),
     };
   }
 
@@ -320,7 +321,7 @@ export namespace AutoMovieEngineHingedArmSwivel {
     if (!valid) return null;
     const distance: number =
       preparedDistance ?? AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(chain.target, root));
-    if (distance < 1e-6) return null;
+    if (!Number.isFinite(distance) || distance < 1e-6) return null;
     const fixed: IGeometry | null =
       source?.geometry === undefined
         ? hingedArmSpan.of(chain)
@@ -345,18 +346,28 @@ export namespace AutoMovieEngineHingedArmSwivel {
     const short: (theta: number) => number = (theta: number): number =>
       Math.abs(Math.sqrt(Math.max(0, squared(theta))) - distance);
     const range: IAutoMovieHingedChainGeometry["range"] = chain.range;
-    return thetas.map((theta: number): IAutoMovieHingedArmSwivel.IStop => {
-      if (range === undefined)
-        return { theta, shortfall: outside ? short(theta) : 0 };
-      const centre: number = (range.min + range.max) / 2;
-      const wrapped: number =
-        theta - 2 * Math.PI * Math.round((theta - centre) / (2 * Math.PI));
-      const legal: number = Math.min(range.max, Math.max(range.min, wrapped));
-      return {
-        theta: legal,
-        shortfall: legal === wrapped && !outside ? 0 : short(legal),
-      };
-    });
+    const stops: IAutoMovieHingedArmSwivel.IStop[] = thetas.map(
+      (theta: number): IAutoMovieHingedArmSwivel.IStop => {
+        if (range === undefined)
+          return { theta, shortfall: outside ? short(theta) : 0 };
+        const centre: number = (range.min + range.max) / 2;
+        const wrapped: number =
+          theta - 2 * Math.PI * Math.round((theta - centre) / (2 * Math.PI));
+        const legal: number = Math.min(range.max, Math.max(range.min, wrapped));
+        return {
+          theta: legal,
+          shortfall: legal === wrapped && !outside ? 0 : short(legal),
+        };
+      },
+    );
+    // An unusable stop cannot be ranked by geometric shortfall. Return the
+    // same absent result for direct and prepared callers before swivel search.
+    return stops.every(
+      (stop: IAutoMovieHingedArmSwivel.IStop): boolean =>
+        Number.isFinite(stop.theta) && Number.isFinite(stop.shortfall),
+    )
+      ? stops
+      : null;
   }
 
   /*

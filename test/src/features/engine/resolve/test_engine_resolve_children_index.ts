@@ -28,7 +28,12 @@ const node: (id: string, parent: string | null) => IAutoMovieNode = (
  * Scenarios:
  *
  * 1. Two children of one parent are listed in input order.
- * 2. A root has no entry, and a childless node has no entry.
+ * 2. The root and the internal child appear as parents. Neither leaf appears
+ *    as a map key.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names insertion-order siblings, the root as a parent, and the absence of childless entries.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes four typed nodes to `childrenIndex`, then checks both ordered child arrays, missing leaf keys, and the map size.
+ * @evidence contracts/development/testing.md#independent-expectations The input links b and then a to root, and c to b. So the only entries are root with [b, a] and b with [c], and neither a nor c has an entry.
  */
 export function test_engine_resolve_children_index(): void {
   const index: Map<string, string[]> = AutoMovieEngineResolve.childrenIndex([

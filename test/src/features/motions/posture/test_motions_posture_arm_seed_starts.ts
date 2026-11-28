@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. With all three, the order is given, guesses, rest.
  * 2. Without a given configuration or goal arms, the rest alone.
  * 3. Each start is a copy: writing one leaves its source as it was.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines order and copy ownership for caller, goal and rest configurations.
+ * @evidence contracts/development/testing.md#behavioral-verification Enumerates starts with all sources and with only rest, then mutates one result.
+ * @evidence contracts/development/testing.md#independent-expectations Declared ordering gives caller, guessed and rest configurations. Missing entries leave rest only, and result mutation leaves every source unchanged.
  */
 export function test_motions_posture_arm_seed_starts(): void {
   const given: number[][] = [[1, 2, 3]];

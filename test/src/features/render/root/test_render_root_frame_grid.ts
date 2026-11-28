@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Frame 5 of a 0.1 s film is clamped to 0.1 s; frame 1 is 1/24 s.
  * 3. Over three frames of 0.1 s: 0.05 s is nearest frame 1, 0.09 s frame 2, and
  *    0.1 s or later the closing frame 3.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Places the final grid frame on the film duration and selects grid frames for queried seconds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls final-index, frame-time, and nearest-frame readers on a 24 fps grid with exact and fractional durations.
+ * @evidence contracts/development/testing.md#independent-expectations Two seconds give index 48. A 0.1-second clip rounds up to index 3, and the given seconds distinguish earlier samples from the clamped end.
  */
 export function test_render_root_frame_grid(): void {
   TestValidator.equals(

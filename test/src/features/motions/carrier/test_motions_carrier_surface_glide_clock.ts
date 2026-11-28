@@ -13,16 +13,19 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 64 * Number.EPSILON * 8;
 
 /**
- * Integrate the authored glide speed through acquisition, cruise and braking.
+ * Check how the authored speed profile accumulates travel.
  *
  * Scenarios:
  *
- * 1. From 1 m/s to 2 m/s in 0.8 s, the acquisition's half-span advances 0.4 m plus
- *    0.075 m of accelerating travel. After acquisition, the cruise has the full
- *    speed and an initial deficit of 0.4 m.
- * 2. A 1.4 s brake from 2 m/s subtracts 1.4 m of total travel, with 0.2625 m
- *    already lost halfway through the brake. Without a stop it subtracts none.
- * 3. Duration and speed must each be positive before reading a surface.
+ * 1. Acquire 2 m/s from 1 m/s over 0.8 s. At 0.4 s read distance 0.475 m and
+ *    half acquisition, then continue at cruise speed.
+ * 2. Brake over 1.4 s to a total 6.2 m. At mid-brake read 5.9375 m, and
+ *    compare with the no-stop clock at 7.6 m.
+ * 3. Refuse zero duration or speed before reading a surface.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the speed and travel during acquisition and braking and the zero-input refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Readbacks cover pre-entry, acquisition, cruise, braking, terminal clamping and admission.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture integrates the cubic speed change over each interval and accounts for acquisition and braking as deficits from full-speed travel.
  */
 export function test_motions_carrier_surface_glide_clock(): void {
   const stopped: HumanSurfaceGlide.ICourse = HumanSurfaceGlide.clock({

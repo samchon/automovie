@@ -27,11 +27,14 @@ import { nclose } from "../../internal/predicates";
  *    beam through the rail's 48 vertices in order, with 48 chart points and 48
  *    neighbours, and none into the post or the blend face.
  * 5. With the post standing on the junction of two beams continued end to end,
- *
- * Ail returns 50 points: 48 columns and the two crossings from one beam to the
+ *    rail returns 50 points: 48 columns and the two crossings from one beam to the
  * other, at the phases pi / 2 and 3 pi / 2. Each crossing names both beams, and
  * its two charts evaluate to one point on the junction (x = 0), 30 mm from the
  * axis; 24 points lie on the left beam alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rail point placement, host-only hole trimming and crossing both continued beams.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the blend body, obtains the rail, reads its host charts and trims through the returned rail vertices, including the two-beam fixture.
+ * @evidence contracts/development/testing.md#independent-expectations The beam radius is 30 mm, and its first point is 15 + 6 mm along the beam. The junction adds two crossing phases beyond the original 48 columns.
  */
 export function test_engine_geometry_solid_clip(): void {
   const fixture: Fixture.IFixture = Fixture.create();

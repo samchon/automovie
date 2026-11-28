@@ -22,6 +22,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 2. Coupled fitting reduces that penetration while retaining the actual root.
  * 3. Direct neighbours and explicitly excluded overlapping pivot regions stay
  *    excluded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains profile-wide pair admission from geometry and joint adjacency, with fixed-root avoidance and explicit exclusions.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates a folded branch that intersects the trunk, fits it with root feedback, and inspects neighbors and a declared excluded pivot pair.
+ * @evidence contracts/development/testing.md#independent-expectations Native distance establishes the penetration and the fitter must reduce it. The authored root, original attachment structure and explicit exclusion remain observable.
  */
 export async function test_engine_physics_physical_self_avoidance(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();

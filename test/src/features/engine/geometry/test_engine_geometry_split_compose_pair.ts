@@ -17,6 +17,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  *    0.9 of its depth (9 - 7.5 cos b) / sin b; `band.f.0`'s end edge lies on
  *    the zero set of the smooth minimum of its end plane and seam plane
  *    distances within 1e-7 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names two-child forks, seam plane, cylinder-fit and smooth-distance end-edge checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a two-child composed end and evaluates its band seam and rail against the stated geometric constraints.
+ * @evidence contracts/development/testing.md#independent-expectations Mirror symmetry fixes both forks and the seam in x = 0. The cylinder equation supplies expected valley depth and the authored plane distances define the rail zero set.
  */
 export function test_engine_geometry_split_compose_pair(): void {
   const b: number = C.LEAN;

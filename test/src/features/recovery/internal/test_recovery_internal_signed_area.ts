@@ -13,6 +13,10 @@ import { nclose } from "../../internal/nclose";
  *    offsets of 1e8 and 1e12 in its contour plane.
  * 2. The right triangle (0, 0), (4, 0), (0, 3) is 6.
  * 3. Fewer than three points enclose 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names contour orientation, translation and short contour convention.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures both orientations of three translated unit squares, one right triangle and a short contour.
+ * @evidence contracts/development/testing.md#independent-expectations Unit squares have signed areas ±1 in their plane and the 3-4 right triangle has area six, independent of translation.
  */
 export function test_recovery_internal_signed_area(): void {
   for (const offset of [0, 1e8, 1e12]) {

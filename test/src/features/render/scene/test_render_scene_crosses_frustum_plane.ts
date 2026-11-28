@@ -12,6 +12,10 @@ import * as THREE from "three";
  * 1. For the unit box and the plane x + c = 0: c = -0.5 reaches behind it, and
  *    c = 0 (touching) and c = 0.5 (wholly in front) do not.
  * 2. A plane facing the other way, -x + 0.5 = 0, cuts the box.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the exact touching boundary and crossing with either plane orientation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the scene frustum predicate with a typed unit box and four actual Three.js planes.
+ * @evidence contracts/development/testing.md#independent-expectations For x from 0 to 1, x minus 0.5 has a negative corner, x touches only and x plus 0.5 stays positive. The reversed plane −x plus 0.5 has a negative corner on the other side.
  */
 export function test_render_scene_crosses_frustum_plane(): void {
   const box: THREE.Box3 = new THREE.Box3(

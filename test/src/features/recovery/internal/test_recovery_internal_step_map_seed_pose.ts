@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  * 1. The identity at t = (0, 0, 1) stepped by (0, 0, pi / 2, 3, 4) over the basis
  *    x and y turns a quarter about z and moves t to (3, 4, 1) / sqrt(26).
  * 2. A translation whose norm is not 1 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States preservation of the unit seed gauge under a left rotation step.
+ * @evidence contracts/development/testing.md#behavioral-verification Updates a unit seed under a quarter turn and then tries a nonunit translation.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn about z has a fixed exact frame, and the two tangent offsets produce the direction (3, 4, 1)/sqrt(26).
  */
 export function test_recovery_internal_step_map_seed_pose(): void {
   const pose: IAutoMovieRecoveryMapPose = {

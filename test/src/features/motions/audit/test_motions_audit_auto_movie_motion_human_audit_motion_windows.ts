@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. The nod's plant to share 1 holds to the film's end, 5 s; its plant to share
  *    0.5 ends at 2.5 s.
  * 5. A motion with no actions has no windows.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes entry clipping, a retained earlier contact, discarded pre-entry contact, final holds and an empty motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes authored spans and contact shares to AuditMotion.windows and checks action, body part and film seconds for every returned window.
+ * @evidence contracts/development/testing.md#independent-expectations The 2 s wave converts 0.9 to 1.8 s and clips the earlier right-foot plant to start at 0.5 s. The last action starts at 2 s and converts half-share to 2.5 s. Only its full terminal hold extends to the 5 s film end.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_motion_windows(): void {
   const spans: IAutoMovieMotionHumanAuditMotion.ISpan[] = [

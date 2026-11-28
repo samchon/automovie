@@ -27,8 +27,6 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates a real long-form native graph, inspects actual selected units and parent IDs, readdresses detached answers and changes a scripted action.
  * @evidence contracts/development/testing.md#independent-expectations H2 selection remains one unit despite a subordinate H3. An action change must alter its ancestor fingerprint; existing current reviews must then fail.
- * @evidence contracts/development/testing.md#distinguishing-cases Unchanged H2s with H3 children in both layers distinguish grouping from inherited identity; readdressed answers and changed action distinguish annotation ownership from body freshness.
- * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A script scene H2 with an H3 action group and a screenplay section H2 with an H3 beat each stay one H2 respondent.).
  */
 export async function test_evidence_production_action_groups(): Promise<void> {

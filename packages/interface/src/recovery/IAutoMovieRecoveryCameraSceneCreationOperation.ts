@@ -8,27 +8,17 @@ import type {
 } from "..";
 
 /**
- * Register a bounded calibrated image set into one qualified sparse component.
- * Global conflicting tracks are withheld before even seed geometry. Each new
- * camera uses only existing points, then proposes registered-view point growth
- * and common-gauge joint refinement. Only a complete transaction is committed.
- * Explicit internal feasible options are copied before callbacks and reach both
- * seed and candidate closure fits; public callers continue omitting them. A
- * refused seed retains its last completed fit report separately from the
- * accepted-only joint report, without retaining failed geometry.
+ * Callable contract for building one bounded sparse component from observed
+ * calibrated camera features.
  */
 
 export namespace IAutoMovieRecoveryCameraSceneCreationOperation {
   /**
-   * Register a bounded calibrated image set into one qualified sparse
-   * component. Global conflicting tracks are withheld before even seed
-   * geometry. Each new camera uses only existing points, then proposes
-   * registered-view point growth and common-gauge joint refinement. Only a
-   * complete transaction is committed. Explicit internal feasible options are
-   * copied before callbacks and reach both seed and candidate closure fits;
-   * public callers continue omitting them. A refused seed retains its last
-   * completed fit report separately from the accepted-only joint report,
-   * without retaining failed geometry.
+   * Fit the ordered seed after global linkage, then attempt pending cameras
+   * using support from the accepted points. Publish a new checkpoint only after
+   * detached growth, joint fitting, and point qualification. An explicit
+   * feasible method is copied and used for eligible fits. Progress callbacks
+   * can terminate the operation by throwing.
    */
 
   export type Operation = (

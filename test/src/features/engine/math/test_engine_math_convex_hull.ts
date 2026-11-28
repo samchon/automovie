@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/predicates";
  * 5. `closestPointOnSegmentXZ` on (0,0)-(2,0): (-1,0) clamps to (0,0), (1,1)
  *    projects to (1,0), (3,0) clamps to (2,0); a zero-length segment gives its
  *    own point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers XZ hull degeneracy, containment, distances and edge or segment projections.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes planar XYZ fixtures directly to the hull and query functions, including the refused nearest-edge call on an empty hull.
+ * @evidence contracts/development/testing.md#independent-expectations The square, duplicates, single point and collinear data have geometric vertex counts. Their axis-aligned edges give literal containment and distances. Segments clamp before or after their endpoints and collapse onto one point.
  */
 export function test_engine_math_convex_hull(): void {
   const v = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });

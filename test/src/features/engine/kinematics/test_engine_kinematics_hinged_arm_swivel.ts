@@ -29,6 +29,10 @@ import { TestValidator } from "@nestia/e2e";
  *    branch or pose reads. This retains the right-angle target's two branches
  *    after input edits and gives the next independent target its own geometry.
  *    Use a 64-ulp absolute allowance for unit-scale joint and FK arithmetic.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers hinge branches, stopped and degenerate chains, swivel readback and ownership across prepared targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls branches, pose, read and prepare on unit segments. It reconstructs the end point from returned rotations and repeats reads after changing source data.
+ * @evidence contracts/development/testing.md#independent-expectations The law of cosines gives two right-angle branches at reach sqrt(2) and a straight chain of length two. Reach five leaves shortfall three. Independent reconstructed positions and known degree reads check the branch poses.
  */
 export function test_engine_kinematics_hinged_arm_swivel(): void {
   const chain = (

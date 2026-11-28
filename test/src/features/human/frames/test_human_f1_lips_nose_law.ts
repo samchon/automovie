@@ -19,9 +19,7 @@ import { AutoMovieHumanF1LipsLaw as M, AutoMovieHumanF1NoseLaw as N } from "@aut
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `line`, `upper` and `lower` of `AutoMovieHumanF1LipsLaw` and `tip` and `outline` of `AutoMovieHumanF1NoseLaw`. It catches an edge that misses the median heights, the crest's station or the corner, a bow applied at the median, an uneven law, a tip off the triangle's closed form and an outline that is not the two straight lines.
  * @evidence contracts/development/testing.md#independent-expectations Each number is the made measures' arithmetic in the scenario list: the published crest share times the width, the declared polynomials' values at the stated shares, and the law of cosines on a 3-4-5 triangle.
- * @evidence contracts/development/testing.md#distinguishing-cases The median, the crest, a station either side of it, the corner, both signs of the station; the tip, a station on each line, both ends and one impossible triangle. No reference is read: the comparison with the f1 reference is in the technique note.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_f1_lips_nose_law`; pure arithmetic.
- * @evidence contracts/development/common.md#meaningful-documentation States the made mouth and nose and the eight scenarios with their closed forms.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures check the lips' midpoint, crest, corner and symmetry, then derive a nose tip and outline from triangle dimensions and reject an impossible triangle.
  */
 export function test_human_f1_lips_nose_law(): void {
   const failures: string[] = [];

@@ -1,20 +1,21 @@
 import type { AutoMovieArchetype } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
 
-/** A handheld two-way radio with grasp and speaker surfaces. */
+/**
+ * Constructs an upright two-way radio with a front speaker surface and full-height grasp.
+ */
 export namespace AutoMovieArchetypeRadio {
   /**
- * A handheld two-way radio with a full-height grasp and front speaker surface.
- *
- * The model stands on its bottom edge at the origin with its front toward `+Z`.
- *
- * @param params The identifier and a choice among this device's measured
- *   models.
- * @param seed The seed for the device's remaining choices.
- * @returns The device and its named contacts.
- * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
- *   input.
- */
+   * Build a radio slab resting on its bottom edge, facing model `+Z`.
+   *
+   * The CP200d battery configuration pairs body depth and whole mass.
+   * A rear grip spans the height, with aperture equal to case thickness.
+   *
+   * @param params Optional scene ID and battery model. The ID defaults to `device`.
+   * @param seed Numeric seed for an omitted model. Omit it for `nimh1400`.
+   * @returns The radio slab with `grip` and a front-face `speaker` contact.
+   * @throws {AutoMovieArchetypeRefusal} If the catalogue model is unavailable.
+   */
   export function create(
   params: AutoMovieArchetypeRadio.IParams = {},
   seed?: number,
@@ -29,21 +30,22 @@ export namespace AutoMovieArchetypeRadio {
   }
 
   /* The parameters and affordance identifiers of {@link AutoMovieArchetypeRadio}. */
-  /** The `model` choices this producer admits. */
+  /** Recorded CP200d battery options with their whole body depth and mass. */
   export type Model = "nimh1400" | "liIon1600" | "liIon2250" | "liIon2900";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Body width, height and battery-dependent thickness in metres, and mass in kilograms.
    */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
-  /** The identifiers of contacts built by this producer. */
+  /** Full-height rear `grip` and `speaker` covering the front face. */
   export type Affordance = "grip" | "speaker";
 
-  /** Parameters for this walkie-talkie. */
+  /** Optional scene ID and one CP200d battery configuration. */
   export interface IParams extends Pick<HandheldDevice.IParams, "id"> {
-    /** The manufacturer model, drawn from the seed when absent. */
+    /**
+     * Selects a complete body and mass. Defaults to `nimh1400` without a seed.
+     */
     model?: Model;
   }
 }

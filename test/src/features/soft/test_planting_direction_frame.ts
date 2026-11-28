@@ -79,9 +79,7 @@ const childAxis: (domain: IAutoMoviePlantingDomain) => {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Growth endpoints expose changed perpendicular-frame, bias/fallback or spread ordering while permitting the same authored-direction semantics; zero and nonzero spread distinguish an actual perturbation.
  * @evidence contracts/development/testing.md#independent-expectations Unit and diagonal +X/+Y directions, a -Z parent with hand-authored endpoint, and full up/down bias provide geometric expectations independent of the growth helper. Local repeat equality verifies replay only for this witness.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserve vertical/-Z parent cases, diagonal direction, both full bias signs, exactly cancelling blend fallback and seeded/zero spread; leaf roll and member yaw are covered by foliage/arrangement owners.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_planting_direction_frame; fixture records and growth output own all assertions without an installed planting viewer or mock geometry builder.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Off a vertical trunk the authored `(1, 0, 0)` is exactly world `+x`, and `(1,).
+ * @evidence contracts/development/common.md#meaningful-documentation Vertical and backward trunks exercise the child frame. Full tropism, cancelling bias and seeded spread check how authored direction changes and repeats.
  */
 export function test_planting_direction_frame(): void {
   TestValidator.equals(

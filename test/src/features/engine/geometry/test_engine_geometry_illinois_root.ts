@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *    suffice).
  * 3. An end at a root is returned as it is; ends of one sign give null; zero steps
  *    return the first end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names bracket order, stagnation control, budget and endpoint decisions.
+ * @evidence contracts/development/testing.md#behavioral-verification Finds roots of the actual quadratic and exponential functions with the public solver and observes its bracket and exhausted-step limits.
+ * @evidence contracts/development/testing.md#independent-expectations The written functions have roots √2 and ln(2). Endpoint roots and same-sign bounds are identified directly from their function values.
  */
 export function test_engine_geometry_illinois_root(): void {
   const square = (x: number): number => x * x - 2;

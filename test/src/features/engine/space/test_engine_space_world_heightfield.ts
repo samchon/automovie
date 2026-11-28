@@ -19,11 +19,9 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 4. A coarse world origin visits distinct rounded knots and stores their
  *    corresponding callback values.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the world coordinates, visit and storage order, metadata and refusal effects.
- * @evidence contracts/development/testing.md#behavioral-verification Reads exact metadata and samples from the owning builder and records its callback visits independently. Swapped indices, repeated sampling, invalid lattice metadata, or sampling past a refusal fails.
- * @evidence contracts/development/testing.md#independent-expectations The literal 3-by-2 grid from (-4,-6) has unequal pitches 4 and 2 m. Its ordered pairs and heights follow 2z+x/4+|x|/8, with exactly representable integer or dyadic values throughout. At 2^54 a one-metre pitch cannot advance the first rounded X coordinate.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers valid unequal pitches, zero pitch, infinite origin, a rounded-together interval, one column, fractional rows and a second-cell non-finite result. Sampling stored heights belongs to the direct world surface test.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit calls one terrain constructor with resident inputs and owns the callback visit log. It uses no host or downstream height reader.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the lattice visit order, stored header, rounded knot locations, and the callback effects of refused headers and samples.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public heightfield builder with a recording callback and checks its calls, returned metadata, and stored samples. Invalid pitches, counts, and origins leave the callback uncalled. A non-finite second sample stops the bake and identifies its cell.
+ * @evidence contracts/development/testing.md#independent-expectations The 3-by-2 grid from (-4, -6) advances 4 m in X and 2 m in Z. Applying 2z + x/4 + |x|/8 gives the exact stored heights. At 2^53 a 3 m pitch gives rounded X offsets 0, 4, and 6. At 2^54 a 1 m pitch cannot advance the first coordinate.
  */
 export function test_engine_space_world_heightfield(): void {
   const visited: IAutoMovieWorldHeightfield.IInput["origin"][] = [];

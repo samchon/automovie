@@ -28,6 +28,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    trunk's size.
  * 2. The same comparison against the trunk's middle (station 50 mm) does find a
  *    difference, so the equality above is not vacuous.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names continuation at the host end, equality through the second station derivative and an interior-ring control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the trunk and continuation, then compares their returned radius, slope and curvature at 64 phases on the joined ends.
+ * @evidence contracts/development/testing.md#independent-expectations C2 continuation requires equal value, first and second station derivatives at the same ring. Reading the host's middle supplies a separate geometric section that must differ.
  */
 export function test_engine_geometry_construction_continue(): void {
   const host: IAutoMovieConstructionNode = ConstructionShapes.cylinder(

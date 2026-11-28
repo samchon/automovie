@@ -37,6 +37,10 @@ import {
  * 4. A zero or nonfinite sample rate produces a range finding at `.sampleRate`.
  * 5. A nonfinite tolerance produces a range finding at `.tolerance`, even when it
  *    would hide the dip in the sampled clip.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers penetration warnings, tolerance, raised ground, authored diagnostic paths and invalid sampling options.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateGroundContact on a typed leg and dip clip, then varies depth, ground level, intent and rate and tolerance settings.
+ * @evidence contracts/development/testing.md#independent-expectations The neutral rest heights sum to foot y = 0, so a root dip of 0.2 places the sampled foot that far underground. A dip 0.02 fits tolerance 0.03. At 4 Hz, time 0.5 is sample two.
  */
 export function test_engine_validation_validate_ground_contact(): void {
   const at = (x: number, y: number, z: number): IAutoMovieTransform => ({

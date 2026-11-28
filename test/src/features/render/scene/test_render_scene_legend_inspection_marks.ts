@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Two plain and one flagged curve give the kind's entry with count 2 and a
  *    `(flagged)` entry in the flag colour with count 1.
  * 2. No marks give no entries.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The examples specify how an ordinary group, flagged mark, and empty mark list appear in an inspection legend.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that ordinary and flagged marks of one kind produce separate counts and that an empty input produces no entries.
+ * @evidence contracts/development/testing.md#independent-expectations Uses two ordinary curves and one flagged curve to require counts 2 and 1 and the separate flagged legend label.
  */
 export function test_render_scene_legend_inspection_marks(): void {
   const mark = (flagged: boolean): IAutoMovieMark => ({

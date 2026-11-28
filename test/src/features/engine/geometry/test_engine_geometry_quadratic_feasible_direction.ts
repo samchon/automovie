@@ -23,6 +23,10 @@ type Result = ReturnType<typeof AutoMovieEngineMath.solveQuadraticProgram>;
  *    multiplier 0 and the constraint's 1.
  * 4. The curved rows reordered, one duplicated and scaled by 2: the same optimum
  *    within 1e-6.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names feasibility, complementarity and stationarity, the curved optimum and normal versus abnormal multipliers.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves the actual semidefinite programs and checks every certificate, including rearranged and duplicate scaled rows.
+ * @evidence contracts/development/testing.md#independent-expectations Eliminating gamma gives the curved optimum (1/2,1/2,−1/2). At the abnormal singleton the objective multiplier is zero and the constraint supplies one.
  */
 export function test_engine_geometry_quadratic_feasible_direction(): void {
   const row = (

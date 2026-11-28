@@ -28,6 +28,10 @@ import { vclose } from "../../internal/vclose";
  *    virtual-work direction.
  * 3. A translated, rotated world and an independent 90-degree joint frame preserve
  *    the analytic local moments.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies a contact Jacobian's carrier ancestry, including rotated parent frames and the virtual-work sign on either link.
+ * @evidence contracts/development/testing.md#behavioral-verification Accumulates motor torques for points carried by each hinge of a typed two-joint assembly with transformed world and joint frames.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic lever arms give zero on the distal joint for a proximal point and both columns for a distal point under either virtual-work direction.
  */
 export async function test_engine_physics_accumulate_physical_contact_carrier(): Promise<void> {
   const profile: P = PhysicalPointFixtures.profile();

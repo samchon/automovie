@@ -55,9 +55,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds native families through Native.create and reads the produced source outlines through the engine's own outline reader, the stage the loft consumes.
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is the closed form of a scaled circle: R times the expanded quintic and its derivatives, atan2 of the scaled tangent, and the unchanged shoulder; the capped case applies the station product rule to the original outline's reading, where the law works in the root parameter. None is read from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases Isotropic, anisotropic, identity, constant, plain-function, between-knot and handoff scales, open and capped parts, with and without junctions, at knots, between knots and on both sides of each site, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership Small made families and original sources built inside the test; no person, reference body, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation States the circle, its closed forms, the angle's truncation bound and the nine scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures compare constant, isotropic, anisotropic and between-knot scaling, carried and declined junctions, parameter-specific cap jets, and the limb's distal scope.
  */
 export function test_human_native_station_scale(): void {
   const failures: string[] = [];

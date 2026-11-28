@@ -70,10 +70,8 @@ type ISample = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  *     remain comparable.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the diff from the completed comparison. It observes comparison of recorded witnesses instead of calculating the result in the test harness.
- * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows from the severity order and which seconds each round actually checks. A 2 fps capture of 0 s to 1 s observes 0 s, 0.5 s and 1 s. It cannot decide an error at 0.1 s on the 10 fps grid.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing with checked observations, comparable with disjoint, partially checked and changed occurrences, and missed frames inside matching time bounds with points and spans actually checked on the matching grid. It also covers confidence order, missing rank, warnings and an absent audit. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_finding_diff`; it draws in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario, its input and the state or outcome it pins.
+ * @evidence contracts/development/testing.md#independent-expectations Each fixture supplies the finding identity, severity, confidence, rank and coverage. Equal-rank matched witnesses carry unchanged. A 2 fps grid reads only 0, 0.5 and 1 s, whereas a 10 fps grid also contains the witness at 0.1 s. An addressed witness needs coverage on its own shot clock.
+ * @evidence contracts/development/common.md#meaningful-documentation Finding comparisons cover fixed, carried, new and unmatched observations. Rank, confidence, occurrence, sampled cadence and the actual shot clock determine which observations can support a verdict.
  */
 export async function test_capture_finding_diff(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();

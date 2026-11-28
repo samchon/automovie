@@ -31,26 +31,17 @@ import { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJointStren
  * The contact and mass profile of a polygon man, built from the same joints and
  * girth radii its drawing is built from, at the canonical T-pose rest.
  *
- * Colliders are the drawn solids. The trunk, the neck, the head, each limb
- * segment, the palm, the rear foot and every toe phalanx collide as the convex
- * hulls of the very ring points the drawing lofts its mesh through
- * (`AutoMovieHumanCanonicalSolids`), so the collision surface is the drawn
- * surface: no corner stands outside what is seen and no drawn surface lies
- * outside its collider. A rig bone carries the hulls of every drawn module that
- * rides it: the foot its two modules through the subtalar and midfoot joints,
- * the toes bone every toe phalanx, so the toes bend at the ball as drawn. Each
- * phalanx of the hand is a capsule of its girth radius from its joint to its
- * child joint, a distal one ending with its cap on the fingertip, because a
- * curl solves its contact in closed form on capsules and the drawn phalanx is
- * that round.
+ * The trunk, neck, head, limbs, palm, rear foot and toe phalanges use convex
+ * hulls of the same ring vertices as the drawing. Where proportions change
+ * between rings, the convex faces and the loft's triangles can take different
+ * diagonals between those vertices. The foot carries the heel and midfoot
+ * modules, and the toes pivot at the ball with their phalanx hulls. The hand
+ * uses girth-radius capsules for its phalanges so the grasp solver can compute
+ * their contact in closed form.
  *
- * Each foot also carries one simulation-only collider (`contactShapes`), a flat
- * sole box from heel to ball (`soleOf`): the drawn heel and forefoot hulls each
- * meet the floor at a single vertex, so a foot planted on them stands on a line
- * and rolls about it. The sole box gives the planted foot a face, the way game
- * engines give a character's foot a simple contact body apart from its drawn
- * shape. It carries no mass and only the physical world reads it, so every
- * motion audit still reads the drawn hulls.
+ * A foot can also carry a simulation-only sole box in `contactShapes`.
+ * The box gives a planted foot a contact face across the heel and forefoot
+ * support points. It has no mass. The motion audits read the skin hulls.
  *
  * Masses are Dempster's shares of body mass as tabulated by Winter
  * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1): hand
@@ -73,31 +64,31 @@ import { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJointStren
  * McNabb et al.'s (2024) per-kilogram means instead. The axes neither measured
  * keep an unsourced placeholder, 50 N m per downstream kilogram, still open.
  * Every drive is critically damped on the moment of inertia of the subtree it
- * turns about its axis, kd = 2 sqrt(kp I). Self-contact is excluded between
- * joint neighbours, among the palm and digits of one hand, between the abdomen
- * and each upper arm and between the two thighs. The last two are body pairs
- * that overlap in the reference pose: the shoulder lies inside the chest's
- * girth, so a hanging arm's root runs about 47 mm into the ring the chest
- * shares with the abdomen, and the hip joints sit closer together than a
- * thigh's root is wide, so the two roots cross the midline by 12 to 17 mm.
- * Neither overlap leaves within a natural arm or leg abduction, and left live,
- * the solver ejects those limbs on the first substep and splays the planted
- * feet. Disabling collision for pairs that overlap in the reference pose is the
- * standard practice (Unreal Engine's Physics Asset collision-disable table;
- * MuJoCo's `<contact> <exclude>` pairs). The known limitation: an upper arm
- * passes through the abdomen and a thigh through the other thigh, as in crossed
- * legs or a clinch, while every other pair, such as the shins with each other
- * and the forearms with the abdomen, still collides.
+ * turns about its axis, kd = 2 sqrt(kp I). The profile excludes contact
+ * between adjacent modules and among the palm and digits of one hand. It also
+ * excludes each upper arm from the spine, the two thighs from each other,
+ * and each thumb metacarpal from its own forearm. These pairs can overlap near
+ * their joint roots in the stock pose or during ordinary articulation. The
+ * exclusions apply to the named segment pairs throughout the simulation.
  */
 export namespace AutoMovieHumanCanonicalProfile {
   /**
-   * Build the profile.
+   * Build the physical profile for a complete stock joint map at the canonical
+   * T-pose. The shape set contains visible-body ring hulls and hand capsules.
+   * Admitted foot supports are separate simulation-only contact shapes; they
+   * contribute no mass. The profile combines segment inertias and sets joint
+   * limits and drives on the canonical rest frames.
    *
-   * @param joints Every drawn Human joint by id, parent before child.
-   * @param mass Body mass, kilograms.
-   * @param id Profile id.
-   * @param person The person whose joint strength the drives take.
-   * @returns The profile on the rig's bones.
+   * @param joints Parent-first canonical rest joints, with centres, radii and any
+   * heel planes in metres.
+   * @param mass Positive body mass in kilograms used to distribute segment masses.
+   * @param id Identity carried by the returned profile.
+   * @param person Sex, height in metres and mass in kilograms used by the
+   * joint-strength model.
+   * @returns Segment shapes, mass properties, mechanical joints and explicit
+   * self-contact exclusions for the canonical body.
+   * @throws If a canonical joint referenced by the profile or a required segment
+   * collider is missing.
    */
   export function build(
     joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,

@@ -22,11 +22,9 @@ const G: number = 9.80665;
  * 4. Mutating one launch's origin leaves the gun's muzzle and later launches unchanged.
  * 5. A naval 32-pounder's 6.14 and 6.20 in shot gauges launch inside its 6.41 in bore; a bore never fills in for an unknown shot. Nonpositive/non-finite speed or shot diameter and absent clearance are refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Launches from the gun at four elevations and from a mortar; a launch off the muzzle, off the bore, at another speed or calibre, or an unrefused mortar is caught.
- * @evidence contracts/development/testing.md#independent-expectations Field-gun speed, calibre and range are the 1861 manual's; the drag-free range is v² sin(2a)/g. Naval shot gauges 6.14/6.20 in and bore 6.41 in are distinct columns of Griffiths 1856 p. 59. Positive clearance and finite positive launch data follow the declared launch contract; authored generic metadata isolate refusal decisions.
- * @evidence contracts/development/testing.md#distinguishing-cases Four field elevations, a refused kind, origin ownership, both naval shot gauges, unknown shot diameter, nonpositive/non-finite speed and shot size, and zero/negative/non-finite bore clearance.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists all five scenarios, the ballistic references, size-versus-bore distinction, refusals and launch-origin ownership.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the scenic trajectory inputs, posed-frame cases and structured refusals for unavailable or malformed metadata.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public simulation outputs from actual model poses and checks the origin and direction against their generated frame. Exercises invalid scene metadata through the same public producer.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the test's literal reference records and its independent ideal-trajectory calculation. The malformed in-memory records isolate distinct admission decisions.
  */
 export function test_archetype_cannon_launch(): void {
   const findings: string[] = [];

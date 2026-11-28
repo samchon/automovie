@@ -20,6 +20,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  * 4. A colour that makes one kind share another kind's colour is refused naming
  *    both, and a colour on an object under a guide pass is refused.
  * 5. `restore` gives the quad its own material back.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the matched quad and mark colors, shade handling, override order, refusal and restoration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the inspection owner using named quads and mark kinds. Reads the resulting material types and colors, mark colors, legend and original material after restore. Executes the two refused requests against the same scene.
+ * @evidence contracts/development/testing.md#independent-expectations The named quad's requested hex color must appear on its basic or Lambert material according to the selected shade. The sibling stays red. The joint color changes, and contact keeps its original color. A later matching color wins. A kind-color collision or an object color in the depth guide throws.
  */
 export function test_render_scene_apply_inspection_color(): void {
   const left: THREE.Mesh = InspectionScene.quad("left", -2, 1);

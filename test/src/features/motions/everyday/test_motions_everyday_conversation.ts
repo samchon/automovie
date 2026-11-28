@@ -25,6 +25,10 @@ import { throwsError } from "../../internal/throwsError";
  *   a participant's gaze over authored turns in a group:
  * - `conversation_share`: `AutoMovieMotionHumanConversation.share` is the share
  *   of a film span the gaze requests spend on a person's face:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Turn spans, listener gaze, release requests, and time spent on another actor's face follow the authored conversation and seeded replay.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls gaze, group gaze, and span accounting on explicit spoken turns, participant identifiers, and gaze requests.
+ * @evidence contracts/development/testing.md#independent-expectations Known event times, rejected participant lists, and hand-counted face durations fix ordering and clipped share independently of the gaze planner.
  */
 export async function test_motions_everyday_conversation(): Promise<void> {
   part_conversation_gaze.verify();

@@ -9,6 +9,8 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
+import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
+import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 import { scaleRecoveryLoftIntervals } from "./scaleRecoveryLoftIntervals";
 
 /*
@@ -50,6 +52,16 @@ export function compileRecoveryImageLoft(
       throw new Error(
         "invalid-image-recipe: aligned-section coefficients, explicit coverage and admissible independent dimensions required",
       );
+    if (
+      !budget ||
+      !isRecoveryPositiveFinite(budget.tolerance) ||
+      !isRecoveryPositiveSafeInteger(budget.maxCells) ||
+      !Number.isSafeInteger(budget.maxVertices) ||
+      budget.maxVertices < 3
+    )
+      throw new Error(
+        "invalid-image-loft-budget: positive finite tolerance and safe cell and vertex caps required (at least three vertices)",
+      );
     const intervals: IAutoMoviePhysicalYInterval[] = scaleRecoveryLoftIntervals(
       recipe.loft.spans,
       recipe.dimensions.heightScale,
@@ -73,7 +85,9 @@ export function compileRecoveryImageLoft(
     > = AutoMovieEngineGeometry.createEllipticLoftAtlas({
       loft: scaled,
       topologyDomain: `image-loft:${recipe.objectId}`,
-      ...budget,
+      tolerance: budget.tolerance,
+      maxCells: budget.maxCells,
+      maxVertices: budget.maxVertices,
     });
     const geometry: IAutoMovieBicubicAtlasGeometry = atlas.geometry;
     const point: (

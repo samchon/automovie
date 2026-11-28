@@ -1,50 +1,32 @@
-/**
- * Directed edge incidence of one observed source cell, including interior
- * edges. Cell, face and component are query-local/source ordinals as documented
- * on their fields; from/to/edge are incidence identities, not positions. Side
- * names the scalar stratum; physicalBoundary independently identifies a true
- * source boundary.
- */
+/** One directed boundary occurrence of a two-dimensional clipped source cell. */
 export interface IAutoMovieRecoverySourceHalfedge {
   /**
-   * Stable identity within the owning chart, boundary or occurrence registry;
-   * equal coordinates do not create identity.
+   * Stable occurrence key combining clipped cell and original polygon-edge
+   * position.
    */
   id: string;
 
-  /** Query-local index into the observed cells array. */
+  /** ID of the clipped cell carrying this occurrence. */
   cell: number;
 
-  /**
-   * Original source-triangle ordinal, preserved through observation and
-   * subdivision.
-   */
+  /** Original source triangle ordinal of the owning cell. */
   face: number;
 
-  /** Identity of the directed source incidence at this edge's start. */
+  /** Raw source node ID at the occurrence start. */
   from: string;
 
-  /** Identity of the directed source incidence at this edge's end. */
+  /** Raw source node ID at the occurrence end. */
   to: string;
 
-  /**
-   * Declared undirected edge identity; halfedge occurrences retain their own
-   * direction and source-face ownership.
-   */
+  /** Shared declared source edge key or face-local clipping edge key. */
   edge: string;
 
-  /**
-   * Scalar-boundary classification; physical alone does not establish a source
-   * boundary.
-   */
+  /** Scalar-boundary role from the occurrence endpoint heights. */
   side: "before" | "after" | "physical";
 
-  /**
-   * True when the declared source edge has exactly one original face
-   * occurrence.
-   */
+  /** Whether the edge has exactly one declared original source face incidence. */
   physicalBoundary: boolean;
 
-  /** Query-local ordinal of the owning two-dimensional source component. */
+  /** Connected two-dimensional clipped component that owns the occurrence. */
   component: number;
 }

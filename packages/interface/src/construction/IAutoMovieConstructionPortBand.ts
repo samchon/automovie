@@ -64,53 +64,64 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  */
 export namespace IAutoMovieConstructionPortBand {
   /**
-   * The part's side: its surface, its rail station field over its own phase,
-   * and its station sign into its kept side.
+   * Original attached surface and its actual phase-dependent or constant rail,
+   * with the station direction of the retained side.
    */
   export interface ISide {
-    /** The part's surface, mm. */
+    /** Original attached surface with positions in kernel world millimetres. */
     surface: IAutoMovieSolidSurface;
 
-    /** The rail's station at the part's phase, mm, with two derivatives. */
+    /**
+     * Actual rail station in kernel millimetres as a function of child phase in
+     * radians. The field gives both derivatives.
+     */
     rail: IAutoMovieConstructionPortField.IField;
 
-    /** The station's sign into the part's kept side. */
+    /** Sign of increasing station into the attached part's kept side. */
     into: 1 | -1;
   }
 
-  /** What the band is built from: the column strip's own results and both sides. */
+  /**
+   * Original host surface and port curve, actual child and rail, and the column
+   * strip's phase and scale observations. The exact band reads these source
+   * fields at every clock and preserves the shared seams. Its physical
+   * transverse span uses millimetres.
+   */
   export interface IInput {
-    /** The band's face name. */
+    /** Name published on the band face. */
     name: string;
 
-    /** The host's surface, mm. */
+    /** Actual host surface in world millimetres, read near the port trim. */
     host: IAutoMovieSolidSurface;
 
-    /** The port curve on the host's chart. */
+    /**
+     * Continuous original port curve and inward chart directions on the host
+     * surface.
+     */
     curve: IAutoMovieConstructionPortCurve.ICurve;
 
-    /** The part's side. */
+    /** Actual attached surface, its rail and sign into the retained side. */
     child: ISide;
 
     /**
-     * The part's phase at each column, radians, unwrapped along the clock
-     * (`IAutoMovieConstructionSplitBand.IStrip.childPhases`).
+     * Unwrapped child phase in radians at each band column, in loop clock
+     * order.
      */
     childPhases: readonly number[];
 
-    /**
-     * Each column's ribbon factor
-     * (`IAutoMovieConstructionSplitBand.IStrip.field`).
-     */
+    /** Cross-scale factor for each column from the admitted strip. */
     field: readonly number[];
 
     /**
-     * The band's span, mm: its station runs from 0 at the port curve to this at
-     * the rail.
+     * Physical band span in millimetres, from transverse zero at the port to
+     * this length at the rail.
      */
     length: number;
 
-    /** The sign that turns `S_u x S_v` outward, the column strip's. */
+    /**
+     * Sign taking the world station-by-clock cross product outward, supplied by
+     * the column strip.
+     */
     orientation: 1 | -1;
   }
 }

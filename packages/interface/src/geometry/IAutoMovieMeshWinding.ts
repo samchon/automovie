@@ -1,36 +1,33 @@
 /**
- * Whether one point is solid or empty with respect to a triangle surface, as a
- * query from `createMeshWindingQuery` answers it.
+ * Signed winding, surface contact and solidity for one query point in the
+ * triangle mesh's own metre frame.
  *
- * The answer reads the generalized winding number (Jacobson, Kavan and
- * Sorkine-Hornung 2013), so it stays meaningful on surfaces that are not closed
- * manifolds: an open tube, overlapping shells merged into one mesh, or a
- * repaired surface that keeps a small hole. The point and every distance behind
- * the answer are in the mesh's own frame, in metres.
+ * The generalized winding number describes open and overlapping surfaces
+ * through their signed solid-angle contributions. Overlapping outward shells
+ * add, inward shells subtract and a hole can leave a fractional winding. The
+ * query snapshots finite mesh positions, requires three finite query
+ * coordinates and returns a finite winding value for an admitted result.
  */
 export interface IAutoMovieMeshWinding {
   /**
-   * The generalized winding number: the signed solid angles of every triangle
-   * seen from the point, summed and divided by 4 pi.
-   *
-   * It is 1 inside an outward closed shell, 0 outside it, -1 inside a shell
-   * wound inward, and the count of shells where outward shells overlap. Near a
-   * hole it falls between those values by the share of the view the hole takes.
-   * It is not meaningful when `surface` is true, because solid angles have no
-   * limit on the surface itself.
+   * Signed sum of solid angles divided by four pi. Use the surface field to
+   * identify positions where solid-angle winding is discontinuous.
    */
   winding: number;
 
   /**
-   * Whether the point lies on a triangle with positive area, its edges and
-   * corners included, within a slack of 1e-9 of that triangle's doubled area.
+   * True when a kept triangle's plane and edge tests accept the point,
+   * including its edges and corners. The plane slack uses 1e-9 of its doubled
+   * area.
+   *
+   * The operation skips triangles with doubled area of at most 1e-12 square
+   * metres.
    */
   surface: boolean;
 
   /**
-   * Whether the point is solid: `surface` is false and the absolute winding
-   * number is at least 0.5. The absolute value counts an inward-wound shell as
-   * solid; `winding` keeps the sign for a caller that must see the reversal.
+   * True when surface is false and the absolute winding number reaches 0.5.
+   * Inward and outward orientations both count toward solidity.
    */
   inside: boolean;
 }

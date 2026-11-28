@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  *    segment (-1..1).
  * 3. Coincident endpoints give the point distance: (0, 3, 4) is 5.
  * 4. A point (3, 4, 0) to a segment collapsed at the origin is 5, not NaN.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers perpendicular interior projection, clamping to an endpoint and coincident endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls pointSegmentDistance on typed points and bounded segments, including two collapsed cases.
+ * @evidence contracts/development/testing.md#independent-expectations The axial fixtures give a perpendicular distance of one and an endpoint gap of two. Both collapsed fixtures reduce to a 3-4-5 point distance.
  */
 export function test_engine_math_point_segment_distance(): void {
   const a: IAutoMovieVector3 = { x: -1, y: 0, z: 0 };

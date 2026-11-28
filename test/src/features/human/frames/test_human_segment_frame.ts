@@ -27,9 +27,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the builders, `mirror`, `compose`, `inverse`, `chain`, `world`, `cardanZXY` and `eulerYXY` of `AutoMovieHumanSegmentFrame`.
  * @evidence contracts/development/testing.md#independent-expectations A rotated straight limb's axes, a plane reflection, Rodrigues' rotation and the angle sequences' own products owe nothing to this code.
- * @evidence contracts/development/testing.md#distinguishing-cases An arm, a forearm with an offset styloid, a femur with an offset knee, a three-segment chain at its reference, neutral and a turned pose.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_segment_frame`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
+ * @evidence contracts/development/common.md#meaningful-documentation Synthetic landmarks and rotations check frame handedness, reflection, composition, inverse and local chain transforms and the two named angle sequences.
  */
 export function test_human_segment_frame(): void {
   const failures: string[] = [];

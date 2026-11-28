@@ -48,11 +48,9 @@ const ALBION: string = "Albion Swords: Crecy, Regent, Knight, Poitiers";
  * 5. A pell's `target` sites run from the ground to its top: `v` of 0 and 1 are a
  *    post's height apart along `Y`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each weapon and measures collider extents, the body's mass, the computed centre of mass, the moment about the grip, frames and sites; a band off its source, a mass split that misses the balance, a blade curved the wrong way or a reverse grip facing the grip's way is caught.
- * @evidence contracts/development/testing.md#independent-expectations Lengths, masses and balance points are Albion's published figures for the Crecy, Regent, Knight and Poitiers, the Ka-Bar's 11 7/8 in and 0.7 lb, the 1796 sabre's 32.5 to 33 in blade, the Wallace Collection's A315 and A316, the 75 to 90 cm of Viking round shields, the quarterstaff's 6 to 9 ft and the Viking spear's 2 to 3 m shaft, the weighed catalogued spearheads' 362 and 540 mm (Museum Wales' medieval iron head and Met 1989.220), each written here from its source. The balance rule (centre of mass at the stated point) is the definition of a point of balance; the inertia bound is the parallel-axis theorem.
- * @evidence contracts/development/testing.md#distinguishing-cases Both maker-measured swords for the full mass properties, one curved and one straight blade, a weapon with and one without the reverse grip. Provisional estimate bands (widths, hilt lengths of the uncited kinds) are not asserted as cited.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies historical scene prop variants, geometric bands, body balance, transverse inertia and directional grip sites.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each scenic prop variant and measures its collider extents, centre of mass and named grip and face frames. Different shape and grip controls exercise direction and balance.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's stated museum and maker dimensions, masses and balance points. Each model's centre must agree with its stated balance point and the parallel-axis theorem bounds the moments.
  */
 export function test_archetype_weapon_blades(): void {
   const row = (

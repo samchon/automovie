@@ -41,6 +41,10 @@ const SEATS: IAutoMovieVector3[] = [
  * 3. Three cards dealt to two seats are each lifted 4 cm and go to the first, the
  *    second and the first again; a deal with no seat is refused.
  * 4. Laying two cards on one place is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines composed board and card actions, capture-before-move order, cyclic dealing and malformed play refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds one quiet chess move and one capture, then tries missing board metadata, three-card dealing and overlapping card placements.
+ * @evidence contracts/development/testing.md#independent-expectations Board coordinates establish destination and capture identity. Three cards over two places alternate first, second, first, with separately declared lift heights.
  */
 export function test_motions_lexicon_tabletop(): void {
   const occupancy: Record<string, string> = { g1: "knight", f3: "pawn" };

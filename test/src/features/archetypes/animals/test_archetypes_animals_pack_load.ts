@@ -29,6 +29,10 @@ const METRES: number = 64 * Number.EPSILON;
  *    the pad and the positive local Y axis faces out of it.
  * 2. A load may exactly fit the narrower pad, while either overhang, zero mass and
  *    missing tack each refuse on their associated axis.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes load size and mass, rotated pad contact and exact fit, overhang, zero mass and missing tack inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Assembles actual paired loads and measures the emitted boxes, inner faces and outward frame directions after applying the scene placement. Exercises dimension and tack refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The authored pad faces bound the loads. The fixture's quarter-turn placement maps local offsets into world `(2+z, 3+y, -4-x)`, fixing expected contact points and normals.
  */
 export function test_archetypes_animals_pack_load(): void {
   const horse: ReturnType<typeof AutoMovieArchetypeHorse.create> =

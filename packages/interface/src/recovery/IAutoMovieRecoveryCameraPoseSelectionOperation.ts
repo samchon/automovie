@@ -4,20 +4,16 @@ import type {
 } from "..";
 
 /**
- * Measure all four calibrated pose branches on one fixed correspondence set.
- * The largest positive-depth count supplies a candidate; equal winning counts
- * remain explicitly ambiguous even though deterministic order names a
- * candidate. Parallax is summarized only for finite points positive in both
- * cameras.
+ * Callable measurement of four calibrated relative-pose branches on one fixed
+ * inlier population.
  */
 
 export namespace IAutoMovieRecoveryCameraPoseSelectionOperation {
   /**
-   * Measure all four calibrated pose branches on one fixed correspondence set.
-   * The largest positive-depth count supplies a candidate; equal winning counts
-   * remain explicitly ambiguous even though deterministic order names a
-   * candidate. Parallax is summarized only for finite points positive in both
-   * cameras.
+   * Project the fundamental matrix into essential space and triangulate every
+   * paired observation under each candidate pose. Return the branch with the
+   * largest positive-depth count. A tied largest count leaves the candidate
+   * explicitly ambiguous.
    */
 
   export type Operation = (
@@ -29,51 +25,45 @@ export namespace IAutoMovieRecoveryCameraPoseSelectionOperation {
     minimumDesignRatio: number,
     maxSweeps: number,
   ) => {
-    /**
-     * Row-major 3 by 3 camera rotation in the operation's declared
-     * source-to-camera convention.
-     */
+    /** Proper first-to-second rotation from the leading positive-depth branch. */
     rotation: number[];
 
-    /**
-     * Camera translation in the operation's admitted reconstruction scale;
-     * two-view direction alone has no metric length.
-     */
+    /** Unit translation in second-camera axes for that branch. */
     translation: [number, number, number];
 
     /**
-     * Row-major 3 by 3 fundamental matrix in the declared pixel charts;
-     * homogeneous scale has no metric meaning.
+     * Unit-norm row-major pixel fundamental matrix reprojected from the
+     * calibrated essential model.
      */
     fundamental: number[];
 
     /**
-     * Triangulated correspondence results in input order, retaining depth and
-     * pixel-error qualifications.
+     * Leading branch triangulations in the original correspondence order,
+     * including unresolved result slots.
      */
     points: ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[];
 
-    /** Positive-depth support count for each candidate pose in candidate order. */
+    /**
+     * Positive-in-both-cameras counts of the four candidate branches in
+     * decomposition order.
+     */
     allPositiveDepthCounts: number[];
 
-    /**
-     * Fraction of evaluated correspondences having positive depth in both
-     * cameras.
-     */
+    /** Leading positive-depth count divided by all tested correspondences. */
     positiveDepthFraction: number;
 
     /**
-     * Median accepted ray angle in radians, or null when no usable population
-     * exists.
+     * Median recorded ray angle in radians for points positive in both cameras,
+     * or null if none.
      */
     medianParallaxRadians: number | null;
 
-    /** Whether one pose has uniquely greatest admitted positive-depth support. */
+    /** True when exactly one branch has the maximal positive-depth count. */
     uniqueWinner: boolean;
 
     /**
-     * Relative discrepancy between the projected essential model and the
-     * estimated epipolar model; dimensionless.
+     * Dimensionless relative Frobenius change under essential singular-value
+     * equalization.
      */
     relativeProjectionDiscrepancy: number;
   };

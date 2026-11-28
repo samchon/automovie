@@ -21,6 +21,10 @@ const ROUNDING: number = 1e-12;
  * 3. A bone only the second map names blends from zero; one only the first names
  *    blends to zero.
  * 4. The weight is not clipped: 1.5 extrapolates.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines unclamped linear blending over the union of clinical joint maps with absent axes read from zero.
+ * @evidence contracts/development/testing.md#behavioral-verification Blends two typed maps at endpoints, one-quarter and 1.5, including both directions of omitted joints.
+ * @evidence contracts/development/testing.md#independent-expectations Direct interpolation yields (10, 15, −10) at one-quarter. Missing joints converge to or from the zero tuple, and 1.5 extrapolates.
  */
 export function test_motions_posture_prepare_human_shape_blend(): void {
   const blend: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =

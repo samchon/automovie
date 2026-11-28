@@ -14,9 +14,7 @@ import type { IAutoMovieHumanConicLoft, IAutoMovieViewPart } from "@automovie/in
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls ordinary and actual NativeFamily/ConicLoft part/mirror consumers with turn sampling; passing collapsed pole rings into the wall sampler produces an empty clock and fails.
  * @evidence contracts/development/testing.md#independent-expectations Each convex radius2 wall ring has perimeter4pi and total turn2pi. Three such rings at pitch100/turnpi plus phasepi need fewer than48 density units even under the sum bound, so the fixed minimum48 is the independent count.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes one/two caps, ordinary/native sources, both reflected sides, finite/order/count and retained-cap counterparts.
- * @evidence contracts/development/testing.md#execution-ownership Tiny made circles and their direct native sampling consumer only; no person, reference, whole realization, host or process.
- * @evidence contracts/development/common.md#meaningful-documentation Names the regular-wall sampling contract and separates that from retaining all emitted cap layers.
+ * @evidence contracts/development/common.md#meaningful-documentation Regular wall rings determine the minimum phase density, while one- and two-cap examples retain the requested pole layers and reflected side domains.
  */
 export function test_human_native_sampling_scope(): void {
   const failures: string[] = [];

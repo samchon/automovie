@@ -18,7 +18,13 @@ import { TestValidator } from "@nestia/e2e";
 
 const ACTOR = "a";
 
-/** The wave's transport rates and the shoulder level of the displayed stop palm. */
+/**
+ * The wave's transport rates and the shoulder level of the displayed stop palm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The rendered wave transports the hand continuously, and the stop palm reaches shoulder level.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the wave and stop through their motion entry points and reads the displayed positions from pose evaluation.
+ * @evidence contracts/development/testing.md#independent-expectations Successive world positions determine the wave's transport rates, and the posed shoulder supplies an independent height for the stop palm.
+ */
 export function test_motions_everyday_gesture_geometry(): void {
   const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body("m-average");
   for (const side of ["right", "left"] as const) {

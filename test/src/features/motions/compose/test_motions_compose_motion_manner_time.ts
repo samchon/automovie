@@ -29,6 +29,10 @@ const ROUNDING: number = 1e-12;
  *    and the end at 11 s.
  * 3. A tempo and a hold of 1 return the clock itself.
  * 4. A hold the clock lacks is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names scaled movement, scaled holds, fixed recovery, default hold names, identity factors and a missing-name refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motionManner.time on authored synthetic clocks with declared and default hold names, then reads rescheduled seconds and original clock identity.
+ * @evidence contracts/development/testing.md#independent-expectations The first clock sums 2×0.5, 2×2 and 2 unchanged seconds to 1, 5 and 7. The default holds produce cumulative seconds 2, 8 and 11 from spans scaled by 2, 3 and 3.
  */
 export function test_motions_compose_motion_manner_time(): void {
   // 1. Named holds and fixed spans.

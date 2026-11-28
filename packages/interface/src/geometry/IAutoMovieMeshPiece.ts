@@ -1,58 +1,65 @@
 /**
- * The topology of one piece of a mesh, as `measureMeshPieces` reports
- * it.
- *
- * A piece is a set of non-degenerate triangles connected through shared edges
- * after the mesh's corners are welded the way `inspectMeshTopology`
- * welds them, so face-local corners at one point join and a seam split for UVs
- * counts once. Two pieces that touch only at a corner stay two pieces. The
- * counts are of welded vertices, undirected edges and triangles, and the genus
- * counts handles: a cube has none, a torus or a mug's handle one.
+ * Topology and orientation summary of one edge-connected component after shared
+ * corner welding.
  */
 export interface IAutoMovieMeshPiece {
-  /** The lowest triangle ordinal in the piece, which orders the pieces. */
+  /**
+   * Lowest zero-based source triangle ordinal in the component. It orders the
+   * returned components.
+   */
   firstTriangle: number;
 
-  /** Welded vertices the piece's triangles use. */
+  /**
+   * Number of distinct welded identities used by this component, using explicit
+   * physical identities when present.
+   */
   vertices: number;
 
-  /** Undirected welded edges the piece's triangles use. */
+  /** Number of distinct undirected welded pairs among the component's triangles. */
   edges: number;
 
-  /** Non-degenerate triangles in the piece. */
+  /**
+   * Count of triangles in this component after lattice-collapsed triangles are
+   * excluded.
+   */
   faces: number;
 
   /**
-   * Closed loops of edges used by one triangle, counted as connected components
-   * of those edges; 0 for a closed piece.
+   * Count of connected components formed by edges used once. A closed component
+   * returns zero.
+   *
+   * For a manifold component these components are the boundary loops.
+   * Nonmanifold pieces also retain the connected-component count.
    */
   boundaryLoops: number;
 
-  /** The Euler characteristic, `vertices - edges + faces`. */
+  /**
+   * Euler characteristic computed from component counts as vertices minus edges
+   * plus faces.
+   */
   euler: number;
 
   /**
-   * Whether every edge has one or two triangles and every vertex's triangles
-   * form one fan, so the piece is a surface with or without boundary.
+   * True when every edge has at most two uses and every component vertex has
+   * one triangle fan.
    */
   manifold: boolean;
 
   /**
-   * Whether the piece's triangles admit one consistent orientation, whatever
-   * their stored winding; null when the piece is not manifold.
+   * Whether consistent face orientation is possible by selective flips. The
+   * test returns null for a nonmanifold component.
    */
   orientable: boolean | null;
 
   /**
-   * Whether the stored windings already agree: every edge shared by several
-   * triangles is traversed as often in one direction as in the other, which for
-   * two triangles means oppositely.
+   * Whether each multiply used edge has equal counts in both directions under
+   * the stored triangle ordering.
    */
   consistentlyWound: boolean;
 
   /**
-   * Handles, `(2 - euler - boundaryLoops) / 2`, when the piece is manifold and
-   * orientable; otherwise null, because the formula holds only there.
+   * Handle count derived from Euler characteristic and boundary count for an
+   * orientable manifold. Other components yield null.
    */
   genus: number | null;
 }

@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    value the name and its alternatives the performers.
  * 2. A missing prop is an `affordance` refusal on the axis `prop`.
  * 3. A given axis replaces the default.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names missing performer and prop refusal kinds, their default axes, available alternatives, and the explicit axis override.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the missing-reference owner with three literal requests and inspects the returned `AutoMovieMotionHumanRefusal` instance, kind, axis, value and alternatives where applicable.
+ * @evidence contracts/development/testing.md#independent-expectations The missing performer ghost reports participant on performer and offers a and b. The missing cup reports affordance on prop and offers mug. Supplying target.subject changes only the axis fields asserted for that variant.
  */
 export function test_motions_perform_read_missing(): void {
   const performer = HumanPerformanceReadMissing("performer", "ghost", [

@@ -27,11 +27,9 @@ import { nclose, throwsError } from "../internal/predicates";
  * 4. A two-metre track can meet a pond rim. The same centerline with a three-metre
  *    corridor would overlap water and refuses that width.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States seed, amplitude, mesh measurements, vegetation placement, grade conflicts and full-width route cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Compares triangle interior heights with staged and world queries and checks seeded instance placement. Exercises seed changes, overlapping pads, excessive grade and two corridor widths near a pond.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public environment producer, compares actual triangle interiors with independent scene and world query paths, and performs one real compact slot regeneration.
  * @evidence contracts/development/testing.md#independent-expectations The chosen relief's mean is 3 m and amplitude is 1 m. The authored error ceiling is 0.015 m. Triangle barycenters come from actual render topology. The refusal sites are literal overlapping squares, a two-metre rise over five metres and a pond rim one metre beside the path's centerline.
- * @evidence contracts/development/testing.md#distinguishing-cases Tests a different seed, positive observed triangle error, two independent height readers and non-level scatter. The same path with two widths distinguishes boundary contact from positive exclusion overlap.
- * @evidence contracts/development/testing.md#execution-ownership CPU-only feature scenario, with render coverage shared by the production fixture. No mocked globals or native GPU resources.
  */
 export function test_location_terrain(): void {
   const build: (seed: number) => IAutoMovieEnvironment = (

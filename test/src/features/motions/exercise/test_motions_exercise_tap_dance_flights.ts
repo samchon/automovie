@@ -25,6 +25,10 @@ const key = (
  * 2. A dance that starts in the air flies from 0 until its first bearing key.
  * 3. In the middle of the 0.2 s flight the hips are `g 0.04 / 8` up; outside it
  *    none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Tap dance lifts the hips only where both foot supports are absent. Brushes provide no support.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls flight extraction on overlapping bearing spans and a brush, then samples the ballistic hop inside and outside flight.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting the bearing intervals gives the 1.2–1.4 s gap. Its 0.2-second duration and gravity give the midpoint rise independently.
  */
 export function test_motions_exercise_tap_dance_flights(): void {
   const flights: tapDanceFlights.IFlight[] = tapDanceFlights(

@@ -35,9 +35,7 @@ import { throwsError } from "../internal/throwsError";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public tensor and momentum readings on real bodies and a two-box model; a segment whose centre or principal frame is carried in the wrong frame, a parallel-axis term with the wrong sign, an angular velocity from the wrong relative rotation, or a translation leaking into the tensor fails.
  * @evidence contracts/development/testing.md#independent-expectations Rigid motion's `L = I w` and zero linear momentum, the box's moments and the parallel-axis theorem written out by hand, a tensor's transformation law `R I Rᵀ`, the mirror symmetry of a symmetric body and `p = m v`; tolerances are the central difference's stated error and double precision.
- * @evidence contracts/development/testing.md#distinguishing-cases Two statures, two poses, a primitive model with a turned part, translation and rotation, still and moving, and a refused interval; the flight that integrates these momenta belongs to `test_engine_airborne_rotation`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test of pure engine functions on in-memory bodies, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios with their bounds and their bases.
+ * @evidence contracts/development/common.md#meaningful-documentation Rigid rotation, a two-box assembly, translated crouches and uniform motion exercise inertia and momentum. A nonpositive sample interval is refused.
  */
 export function test_engine_body_momentum(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

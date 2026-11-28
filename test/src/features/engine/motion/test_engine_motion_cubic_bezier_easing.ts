@@ -19,6 +19,10 @@ const INVERSION: number = 1e-6;
  * 2. Controls (1, 0) and (0, 1) at parameter ¾: x = 9/16 and y = 27/32, the
  *    inversion through the stationary abscissa.
  * 3. `cubicBezier` without controls is linear; progress outside [0, 1] is clamped.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the curve inversion, complementary controls, stationary abscissa, endpoint clamping, and linear default.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the cubic Bézier evaluator on three explicit control tuples and calls `ease` for its behavior with absent controls or out-of-range progress.
+ * @evidence contracts/development/testing.md#independent-expectations At parameter 1/2, the first two tuples have abscissa 1/2 and ordinates 1/8 and 7/8. For controls (1, 0) and (0, 1), parameter 3/4 gives abscissa 9/16 and ordinate 27/32. The latter numerical inversion allows 1e-3.
  */
 export function test_engine_motion_cubic_bezier_easing(): void {
   // 1. Complementary controls.

@@ -21,6 +21,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    point.
  * 2. A fill whose point stands 0.1 m off the skin records exactly one diagnostic
  *    of contract `fill` and leaves the skin as the plain assembly's.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a bounded on-skin fill, preserved indices and off-skin diagnostic and rollback.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the plain assembly and two datum-controlled fills, then compares positions, indices and the returned diagnostic contract.
+ * @evidence contracts/development/testing.md#independent-expectations The filled skin may move only within three times the declared 5 mm radius. A point 0.1 metres from the skin exceeds that local region and leaves the baseline mesh intact.
  */
 export function test_engine_geometry_construction_fill(): void {
   const realize = (

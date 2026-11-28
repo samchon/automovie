@@ -49,6 +49,10 @@ const ROUNDING: number = 1e-12;
  *    9 cm ahead starts at `[0, 0]`, passes `[0, c]` at its chord share, where
  *    `c` brings the elbow (a forearm behind the fist) to the chest's front,
  *    ends at `[1, 1]`, and turns no share inward before the crossing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines authored stance clock, pelvis turn, held guard sites and a virtual path through declared rig knots.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples two stance sides and guard placements, then reads the stored rig's animated fist path at its chord and endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations Time sums fix 2.72 s total and four cue times. Chest clearance 0.12 + 0.07 m bounds the rear pose, and the given elbow alignment defines the interior path knot.
  */
 export async function test_motions_sport_martial_art(): Promise<void> {
   // 1. The timetable.

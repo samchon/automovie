@@ -1,25 +1,31 @@
 import type { AutoMovieVector3Tuple, IAutoMoviePolylineFit } from "..";
 
-/**
- * Fitted closed-loop diagnostics, open arcs and isolated contacts at one
- * physical section.
- */
+/** Observed curve fit and contact evidence at one physical section station. */
 export interface IAutoMovieRecoverySectionReport {
-  /** Section coordinate along the admitted physical slicing axis, millimetres. */
+  /** Signed physical station along the registered axis, in millimetres. */
   coordinateMm: number;
 
-  /** Closed-loop fit diagnostics in the same order as the section's loft loops. */
+  /**
+   * Closed-loop fit metadata in published loop order. Cubic coefficients live
+   * in the corresponding section loops.
+   */
   fits: Omit<IAutoMoviePolylineFit, "curve">[];
 
   /**
-   * Open fitted arcs, including their millimetre coefficients and fit
-   * diagnostics.
+   * Complete open-contour fit records, including their saved cubic
+   * coefficients.
    */
   open: IAutoMoviePolylineFit[];
 
-  /** Isolated contact positions in the admitted millimetre frame. */
+  /**
+   * Registered points whose source plane contact did not support a fitted
+   * curve.
+   */
   isolatedContactsMm: Readonly<AutoMovieVector3Tuple>[];
 
-  /** Unresolved section observations and numerical failures. */
+  /**
+   * Station findings for unrepresented contacts, failed fits and unmet fitting
+   * targets.
+   */
   diagnostics: string[];
 }

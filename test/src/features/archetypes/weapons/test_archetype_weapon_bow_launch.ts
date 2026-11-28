@@ -11,11 +11,9 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A crossbow, whose draw weight no source read gives, is refused at `draw`.
  * 4. Each hand-drawn kind drawn full launches a 0.02 kg arrow at the declared prototype energy balance worked here, `sqrt(2 q F X / (m + K))` with authored stroke factor `q` 0.407 for the longbow and 0.426 for recurve/horse bow, reinterpreted from native reference numbers without converting their full-draw normalization, and `K = m0 (1 - eta) / eta` from his 0.765 efficiency at 0.02 kg (Kooi 1983, pp. 46, 77, 117, 161), within 1e-12 of it; a 0.04 kg arrow leaves slower.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces bows and reads their launch speed across draws with finite-safe comparisons; a speed outside the recorded band, one that does not grow with the draw, or one at brace is caught.
- * @evidence contracts/development/testing.md#independent-expectations The band is KSL's measured speeds, read here as numbers, not from the producer; the energy balance and explicit prototype stroke factors are restated here independently of implementation. These factors reuse Kooi's reference numbers under a different, provisional normalization, so this unit does not validate measured stored energy.
- * @evidence contracts/development/testing.md#distinguishing-cases Both ends of the recurve's draw band, every kind, brace and full draw, two arrow masses.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the simulated speed observations, brace boundary and the scenario's provisional energy convention.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public simulation value across the stated authored motion samples. Checks a reference band, monotonicity and a zero result at brace.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal measurement band and independently stated prototype inputs. The scenario covers a provisional animation law with its chosen scaling.
  */
 export function test_archetype_weapon_bow_launch(): void {
   const findings: string[] = [];

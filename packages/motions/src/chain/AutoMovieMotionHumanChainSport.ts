@@ -124,10 +124,12 @@ export class AutoMovieMotionHumanChainSport extends AutoMovieMotionHumanChainMut
   }
 
   /**
-   * Perform a team ball skill with an implied ball: a dribble, a dig, a set or
-   * a throw-in.
+   * Perform a team ball skill. Court releases use a held prop. Aim points
+   * use world metres. After a set shot releases its ball, the fixed finish can
+   * connect the placed endpoint arms when both palm sites remain still and the
+   * proposed passage meets the sampled hand and body limits.
    *
-   * @param params The skill, the side and the count.
+   * @param params The skill and its action-specific props, aim or gesture.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */
@@ -169,9 +171,11 @@ export class AutoMovieMotionHumanChainSport extends AutoMovieMotionHumanChainMut
   }
 
   /**
-   * Swim on a declared water plane: tread water or swim the front crawl.
+   * Append a stroke, stationary tread, float, or scripted falter on a
+   * horizontal water plane. A dog-paddle course can turn as it advances.
    *
-   * @param params The stroke, the water's height and the cycles.
+   * @param params The action, water height, cycle count, pace and optional
+   *   turn.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */

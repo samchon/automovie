@@ -1,37 +1,27 @@
 import type { IAutoMovieMeshPlaneIntersection } from "..";
 
-/**
- * Connected ordered source section, retaining explicit closure instead of an
- * artificial cap.
- */
+/** Ordered source polyline or isolated contact observed at one plane. */
 export interface IAutoMovieMeshPlaneContour {
-  /** True only when canonical source-cut adjacency returns to the first point. */
+  /** Whether the observed edge population returns to its first cut point. */
   closed: boolean;
 
-  /** Ordered intersections; closure does not duplicate the first endpoint. */
+  /** Ordered registered cut points and their source intersection addresses. */
   pts: IAutoMovieMeshPlaneIntersection[];
 
   /**
-   * Optional acquisition provenance: original faces that emitted an actually
-   * visited cut segment or isolated contact, excluding unrelated endpoint-star
-   * neighbors. Omitted unless explicitly retained by the cutter.
+   * Optional original triangle IDs that actually emitted the contour's source
+   * segments or contact.
    */
   exactSourceTriangleIds?: readonly number[];
 
-  /**
-   * Opt-in directed graph-walk order; omitted by default and empty for
-   * contacts.
-   */
+  /** Optional directed contour segment witnesses in observed traversal order. */
   orderedSegments?: Array<{
-    /**
-     * Private graph edge; array order follows consecutive pts and actual
-     * closure.
-     */
+    /** Source cut occurrence identity for the corresponding ordered segment. */
     id: string;
 
     /**
-     * Original input faces emitting this contribution, excluding endpoint-star
-     * neighbors.
+     * Original source face IDs that emitted this segment, in ascending ordinal
+     * order.
      */
     sourceTriangleIds: number[];
   }>;

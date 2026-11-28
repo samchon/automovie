@@ -3,13 +3,10 @@ import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 /**
  * A declared contour topology event prepared for adjacent-slab planning.
  *
- * PrepareAutoMovieContourDocument64 copies the event's physical coordinates,
- * terminal and signed saved-loop incidence. Its link fields encode the declared
- * event kind and regularity; they are not measurements of a recovered mesh
- * link. planContourSlabs64 uses these same records to match groups and
- * keeps unsupported relationships as explicit local omissions. The record and
- * copied terminal/incidence arrays belong to one generation call and remain
- * mutable work data. It carries no source-mesh vertex address.
+ * Document preparation copies the critical coordinate, saved cut bracket,
+ * terminal and signed loop addresses into generation-local work data. The link
+ * fields encode the authored event kind and regular flag. Slab planning borrows
+ * the event objects and retains unsupported relationships as local omissions.
  */
 export interface IAutoMoviePreparedContourEvent64 {
   /**
@@ -48,15 +45,12 @@ export interface IAutoMoviePreparedContourEvent64 {
    */
   upperLinkComponents: number;
 
-  /**
-   * Copy of the event's regular flag, not an independently established
-   * manifold-link result.
-   */
+  /** Authored regularity copied to the link field during preparation. */
   manifoldLink: boolean;
 
   /**
-   * Negation of the declared regular flag in the current preparation adapter;
-   * it does not independently inspect neighbouring vertices.
+   * Negation of authored regularity used by the current preparation adapter.
+   * The adapter derives this flag without a neighboring-vertex measurement.
    */
   equalHeightNeighbour: boolean;
 

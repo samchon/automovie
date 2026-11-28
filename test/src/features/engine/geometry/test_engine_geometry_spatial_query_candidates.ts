@@ -21,6 +21,10 @@ import { throwsError } from "../../internal/throwsError";
  *    first shared cell: [0, 3, 1].
  * 3. An infinite cell puts every coordinate in cell 0: all four, by ordinal.
  * 4. Cell widths 0, -1 and NaN are refused ("positive cell width").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names closed overlap, shared-cell order and identity, infinite cell and invalid widths.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the actual spatial tree in overlap and shared-cell modes and reads ordering and original object identities.
+ * @evidence contracts/development/testing.md#independent-expectations The written intervals meet at x = 1 and share cell 2 with the next cube only in shared-cell mode. Ties use ordinal, and infinite width maps all positions to cell zero.
  */
 export function test_engine_geometry_spatial_query_candidates(): void {
   const cube = (ordinal: number, x: number): IAutoMovieSpatialQueryEntry => ({

@@ -1,5 +1,22 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
@@ -140,6 +157,8 @@ export namespace AquaticTeam {
           ]);
     const gripStart: number = schedule.gripStart;
     const gripEnd: number = schedule.gripEnd;
+    const reachStart: number = gripStart - BASE_REACH;
+    const reachEnd: number = gripEnd + BASE_REACH;
     const support: ReturnType<typeof AquaticTeamBase.prepare> | undefined = base
       ? AquaticTeamBase.prepare(context, water, tHigh, high)
       : undefined;
@@ -202,21 +221,33 @@ export namespace AquaticTeam {
             rightHand: joint("rightHand", 18),
           },
         };
-        const blendContact: number = AutoMovieEngineMotionSampling.minimumJerkShare(
-          Math.max(
-            0,
-            Math.min(
-              1,
-              (t - gripStart + CONTACT_BLEND) / CONTACT_BLEND,
-              (gripEnd + CONTACT_BLEND - t) / CONTACT_BLEND,
+        const blendContact: number =
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            Math.max(
+              0,
+              Math.min(
+                1,
+                (t - gripStart + CONTACT_BLEND) / CONTACT_BLEND,
+                (gripEnd + CONTACT_BLEND - t) / CONTACT_BLEND,
+              ),
             ),
-          ),
-        );
-        // A base writes its whole palm offer over its arm's course, which
-        // lays the reach in and out itself.
+          );
+        // The arm course reads a goal at both endpoints. At those instants
+        // the goal carries the scull pose the arm leaves from or returns to.
         if (support !== undefined)
-          return t >= gripStart - BASE_REACH && t <= gripEnd + BASE_REACH
-            ? support(shaped, t, 1)
+          return t >= reachStart && t <= reachEnd
+            ? support(
+                shaped,
+                t,
+                t === reachStart || t === reachEnd ? 0 : 1,
+                AutoMovieEngineMotionSampling.minimumJerkShare(
+                  Math.min(
+                    1,
+                    (t - reachStart) / BASE_REACH,
+                    (reachEnd - t) / BASE_REACH,
+                  ),
+                ),
+              )
             : shaped;
         if (blendContact === 0) return shaped;
         if (
@@ -241,7 +272,10 @@ export namespace AquaticTeam {
             .get(region.bone)!;
           const palm: ReturnType<
             typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace
-          > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bone);
+          > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
+            region,
+            bone,
+          );
           if (
             t >= gripStart &&
             t <= gripEnd &&
@@ -278,10 +312,10 @@ export namespace AquaticTeam {
     // arm into the offered palm and back out (`courseArmGoal`).
     if (!base) return plan;
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-      start: gripStart - BASE_REACH,
+      start: reachStart,
       ready: gripStart,
       relax: gripEnd,
-      end: gripEnd + BASE_REACH,
+      end: reachEnd,
     };
     // The arm the figure's own key holds as the reach begins.
     const opening: IAutoMovieMotionHumanPosture = plan.posture(span.start);

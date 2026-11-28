@@ -37,6 +37,10 @@ const BLADE: IAutoMovieAffordance = {
  * 2. Turned a quarter about +Z at (1, 2, 3), the shaft axis `UP` lands along -X,
  *    at (0, 2, 3).
  * 3. The stick's `blade` is its declared contact; an undeclared `heel` is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the virtual stroke's time marks, stick pose transform and named working point admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a fixed take and swing, transforms the authored stick frame and selects a declared blade and missing heel.
+ * @evidence contracts/development/testing.md#independent-expectations The 55% and 85% shares of a 0.75 s swing after 0.4 s give 0.8125 and 1.0375 s. A quarter turn maps the virtual shaft axis to −X.
  */
 export function test_motions_sport_stick_ball(): void {
   const clock: IAutoMovieMotionClock = stickBallClock(0.4, 0.75);

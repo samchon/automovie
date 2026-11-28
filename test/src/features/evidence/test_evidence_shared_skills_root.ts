@@ -66,8 +66,6 @@ import path from "node:path";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public createEvidenceConfig, createProductionConfig and claim helpers and reads the reference roots, selected documents and refusal messages they produce, so a shared contract rooted in the production, a work or language contract rooted anywhere but `docs/contracts`, a probe in the wrong tree, or a silently accepted legacy layout fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected roots are the literal relative paths of the temporary layout `movies/shorts/demo` with its workspace `.agents/skills` and its own `docs/contracts`; the selected documents follow from which tree each fixture file was written to, and the refusal text is the documented legacy-to-new mapping, not output of the factories' path helpers.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a workspace and a standalone configuration of the same production, decoy shared and language documents installed only in the non-owning tree, an omitted and an explicit default `skills`, relative and absolute values, default and supplied helper roots, and one against two legacy families across all three refusing entries.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-process unit: it writes a few Markdown files in its own temporary directory, removes it in finally, and starts no process or Evidence evaluation.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the ownership rule under test and numbers each scenario with the property it pins.
  */
 export function test_evidence_shared_skills_root(): void {

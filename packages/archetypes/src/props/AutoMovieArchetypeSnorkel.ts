@@ -12,16 +12,20 @@ import { AutoMovieArchetypeSnorkelData } from "./internal/AutoMovieArchetypeSnor
 
 /** Constructs the snorkel archetype from its recipe. */
 export namespace AutoMovieArchetypeSnorkel {
-/**
- * A J snorkel worn beside the head. Its origin is the mouthpiece, `+Y` up along
- * the barrel and `+Z` out of the mouth. `wear` is the mouthpiece the mouth
- * closes on; `top` is the barrel's open top, which must stay above the surface
- * while the swimmer breathes through it.
- *
- * @param params Scene identity and dimensions within their bands.
- * @param seed Draws free dimensions within their bands.
- * @returns The item with its contacts.
- */
+  /**
+   * Build a snorkel with a mouthpiece and a vertical tube beside the head.
+   *
+   * Mount it by the `wear` socket at the local origin, with `+Z` facing out
+   * of the mouth. The barrel rises along local `+Y`. The `top` socket marks
+   * its open end. When staging breathing through the mounted snorkel, keep
+   * the posed `top` above the world water plane.
+   *
+   * @param params Optional subject ID and fixed dimensions.
+   * @param seed Draws omitted dimensions within their bands. Omit it to use
+   *   a 0.36 m barrel and 0.15 kg mass.
+   * @returns The snorkel with its mounting and open-end sockets.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed value outside its band.
+   */
 export function create(
   params: AutoMovieArchetypeSnorkel.IParams = {},
   seed?: number,
@@ -68,19 +72,29 @@ export function create(
 }
 
   /* Dimensions and the socket of {@link createSnorkel}. */
-  /** The mouthpiece, and the barrel's open top. */
+  /**
+   * `wear` is the mouthpiece socket. `top` marks the barrel's open end.
+   */
   export type Affordance = "wear" | "top";
 
-  /** The barrel's height above the mouthpiece, and the mass. */
+  /**
+   * Barrel rise in metres and snorkel mass in kilograms.
+   */
   export type Dimension = "length" | "mass";
 
-  /** Scene identity and fixed dimensions. */
+  /**
+   * Optional scene ID and fixed values within the snorkel's dimension bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
+    /**
+     * Scene subject ID. Defaults to `snorkel`.
+     */
     id?: string;
   }
 
-  /** Units of each dimension. */
+  /**
+   * Units for the tube's vertical rise and mass.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -88,7 +102,9 @@ export function create(
     mass: "kg",
   };
 
-  /** Staged bands. */
+  /**
+   * Staging bands for the rise and mass of one snorkel.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(0.32, 0.4, AutoMovieArchetypeSnorkelData.STAGED, true),
     mass: AutoMovieArchetypeBand.of("kg", 0.1, 0.2, AutoMovieArchetypeSnorkelData.STAGED, true),

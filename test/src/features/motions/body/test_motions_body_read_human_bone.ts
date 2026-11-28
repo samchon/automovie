@@ -12,14 +12,16 @@ import type { IHumanFixture } from "../../internal/fixtures/IHumanFixture";
 import { humanFixture } from "../../internal/fixtures/humanFixture";
 
 /**
- * `readHumanBone` reads a bone's record from the body's index of its rig: the
- * indexed object itself, or undefined for a bone the rig lacks.
+ * Check direct lookup of a human bone by its index key.
  *
- * Scenarios, on an index of the stored rig's hips and left hand:
+ * Scenarios:
  *
- * 1. The hips' record is the indexed object.
- * 2. The left hand's record is the indexed object.
- * 3. A bone left out of the index reads undefined.
+ * 1. Look up the stored hips and left hand and receive their indexed objects.
+ * 2. Read a bone absent from the fixture's index and receive `undefined` .
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify identity-preserving lookup and absence.
+ * @evidence contracts/development/testing.md#behavioral-verification The lookup uses a map of actual fixture rig records.
+ * @evidence contracts/development/testing.md#independent-expectations Expected object references come directly from the fixture's map entries.
  */
 export async function test_motions_body_read_human_bone(): Promise<void> {
   const stored: IHumanFixture = await humanFixture("m-average");

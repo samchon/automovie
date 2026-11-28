@@ -7,6 +7,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 /**
  * A backward walk keeps the swing ankle inside the leg's reach while the
  * departing sole anchor fades out. Sample the early swing after each toe-off.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The backward walk keeps its ankle within leg reach during early swing as its sole contact fades.
+ * @evidence contracts/development/testing.md#behavioral-verification Plays a stock backward walk and samples the ankle after each declared toe-off, comparing it with the active limb goal.
+ * @evidence contracts/development/testing.md#independent-expectations The 2 mm distance bound directly compares displayed ankle and goal at the tested instants and would fail if the departing foot retained an unreachable target.
  */
 export async function test_motions_actions_walk_reverse_reach(): Promise<void> {
   const body = await humanFixtureBody("m-average");

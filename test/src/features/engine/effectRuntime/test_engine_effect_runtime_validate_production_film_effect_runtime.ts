@@ -26,6 +26,10 @@ const refusal: (runtime: IAutoMovieCompiledFilmEffect) => string | null = (
  * 1. A materialized runtime is admitted.
  * 2. An interval that ends at its start is refused as invalid.
  * 3. A changed content digest is refused as invalid.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines validation of a materialized effect's nonempty interval and content digest.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates an actual materialized runtime, then changes just its interval and just its digest.
+ * @evidence contracts/development/testing.md#independent-expectations The unchanged runtime is a positive control. Making end equal start violates a nonempty interval and a changed digest must refuse even with timing unchanged.
  */
 export function test_engine_effect_runtime_validate_production_film_effect_runtime(): void {
   const runtime: IAutoMovieCompiledFilmEffect =

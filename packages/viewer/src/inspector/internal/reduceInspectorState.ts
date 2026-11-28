@@ -74,8 +74,8 @@ export function reduceInspectorState(
       break;
     case "time":
     case "locate":
-      // `at` excludes an even sampling, so its keys go.
-      for (const key of ["from", "to", "rate"]) values.delete(key);
+      // A chosen time replaces a named cue or an even sampling.
+      for (const key of ["from", "to", "rate", "cue", "entry"]) values.delete(key);
       values.set("at", String(action.seconds));
       if (action.type === "locate")
         edit(values, "label", (): string[] => [...action.label]);

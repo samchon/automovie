@@ -81,6 +81,10 @@ function point(
  *    minimum-jerk share of the stirrup's moving-frame goal.
  * 3. At bearing and the final sample, the stirrup takes the ankle's offset
  *    and rotation. Re-reading an earlier second still holds the floor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The mount moves from the floor to a stirrup while the seat and tread follow their film-clock motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the carried contact readers at departure, approach, and bearing against a moving seat and stirrup fixture.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies each carrier transform separately. Its quintic approach share and measured socket offset determine the selected world ankle and knee direction.
  */
 export function test_motions_everyday_sit_carried(): void {
   const reader: IAutoMovieMotionHumanPropReader = {

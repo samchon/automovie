@@ -49,6 +49,10 @@ function knot(
  *    its fitted branch or absence. A goal starting inside uses the later seed.
  * 6. A midpoint covered by both feasible arcs retains the earlier arc in
  *    its own winding. Excluding the midpoint from either arc drops the arc.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names short-angle unwrap, optional twist, branch breaks, rest endpoints, limb appearance and the shared feasible arc.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls courseLimbSwivelKnots rates and between on typed knot records and synthetic branches, and examines angles, velocities, seeds and feasible arcs.
+ * @evidence contracts/development/testing.md#independent-expectations Unwrapping 170, -170 and -150 on one branch yields 170, 190 and 210. The symmetric rest-to-rest interval reaches 40 at midpoint, and 180 retains the earlier arc only if both authored intervals contain it.
  */
 export function test_motions_compose_swivel_knots(): void {
   // 1. Unwrapped and at rest.

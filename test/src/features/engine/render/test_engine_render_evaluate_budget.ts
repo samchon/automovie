@@ -45,6 +45,10 @@ const finding: (
  * 3. With no budget the tier is "unbudgeted" and every finding has no limit.
  * 4. The same inputs give the same digest; a different limit another one.
  * 5. A negative limit and a contributor bound of zero are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names within and over limits, unbudgeted reporting, stable and varied digests, and malformed limit and contributor requests.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures an authored render subject through the inventory fixture and passes it to the budget evaluator with two limits and an absent budget.
+ * @evidence contracts/development/testing.md#independent-expectations Five boxes and twelve instances have twelve triangles each. Drawing each twice for the shadow pass yields 408. Limits 1000 and 400 give zero and eight excess, respectively.
  */
 export function test_engine_render_evaluate_budget(): void {
   const inventory: IAutoMovieRenderInventory = measureRenderBudgetSubject(

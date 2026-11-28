@@ -1,8 +1,9 @@
 import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
 
 /**
- * Actual contour emission populations and unchanged qualification metadata.
- * Channel contents belong to the explicitly supplied synchronous sink.
+ * Delivered vertex and triangle counts with contour qualification records. The
+ * synchronous sink owns channel storage. Counts describe callbacks completed by
+ * a successful generator invocation.
  */
 export interface IAutoMovieContourLoftEmission64 extends Omit<
   IAutoMovieContourLoft64.IResult,

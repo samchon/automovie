@@ -21,6 +21,10 @@ const ORIGIN: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
  * 2. Up and ahead 1:1 is pitch 45, and straight up is pitch 90.
  * 3. An actor facing 90 sees +Z at yaw -90.
  * 4. A target at the origin gives (0, 0).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers yaw convention, elevation, actor-relative yaw and a coincident target.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls aimYawPitch with a common origin and explicit forward, sideways, sloped, vertical and same-point targets.
+ * @evidence contracts/development/testing.md#independent-expectations Axis directions fix yaw at zero and 90 degrees. Equal rise and run give pitch 45, vertical gives pitch 90, and an actor yaw of 90 subtracts that yaw from +Z.
  */
 export function test_engine_kinematics_aim_yaw_pitch(): void {
   const ahead: IAutoMovieYawPitch = AutoMovieEngineKinematics.aimYawPitch(

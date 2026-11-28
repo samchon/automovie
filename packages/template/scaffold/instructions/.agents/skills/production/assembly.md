@@ -16,6 +16,8 @@ For a new host or changed export, decode a shot through a join before scaling. C
 
 After [segment review](../motion/segment-review.md), render the whole hint or direct 3D film with the README command. For generated film, assemble accepted finished takes. [Composite](../video/finishing.md#compositing) clean renders.
 
+For a render you may need to resume, pass `--checkpoint-dir <folder>` with `--checkpoint-identity <sha256>`. Compute the identity from a manifest of the exact source, dependencies, props, assets and browser installation used by the render. Keep that manifest with the render report. The checkpoint retains native draw data for every completed frame, including guide passes when requested. A retry checks the saved frame's identity and digest before reusing it. Use a new folder after changing an input or render host. The render report lists reused indices and retained indices observed by the current attempt.
+
 Include only commissioned [sound](../audio/film-sound.md) and [captions](captions.md). The README render command encodes picture and the film's soundtrack. Use a supporting documented assembly command or approved tool for additional streams. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 
 ## Repair and delivery

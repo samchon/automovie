@@ -26,6 +26,10 @@ const OFFSET_ROUNDING: number = 160 * Number.EPSILON;
  * 2. A ridden parent's current frame replaces the staged frame at each key.
  * 3. A key count without an exact integer representation refuses before any reader
  *    is called.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state expected axes and quarter-turn order, a time-varying ridden transform and the refused unrepresentable key count.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles a real attachment clip, samples translation and rotation at its interval ends and samples a ridden parent twice. It also observes that a refused key count invokes no reader.
+ * @evidence contracts/development/testing.md#independent-expectations A positive Y quarter turn maps local +X to world -Z, and multiplying the authored X and Y turns in that order fixes the orientation. The ridden fixture supplies known different parent frames at 0.5 and 1.5 seconds, so using a held parent fails.
  */
 export function test_engine_film_attachment_local_offset(): void {
   const parent: IAutoMovieTransform = {

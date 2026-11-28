@@ -74,6 +74,10 @@ const driver: (
  * 5. A sphere of radius 0.4 centred at (0, -1, 0) with the joint's hit radius 0.1
  *    pushes that place out to 0.5 from the centre, along the direction from
  *    it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rest, gravity, stiffness, updated history, and collider separation in a single integration step.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `stepSpring` with typed one-metre chain states, then compares world positions, retained previous positions, and the new sprung state. The collider case checks distance from its center and positive X displacement.
+ * @evidence contracts/development/testing.md#independent-expectations Gravity advances the joint to (1, -1, 0) before projecting to unit length, giving (1, -1, 0)/√2. A half-strength pull gives (1, -2, 0)/√5 after projection. Collider separation is the sphere radius plus hit radius, 0.5 m.
  */
 export function test_engine_resolve_step_spring(): void {
   const rest: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();

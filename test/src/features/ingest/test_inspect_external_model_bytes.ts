@@ -17,8 +17,6 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls resident byte inspection across glTF/GLB/VRM and profiles, observing inventory/resources/weighted hips or refusal; incorrect container padding, ignored sidecars or invented rigs fail.
  * @evidence contracts/development/testing.md#independent-expectations The authored buffer layout, exact resource lengths, scene inventory and weighted joint define observations; GLB 2.0 requires space-padded JSON, contrasting the explicit NUL twin.
- * @evidence contracts/development/testing.md#distinguishing-cases Accepted static/humanoid/VRM inputs contrast truncated containers, unknown profiles, absent rigs, short resources, missing BIN and unweighted joints; detailed header diagnostics and motion adoption are owned separately.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test_inspect_external_model_bytes entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A JSON glTF resolves its exact inventory, sidecar bytes and static profile.).
  */
 export function test_inspect_external_model_bytes(): void {

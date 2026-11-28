@@ -29,6 +29,10 @@ type Input = Parameters<
  * 5. A zero radius control, a gap between spans, a reversed interval, unequal z
  *    radii at the seam and a zero vertex budget are refused; one cell of budget
  *    realizes incomplete.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names angular and axial coefficient sharing, ellipse fit and normals, crease limits and incomplete work or refused recipes.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates and realizes the two-span atlas, examining control IDs, retained metre vertices, crease normals, malformed spans and exhausted work.
+ * @evidence contracts/development/testing.md#independent-expectations Four quarter arcs cover every span. The independent cubic circle-arc bound scaled by 0.02 constrains radial error. A changed x-radius slope at the shared layer gives two normal limits.
  */
 export function test_engine_geometry_elliptic_loft_atlas(): void {
   const make = (): Input => ({

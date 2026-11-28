@@ -33,6 +33,10 @@ import { nclose } from "../../internal/nclose";
  * 3. With a stocked body and a finite wall just behind the unloaded posture, the
  *    actual pose reaches the named panel during the hold.
  * 4. A reversed normal refuses that same wall.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Wall sits use a horizontal wall reaction and respect the floor-friction boundary and panel orientation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls static wall equilibrium at adjacent friction values, then runs a stock posture against a finite panel and its reversed normal.
+ * @evidence contracts/development/testing.md#independent-expectations The stated moment arms give wall reaction and floor tangent equal to a quarter of body weight. That fixes the 0.25 friction boundary independently of the pose solve.
  */
 export async function test_motions_exercise_wall_sit(): Promise<void> {
   const reaction: number = workoutWallSit.reaction(0.5, 0.25, 1);

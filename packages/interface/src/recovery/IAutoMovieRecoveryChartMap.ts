@@ -1,76 +1,73 @@
 /**
- * Harmonic unit-chart coordinates for an admitted physical triangle disk.
- * Boundary vertices have caller-fixed u/v values; interior coordinates are
- * solved from the immutable triangle incidence. RecoveryChartMap owns numeric
- * admission and termination. Its coordinate map is acquisition data, not
- * generated geometry.
+ * Input and output contracts for harmonic parameterization of observed chart
+ * incidence.
  */
 
 export namespace IAutoMovieRecoveryChartMap {
-  /** Private chart incidence with an already ordered, curve-registered boundary. */
+  /**
+   * Provide private triangle incidence and fixed unit-square anchors for a
+   * harmonic chart solve.
+   */
   export interface Input {
-    /**
-     * Number of private observation vertices, including clipped edge
-     * observations.
-     */
+    /** Number of private original chart vertices. */
     vertices: number;
 
-    /** Coherently oriented private chart triangles; never generation input. */
+    /**
+     * Three distinct original vertex indices per triangle, in the source
+     * orientation order.
+     */
     triangles: readonly (readonly [number, number, number])[];
 
-    /**
-     * Fixed normalized square-chart values, once per named boundary or guide
-     * vertex.
-     */
+    /** Fixed normalized [u, v] anchors at unique vertex indices. */
     fixed: readonly {
-      /**
-       * Index into the supplied observation vertex array, not a generated
-       * control-registry index.
-       */
+      /** Original observation vertex selected as a fixed chart anchor. */
       vertex: number;
-      /**
-       * Normalized u coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Fixed U coordinate in [0, 1]. */
       u: number;
-      /**
-       * Normalized v coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Fixed V coordinate in [0, 1]. */
       v: number;
     }[];
 
     /**
-     * Positive absolute linear-equation residual tolerance in normalized chart
-     * units.
+     * Positive absolute residual tolerance for the reconstructed normalized
+     * Laplacian equations.
      */
     tolerance: number;
 
-    /** Positive maximum conjugate-gradient iterations for each coordinate. */
+    /** Positive iteration cap for each coordinate solve. */
     maxIterations: number;
   }
 
-  /** Observation-only coordinates and complete numerical/orientation findings. */
+  /**
+   * Harmonic UV coordinates with available equation, square-range and
+   * orientation evidence.
+   */
   export interface Result {
-    /** Normalized chart coordinates in private input-vertex order. */
+    /** Normalized [u, v] coordinates in private input-vertex order. */
     parameters: [number, number][];
 
-    /** True only when both linear residuals and all signed parameter areas pass. */
+    /**
+     * Whether square range, original graph residual and all signed triangle
+     * areas pass.
+     */
     qualified: boolean;
 
-    /** Coordinate-wise actual iteration counts. */
+    /** Actual conjugate-gradient updates for U and V, respectively. */
     iterations: [number, number];
 
-    /** Largest independently reconstructed linear-equation residual. */
+    /**
+     * Largest absolute reconstructed graph equation residual over both free
+     * coordinate fields.
+     */
     residual: number;
 
     /**
-     * Private triangle ordinals with nonpositive or nonfinite signed parameter
-     * area.
+     * Original triangle ordinals whose signed UV area is nonpositive or
+     * nonrepresentable.
      */
     failedTriangles: number[];
 
-    /** Solver, range and orientation limitations; no failure is repaired here. */
+    /** Available solver, range and parameter orientation findings. */
     diagnostics: string[];
   }
 }

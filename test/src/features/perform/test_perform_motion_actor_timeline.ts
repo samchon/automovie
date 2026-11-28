@@ -14,10 +14,8 @@ import { keyframe, makeMotion, makePose } from "../internal/fixtures";
  * 1. A repeated cycle followed by a gap and a single cycle retains each distinct boundary.
  * 2. A null actor result is omitted. Prototype-spelled actor ids are ordinary own keys.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads clip identities, complete key times and omissions.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads clip identities, complete key times and omissions. The same short synthesized clip supplies separately placed actions, with a unison placement and an omitted branch.
  * @evidence contracts/development/testing.md#independent-expectations Two one-second cycles end at two; the last placement covers seconds three to four.
- * @evidence contracts/development/testing.md#distinguishing-cases Combines non-overlapping placements with unison and a null branch.
- * @evidence contracts/development/testing.md#execution-ownership Supplies a constant short clip through the public synthesizer.
  * @evidence contracts/development/common.md#meaningful-documentation Describes time and key ownership.
  */
 export function test_perform_motion_actor_timeline(): void {

@@ -17,6 +17,10 @@ import { nclose } from "../../internal/nclose";
  *    direction at different depths.
  * 3. Invalid pitch, sparse principal points, collapsed native inverses and
  *    unordered depth limits refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names calibrated forward and inverse rays, off-center image geometry, and admission refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds native orthographic cameras from typed pixel charts. Projects independent world coordinates, unprojects native points at multiple depths and attempts malformed camera definitions.
+ * @evidence contracts/development/testing.md#independent-expectations Pixel pitch, principal point, azimuth and raster size provide an independent projection chart at both distances. An orthographic ray keeps the same image coordinates and parallel direction at different depths. Invalid spacing, principal point, matrix or clip ordering refuses.
  */
 export function test_render_scene_create_metric_orthographic_camera(): void {
   const base: Parameters<

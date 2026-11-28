@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    shot's.
  * 3. Inside a 0.5 s dissolve there are two layers, and without a way to place the
  *    outgoing shot the plan is refused; with one it is planned.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Selects the live entry and transition layers for a given film second or reports missing outgoing-shot placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls picture planning for no sequence, one live shot and a dissolve with or without shot-local placement.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's sequence spans determine the lone entry or two visible layers. The dissolve can only admit the outgoing layer when its placement owner is available.
  */
 export function test_render_draw_plan_draw_picture(): void {
   TestValidator.equals("no sequence", AutoMovieRenderDraw.planPicture("hero", {}, 1), {

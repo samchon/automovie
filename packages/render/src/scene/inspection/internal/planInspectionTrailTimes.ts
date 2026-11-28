@@ -1,5 +1,7 @@
 import type { IAutoMoviePlanInspectionTrailTimesProps } from "@automovie/interface";
 
+import { MAXIMUM_INSPECTION_TRAIL_SAMPLES } from "./MAXIMUM_INSPECTION_TRAIL_SAMPLES";
+
 /*
  * The seconds a trail is sampled at for one drawn second: a grid of `ticks` per
  * second through the drawn second, reaching `reach` seconds before and after
@@ -37,7 +39,7 @@ export function planInspectionTrailTimes(
 ): number[] {
   const reach: number = props.request.reach;
   const ticks: number = props.request.ticks;
-  if (!(props.durationSeconds > 0))
+  if (!Number.isFinite(props.durationSeconds) || !(props.durationSeconds > 0))
     throw new Error(
       `Trail running time ${props.durationSeconds} is not a positive number of seconds`,
     );
@@ -45,15 +47,18 @@ export function planInspectionTrailTimes(
     throw new Error(
       `Trail second ${props.seconds} is outside the subject's ${props.durationSeconds} seconds`,
     );
-  if (!(reach > 0 && ticks > 0))
+  if (!Number.isFinite(reach) || !Number.isFinite(ticks) || !(reach > 0 && ticks > 0))
     throw new Error(
       `Trail reach ${reach} and ticks ${ticks} are not positive finite numbers`,
     );
 
   // Offsets are whole tick counts; the small allowance keeps a reach that is an exact multiple of the interval.
-  const span: number = Math.floor(reach * ticks + 1e-9);
+  const before: number = Math.floor(Math.min(reach, props.seconds) * ticks + 1e-9);
+  const after: number = Math.floor(Math.min(reach, props.durationSeconds - props.seconds) * ticks + 1e-9);
+  if (before + after + 1 > MAXIMUM_INSPECTION_TRAIL_SAMPLES)
+    throw new Error(`A trail can request at most ${MAXIMUM_INSPECTION_TRAIL_SAMPLES} samples`);
   const times: number[] = [];
-  for (let k: number = -span; k <= span; k++) {
+  for (let k: number = -before; k <= after; k++) {
     const time: number = k === 0 ? props.seconds : props.seconds + k / ticks;
     if (time >= 0 && time <= props.durationSeconds) times.push(time);
   }

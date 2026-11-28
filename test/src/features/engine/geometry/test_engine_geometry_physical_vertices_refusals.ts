@@ -27,6 +27,10 @@ import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
  * 3. An empty mesh with a dangling vertex reference still fails validation.
  * 4. Two sources 0.49 nm apart in one cell resolve to one vertex (0, 0); moved
  *    to 0.51 nm they cross the grid and are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names malformed sources and path reporting, valid and empty controls, and opposite weld-grid boundary decisions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the physical resolver and mesh-topology validator on the same broken inputs and checks the precise violation path or successful mapping.
+ * @evidence contracts/development/testing.md#independent-expectations Array cardinalities and safe ID/reference ranges come from the written triangle. A 0.49 nm offset stays in the initial cell and 0.51 nm crosses its half-grid boundary.
  */
 export function test_engine_geometry_physical_vertices_refusals(): void {
   const valid = (): IAutoMovieMesh =>

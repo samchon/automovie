@@ -170,30 +170,41 @@ export namespace AutoMovieMotionHumanCue {
   }
 
   /**
-   * A beat track: `beat` at every beat and `downbeat` at the first beat of
-   * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and `{ event:
-   * "downbeat", index: 1 }` the start of the second bar.
+   * Emit a beat track, with a downbeat preceding the first beat of each bar.
    *
-   * @param beats The tempo, the first beat, the count and the meter.
-   * @returns The track.
-   * @throws {Error} When the tempo is not positive, or the count or the meter
-   *   is not a positive whole number.
+   * Supply a finite positive tempo in beats per minute and a positive safe
+   * integer beat count. The finite first film second defaults to 0 and the
+   * positive safe integer meter defaults to four beats per bar. Read the sixth beat as
+   * `{ event: "beat", index: 5 }` and the second bar's first beat as
+   * `{ event: "downbeat", index: 1 }`.
+   *
+   * Throws if an input is invalid, a cue second is unrepresentable, or the
+   * number of cues exceeds array capacity.
    */
   export function beats(
     beats: IAutoMovieMotionHumanCue.IBeats,
   ): IAutoMovieScheduleCue[] {
+    const { bpm, count }: IAutoMovieMotionHumanCue.IBeats = beats;
+    const from: number = beats.from ?? 0;
     const meter: number = beats.meter ?? 4;
-    if (!(beats.bpm > 0))
-      throw new Error("A beat track needs a positive tempo");
+    if (!Number.isFinite(bpm) || bpm <= 0)
+      throw new Error("A beat track needs a positive finite tempo");
     for (const [name, value] of [
-      ["count", beats.count],
+      ["count", count],
       ["meter", meter],
     ] as const)
-      if (!(value > 0))
-        throw new Error(`A beat track's ${name} is a positive whole number`);
+      if (!Number.isSafeInteger(value) || value <= 0)
+        throw new Error(`A beat track's ${name} must be a positive safe integer`);
+    if (!Number.isFinite(from))
+      throw new Error("A beat track's first second must be finite");
+    if (!Number.isFinite(from + ((count - 1) * 60) / bpm))
+      throw new Error("A beat track's last second must be finite");
+    if (count + Math.ceil(count / meter) > 2 ** 32 - 1)
+      throw new Error("A beat track's cue count exceeds array capacity");
+
     const track: IAutoMovieScheduleCue[] = [];
-    for (let i: number = 0; i < beats.count; ++i) {
-      const seconds: number = (beats.from ?? 0) + (i * 60) / beats.bpm;
+    for (let i: number = 0; i < count; ++i) {
+      const seconds: number = from + (i * 60) / bpm;
       if (i % meter === 0) track.push({ name: "downbeat", seconds });
       track.push({ name: "beat", seconds });
     }

@@ -1,4 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMoviePlaybackEvent } from "../production/IAutoMoviePlaybackEvent";
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget";
 import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
 import type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison";
@@ -51,6 +52,9 @@ export interface IAutoMovieCaptureCompleteRecord {
    * subject's bounds cut them.
    */
   windows: IAutoMovieCaptureWindow[];
+
+  /** The selected occurrence, including its source shot, entry and exact time. */
+  playedCue?: Readonly<IAutoMoviePlaybackEvent>;
 
   /** One row per planned cell, in plan order. */
   rows: IAutoMovieCaptureCellRecord[];

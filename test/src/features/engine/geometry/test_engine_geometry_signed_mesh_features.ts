@@ -30,6 +30,10 @@ import { nclose } from "../../internal/predicates";
  *    the edge at -sqrt 0.02; the notch (1.1, 1.1, 0.5) is outside at 0.1.
  * 4. The octahedron wound inside out reads (2, 0, 0) at -1.
  * 5. Overwriting the source buffers or a returned hit changes no later reading.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names closest feature types, signed geometry, concavity, reversed winding and snapshot ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries actual octahedron and voxel-solid surfaces at authored points and checks returned coordinates, normals and distance signs.
+ * @evidence contracts/development/testing.md#independent-expectations Projection onto x+y+z=1 gives the face point (1/3,1/3,1/3). Closest edge and vertex coordinates follow from the same unit planes, and the voxel notch supplies a concave control.
  */
 export function test_engine_geometry_signed_mesh_features(): void {
   const source: IAutoMovieMesh = createSignedOctahedron();

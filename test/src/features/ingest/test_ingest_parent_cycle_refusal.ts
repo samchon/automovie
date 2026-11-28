@@ -34,8 +34,6 @@ import { test12MotionSkeleton } from "../internal/test12Motion/test12MotionSkele
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public naming mapper and motion adoption on in-memory hierarchies and observes their refusals and results; a walk that loops on the cycle never returns, and one that refuses an acyclic hierarchy fails scenarios 2 and 4.
  * @evidence contracts/development/testing.md#independent-expectations The refusal follows from glTF's strict-tree hierarchy rule, and the acyclic results from the fixtures' own authored parents, not from a run of the mappers.
- * @evidence contracts/development/testing.md#distinguishing-cases A two-node helper cycle and a self-parented helper, each beside its acyclic twin, over both mappers that walk ancestors.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory documents and inspections; discovered by its exported name and starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, its source and the four scenarios.
  */
 export function test_ingest_parent_cycle_refusal(): void {

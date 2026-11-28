@@ -22,6 +22,10 @@ const ROUNDING: number = 1e-12;
  *    (0, 1); maximising x₀ alone, the corner (1, 0).
  * 4. Two variables under x₀ + x₁ ≥ 3 in the unit box are infeasible.
  * 5. `value` reads a row at a point: x₀ + x₁ − 1 at (0.25, 0.5) is −0.25.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines one- and two-coordinate linear optimization, infeasibility and constraint readout.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves box and cut examples under positive, negative and zero objectives and submits contradictory or unreachable rows.
+ * @evidence contracts/development/testing.md#independent-expectations Hand optimization gives endpoints −1 and 3 and midpoint 1, then triangle vertices (0, 1) and (1, 0). Evaluating the stated row gives −0.25.
  */
 export function test_motions_posture_seidel_program(): void {
   // 1. One variable.

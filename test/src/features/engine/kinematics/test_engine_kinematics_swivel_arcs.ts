@@ -22,14 +22,16 @@ import { TestValidator } from "@nestia/e2e";
  *    and a constant never.
  * 5. Union M as above; [0, 10] and [10, 20] touch and merge; [0, 200] with [190,
  *    370] is every swivel. A 512-degree interval starting three binary64 steps
- *    below 2^62 also covers every swivel. Rounding the product of the turn
- *    quotient and 360 shifts its lifted start to -512, so the three copies
- *    merge into [-872, 360], including the exact upper endpoint.
+ *    below 2^62 also covers every swivel.
  * 6. M covers [355, 365] and [715, 718], not [25, 30]; every swivel covers all.
  * 7. Nearest outside M: 0 to -10, 15 to 20, 100 stays; none outside every swivel.
  * 8. Complement of M is [20, 350]; of none, [0, 360]; of every swivel, none; of
  *    [100, 200], [200, 460].
  * 9. [10, 20] holds 375 as [370, 380] and not 25.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers fitted periodic sinusoids, margin and root cases, large lifted turns and interval union and complement queries.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the swivel arc owner with literal sinusoid coefficients and intervals, then uses its merged arcs for nearest, covers, complement and holding queries.
+ * @evidence contracts/development/testing.md#independent-expectations At 0, 90 and 180 degrees the written sinusoid gives the known three values. Cosine crosses 0.5 at 60 degrees and zero at 90 and 270. Explicit lifted interval endpoints and complements fix the coverage cases.
  */
 export function test_engine_kinematics_swivel_arcs(): void {
   const near = (x: number, y: number): boolean => Math.abs(x - y) <= 1e-12;

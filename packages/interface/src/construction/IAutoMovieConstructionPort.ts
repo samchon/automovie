@@ -3,120 +3,88 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 import type { IAutoMovieConstructionPortLoop } from "./IAutoMovieConstructionPortLoop";
 
 /**
- * A part attached at a known port of a host face: a closed port curve on the
- * host's chart, an ellipse about a published centre, is cut out of the host,
- * and a band spans from that curve to the part's ring at `rail` (an arm on its
- * armscye, a branch on a stem's side). The parent owns the port loop and the
- * region inside it; the part keeps its stations beyond the rail.
- *
- * The port curve at clock `c` in `[0, 2 pi)` is the chart point
- * `(centre.station + semi.stationMetres cos c, centre.phase + sense
- * semi.phaseRadians sin c)`: station in metres, phase in radians. The band is
- * the engine's join strip between two ribbons: the host
- * surface's own 2-jet across the port curve, toward the curve's centre (the
- * chart direction `(-semi.stationMetres cos c, -sense semi.phaseRadians sin c)`), and the part's own
- * 2-jet at its rail toward its kept side, both scaled by one factor at which no
- * column turns back along its chord. The band is G2 to the host along the port
- * curve and G2 to the part along its rail. A failed premise leaves the part,
- * the band and the host's port as they were, with one diagnostic naming the
- * port.
- *
- * Engine admission: `hostFace` a view part of the host's subtree and `partFace`
- * one of the part's; the `band` name unique in the tree; `count` a multiple of
- * 4 of at least 8; `rows` a positive integer; `rail` positive; `rails`, when
- * given, at least 3 finite positive distances; the loop's centre finite, both
- * semi-axes positive and the phase semi-axis under pi; a loop's shape, when
- * given, `count` finite positive shares; each profile as
- * `IAutoMovieConstructionBandProfile` states.
+ * Attach a realized part rail to a closed port loop on the host's chart. The
+ * host keeps the outside of the loop, and the part keeps stations beyond its
+ * rail. The band shares both boundaries and their actual cross derivatives. A
+ * failed premise restores the checkpoint and reports the port's diagnostic.
  */
 export interface IAutoMovieConstructionPort {
-  /** Discriminator. */
+  /** Select host-port attachment in the construction walk. */
   type: "port";
 
-  /** The port's name, unique in its tree, named in diagnostics. */
+  /** Unique port name in the construction tree, used for its diagnostics. */
   name: string;
 
-  /** The solid whose face carries the port. */
+  /** Host construction subtree whose published face carries the port loop. */
   host: IAutoMovieConstructionNode;
 
-  /**
-   * The host face the port curve lies on: a view part's name in the host's
-   * subtree.
-   */
+  /** Name of the realized host face with the port's chart and loft chain. */
   hostFace: string;
 
-  /** The port curve on the host face's chart. */
+  /** Closed port curve in the selected host chart. */
   loop: IAutoMovieConstructionPortLoop;
 
-  /** The band's face and chain name, unique in the tree. */
+  /** Unique name published for the band's face and chain. */
   band: string;
 
-  /** The attached part's subtree. */
+  /**
+   * Subtree of the attached construction part, realized under the port
+   * checkpoint.
+   */
   part: IAutoMovieConstructionNode;
 
-  /** The part face the band reaches: a view part's name in the part's subtree. */
+  /** Name of the attached part's newly realized face carrying the rail. */
   partFace: string;
 
   /**
-   * The part face's end that faces the host: the band replaces the part's
-   * surface between that end and the rail.
+   * End of the part facing the host. The band replaces the portion from this
+   * end to its selected rail.
    */
   partEnd: "bottom" | "top";
 
   /**
-   * The rail's distance from that end into the part along its station, metres,
-   * positive: the part keeps the stations beyond it. Not read when `rails` is
-   * given.
+   * Positive distance in metres from the part end along its station into the
+   * kept side. Used when rails is absent.
    */
   rail: number;
 
   /**
-   * The rail as a closed curve round the part instead of one station: its
-   * distance from that end at the part phases `2 pi j / m`, `j = 0 .. m - 1`,
-   * metres, positive, joined round the part by the periodic cubic spline
-   * through them. The part keeps, at each phase, the stations beyond the curve.
-   * It serves a part whose root does not lie in one section plane, as a nose's
-   * does: its wings leave the face by the crease round them, far back, while
-   * its middle meets the lip far forward. Absent, the rail is the one station
-   * `rail`.
+   * Optional distances in metres from the same end at uniform phases around the
+   * attached part. Supply at least three positive values. The periodic cubic of
+   * these distances is the actual rail. Omission uses the constant rail
+   * distance.
    */
   rails?: number[];
 
   /**
-   * How the part's rail is matched to the port curve column by column. `angle`
-   * (the default): the rail point at the curve point's angle about the rail
-   * ring's centroid, which both curves must turn round once monotonically.
-   * `length`: the first column by that angle, every other at the same share of
-   * the rail's length round it as the column's of the port curve's, so neither
-   * need be star-shaped about the centroid, as a nose's rail is not where it
-   * runs back behind each nostril and its underside is lifted onto the skin.
+   * Match the port and part rails by monotone angle about their centroids, the
+   * default, or by normalized arclength after the first match for length mode.
    */
   correspondence?: "angle" | "length";
 
   /**
-   * How far each column's ribbons reach into the band. `common` (the default):
-   * every column's ribbons are scaled by one factor, the largest at which no
-   * column turns back along its chord, so the hardest column sets the reach of
-   * all. `column`: each column takes its own factor from a field smooth along
-   * the loop that stays under every column's own largest, so a column where the
-   * port's loop and the part's ring disagree shortens only its neighbourhood
-   * and the band elsewhere turns from the host to the part over its whole
-   * length. Either way the band stays G2 to both sides.
+   * Cross-derivative scale policy for the band. Common, the default, uses one
+   * safe factor across columns. Column prepares local factors under each
+   * column's admitted limit.
    */
   ribbons?: "common" | "column";
 
   /**
-   * Cross profiles of the band: over windows of its loop clock, the band is
-   * carried in along its own normal by a depth that is a function of its cross
-   * share, so it can leave the host into a hollow and come up again onto the
-   * part, as a profile blend's interior cross sections shape it between its
-   * rails. Absent, the band is the plain blend of the two sides' 2-jets.
+   * Optional cross profiles that move the band's interior along its normal over
+   * their authored clock windows. The underlying port and rail remain the seam
+   * owners.
    */
   profiles?: IAutoMovieConstructionBandProfile[];
 
-  /** Columns of the band round its loop, a multiple of 4 of at least 8. */
+  /**
+   * Port band columns around the loop. Use a multiple of four of at least
+   * eight.
+   */
   count: number;
 
-  /** Grid stations of the band face across its span, at least 1. */
+  /**
+   * Positive integer number of transverse grid subdivisions across the band
+   * face.
+   */
   rows: number;
 }

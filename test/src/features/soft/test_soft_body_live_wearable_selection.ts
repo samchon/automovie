@@ -67,9 +67,7 @@ const still: (id: string) => Boundary = (id: string): Boundary => ({
  *
  * @evidence contracts/development/testing.md#behavioral-verification Actual list admission, moving-boundary declaration and shot selection outputs catch lost order, repeated identities and static/live contradictions; no cloth solve or host installation is inferred.
  * @evidence contracts/development/testing.md#independent-expectations Authored list order gives slots 0 and 2 with ceiling3 when ghost is absent from the shot. Expected messages and ids come from declared admission rules.
- * @evidence contracts/development/testing.md#distinguishing-cases Bound/capsule/static domains, ordered/empty lists, duplicate ids, absent shot selections and contradictory live declarations distinguish declaration admission from ordinary selected slots.
- * @evidence contracts/development/testing.md#execution-ownership The normal runner discovers test_soft_body_live_wearable_selection as a portable CPU unit; authored metadata and actual selector functions own all assertions. Browser adoption, GPU behavior and cross-OS execution remain unproven here.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A bound anchor and a body capsule are moving boundaries; a static anchor).
+ * @evidence contracts/development/common.md#meaningful-documentation Anchors and capsules distinguish moving boundaries from static domains. Authored order, skipped slots, duplicate IDs and incompatible selections exercise list admission.
  */
 export function test_soft_body_live_wearable_selection(): void {
   TestValidator.equals(

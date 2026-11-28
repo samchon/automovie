@@ -2,17 +2,22 @@ import type { AutoMovieArchetype } from "../core";
 import { VesselConstruction } from "./internal/VesselConstruction";
 import type { AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
-/** Canonical producer and authoring contract for Bowl. */
+/**
+ * Constructs a ceramic model bowl with a supported interior and underside grip.
+ */
 export namespace AutoMovieArchetypeBowl {
   /**
-   * A bowl with an open interior and a bottom grip for both hands.
+   * Build an open ceramic bowl resting on its floor at model Y zero.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The upward `rim` is the opening height. The `inside` rectangle lies
+   * on the round floor, and the two-hand `body` grips from underneath.
+   *
+   * @param params Optional scene ID and a complete bowl catalogue model.
+   *   The default ID is `vessel`.
+   * @param seed Numeric seed for an omitted model. Omit it for `ikea365`,
+   *   0.16 metres across and 0.07 metres high, with a provisional packed mass.
+   * @returns The bowl with rim, supported inside surface and underside grip.
+   * @throws {AutoMovieArchetypeRefusal} If the model is unavailable.
    */
   export function create(
     params: AutoMovieArchetypeBowl.IParams = {},
@@ -20,21 +25,24 @@ export namespace AutoMovieArchetypeBowl {
   ): AutoMovieArchetype<AutoMovieArchetypeBowl.Affordance, AutoMovieArchetypeBowl.Dimension> {
     return VesselConstruction.bowl(params, seed);
   }
-  /** The `model` choices this producer admits. */
+  /** Recorded bowl labels `ikea365`, `sunnyDay18` and `sunnyDayCereal`. */
   export type Model = "ikea365" | "sunnyDay18" | "sunnyDayCereal";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Recorded outside span and rim height in metres, and model mass in kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * Upward `rim` and supported `inside`, plus a two-hand underside `body` grip.
+   */
   export type Affordance = "body" | "inside" | "rim";
 
-  /** The admitted settings and optional model ID. */
+  /** Optional scene ID and a complete recorded bowl model. */
   export interface IParams extends Pick<AutoMovieArchetypeVessel.IParams, "id"> {
-    /** The recorded bowl. The seed selects it when omitted. */
+    /**
+     * Selects one IKEA or Thomas bowl. Omit the model and seed for `ikea365`.
+     */
     model?: Model;
   }
 }

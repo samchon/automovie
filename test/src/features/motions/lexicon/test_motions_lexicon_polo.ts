@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/throwsError";
  *    settles by 2.95 s, leaning the most, 45 degrees, at 20 m/s.
  * 2. A contact at 1 s, before the lean, take-away and down-swing fit, or a lean of
  *    60 degrees, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a virtual mounted sport phrase relative to its authored contact, with minimum lead time and pose limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the timetable at 2 s, then tries an early contact and an excessive lean value.
+ * @evidence contracts/development/testing.md#independent-expectations Fixed clock offsets give preparation 1.1 s, top 1.6 s, finish 2.35 s and settle 2.95 s. The authored lean boundary is 45°.
  */
 export function test_motions_lexicon_polo(): void {
   const timetable: humanPoloTimetable.ITimetable = humanPoloTimetable({

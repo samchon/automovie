@@ -28,6 +28,13 @@ import { throwsError } from "../../internal/throwsError";
  * 4. A tilted anisotropic principal axis gives a known feasible turn. Fixed and
  *    adaptive shooting land across two world frames, including a native
  *    single-part history and raw history readers.
+ * 5. A rotating ring pair has a known relative spin and independently derived
+ *    full-turn momentum, orientation and residual.
+ * 6. A mid-flight tuck changes planar inertia. Midpoint integration of its
+ *    reciprocal gives the momentum needed for one somersault.
+ * 7. The archived average layout lands a somersault with 0, 1, or 2 twists
+ *    within 0.02 revolution per axis. A third of the flight under 1.5 times
+ *    the no-twist momentum cannot land the request.
  *
  * An isotropic body with I=2 kg m², no relative shape momentum and one second
  * in flight has q(t)=Rx(Lx t/2), so one somersault requires Lx=4 pi. Half that
@@ -39,15 +46,15 @@ import { throwsError } from "../../internal/throwsError";
  * ceil(log2(2 pi/tolerance)) failed stages. Each stage has only one distinct
  * physical momentum, plus one initial linearization history read; rejected
  * step-halving trials need no fresh integration of that same zero point. This
- * is a deterministic work bound, separate from physical tolerances. 6. A tuck
- * between laid-out ends (three masses folding from 0.6 m to 0.25 m over [0.05,
- * 0.15] s and back over [0.51, 0.61] s of a 0.66 s flight) is solved for one
- * somersault at the planar closed form L = 2 pi / the integral of dt / I(t)
- * (the integral taken by the midpoint rule), with no momentum off the axis,
- * within a hundredth of L. 7. The stored average man in a layout (arms lowered
- * to the sides) lands one somersault with 0, 1 and 2 twists within 0.02
- * revolution on every axis, and a flight of a third of the time under 1.5 times
- * the plain momentum is a miss.
+ * is a deterministic work bound, separate from physical tolerances. For the
+ * 0.66 s tuck flight, the radius falls from 0.6 to 0.25 m over [0.05, 0.15] s
+ * and returns over [0.51, 0.61] s. The test compares the X momentum with 2π
+ * divided by the midpoint estimate of the integral of 1/I(t) and bounds the
+ * transverse momentum using the same angular tolerance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names feasible and constrained somersaults, bounded work, tilted inertias, relative spin, a timed tuck, and twist playback on the archived fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public take-off solver with synthetic inertia histories, composed bone histories, and an archived humanoid layout. It checks achieved motion and residuals, physical momentum ceilings, impossible requests, read count, and invalid integration parameters.
+ * @evidence contracts/development/testing.md#independent-expectations An isotropic inertia of 2 over one second needs 4π X momentum for a full turn. With inertia 4 and inherent X spin of 1 the ring-pair answer is 8π + 1. The tuck's planar inverse-inertia integral independently predicts required momentum, and the zero-ceiling read bound follows halving one full revolution to tolerance.
  */
 export async function test_engine_motion_solve_airborne_takeoff(): Promise<void> {
   const complaints: string[] = [];

@@ -19,9 +19,7 @@ import { throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives actual available same/different-room bases, then invokes the real PCM applicator with independently invalid clock, frame-shape, nonfinite-sample and path-specific response facts, observing named refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal malformed values and positive base status assertions determine refusal expectations independently; existing narrow fixture views are used only after those real derivations. This admission unit does not independently measure room acoustics or prove every finite amplitude yields finite accumulated output.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves fractional/zero channels/rates, incomplete/empty PCM, NaN/both infinities, null/negative/excess transmission and null/zero T60 or direct/diffuse ratio. Separate path/material tests own accepted PCM values and bounded tail behavior.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh requests, buffers and refusal callbacks through the existing canonical fixture; it opens no file, codec/audio device, native solver, renderer, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Fractional or zero clocks, incomplete/empty frames and non-finite PCM are refused.).
+ * @evidence contracts/development/common.md#meaningful-documentation Invalid clocks, PCM shape and sample values exercise input refusals. Transmission and missing or invalid tail parameters exercise acoustic response admission.
  */
 export function test_engine_interior_acoustic_pcm_admission(): void {
   const {

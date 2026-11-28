@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The hips declare B: a new table with hips B and spine A, the host table
  *    unchanged.
  * 3. The spine declares B over the table's A: spine B.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers an absent host table, the original table, merging missing axes and an explicit bone override.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls skeletonJointAxes on a small hips-and-spine rig while varying its declared axes and the supplied table.
+ * @evidence contracts/development/testing.md#independent-expectations The host provides the spine axis only when the bone has no declaration. The hips declaration adds its own entry without replacing the host, and a local spine declaration wins over its named default.
  */
 export function test_engine_kinematics_skeleton_joint_axes(): void {
   const axes = (x: number): IAutoMovieJointAxes => ({

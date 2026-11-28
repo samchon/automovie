@@ -45,6 +45,10 @@ const ROUNDING: number = 1e-12;
  *
  * The body is built whole (`humanFixtureBody`): the sole sockets are placed on
  * the body's displayed foot bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names direct contact, named ball socket and a default socket within a micrometre of the lowest.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditGround.held on the displayed left foot with typed explicit-point, ball and unmarked placements, then reads contact keys and points.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit offset in its foot frame is rotated and added to the ankle. The ball is checked against its named socket, and the default must be a listed socket no higher than any other by more than one micrometre.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_ground_held(): Promise<void> {
   // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.

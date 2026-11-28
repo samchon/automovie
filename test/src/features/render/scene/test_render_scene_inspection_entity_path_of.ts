@@ -13,6 +13,10 @@ import * as THREE from "three";
  * 2. Two siblings named `leg` are `leg#0` and `leg#1`.
  * 3. An unnamed object under a named one adds `.children[<index>]`.
  * 4. An object outside the root is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scene describes named ancestors, duplicate siblings, unnamed children, root fallback, and an object outside the root.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that entity paths distinguish same-named siblings and unnamed children, give the root a stable fallback, and refuse objects beyond the root.
+ * @evidence contracts/development/testing.md#independent-expectations Compares with literal paths `hero/arm`, `scene`, `hero/leg#0`, `hero/leg#1`, and `hero.children[3]`.
  */
 export function test_render_scene_inspection_entity_path_of(): void {
   const named = (name: string): THREE.Object3D => {

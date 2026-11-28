@@ -40,11 +40,9 @@ function near(actual: number, expected: number): boolean {
  * 3. One crate seed replays its free dimensions. A different draw varies height
  *    without disturbing a fixed width, and an oversized width is refused.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the sizing, actual-part contact, open-interior and seed observations.
- * @evidence contracts/development/testing.md#behavioral-verification Uses public archetypes, collider extents, public affordances, repeated seeds and normal dimension admission.
- * @evidence contracts/development/testing.md#independent-expectations Fixed dimensions and supplied kinds are authored here. Footprint corners touch the actual supporting solid at its top face to within 1e-8 m. The opening check proves the vertical centerline is clear.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks two open floors, a full rectangular lid, two faceted tops, and seeded, fixed and refused dimensions.
- * @evidence contracts/development/testing.md#execution-ownership An in-memory unit test discovered by its exported name.
+ * @evidence contracts/development/common.md#meaningful-documentation States all five silhouettes, authored dimensions, supporting faces, open interiors and replay and refusal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures public models and their contacts through colliders. It checks floor space in two open containers, a rectangular lid, two faceted caps, a repeated seed and fixed dimension admission.
+ * @evidence contracts/development/testing.md#independent-expectations Uses explicit authored dimensions and a `1e-8` metre contact tolerance. The corners must lie on the actual supporting solid's top. The centreline check verifies an unobstructed opening.
  */
 export function test_archetype_scenic_container(): void {
   const cases: readonly {

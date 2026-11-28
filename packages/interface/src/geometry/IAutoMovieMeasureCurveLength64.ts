@@ -19,10 +19,13 @@ export namespace IAutoMovieMeasureCurveLength64 {
    * This uses the existing cubic-length rule (NIST DLMF 3.5(v)); finite inputs
    * also require representable widths, quadrature nodes and intermediate sums.
    */
-  export type IPieces = readonly {
+  export type IPieces = readonly IPiece[];
+
+  /** Derivative and parameter bounds of one physical source curve segment. */
+  export type IPiece = {
     /** Finite increasing bounds in this derivative's own parameter chart. */
     domain: IAutoMovieCurveDomain;
     /** Original world derivative in mm per domain-parameter unit. */
     derivative: (parameter: number) => readonly [number, number, number];
-  }[];
+  };
 }

@@ -1,6 +1,7 @@
 import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
+  IAutoMoviePlaybackEvent,
 } from "@automovie/interface";
 import type { IAutoMovieRenderDrawScene } from "@automovie/render";
 import {
@@ -29,6 +30,10 @@ import { nclose } from "../../internal/nclose";
  *    synchronous `place`, and reads the marks, with no `seek` after it.
  * 2. Painting 1.75 s, its second half, places the live B by `seek`, and the sample
  *    offers `place`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both halves of the dissolve and what synchronous placement each sample can expose after selecting a played source cue.
+ * @evidence contracts/development/testing.md#behavioral-verification Mounts the inspector around the supplied two-shot subject, drives its playhead and checks the recorded place, seek and observation calls.
+ * @evidence contracts/development/testing.md#independent-expectations The one-second dissolve begins at output one. At 1.25 the outgoing shot dominates and is sampled on its own clock. At 1.75 the incoming shot dominates and can use normal placement.
  */
 export async function test_viewer_inspector_mount_inspector_scene_transition(): Promise<void> {
   const recorded: createRecordedFilmSubject.IDouble = createRecordedFilmSubject(
@@ -41,6 +46,15 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
   const calls: createRecordedFilmSubject.ICall[] = recorded.calls;
   const subject: IAutoMovieRenderDrawScene = {
     ...recorded.subject,
+    playedCues: [0, 1].map((entry: number): IAutoMoviePlaybackEvent => ({
+      id: "contact", kind: "attach", source: "scriptedCue",
+      time: entry === 0 ? 2.25 : 0.75,
+      shotTime: entry === 0 ? 2.25 : 0.75,
+      globalTime: entry === 0 ? 1.25 : 1.75,
+      entry, shot: entry === 0 ? "shot:a" : "shot:b",
+      actor: "actor", target: "actor", object: null,
+      point: null, actionIndex: 0, reaction: null,
+    })),
     place: (seconds: number): void => {
       calls.push({ name: "place", shot: null, numbers: [seconds] });
     },
@@ -91,11 +105,12 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
     }),
   };
   const errors: string[] = [];
+  const refusals: string[] = [];
   const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();
   const mounted: IAutoMovieViewerInspectorScene = AutoMovieViewerInspector.mountScene({
     subject: { create: async (): Promise<IAutoMovieRenderDrawScene> => subject },
     name: "film",
-    request: AutoMovieViewerInspector.readAddress("at=1.25"),
+    request: AutoMovieViewerInspector.readAddress("cue=contact&entry=0"),
     playhead,
     host,
     report: {
@@ -105,7 +120,7 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
       error: (message: string | null): void => {
         if (message !== null) errors.push(message);
       },
-      refused: (): void => {},
+      refused: (_request, reason): void => { refusals.push(reason); },
     },
   });
 
@@ -126,7 +141,12 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
   );
 
   // 2. The dissolve's second half.
-  playhead.seek(1.75);
+  mounted.apply(AutoMovieViewerInspector.readAddress("cue=contact"));
+  TestValidator.predicate("ambiguous cue preserves the accepted second",
+    refusals[0]?.includes("entry 0 at 1.25 s, entry 1 at 1.75 s") === true &&
+    playhead.getSnapshot().seconds === 1.25,
+  );
+  mounted.apply(AutoMovieViewerInspector.readAddress("cue=contact&entry=1"));
   frame!(16);
   await settle();
   const second: createRecordedFilmSubject.ICall[] = calls.splice(0);

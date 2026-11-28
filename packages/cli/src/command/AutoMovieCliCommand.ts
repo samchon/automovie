@@ -2,61 +2,68 @@ import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { readCommandArguments } from "./internal/readCommandArguments";
 import { run as runCli } from "./internal/run";
 
-/** The executable command request and its argument reader. */
+/** Parse and run the installed `automovie` command. */
 export namespace AutoMovieCliCommand {
-  /** One admitted CLI request, discriminated by `command`. */
+  /**
+   * Parsed request, discriminated by `command`. Its scaffold fields and
+   * remaining production tokens are defined by {@link AutoMovieCommand}.
+   */
   export type Request = AutoMovieCommand;
 
   /**
-   * Resolves the command-line tokens after the executable and script.
+   * Parse the tokens after the executable and script.
    *
-   * @param args The command-line tokens after the executable and script.
-   * @returns The admitted request.
-   * @throws On an unknown command or any refusal of the delegated grammar.
+   * An empty list requests help. `-h` and `--help` request help, and `-v` and
+   * `--version` request the version. Each flag must be the only token.
+   *
+   * `create` admits one nonblank directory and accepts `--workspace`, `--force`
+   * and `--name <name>` once each. `add` admits one `shorts/<directory>` or
+   * `series/<directory>` target and accepts `--force` and `--name <name>` once
+   * each. Options may appear before or after the target. A name token must be
+   * nonblank and begin with a character other than a hyphen. The scaffold
+   * validates the name during execution.
+   *
+   * `capture`, `inspect`, `render`, `review` and `check` return a fresh array
+   * of the remaining tokens in order, including an empty array when no tokens
+   * remain. Each operation validates those tokens during execution.
+   *
+   * @param args Command tokens without the executable and script.
+   * @returns A request discriminated by its command.
+   * @throws Error for an unknown command, extra tokens after a standalone flag,
+   *   or a refused create or add request.
    */
   export function readArguments(args: readonly string[]): Request {
     return readCommandArguments(args);
   }
 
   /**
-   * The `automovie` CLI entry. `argv` is the full process vector; its first two
-   * positions (executable and script) are skipped.
+   * Run one CLI request using a full process argument vector.
    *
-   * - `help` and `version` write to stdout; the version is read from this package's
-   *   `package.json`.
-   * - `create` writes a single production, or with `--workspace` a workspace root,
-   *   into the directory resolved against the working directory. The name is the
-   *   typed `--name`, else derived from the target's basename; for the working
-   *   directory itself the terminal is asked, offering `automovie-examples`,
-   *   which is used without asking when no terminal is attached.
-   * - `add` fills missing scaffold catalog entries in the working directory's
-   *   `pnpm-workspace.yaml` and writes a production into
-   *   `movies/<family>/<directory>`. Its name is `--name` or the npm-safe name
-   *   derived from the directory segment.
-   * - `capture` runs `AutoMovieCliCapture.capture` in the working directory as the
-   *   production, resolving to its status: 1 when a cell was not drawn.
-   * - `inspect` runs `AutoMovieCliInspect.inspect` in the working directory,
-   *   serving the inspector page until the process is interrupted.
-   * - `render` runs `AutoMovieCliRender.render` in the working directory as the
-   *   production, resolving to 0 once the video is written.
-   * - `review` runs `AutoMovieCliReview.review`, resolving to 1 when the recorded page
-   *   reported a script error.
+   * Help and version write to standard output. Create writes a production or
+   * workspace at the resolved target. If its name is omitted, a target other
+   * than the working directory gets a derived name. For the working directory
+   * itself, an interactive terminal is asked and an unattended run uses
+   * `automovie-examples`. Add requires `pnpm-workspace.yaml` in the working
+   * directory, completes its missing catalog entries and writes the production
+   * to `movies/<family>/<directory>`. A failed file write can leave a catalog
+   * update and earlier files in place.
    *
-   * `create` and `add` take their files from `AutoMovieTemplateScaffold.create`
-   * and refuse a non-empty target without `--force`, which writes over same-path
-   * files and keeps every other file. On success they list the written files
-   * relative to the target, then the next steps. A failed write stops there and
-   * leaves the files already written.
+   * Capture, inspect, render, review and check run from the current working
+   * directory. Inspect serves its page until stopped. Review can record the
+   * Inspector or save and reopen a file-bound review. Check reads observations.
+   * Use `--run` to execute selected checks and `--require` to require the named
+   * stage.
    *
-   * Resolves to the process exit code, 0 after queuing the requested stdout text
-   * or 1 after queuing a caught error's message and distinct `cause` objects'
-   * messages without stacks. A repeated cause ends the chain. Reading or
-   * stringifying an unusual thrown value, or writing stderr, can itself throw.
-   * The executable assigns the result to `process.exitCode` so queued output can
-   * drain.
+   * The returned status is 0 for a successful dispatch and 1 for failed
+   * captures, Inspector playback script errors, a blocked requested check stage
+   * or a caught command failure. A caught failure goes to standard error as a
+   * message and distinct cause messages. The executable uses the return value
+   * as `process.exitCode`.
    *
-   * @param argv The full process vector.
-   * @returns The exit code.
+   * @param argv Full process vector starting with the executable and script.
+   * @returns The command's exit status.
+   * @throws If formatting a failure or writing its report throws, the returned
+   *   promise rejects.
    */
   export function run(argv: readonly string[]): Promise<number> {
     return runCli(argv);

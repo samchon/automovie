@@ -38,9 +38,7 @@ const SQUARE: IAutoMovieVector3[] = [
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls affordanceSupportContacts and asserts one transformed point per extent corner, the expected world coordinates, ignored extent Y, and explicit misuse errors for a handle or missing extent.
  * @evidence contracts/development/testing.md#independent-expectations A positive 90-degree Y rotation sends (x,z) to (z,-x), so parent translation gives (2+z,0.5,1-x). These hand coordinates and error fragments are independent of the returned contacts; tolerance-based vectors permit ordinary quaternion rounding.
- * @evidence contracts/development/testing.md#distinguishing-cases The square, nonzero corner Y, point-like kind and absent extent separate valid rigid placement from ignored-height and refusal branches. Both transforms use unit scale; non-unit scale, tilted affordance frames and actual toppling judgment are outside this helper test.
- * @evidence contracts/development/testing.md#execution-ownership The named test_space_affordance_contacts entry exercises portable quaternion/vector contact derivation directly, without a renderer or wired support host and with no dynamically registered cases.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A unit-square top at local height 0.5 on a parent at (2, 0, 1) yawed 90°:).
+ * @evidence contracts/development/common.md#meaningful-documentation Checks four world-space contacts for a stack-top under translation and yaw, and exercises a nonzero input corner y, a point affordance and a missing extent.
  */
 export function test_space_affordance_contacts(): void {
   const top: IAutoMovieAffordance = {

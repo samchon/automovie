@@ -8,131 +8,143 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import type { QuadrupedPosePlan } from "./quadruped/QuadrupedPosePlan";
 
 /**
- * Authored inputs and independently evaluated results of a sternal rest cycle.
- *
- * Ellis, Rankin and Hutchinson 2018 studied symmetrical belly-lying greyhound
- * rises without stepping (doi:10.3389/fbioe.2018.00162). Their study does not
- * supply other species' ROM, descent, side rolling or this control rig's
- * angles. Therefore all durations, distal carriage and phase windows are
- * explicit authoring inputs. The law promises geometric support, not measured
- * dynamics.
+ * Specifies authored timings, support goals and samples for a
+ * sternal-rest cycle.
  */
 export namespace AutoMovieArchetypeQuadrupedRestPlan {
-  /** A positive movement interval expressed as shares of its transition in [0, 1]. */
+  /**
+   * Movement interval within one transition, with 0 ≤ start share < end
+   * share ≤ 1.
+   */
   export interface IWindow {
-    /** The first transition share at which the movement starts, in [0, 1]. */
+    /** Normalized share where motion begins. */
     readonly startShare: number;
 
-    /** The last transition share at which the movement ends, in [0, 1]. */
+    /** Normalized share where motion reaches its authored end. */
     readonly endShare: number;
   }
 
-  /** World directions of the two distal limb bars in a resting pose. */
+  /**
+   * Authored directions of the third and fourth bars in a folded limb chain.
+   */
   export interface IFoldedDirections {
-    /** Third bar direction from straight down toward +Z, in [-180, 180] degrees. */
+    /** Third bar angle from down toward `+Z`, in degrees from −180 to 180. */
     readonly thirdDegrees: number;
 
-    /** Fourth distal bar direction from down toward +Z, in (-90, 90) degrees. */
+    /**
+     * Downward terminal bar angle toward `+Z`, strictly between −90° and 90°.
+     */
     readonly fourthDegrees: number;
   }
 
-  /** Generic-rig degree rotations, with null meaning neutral. */
+  /**
+   * Local flexion, abduction and twist in degrees. Null is neutral on each
+   * axis.
+   */
   export type Rotation = QuadrupedPosePlan.Rotation;
 
   /**
-   * A complete symmetric fixed-footprint cycle from standing through rest and
-   * back.
+   * Authors the full stand, lower, hold and rise cycle at fixed footprints.
+   *
+   * Supply the floor, three durations, trunk pitch, tail direction, fore and
+   * hind fold settings, normalized movement windows and complete carriers.
    */
   export interface IParams {
-    /** Height of the horizontal floor in model space, metres. */
+    /** Horizontal floor position on the model's `+Y` axis, in metres. */
     floorY: number;
 
-    /**
-     * Positive authored standing-to-rest duration, seconds; no descent study is
-     * implied.
-     */
+    /** Positive standing-to-belly transition time in seconds. */
     loweringSeconds: number;
 
-    /** Nonnegative authored duration of the supported resting hold, seconds. */
+    /** Nonnegative duration in seconds for the belly-supported hold. */
     restingSeconds: number;
 
-    /** Positive authored rest-to-standing duration, seconds. */
+    /** Positive belly-to-standing transition time in seconds. */
     risingSeconds: number;
 
     /**
-     * Authored rest pitch about model +X, degrees; positive raises the rear.
-     * Roll and yaw stay neutral.
+     * Rest angle about model `+X`, with absolute value below 90°. Positive
+     * raises the rear.
      */
     restPitch: number;
 
-    /**
-     * Authored resting tail direction, degrees from down toward +Z. Returning
-     * to standing restores its source direction.
-     */
+    /** Resting tail direction from down toward `+Z`, −180° through 180°. */
     tailDirection: number;
 
     /**
-     * Authored world directions from straight down toward +Z, in degrees: the
-     * third bar is within [-180, 180] and the distal fourth within (-90, 90),
-     * so it points down. Left/right share carriage; their lengths differ.
+     * Third and fourth bar directions shared by each fore or hind limb pair.
      */
     folded: Readonly<Record<"fore" | "hind", IFoldedDirections>>;
 
     /**
-     * Authored windows during rising. The body is lifted within body; the
-     * distal two bars return within fore/hind. Lowering reverses this same
-     * geometric path. A window sequence is not a measured clinical trajectory.
+     * Body and distal-pair movement intervals within the rise. Lowering
+     * reverses them.
      */
     windows: Readonly<Record<"body" | "fore" | "hind", IWindow>>;
 
-    /** Explicit carrier of every non-bone part, including tack and ears. */
+    /**
+     * Explicit carrier bone for every non-bone part, including ears and tack.
+     */
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
 
-    /**
-     * Explicit carrier of every source affordance, preserving its exact id and
-     * semantics.
-     */
+    /** Explicit carrier bone for each source contact ID. */
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   }
 
-  /** A newly evaluated physical drawing plus the goals used to make it. */
+  /**
+   * Describes one independently evaluated moment of the supported pose.
+   *
+   * Read the posed model and local joint angles alongside its floor and
+   * foot geometry at the requested time.
+   */
   export interface ISample<Id extends string, Dimension extends string> {
-    /** A sternal rest's sample, posed in place. */
+    /** Identifies this pose as the `sternal` rest law. */
     kind: "sternal";
 
-    /** New part/contact transforms; the source animal is not modified. */
+    /** New model with the posed links, attachments and source contacts. */
     animal: AutoMovieArchetype<Id, Dimension>;
 
-    /** Current local degree coordinates in the quadruped rig. */
+    /** Current local degree rotations indexed by quadruped bone. */
     joints: ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, Rotation>;
 
-    /** Current complete-rig placement in model space, metres and unit scale. */
+    /** Rigid model-space pose of the whole rig, in metres and unit scale. */
     root: IAutoMovieTransform;
 
     /**
-     * Terminal-bar cap centres, with fixed X/Z footprints and exact floor
-     * clearance.
+     * Four terminal cap centres at their source X/Z footprints and posed sole
+     * heights.
      */
     feet: ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>;
 
-    /** Minimum primitive surface height minus floor height, metres. */
+    /** Lowest posed part surface height minus the floor height, in metres. */
     floorClearance: number;
 
-    /** Whether the trunk's surface is on the floor during the resting hold. */
+    /**
+     * Whether the trunk contacts the floor at this sample within solver
+     * roundoff.
+     */
     bellySupported: boolean;
 
-    /** Authored phase at this time; endpoints belong to the following phase. */
+    /**
+     * Clock label `lowering`, `resting`, `rising` or `standing`. Boundaries
+     * use the later label.
+     */
     phase: "lowering" | "resting" | "rising" | "standing";
   }
 
-  /** A finite plan that is independent of playback rate and sample order. */
+  /**
+   * A complete sternal-rest plan evaluated directly from time.
+   *
+   * Use its duration and events for sequencing. Samples do not depend on
+   * playback rate or previously requested seconds.
+   */
   export interface IClip<Id extends string, Dimension extends string> {
-    /** Full cycle length in seconds. */
+    /** Sum of the three authored durations, in seconds. */
     readonly duration: number;
 
     /**
-     * Exact authored support/phase event times, seconds, for capture and
-     * composition.
+     * Seconds of first belly support, start of rise, end of belly support and
+     * completion of the standing posture.
      */
     readonly events: Readonly<{
       bellyOn: number;
@@ -142,8 +154,12 @@ export namespace AutoMovieArchetypeQuadrupedRestPlan {
     }>;
 
     /**
-     * Evaluate from time alone. Time outside the finite cycle is refused;
-     * unreachable, below-floor and inconsistent source rigs are refused too.
+     * Evaluates the supported pose at a time within the clip.
+     *
+     * @param seconds Time in seconds from the cycle's start, including both ends.
+     * @returns A new pose sample and its support measurements.
+     * @throws {RangeError} For an out-of-range time, unattainable foot goals
+     *   or below-floor geometry.
      */
     sample(seconds: number): ISample<Id, Dimension>;
   }

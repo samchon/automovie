@@ -1,19 +1,21 @@
 import { assertCaptureClock as assertCaptureClockImplementation } from "../delivery/internal/assertCaptureClock";
 import { planCaptureUrl as planCaptureUrlImplementation } from "../delivery/internal/planCaptureUrl";
 
-import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieCaptureFindingDiffProps, type IAutoMovieCaptureRequestEntry, type IAutoMovieCaptureCompleteRecord, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage, type IAutoMovieAssertCaptureClockHost, type IAutoMovieAssertCaptureClockExpected } from "@automovie/interface";
+import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieCaptureFindingDiffProps, type IAutoMovieCaptureRequestEntry, type IAutoMovieCaptureCompleteRecord, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage, type IAutoMovieAssertCaptureClockHost, type IAutoMovieAssertCaptureClockExpected, type IAutoMovieCaptureSubject, type IAutoMoviePlaybackEvent } from "@automovie/interface";
 import { compareCaptureRounds as compareCaptureRoundsImplementation } from "./internal/compareCaptureRounds";
 import { diffCaptureFindings as diffCaptureFindingsImplementation } from "./internal/diffCaptureFindings";
 import { formatCapturePlanRequest as formatCapturePlanRequestImplementation } from "./internal/formatCapturePlanRequest";
 import { parseCapturePlanRequest as parseCapturePlanRequestImplementation } from "./internal/parseCapturePlanRequest";
 import { planCapture as planCaptureImplementation } from "./internal/planCapture";
 import { planCaptureFrames as planCaptureFramesImplementation } from "./internal/planCaptureFrames";
+import { planNativeReviewFrames } from "./internal/planNativeReviewFrames";
 import { planCaptureLayout as planCaptureLayoutImplementation } from "./internal/planCaptureLayout";
 import { planVideoFrames as planVideoFramesImplementation } from "./internal/planVideoFrames";
 import { planVideoSceneCuts as planVideoSceneCutsImplementation } from "./internal/planVideoSceneCuts";
 import { readCaptureArguments as readCaptureArgumentsImplementation } from "./internal/readCaptureArguments";
 import { readVideoSceneCuts as readVideoSceneCutsImplementation } from "./internal/readVideoSceneCuts";
 import { resolveCapturePatterns as resolveCapturePatternsImplementation } from "./internal/resolveCapturePatterns";
+import { resolveCaptureCue } from "./internal/resolveCaptureCue";
 import { runCapture as runCaptureImplementation } from "./internal/runCapture";
 import { runVideoCapture as runVideoCaptureImplementation } from "./internal/runVideoCapture";
 import { scaleCaptureLabels as scaleCaptureLabelsImplementation } from "./internal/scaleCaptureLabels";
@@ -130,6 +132,8 @@ export namespace AutoMovieRenderCapture {
    * | `rate`       | Stills per second of an even sampling, positive                                  | 5                        |
    * | `at`         | Exact seconds separated by commas, instead of `from`, `to` and `rate`            | Even sampling            |
    * | `events`     | Seconds separated by commas whose surrounding frames are drawn                   | None                     |
+   * | `cue`        | Exact id of a played source event, captured with its native neighborhood           | None                     |
+   * | `entry`      | Zero-based sequence entry selecting one repeated play of `cue`                     | A unique play            |
    * | `window`     | Frames drawn on each side of an event or cut, a whole number                     | 3                        |
    * | `threshold`  | The `scdet` score from 0 to 100 at which a video file's frame starts a new scene | 10                       |
    * | `views`      | View texts of the inspection view grammar separated by `;`                       | `film`                   |
@@ -196,38 +200,69 @@ export namespace AutoMovieRenderCapture {
   }
 
   /**
-   * Plan the instants a capture draws, for a drawn scene and for a video file
-   * alike: an even sampling or explicit seconds, merged with every frame within
-   * `window` frames of each event and each cut.
+   * Resolve a played source event on both the shot and output clocks.
+   * The subject supplies admitted occurrences from its sequence. Select an
+   * entry when the same source event plays several times. Missing, ambiguous
+   * or out-of-range occurrences throw with the subject and cue in the message.
    *
-   * The subject's frames are the indices `0` to `N - 1` with `N =
-   * ceil(durationSeconds × fps)`, frame `i` showing second `i / fps`. An even
-   * sample is moved to the nearest frame, so every still is a frame the subject
-   * encodes, and stops before `to`. An explicit second is kept as written. The
-   * frame nearest an event or a cut is `round(seconds × fps)`, and its window
-   * runs `window` frames to each side at the frame rate, cut at the first and
-   * last frame. The result is in time order with every frame once, and each
-   * window is listed with whether the bounds cut it.
+   * @param subject Named source and its played occurrences, ending at its duration.
+   * @param cue Exact source identifier with an optional zero-based sequence entry.
+   * @returns A copy of the selected occurrence, including actor and action identity.
+   */
+  export function resolveCue(
+    subject: Pick<IAutoMovieCaptureSubject, "name" | "durationSeconds" | "playedCues">,
+    cue: IAutoMovieCapturePlanRequest.ICue,
+  ): Readonly<IAutoMoviePlaybackEvent> {
+    return resolveCaptureCue(subject, cue);
+  }
+
+  /**
+   * Select native frames and continuous poses for a capture request.
    *
-   * It throws for a frame rate or duration that is not positive, a sampling that
-   * starts at or after the subject's end or ends past it, an explicit second,
-   * event or cut outside `[0, durationSeconds]`, and a window that is not a whole
-   * number of frames.
+   * Native frames use the encoder's rounded frame count. Even sampling snaps
+   * to that grid and omits the requested end. Explicit off-grid seconds remain
+   * continuous poses. Events and cuts retain their source seconds and select
+   * the nearest available frame plus the requested integer-radius window.
+   * A window clipped by either endpoint is marked.
    *
-   * ```ts
-   * planCaptureFrames({
-   *   durationSeconds: 4,
-   *   fps: 30,
-   *   sampling: { kind: "even", from: 0, to: null, rate: 5 },
-   *   events: [2],
-   *   cuts: [],
-   *   window: 3,
-   * });
-   * // frames 0, 6, 12, ... with 57 to 63 around the event
-   * ```
+   * Reject a nonfinite or nonpositive clock, an invalid sampling interval,
+   * seconds outside the subject, an invalid rate, or a radius outside the
+   * nonnegative safe integers. A continuous pose remains available on a
+   * positive-duration subject shorter than half a frame.
    */
   export function planFrames(props: IAutoMovieCaptureFramePlanProps): IAutoMovieCaptureFramePlan {
     return planCaptureFramesImplementation(props);
+  }
+
+  /** An exact uniform native frame grid and the interval to review. */
+  export interface INativeReviewFramePlanProps {
+    /** Positive numerator and denominator in frames per second. */
+    frameRate: readonly [number, number];
+    /** First and last native indices, both included. */
+    frames: readonly [number, number];
+    /** Keep every native frame in these inclusive decisive intervals. */
+    decisive?: readonly (readonly [number, number])[];
+  }
+
+  /** Native indices and planned cadence for the requested interval. */
+  export interface INativeReviewFramePlan {
+    /** A source below ten frames per second cannot meet the review cadence. */
+    type: "planned" | "source-rate-below-review";
+    /** Endpoints and selected native indices in strictly ascending order. */
+    frames: readonly number[];
+    /** Largest gap in seconds as an exact fraction, or null for a single frame. */
+    largestGap: readonly [number, number] | null;
+  }
+
+  /**
+   * Plan representative stills at native addresses on an exact uniform grid.
+   * Keep both endpoints and all frames in decisive intervals. Use the longest
+   * native stride at most one tenth of a second. A slower grid keeps all of its
+   * samples and reports the cadence shortfall. The plan does not certify that
+   * the caller has retained any requested image.
+   */
+  export function planReviewFrames(props: INativeReviewFramePlanProps): INativeReviewFramePlan {
+    return planNativeReviewFrames(props);
   }
 
   /**
@@ -283,8 +318,10 @@ export namespace AutoMovieRenderCapture {
    * selected frame, counting from zero in ascending index order, is written as
    * `<directory>/s<k>.png` with `k` padded to five digits, in 8-bit RGB.
    *
-   * It throws for an empty list and for an index that is not a whole number of
-   * zero or more.
+   * The caller may select an absolute stream index. Omitting it selects the
+   * first video stream. Enable `presentation` to retain input PTS and emit
+   * `showinfo` for the actual selected frames, in PNG order. An empty list or
+   * a frame or stream index outside the nonnegative safe integers throws.
    *
    * ```ts
    * planVideoFrames({
@@ -312,7 +349,9 @@ export namespace AutoMovieRenderCapture {
    * path is escaped for both levels of FFmpeg's filter-graph syntax, so a drive
    * letter or a comma in it stays part of the path.
    *
-   * It throws for a threshold outside 0 to 100.
+   * The filter reads the specified absolute video stream, or the first video
+   * stream when omitted. A threshold outside [0, 100] or an invalid stream
+   * index throws.
    *
    * ```ts
    * await run(
@@ -408,8 +447,9 @@ export namespace AutoMovieRenderCapture {
    * returns a picture that is not the subject's raster, is recorded with the
    * cause and stands on the sheet as a marked cell, and the run continues. Sheets
    * are written as `sheet-001.png` onwards as each fills. Diagnostics supplied by
-   * the drawn cells are reduced in film time for the record. With a `compare`
-   * round, `compareCaptureRounds` follows at `match` and diffs those
+   * the drawn cells are reduced in film time for the record. A drawn cell can
+   * also retain its selected source-backed trail samples with their own exact
+   * clocks. With a `compare` round, `compareCaptureRounds` follows at `match` and diffs those
    * findings against the earlier record's. The record comes last.
    *
    * Files are touched in the order `AutoMovieRenderCaptureFolder` states: the host
@@ -459,14 +499,16 @@ export namespace AutoMovieRenderCapture {
    *    `runCapture` read each extracted still as its cell's picture,
    *    delete the extracted file and write the still under the cell's name.
    *
-   * Each still is captioned by its frame index and second. A planned frame the
+   * Each still is captioned by its frame index and estimated sampling second.
+   * The exact decoder clock, when `extract` supplies one, keeps the source
+   * stream and rational PTS beside the estimated sampling addresses. A planned frame the
    * file does not hold, as when the file is shorter than its stated duration, is
    * a failed cell with the cause, and a comparison against the source's round at
    * `time` matching reports it unmatched. The record lists the file, the
    * threshold and every detected cut with its score, so a file with no cut
    * records zero cuts at the threshold used.
    *
-   * It rejects a request that asks for views, passes, a sweep or an inspection,
+   * It rejects a request for played cues, views, passes, a sweep or an inspection,
    * since a file's pixels are drawn already, and explicit seconds that fall
    * between the file's frames.
    */

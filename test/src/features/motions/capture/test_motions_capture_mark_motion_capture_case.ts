@@ -5,20 +5,19 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `markMotionCaptureCase` turns a case's overlays into inspection marks: a
- * trail is a polyline (a point when it has one), a target a point, and a drift
- * set its samples within and beyond their limit, the latter flagged; a trail or
- * target kind is its colour, labelled by the overlays drawn in it.
+ * Check how capture overlays produce inspection marks and labels.
  *
- * Scenarios, a red trail of two points, an empty trail, a red target, a blue
- * one-point trail and a drift set with one sample within and one beyond its 5
- * mm limit:
+ * Scenarios:
  *
- * 1. The marks are the red polyline `case/trail/0`, the blue point `case/trail/2`,
- *    the red target, then the drift within and beyond, the empty trail giving
- *    none.
- * 2. Red is labelled `trail and target d04040`, blue `trail 2040d0`, and the drift
- *    is violet `7b4fa8`, flagged beyond its limit.
+ * 1. Make the two-point trail a polyline, the one-point trail a point and the
+ *    empty trail no mark. Preserve the separate target and report both drift
+ *    samples.
+ * 2. Group red marks under the shared trail-and-target label, keep the blue
+ *    trail label and flag the violet drift beyond 5 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify each mark kind, palette and flagged distance threshold.
+ * @evidence contracts/development/testing.md#behavioral-verification The overlay composer is checked against the complete expected mark and legend object.
+ * @evidence contracts/development/testing.md#independent-expectations Point counts, given colours and direct comparison of sample drift with 5 mm determine the expected records.
  */
 export function test_motions_capture_mark_motion_capture_case(): void {
   const marks: IAutoMovieMark[] = markMotionCaptureCase({

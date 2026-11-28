@@ -22,11 +22,9 @@ import { throwsError } from "../internal/predicates";
  *    standalone flag beside other tokens all refuse with a message naming the
  *    correction.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported parser with literal requests and asserts the returned command and option tokens or the refusal's correction.
- * @evidence contracts/development/testing.md#independent-expectations Expected requests, option order and the supported command list come from the CLI grammar in the README and usage text. Fragment matching checks only the part of each refusal covered by the assertion.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers empty input, each standalone spelling alone and beside an extra token, every create option together in a shuffled order, both families, zero, blank and two targets, an unknown option per command, a dash-leading directory, repeated flags, `--name` missing, blank or followed by an option, a target without family, with an unknown family or an extra segment, empty, `..`, separator-bearing and padded segments, and the removed `start`, `sync` and `inspect-external` commands; execution of an admitted request belongs to `run` and the project name to `test_cli_project_name`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that calls the pure parser in-process with literal argument arrays, starting no process and registering no dynamic cases.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes standalone help and version, workspace and production targets, delegated option order, and the grammar's refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported parser on literal argument arrays. Checks parsed create and add targets and the original production command tokens, and tests messages for unsupported commands, repeated options and invalid targets.
+ * @evidence contracts/development/testing.md#independent-expectations Uses hand-written request objects and literal token lists, with distinct message fragments for unknown commands, conflicting options and invalid name or target forms.
  */
 export function test_cli_command_arguments(): void {
   const read = (...args: string[]): AutoMovieCliCommand.Request =>

@@ -49,24 +49,21 @@ const CLEARANCE: number = 0.035;
 const HALF: IAutoMovieQuaternion = { x: 0, y: 0, z: 1, w: 0 };
 
 /**
- * The bowed violin law's own logic: the stroke's schedule, the hair's axis
- * across the string, and the grip that lays the hair on the sounding point.
+ * Check bow timing, hair orientation and displayed grip position.
  *
  * Scenarios:
  *
- * 1. Over phases approach 0 to 1 s, ready to 1.2 s, contact to 2.2 s and lift to
- *    2.4 s, a down-bow stands a clearance off the string at 18 % of the hair,
- *    passes 30 % on it mid-stroke and ends at 42 % a clearance off; an up-bow
- *    runs the other way.
- * 2. On `string1` across a string along +X under a +Y outward normal, the hair
- *    lies along `(0, sin(π / 15), cos(π / 15))` (Schoonderwaldt 2010's straight
- *    stroke, tilted out of the string bar's plane); on `string4` it tilts the
- *    other way.
- * 3. With the frog 0.1 m below the grip and the hair 0.6 m along -X, the bow
- *    turned a half turn about +Z lays half its hair on (1, 1, 0) from a grip at
- *    (0.7, 0.9, 0).
- * 4. A fixed string at a reachable grip checks the actual hair point at both
- *    boundaries and an unseen offset, read in shuffled order.
+ * 1. Read down-bow and up-bow shares through approach, contact and lift in
+ *    the specified 2.4 s phrase.
+ * 2. Compare opposite hair tilts for strings one and four. Given the stated
+ *    frog offset and half a revolution, place the grip for the centre of the
+ *    hair.
+ * 3. Fit the hand on a reachable fixed string. Read contact endpoints and an
+ *    interior sample in shuffled order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify phases, string axes, held bow geometry and actual playback samples.
+ * @evidence contracts/development/testing.md#behavioral-verification The schedule, string-side projection and grip solving are tested directly, including a fitted arm with a fixed instrument.
+ * @evidence contracts/development/testing.md#independent-expectations The phase shares are given by the authored progression. The cross product, specified tilt and turned frog offset give the orientation and grip expectations.
  */
 export async function test_motions_music_bow_violin(): Promise<void> {
   // 1. The stroke.

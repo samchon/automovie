@@ -21,9 +21,7 @@ import { throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual room-response derivation and PCM application, observing unavailable/not-run/unsupported outcomes and named revision/subject/coincidence refusals before an unavailable response can mix.
  * @evidence contracts/development/testing.md#independent-expectations Authored room/endpoint presence and fixed profile/revision syntax determine expected states and literal refusal fragments. The fixture's revision is declared metadata rather than a recomputed physical-geometry digest; no measured room or audio-device observation is claimed.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves unavailable consumption, revision mismatch, malformed digest, mixed outdoor binding, absent analysis/source/receiver/partitions, subject mismatch and coincident endpoints without claiming all analyzer-domain branches.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh room requests, a two-sample CPU buffer and local callbacks through the existing canonical fixture; it opens no file, solver process, audio device, renderer, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unavailable response and a mismatched revision are refused by their own boundaries.).
+ * @evidence contracts/development/common.md#meaningful-documentation Unavailable or stale responses, malformed digests and invalid source, receiver or space data exercise separate derivation refusals.
  */
 export function test_engine_interior_acoustic_derivation_admission(): void {
   const {

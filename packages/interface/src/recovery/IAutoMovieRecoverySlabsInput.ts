@@ -5,40 +5,31 @@ import type {
 } from "..";
 
 /**
- * Reobserve source slabs while referring to existing coefficient publications.
- * Every supplied saved plane is recut once without fitting, and all requested
- * slab components remain present. Source identities are caller assertions: the
- * caller verifies original bytes, registration and selection before this call.
- * Raw-cut equality cannot establish a named curve's geometric correctness.
+ * Caller-attested section artifact and source request for exact slab
+ * observation.
  */
 export interface IAutoMovieRecoverySlabsInput extends Pick<
   IAutoMovieRecoveryInput,
   "verticesMm" | "triangles" | "axis" | "reference" | "exactCoordinateAliases"
 > {
-  /**
-   * Identity of this new acquisition-only observation, not a replacement curve
-   * collection.
-   */
+  /** Caller label for the new slab observation collection. */
   name: string;
 
-  /**
-   * Caller-verified original source identity, compared with every saved
-   * section.
-   */
+  /** Caller-verified string identifying the registered source. */
   sourceIdentity: string;
 
-  /** Caller-verified registration/selection/original-ordinal identity. */
+  /**
+   * Caller-verified string identifying the selected original source ordinal
+   * space.
+   */
   sourceSelectionIdentity: string;
 
   /**
-   * Distinct finite saved planes in their preserved section-index order; every
-   * supplied plane is recut, including empty and unsupported contours.
+   * Caller-bound saved section records providing exact contour lineage and
+   * observed closure.
    */
   savedSections: readonly IAutoMovieRecoverySavedSection[];
 
-  /**
-   * Nonempty finite increasing pairs whose endpoints both name supplied saved
-   * sections.
-   */
+  /** Requested increasing cut pairs referencing saved section coordinates. */
   slabPairs: readonly IAutoMovieRecoverySlabPair[];
 }

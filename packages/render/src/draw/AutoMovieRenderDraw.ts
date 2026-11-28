@@ -11,12 +11,13 @@ import { placeDrawLayer as placeDrawLayerImplementation } from "./internal/place
 import { selectDrawSubject as selectDrawSubjectImplementation } from "./internal/selectDrawSubject";
 import { stampDrawLegend as stampDrawLegendImplementation } from "./internal/stampDrawLegend";
 
-import { type AutoMovieGuidePass, type IAutoMovieCaptureCell, type IAutoMovieCaptureLayout, type IAutoMovieCaptureSubject, type IAutoMovieCaptureTime, type IAutoMovieDrawCall, type IAutoMoviePlaybackLayer, type IAutoMovieRenderSoftPropFrame, type IAutoMovieRasterImage, type IAutoMovieDrawResult, type IAutoMovieInspectionRequest, type IAutoMovieInspectionDiagnostics, type IAutoMovieRasterLabel, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import { type AutoMovieGuidePass, type IAutoMovieCaptureCell, type IAutoMovieCaptureLayout, type IAutoMovieCaptureSubject, type IAutoMovieCaptureTime, type IAutoMovieDrawCall, type IAutoMoviePlaybackLayer, type IAutoMovieRenderSoftPropFrame, type IAutoMovieRasterImage, type IAutoMovieDrawResult, type IAutoMovieInspectionRequest, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieRasterLabel, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
 import type { IAutoMovieRenderDrawScene } from "./IAutoMovieRenderDrawScene";
 import { planDrawCall } from "./internal/planDrawCall";
 import { planDrawLayers } from "./internal/planDrawLayers";
 import { planDrawPicture } from "./internal/planDrawPicture";
+import { sampleDrawTrails } from "./internal/sampleDrawTrails";
 import { admitControlPasses as admitControlPassesImplementation } from "./internal/admitControlPasses";
 
 /** Public capture and picture planning operations owned by Render's draw topic. */
@@ -113,6 +114,35 @@ export namespace AutoMovieRenderDraw {
   }
 
   /**
+   * Sample bounded world-origin trails for the paths matching the drawn pose.
+   * Each time uses the entry the film picture actually shows. Entry changes,
+   * declared playback breaks and missing samples separate segments. An object
+   * or ancestor change also starts a segment unless the producer authorizes
+   * the same supported origin within that occurrence. Positions are sampled
+   * world metres. Stationary segments describe only sampled positions.
+   * With `inspectMotionTrail`, each sample can also carry the source route,
+   * exact shot clock, placed forward, delivery-camera projection and selected
+   * support observation. Changes in route or support identity split segments.
+   *
+   * An empty trail request takes no placements. Invalid time or more than 16
+   * patterns rejects before placement, and more than 64 selected paths rejects
+   * before sampling. Selection first places the drawn second; sampling then
+   * shares one awaited placement across paths at each planned second. The
+   * caller must place the drawn second again before observing or painting it.
+   * An optional current check stops obsolete work between placements and
+   * discards its results.
+   */
+  export function samplePlayedTrails(
+    name: string,
+    scene: IAutoMovieRenderDrawScene<never>,
+    request: IAutoMovieInspectionRequest,
+    seconds: number,
+    current?: () => boolean,
+  ): Promise<IAutoMovieInspectionTrail[]> {
+    return sampleDrawTrails(name, scene, request, seconds, current);
+  }
+
+  /**
    * Route soft prop surfaces from a producer into the draw subject's scene. The
    * producer is read right after the subject has placed its other objects, by
    * `seek`, `place` or `seekShot`, with the output second, and describes that
@@ -145,8 +175,9 @@ export namespace AutoMovieRenderDraw {
    * paths of the drawn objects, one world box per distinct path, the union of the
    * boxes of every object sharing it; an object with an empty box is left out.
    * Mark kinds are the subject's declared `markKinds` and those it supplies at
-   * second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the
-   * kinds the inspection draws from its own sampling and measurement. Declaring a
+   * second 0, then the kinds the inspection samples and measures. An authored
+   * motion source makes `trail/route` available for planning. Its geometry is
+   * sampled only for a request that selects a trail. Declaring a
    * later kind admits its capture without seeking through the film or inventing a
    * marker at zero; its geometry still comes from `marks` at the drawn second.
    */

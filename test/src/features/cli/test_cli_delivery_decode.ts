@@ -26,11 +26,9 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
  * 6. A one-tick frame at 1 fps uses the exact native time base. An unsafe ratio
  *    that would round to one second per tick leaves the video uncovered.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the native evidence and clock behaviors checked by each case.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the real delivery entry with a process runner fixture and feeds it split text and PCM exactly as the process owner does.
- * @evidence contracts/development/testing.md#independent-expectations Exact expected ticks follow from five literal 1001-tick frames at 1/30000 and six literal interleaved stereo sample frames at 8 kHz.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises native EOF, missing or ambiguous timing evidence, split float boundaries, a nonquiet second channel, and incomplete audio coverage.
- * @evidence contracts/development/testing.md#execution-ownership Uses synthetic FFmpeg text and PCM fixtures and starts no process or device. The audio pass reads a movie header written to its own temporary folder, presenting all six decoded sample frames, and the folder is removed afterwards.
+ * @evidence contracts/development/common.md#meaningful-documentation Names detector and output arguments, exact video clocks and EOF, stereo silence, and incomplete decoder evidence.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the delivery decode with a recording process boundary. Checks the planned video and PCM outputs, then feeds split logs and stereo f32le data to exercise timing, silence, malformed evidence and decoder failure.
+ * @evidence contracts/development/testing.md#independent-expectations Derives expected frame boundaries from five 1001-tick inputs at 1/30000 and expected audio intervals from six stereo frames at 8 kHz. The fixture supplies independent incomplete and unsafe-clock cases.
  */
 export async function test_cli_delivery_decode(): Promise<void> {
   const folder = await fs.mkdtemp(

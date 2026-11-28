@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanVisemeWeights } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanVisemeWeights. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Sparse weights for the 15 named visemes. Use this type to generate a typia
+ * validator or schema. Each supplied weight is in [0, 1]. Consumers may blend
+ * several visemes.
+ */
 export type IAutoMovieHumanVisemeWeightsSchema =
   IAutoMovieHumanVisemeWeights & {
     /** Silence, the closed resting mouth. */

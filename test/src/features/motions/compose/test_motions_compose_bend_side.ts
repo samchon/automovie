@@ -46,6 +46,10 @@ function candidate(
  *    ½°).
  * 3. A candidate to the side (+X): overshoot 1e9 × 2.
  * 4. A candidate on the line, and a hint on the line: deviation 0.5.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes aligned, half-degree, out-of-band and on-line radial directions for both prepared and direct grading.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the direct and prepared bend-side rankers on exact positions around a unit shoulder-to-wrist axis, then reads overshoot and deviation.
+ * @evidence contracts/development/testing.md#independent-expectations With identical projected directions the discrepancy is zero. A half degree adds 1 minus cos of that angle, and orthogonal rays give 1 and therefore the 2e9 penalty.
  */
 export function test_motions_compose_bend_side(): void {
   const shoulder: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

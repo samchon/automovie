@@ -113,13 +113,15 @@ export function prepareHumanPerformance(
 
   for (const person of self.people.values())
     for (const segment of [...person.segments, ...person.overlays])
-      segment.plan.verifyDisplayed?.((seconds, requested) =>
-        HumanPerformanceRead.bones(
-          self,
-          person.performer.subject,
-          seconds,
-          requested,
-        ),
+      segment.plan.verifyDisplayed?.(
+        (seconds, requested) =>
+          HumanPerformanceRead.bones(
+            self,
+            person.performer.subject,
+            seconds,
+            requested,
+          ),
+        { entryTime: segment.entryTime, end: segment.end },
       );
 
   // A carry and its contact often declare the same hand interval. Lay its

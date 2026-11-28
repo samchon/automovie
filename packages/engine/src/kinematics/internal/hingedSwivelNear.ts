@@ -29,11 +29,10 @@ import { refineHingedSwivel } from "./refineHingedSwivel";
  * If dividing a positive subnormal tolerance by the initial bracket width
  * underflows, the difference of logarithms keeps the mathematically finite
  * refinement count finite; ordinary ratios retain their original expression.
- * Parameter props: The branch's scorer and ordering, the seed, the branch's
- * closed-form candidates when the caller has them, and the acceptance of a
- * candidate.
+ * Parameter props: The branch's scorer and ordering, the seed with an admitted
+ * positive finite tolerance, the branch's closed-form candidates when the
+ * caller has them, and the acceptance of a candidate.
  * Returns: The chosen candidate.
- * When the seed's tolerance is not positive and finite.
  */
 export function hingedSwivelNear<T extends { overshoot: number }>(props: {
   /*
@@ -71,9 +70,6 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
   met?: (candidate: T) => boolean;
 }): T {
   const near: IAutoMovieSwivelNear = props.near;
-  if (!(near.tolerance > 0))
-    throw new Error("A continued fit needs a positive finite tolerance");
-
   const ratio: number = near.tolerance / (2 * STEP);
   const contraction: number =
     ratio === 0

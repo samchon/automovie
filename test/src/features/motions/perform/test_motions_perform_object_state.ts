@@ -20,6 +20,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Inside the first writer, its travel: 5 at 0.5 s.
  * 3. After it, its last travel held: 10 at 1.5 s.
  * 4. Inside the second, its coordinate alone: 102.5 at 2.5 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names writer activation, held travel after a window, and replacement by a coupled coordinate sharing the same leader.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanPerformanceObject.travel` with two typed writer records and checks exact travel maps before, inside and after their windows.
+ * @evidence contracts/development/testing.md#independent-expectations The first writer gives 10t degrees and stops at 1 s, so at 0.5 and 1.5 s the values are 5 and 10. The mirror writer evaluates 100 + 2.5 as 102.5 and is the only key because it shares the hinge leader.
  */
 export function test_motions_perform_object_state(): void {
   const writers: readonly IAutoMovieMotionHumanPerformanceState.IWriter[] = [

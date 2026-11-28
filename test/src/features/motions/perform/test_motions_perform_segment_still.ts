@@ -33,6 +33,10 @@ const ROUNDING: number = 1e-12;
  * 4. The representative of 2.2 s is the window's start, 1.5 s; of 3.5 s the plan's
  *    end, 3 s; of 1.2 s, before the window, none.
  * 5. A layer makes nothing still.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names active-segment selection, observed stillness within a window and a held end, representative times, and a layer that disables stillness.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls segment selection and stillness readers on two authored actions, with an optional layer. It checks exact selected records, interval booleans, and representative film seconds.
+ * @evidence contracts/development/testing.md#independent-expectations The first action enters at 1 s, with plan still range [0.5, 1.5] mapped to [1.5, 2.5] s and plan end at 3 s. A representative is therefore 1.5 s for 2.2 s and 3 s for 3.5 s. The next entry at 4 s separates the held end from the next action.
  */
 export function test_motions_perform_segment_still(): void {
   const first: HumanSegmentStill.ISegment = {

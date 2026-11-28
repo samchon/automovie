@@ -3,18 +3,19 @@ import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandToolDraw } from "./internal/HandToolDraw";
 
-/** Constructs the table knife archetype from its recipe. */
+/**
+ * Constructs a table knife proxy with a precision grip and a food-side edge contact.
+ */
 export namespace AutoMovieArchetypeTableKnife {
   /**
-   * Table knife with a pinch grip and a food-side edge toward +Z.
+   * Build a table knife with its butt at the origin and blade toward `+Y`.
    *
-   * @param params The optional scene ID, grip diameter in metres and manufacturer
-   *   model.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * @param params Optional scene ID, finite 0.006 to 0.013 metre grip
+   *   diameter and an Eichenlaub or Robert Welch model. ID defaults to `tool`.
+   * @param seed Numeric seed for the omitted model and grip diameter. The
+   *   default is Eichenlaub at 0.225 metres long with a 0.0095 metre grip.
+   * @returns The knife with `grip` facing `-Z` and edge `face` facing `+Z`.
+   * @throws {AutoMovieArchetypeRefusal} If the model or grip diameter is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypeTableKnife.IParams = {},
@@ -55,15 +56,13 @@ export namespace AutoMovieArchetypeTableKnife {
   }
 
   /* The authorable settings, contacts and dimensions of {@link AutoMovieArchetypeTableKnife}. */
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** The precision handle `grip` and positive-Z blade-edge `face`. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Length and blade length follow Y. Blade width spans Z from spine to
+   * edge. The handle diameter and blade measurements use metres and the
+   * model's mass uses kilograms.
    */
   export type Dimension =
     | "blade"
@@ -73,13 +72,17 @@ export namespace AutoMovieArchetypeTableKnife {
     | "mass";
 
 
-  /** Parameters accepted by the table knife producer. */
+  /**
+   * Optional identity, grip diameter and a complete manufacturer's knife model.
+   */
   export interface IParams {
-    /** The model's id, unique in a scene; `tool` when absent. */
+    /** Scene object ID, defaulting to `tool`. */
     id?: string;
-    /** Handle grip diameter in metres. */
+    /** Finite handle diameter in metres within the 0.006 to 0.013 band. */
     gripDiameter?: number;
-    /** Table knife model; drawn from the seed when omitted. */
+    /**
+     * Selects `eichenlaub` or `robertWelch`. Omit it and the seed for `eichenlaub`.
+     */
     model?: HandToolDraw.Model;
   }
 }

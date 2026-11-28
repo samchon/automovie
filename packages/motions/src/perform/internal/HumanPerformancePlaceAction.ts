@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { humanPreparationReads } from "./humanPreparationReads";
 
 /*
  * An action's reader of the anchored actions placed before it
@@ -19,6 +20,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 export function HumanPerformancePlaceAction(
   self: IAutoMovieMotionHumanPerformanceState,
   named: (id: string, otherwise: string) => string,
+  retain: (subject: string) => void,
 ): (anchor: string) => IAutoMovieMotionHumanPlacedAction {
   return (anchor: string): IAutoMovieMotionHumanPlacedAction => {
     let placed = self.anchors.get(anchor);
@@ -36,6 +38,8 @@ export function HumanPerformancePlaceAction(
         reason: `the action anchored ${anchor} is not placed earlier in the composition`,
         fix: `give the answered action the anchor ${anchor} and compose it before self one`,
       });
+    retain(placed.subject);
+    humanPreparationReads.performer(self, placed.subject);
     return {
       subject: placed.subject,
       name: placed.name,

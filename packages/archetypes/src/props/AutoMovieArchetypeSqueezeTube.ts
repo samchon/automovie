@@ -3,19 +3,22 @@ import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { GroomingPropDraw } from "./internal/GroomingPropDraw";
 
-/** Creates a squeeze tube archetype with a body grip and an operable cap. */
+/** Constructs an Alltub squeeze tube with a body grip and rotating cap. */
 export namespace AutoMovieArchetypeSqueezeTube {
 
 /**
- * Squeeze tube with a body grip and an operable cap.
+ * Build a squeeze tube laid along `+Z` with its base end at Z zero.
  *
- * @param params The optional scene ID, tube length in metres, mass in
- *   kilograms, and diameter model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * The final 0.015 metres are the cap. Its control turns that part around
+ * the nozzle axis through 720 degrees. The dispensing frame is fixed
+ * at the tube's far end.
+ *
+ * @param params Optional scene ID, Alltub diameter model, compatible
+ *   finite length in metres and mass in kilograms.
+ * @param seed Numeric seed for omitted values. Without it the model
+ *   is `alltub13_5`, 0.0135 metres across and 0.1025 metres long.
+ * @returns The tube with its body `grip`, rotating `cap` and nozzle `face`.
+ * @throws {AutoMovieArchetypeRefusal} If the model or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeSqueezeTube.IParams = {},
@@ -95,28 +98,28 @@ export function create(
 
   /* The contacts and dimensions of {@link AutoMovieArchetypeSqueezeTube}. */
   /**
-   * The original producer parameters.
+   * Optional ID, Alltub diameter choice, and otherwise drawn length and mass.
    */
   export interface IParams {
-    /** The squeeze tube identifier, unique within its scene. */
+    /** Scene object ID, defaulting to `careItem`. */
     id?: string;
-    /** The tube length in metres when fixed by the author. */
+    /** Finite length in metres within the selected diameter's length band. */
     length?: number;
-    /** The tube mass in kilograms when fixed by the author. */
+    /** Finite mass in kilograms within the tube band. */
     mass?: number;
-    /** An Alltub laminate tube model; omitted for seeded selection. */
+    /**
+     * Selects one Alltub diameter. Without a model or seed, uses `alltub13_5`.
+     */
     model?: Exclude<GroomingPropDraw.Model, "edwinJagger" | "gilletteMach3">;
   }
 
   /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
+   * Round body `grip`, two-turn `cap` control and fixed axial nozzle `face`.
    */
   export type Affordance = "cap" | "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Overall Z length and tube diameter as `width`, in metres. Mass is in kilograms.
    */
   export type Dimension = "length" | "mass" | "width";
 }

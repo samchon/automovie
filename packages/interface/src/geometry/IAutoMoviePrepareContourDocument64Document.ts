@@ -3,16 +3,15 @@ import type { IAutoMoviePrepareContourDocument64Slice } from "./IAutoMoviePrepar
 import type { IAutoMoviePreparedContourEvent64 } from "./IAutoMoviePreparedContourEvent64";
 
 /**
- * Prepared saved-section document for one contour loft.
- * prepareContourDocument64 rejects nonpositive chord tolerance or
- * nonfinite/nonincreasing section coordinates before event admission. It
- * creates slice/event records, borrows curve declarations and clones terminal
- * point tuples. Addressable unsupported events remain local diagnostics.
+ * Prepared saved cuts and events for one contour loft. Supply finite,
+ * increasing cut coordinates and a positive finite chord tolerance. Preparation
+ * allocates cut and event records, borrows curve declarations and copies
+ * terminal tuples. Addressable event refusals remain local.
  */
 export interface IAutoMoviePrepareContourDocument64Document {
   /**
-   * Events returned by admitContourEvents64, in admitted order; these
-   * retain authored topology separately from mapped working incidence.
+   * Events returned by admitContourEvents64, in admitted order; these retain
+   * authored topology separately from mapped working incidence.
    */
   declaredEvents: IAutoMovieContourLoft64.IEvent[];
   /**

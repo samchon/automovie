@@ -83,6 +83,10 @@ function derivatives(timed: HumanKnotTiming.ITimed, s: number): number[] {
  *    greatest |f''| and |h''| sampled at 33 points, and above the floor within
  *    the overshoot.
  * 4. The intervals left at the floor last a thousandth of a frame at most.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains interval excess certification and refinement down to the clock resolution floor.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a two-metre timed course at gridpoints and interior times and compares its bound to 33 sampled curvature values per interval.
+ * @evidence contracts/development/testing.md#independent-expectations The independent Δ²/8 curvature bound checks every excess. Speed 2.02 and acceleration 1.01 define the admitted between-gridpoint ceiling.
  */
 export function test_motions_posture_knot_timing_bound(): void {
   const timed: HumanKnotTiming.ITimed = HumanKnotTiming.parametrize({

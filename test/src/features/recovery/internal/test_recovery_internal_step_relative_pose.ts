@@ -10,11 +10,15 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenarios:
  *
- * 1. The identity at t = (0, 0, 1), stepped by (0, 0, π/2, 3, 4) over the basis
- *    x and y, turns a quarter about z (rows [0, -1, 0 | 1, 0, 0 | 0, 0, 1]) and
+ * 1. The identity at t = (0, 0, 1), stepped by (0, 0, π/2, 3, 4) over the basis x
+ *    and y, turns a quarter about z (rows [0, -1, 0 | 1, 0, 0 | 0, 0, 1]) and
  *    moves t to (3, 4, 1) / √26.
  * 2. A step of other than five coordinates is refused.
  * 3. A step that cancels the translation to zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the quarter-turn, tangent translation normalization, wrong step length and cancellation of translation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public relative-pose update using two explicit tangent vectors and reads the returned rotation and translation. Separate calls exercise invalid count and collapsed direction.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter-turn about z gives the literal rotation entries. The stepped vector (3, 4, 1) has length square root of 26. The final fixture yields exactly the zero vector before normalization.
  */
 export function test_recovery_internal_step_relative_pose(): void {
   const rotation: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
@@ -22,12 +26,13 @@ export function test_recovery_internal_step_relative_pose(): void {
     [1, 0, 0],
     [0, 1, 0],
   ];
-  const stepped: ReturnType<typeof AutoMovieRecoveryCameraMap.stepRelativePose> =
-    AutoMovieRecoveryCameraMap.stepRelativePose(
-      { rotation, translation: [0, 0, 1] },
-      basis,
-      [0, 0, Math.PI / 2, 3, 4],
-    );
+  const stepped: ReturnType<
+    typeof AutoMovieRecoveryCameraMap.stepRelativePose
+  > = AutoMovieRecoveryCameraMap.stepRelativePose(
+    { rotation, translation: [0, 0, 1] },
+    basis,
+    [0, 0, Math.PI / 2, 3, 4],
+  );
   const turn: number[] = [0, -1, 0, 1, 0, 0, 0, 0, 1];
   const norm: number = Math.sqrt(26);
   const place: number[] = [3 / norm, 4 / norm, 1 / norm];

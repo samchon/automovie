@@ -11,6 +11,10 @@ import { nclose } from "../../internal/predicates";
  * 2. Explicit seek time overrides its surrounding request, including zero.
  * 3. Nested production restores its enclosing request on success or refusal.
  * 4. Invalid seconds refuse before production/state mutation; zero is valid.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Publishes only completed time and restores enclosing clock state through nested success and refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the display clock through an idle request, synchronous completion, manual redraw, explicit zero and nested or invalid requests.
+ * @evidence contracts/development/testing.md#independent-expectations Literal seconds distinguish the requested and completed clocks. A refusal retains the previous completion and nested calls must return to the known enclosing time.
  */
 export function test_viewer_root_create_display_clock(): void {
   const clock: AutoMovieViewerDisplay.IClock =

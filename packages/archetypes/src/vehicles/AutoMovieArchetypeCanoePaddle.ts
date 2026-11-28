@@ -14,15 +14,19 @@ import { AutoMovieArchetypeCanoePaddleData } from "./internal/AutoMovieArchetype
 
 /** Constructs the canoe paddle archetype from its recipe. */
 export namespace AutoMovieArchetypeCanoePaddle {
-/**
- * A single-bladed wooden canoe paddle. The blade extends along -X and the
- * transverse T-grip forms the +X end. The shaft hand takes the lower handle.
- * This prop uses the published 56 inch reference envelope and overall mass.
- *
- * @param params Optional scene identity or exact reference overrides.
- * @param seed Provenance seed. The reference dimensions are fixed.
- * @returns The paddle, lower shaft grip, top T-grip and one blade-tip face.
- */
+  /**
+   * Build a single-blade wooden canoe paddle with a transverse T-grip.
+   *
+   * The blade points along local `-X`. `shaftGrip` lies along the shaft near
+   * the blade. The transverse `topGrip` is at the `+X` end. `bladeTip` marks
+   * the opposite end. The reference is the published 56-inch model.
+   *
+   * @param params Optional scene ID and explicit reference figures in metres
+   *   or kilograms as listed in {@link UNITS}.
+   * @param seed Optional seed for the factory. The dimension bands are fixed.
+   * @returns The wooden paddle with its two grips and blade tip.
+   * @throws {AutoMovieArchetypeRefusal} For a value other than the fixed figure.
+   */
 export function create(
   params: AutoMovieArchetypeCanoePaddle.IParams = {},
   seed?: number,
@@ -99,16 +103,26 @@ export function create(
 }
 
   /* Shaft and blade dimensions and three contact ids of the single-bladed paddle. */
-  /** Shaft hand, T-grip hand, and the edge that crosses the water. */
+  /**
+   * `shaftGrip` is the lower grip, `topGrip` the T-grip, and `bladeTip` the wet end.
+   */
   export type Affordance = "shaftGrip" | "topGrip" | "bladeTip";
-  /** Overall length, blade envelope and published product mass. */
+  /**
+   * Overall length and blade dimensions in metres, mass in kilograms.
+   */
   export type Dimension = "length" | "bladeLength" | "bladeWidth" | "mass";
-  /** Scene identity and exact reference overrides. */
+  /**
+   * Optional scene ID and values equal to the fixed figures in {@link BANDS}.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
+    /**
+     * Scene subject ID. Defaults to `canoePaddle`.
+     */
     id?: string;
   }
-  /** Units of each published figure. */
+  /**
+   * Units for the paddle envelope, blade size and mass.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -117,7 +131,9 @@ export function create(
     bladeWidth: "m",
     mass: "kg",
   };
-  /** One manufacturer catalogue size and its blade and mass. */
+  /**
+   * Fixed 56-inch model envelope, blade dimensions and product mass.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(
       56 * AutoMovieArchetypeUnits.INCH,

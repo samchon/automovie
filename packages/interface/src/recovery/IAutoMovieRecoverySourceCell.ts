@@ -1,37 +1,26 @@
 /**
- * One original triangle's intersection with a closed scalar slab. Dimension,
- * source rank and plane/open-slab strata retain lower-dimensional contacts.
- * Coordinates are registered millimetres; query-local component and orientation
- * remain nullable until qualified.
+ * One closed scalar clip of an original source triangle, retaining affine
+ * incidence and source rank.
  */
 export interface IAutoMovieRecoverySourceCell {
-  /**
-   * Zero-based ordinal in this record's owning cell, component or control
-   * registry; it is not a source coordinate.
-   */
+  /** Index of the cell in this query's clipped population. */
   id: number;
 
-  /**
-   * Original source-triangle ordinal, preserved through observation and
-   * subdivision.
-   */
+  /** Original source triangle ordinal supplying this cell. */
   face: number;
 
   /**
-   * Dimension in the source triangle's reference domain, independently of
-   * geometric rank.
+   * Abstract clipped reference-triangle dimension, including point and edge
+   * contacts.
    */
   dimension: 0 | 1 | 2;
 
-  /**
-   * Exact affine rank of the original face, not the physical dimension of a
-   * contact cell.
-   */
+  /** Physical rank of the original registered triangle's geometry. */
   sourceGeometryRank: 0 | 1 | 2;
 
   /**
-   * Whether the source cell varies through the interval, lies on an interior or
-   * endpoint plane, or is a boundary contact.
+   * Whether the source varies, lies flat in or at a bound, or only contacts a
+   * bound.
    */
   scalarKind:
     | "varying"
@@ -40,56 +29,35 @@ export interface IAutoMovieRecoverySourceCell {
     | "flat-after"
     | "boundary-contact";
 
-  /**
-   * One plane registry must own on-plane faces/contacts when adjacent query
-   * results are combined.
-   */
+  /** Physical ownership address by open interval or exact boundary plane. */
   stratum:
     | {
-        /**
-         * Closed representation discriminator selecting the corresponding
-         * observation or result arm.
-         */
+        /** Interval ownership of an interior or varying clipped source cell. */
         kind: "open-slab";
-        /**
-         * Lower physical sweep coordinate in registered millimetres; paired
-         * with the strictly greater afterMm.
-         */
+        /** Lower physical boundary of the owning scalar interval in millimetres. */
         beforeMm: number;
-        /**
-         * Upper physical sweep coordinate in registered millimetres; paired
-         * with the strictly smaller beforeMm.
-         */
+        /** Upper physical boundary of the owning scalar interval in millimetres. */
         afterMm: number;
       }
     | {
         /**
-         * Closed representation discriminator selecting the corresponding
-         * observation or result arm.
+         * Ownership by an exact physical plane for a flat bound or boundary
+         * contact.
          */
         kind: "plane";
         /**
-         * Signed section-plane coordinate along the registered unit sweep axis,
-         * in millimetres.
+         * Physical millimetre coordinate at which this cell's scalar stratum
+         * lies.
          */
         coordinateMm: number;
       };
 
-  /**
-   * Observed boundary-node identities in traversal order; repeated physical
-   * positions retain separate incidence when declared.
-   */
+  /** Ordered original node IDs around the clipped reference cell. */
   nodes: string[];
 
-  /**
-   * Query-local component ordinal; null, where allowed, means the cell has no
-   * two-dimensional component.
-   */
+  /** Assigned dimension-two component ID, or null for isolated contacts. */
   component: number | null;
 
-  /**
-   * Relative face reorientation for a qualified orientable sheet, never an
-   * outward-normal claim.
-   */
+  /** Resolved orientation parity flip, or null where qualification is absent. */
   orientationFlip: boolean | null;
 }

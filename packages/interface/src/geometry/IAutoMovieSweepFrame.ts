@@ -1,23 +1,28 @@
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * The plane one section of a sweep lies in: its origin on the spine and an
- * orthonormal right-handed basis.
- *
- * A section point at polar angle `a` and radius `r` sits at `origin + r (cos a
- * * x + sin a * y)`. `normal = x * y` is the plane's normal, which follows the
- * spine's tangent unless a station rotates the plane.
+ * Right-handed orthonormal section plane located at a spine point in model
+ * space.
  */
 export interface IAutoMovieSweepFrame {
-  /** Spine point, metres. */
+  /** Model-space spine point in metres at the selected chord coordinate. */
   origin: IAutoMovieVector3;
 
-  /** Unit first axis of the section plane, angle 0. */
+  /**
+   * Unit first axis of the section plane and the zero direction for polar
+   * evaluation.
+   */
   x: IAutoMovieVector3;
 
-  /** Unit second axis of the section plane, angle 90 degrees. */
+  /**
+   * Unit second axis of the section plane and the quarter-turn direction for
+   * polar evaluation.
+   */
   y: IAutoMovieVector3;
 
-  /** Unit normal of the section plane, `x * y`. */
+  /**
+   * Unit right-handed cross product of the section X and Y axes. With an
+   * unrotated transported plane it follows the spine tangent.
+   */
   normal: IAutoMovieVector3;
 }

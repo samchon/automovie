@@ -61,6 +61,10 @@ function articulated(
  *    by `max(0, (hip - ankle) - sqrt(0.9^2 - reach^2))` from the fixture's own
  *    bent-knee anchors, none at 0.2 m and some at 0.45 m; every support ends on
  *    its goal and the joints stay articulated.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines distal endpoint fitting per support and root lowering only where remaining chain reach requires it.
+ * @evidence contracts/development/testing.md#behavioral-verification Reaches a posed stickman shin and two quadrupod reaches with fixed other supports, then checks endpoint and articulated anchors.
+ * @evidence contracts/development/testing.md#independent-expectations The quadrupod's 0.9 m reach gives a vertical allowance √(0.9² − reach²). The 0.2 m reach needs no drop while 0.45 m does.
  */
 export function test_engine_physics_plan_physical_support_targets(): void {
   // 1. The stickman's shin tips.

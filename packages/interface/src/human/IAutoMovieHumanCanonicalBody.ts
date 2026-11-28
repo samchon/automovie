@@ -49,6 +49,9 @@ export namespace IAutoMovieHumanCanonicalBody {
 
     /** Girth radius of the segment leaving the joint, metres. */
     radius: number;
+
+    /** A point on the foot's longitudinal heel plane, in canonical metres. */
+    heel?: [number, number, number];
   }
 
   /** One Human joint's placement under a canonical pose. */
@@ -63,40 +66,7 @@ export namespace IAutoMovieHumanCanonicalBody {
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
-   * The options argument of AutoMovieHumanCanonicalBody.prepare. Prepare a
-   * Human's polygon man on the canonical rig from its parameters, at the
-   * skeleton level: no skin, loft or head surface is built. The bind joints
-   * come from Human's own source preparation and skeleton law
-   * (`AutoMovieHumanBodyLaw.prepareSources`, its head source and
-   * `AutoMovieHumanSkeletonLaw.complete`), about 2 s a body. Each joint's girth
-   * radius is perimeter / 2π of the person's own resolved circumference
-   * (`AutoMovieHumanBodyAnatomy.resolve`): hip, waist, chest, neck and head for
-   * the trunk and head, the arm at the axilla, the forearm, the hand, the
-   * thigh, the calf, the ankle and the ball of the foot (0.8 of it at the
-   * midfoot, as Human's rig has it); the jaw is 0.12 of the head radius as
-   * Human's rig has it, the eye a 12 mm globe (Bekerman et al. 2014), and a
-   * digit the stature girth Human uses for an unlofted digit (finger and lesser
-   * toe 0.03, hallux 0.04 of stature). The joints then move onto the canonical
-   * rig: reflected from Human's registered frame, each arm straightened along
-   * ±X by shortest arcs about the shoulder, the elbow and the wrist and
-   * pronated until the palm faces -Y, each finger straightened in the palm's
-   * plane along its own knuckle line and the thumb's two hinges along its
-   * metacarpal (the bind holds a relaxed hand, and a finger angle of zero is
-   * the extended finger, as in the VRM T-pose and the Neutral-0 position), each
-   * thigh and shank straightened along -Y with the foot keeping its bind
-   * orientation, and the whole body raised or lowered so its lowest foot joint
-   * sphere touches the floor. Every humanoid-named joint becomes a rig bone
-   * with an identity rest rotation, the toes bone at the hallux's
-   * metatarsophalangeal joint, and every other joint rides its nearest humanoid
-   * ancestor. The contact profile is built from the same joints and radii
-   * (`AutoMovieHumanCanonicalProfile`), its colliders the convex hulls of the
-   * drawn ring points, so contacts meet what is drawn.
-   *
-   * @param params The Human's parameters.
-   * @param options Body mass in kilograms and the skeleton id.
-   * @returns The canonical body.
-   */
+  /** Required mass and identity for canonical body preparation. */
   export type IPrepareOptions = {
     /**
      * Required body mass in kilograms, forwarded to canonical physical-profile

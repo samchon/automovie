@@ -66,6 +66,10 @@ type Target = Pick<IAutoMovieMotionHumanGrasp.ITarget, "point" | "axis">;
  * 5. Step reach along +Z: a place 1 m ahead within 0.5 m asks a 1 m step with the
  *    longest 2 m, none with the longest 0.8 m; a place 0.6 m aside none; a
  *    place within reach no step.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines grasp approach aperture and timing, handle roll, digit ownership, along-handle parameter and a reachable preparatory step.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls each owning helper for a fixed-width object, posed handle, typed digit names, bounded handle band and direct or lateral targets.
+ * @evidence contracts/development/testing.md#independent-expectations A 50 mm object gives a 65 mm peak aperture, and one metre of loaded travel requires 1.875 s. The closed interval, quarter turn and concurrent reach constraints have distinct analytic results.
  */
 export function test_motions_handling_pick_up(): void {
   // 1. Prehension.

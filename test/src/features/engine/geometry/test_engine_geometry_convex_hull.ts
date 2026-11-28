@@ -16,6 +16,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    watertight mesh of volume exactly 1 within 1e-12.
  * 2. Four coplanar points (the unit square in z = 0) span no volume and are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names volume and closure for a cube with an interior point and the coplanar refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the hull and reads its topology and integrated volume. Calls the same owner with a unit square in one plane.
+ * @evidence contracts/development/testing.md#independent-expectations The unit cube has volume 1 and its centre adds no hull vertex. Four coplanar points enclose no three-dimensional volume.
  */
 export function test_engine_geometry_convex_hull(): void {
   const corners: IAutoMovieVector3[] = [];

@@ -1,98 +1,93 @@
 import type { IAutoMovieRecoveryOpenArcIncidence } from "./IAutoMovieRecoveryOpenArcIncidence";
 
-/** Observe ordinary open-arc transport without exporting source addresses. */
+/** Source-backed queries for open-arc transport across one physical slab. */
 
 export namespace IAutoMovieRecoveryOpenSlabGraph {
-  /** Source-independent ordinary pairs and explicit local omissions. */
+  /** Qualified open-arc pairs and separate unresolved source-incidence findings. */
   export interface Result {
     /**
-     * Ordinary local arc correspondence; reversal is relative to both saved
-     * directions.
+     * Qualified one-to-one arcs in before- and after-array order, with reversal
+     * when endpoints exchange.
      */
     pairs: {
-      /** Saved before-side arc or observation ordinal in the addressed section. */
+      /** Original index in the query's lower arc array. */
       before: number;
-      /** Saved after-side arc or observation ordinal in the addressed section. */
+      /** Original index in the query's upper arc array. */
       after: number;
       /**
-       * Whether the after-side continuation must reverse its saved endpoint
-       * order.
+       * Whether the upper arc's observed endpoint order reverses across the two
+       * boundary paths.
        */
       reverseAfter: boolean;
     }[];
 
-    /**
-     * Unsupported components, including components without represented boundary
-     * arcs.
-     */
+    /** Original arc positions and reason for each unsupported component. */
     unresolved: {
-      /**
-       * Original before-side boundary observations or their source-face
-       * support, retaining the supplied side order.
-       */
+      /** Original lower arc positions with unresolved transport, possibly empty. */
       before: number[];
-      /**
-       * Original after-side boundary observations or their source-face support,
-       * retaining the supplied side order.
-       */
+      /** Original upper arc positions with unresolved transport, possibly empty. */
       after: number[];
       /**
-       * Actual termination or qualification reason; null, where allowed, means
-       * no local failure was recorded.
+       * Reason the observed sheet or endpoint paths could not support an
+       * ordinary pair.
        */
       reason: string;
     }[];
 
-    /**
-     * Source orientation warnings do not remove otherwise valid undirected
-     * topology.
-     */
+    /** Source material orientation warnings observed on candidate faces. */
     diagnostics?: string[];
   }
 
-  /** Immutable source retained only by the preparation closure. */
+  /**
+   * Position, scalar and incidence arrays for preparing repeated open slab
+   * queries.
+   */
   export interface Source {
-    /** Original finite millimetre positions; never returned. */
+    /** Registered Cartesian source vertices in input ordinal order. */
     vertices: readonly [number, number, number][];
 
-    /** Original oriented triangles; undirected incidence owns topology. */
+    /** Three original vertex indices per source triangle. */
     triangles: readonly [number, number, number][];
 
-    /** Idempotent exact-coordinate/height canonical source addresses. */
+    /** Original-to-canonical vertex map for exact allowed aliases. */
     canon: Int32Array;
 
-    /** Fixed finite scalar chart, in millimetres, aligned with positions. */
+    /**
+     * Finite scalar heights in millimetres at the corresponding source
+     * vertices.
+     */
     heights: readonly number[];
   }
 
-  /** One open slab's real arcs, explicit defects and complete candidates. */
+  /**
+   * One increasing physical interval with admitted arc supports and candidate
+   * source faces.
+   */
   export interface Query {
-    /** Finite increasing physical section coordinates, in millimetres. */
+    /** Lower signed scalar station in millimetres. */
     beforeMm: number;
 
-    /** Upper physical section coordinate, in millimetres. */
+    /** Upper signed scalar station in millimetres. */
     afterMm: number;
 
-    /** Real saved open arcs on the lower cut, in publication order. */
+    /** Open-arc incidence records on the lower cut, in query ordinal order. */
     before: readonly IAutoMovieRecoveryOpenArcIncidence[];
 
-    /** Real saved open arcs on the upper cut, in publication order. */
+    /** Open-arc incidence records on the upper cut, in query ordinal order. */
     after: readonly IAutoMovieRecoveryOpenArcIncidence[];
 
     /**
-     * Closed/isolated/unrepresented supports and every critical-event face in
-     * this slab.
+     * Original face sets for unrepresented contacts or defective source
+     * regions.
      */
     defects: readonly ReadonlySet<number>[];
 
-    /** Complete strict-overlap original face IDs, in increasing order. */
+    /** Original source face ordinals selected for the physical slab. */
     candidates: readonly number[];
   }
   /**
-   * Prepare source boundary incidence once, then answer ordinary open-arc
-   * transport queries against that unchanged source. The returned synchronous
-   * query retains source incidence until released; unsupported local transport
-   * is recorded in Result rather than fabricated.
+   * Prepare source incidence once, then query ordinary open-arc transport over
+   * supplied physical slab bounds.
    */
   export type Prepare = (source: Source) => (input: Query) => Result;
 }

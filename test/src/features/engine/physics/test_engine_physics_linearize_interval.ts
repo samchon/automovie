@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    side. A violated lower side (-1e-6, minimum 0) gives [1e-4] for a probe of
  *    1e-4; a violated upper side (1e-6, maximum 0) gives [-1e-4] for a probe of
  *    -1e-4; a narrow interval (-1e-4, [0, 1e-6]) gives [1e-4, 0].
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes active lower and upper residuals, equality, omitted bounds and probes crossing strict slack boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Freezes rows at scalar lower, upper, equal and inactive conditions and evaluates them on independent probes.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting the relevant bound gives the expected residual. A 1e-4 equality probe yields unit derivative, while slack and exact inequality edges stay zero.
  */
 export function test_engine_physics_linearize_interval(): void {
   TestValidator.equals("above", AutoMovieEnginePhysics.linearizePhysicalInterval(5, 0, 3)(4), [0, 1]);

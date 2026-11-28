@@ -210,6 +210,10 @@ const ANGLE = 30;
  * 2. The same clinical value on the right bone gives the mirror image of the left
  *    rotation across the body's midplane, so the right probe turns the mirrored
  *    way and the motion is the same.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers handed clinical signs across paired joints without treating the synthetic T-pose as a human measurement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolvePose for named joint-axis cases on a synthetic identity-rest rig, then compares its rotated probes with specified anatomical directions.
+ * @evidence contracts/development/testing.md#independent-expectations The anatomical signs are explicitly assigned to named motions in the T-pose. Reflecting the left probe across the body's midplane supplies the expected common clinical meaning on the right.
  */
 export function test_engine_kinematics_resolve_pose_side_convention(): void {
   const skeleton: IAutoMovieSkeleton = rig();

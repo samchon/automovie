@@ -1,12 +1,12 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
-/** Data and callback contracts shared by the EvaluateBernstein64 operations. */
+/** Local-parameter result of Bernstein coefficient evaluation. */
 export namespace IAutoMovieEvaluateBernstein64 {
   /**
-   * Evaluate an admitted Bernstein piece at local t in [0,1], returning
-   * position in millimetres and its derivative per local t. De Casteljau
-   * evaluation preserves the supplied degree; rational coordinates use the
-   * quotient rule and hybrid Y uses its independent polynomial degree.
+   * Position and derivative at a finite normalized t from 0 through 1. De
+   * Casteljau evaluation uses the admitted piece's degree. Rational coordinates
+   * apply the quotient rule. Hybrid Y evaluates its own independent polynomial.
+   * Evaluation refuses nonfinite inputs or unresolved output arithmetic.
    */
   export type IResult = {
     /** Millimetre position after any rational and hybrid-Y evaluation. */

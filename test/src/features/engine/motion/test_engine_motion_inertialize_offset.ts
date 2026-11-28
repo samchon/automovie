@@ -34,6 +34,10 @@ const ROUNDING: number = 1e-12;
  *    decay and returns to zero.
  * 5. Before the cut the offset is its value at the cut.
  * 6. A decay time of 0 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the quintic continuation, shorter no-cross decay, bounded pass-through, rate-only lobe, and invalid decay.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `inertializeOffset` directly at the cut, selected interior times, before the cut, and at or after decay. The same closing offset tests both crossing policies.
+ * @evidence contracts/development/testing.md#independent-expectations The hand-derived half-decay quintic gives 0.075 for the moving-away case. The no-cross clamp is 0.05/24 s. Pass-through overshoot is bounded by the excess closing rate times 256D/3125, the same quintic's peak rate-only factor at elapsed D/5.
  */
 export function test_engine_motion_inertialize_offset(): void {
   // 1. Moving away: the whole decay time.

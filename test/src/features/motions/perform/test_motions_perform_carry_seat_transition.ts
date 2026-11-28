@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * A continuous material seat retains the destination root and lets the joints
  * decay normally. A world seat can hand that root over at a coincident cut.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Continuity requires a compatible seat throughout the blend or coincident ground staging. The return always retains the joint decay.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds typed entry and contact windows, runs `carrySeatTransition` with an explicit decay callback, and checks the root by identity and the returned joint value for each variant.
+ * @evidence contracts/development/testing.md#independent-expectations At elapsed 0.2 the decay supplies flexion 2. The same named material seat or unnamed seat on the same carrier keeps destination root (1, 2, 3). Nonmatching or too-short contact uses the decay root (0.75, 2, 3), while ground staging keeps the destination only when roots coincide.
  */
 export function test_motions_perform_carry_seat_transition(): void {
   type Entry = Parameters<typeof carrySeatTransition>[0];

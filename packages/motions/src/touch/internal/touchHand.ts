@@ -200,7 +200,9 @@ export function touchHand(
             region(target),
           ),
         }
-      : {}),
+      : p.tracking === "observed"
+        ? { perceived: { region: () => arrival } }
+        : {}),
   });
 }
 

@@ -24,14 +24,12 @@ import { vclose } from "../../internal/vclose";
  *    clearance, the seat surface and the position of each handhold.
  * 3. Check the sourced bus dimensions and the fixed axle positions in both closed
  *    and open poses.
- * 4. Replay numeric and string seeds, measure the space between the opposing
+ * 4. Replay a numeric seed, measure the space between the opposing
  *    seats, and open both doors across different seating fits.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the posed and fixed geometry and the two independent passenger routes.
- * @evidence contracts/development/testing.md#behavioral-verification Admits real models, measures primitive boxes and seat clearance, checks passenger affordance frames, and observes partial and full door openings.
- * @evidence contracts/development/testing.md#independent-expectations New Flyer's 40-foot diesel figures give the 102-inch width, 40 ft 2 in body, 14-inch step and 283.75-inch wheelbase. The aisle uses the brochure's metric interval and the handhold uses the Access Board's grasping interval. The scenic door width fixes the leaf positions without using the model's travel values.
- * @evidence contracts/development/testing.md#distinguishing-cases Opens each bay separately to distinguish coupled and uncoupled motion. Equal seeds replay the seating fit and a different seed changes the physical clearance with both boarding routes intact.
- * @evidence contracts/development/testing.md#execution-ownership Runs deterministically on local factory results without a host.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the independent curbside routes, fixed seating and axles, passenger contacts and repeated numeric seed.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual models at repeated and differing numeric seeds. Measures seat and aisle clearances and passenger frames and observes each door pair independently at rest, halfway and fully open.
+ * @evidence contracts/development/testing.md#independent-expectations Uses New Flyer's 102 inch width, 40 foot 2 inch body, 14 inch step and 283.75 inch wheelbase. The brochure aisle interval and Access Board grip interval bound the measured cabin. Authored door width determines leaf positions.
  */
 export function test_archetype_transit_bus(): void {
   const bus: ReturnType<typeof AutoMovieArchetypeTransitBus.create> =

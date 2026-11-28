@@ -52,6 +52,10 @@ const SLIDE: number = 0.2;
  *
  * The body is built whole (`humanFixtureBody`): the sole sockets are placed on
  * the body's displayed foot bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names unsupported floor sliding, swimming, absolute and tread-relative travel, planted looseness and lifted contact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditContact.measure on stored-foot motion readers with an explicit 4 Hz grid, ground or water, and prepared moving-support frames.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.2 m/s floor-relative slide fills every interval when undeclared and becomes looseness when planted. Subtracting a 0.5 m/s tread motion leaves zero relative travel. A uniform 0.02 m lift adds that amount to quiet contact height.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_contact_measure(): Promise<void> {
   // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.

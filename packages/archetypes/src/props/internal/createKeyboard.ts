@@ -1,13 +1,9 @@
-import { AutoMovieArchetypeKeyboard } from "../AutoMovieArchetypeKeyboard";
-import {
-  type AutoMovieArchetype,
-} from "../../core/index";
-import {
-  ArchetypeDraw,
-} from "../../core/internal/ArchetypeDraw";
-import "./KeyboardHardware";
+import { type AutoMovieArchetype } from "../../core/index";
+import { ArchetypeDraw } from "../../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeDesktopKeyboard } from "../AutoMovieArchetypeDesktopKeyboard";
-import { AutoMovieArchetypeLaptop } from "../AutoMovieArchetypeLaptop";
+import { AutoMovieArchetypeKeyboard } from "../AutoMovieArchetypeKeyboard";
+import "./KeyboardHardware";
+import { createLaptop } from "./createLaptop";
 
 /*
  * Reads a saved desktop keyboard or laptop recipe.
@@ -20,7 +16,10 @@ import { AutoMovieArchetypeLaptop } from "../AutoMovieArchetypeLaptop";
 export function createKeyboard(
   params: AutoMovieArchetypeKeyboard.IParams,
   seed?: number,
-): AutoMovieArchetype<AutoMovieArchetypeKeyboard.Affordance, AutoMovieArchetypeKeyboard.Dimension> {
+): AutoMovieArchetype<
+  AutoMovieArchetypeKeyboard.Affordance,
+  AutoMovieArchetypeKeyboard.Dimension
+> {
   const kind: AutoMovieArchetypeKeyboard.Kind = ArchetypeDraw.choice(
     "keyboard",
     "kind",
@@ -37,11 +36,34 @@ export function createKeyboard(
       (
         params: AutoMovieArchetypeKeyboard.IParams,
         seed?: number,
-      ) => AutoMovieArchetype<AutoMovieArchetypeKeyboard.Affordance, AutoMovieArchetypeKeyboard.Dimension>
+      ) => AutoMovieArchetype<
+        AutoMovieArchetypeKeyboard.Affordance,
+        AutoMovieArchetypeKeyboard.Dimension
+      >
     >
   > = {
-    keyboard: (p, s) => AutoMovieArchetypeDesktopKeyboard.create({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["numericKeypad", "touchId"] as const) }, s),
-    laptop: (p, s) => AutoMovieArchetypeLaptop.create({ ...p, model: ArchetypeDraw.admit("keyboard", "model", p.model, ["air13", "air15"] as const) }, s),
+    keyboard: (p, s) =>
+      AutoMovieArchetypeDesktopKeyboard.create(
+        {
+          ...p,
+          model: ArchetypeDraw.admit("keyboard", "model", p.model, [
+            "numericKeypad",
+            "touchId",
+          ] as const),
+        },
+        s,
+      ),
+    laptop: (p, s) =>
+      createLaptop(
+        {
+          ...p,
+          model: ArchetypeDraw.admit("keyboard", "model", p.model, [
+            "air13",
+            "air15",
+          ] as const),
+        },
+        s,
+      ),
   };
   return variants[kind](params, seed);
 }

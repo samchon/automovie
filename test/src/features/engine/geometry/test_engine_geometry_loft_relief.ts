@@ -29,6 +29,10 @@ import { TestValidator } from "@nestia/e2e";
  *    at phase 1 it is (cos 0.5, 0, sin 0.5) with its derivative the central
  *    difference; without a turn the axis with zero derivatives.
  * 6. The width of phases (1, 1) is a whole turn; of (6, 0.5) it wraps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names heights and first and second derivatives, shifted lip and rotated direction, window boundaries and wrap.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the owner for height, jet, direction and width, comparing the results to centre values, finite differences and actual shift inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Two cubic centre weights of 2/3 turn the 9 mm control into height 4. The shift net adds 2 mm at the centre and the rotation follows sine and cosine; central differences distinguish derivative mistakes.
  */
 export function test_engine_geometry_loft_relief(): void {
   const net = (centre: number): number[] =>

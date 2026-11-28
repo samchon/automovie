@@ -36,6 +36,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    digits, eight digits, a non-hexadecimal digit, and the empty string.
  * 9. A non-finite component is refused rather than clamped, so `NaN` can never be
  *    rounded into a string that reads like a swatch.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the sRGB transfer branches, quantized round trips, gamut handling and invalid encoded or numeric input.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both public conversion directions. It checks adjacent bytes around the decode boundary, literal encoding values, all grayscale round trips, malformed strings and nonfinite input to encoding.
+ * @evidence contracts/development/testing.md#independent-expectations The declared piecewise equations give the fixed roof and grey values and hand-calculated output bytes. Clamping finite values fixes the gamut endpoints. A NaN or infinity has no finite linear-channel encoding.
  */
 export function test_engine_math_srgb_hex(): void {
   const black: IAutoMovieColor = AutoMovieEngineMath.srgbHexToLinearColor("#000000");
@@ -160,4 +164,13 @@ export function test_engine_math_srgb_hex(): void {
     ),
     [],
   );
+  for (const component of [NaN, Infinity, -Infinity])
+    TestValidator.predicate(
+      "nonfinite linear components are refused",
+      throwsError(
+        (): string =>
+          AutoMovieEngineMath.linearColorToSrgbHex({ r: 0.5, g: component, b: 0.5 }),
+        "requires finite linear color components",
+      ),
+    );
 }

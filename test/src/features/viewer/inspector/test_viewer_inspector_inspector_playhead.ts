@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    restarts at zero as a third jump.
  * 4. A listener hears each change until it unsubscribes, and a duration or rate
  *    that is not positive is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes progress, clamping, rate, endpoint restart and subscribers.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives the public playhead with literal wall time and seek commands, then checks state identity, notifications and jump semantics.
+ * @evidence contracts/development/testing.md#independent-expectations One wall second at half speed advances half a film second. Literal zero and duration are the clamps, and an unchanged snapshot or negative tick has no elapsed motion.
  */
 export function test_viewer_inspector_inspector_playhead(): void {
   const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();

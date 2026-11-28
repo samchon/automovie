@@ -23,6 +23,10 @@ const MATRIX_TOLERANCE: number = 1e-6;
  * 4. `applyFormationCycleCadence` writes that take, advance and turn to the
  *    cycle's active take and uniforms.
  * 5. `formationCycleOf` reads the cycle an object carries, or null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the two matrix samples, wraparound, segment distances and times, fallback, and the cycle attached to the object.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that cycle sampling blends across the wrap, refuses an invalid part, advances and selects the expected take, and carries its cadence to the animation uniforms.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal sampled translations 5, 10, and 5, and derives 2.5 advances from a 4 m walk with a 2 m stride plus half a 4 s idle period.
  */
 export function test_render_scene_formation_cycle(): void {
   const cycle = createFormationCycleFixture();

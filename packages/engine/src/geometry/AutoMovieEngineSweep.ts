@@ -593,20 +593,14 @@ export namespace AutoMovieEngineSweep {
   }
 
   /**
-   * Create the face layout of a network's cage.
+   * Create a cage layout writer for regular grids and explicit chart quads.
    *
-   * Each emitted patch adds its faces row by row from `t` 0, each row from `s` 0,
-   * wound counterclockwise as `(i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1)`;
-   * every face corner carries `(patch, s, t)` and a UV value, the patch's
-   * rectangle in texture space or, where it declares none, the band `t in [k / P,
-   * (k + 1) / P]` of the unit square for patch `k` of `P`. A patch's UVs are its
-   * own, so seams between patches stay seams in texture space. A patch whose
-   * faces are no grid, a transition band, gives each corner its own coordinates
-   * instead, and corners at the same coordinates share a UV value. `check` then
-   * requires every directed edge to appear once.
-   *
-   * @param network The network, only read.
-   * @returns The empty layout.
+   * Each emitted patch preserves face order and publishes aligned vertex, UV
+   * and chart rows. Wrapped grids share geometry at the seam while retaining
+   * distinct UV slots. Explicit rows carry four complete ordinal, s and t
+   * triples. Validate the entire supplied emission and finite directed UV
+   * endpoints before appending any buffers. An empty explicit patch keeps its
+   * empty face list. The final check identifies repeated directed edges.
    */
   export function layoutSurfacePatches(network: IAutoMovieSurfaceNetwork): IAutoMovieSurfaceLayout {
     return layoutSurfacePatchesImplementation(network);
@@ -680,55 +674,28 @@ export namespace AutoMovieEngineSweep {
   }
 
   /**
-   * Find the cage face and local coordinates of a surface coordinate on one
-   * sampled tier.
+   * Find the sampled cage face and its local coordinates for a normalized patch
+   * address.
    *
-   * A patch's grid is even in `(s, t)`, so the face holding a coordinate is
-   * column `floor(s * columns)` and row `floor(t * rows)`, the last column or row
-   * taking `s` or `t` equal to 1, and the local coordinates are the fractional
-   * parts. On a patch whose faces are no grid, a transition band, the face is the
-   * first whose bilinear map of its corner coordinates reaches the coordinate,
-   * inverted by Newton's method, and the local coordinates are that map's
-   * parameters. They follow `IAutoMovieSubdivisionParameter`'s quad convention:
-   * `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward corner 3
-   * along `t`, so the result addresses `subdivideSurface`'s output of
-   * this cage directly.
-   *
-   * @param props.cage A sampled tier, only read.
-   * @param props.coordinate The surface coordinate.
-   * @returns The face's parameter, with `corner` null because every face is a
-   *   quad.
-   * @throws Error when the patch index is out of range or `s` or `t` lies outside
-   *   0 to 1, or a coordinate of a non-grid patch lies on none of its faces.
+   * A regular grid selects a row-major slot, with one reaching the final row or
+   * column. A transition checks faces in patch order and accepts the first
+   * regular bilinear inverse whose forward sample reaches the requested
+   * coordinate. Singular or folded candidates supply no address. The returned
+   * face is a quad and its corner marker is null.
    */
   export function locateSurfaceCoordinate(props: IAutoMovieLocateSurfaceCoordinate.IProps): IAutoMovieSubdivisionParameter {
     return locateSurfaceCoordinateImplementation(props);
   }
 
   /**
-   * Locate every vertex of a subdivided surface network in the network's own
-   * terms, so a field declared over the network, such as a displacement, can be
-   * evaluated at each vertex.
+   * Resolve dense incident-face addresses into stable network coordinates.
    *
-   * A vertex's cage face and quad-local coordinates give its surface coordinate,
-   * the bilinear blend of the face's corner coordinates, the same chart
-   * `mapSurfaceTier` uses, so the coordinate is exact on a grid patch
-   * and continuous across faces inside that patch. Different patch charts can
-   * assign different addresses to a shared edge; compatible fields must agree
-   * there. Each vertex keeps its supplied incident-face address. A sweep or
-   * transition patch also gives the sweep's domain point, `u` and `v` carried
-   * from `t` and `s` by the patch's ranges. The locations depend only on the
-   * network's layout and the tier, never on a pose, so they are computed once per
-   * tier and level and serve every pose.
-   *
-   * @param props.network The network the cage was sampled from, only read.
-   * @param props.cage The sampled cage, only read.
-   * @param props.parameters Each subdivided vertex's cage face and quad-local
-   *   coordinates, `IAutoMovieSubdivisionSurface.parameters` of the cage's
-   *   subdivision.
-   * @returns One location per vertex, in vertex order.
-   * @throws Error when the network's patches are not the cage's, a parameter's
-   *   face is out of range or not a quad, or its coordinates leave 0 to 1.
+   * The network and cage must have matching patch names in order. Each quad
+   * supplies four finite corners from one patch, and each input vertex keeps
+   * its incident face and normalized local values. The bilinear sample supplies
+   * its patch coordinate and, on a sweep or transition, a finite sweep
+   * coordinate. The result preserves vertex order and an empty input yields an
+   * empty result.
    */
   export function locateSurfaceVertices(props: IAutoMovieLocateSurfaceVertices.IProps): IAutoMovieSurfaceLocation[] {
     return locateSurfaceVerticesImplementation(props);

@@ -27,6 +27,10 @@ const IDENTITY: IAutoMovieRigidTransform = {
  * 1. A 40 mm cannon and the dog neck both have a clear axis and bore.
  * 2. A midpoint is inside the leather and a point beyond is outside.
  * 3. Live cannon rotation carries all cuff cells and both strap anchors.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the canine collar and equine cuff bores, leather boundaries and carried rigid cells and anchors.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both fitted models and probes actual solid cells along the axis, through leather and outside. Articulation must carry the cuff cells and both strap anchors.
+ * @evidence contracts/development/testing.md#independent-expectations The test's selected leg scale and measured bore surfaces determine inside, leather and outside probes. Applying the authored parent rotation to unchanged local attachments gives the expected moved frame.
  */
 export function test_archetypes_animals_annular_fittings(): void {
   const hobble: ReturnType<typeof AutoMovieArchetypeHobble.create> = AutoMovieArchetypeHobble.create(0.04, {

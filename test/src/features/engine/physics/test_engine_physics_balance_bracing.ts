@@ -20,6 +20,10 @@ import { nclose } from "../../internal/predicates";
  * 1. Centre at height 1: full root strength and a shift of -0.2 along x (towards
  *    the polygon, at the cap), none in y or z.
  * 2. Centre at height 0.3, below the minimum: the strength is withdrawn to 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines capped root bracing under exhausted recovery and withdrawal below the minimum center height.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls bracing with one unrecoverable support fixture and centers at 1 m and 0.3 m above the floor.
+ * @evidence contracts/development/testing.md#independent-expectations The stance is behind the capture point, so the 0.2 m cap fixes the x correction at -0.2 with y and z zero. The 0.3 m center falls below the 0.4 m threshold.
  */
 export function test_engine_physics_balance_bracing(): void {
   const point: IAutoMovieVector3 = { x: 2, y: 0, z: 0 };

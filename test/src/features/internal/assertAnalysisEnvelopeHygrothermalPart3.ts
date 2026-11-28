@@ -1,4 +1,7 @@
-import { AutoMovieEngineAnalysisMaxSamples, AutoMovieEngineEnvironment } from "@automovie/engine";
+import {
+  AutoMovieEngineAnalysisMaxSamples,
+  AutoMovieEngineEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieAnalysisRun,
   IAutoMovieEnvelopeAssembly,
@@ -39,6 +42,70 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
     overrides?: Partial<IAutoMovieSpaceAirRequest>,
   ) => IAutoMovieAnalysisRun,
 ): void {
+  for (const value of [NaN, Infinity, Number.NEGATIVE_INFINITY]) {
+    TestValidator.predicate(
+      `nonfinite indoor humidity is refused for ${value}`,
+      throwsError(
+        (): ReturnType<typeof study> =>
+          study({ indoor: { airTemperature: 20, relativeHumidity: value } }),
+        "indoor relative humidity",
+      ),
+    );
+    for (const field of ["area", "interiorFilm", "exteriorFilm"] as const)
+      TestValidator.predicate(
+        `nonfinite assembly ${field} is refused for ${value}`,
+        throwsError(
+          (): ReturnType<typeof study> =>
+            study({ assemblies: [{ ...wall, [field]: value }] }),
+          `${field} must be a finite number`,
+        ),
+      );
+    for (const field of ["thickness", "conductivity"] as const)
+      TestValidator.predicate(
+        `nonfinite layer ${field} is refused for ${value}`,
+        throwsError(
+          (): ReturnType<typeof study> =>
+            study({
+              assemblies: [
+                {
+                  ...wall,
+                  layers: [
+                    {
+                      id: "core",
+                      thickness: 0.1,
+                      conductivity: 1,
+                      [field]: value,
+                    },
+                  ],
+                },
+              ],
+            }),
+          `${field} must be a finite number`,
+        ),
+      );
+    for (const [field, label] of [
+      ["length", "length"],
+      ["linearTransmittance", "linear transmittance"],
+    ] as const)
+      TestValidator.predicate(
+        `nonfinite bridge ${label} is refused for ${value}`,
+        throwsError(
+          (): ReturnType<typeof study> =>
+            study({
+              bridges: [
+                {
+                  id: "b",
+                  assembly: "wall",
+                  linearTransmittance: 0.1,
+                  length: 1,
+                  [field]: value,
+                },
+              ],
+            }),
+          `${label} must be a finite number`,
+        ),
+      );
+  }
   TestValidator.equals(
     "every malformed study is refused at its own message",
     namedFacts([
@@ -389,7 +456,8 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
       ],
       [
         "a dew point of saturated air",
-        (): boolean => nclose(AutoMovieEngineEnvironment.dewPoint(20, 1), 20, 1e-9),
+        (): boolean =>
+          nclose(AutoMovieEngineEnvironment.dewPoint(20, 1), 20, 1e-9),
       ],
     ]),
     {

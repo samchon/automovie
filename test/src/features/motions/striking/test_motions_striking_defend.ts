@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenario: a round kick 1, a push kick 0.8, a lead straight 0.4, a lead hook
  * 0.6, a rear straight 0.6, a knee 0.8.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines telegraph visibility by the animation's authored movement variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the telegraph fraction for six fixed clip categories, including front and rear and curved and straight variants.
+ * @evidence contracts/development/testing.md#independent-expectations Declared fractions 1, 0.8, 0.6 and 0.4 distinguish categories and catch treating every variant as the same preparation.
  */
 export function test_motions_striking_defend(): void {
   TestValidator.equals(

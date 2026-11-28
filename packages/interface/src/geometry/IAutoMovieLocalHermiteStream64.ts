@@ -11,8 +11,8 @@ export namespace IAutoMovieLocalHermiteStream64 {
   /**
    * Immutable normalized millimetre courses at increasing physical stations.
    * planLocalHermite64 admits names, tolerance and safe budgets, then
-   * AutoMovieEngineLocalHermiteField64.prepare admits matching stations and open
-   * continuous courses. Keep the input unchanged until completion or
+   * AutoMovieEngineLocalHermiteField64.prepare admits matching stations and
+   * open continuous courses. Keep the input unchanged until completion or
    * cancellation because field and planning closures retain these arrays and
    * policy values.
    */
@@ -98,25 +98,28 @@ export namespace IAutoMovieLocalHermiteStream64 {
     /** Global indices into this and previously published chunks. */
     indices: number[];
     /** Actual saved-course construction in model metres. */
-    construction: {
-      /** Original saved course name for this station line. */
-      id: string;
-
-      /** Courses are admitted as open; construction preserves that topology. */
-      closed: false;
-
-      /**
-       * Fresh copied model-metre samples in increasing normalized course
-       * coordinate, taken from the actual emitted station boundary.
-       */
-      points: AutoMovieVector3Tuple[];
-    }[];
+    construction: IConstructionCourse[];
     /** Local failures and independent qualification messages. */
     diagnostics: string[];
     /** Actual retained work, output and arithmetic counts. */
     counts: IAutoMovieLocalHermiteStream64Counts;
     /** Local analytic patch attribution with chunk-relative triangle offsets. */
     faceRanges: IAutoMovieLocalHermiteStream64FaceRange[];
+  };
+
+  /** Open course line sampled from a published station boundary. */
+  export type IConstructionCourse = {
+    /** Original saved course name for this station line. */
+    id: string;
+
+    /** The saved and emitted course is open. */
+    closed: false;
+
+    /**
+     * Fresh copied model-metre samples in increasing normalized course
+     * coordinate, taken from the actual emitted station boundary.
+     */
+    points: AutoMovieVector3Tuple[];
   };
 
   /**

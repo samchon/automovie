@@ -27,9 +27,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanJoinLoop.address` on made sources and reads its station and phase. It catches a straight-course shortcut, a nearest-sample answer, a phase read in another station's frame and a missing refusal.
  * @evidence contracts/development/testing.md#independent-expectations A straight cylinder's station is the point's height; a lofted skin point's chart address is the pair it was evaluated at. Neither uses the function's iteration.
- * @evidence contracts/development/testing.md#distinguishing-cases Straight and turning courses; stations before, inside and past the turn; a point with no address.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_join_loop_address`; it builds two made cylinders in process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three numbered scenarios with their inputs and bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation A straight cylinder and a turning surface provide station and phase controls. A point explicitly beyond the end exercises address refusal.
  */
 export function test_human_join_loop_address(): void {
   const failures: string[] = [];

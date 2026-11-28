@@ -22,9 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Creates actual SolidChain surfaces from regular two-layer spline data, invokes public Catalog.create and inspects returned curves and unavailable evidence. No callback is replaced and no sampling helper is tested in isolation.
  * @evidence contracts/development/testing.md#independent-expectations The supplied frames define P_y(s,phi)=s exactly, so the literal owned bounds determine endpoint ordinates after mm-to-m conversion without repeating the catalog's address formula. Eight 96-point clocks and three 128-point rings are the retained display demand. Rational 3/7 is independent of Human measurements; exact endpoint checks and exterior refusal prevent a tolerance from redefining ownership.
- * @evidence contracts/development/testing.md#distinguishing-cases Rational, translated and unit intervals distinguish endpoint roundoff from general surface failure. Direct endpoint admission, exterior rejection, complete rings and strict interior order are passing counterparts; no renderer or anatomical claim is made.
- * @evidence contracts/development/testing.md#execution-ownership One synchronous selected fixture uses small in-memory spline chains and the existing engine surface adapter; no Human producer, whole-tree realization, mesh, reference file, host or renderer runs.
- * @evidence contracts/development/common.md#meaningful-documentation Four scenarios name the inclusive-domain contract, independent linear-axis oracle, display budgets and unchanged guard.
+ * @evidence contracts/development/common.md#meaningful-documentation Rational, translated and unit-length intervals check their exact ends. Each valid surface retains eight clocks and three rings while exterior addresses still refuse.
  */
 export function test_human_capture_catalog_endpoints(): void {
   const failures: string[] = [];

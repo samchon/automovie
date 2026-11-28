@@ -92,9 +92,9 @@ const spray: (
  *    counting.
  * 3. The solver: a non-positive step, gravity, and reference depth; a negative
  *    drag and dry depth; a step budget past `AutoMovieEngineFluidMaxSteps`.
- * 4. Stability: an above-limit step has a located range finding, while the
- *    limit step is accepted, and finite gravity/depth whose product overflows
- *    cause a step finding. This entry does not assert the measured overshoot.
+ * 4. Stability: accept the exact limit and a stable scaled domain. Refuse
+ *    above-limit steps, including scaled and unrepresentably large results,
+ *    at the timestep. Nonfinite spacing is reported at its grid field.
  * 5. State arrays: wrong lengths, a negative depth, a depth past the declared
  *    reference depth and water sitting in solid matter.
  * 6. Declared flows: duplicate ids, counts past the budget, cells off
@@ -105,11 +105,9 @@ const spray: (
  *    seed; and a zero direction, while a finite axis too
  *    small to square is still accepted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the actual domain validator across grid, solver, array, flow and spray cases and checks located kind/path witnesses, catching admitted malformed fields and rejecting sound adjacent inputs.
- * @evidence contracts/development/testing.md#independent-expectations Explicit cell/face counts and scalar domains provide the refusal basis; the independent Courant formula distinguishes exactly stable, unstable and finite-input-overflow cases. Path witnesses do not certify the entire report population.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves seven scenario groups, valid basin, finite/safe-integer limits, array cardinality/values, solid occupancy, source/drain windows and spray caps; physical integration and water-space binding remain separate tests.
- * @evidence contracts/development/testing.md#execution-ownership This named portable entry owns all admission cases, including cases delegated to its internal population helper, through validateFluidDomain and existing fixtures; it starts no solver host, process or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A well-formed basin with a source, a drain and a spray validates clean.).
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the domain validator for authored grid, solver, array, flow and spray cases. Checks admission and located findings for ordinary and scaled Courant cases, a result overflow and malformed cell spacing.
+ * @evidence contracts/development/testing.md#independent-expectations Literal cell and face counts and scalar domains define the input boundaries. The unit-cell formula supplies the ordinary limit, and 1e-200 wave speed divided by 1e-200 spacing leaves values near 1/8 and 2 on opposite sides.
+ * @evidence contracts/development/common.md#meaningful-documentation A normal basin is admitted. Grid, clock, state, flow and spray cases yield located findings, and unit and scaled Courant cases distinguish invalid operands from an unstable timestep.
  */
 export function test_fluid_domain_validation(): void {
   const clean: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> = AutoMovieEngineFluid.validateFluidDomain({
@@ -316,9 +314,9 @@ export function test_fluid_domain_validation(): void {
     { stable: true, unstable: true, },
   );
 
-  // Every input is a legal finite number, but g·H overflows: the Courant
-  // number is infinite, which is unstable rather than unmeasured.
-  const overflowingCourant: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+  // The separate wave product overflows but the final Courant number is
+  // finite and far above one at the authored half-metre spacing.
+  const largeCourant: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
     AutoMovieEngineFluid.validateFluidDomain({
       domain: basin({
         solver: {
@@ -332,13 +330,13 @@ export function test_fluid_domain_validation(): void {
       }),
     });
   TestValidator.equals(
-    "a Courant number that overflows from legal inputs is refused as unstable",
+    "a large finite Courant number from extreme inputs is refused",
     namedFacts([
       [
         "refusedAtTheStep",
         (): boolean =>
           hasViolation(
-            overflowingCourant,
+            largeCourant,
             "range",
             "$input.solver.fixedStepSeconds",
           ),
@@ -346,16 +344,62 @@ export function test_fluid_domain_validation(): void {
       [
         "inputsThemselvesAccepted",
         (): boolean =>
-          hasViolation(overflowingCourant, "range", "$input.solver.gravity") ===
+          hasViolation(largeCourant, "range", "$input.solver.gravity") ===
             false &&
           hasViolation(
-            overflowingCourant,
+            largeCourant,
             "range",
             "$input.solver.referenceDepth",
           ) === false,
       ],
     ]),
     { refusedAtTheStep: true, inputsThemselvesAccepted: true },
+  );
+
+  const dry: IAutoMovieFluidDomain = flatBasin({ columns: 2, rows: 1, depth: 0 });
+  const scaled: IAutoMovieFluidDomain = {
+    ...dry,
+    grid: { ...dry.grid, cellX: 1e-200, cellZ: 1 },
+    solver: { ...dry.solver, gravity: 1e-200, referenceDepth: 1e-200 },
+  };
+  const below: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+    AutoMovieEngineFluid.validateFluidDomain({
+      domain: { ...scaled, solver: { ...scaled.solver, fixedStepSeconds: 1 / 8 } },
+    });
+  const above: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+    AutoMovieEngineFluid.validateFluidDomain({
+      domain: { ...scaled, solver: { ...scaled.solver, fixedStepSeconds: 2 } },
+    });
+  const overflow: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+    AutoMovieEngineFluid.validateFluidDomain({
+      domain: {
+        ...dry,
+        solver: {
+          ...dry.solver,
+          fixedStepSeconds: Number.MAX_VALUE,
+          gravity: Number.MAX_VALUE,
+          referenceDepth: Number.MAX_VALUE,
+        },
+      },
+    });
+  const invalidSpacing: ReturnType<typeof AutoMovieEngineFluid.validateFluidDomain> =
+    AutoMovieEngineFluid.validateFluidDomain({
+      domain: {
+        ...scaled,
+        grid: { ...scaled.grid, cellX: Infinity },
+        solver: { ...scaled.solver, fixedStepSeconds: 2, gravity: 1, referenceDepth: 1 },
+      },
+    });
+  TestValidator.equals(
+    "scaled CFL depends on the dimensionless result and finite inputs",
+    {
+      scaledBelow: below.success,
+      scaledAbove: hasViolation(above, "range", "$input.solver.fixedStepSeconds"),
+      resultOverflow: hasViolation(overflow, "range", "$input.solver.fixedStepSeconds"),
+      badSpacing: hasViolation(invalidSpacing, "range", "$input.grid.cellX"),
+      badSpacingStep: hasViolation(invalidSpacing, "range", "$input.solver.fixedStepSeconds"),
+    },
+    { scaledBelow: true, scaledAbove: true, resultOverflow: true, badSpacing: true, badSpacingStep: false },
   );
 
   runFluidDomainPopulationCases({ basin, source, drain, spray });

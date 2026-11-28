@@ -10,7 +10,13 @@ import { vclose } from "../../internal/vclose";
 /** Covers one chord, station interpolation and the quaternion readback. */
 const TRACK_ROUNDING: number = 256 * Number.EPSILON;
 
-/** The station travels along a grade and banks around the graded tangent. */
+/**
+ * The station travels along a grade and banks around the graded tangent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States a graded course's length, halfway station, graded forward direction, bank and endpoint refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual course frame reader and rotates its local forward and right vectors into world space. Compares position and bank and submits a station after the endpoint.
+ * @evidence contracts/development/testing.md#independent-expectations The three-metre rise over four horizontal metres gives length five and direction `(0,0.6,0.8)`. The midpoint has a 30 degree bank halfway between zero and 60 degrees.
+ */
 export function test_archetypes_environments_tracked_course(): void {
   const course = AutoMovieArchetypeEnvironmentRide.trackedCourse({
     points: [

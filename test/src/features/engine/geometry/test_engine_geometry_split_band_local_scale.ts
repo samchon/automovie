@@ -64,6 +64,10 @@ const TOLERANCE: number = 2e-11;
  *    certificate, and publishes the column's zero station jet and backward
  *    status with the certificate's scale at its child end.
  * 4. Mutating a certificate the trace hands out changes no publication.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names certified common attenuation, local trace ordering, the cylindrical control and backward-zero preservation.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates the actual ribbon with and without curved station jets and observes published factors, controls, recorded certificate and trace isolation.
+ * @evidence contracts/development/testing.md#independent-expectations The written quintic controls stay ordered at the curved column only through exp(−η). The Gaussian self-weight bounds the last pre-certification residual. The straight cylinder supplies the unscaled reference.
  */
 export function test_engine_geometry_split_band_local_scale(): void {
   const cap: number = Math.exp(-ETA);

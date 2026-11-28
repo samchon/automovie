@@ -90,11 +90,9 @@ function model<Name extends string>(
  *    `parameter` on that dimension, given or picked; a fixed dimension it lacks
  *    (a height) is left to the producer's band, and the model is still picked.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Picks through a draw session's `model` and reads its name, figures and refusals; a pick that blends two models, drifts between calls, shares one stream between axes, escapes a filtered list, skips a model, invents one for a variant without models, accepts a stray model, or drops a fixed figure in silence is caught.
- * @evidence contracts/development/testing.md#independent-expectations Made-up figures written here; a uniform draw of two or three over 200 seeds draws each with certainty for any practical purpose, and two independent axes agree on far fewer than 200 seeds.
- * @evidence contracts/development/testing.md#distinguishing-cases Given, seedless and picked; one axis and two; a filtered list; absent, empty and stray models; a fixed figure the model has and one it lacks.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over fresh draw sessions, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines independent catalogue axes, a dependent filter, absent models and fixed-figure conflicts.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the selected model and its numeric figures through `model`. Explicit, seedless and seeded routes distinguish default order, atomically returned figures, allowed-size filtering and refusals on a fixed catalogue figure.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal catalogue names and figure pairs. A repeat of each seed must select the same whole entry. Sweeping 200 seeds checks every allowed name and distinguishes independent axes from a shared draw.
  */
 export function test_archetype_draw_model(): void {
   const findings: string[] = [];

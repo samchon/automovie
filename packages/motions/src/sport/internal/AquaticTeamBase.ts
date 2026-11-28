@@ -1,4 +1,8 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -41,6 +45,7 @@ export namespace AquaticTeamBase {
     shaped: IAutoMovieMotionHumanPosture,
     seconds: number,
     weight: number,
+    immersion: number,
   ) => IAutoMovieMotionHumanPosture {
     const { body, entry, params }: AquaticPosture.Context = context;
     const sides: readonly AutoMovieHumanSide[] =
@@ -87,6 +92,19 @@ export namespace AquaticTeamBase {
         ),
       );
     };
+    // Preserve the palm's set position. If the shoulder stays too high, the
+    // arm reaches almost straight down and its wrist cannot offer a level palm.
+    // Give the forearm room to turn by bringing the shoulder within one upper
+    // arm length of the palm's apex depth.
+    const shoulderDrop: number = Math.max(
+      0,
+      ...sides.map(
+        (side: AutoMovieHumanSide): number =>
+          shoulders.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!
+            .worldPosition.y -
+          (water - body.measure.stature * DEPTH + body.measure.upperArm),
+      ),
+    );
     const palms: readonly IPalmOffer[] = sides.map(
       (side: AutoMovieHumanSide): IPalmOffer => ({
         side,
@@ -102,8 +120,16 @@ export namespace AquaticTeamBase {
       shaped: IAutoMovieMotionHumanPosture,
       seconds: number,
       weight: number,
+      immersion: number,
     ): IAutoMovieMotionHumanPosture => {
-      const bones: ReturnType<typeof markers> = markers(shaped);
+      const lowered: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
+        shaped,
+        {
+          ...shaped.root,
+          y: shaped.root.y - shoulderDrop * immersion,
+        },
+      );
+      const bones: ReturnType<typeof markers> = markers(lowered);
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...shaped.limbs };
 
       // The base's palm rises slightly but stays submerged at the figure apex.
@@ -116,30 +142,39 @@ export namespace AquaticTeamBase {
         // The elbow bends out, down and back of the offered palm, not toward
         // wherever the figure key holds the sculling arm.
         const palm: IAutoMovieVector3 = { x: at.x, y, z: at.z };
+        const elbow: IAutoMovieVector3 = bones.get(
+          `${side}LowerArm`,
+        )!.worldPosition;
         limbs[`${side}Arm`] = {
           ...transfer(
             bones.get(`${side}Hand`)!,
-            bones.get(`${side}LowerArm`)!.worldPosition,
+            elbow,
             contact,
             palm,
             rotation,
             weight,
           ),
-          bend: AutoMovieEngineVector3.add(
-            palm,
-            HumanFrame.point(
-              { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-              {
-                x:
-                  (side === "left" ? 1 : -1) * ELBOW_OUT * body.measure.stature,
-                y: -ELBOW_DOWN * body.measure.stature,
-                z: -ELBOW_BACK * body.measure.stature,
-              },
+          bend: AutoMovieEngineVector3.lerp(
+            elbow,
+            AutoMovieEngineVector3.add(
+              palm,
+              HumanFrame.point(
+                { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+                {
+                  x:
+                    (side === "left" ? 1 : -1) *
+                    ELBOW_OUT *
+                    body.measure.stature,
+                  y: -ELBOW_DOWN * body.measure.stature,
+                  z: -ELBOW_BACK * body.measure.stature,
+                },
+              ),
             ),
+            weight,
           ),
         };
       }
-      return { ...shaped, limbs };
+      return { ...lowered, limbs };
     };
   }
 

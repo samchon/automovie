@@ -317,6 +317,10 @@ const squaredDistance: (
  *    counts as clipped samples, and its master holds the true peak at or under
  *    the limiter ceiling with nothing clipped, while the same plan without it
  *    mixes below full scale.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios separate spacing-only bounds changes, displaced emitter variance and the measurable clipping and master-limiter outcomes.
+ * @evidence contracts/development/testing.md#behavioral-verification The test plans the same formation before and after its spacing cue and observes spread and center. It adds a displaced source, then renders near and ordinary cases and checks unlimited and mastered levels.
+ * @evidence contracts/development/testing.md#independent-expectations A five-member rank at four-metre spacing has half-width 8 m. A uniform interval gives RMS spread 8/sqrt(3), with half the spread when spacing halves. The independent count-weighted variance adds squared distances from each source center, so an implementation that only averages source variances cannot pass.
  */
 export function test_engine_film_production_sound_spread(): void {
   const plan: IAutoMovieProductionSoundPlan =

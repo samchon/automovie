@@ -3,10 +3,9 @@ import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 /** Finite-segment projection used by contour correspondence and slit selection. */
 export namespace IAutoMovieContourSlit64 {
   /**
-   * Projection onto a finite segment; a zero-length segment remains its
-   * endpoint. Finite representable projection arithmetic is a caller premise;
-   * closest does not validate inputs or certify a distance bound under
-   * overflow.
+   * Project the query to the closed segment using a clamped fraction.
+   * Coincident endpoints give that endpoint. Supply coordinates whose
+   * differences, dot products and distances stay representable.
    */
   export type IClosestResult = {
     /**
@@ -22,8 +21,8 @@ export namespace IAutoMovieContourSlit64 {
     t: number;
 
     /**
-     * Euclidean separation from the query point to p, in the input length unit,
-     * not squared distance.
+     * Euclidean separation from the query to the projected point, in the input
+     * length unit.
      */
     distance: number;
   };

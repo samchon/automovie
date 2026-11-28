@@ -108,6 +108,10 @@ function scenario_test_motions_compose_joints_pulse(): void {
 /**
  * AutoMovieMotionHumanJoints, the joint channels a law composes: its added
  * angles and its pulse, each scenario below.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes axis-specific joint addition and wrong-channel refusal from a rise, hold and release applied to one axis.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanJoints.add and pulse on distinct held joint records, sampling the output state and exercising a spine write with only the head channel.
+ * @evidence contracts/development/testing.md#independent-expectations Componentwise addition turns (10, 3, -4) plus (-3, 4, 1) into (7, 7, -3). The 20-degree pulse contributes 0 at the ends and 10 halfway through each ramp, with retained neck and root.
  */
 export function test_motions_compose_joints(): void {
   scenario_test_motions_compose_joints_add();

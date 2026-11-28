@@ -8,16 +8,18 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The `wireArrest` law's admission (`wireArrest.arrest`): the body drops
- * freely, reaching `sqrt(2 g drop)`, then the wire stops it within the room
- * left above the stop at `speed² / (2 room)`, no harder than its bound.
+ * Check the free drop and remaining wire-braking room.
  *
  * Scenarios:
  *
- * 1. From 4 m up, a 1 m drop stopping 1 m above the floor reaches `sqrt(2 g)` m/s
- *    and stops in the 2 m left at `g / 2`.
- * 2. A drop leaving no room above the stop, or one stopped harder than a bound of
- *    `g / 4`, is refused.
+ * 1. From 4 m, drop 1 m and stop 1 m above the floor. Reach speed sqrt(2g)
+ *    m/s, with 2 m of braking room and required deceleration g / 2.
+ * 2. Refuse a drop that leaves no room and a cap of g / 4 for the original
+ *    drop.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the speed, available room and two braking refusal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The test covers both the ballistic entry calculation and the two independent braking refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture derives speed from `v ** 2 = 2 * g * drop` and braking from `v ** 2 / (2 * room)`.
  */
 export function test_motions_reaction_wire_arrest(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

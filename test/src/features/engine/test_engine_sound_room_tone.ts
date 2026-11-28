@@ -24,11 +24,9 @@ import { throwsError } from "../internal/predicates";
  *    boundary.
  * 5. Overlapping beds are refused by name.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the beds, the measured quantities and their tolerances.
+ * @evidence contracts/development/common.md#meaningful-documentation Equal and changed seeds exercise replay and variation. RMS, spectral slope and crossfade measure the room tone, while overlapping beds are refused.
  * @evidence contracts/development/testing.md#behavioral-verification Mixes plans whose only sources are beds through `renderProductionSound` and measures the output: RMS, an averaged-periodogram octave spectrum and sample steps. A generator that ignores the tilt, misses the level, restarts at the boundary or cuts without a crossfade fails one of the checks.
  * @evidence contracts/development/testing.md#independent-expectations The level and tilt are the authored values; the spectrum is measured by a radix-2 FFT with a Hann window and IEC 61260-1 base-two octave band edges f/√2 to f√2, independent of the generator's filter bank; the step bound is the requirement of #4056.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers two tilts of opposite sign, two levels, a joined boundary and a refused overlap; the delivery silence detector's margin follows from the level and belongs to the delivery audit tests.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_room_tone`; it starts no process.
  */
 export function test_engine_sound_room_tone(): void {
   const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;

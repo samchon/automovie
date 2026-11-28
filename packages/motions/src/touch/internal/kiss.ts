@@ -1,4 +1,7 @@
-import { AutoMovieEngineDefaultHumanoidRom, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineDefaultHumanoidRom,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -19,19 +22,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
+import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
+import { motionClock } from "../../compose/internal/motionClock";
 import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { motionManner } from "../../compose/internal/motionManner";
 import { motionMeeting } from "../../compose/internal/motionMeeting";
-import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
-import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";
 import { kissCanLower } from "./kissCanLower";
@@ -54,8 +57,10 @@ import { kissProjection } from "./kissProjection";
  * grid of pitch and flexion at 5 degree steps, then 1 degree steps about the
  * best, then a lean to the side the target lies on, as far as the hips' range
  * lets a body on planted feet lean (`ROLL`), and, when the mouth is still
- * short, a rise onto the toes of up to 35 degrees of heel (provisional). The
- * head turns 30 degrees for a cheek or the lips (provisional), to the right
+ * short, a rise onto the toes of up to 35 degrees of heel (provisional).
+ * A remaining miss gets a half-degree search around the coupled result for
+ * contact without a presented hand.
+ * The head turns 30 degrees for a cheek or the lips (provisional), to the right
  * unless `side` says otherwise; Guntürkün 2003 observed a two-to-one rightward
  * bias, which Sedgewick et al. 2019 did not find, so the side is a parameter.
  * The approach is the free-space transport of the mouth's travel, the kiss
@@ -124,13 +129,20 @@ export namespace kiss {
     role: IAutoMovieMotionHumanKiss.IParams["handRole"],
   ): AutoMovieHumanSide | undefined {
     const hand: AutoMovieHumanSide | undefined =
-      region === "handBackLeft" ? "left" : region === "handBackRight" ? "right" : undefined;
+      region === "handBackLeft"
+        ? "left"
+        : region === "handBackRight"
+          ? "right"
+          : undefined;
     if (role !== undefined && hand === undefined)
       throw new AutoMovieMotionHumanRefusal({
         kind: "parameter",
         axis: "region",
         value: region,
-        feasible: { kind: "alternatives", values: ["handBackLeft", "handBackRight"] },
+        feasible: {
+          kind: "alternatives",
+          values: ["handBackLeft", "handBackRight"],
+        },
         reason: "a hand kiss role presents or kisses the named back of a hand",
         fix: "name the hand the participants share",
       });
@@ -191,7 +203,7 @@ export namespace kiss {
     const miss = (s: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">): number =>
       AutoMovieEngineVector3.distance(mouth(postureAt(s), resolution), at);
     const least = (
-      candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[],
+      candidates: Iterable<Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">>,
     ): IAutoMovieMotionHumanKiss.ISolved => {
       let best: IAutoMovieMotionHumanKiss.ISolved | null = null;
       for (const c of candidates) {
@@ -327,7 +339,8 @@ export namespace kiss {
           c.miss <= closest + NEAR / 5,
       )!,
     );
-    if (heldHand === undefined) return lifted;
+    if (heldHand === undefined)
+      return lifted.miss <= NEAR ? lifted : least(aroundLifted());
     return (
       kissPresentedHand(
         body,
@@ -345,6 +358,35 @@ export namespace kiss {
         ROLL,
       ) ?? lifted
     );
+
+    // After the heel rise, pitch and flexion change the mouth's lateral
+    // position again. Refine all four angles together before a reach refusal.
+    function* aroundLifted(): Iterable<
+      Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">
+    > {
+      yield lifted;
+      const nearby = (
+        angle: number,
+        minimum: number,
+        maximum: number,
+      ): number[] =>
+        span(angle - 1, angle + 1, 0.5).filter(
+          (value: number): boolean => value >= minimum && value <= maximum,
+        );
+      const pitches: number[] = nearby(lifted.pitch, -10, 45);
+      const rolls: number[] = nearby(lifted.roll, -ROLL, ROLL);
+      const flexions: number[] = span(
+        lifted.flexion - 1,
+        lifted.flexion + 1,
+        0.5,
+      );
+      const raises: number[] = nearby(lifted.raise, 0, RAISE);
+      for (const pitch of pitches)
+        for (const roll of rolls)
+          for (const flexion of flexions)
+            for (const raise of raises)
+              yield { ...lifted, pitch, roll, flexion, raise };
+    }
   }
 
   /*

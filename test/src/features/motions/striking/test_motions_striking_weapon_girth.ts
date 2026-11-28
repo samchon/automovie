@@ -17,6 +17,10 @@ import { nclose } from "../../internal/nclose";
  *    to 0.05, 0.05 to 0.04 and 0.04 throughout the foot.
  * 3. An upper arm of 0.05 and a forearm of 0.035 give the arm 0.05 to 0.035, then
  *    0.035 throughout.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines interpolation of virtual collider girth and derived segments for a leg and arm.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the midpoint of two endpoint radii and builds rig girth records from authored limb sizes.
+ * @evidence contracts/development/testing.md#independent-expectations The midpoint is 0.05 m. Half the given ankle height is 0.04 m, and the equal terminal radii keep the foot and forearm constant.
  */
 export function test_motions_striking_weapon_girth(): void {
   TestValidator.predicate(

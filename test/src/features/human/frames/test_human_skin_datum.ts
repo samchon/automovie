@@ -26,9 +26,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production skin map, re-attachment and f1 datum declarations and composes frames with the production composer.
  * @evidence contracts/development/testing.md#independent-expectations Each expected point is the closed form of the made wall's affine map or the made chain.
- * @evidence contracts/development/testing.md#distinguishing-cases Scaled and unit stations, both reflections, a moved and an unmoved child and f1's identities, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made walls, joints and the stored table; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and expected point.
+ * @evidence contracts/development/common.md#meaningful-documentation The affine wall and reflected wall displace skin datums with their material. Bone datums, reattached descendants and the stored reference origin have separate checks.
  */
 export function test_human_skin_datum(): void {
   const failures: string[] = [];

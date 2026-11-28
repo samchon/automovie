@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * the first is still down (`key45` down at 0.5 s and up at 1.5 s, `key47` down
  * at 1 s and up at 1.2 s): the events run `keyDown1` at 0.25, `keyDown2` at
  * 0.5, `keyUp2` at 0.6 and `keyUp1` at 0.75.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ordered key events normalized by score duration while preserving note indexes.
+ * @evidence contracts/development/testing.md#behavioral-verification Generates events for two overlapping notes at known press and release seconds.
+ * @evidence contracts/development/testing.md#independent-expectations Dividing by two seconds gives ordered shares 0.25, 0.5, 0.6 and 0.75. The second note releases before the first without changing its identifier.
  */
 export function test_motions_handling_piano_score(): void {
   const note = (

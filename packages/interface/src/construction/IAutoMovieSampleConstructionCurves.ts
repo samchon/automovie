@@ -1,22 +1,20 @@
 /** Sampling density for construction inspection polylines. */
 export namespace IAutoMovieSampleConstructionCurves {
   /**
-   * Optional density overrides, read synchronously and never retained or
-   * changed. The sampler validates both resolved counts before reading chains,
-   * even when there are no chains. Invalid counts throw a named Error. Outputs
-   * use metres in the construction frame, converted from the source's
-   * millimetre points.
+   * Optional sampling density for construction inspection. The default is 48
+   * phases per ring and eight equal station subdivisions per interval. Sample
+   * coordinates are returned in construction-frame metres.
    */
   export type IOptions = {
     /**
-     * Uniform samples around [0,2pi), default 48; an integer at least 8 and
-     * divisible by 4. The closing point is not repeated.
+     * Uniform ring sample count on [0, 2π), a safe integer of at least eight
+     * and a multiple of four. The default is 48.
      */
     phases?: number;
 
     /**
-     * Equal subdivisions per interval between owned endpoints and principal
-     * layer stations, default 8; a positive integer.
+     * Positive safe integer subdivisions between consecutive principal stations
+     * or retained bounds. The default is eight.
      */
     steps?: number;
   };

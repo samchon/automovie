@@ -2,16 +2,10 @@ import type { IAutoMovieInteractionEvent } from "../cinematics/IAutoMovieInterac
 import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieIntent } from "./IAutoMovieIntent";
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
-import type { IAutoMovieScheduleContext } from "./IAutoMovieScheduleContext";
-import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
-import type { IAutoMovieMotionMeeting } from "./IAutoMovieMotionMeeting";
 import type { IAutoMovieMotionHumanActionContext } from "./IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
-import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
-import type { IAutoMovieMotionWeaponPath } from "./IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
+import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformance } from "./IAutoMovieMotionHumanPerformance";
@@ -21,19 +15,27 @@ import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerf
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
+import type { IAutoMovieMotionHumanSharedCarry } from "./IAutoMovieMotionHumanSharedCarry";
 import type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether";
+import type { IAutoMovieMotionMeeting } from "./IAutoMovieMotionMeeting";
+import type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
+import type { IAutoMovieMotionWeaponPath } from "./IAutoMovieMotionWeaponPath";
+import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
+import type { IAutoMovieScheduleContext } from "./IAutoMovieScheduleContext";
+import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
 
 /**
  * Everything a performance resolves and its readers share: the people with
  * their placed actions, the props, the laws, the cue tracks and the schedule,
  * built once by the constructor.
  *
- * `AutoMovieMotionHumanPerformance` is the public surface over it. The state's members are
- * public so the `AutoMovieMotionHumanPerformance*` namespaces, which hold the performance's
- * work by responsibility (placing, contacts, layers, the schedule, aiming and
- * reading), can share them; the public helper signatures expose this shared
- * state contract transitively, while AutoMovieMotionHumanPerformance remains the normal
- * author-facing entry point.
+ * `AutoMovieMotionHumanPerformance` is the public surface over it. The state's
+ * members are public so the `AutoMovieMotionHumanPerformance*` namespaces,
+ * which hold the performance's work by responsibility (placing, contacts,
+ * layers, the schedule, aiming and reading), can share them; the public helper
+ * signatures expose this shared state contract transitively, while
+ * AutoMovieMotionHumanPerformance remains the normal author-facing entry
+ * point.
  */
 export interface IAutoMovieMotionHumanPerformanceState {
   /** The resolved schedule. */
@@ -53,6 +55,15 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /** The props, by subject. */
   readonly props: Map<string, IAutoMovieMotionHumanProp>;
+
+  /**
+   * Prepared shared carries by prop, in ascending film order. Each indexed path
+   * retains its settled frame for ordinary custody after release.
+   */
+  readonly sharedCarry?: ReadonlyMap<
+    string,
+    readonly IAutoMovieMotionHumanSharedCarry.IPreparedEpisode[]
+  >;
 
   /**
    * The lines between props by the far prop they hold, each with the prop that

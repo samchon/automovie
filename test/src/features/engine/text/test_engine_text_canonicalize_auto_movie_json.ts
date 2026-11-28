@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Scalars and nested containers encode as in JSON.
  * 4. A class instance is a non-plain container, and a self-referencing object is
  *    cyclic.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines canonical object-key order, omitted properties, array slots and rejection of nonplain or cyclic values.
+ * @evidence contracts/development/testing.md#behavioral-verification Serializes reordered, absent and nested fixture values and submits a Date and self-reference.
+ * @evidence contracts/development/testing.md#independent-expectations Exact JSON strings independently determine sorted members, omitted property and null array slot. Different malformed container types both refuse.
  */
 export function test_engine_text_canonicalize_auto_movie_json(): void {
   TestValidator.equals(

@@ -1,4 +1,7 @@
-import { AutoMovieEngineMatrix4, AutoMovieEngineResolve } from "@automovie/engine";
+import {
+  AutoMovieEngineMatrix4,
+  AutoMovieEngineResolve,
+} from "@automovie/engine";
 import type {
   IAutoMovieIKDriver,
   IAutoMovieQuaternion,
@@ -29,7 +32,8 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 /** A world matrix at a place. */
 const at: (position: IAutoMovieVector3) => number[] = (
   position: IAutoMovieVector3,
-): number[] => AutoMovieEngineMatrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
+): number[] =>
+  AutoMovieEngineMatrix4.compose(position, IDENTITY, { x: 1, y: 1, z: 1 });
 
 /** A two-segment arm along +X, 1 m each, and a goal at (0, 2, 0). */
 const world: () => Map<string, number[]> = (): Map<string, number[]> =>
@@ -97,12 +101,21 @@ const place: (
  *    within 1e-2 m; the root stays and both segments stay 1 m.
  * 2. An influence of 0 leaves the chain where it was.
  * 3. A chain of one node, a zero iteration count and a zero-length segment are
- *    refused.
+ *    refused. Nonfinite influences are refused before writing the world map.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two solvers, exact-stretch goal, pinned root and link lengths, zero influence, and malformed chain or iterations.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both iterative solvers with fresh maps, reading root, middle, tip and both link lengths. Malformed influence checks compare all world matrices before and after refusal.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 m reach along +Y requires the two 1 m links to align, yielding (0, 1, 0) and (0, 2, 0). FABRIK allows 1e-6 m and CCD's slower approach at full extension allows 1e-2 m at the tip. The unchanged root and length checks use 1e-9 m.
  */
 export function test_engine_resolve_apply_iterative_ik(): void {
   for (const solver of ["fabrik", "ccd"] as const) {
     const moved: Map<string, number[]> = world();
-    AutoMovieEngineResolve.applyIterativeIK(driver({ solver }), moved, local(), CHILDREN);
+    AutoMovieEngineResolve.applyIterativeIK(
+      driver({ solver }),
+      moved,
+      local(),
+      CHILDREN,
+    );
     const root: IAutoMovieVector3 = place(moved, "root");
     const mid: IAutoMovieVector3 = place(moved, "mid");
     const tip: IAutoMovieVector3 = place(moved, "tip");
@@ -125,11 +138,33 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     );
   }
   const still: Map<string, number[]> = world();
-  AutoMovieEngineResolve.applyIterativeIK(driver({ influence: 0 }), still, local(), CHILDREN);
+  AutoMovieEngineResolve.applyIterativeIK(
+    driver({ influence: 0 }),
+    still,
+    local(),
+    CHILDREN,
+  );
   TestValidator.predicate(
     "no influence",
     vclose(place(still, "tip"), { x: 2, y: 0, z: 0 }, LENGTH),
   );
+  for (const influence of [NaN, Infinity, Number.NEGATIVE_INFINITY]) {
+    const current: Map<string, number[]> = world();
+    const before: string = JSON.stringify([...current]);
+    TestValidator.predicate(
+      `nonfinite influence ${influence} is refused before writes`,
+      throwsError(
+        (): void =>
+          AutoMovieEngineResolve.applyIterativeIK(
+            driver({ influence }),
+            current,
+            local(),
+            CHILDREN,
+          ),
+        "iterative IK influence",
+      ) && JSON.stringify([...current]) === before,
+    );
+  }
   TestValidator.predicate(
     "refusals",
     throwsError(

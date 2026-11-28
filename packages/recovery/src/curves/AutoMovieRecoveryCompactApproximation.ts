@@ -1,13 +1,20 @@
-import { approximateRecoveryCompactCurves as approximateRecoveryCompactCurvesImplementation } from "./internal/approximateRecoveryCompactCurves";
-
 import { AutoMovieEngineBernstein64 as B } from "@automovie/engine";
-import { type AutoMovieVector2Tuple, type IAutoMovieRegisteredPlanarCurvePiece, type IAutoMovieCompactCurveApproximation, type IAutoMoviePiecewisePlanarCurveSource } from "@automovie/interface";
+import {
+  type AutoMovieVector2Tuple,
+  type IAutoMovieCompactCurveApproximation,
+  type IAutoMoviePiecewisePlanarCurveSource,
+  type IAutoMovieRegisteredPlanarCurvePiece,
+} from "@automovie/interface";
 
 import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecoveryConicApproximation";
+import { approximateRecoveryCompactCurves as approximateRecoveryCompactCurvesImplementation } from "./internal/approximateRecoveryCompactCurves";
 
-/** Planar coefficient-reduction experiment, independent of source meshes. */
+/** Fits compact planar coefficient pieces to a registered source chart. */
 export namespace AutoMovieRecoveryCompactApproximation {
-  /** Evaluate only saved coefficients at the piece's own normalized parameter. */
+  /**
+   * Evaluates one saved planar piece at its normalized parameter in [0, 1]. The
+   * coordinates use the piece's planar millimetre frame.
+   */
   export function evaluate(
     piece: IAutoMovieRegisteredPlanarCurvePiece,
     u: number,
@@ -30,8 +37,9 @@ export namespace AutoMovieRecoveryCompactApproximation {
   }
 
   /**
-   * Count the actual planar numeric representation, including chart metadata.
-   * Adjacent equal endpoints are counted once; corners may share position.
+   * Counts the planar scalar representation in saved piece order. Each piece
+   * adds its control coordinates and three metadata scalars. Exact shared
+   * adjacent endpoints count once.
    */
   export function storedScalars(
     pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[],
@@ -53,27 +61,19 @@ export namespace AutoMovieRecoveryCompactApproximation {
   }
 
   /**
-   * Refit whole smooth charts with storage-selected degree-three to degree-five
-   * Bernstein pieces and optional positive bitangent conics. Old source knots
-   * inform observation coverage but do not force output pieces.
+   * Fits a chart with tangent-constrained cubic through quintic Bernstein
+   * pieces.
    *
-   * This is a degree-bounded adaptation of Schneider's endpoint-tangent fitting
-   * and adaptive subdivision (Graphics Gems, 1990), not a reproduction of a
-   * global minimum-control theorem. The existing engine's original-design Jacobi
-   * SVD replaces two-handle normal equations and extends the interior controls:
-   * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c
-   * https://www.netlib.org/lapack/lapack_routine/dgesvj.f
-   *
-   * Every polynomial fixes endpoint positions and forward tangent directions.
-   * Trapezoid-weighted fitting nodes and distinct held-out quarter nodes inspect
-   * every supplied source knot interval. Polynomial paired-point distances give
-   * bidirectional geometric witnesses at those nodes, not a continuous bound.
-   * Conics additionally use independent source-apex radial correspondences in
-   * both directions. Finite samples cannot certify missed features, embedding,
-   * Hausdorff error or likeness. No source observation is retained in the
-   * result.
+   * Enable conic candidates through the supplied options. The fitter selects a
+   * compact result using the configured tolerance and query and piece budgets.
+   * Source knots guide samples and chart coverage. Independent held-out samples
+   * qualify point correspondence in millimetres. A complete result establishes
+   * the sampled criterion on the admitted charts.
    */
-  export function approximate(curve: IAutoMoviePiecewisePlanarCurveSource, options: IAutoMovieCompactCurveApproximation.IOptions): IAutoMovieCompactCurveApproximation.IResult {
+  export function approximate(
+    curve: IAutoMoviePiecewisePlanarCurveSource,
+    options: IAutoMovieCompactCurveApproximation.IOptions,
+  ): IAutoMovieCompactCurveApproximation.IResult {
     return approximateRecoveryCompactCurvesImplementation(curve, options);
   }
 }

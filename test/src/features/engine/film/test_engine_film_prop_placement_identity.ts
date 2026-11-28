@@ -31,6 +31,10 @@ import { sconce } from "../../internal/propPlacementFixtures/sconce";
  *    the occupied space.
  * 5. Distinguish NUL-containing target field tuples for both building and
  *    prop-affordance references while still refusing an exact repeated tuple.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify duplicate and dangling identities, invalid relation and affordance types, cross-environment joins and exact versus colliding tuple keys.
+ * @evidence contracts/development/testing.md#behavioral-verification The test validates the supplied placement variants and observes full addressed findings. It separately submits distinct NUL-containing reference tuples and an exact repeated tuple.
+ * @evidence contracts/development/testing.md#independent-expectations Literal authored IDs and their environment namespaces determine all joins. The selected support affordance has a specific kind. A tuple compares its components, so only repeating the tuple itself duplicates the relationship.
  */
 export function test_engine_film_prop_placement_identity(): void {
   const scenario: {

@@ -24,6 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A default `push` is an "error" and fails on its own.
  * 5. `violation` defaults to "error", stamps "warning" when asked and keeps the
  *    overshoot 3; an empty collector is a clean success.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers empty, warning-only, error-only and mixed validation results plus builder defaults.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls range, warn, push and toValidation on fresh collectors and invokes violation directly with omitted and explicit severity.
+ * @evidence contracts/development/testing.md#independent-expectations One half lies in [0, 1], while two does not. Warning-only results remain successful and an error determines failure. Literal severity and overshoot arguments establish the built row fields.
  */
 export function test_engine_validation_collector(): void {
   const empty: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();

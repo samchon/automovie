@@ -10,12 +10,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanLedger } from "../../internal/motionHumanLedger";
 
 /**
- * Compare the documented base-action keys with the runtime law identities.
+ * Check installed action names and their owning law identities.
  *
  * Scenarios:
  *
- * 1. Compare the authored list, installed keys and actual law names.
- * 2. Check the bound owners for stance, travel, transfer and flight.
+ * 1. Compare the authored base-action list, installed keys and law names.
+ * 2. Check the installed owners for stance, travel, support transfer and
+ *    flight.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the registry relationships and representative action families.
+ * @evidence contracts/development/testing.md#behavioral-verification The runtime dispatch table is read directly and matched against the documented keys and explicit law bindings.
+ * @evidence contracts/development/testing.md#independent-expectations The authored key list and explicitly imported operations are the independent expected identities.
  */
 export async function test_motions_next_runtime_dispatch(): Promise<void> {
   const ledger: motionHumanLedger.ILedger = await motionHumanLedger();

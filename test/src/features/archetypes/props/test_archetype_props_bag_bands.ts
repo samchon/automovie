@@ -11,11 +11,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a briefcase 41.5 to 45.2 cm wide, 35 to 39.4 cm high and 8.5 to 14.7 cm deep, 2.3 to 2.95 kg; a toolbox 48.2 cm wide, 25 cm high and 25.4 cm deep, 1.5 kg; a handbag 30 by 28 by 20 cm, its handle's top 11 to 12 cm above it, 240 g; a duffel 25 by 14 by 14 in, 1.62 kg; every one's handle bar 1.9 to 3.8 cm across.
  * 2. For three seeds of the suitcase, the briefcase, the toolbox and the duffel, the `handle` is 11.5 cm long, its bar's underside 5 cm above the body's top, its frame at the bar's centre; for the handbag, 11.5 cm long, its top the drawn drop above the body's top.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each bag for 200 seeds and measures its body, its handle bar and its mass; a size other than the maker's, a seed that does not vary it, a bar off the NIOSH diameters, or a handle at another length or clearance is caught.
- * @evidence contracts/development/testing.md#independent-expectations Samsonite's and Rimowa's attaches, Stanley's toolbox, Longchamp's handbag, The North Face's duffel, and the Applications Manual for the Revised NIOSH Lifting Equation's optimal handle, written here as literals.
- * @evidence contracts/development/testing.md#distinguishing-cases The four kinds the producer gained and the suitcase whose handle moved to the NIOSH handle; the tote and the backpack keep their straps and their own spec.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States each bag's source dimensions and mass, the handle diameter band, and its clearance or drop above the body.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds cases, a toolbox, handbag and duffel through their public producer. Model measurements distinguish body size and mass changes from a grip off its bar, and check the different drop convention for the handbag.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the literal manufacturer dimensions and the NIOSH lifting manual's 11.5 cm handle length, 5 cm clearance and diameter range. The handbag's drop is measured to the top of its handle.
  */
 export function test_archetype_props_bag_bands(): void {
   const bag = (

@@ -4,11 +4,10 @@
  */
 export namespace IAutoMovieMeasureContourFace64 {
   /**
-   * Cross-product magnitudes used by contour emission to require finite
-   * positive area before and after conversion to metres. Each value is twice
-   * triangle area. The metre computation converts positions before subtraction,
-   * so it is not obtained by scaling the millimetre result and may expose
-   * different rounding.
+   * Twice the triangle area, measured independently in the source and output
+   * frames. The metre computation converts each position before subtracting
+   * edges. Rounding and representability can differ between the two measures.
+   * Callers decide whether to retain or omit a triangle.
    */
   export type IResult = {
     /**

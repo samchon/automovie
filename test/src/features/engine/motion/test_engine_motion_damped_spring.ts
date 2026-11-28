@@ -29,6 +29,10 @@ const ROUNDING: number = 1e-12;
  * 4. With neither stiffness nor damping the velocity holds and the value drifts by
  *    velocity times step.
  * 5. A negative stiffness or damping and a step of 0 or less are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the velocity-first step, damping-only and force-free behavior, equilibrium, and invalid parameters.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `dampedSpring` with scalar states, spring coefficients, and time steps. It compares both components of each result and checks refusal of negative coefficients and non-positive steps.
+ * @evidence contracts/development/testing.md#independent-expectations A force of -4 over 0.1 s takes rest at 1 to rate -0.4 and then value 0.96. With damping alone, a rate of 2 under force -10 slows to 1 and advances position to 0.1. Force-free motion at rate 3 for 0.5 advances from 1 to 2.5.
  */
 export function test_engine_motion_damped_spring(): void {
   const is: (

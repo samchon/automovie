@@ -77,6 +77,10 @@ const AIM: IAutoMovieDriver = {
  * 4. A spring driver is returned, untouched.
  * 5. An aim influence outside [0, 1] and an IK chain through a node that is not
  *    there are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names world-space aim, parenting and IK, deferred springs, and invalid influence or chain nodes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `resolveWorldDrivers` for typed arm and ball fixtures with one active driver at a time. It reads the mutated world maps and compares the deferred spring identity and refusal cases.
+ * @evidence contracts/development/testing.md#independent-expectations The quarter turn around Z moves the arm from +X to +Y and leaves the ball at (0, 0, 3). Copying the goal translation moves the ball to (0, 2, 0). To reach that same point the two-bone solver must preserve two 1 m segments.
  */
 export function test_engine_resolve_resolve_world_drivers(): void {
   const aimed = prepare();

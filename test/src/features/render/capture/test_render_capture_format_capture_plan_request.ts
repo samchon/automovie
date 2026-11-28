@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The absent request writes nothing.
  * 2. A request read from values writes them back in the order subject, seconds,
  *    views and inspection keys.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines absent capture request omission and option order when printing an admitted request.
+ * @evidence contracts/development/testing.md#behavioral-verification Formats the absent request and one parsed from subject, time, views and inspection tokens.
+ * @evidence contracts/development/testing.md#independent-expectations An empty declaration has no serialized pairs. The expected ordered pairs preserve authored subject and times while placing inspection values after capture values.
  */
 export function test_render_capture_format_capture_plan_request(): void {
   const read = (

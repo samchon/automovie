@@ -173,6 +173,10 @@ function compile(
  * 10. A chain of `"auto"` entries, static wide, push-in medium, orbit close and
  *     static full, reaches every entry's own framing: wide during the first,
  *     0.8 times medium, close and full at the ends of the others.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name delivered frame grids, analytic path speeds, follow positions, moves and holds at shared endpoints, and a deliberate transition gap.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles paths and samples their real transforms on the delivery grid. It compares adjacent movement, endpoint positions and immediate before/after framing across explicit and automatic chains.
+ * @evidence contracts/development/testing.md#independent-expectations The expected easing is evaluated independently at actual frame times, and the follow fixture moves as x = t squared. The push-in endpoint is 0.8 of framed distance and the orbit ends after 45 degrees. Those endpoints distinguish stable gaps, continuous handoffs and an authored static step.
  */
 export function test_engine_film_camera_move_continuity(): void {
   const frames: number[] = Array.from(

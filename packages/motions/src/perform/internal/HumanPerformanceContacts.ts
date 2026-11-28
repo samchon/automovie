@@ -16,7 +16,6 @@ import { HumanPerformanceContactBodies } from "./HumanPerformanceContactBodies";
 import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
-import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 
 /*
  * What the placed performance does to itself: the holds a grip starts and an
@@ -145,7 +144,11 @@ export namespace HumanPerformanceContacts {
    * provably holds still (`HumanPerformanceContactSpeed`, `HumanSegmentStill`),
    * so the scan reads no grid second a clear gap rules out.
    */
-  export function contacts(self: IAutoMovieMotionHumanPerformanceState): void {
+  export function contacts(
+    self: IAutoMovieMotionHumanPerformanceState,
+    prepare: (changed: ReadonlySet<string>) => void,
+  ): Set<string> {
+    const finalChanges: Set<string> = new Set();
     const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];
     const owners: Map<string, HumanPerformanceContactBodies.IOwner> = new Map();
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
@@ -252,9 +255,9 @@ export namespace HumanPerformanceContacts {
           from = Math.min(from, a);
           to = Math.max(to, b);
         }
-    if (weapons.length === 0) return;
-    // HumanPerformanceState fixes this ordered cast in its function Object() { [native code] }; mutable
-    // person records remain live and every current pose is still queried.
+    if (weapons.length === 0) return finalChanges;
+    // The HumanPerformanceState constructor fixes cast order. The scan reads
+    // each person's current pose from their live record.
     const people: readonly IAutoMovieMotionHumanSegment.IPerson[] = [
       ...self.people.values(),
     ];
@@ -335,6 +338,7 @@ export namespace HumanPerformanceContacts {
       axes.clear();
       for (const person of people) person.stops.clear();
       const changed: Set<IAutoMovieMotionHumanSegment> = new Set();
+      const touched: Set<string> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
         owner.person.stops.set(
@@ -349,12 +353,17 @@ export namespace HumanPerformanceContacts {
             seconds,
           });
           changed.add(owner.segment);
+          touched.add(owner.person.performer.subject);
         }
       }
       for (const [key, event] of [...met])
         if (!stops.has(key)) {
           met.delete(key);
-          changed.add(owners.get(event.key)!.segment);
+          const owner: HumanPerformanceContactBodies.IOwner = owners.get(
+            event.key,
+          )!;
+          changed.add(owner.segment);
+          touched.add(owner.person.performer.subject);
         }
       for (const segment of changed) {
         if (segment.plan.stop === undefined) continue;
@@ -369,11 +378,9 @@ export namespace HumanPerformanceContacts {
         );
       }
 
-      // A stop changes what its owner shows, and whoever reads the owner (a
-      // strike aimed at it, a guard watching it) planned against the earlier
-      // showing, so every plan solves again on the stops now installed, in
-      // dependency order.
-      prepareHumanPerformancePlans(self);
+      // A stop changes the owner's display. Reprepare its readers after the
+      // set of stops is installed.
+      prepare(touched);
       shown.clear();
       axes.clear();
     };
@@ -417,7 +424,11 @@ export namespace HumanPerformanceContacts {
       IAutoMovieMotionHumanSegment,
       IAutoMovieMotionWeaponContact[]
     > = new Map();
-    for (const owner of owners.values()) plans.set(owner.segment, []);
+    for (const owner of owners.values()) {
+      plans.set(owner.segment, []);
+      if (owner.segment.plan.stop !== undefined)
+        finalChanges.add(owner.person.performer.subject);
+    }
     for (const e of events) {
       const owner = owners.get(e.weapon)!;
       plans
@@ -434,6 +445,7 @@ export namespace HumanPerformanceContacts {
       });
     }
     for (const [segment, own] of plans) segment.plan.stop?.(own);
+    return finalChanges;
   }
 }
 

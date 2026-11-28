@@ -64,6 +64,9 @@ export namespace HumanPopulationBuild {
     anatomy.bodyFatPercentage =
       1.2 * bmi + 0.23 * AutoMovieHumanBodyAnatomy.MEAN_AGE[k] - 10.8 * k - 5.4;
     for (const [key, v] of HumanPopulationAnchors.DIRECT) anatomy[key] = x[v];
+    // The surveyed breadth is already selected by the population's conditional
+    // model. The across-back tape below remains an independent anchored course.
+    anatomy.biacromialBreadth = x.biacromial;
     for (const key of HumanPopulationAnchors.ANCHORED)
       anatomy[key] = anchor(HumanPopulationAnchors.ANCHORS[key]);
   }

@@ -6,14 +6,18 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * AlidateTransformScalars requires a unit rotation and every scale axis above
+ * `validateTransformScalars` requires a unit rotation and every scale axis above
  * zero.
  *
  * Scenarios:
  *
  * 1. The identity transform with unit scale reports nothing.
  * 2. A zero y scale and a negative z scale report scale.y and scale.z only.
- * 3. A rotation of norm 2 reports at otation.
+ * 3. A rotation of norm 2 reports at `rotation`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers valid identity transform and independently located scale and quaternion failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateTransformScalars using the same translation and typed rotation or scale substitutions.
+ * @evidence contracts/development/testing.md#independent-expectations Unit scale and quaternion satisfy the transform. Zero Y and negative Z violate their scalar bounds, and w = 2 has norm two and faults only the rotation.
  */
 export function test_engine_validation_transform_scalars(): void {
   const rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

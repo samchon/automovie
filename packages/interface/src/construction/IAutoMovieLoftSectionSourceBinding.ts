@@ -1,46 +1,40 @@
 /**
- * Independent numeric snapshot binding a retained section source to one layer.
- *
- * AutoMovieEngineLoftSectionSource.retain and bind copy these arrays without freezing
- * them. Later validate/endpoint calls require the reached layer rows to match
- * exactly, including dense finite entries and expected width; changing the
- * layer requires rebinding or removing its explicit source. Snapshots preserve
- * the compatibility spline, not a proof that its coefficients reproduce the
- * native scalar geometry between layers. Original-source bindings remain sorted
- * by station for binary lookup.
+ * Independent snapshot of one layer's compatibility spline used to retain
+ * section ownership. Keep the station and dense coefficient rows equal to that
+ * layer; after a layer change the producer must rebind or release its source.
+ * The original scalar field continues to supply native geometry between
+ * principal layers.
  */
 export interface IAutoMovieLoftSectionSourceBinding {
   /**
-   * Exact physical station in millimetres at which the copied compatibility
-   * rows belong; later binding checks require equality with layer.y.
+   * Bound physical layer station in millimetres. SectionSource compares it with
+   * the layer's y value.
    */
   station: number;
 
   /**
-   * Copied layer coefficient row in millimetres: order local-u spline controls
-   * then order local-v controls. validate requires a dense finite nonempty row
-   * of exactly twice the spline order; standalone endpoint validation requires
-   * the supplied expected width when present.
+   * Copied compatibility coefficient row in millimetres, with order local-u
+   * controls followed by order local-v controls. Chain validation requires
+   * twice the spline order.
    */
   value: number[];
 
   /**
-   * Copied first physical-station coefficient derivative row, millimetres per
-   * millimetre, with the same width as value.
+   * Copied first physical-station derivative of each coefficient, in
+   * millimetres per millimetre, with the same width as value.
    */
   slope: number[];
 
   /**
-   * Copied second physical-station coefficient derivative row in inverse
-   * millimetres, or null exactly when the original layer omitted curvatures.
+   * Copied second physical-station coefficient derivative, in inverse
+   * millimetres. Null records a layer with no curvature row.
    */
   curvature: number[] | null;
 
   /**
-   * Original physical-source2 refusal reason retained by retain, or null when
-   * that layer's query succeeded. bind writes null after admitting its complete
-   * endpoint family; this field does not certify every interior station or
-   * frame derivative.
+   * Recorded refusal reason from the original local station jet read, or null
+   * when that read succeeded. A bound endpoint records null after admitting its
+   * complete family.
    */
   unavailable: string | null;
 }

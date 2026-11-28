@@ -19,9 +19,10 @@ export function readVideoProbeImplementation(
     throw new Error("FFmpeg reported no duration for the video");
   const stream: string | undefined = log
     .split(/\r?\n/u)
-    .find((line: string): boolean => /Stream #.*Video:/u.test(line));
+    .find((line: string): boolean => /^\s*Stream #0:\d+(?:\[[^\]]*\])?(?:\([^)]*\))?:\s*Video:/u.test(line));
   if (stream === undefined)
     throw new Error("FFmpeg reported no video stream in the file");
+  const streamIndex: number = Number(/^\s*Stream #0:(\d+)/u.exec(stream)?.[1]);
   const size: RegExpMatchArray | null = stream.match(
     /[ ,](\d{2,5})x(\d{2,5})[ ,[]/u,
   );
@@ -42,11 +43,12 @@ export function readVideoProbeImplementation(
       : printed === null
         ? null
         : Number(printed[1]);
-  if (size === null || fps === null)
+  if (size === null || fps === null || !Number.isSafeInteger(streamIndex))
     throw new Error(
       `FFmpeg reported no size or rate for the video stream: ${stream.trim()}`,
     );
   return {
+    streamIndex,
     durationSeconds:
       Number(duration[1]) * 3600 +
       Number(duration[2]) * 60 +

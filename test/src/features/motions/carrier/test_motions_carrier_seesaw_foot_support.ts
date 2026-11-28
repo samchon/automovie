@@ -8,14 +8,18 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Two rotated soles independently cross the same floor.
+ * Check independent floor crossing intervals for tilted soles.
  *
  * Scenarios:
  *
- * 1. A 30-degree roll places the soles 20 mm apart vertically at the same ankle
- *    midpoint. The lower sole reaches the floor first.
- * 2. A mirrored roll swaps the intervals. A later read does not change a
- *    previously reported boundary.
+ * 1. A 30-degree roll separates the soles vertically by 20 mm. Only the lower
+ *    sole bears, from 0.4 to 0.6 s.
+ * 2. Mirror the roll and swap the bearing sole while retaining the two
+ *    boundary seconds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the roll angle, bearing interval and mirrored sole.
+ * @evidence contracts/development/testing.md#behavioral-verification The interval search distinguishes the two displayed sole offsets and preserves the analytic crossings when mirrored.
+ * @evidence contracts/development/testing.md#independent-expectations The roots of the lower gap `(t - 0.5) ** 2 - 0.01` give the expected interval.
  */
 export function test_motions_carrier_seesaw_foot_support(): void {
   const gap =

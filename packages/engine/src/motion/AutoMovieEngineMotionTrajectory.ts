@@ -194,11 +194,17 @@ export namespace AutoMovieEngineMotionTrajectory {
   export type IInterval = IAutoMovieMotionTrajectoryInterval;
 
   /**
-   * Bake an admitted in-place gait along an authored world XZ polyline, ignoring
-   * waypoint Y and sampling height from optional ground. Whole cycles nearest
-   * requested speed determine exact-arrival duration; yaw follows the tangent
-   * with a shortest-arc corner blend, and gait root bob/sway rotates with
-   * heading. Pathfinding is outside this operation.
+   * Bake an admitted in-place gait along an authored world XZ polyline.
+   *
+   * Supply a finite positive speed in m/s and gait duration in seconds. The
+   * corner blend width is a finite nonnegative distance in metres. It defaults
+   * to 0.5 m, and zero disables blending. Ground supplies Y independently of
+   * waypoint height. Whole gait cycles determine the exact-arrival duration.
+   * Facing follows the tangent through the shortest turn and carries the
+   * gait's local root offsets with it.
+   *
+   * Throws for invalid timing, an unrepresentable baked duration, or a path
+   * without a usable stretch between adjacent waypoints.
    */
   export function followPathMotion(props: IAutoMovieFollowPathMotion.IProps): IAutoMoviePathLocomotion {
     return followPathMotionImplementation(props);

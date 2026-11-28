@@ -3,19 +3,21 @@ import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
 
-/** The canonical producer and authoring contract for a compact camera. */
+/**
+ * Constructs a compact camera with fixed body geometry and separate viewing and handling contacts.
+ */
 export namespace AutoMovieArchetypeCamera {
   /**
-   * A compact camera with separate grasp, support, viewing and shutter contacts.
+   * Build an upright compact camera with the lens facing model `+Z`.
    *
-   * The model stands on its bottom edge at the origin with its front toward `+Z`.
+   * The grip bar and shutter sit on `-X`, and the `support` grasp faces
+   * down from the far `+X` edge. The rear `screen` faces `-Z`. The lens
+   * frame is 0.02 metres ahead of the front body plane.
    *
-   * @param params The identifier and a choice among this device's measured
-   *   models.
-   * @param seed The seed for the device's remaining choices.
-   * @returns The device and its named contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
-   *   input.
+   * @param params Optional catalogue model and scene ID. Defaults to ID `device`.
+   * @param seed Numeric seed for an omitted model. Omit it for `grIII`.
+   * @returns The complete model and its named handling and viewing frames.
+   * @throws {AutoMovieArchetypeRefusal} If the catalogue model is unavailable.
    */
   export function create(
     params: AutoMovieArchetypeCamera.IParams = {},
@@ -131,21 +133,24 @@ export namespace AutoMovieArchetypeCamera {
   }
 
   /* The parameters and affordance identifiers of {@link AutoMovieArchetypeCamera}. */
-  /** The `model` choices this producer admits. */
+  /** Recorded Ricoh GR III (`grIII`) and Fujifilm X100VI (`x100vi`) bodies. */
   export type Model = "grIII" | "x100vi";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Catalogue body width, height and lens-free thickness in metres and mass in kilograms.
    */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
-  /** The identifiers of contacts built by this producer. */
+  /**
+   * Grip bar, underside support, front lens, rear screen and top shutter button.
+   */
   export type Affordance = "button" | "grip" | "lens" | "screen" | "support";
 
-  /** Parameters for this compact camera. */
+  /** Optional scene ID and a whole compact-camera catalogue entry. */
   export interface IParams extends Pick<HandheldDevice.IParams, "id"> {
-    /** The manufacturer model, drawn from the seed when absent. */
+    /**
+     * Selects the paired body dimensions and mass. Defaults to `grIII` without a seed.
+     */
     model?: Model;
   }
 }

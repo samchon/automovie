@@ -29,6 +29,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  *    (9 - x*) / tan(b / 2). Without `compose` the seam is the chord in the end
  *    plane: depth 0, more than 1 mm inside the cylinder, ruled more than 0.1
  *    off the normal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names computed forks, bisector planes and cylinder valleys with an authored-phase control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes composed and ordinary versions of the three-child split, then measures fork positions, seam directions and depth.
+ * @evidence contracts/development/testing.md#independent-expectations Intersecting the two radius-9 cylinders yields the stated x* and y coordinates. Half the lean sets the bisector normal, and the child's radius sets valley reach.
  */
 export function test_engine_geometry_split_compose_forks(): void {
   const b: number = C.LEAN;

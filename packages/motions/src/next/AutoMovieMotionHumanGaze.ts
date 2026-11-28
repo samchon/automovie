@@ -42,12 +42,11 @@ export namespace AutoMovieMotionHumanGaze {
    * or, when cued by something seen or heard, after a seeded reaction time: the
    * orienting response of a bystander.
    *
-   * The feet stay planted where they are (the stand law places the body), and
-   * the gaze goal is the eyes' lines on the target, recruited eyes, head and
-   * trunk in that order ({@link HumanGaze}); the target is tracked while the
-   * action lasts. Use the gaze layer to look while doing something else; this
-   * action is for a gaze that is the whole performance or that must turn the
-   * trunk.
+   * A standalone look keeps the feet planted. A look over a carrier keeps its
+   * footwork and route, with the gaze blended at the overlay's boundaries.
+   * Eyes, head and trunk contribute in that order ({@link HumanGaze}). To turn
+   * the feet in place, append a walk with the current floor point as `to` and
+   * the intended heading as `face`.
    *
    * An uncued look at a target outside the 120 degree field the performer
    * attends ahead (60 degrees either side of the heading) is refused: nothing
@@ -62,8 +61,9 @@ export namespace AutoMovieMotionHumanGaze {
    * 300 ms of simple visual reaction in adults, and no study located measures
    * orienting onset by skill.
    *
-   * Events: `gazeOn`, when the eyes reach the target, and `settled`, when the
-   * head and trunk end their turn.
+   * `gazeOn` marks the initial eye-shift timing, and `settled` marks the end
+   * of the head and trunk timing. Both fit within the authored duration. A
+   * target outside the joint ranges can remain out of sight.
    */
   export import look = lookLaw;
 
@@ -85,8 +85,8 @@ export namespace AutoMovieMotionHumanGaze {
    * chest and lumbar spine the yaw beyond that up to `TRUNK` (40 degrees,
    * provisional, inside their combined twist range), 60 % to the chest and 40 %
    * to the spine. What none of these can hold stays on the eyes, clamped to
-   * their range, so a gaze too far behind the body is visibly short; turning
-   * the feet is the `look` action's step-turn.
+   * their range, so a target too far behind the body can remain out of sight.
+   * An authored walk can turn the feet at the current floor point.
    *
    * The head and neck angles come from the engine's `AutoMovieEngineKinematics.gazeChainJoints`, which
    * splits one aim over the neck and the head inside their ranges; the eyes are

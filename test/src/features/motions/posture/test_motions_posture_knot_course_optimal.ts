@@ -65,6 +65,10 @@ const DIFFERENCE: number = 1e-4;
  *    than the overshoot asked, a hundredth.
  * 5. A knot's own limit binds at the knot: knots 0, 1 and 2 with the middle one
  *    limited to 0.5 pass it at no more than 0.5, and take longer than without.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines independently limited timed pieces, hold and knot-specific rate authority.
+ * @evidence contracts/development/testing.md#behavioral-verification Times two paths with different limits, differentiates actual samples, then adds a middle-knot rate bound.
+ * @evidence contracts/development/testing.md#independent-expectations Rest-to-rest lower times are 2 and 2√2 s. Position differences verify velocity and the fixed middle limit caps the rate at 0.5.
  */
 export function test_motions_posture_knot_course_optimal(): void {
   const segments: HumanKnotTiming.ILimit[] = [

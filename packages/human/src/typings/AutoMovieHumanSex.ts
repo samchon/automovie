@@ -1,13 +1,15 @@
 import type { AutoMovieHumanSex as AutoMovieHumanSexContract } from "@automovie/interface";
 
 /**
- * Sex category associated with requested reference statistics.
+ * Sex categories used by Human's parameter and survey inputs.
  *
- * This category distinguishes female and male population statistics. It does not specify detailed body measurements or the continuous masculine/feminine shape coordinate.
+ * The body anatomy lookup uses the chosen category for sex-dependent defaults.
+ * An omitted anatomy sex uses the female table. Traits supply their sex
+ * explicitly.
  */
 export namespace AutoMovieHumanSex {
-  /** Female population statistics. */
+  /** Select the female category for survey-dependent measures. */
   export const Female: "female" = "female" satisfies AutoMovieHumanSexContract;
-  /** Male population statistics. */
+  /** Select the male category for survey-dependent measures. */
   export const Male: "male" = "male" satisfies AutoMovieHumanSexContract;
 }

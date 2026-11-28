@@ -33,34 +33,68 @@ export function markMeshClearance(
   props: IAutoMovieMarkMeshClearance.IProps,
 ): IAutoMovieMark[] {
   const vertices: number = props.front.positions.length / 3;
+  if (!Number.isSafeInteger(vertices))
+    throw new Error(
+      "markAutoMovieMeshClearance: front positions must hold XYZ triples",
+    );
+  if (props.axis !== "x" && props.axis !== "y" && props.axis !== "z")
+    throw new Error("markAutoMovieMeshClearance: axis must be X, Y or Z");
   const axis: number = { x: 0, y: 1, z: 2 }[props.axis];
-  return props.witnesses.map(
+  return Array.from(
+    props.witnesses,
     (
       witness: IAutoMovieMeshClearanceWitness,
       ordinal: number,
     ): IAutoMovieMark => {
-      if (witness.vertices.length !== 3 || witness.weights.length !== 3)
+      if (
+        witness === undefined ||
+        witness === null ||
+        !Array.isArray(witness.vertices) ||
+        !Array.isArray(witness.weights) ||
+        witness.vertices.length !== 3 ||
+        witness.weights.length !== 3
+      )
         throw new Error(
           `markAutoMovieMeshClearance: witness ${ordinal} does not hold three vertices and three weights`,
         );
+      if (!Number.isFinite(witness.gap))
+        throw new Error(
+          `markAutoMovieMeshClearance: witness ${ordinal} requires a finite gap`,
+        );
       const front: number[] = [0, 0, 0];
-      witness.vertices.forEach((vertex: number, k: number): void => {
-        if (vertex < 0 || vertex >= vertices)
+      for (let k: number = 0; k < 3; ++k) {
+        const vertex: number = witness.vertices[k]!;
+        const weight: number = witness.weights[k]!;
+        if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= vertices)
           throw new Error(
             `markAutoMovieMeshClearance: witness ${ordinal} names vertex ${vertex}, outside the ${vertices} vertices of the front mesh`,
           );
-        for (let c: number = 0; c < 3; c++)
-          front[c]! +=
-            witness.weights[k]! * props.front.positions[vertex * 3 + c]!;
-      });
+        if (!Number.isFinite(weight))
+          throw new Error(
+            `markAutoMovieMeshClearance: witness ${ordinal} requires finite weights`,
+          );
+        for (let c: number = 0; c < 3; c++) {
+          const coordinate: number = props.front.positions[vertex * 3 + c]!;
+          if (!Number.isFinite(coordinate))
+            throw new Error(
+              `markAutoMovieMeshClearance: witness ${ordinal} requires finite front positions`,
+            );
+          front[c]! += weight * coordinate;
+        }
+      }
       const back: number[] = [...front];
       back[axis]! -= witness.gap;
+      const points: number[] = [...front, ...back];
+      if (!points.every(Number.isFinite))
+        throw new Error(
+          `markAutoMovieMeshClearance: witness ${ordinal} requires finite endpoints`,
+        );
       return {
         path: `${props.path}/clearance/${ordinal}`,
         kind: "clearance",
         label: "clearance witness",
         color: 0x9acd32,
-        shape: { type: "segments", points: [...front, ...back] },
+        shape: { type: "segments", points },
         flagged: witness.gap < 0,
         anchor: props.anchor,
       };

@@ -29,6 +29,10 @@ const WRITTEN: RegExp = /(Thumb|Index|Middle|Ring|Little|Toes)/u;
  * 2. Every other bone is settled exactly when its range is absent, a box, or a
  *    cone whose flexion and abduction ranges both hold zero, and is not a
  *    swing-twist joint.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines which rig joints retain a projected pose through the final clamp and which remain later-writer-owned.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the settled set from a complete rig and classifies each bone using its actual authored constraint.
+ * @evidence contracts/development/testing.md#independent-expectations Absent and boxed ranges and zero-containing cones are admitted. Digits, toes, off-origin cones and swing-twist constraints are distinct excluded cases.
  */
 export async function test_motions_posture_settled_joints(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

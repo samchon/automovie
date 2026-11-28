@@ -2,40 +2,47 @@ import type { IAutoMovieMeshExtract } from "./IAutoMovieMeshExtract";
 import type { IAutoMovieMeshSectionChain } from "./IAutoMovieMeshSectionChain";
 
 /**
- * The section at one station.
- *
- * Section arrays transfer to the caller, but extrema may share point tuples and
- * outer boundaries may reuse loop points. Flags also include bridged gap
- * lengths and chains still unclosed after bridging; an empty cut has empty
- * arrays, null extremes and no flags.
+ * The section returned for one requested station, with raw chains, enclosing
+ * loops, support points and quality findings. Extrema may share crossing tuples
+ * and the envelope may reuse raw loop points.
  */
 export interface IAutoMovieMeshSectionCut {
-  /** The station along the frame axis, millimetres from the origin. */
+  /**
+   * The supplied distance in millimetres along the selected frame axis, echoed
+   * in caller order.
+   */
   station: number;
 
-  /** Intersection points found (zero when the plane misses the mesh). */
+  /**
+   * Number of distinct crossed mesh edges, keyed by original endpoint ordinals.
+   * Coincident crossings on different edges can count separately.
+   */
   count: number;
 
   /**
-   * The cut's chained pieces, closed loops and open chains alike, each oriented
-   * by the triangles' winding.
+   * Raw oriented closed loops and open chains before envelope bridging. The raw
+   * chain order follows crossed triangle winding.
    */
   loops: IAutoMovieMeshSectionChain[];
 
   /**
-   * The cut's outer boundaries, largest enclosed area first: the closed pieces
-   * after open chains were joined end to end across gaps up to the bridge (each
-   * bridged gap flagged), less every piece enclosed by another (eyes, teeth, a
-   * mouth bag). Disjoint bodies (two legs) give one each; a reference with
-   * holes and slits still gives its outer contour here.
+   * Closed enclosing pieces after bridge admission, in decreasing enclosed
+   * area. Nested pieces are excluded, while disjoint envelopes remain
+   * separate.
+   *
+   * Envelope construction first looks for compatible tail-to-head joins, then
+   * allows one chain reversal. It takes the nearest join admitted by the bridge
+   * width at each step.
    */
   outer: IAutoMovieMeshSectionChain[];
 
   /**
-   * Extremes along `+a`, `-a`, `+b`, `-b` (a and b the two in-plane frame axes
-   * after the station axis in cyclic order: for axis 1 they are axes 2 and 0),
-   * and the quarter diagonals `(+a+b)`, `(+a-b)`, `(-a+b)`, `(-a-b)` over the
-   * square root of two; null when the plane misses.
+   * Open crossings, inserted bridges longer than 1e-9 mm, remaining unclosed
+   * chains and sampled reach jumps. Reach jumps compare each interior station
+   * with the arithmetic mean of its previous and next returned reaches.
+   *
+   * The directions are `+a`, `-a`, `+b`, `-b` and their four normalized
+   * diagonals. For station axis 1, `a` and `b` are frame axes 2 and 0.
    */
   extremes: Record<
     "+a" | "-a" | "+b" | "-b" | "+a+b" | "+a-b" | "-a+b" | "-a-b",
@@ -43,12 +50,9 @@ export interface IAutoMovieMeshSectionCut {
   > | null;
 
   /**
-   * Why this sample cannot be trusted as it stands, empty when sound: "open"
-   * when the cut leaves dangling crossings (a hole, a gap or a broken slice of
-   * the mesh; the flag names the dangling crossings and broken chains), "jump
-   * <direction>" when an extreme leaves the mean of its two neighbouring
-   * stations' by more than the tolerance (a spike or saw tooth). A flagged
-   * sample is to be checked in the viewer or excluded.
+   * Open crossings, inserted bridges, remaining unclosed chains and sampled
+   * reach jumps. Reach jumps compare each interior station with the arithmetic
+   * mean of its previous and next returned reaches.
    */
   flags: string[];
 }

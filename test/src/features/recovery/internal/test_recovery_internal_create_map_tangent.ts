@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  * 2. T = (0.6, 0, 0.8): both directions are unit and orthogonal to t and to each
  *    other.
  * 3. A non-unit t, (0, 0, 2), refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the sphere tangent frame and the nonunit-gauge refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes tangent directions for an axis and a tilted translation and submits a vector of length two.
+ * @evidence contracts/development/testing.md#independent-expectations For t along positive z, x and y form the expected ordered tangent basis. Dot products and norms supply the tilted-frame checks.
  */
 export function test_recovery_internal_create_map_tangent(): void {
   TestValidator.equals(

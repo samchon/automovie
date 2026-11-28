@@ -73,20 +73,19 @@ function surface(
 }
 
 /**
- * World placement admits independent authored boxes, supports and routes.
+ * World placement checks the support of box bases, route clearance, and
+ * landmark access through either walkable terrain or a route.
  *
  * Scenarios:
  *
  * 1. A flat ground and a raised platform support the corresponding bases.
- * 2. An edge point and a point on a route are reachable under their own rule.
+ * 2. A landmark on a ground edge and a landmark on a route each pass.
  * 3. Overlap, overhang, a float, widened route obstruction and an unreachable
  *    landmark each produce their own refusal.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names support, reachability and the five independent contradictions.
- * @evidence contracts/development/testing.md#behavioral-verification Calls assertWorldPlacements on authored bounds, support and routes, admitting valid combinations and checking each invalid case's diagnostic. A lost widening, support or reachability check fails.
- * @evidence contracts/development/testing.md#independent-expectations Exact box corners place the base at 0 or 1 m. The 0.5 m half-width cannot support the 2 m box and the route at z=1.25 clears z=2 before its 1 m widening. Exact coordinates separate the acceptance and refusal regions.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers flat, raised, edge-only and route-only support and independently distinguishes overlapping, overhanging, hovering, blocked and unreachable records.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous test owns resident box bounds, support records, route polylines and landmarks and calls the direct world placement admission function.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes two supported base heights, access at a ground edge or along a route, and five distinct reasons to refuse placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes explicit box bounds, support polygons, route segments, and landmarks to `AutoMovieEngineWorld.assertPlacements`. The valid arrangements complete and each isolated contradiction throws its expected diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations The block spans X and Z from 2 to 4 m, so a square support from 2.5 to 3.5 m misses its corners. The elevated base at 1 m needs the platform. The road at Z 0 clears the block with its 1 m padding, while Z 1.25 enters the padded footprint starting at Z 1. The point at X 11 is exactly on the ground's edge.
  */
 export function test_engine_space_assert_world_placements(): void {
   const a: IAutoMovieWorldBlock = box(

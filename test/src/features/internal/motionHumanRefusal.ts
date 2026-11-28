@@ -2,19 +2,16 @@ import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
 
 /**
- * Observe a public performance's structured refusal without accepting a
- * JavaScript error or the assertion's own failure as that refusal.
+ * Check the located refusal thrown during synchronous performance construction.
  *
- * @param task The actual performance construction.
- * @param expected The invalid input's named kind, parameter and action.
- * @returns Whether that located refusal names its reason and repair.
- * @evidence contracts/development/common.md#meaningful-documentation States what is observed and why generic exceptions are insufficient.
- * @evidence contracts/development/implementation.md#principled-implementation The public AutoMovieMotionHumanRefusal fields are the grammar's repair contract; expected kind, axis and act come from the case's invalid request.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A normal return is false; only the caught structured refusal is inspected.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not manufacture an exception, catch an assertion failure, or accept an unlocated JavaScript error.
- * @evidence contracts/development/implementation.md#efficient-algorithms One construction and constant-sized field checks.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each case observes its own actual construction.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no performance after the call.
+ * @param task Performance construction to call.
+ * @param expected Kind, axis and action required of the refusal.
+ * @returns Whether subject a received the expected refusal with a positive
+ * action instance and nonblank reason and repair text.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the structured refusal fields, the fixture subject, the instance requirement and the required reason and repair.
+ * @evidence contracts/development/implementation.md#principled-implementation Recognizes the public AutoMovieMotionHumanRefusal class and matches the requested kind, axis and action. It also requires a located instance and checks both messages for missing text and a literal undefined token.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Calls construction once and checks one exception with a fixed number of field and message comparisons. The result retains neither construction nor performance state.
  */
 export function motionHumanRefusal(
   task: () => unknown,

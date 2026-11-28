@@ -44,6 +44,10 @@ const evaluate: (
  *    code/step measurements, and serialize with null fields.
  * 6. A required point on the near plane has codes 0/0 and zero step.
  * 7. Repeated input preserves the report; camera and time remain addressed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the finite depth-cell measurement, tolerance equality, near and far limits, invalid serialized results and stable camera attribution.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the depth precision evaluator with controlled bit counts and ranges, then reads addressed depth codes, measured steps and pass states across valid and malformed inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The independently derived fixed-point projection for 1 to 101 metres and eight bits brackets depth 50 by codes 252 and 253, with step 10.198990198990188 metres. Equality fits the stated maximum and half the step fails. The near plane is an exact code-zero endpoint.
  */
 export function test_engine_film_camera_depth_precision(): void {
   const valid: ReturnType<typeof evaluate> = evaluate();

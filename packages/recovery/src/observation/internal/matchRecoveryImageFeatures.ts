@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "@automovie/interface";
 
+import { countRecoveryImageDescriptorComparisons } from "./countRecoveryImageDescriptorComparisons";
+
 /*
  * Compare every admitted descriptor pair once and retain unique mutual matches.
  * The strict Euclidean ratio requires a distinct second feature in the other
@@ -12,10 +14,13 @@ export function matchRecoveryImageFeatures(
   ratio: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[2],
   maxPairs: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[3],
 ): ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> {
-  const pairs: number = first.length * second.length;
+  const pairs: number = countRecoveryImageDescriptorComparisons(
+    first.length,
+    second.length,
+  );
   if (pairs > maxPairs)
     throw new Error("camera-matches: descriptor pair budget exhausted");
-  if (second.length < 2 || first.length === 0) return [];
+  if (pairs === 0) return [];
   const forward: Float64Array = new Float64Array(first.length).fill(Infinity);
   const forwardSecond: Float64Array = new Float64Array(first.length).fill(
     Infinity,

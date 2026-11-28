@@ -14,6 +14,10 @@ import { nclose } from "../../internal/predicates";
  *    original cause.
  * 2. Valid source restoration still transfers requested native camera/time.
  * 3. Independent camera and mount rollback failures retain the source cause first.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Restores camera and mount state after a refused source transfer and retains independent rollback failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls controller restore with known preceding state, a valid incoming state and injected source, camera and mount failures.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit captured transforms and clock bases supply both sides of the handoff. Expected error identity and ordering show source cause survives even when rollback fails.
  */
 export function test_viewer_root_create_frame_control_restore_refusal(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(

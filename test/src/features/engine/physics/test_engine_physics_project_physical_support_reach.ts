@@ -6,6 +6,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 /**
  * Two/four independent reach balls share a bounded root seed, while
  * incompatible goals remain explicit failures.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains a translation-bounded common root seed for multiple fixed supports, with explicit failure for incompatible reach balls.
+ * @evidence contracts/development/testing.md#behavioral-verification Projects two and four aligned support balls, verifies borrowed endpoints, and submits opposed unreachable targets with their own cap.
+ * @evidence contracts/development/testing.md#independent-expectations Shared displacements can fit radius 0.95 with at most 0.5 m root motion. Opposed targets ±2 m with radius 0.5 leave at least 1.5 m maximum excess.
  */
 export function test_engine_physics_project_physical_support_reach(): void {
   for (const count of [2, 4]) {

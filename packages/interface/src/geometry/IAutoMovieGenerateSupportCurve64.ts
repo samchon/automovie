@@ -32,20 +32,8 @@ export namespace IAutoMovieGenerateSupportCurve64 {
      * zero requires positive cosine and zero sine; the bounded curvature test
      * must also resolve a positive h+h''.
      */
-    harmonics: readonly {
-      /**
-       * Millimetre amplitude of cos(n_theta) at this array index n; the zeroth
-       * value fixes analytic perimeter 2_pi*a_0.
-       */
-      cosine: number;
-
-      /**
-       * Millimetre amplitude of sin(n*theta) at this array index n; exactly
-       * zero at n=0.
-       */
-      sine: number;
-    }[];
-    /** Fixed common normal-angle partition; a power of two in [4,4096]. */
+    harmonics: readonly IHarmonic[];
+    /** Whole power of two in [4,4096] for the shared normal-angle partition. */
     spans: number;
   };
 
@@ -67,10 +55,25 @@ export namespace IAutoMovieGenerateSupportCurve64 {
      */
     minimumRadiusLowerEstimate: number;
     /**
-     * Sqrt(2)_M4_(2*pi/spans)^4/384 in millimetres, where M4 is the Fourier
-     * fourth-derivative majorant. This evaluated Hermite remainder is not an
-     * outward-rounded certificate.
+     * Finite estimate in millimetres of the Hermite remainder `sqrt(2) * M4 *
+     * (2 * pi / spans)^4 / 384`, where M4 bounds the Fourier fourth derivative.
+     * Binary64 evaluation uses ordinary rounding.
      */
     approximationErrorEstimate: number;
+  };
+
+  /** Fourier cosine and sine amplitudes at one harmonic index. */
+  export type IHarmonic = {
+    /**
+     * Millimetre amplitude of cos(n_theta) at this array index n; the zeroth
+     * value fixes analytic perimeter 2_pi*a_0.
+     */
+    cosine: number;
+
+    /**
+     * Millimetre amplitude of sin(n*theta) at this array index n; exactly zero
+     * at n=0.
+     */
+    sine: number;
   };
 }

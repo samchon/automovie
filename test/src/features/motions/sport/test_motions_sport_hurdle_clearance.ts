@@ -40,6 +40,10 @@ import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan"
  *    different decisions.
  * 2. Keeping the height and depth while placing the bar past the foot's finite
  *    lateral end leaves clearance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines clearance from posed lower-leg geometry against the hurdle's finite bar.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks finite bars with equal dimensions moved to overlap or miss each leg, and repeats the near-side position beyond the finite lateral extent.
+ * @evidence contracts/development/testing.md#independent-expectations Signed offset switches from 5 mm gap to 5 mm overlap while other dimensions stay fixed. Beyond the bar's lateral endpoint the tested height and depth remain clear.
  */
 export async function test_motions_sport_hurdle_clearance(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

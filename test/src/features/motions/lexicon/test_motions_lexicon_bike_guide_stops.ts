@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. The long pause at 1 m stops the athlete; the short pause at 2 m, shorter than
  *    a swing (`SWING`), does not; the path's end does.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines stops from long stationary intervals and the path end.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the actual path stop helper on a virtual route with a long pause, short pause and final stop.
+ * @evidence contracts/development/testing.md#independent-expectations One-second pause at 1 m is long enough and the 0.2 s pause at 2 m is not. The terminal point stays an explicit stop.
  */
 export function test_motions_lexicon_bike_guide_stops(): void {
   TestValidator.equals(

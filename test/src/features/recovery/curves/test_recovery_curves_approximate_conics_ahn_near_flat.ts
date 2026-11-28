@@ -22,6 +22,10 @@ import { nclose } from "../../internal/nclose";
  * 1. The stretch is covered without a gap and its middle is the collinear
  *    primitive.
  * 2. A stretch beyond the tolerance of its chord is not drawn straight.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a line admissible within the sampled tolerance from a resolved curved interval.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits shifted and unshifted source charts with separate tolerances, then checks coverage, independent samples and the center primitive.
+ * @evidence contracts/development/testing.md#independent-expectations The authored polynomial yields a middle stretch below coordinate resolution after translation. Its unshifted curved locus gives an independent tighter-tolerance comparison.
  */
 export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   const options: IAutoMovieConicApproximation.IOptions =

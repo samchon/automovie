@@ -19,9 +19,13 @@ export function calculateDewPoint(
   temperature: number,
   relativeHumidity: number,
 ): number {
-  if (relativeHumidity <= 0 || relativeHumidity > 1)
+  if (!(relativeHumidity > 0 && relativeHumidity <= 1))
     throw new Error(
       `a dew point needs a relative humidity within (0, 1], but was ${relativeHumidity}`,
+    );
+  if (!Number.isFinite(temperature))
+    throw new Error(
+      `a dew point needs a finite temperature, but was ${temperature}`,
     );
   const gamma: number =
     Math.log(relativeHumidity) +

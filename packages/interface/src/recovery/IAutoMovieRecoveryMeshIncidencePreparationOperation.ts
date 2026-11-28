@@ -1,9 +1,17 @@
 import type { IAutoMovieRecoveryInput } from "..";
 
-/** Prepare declared source aliases and original edge/vertex face incidence. */
+/**
+ * Callable preparation of source vertex aliases and original-face lookup
+ * tables.
+ */
 
 export namespace IAutoMovieRecoveryMeshIncidencePreparationOperation {
-  /** Prepare declared source aliases and original edge/vertex face incidence. */
+  /**
+   * Prepare original vertex and edge face incidence over the supplied
+   * registered mesh. Optionally identify equal Cartesian tuples by their first
+   * original position. Return the borrowed mesh arrays, canonical addresses and
+   * shared index maps.
+   */
 
   export type Operation = (
     input: Pick<
@@ -13,54 +21,39 @@ export namespace IAutoMovieRecoveryMeshIncidencePreparationOperation {
     vertices: IAutoMovieRecoveryInput["verticesMm"],
   ) => {
     /**
-     * Exact-position serialization key to the first admitted canonical vertex
-     * index.
+     * Exact-position serialized key to first original coordinate address when
+     * aliasing is selected.
      */
     aliases: Map<string, number>;
 
     /**
-     * One in-range canonical connectivity index per original vertex; this does
-     * not move source coordinates.
+     * Original vertex to canonical original representative in aligned vertex
+     * order.
      */
     canon: Int32Array;
 
-    /**
-     * Registered source mesh borrowing its original positions and faces with
-     * the admitted canonical connectivity array.
-     */
+    /** Borrowed original mesh geometry with the prepared canonical address map. */
     mesh: {
-      /**
-       * Physical vertex positions in the registered millimetre chart, aligned
-       * with the supplied triangle indices.
-       */
+      /** Borrowed registered Cartesian positions in millimetres. */
       vertices: IAutoMovieRecoveryInput["verticesMm"];
 
-      /**
-       * Oriented triangle vertex-index triples addressing the paired position
-       * array; indices are not control IDs.
-       */
+      /** Borrowed original vertex-index triples in face ordinal order. */
       triangles: IAutoMovieRecoveryInput["triangles"];
 
       /**
-       * One in-range canonical connectivity index per original vertex; this
-       * does not move source coordinates.
+       * Canonical source vertex addresses reused by the returned incidence
+       * maps.
        */
       canon: Int32Array;
     };
 
-    /** Canonical undirected edge identity to original incident-face set. */
+    /** Undirected canonical edge keys to original incident source faces. */
     faceEdges: Map<string, Set<number>>;
 
-    /**
-     * Original vertex index to incident original-face set; borrowed for this
-     * observation pass.
-     */
+    /** Canonical vertex addresses to original incident source faces. */
     vertexFaces: Map<number, Set<number>>;
 
-    /**
-     * Returns a deterministic undirected key from two connectivity indices
-     * without comparing positions.
-     */
+    /** Forms the unordered canonical edge key used in the returned map. */
     edgeKey: (a: number, b: number) => string;
   };
 }

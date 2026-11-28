@@ -1,10 +1,13 @@
 /**
- * Optional station-to-root or station-to-angle coordinates for a scalar source
- * curve. Omission means station itself.
+ * Select the scalar outline's source coordinate. Omission uses physical
+ * station. A root coordinate is +√(s − pole) on a bottom domain or −√(pole − s)
+ * on a top domain. An angle coordinate is 2 asin √((s − bottom)/(top − bottom))
+ * on the closed endpoint interval.
  *
- * A parameter endpoint does not imply a zero scalar. World-coordinate origins
- * can be nonzero there; radial part closure separately owns its zero-knot
- * premise.
+ * Author finite endpoint stations in metres and give the angle variant
+ * increasing bounds. Engine outline and axis helpers use the same records after
+ * converting endpoints to kernel millimetres. Radial tip closure sets its own
+ * zero-value premise.
  */
 export type IAutoMovieConstructionOutlineParameter =
   | {

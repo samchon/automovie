@@ -74,10 +74,14 @@ const value: (source: IAutoMovieClip, seconds: number) => number[] = (
  *    exactly 1 s.
  * 3. A cubic spline with zero tangents (in, value, out) from 0 to 10 is the
  *    smoothstep 10 (3 t^2 - 2 t^3), so 5 at 0.5 s and 1.5625 at 0.25 s.
- * 4. A rotation from the identity to a quarter turn about Z reads the eighth turn
- *    (0, 0, sin 22.5, cos 22.5) degrees at 0.5 s.
+ * 4. A rotation from the identity to a quarter turn about Z reads the eighth
+ *    turn as the quaternion (0, 0, sin 22.5°, cos 22.5°) at 0.5 s.
  * 5. A looping clip reads 1.25 s as 0.25 s and -0.75 s as 0.25 s.
  * 6. Two tracks on one channel, and a clip of a negative duration, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names linear, step, flat-tangent spline, and quaternion tracks, with clamped or wrapped time and malformed clip cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `sampleClip` with typed single-track clips, reading interpolated values and both clip policies. Duplicate channel targets and negative duration are independent refusal inputs.
+ * @evidence contracts/development/testing.md#independent-expectations At 0.25 s a linear span from 0 to 10 gives 2.5, and its zero-tangent cubic gives 10(3t² - 2t³) = 1.5625. Step changes from 1 to 2 at the last key. Half of a 90-degree rotation has quaternion Z and W components sin 22.5° and cos 22.5°. Both wrapped times reduce to 0.25 s.
  */
 export function test_engine_resolve_sample_clip(): void {
   const linear: IAutoMovieClip = clip([slide("linear", [0, 0, 0, 10, 0, 0])]);

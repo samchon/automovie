@@ -76,6 +76,10 @@ function posture(
  *    degrees: no 360-degree jump.
  * 3. The hand's rotation is the identity at every read, the knots' signs aligned,
  *    never the normalized zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines adjacent angular unwrap and quaternion hemisphere alignment through a multi-knot posture course.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares four authored angular knots and alternating identity signs, then samples them and a dense 0.01 s grid.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit nearest representatives produce headings 170, 190, 210, 170 and twists 170, 190, 210, 230. Sign changes never alter the identity orientation.
  */
 export function test_motions_posture_posture_course_unwrap(): void {
   const course: (seconds: number) => IAutoMovieMotionHumanPosture =

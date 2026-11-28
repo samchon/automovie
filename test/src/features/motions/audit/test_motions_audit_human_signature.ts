@@ -37,8 +37,8 @@ const HEIGHT: readonly [number, number] = [0.53, 0.59];
  * `AutoMovieMotionHumanSignature` reads the kinematic signature of a performer
  * off displayed bones, each reading a contract of its own:
  *
- * 1. The reader keeps its motion, subject, body and heading, and `bones` reads the
- *    motion's bones of the subject.
+ * 1. The reader exposes the subject, body and heading, and `bones` reads the hips
+ *    from the stored stance.
  * 2. `joint` reads a bone's position and refuses a missing one.
  * 3. `forward` lays a heading on the floor, `(sin yaw, 0, cos yaw)`.
  * 4. `trunk` reads the hip-to-shoulder line's inclination along the heading
@@ -64,6 +64,10 @@ const HEIGHT: readonly [number, number] = [0.53, 0.59];
  *
  * The body is built whole (`humanFixtureBody`) only for the readings that read
  * it (10); the others take typed minimal readers.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names measured joint, inclination, flexion, pitch, speed, region, support and gait outcomes together with the sampled grid and reader.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries HumanSignature on analytic posed-bone motions and on stored-body stance and alternating foot lifts, checking geometric reads, range bounds and refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit axes and rotations determine distances and angles. The parabola has derivative t, so the peak over one second is bounded by one sample spacing. Half-second strike spacing gives 120 steps per minute, with prescribed strikes and duty from the fixture's lifted feet.
  */
 export async function test_motions_audit_human_signature(): Promise<void> {
   const reader = (

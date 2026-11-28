@@ -58,6 +58,10 @@ const ROLL: IAutoMovieQuaternion = {
  * 5. A tilted seat states its pitch.
  * 6. Refused: a seat the object does not have, an unnamed one among two, and any
  *    seat of an object with none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The object fixture covers rigid and yaw placement, props and named points, seated material frame, tread and bar selection, and missing seat referrals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls object frame, prop and seat admission with typed authored models containing affordances. It observes named world points, moving readers, footrest IDs and geometric placement, then checks three concrete seat refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Yaw 90 sends local +Z to +X, so a seat at (0, 0.45, 0.2) relative to (1, 0, 2) lands at (1.2, 0.45, 2). The closest treads give X ±0.15 m and the shared bar's quarter points give X ±0.1 m.
  */
 export function test_motions_perform_human_object(): void {
   // 1. Frames.

@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Seeking before, at and after the half-second cue returns the held material,
  *    with the same first key on a reverse seek. The shot tail is excluded.
  * 2. Another placement of the same model and an untracked part have no override.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify held material keys, exact cue ownership, reverse seeking, excluded shot tail and node and part specificity.
+ * @evidence contracts/development/testing.md#behavioral-verification The test samples a prepared practical material track at times before, on and after the cue in both directions. It uses an adjacent node and another part to verify identity scoping.
+ * @evidence contracts/development/testing.md#independent-expectations The half-second key becomes active exactly at its authored time and stays held until the shot's exclusive tail. An otherwise identical placement with a different node ID and a case part outside the target cannot inherit the lamp value.
  */
 export function test_engine_film_sample_practical_surface_material(): void {
   const track: IAutoMoviePracticalSurfaceTrack = {

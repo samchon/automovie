@@ -13,15 +13,19 @@ import { AutoMovieArchetypeKayakPaddleData } from "./internal/AutoMovieArchetype
 
 /** Constructs the kayak paddle archetype from its recipe. */
 export namespace AutoMovieArchetypeKayakPaddle {
-/**
- * A double-bladed kayaking paddle with straight shaft and two non-feathered
- * blades. The shaft's +X points towards the named left blade at rest. Each hand
- * has a separate round shaft site for use across alternating strokes.
- *
- * @param params Optional scene identity and overall length override, metres.
- * @param seed Draws the adjustable shaft length within its declared range.
- * @returns The shaft, two blades and corresponding hand and tip sites.
- */
+  /**
+   * Build a straight kayak paddle with two non-feathered blades.
+   *
+   * Local `+X` points toward `leftTip`. Both hand grips sit on the shaft,
+   * 0.27 m either side of its origin. `leftTip` and `rightTip` move with the
+   * chosen overall length.
+   *
+   * @param params Optional scene ID and fixed values admitted by {@link BANDS}.
+   *   Overall length ranges from 2.2 to 2.6 m. Blade size and mass are fixed.
+   * @param seed Draws omitted length within its band, or uses 2.4 m when absent.
+   * @returns The paddle with separate left and right grips and blade tips.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed value outside its band.
+   */
 export function create(
   params: AutoMovieArchetypeKayakPaddle.IParams = {},
   seed?: number,
@@ -84,16 +88,26 @@ export function create(
 }
 
   /* The shaft dimensions, the two palm sites and the two wet blade edges. */
-  /** Two real hand sites and separate blade tips. */
+  /**
+   * Left and right shaft grips and the tip at each blade's outer end.
+   */
   export type Affordance = "leftGrip" | "rightGrip" | "leftTip" | "rightTip";
-  /** Overall length, blade dimensions and mass. */
+  /**
+   * Overall length and blade dimensions in metres, mass in kilograms.
+   */
   export type Dimension = "length" | "bladeLength" | "bladeWidth" | "mass";
-  /** Scene subject and selected reference figures. */
+  /**
+   * Optional scene ID and fixed values within each dimension's band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
+    /**
+     * Scene subject ID. Defaults to `kayakPaddle`.
+     */
     id?: string;
   }
-  /** Units of the manufacturer's specifications. */
+  /**
+   * Units for the adjustable overall length, fixed blade size and mass.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -102,7 +116,9 @@ export function create(
     bladeWidth: "m",
     mass: "kg",
   };
-  /** Manufacturer figures for the adjustable straight-shaft model. */
+  /**
+   * Adjustable straight-shaft length and fixed reference blade size and mass.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(2.2, 2.6, AutoMovieArchetypeKayakPaddleData.SOURCE),
     bladeLength: AutoMovieArchetypeBand.metres(0.49, 0.49, AutoMovieArchetypeKayakPaddleData.SOURCE),

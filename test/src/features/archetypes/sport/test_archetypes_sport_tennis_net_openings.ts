@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. One height above the band near the middle passes rays. At the same height
  *    nearer the post the band blocks rays.
  * 3. The centre strap blocks rays well below the band.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes open twine cells, adjacent strands, sagging band and centre strap as separate ray cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual net model and probes its visible solids from both sides. Tests an open cell and strand and compares a fixed height near the centre and near the post.
+ * @evidence contracts/development/testing.md#independent-expectations Authored twine and band dimensions place the probe between strands or directly on a strand. The lowered centre and higher post define distinct visibility at the same sample height.
  */
 export function test_archetypes_sport_tennis_net_openings(): void {
   const halfSpan: number = 0.45;

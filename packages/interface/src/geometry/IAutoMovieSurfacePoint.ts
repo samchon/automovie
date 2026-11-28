@@ -3,9 +3,9 @@ import type { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 /**
  * A point of a surface rig that is written per pose: a node, a sweep sample or
  * a curve's control point. rigSurfaceNetwork creates these records and
- * rigSurfaceCurve reads their current writers and probes. Sweep-node
- * records are resolved during registry finalization; reading their placeholder
- * writer before that throws.
+ * rigSurfaceCurve reads their current writers and probes. Sweep-node records
+ * are resolved during registry finalization; reading their placeholder writer
+ * before that throws.
  */
 export interface IAutoMovieSurfacePoint {
   /**
@@ -23,7 +23,13 @@ export interface IAutoMovieSurfacePoint {
    * For a point on a sweep, the sweep's rig and the probe slot of its normal
    * there; otherwise null.
    */
-  probe: {
+  probe: IAutoMovieSurfacePoint.ISweepProbe | null;
+}
+
+/** Pose-dependent data attached to a resolved surface point. */
+export namespace IAutoMovieSurfacePoint {
+  /** A registered sweep probe read by a point's downstream curve rig. */
+  export type ISweepProbe = {
     /**
      * Shared sweep rig, refreshed before curve update. Its probe uses the
      * finalized geometric sampling cell, or a zero cell for observation-only
@@ -32,10 +38,9 @@ export interface IAutoMovieSurfacePoint {
     rig: IAutoMovieSweepRig;
 
     /**
-     * Probe ordinal, addressing six scalars at 6*slot: unit normal XYZ then
-     * spine derivative XYZ in metres per normalized u. Null probe means the
-     * point has no sweep tangent-plane constraint.
+     * Probe ordinal. Its six scalars start at `6 * slot` and contain unit
+     * normal XYZ followed by spine derivative XYZ in metres per normalized U.
      */
     slot: number;
-  } | null;
+  };
 }

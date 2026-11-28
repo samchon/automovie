@@ -21,7 +21,10 @@ import { readRotatedVector } from "./internal/readRotatedVector";
  * leaves its inputs unchanged and returns a new value.
  */
 export namespace AutoMovieEngineQuaternion {
-  /** A new quaternion of the identity rotation, `(0, 0, 0, 1)`. */
+  /**
+   * Create a quaternion for the identity rotation, with zero vector part and
+   * scalar part one.
+   */
   export const identity: () => IAutoMovieQuaternion =
     (): IAutoMovieQuaternion => ({
       x: 0,
@@ -34,13 +37,10 @@ export namespace AutoMovieEngineQuaternion {
   export const DEG2RAD: number = Math.PI / 180;
 
   /**
-   * The Hamilton product `a * b`, the rotation that applies `b` first and then
-   * `a`.
+   * Return the Hamilton product of two quaternions.
    *
-   * @param a Outer (later) rotation.
-   * @param b Inner (earlier) rotation.
-   * @returns A new quaternion; its length is the product of the two lengths, so
-   *   unit inputs give a unit result up to rounding.
+   * For rotations, the right operand acts first. Unit inputs produce a unit
+   * rotation to rounding, and the result is fresh.
    */
   export const multiply: (
     a: IAutoMovieQuaternion,
@@ -56,30 +56,20 @@ export namespace AutoMovieEngineQuaternion {
   });
 
   /**
-   * A unit-length copy of `q`, or the identity when `q` has length zero.
+   * Return a unit copy of a quaternion. An all-zero input yields identity.
    *
-   * Extreme finite components are rescaled by their largest magnitude before
-   * squaring, preserving direction even when the original norm is
-   * unrepresentable. Ordinary near-unit inputs keep the direct summed-square
-   * arithmetic. A non-finite component makes the result non-finite.
-   *
-   * @param q Quaternion of any finite length.
-   * @returns A new unit quaternion representing the same rotation.
+   * Extreme finite magnitudes are scaled before taking the norm. Nonfinite
+   * components can propagate.
    */
   export const normalize: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     q: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion =>
     readNormalizedQuaternion(q, normalizedRecord, undefined);
   /**
-   * The inverse rotation of `q`, its conjugate normalized.
+   * Return the conjugate normalized to a unit quaternion.
    *
-   * For a unit quaternion this is the exact inverse, so multiply(q,inverse(q))
-   * is identity; for a near-unit one normalization keeps a valid rotation.
-   * Camera projection, frustum tests, IK and seat solving use it to bring world
-   * vectors into a local frame.
-   *
-   * @param q Rotation to invert.
-   * @returns A new unit quaternion.
+   * This is the reverse rotation for a unit input. A zero input yields
+   * identity. The result is a fresh quaternion.
    */
   export const inverse: (q: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     q: IAutoMovieQuaternion,
@@ -93,13 +83,10 @@ export namespace AutoMovieEngineQuaternion {
       undefined,
     );
   /**
-   * The rotation of `angleDeg` degrees about `axis`, positive by the right-hand
-   * rule.
+   * Build a right-handed rotation from an axis and angle in degrees.
    *
-   * @param axis Rotation axis of any nonzero length; a zero axis returns
-   *   identity.
-   * @param angleDeg Angle in degrees.
-   * @returns A new unit quaternion.
+   * The axis may have any finite nonzero magnitude. A zero axis yields
+   * identity. The result is a fresh quaternion.
    */
   export const fromAxisAngle: (
     axis: IAutoMovieVector3,
@@ -112,13 +99,11 @@ export namespace AutoMovieEngineQuaternion {
   };
 
   /**
-   * Build fresh axis-angle rotations from a fixed snapshot of the supplied
-   * axis. Preparation scales the direction and reads its length once. Each
-   * angle uses the direct formula without reading the original axis.
+   * Snapshot an axis and return a function that builds its rotation for each
+   * angle in degrees.
    *
-   * @param axis Fixed direction, with the direct entry's zero/nonfinite
-   *   semantics.
-   * @returns A reader producing a fresh quaternion for every angle.
+   * Later changes to the axis do not change the reader. Its zero-axis behavior
+   * is identity and every sample is a fresh quaternion.
    */
   export function prepareAxisAngle(
     axis: IAutoMovieVector3,
@@ -138,12 +123,10 @@ export namespace AutoMovieEngineQuaternion {
   }
 
   /**
-   * The rotation of intrinsic Euler angles in degrees, applying the axes in
-   * `euler.order`, the convention `three.js` uses, so order `"XYZ"` equals `qx
-   * · qy · qz`.
+   * Build a quaternion from intrinsic Euler angles in degrees.
    *
-   * @param euler Angles in degrees and their application order.
-   * @returns A new unit quaternion.
+   * Multiply each axis rotation in the supplied order. For XYZ this forms qX
+   * times qY times qZ.
    */
   export const fromEuler: (euler: IAutoMovieEuler) => IAutoMovieQuaternion = (
     euler: IAutoMovieEuler,
@@ -166,14 +149,11 @@ export namespace AutoMovieEngineQuaternion {
   };
 
   /**
-   * The vector `v` rotated by the unit quaternion `q`, `q · v · q⁻¹`.
+   * Rotate a vector by a unit quaternion and return a fresh vector.
    *
-   * A non-unit q also scales and distorts the result, so normalize first when
-   * its length is not known to be one.
-   *
-   * @param q Unit rotation.
-   * @param v Vector to rotate.
-   * @returns A new rotated vector.
+   * Normalize the quaternion first if its unit length is unknown. The direct
+   * formula is retained for representable components even when a separate
+   * component needs overflow recovery.
    */
   export const rotateVector: (
     q: IAutoMovieQuaternion,
@@ -183,10 +163,7 @@ export namespace AutoMovieEngineQuaternion {
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 => readRotatedVector(q, v, rotatedRecord, undefined);
 
-  /**
-   * The Y component of rotateVector(q,v). The ordinary read skips the vector
-   * record and unused X/Z output expressions.
-   */
+  /** Read only the Y coordinate of a vector rotated by a unit quaternion. */
   export function rotateVectorY(
     q: IAutoMovieQuaternion,
     v: IAutoMovieVector3,
@@ -201,19 +178,11 @@ export namespace AutoMovieEngineQuaternion {
   }
 
   /**
-   * Spherical linear interpolation from `a` (at `t = 0`) to `b` (at `t = 1`)
-   * along the shorter arc.
+   * Interpolate two unit rotations along their shorter arc.
    *
-   * When the quaternions' dot product `cos θ` exceeds `0.9995`, so the two
-   * rotations differ by less than about 3.6 degrees, it returns normalized
-   * linear interpolation to avoid dividing by a vanishing `sin θ`. A `t`
-   * outside `[0, 1]` extrapolates along the same arc.
-   *
-   * @param a Unit rotation at `t = 0`.
-   * @param b Unit rotation at `t = 1`.
-   * @param t Interpolation parameter.
-   * @returns A new unit quaternion; both branches normalize because arccosine
-   *   near the switch threshold leaves spherical weights inexact.
+   * Progress outside zero through one extrapolates. Near-coincident endpoints
+   * use normalized linear interpolation. Each read returns a fresh unit
+   * rotation.
    */
   export const slerp: (
     a: IAutoMovieQuaternion,
@@ -226,10 +195,10 @@ export namespace AutoMovieEngineQuaternion {
   ): IAutoMovieQuaternion => interpolateSlerp(a, b, t);
 
   /**
-   * Prepare repeated progress reads between snapshots of two unit rotations.
-   * Preparation fixes the shorter arc and its angular weight denominator. Each
-   * returned rotation depends only on progress, including extrapolation outside
-   * [0, 1].
+   * Snapshot two unit rotations for repeated shortest-arc interpolation.
+   *
+   * The reader depends on progress and the stored endpoints. Later endpoint
+   * edits do not affect it. Progress can extrapolate beyond zero through one.
    */
   export function prepareSlerp(
     a: IAutoMovieQuaternion,
@@ -258,21 +227,10 @@ export namespace AutoMovieEngineQuaternion {
   }
 
   /**
-   * The angle of the rotation that takes `a` to `b`, in radians within `[0,
-   * π]`: the geodesic distance between the two rotations. `q` and `-q` are the
-   * same rotation, so negating either argument changes nothing.
+   * Measure the shortest angle between two unit rotations in radians.
    *
-   * The angle is `2 atan2(|v|, |w|)` of `inverse(a) * b`. The shorter `2 acos
-   *
-   * |a · b|` reads an angle from a cosine's deficit from 1, which binary64
-   *
-   * Resolves only to about 1.1e-16: angles below about 3e-8 radian collapse to
-   * 0 or a few steps that size. The relative vector part keeps full relative
-   * precision, which candidate ranking needs for mirrored inputs.
-   *
-   * @param a Unit rotation.
-   * @param b Unit rotation.
-   * @returns The angle in radians.
+   * The result is from zero through pi. Negating either quaternion leaves its
+   * geometric rotation and separation unchanged.
    */
   export const angle: (
     a: IAutoMovieQuaternion,
@@ -282,10 +240,11 @@ export namespace AutoMovieEngineQuaternion {
   };
 
   /**
-   * Read angle(normalize(a), b), in radians, without a normalized output
-   * record. Both the initial normalize and inverse's conjugate normalization
-   * execute exactly as in that expression; zero/nonfinite behavior remains
-   * arithmetic.
+   * Measure the shortest angle after independently normalizing the first
+   * quaternion.
+   *
+   * This performs the first normalization and then the angle calculation,
+   * retaining their separate rounding and zero/nonfinite behavior.
    */
   export function angleAfterNormalize(
     a: IAutoMovieQuaternion,

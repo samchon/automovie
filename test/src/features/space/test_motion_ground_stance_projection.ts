@@ -102,10 +102,8 @@ const gait: IAutoMovieMotion = {
  * - The unplanted path skates; the planted stance holds and clears the same height plane.
  * - A heightfield and two explicit ramp anchors describe the same rise.
  * @evidence contracts/development/testing.md#behavioral-verification Checks raw and corrected motion with the public skate and penetration validators.
- * @evidence contracts/development/testing.md#independent-expectations Half the travelled distance times the physical slope is the midpoint elevation.
- * @evidence contracts/development/testing.md#distinguishing-cases Uses both ground representations without duplicating skeletons or actions.
- * @evidence contracts/development/testing.md#execution-ownership Uses one synthetic leg with its analytical rest flexion.
- * @evidence contracts/development/common.md#meaningful-documentation States the ground and contact expectations in metres.
+ * @evidence contracts/development/testing.md#independent-expectations The authored incline gives midpoint elevation as half the horizontal travel times its slope. The two fixture representations specify that plane independently. Skate and penetration are evaluated by the public validators against the same synthetic leg.
+ * @evidence contracts/development/common.md#meaningful-documentation Compares raw and planted motion against one inclined plane. Exercises a heightfield and an equivalent pair of ramp anchors and checks midpoint support height and contact motion.
  */
 export function test_motion_ground_stance_projection(): void {
   const relief: IAutoMovieSpace = {

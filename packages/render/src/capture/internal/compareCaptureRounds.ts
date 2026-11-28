@@ -13,6 +13,7 @@ import type {
 
 import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture";
 import { AutoMovieRenderRasterSheet } from "../../picture/AutoMovieRenderRasterSheet";
+import { projectedRasterKey } from "../../scene/inspection/internal/projectedRasterKey";
 import { diffCaptureFindings } from "./diffCaptureFindings";
 import { markCaptureCell } from "./markCaptureCell";
 import { planCaptureLayout } from "./planCaptureLayout";
@@ -22,10 +23,10 @@ import { planCaptureLayout } from "./planCaptureLayout";
  * difference image for every changed pair, and lay every pair on comparison
  * sheets.
  *
- * Under `cell`, two cells pair when their selection, second, view and pass
+ * Under `cell`, two cells pair when their selection, exact clock, view and pass
  * agree; when both state a resolved camera and the cameras differ, the cells
  * stay unmatched, because a view that fits itself to its subject can resolve to
- * another camera. Under `time`, cells pair by second, pass and selection. A
+ * another camera. Under `time`, cells pair by exact second, clock role, pass and selection. A
  * unique pair may have different views, as when an encoded file is compared
  * with its drawn source. Where a key repeats, only unique equal views pair.
  * Surplus, incompatible or ambiguous rows are reported as unmatched. A pair
@@ -277,10 +278,18 @@ function groupRows(
 }
 
 /*
- * One capture-clock address, in seconds rounded to comparison precision.
+ * The exact sample clock. Cell matching also requires the native index.
  */
-function second(row: IAutoMovieCaptureCellRecord): string {
-  return row.time.seconds.toFixed(6);
+function clockAddress(
+  row: IAutoMovieCaptureCellRecord,
+  match: IAutoMovieCaptureComparisonProps["match"],
+): string {
+  const { seconds, frame } = row.time;
+  return JSON.stringify([
+    seconds,
+    frame === null ? "continuous" : "native",
+    match === "cell" ? frame : null,
+  ]);
 }
 
 /*
@@ -296,7 +305,7 @@ function pairRows(
     { earlier, current },
     (row: IAutoMovieCaptureCellRecord): string =>
       JSON.stringify([
-        second(row),
+        clockAddress(row, match),
         row.pass,
         row.selection.kind,
         row.selection.kind === "whole"
@@ -306,9 +315,9 @@ function pairRows(
       ]),
   );
   const earlierSeconds: Set<string> | null =
-    match === "time" ? new Set(earlier.map(second)) : null;
+    match === "time" ? new Set(earlier.map((row) => clockAddress(row, match))) : null;
   const currentSeconds: Set<string> | null =
-    match === "time" ? new Set(current.map(second)) : null;
+    match === "time" ? new Set(current.map((row) => clockAddress(row, match))) : null;
   const matched: Set<IAutoMovieCaptureCellRecord> = new Set();
   const counterparts: Map<
     IAutoMovieCaptureCellRecord,
@@ -351,13 +360,13 @@ function pairRows(
       continue;
     }
     for (const row of oldOnly)
-      if (currentSeconds?.has(second(row)))
+      if (currentSeconds?.has(clockAddress(row, match)))
         causes.set(
           row,
           "this capture has no remaining cell with the same pass and selection at this second",
         );
     for (const row of currentOnly)
-      if (earlierSeconds?.has(second(row)))
+      if (earlierSeconds?.has(clockAddress(row, match)))
         causes.set(
           row,
           `round ${round} has no remaining cell with the same pass and selection at this second`,
@@ -460,6 +469,7 @@ function inspectionCameraSettings(text: string): string | null {
     metresPerPixel,
     near,
     far,
+    projectionIdentity,
     ...extra
   }: Partial<IAutoMovieInspectionCamera> = parsed;
   if (
@@ -483,6 +493,8 @@ function inspectionCameraSettings(text: string): string | null {
     )
   )
     return null;
+  const exact: string | null = projectedRasterKey(projectionIdentity);
+  if (projectionIdentity !== undefined && exact === null) return null;
   return JSON.stringify([
     projection,
     [position.x, position.y, position.z],
@@ -492,6 +504,7 @@ function inspectionCameraSettings(text: string): string | null {
     metresPerPixel,
     near,
     far,
+    exact,
   ]);
 }
 

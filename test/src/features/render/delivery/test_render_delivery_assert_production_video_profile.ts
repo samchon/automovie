@@ -13,6 +13,10 @@ import { createProductionVideoProbe } from "../../internal/createProductionVideo
  *    sample count, a first decode time past 0, a non-unity matrix, a colour
  *    other than the profile's and a partial edit are each refused, naming the
  *    first mismatching field.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Requires the commissioned MP4 raster, brands, sample count, starting decode time, orientation, color and edits.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls video-profile admission on one matching probe and probes that change each checked field independently.
+ * @evidence contracts/development/testing.md#independent-expectations The literal 24-frame profile and expected mismatching field for each invalid probe verify response specificity.
  */
 export function test_render_delivery_assert_production_video_profile(): void {
   const expected = AutoMovieRenderDelivery.resolveVideoProfile({

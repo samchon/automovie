@@ -38,6 +38,8 @@ export function weldMeshVertices(
 const axisLabel: (coordinate: number) => string = (
   coordinate: number,
 ): string => {
+  if (!Number.isFinite(coordinate))
+    throw new Error("Mesh welding requires complete finite XYZ tuples.");
   const rounded: number = Math.round(coordinate * AutoMovieEngineMeshWeldGrid);
   return Math.abs(rounded) <= Number.MAX_SAFE_INTEGER
     ? String(rounded || 0)

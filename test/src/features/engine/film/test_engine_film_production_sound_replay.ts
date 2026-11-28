@@ -11,6 +11,10 @@ import { nclose } from "../../internal/nclose";
  * 1. A 120ms plan with one 80ms cue repeats byte-for-byte without changing input.
  * 2. Advancing the cue's source offset by 20ms changes its waveform while
  *    preserving film extent and exact silence before the cue starts at 20ms.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the fixed plan, byte-identical repeat, shifted source phase, and unchanged extent and leading silence.
+ * @evidence contracts/development/testing.md#behavioral-verification The test renders one plan twice, compares the PCM buffers and authored input fields, then renders a variant whose only change is source offset. It checks waveform difference, audible cue and exact leading silence.
+ * @evidence contracts/development/testing.md#independent-expectations At 48 kHz the 120 ms runtime is 5,760 stereo frames and the 20 ms presentation start leaves 960 silent frames. Advancing a source offset applies to the waveform after that start, so neither duration nor leading silence can change.
  */
 export function test_engine_film_production_sound_replay(): void {
   const plan: IAutoMovieProductionSoundPlan = {

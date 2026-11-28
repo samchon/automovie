@@ -51,6 +51,10 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
  *    endpoint curvature formula (`AutoMovieEngineConicArcField.curvature`) at least
  *    once and at most eight times, the four quarters' own ends, read by V8's
  *    precise coverage in this process.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the generic composition comparison, implicit ellipse, ownership, end failure order and curvature-work budget.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the section field readers and generic conic constructors, captures propagated callback failures and observes the endpoint curvature call count with V8 coverage.
+ * @evidence contracts/development/testing.md#independent-expectations The implicit ellipse supplies independent radius checks. Four quarter arcs have eight endpoints, which bounds one curvature computation per end. Equal own and shared curvature requires no replacement.
  */
 export async function test_engine_geometry_conic_preparation(): Promise<void> {
   const inputs = (

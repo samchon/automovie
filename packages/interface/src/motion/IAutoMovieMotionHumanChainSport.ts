@@ -134,9 +134,10 @@ export interface IAutoMovieMotionHumanChainSport extends IAutoMovieMotionHumanCh
   racket(params: IAutoMovieMotionHumanRacket.IParams, anchor?: string): this;
 
   /**
-   * Swim on a declared water plane: tread water or swim the front crawl.
+   * Append a stroke, stationary tread, float, or scripted falter on a
+   * horizontal water plane. A dog-paddle course can turn as it advances.
    *
-   * @param params The stroke, the water's height and the cycles.
+   * @param params The action, water height, cycle count, pace and optional turn.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */

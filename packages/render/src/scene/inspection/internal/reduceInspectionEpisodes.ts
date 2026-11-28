@@ -20,7 +20,10 @@ export function reduceInspectionEpisodes(
   packets: Iterable<IAutoMovieInspectionDiagnostics>,
   expectedOutputFrames?: number,
 ): IAutoMovieInspectionDiagnostics.IAudit {
-  if (expectedOutputFrames !== undefined && expectedOutputFrames < 1)
+  if (
+    expectedOutputFrames !== undefined &&
+    (!Number.isSafeInteger(expectedOutputFrames) || expectedOutputFrames < 1)
+  )
     throw new Error(
       "Expected inspection output frames must be a positive integer.",
     );
@@ -34,7 +37,11 @@ export function reduceInspectionEpisodes(
   let observedOutputFrames: number = 0;
   for (const packet of packets) {
     const { time } = packet;
-    if (time.filmSeconds < 0 || time.filmSeconds < filmSeconds)
+    if (
+      !Number.isFinite(time.filmSeconds) ||
+      time.filmSeconds < 0 ||
+      time.filmSeconds < filmSeconds
+    )
       throw new Error(
         "Inspection samples must be ordered by finite film seconds.",
       );
@@ -43,6 +50,7 @@ export function reduceInspectionEpisodes(
     const frame: number | undefined = time.outputFrame;
     if (frame !== undefined) {
       if (
+        !Number.isSafeInteger(frame) ||
         frame < 0 ||
         (expectedOutputFrames !== undefined && frame >= expectedOutputFrames)
       )
@@ -277,7 +285,10 @@ function sameCoverage(
 ): boolean {
   if (
     previous.required !== current.required ||
-    previous.status !== current.status
+    previous.status !== current.status ||
+    previous.basis !== current.basis ||
+    previous.paths?.length !== current.paths?.length ||
+    previous.paths?.some((path, index) => path !== current.paths?.[index]) === true
   )
     return false;
   if (previous.status === "checked" || current.status === "checked")

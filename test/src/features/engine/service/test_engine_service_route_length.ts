@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. (0,0,0) → (3,4,0) → (3,4,12): 5 + 12 = 17 m.
  * 2. One point: 0.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineService.routeLength with typed two-piece and single-point segment routes and checks their lengths in metres.
+ * @evidence contracts/development/testing.md#independent-expectations The first displacement has length √(3² + 4²) = 5 m and the second is 12 m along Z, so the sum is 17 m. One point has no consecutive pair and contributes zero.
+ * @evidence contracts/development/common.md#meaningful-documentation The bent route measures consecutive pieces, while the singleton supplies the zero-length case.
  */
 export function test_engine_service_route_length(): void {
   const segment: (

@@ -3,27 +3,22 @@ import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, type IAutoMovieArchetypeBand } from "../core/index";
 import { AutoMovieArchetypeHatchData } from "./internal/AutoMovieArchetypeHatchData";
 
-/** Constructs the hatch archetype from its recipe. */
+/**
+ * Constructs a steel roof hatch with a hinged cover, underside push site and fixed opening.
+ */
 export namespace AutoMovieArchetypeHatch {
 /**
- * A ladder access roof hatch: a curb round an opening in the roof, under a
- * cover hinged on its far side from the ladder.
+ * Build a steel roof hatch with its curb at model Y zero.
  *
- * The roof deck is the `XZ` plane, the opening centred on the origin, its
- * length along `X` and its width along `Z`, the ladder rising at its `+Z` side
- * and the hinge along its `-Z` side. The curb's four walls stand on the deck
- * round the opening; the cover lies on them. `hinge` is the cover's hinge, a
- * positive travel lifting the cover's `+Z` edge to the maker's 70 degrees;
- * `push` is the cover's underside, where a climber's hand pushes it open,
- * riding the hinge; `opening` is the clear opening over the curb, passed
- * through upward, its frame on the ladder's edge with its height running across
- * the opening to the hinge.
+ * The `hinge` runs along the `-Z` curb and turns the cover through
+ * 70 degrees around `-X`, raising the `+Z` edge. The underside `push`
+ * travels with the cover. The opening stays on the fixed curb plane.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The hatch.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Optional scene ID and finite mass within the band.
+ *   The default ID is `hatch`.
+ * @param seed Numeric seed for omitted mass. Omission uses 66.5 kilograms.
+ * @returns The hatch with a fixed 0.762 by 0.9144 metre roof opening.
+ * @throws {AutoMovieArchetypeRefusal} If a fixed mass is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeHatch.IParams = {},
@@ -108,37 +103,26 @@ export function create(
   return builder.build(d.mass);
 }
 
-  /**
-   * The affordance ids:
-   *
-   * - `hinge`: the cover's hinge along the `-Z` side; its travel lifts the
-   *   cover's `+Z` edge.
-   * - `push`: the cover's underside over the opening, facing down, riding the
-   *   hinge.
-   * - `opening`: the clear opening over the curb, passed through along `+Y`.
-   */
+  /** Cover `hinge`, its moving underside `push`, and fixed roof `opening`. */
   export type Affordance = "hinge" | "push" | "opening";
 
-  /** The free dimension: `mass`, kilograms. */
+  /** The hatch's authorable whole mass in kilograms. */
   export type Dimension = "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Kilograms for the hatch's mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     mass: "kg",
   };
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /** Optional scene ID and finite mass in the hatch band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `hatch` when absent. */
+    /** Scene object ID, defaulting to `hatch`. */
     id?: string;
   }
 
-  /**
-   * The band of each free dimension: the aluminium hatch's mass to the steel
-   * one's.
-   */
+  /** The admitted 50 to 83 kilogram range for the fixed roof hatch. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     mass: AutoMovieArchetypeBand.of("kg", 50, 83, AutoMovieArchetypeHatchData.BILCO),
   };

@@ -27,6 +27,10 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  *    most half a degree).
  * 2. Without a profile (the straight chord) the same reading at column 0 exceeds
  *    20 degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the diagonal fork departure, G1 agreement and the straight-chord crease control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes curved and straight seams, measuring the band's cross direction and normals on the same host fork.
+ * @evidence contracts/development/testing.md#independent-expectations The normalized sum of the host's outward station direction and band ruling fixes the diagonal. G1 requires matching surface normals within the independently stated angular sampling bound.
  */
 export function test_engine_geometry_split_seam_fork(): void {
   const m: number = S.COLUMNS / 2;

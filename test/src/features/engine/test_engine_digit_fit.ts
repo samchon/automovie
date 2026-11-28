@@ -152,9 +152,7 @@ const fit = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine's digit fit on generated bodies and measures the displayed tip by forward kinematics.
  * @evidence contracts/development/testing.md#independent-expectations Targets are forward kinematics of in-range angles, so reachable by construction; the bounds are the issue's (0.5 mm, 5 degrees, 1 mm) and the rig's own ranges. The soft band's width follows the cosine rule for the body's link lengths and the exponential soft-IK law, independently of the solver's output.
- * @evidence contracts/development/testing.md#distinguishing-cases In-workspace, out-of-reach, a continuous path through full extension with the reach trade measured, unchanged targets below the band, malformed rates and opposition across four bodies.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test on prepared bodies; no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and the behaviour each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Reachable digit tips, an out-of-range radial target, a swept target and thumb opposition exercise the fit. Authored ranges and invalid radial rates exercise admission.
  */
 export function test_engine_digit_fit(): void {
   const complaints: string[] = [];

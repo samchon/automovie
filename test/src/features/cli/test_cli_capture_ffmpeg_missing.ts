@@ -19,11 +19,9 @@ type FfmpegExport = ReturnType<FfmpegLoad> | undefined;
  * 3. With no `ffmpeg-static` installed, the loader's error, which names `ffmpeg-static`, reaches the caller.
  * 4. An installed `ffmpeg-static` that has no binary for the platform (it exports null) throws naming `FFMPEG_PATH` and `ffmpeg-static`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the resolver with stated environments and package loaders and reads the path or the error; a resolver that loaded the package first, guessed `ffmpeg` on the search path, hid the loader's error, or refused a null export without naming both sources fails.
- * @evidence contracts/development/testing.md#independent-expectations `ffmpeg-static` documents its export as the binary's path or null on an unsupported platform; the issue's case matrix requires the null refusal to name `FFMPEG_PATH` and `ffmpeg-static`.
- * @evidence contracts/development/testing.md#distinguishing-cases The variable set, absent, and blank; the package installed with a path, with null, and missing.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_capture_ffmpeg_missing`; the loader is a function of this test and no process starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names environment precedence, a packaged binary, a missing dependency and a package with no platform binary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the resolver with an explicit, blank or absent environment path and a recording package loader. Checks the chosen path, verifies that an override skips the loader, and checks the names carried by both failure messages.
+ * @evidence contracts/development/testing.md#independent-expectations Uses different literal paths for the environment and package and an empty expected loader call list when the environment wins. Missing-module and null-export fixtures define which source names the respective errors must carry.
  */
 export function test_cli_capture_ffmpeg_missing(): void {
   const loaded: string[] = [];

@@ -71,6 +71,10 @@ function gram(u: readonly (readonly number[])[]): number[][] {
  *    2) up to i, the same numbers as the band.
  * 3. The singular [[1, 1], [1, 1]] leaves a zero radicand on its second row: the
  *    1e-300 floor gives the pivot 1e-150, and `dependent` the pivot 1e32.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines in-place upper-band factorization, packed forward rows and dependent-pivot behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Factors exact tridiagonal, chosen half-bandwidth and singular matrices under ordinary and dependent modes.
+ * @evidence contracts/development/testing.md#independent-expectations The unique positive factor has known 2 and 1 bidiagonal entries. A constructed UᵀU recovers U, and the singular fixture distinguishes pivots 1e-150 and 1e32.
  */
 export function test_motions_posture_quadratic_cholesky(): void {
   // 1. A tridiagonal matrix.

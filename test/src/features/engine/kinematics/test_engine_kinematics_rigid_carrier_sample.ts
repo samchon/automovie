@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An equivalent but differently owned model or socket reader is refused.
  * 3. Replacing either adapted wrapper removes access to both domains and playback
  *    while leaving an independent adapter's metadata in place.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers transfer of the original playback domain, ownership identity and revocation on either wrapper replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Binds and adapts typed prop, model and socket readers, observes domain and playback metadata, and tracks whether callbacks were read.
+ * @evidence contracts/development/testing.md#independent-expectations Only the exact original owner and both source readers identify the domain. A different reader or either replacement lacks that proof, while an independent unchanged adapter retains it.
  */
 export function test_engine_kinematics_rigid_carrier_sample(): void {
   const frame: IAutoMovieRigidTransform = {

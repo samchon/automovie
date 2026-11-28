@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/predicates";
  *    distinct.
  * 3. Unsupported sampler values remain unreported and absent/nonpositive
  *    dimensions refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases distinguish decoded formats, sampler controls, mip states and rejected source extents.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks format projection, independent axes and filters, generation versus explicit mips, and refusal of unsupported sampler facts and invalid dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Uses fixtures with named Three component and sampler constants, manually expected decoded labels and explicit extent values at the validity boundary.
  */
 export async function test_render_scene_read_texture_source_facts(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

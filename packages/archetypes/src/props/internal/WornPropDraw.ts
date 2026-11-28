@@ -7,18 +7,14 @@ import {
 } from "../../core";
 import { WornPropDrawData } from "./WornPropDrawData";
 
-/*
- * The seeded recipes originally published as `createWearable`.
+/**
+ * Admits four wearable measurement records and prepares their geometry builders.
  */
 export namespace WornPropDraw {
-  /*
-   * The kinds.
-   */
+  /** Saved watch, hat, spectacles and cycling helmet selectors. */
   export type Kind = "watch" | "hat" | "spectacles" | "helmet";
 
-  /*
-   * Every kind, for a caller that reads one at run time.
-   */
+  /** The four accepted selectors in gallery order. */
   export const KINDS: readonly Kind[] = [
     "watch",
     "hat",
@@ -26,45 +22,30 @@ export namespace WornPropDraw {
     "helmet",
   ];
 
-  /*
-   * A helmet's foam over the head's crown, metres: an estimate.
-   */
+  /** Estimated foam offset below the cycling helmet's top, 0.02 metres. */
   export const SHELL: number = 0.02;
 
-  /*
-   * A strap's, a brim's and a spectacle frame's thickness, metres: an estimate.
+  /**
+   * Authored thickness of the watch strap, hat brim and spectacles front, 0.004 metres.
    */
   export const THIN: number = 0.004;
 
-  /*
-   * A watch strap's width, metres: an estimate.
-   */
+  /** Estimated width of the watch's straight strap, 0.02 metres. */
   export const STRAP: number = 0.02;
 
-  /*
-   * The affordance ids:
-   *
-   * - `hold`: where the fingers take it.
-   * - `wear`: the socket the wrist, the head or the nose goes into, `+Y` toward
-   *   it.
-   * - `face`: a watch's dial, facing up.
+  /**
+   * A hold and wear site for all four props, and an upward dial face on the wristwatch.
    */
   export type Affordance = "hold" | "wear" | "face";
 
-  /*
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`: a watch case's across, a brim's diameter, the spectacles' front
-   *   across.
-   * - `depth`: a strap's length, a crown's diameter, a temple's length.
-   * - `height`: a case's thickness, a hat's height, the front's height.
-   * - `mass`: kilograms.
+  /**
+   * Width, depth and height describe each form's selected geometry in
+   * metres. Mass records kilograms. The band table specifies the physical
+   * meaning of each value for the kind.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /*
-   * Each dimension's unit, which its band and any model's figure for it share.
-   */
+  /** Shared physical units for the four wearable dimension records. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -74,24 +55,20 @@ export namespace WornPropDraw {
     mass: "kg",
   };
 
-  /*
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+  /**
+   * Saved selector, optional scene ID and finite per-form measurement settings.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /*
-     * Which thing.
-     */
+    /** Selects the physical wearable and its measurement ranges. */
     kind: Kind;
 
-    /*
-     * The model's id, unique in a scene; `wearable` when absent.
-     */
+    /** Scene object ID, defaulting to `wearable`. */
     id?: string;
   }
 
-  /*
-   * The band of each free dimension, by kind.
+  /**
+   * Ranges for the watch case and strap, hat brim and crown, spectacle
+   * frame and temples, and helmet shell. Each kind also records its mass.
    */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
@@ -157,31 +134,29 @@ export namespace WornPropDraw {
     },
   };
 
-  /*
-   * What prepare prepares for its caller.
+  /**
+   * Prepared geometry builder and complete admitted measure record from one draw.
    */
   export interface IPrepareResult<Id extends Affordance> {
-    /*
-     * The prepared `builder` this call returns.
+    /**
+     * Empty wearable builder carrying the scene ID and shared draw provenance.
      */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /*
-     * The prepared `d` this call returns.
+    /**
+     * Complete finite width, depth, height and mass used by the named producer.
      */
     d: Record<Dimension, number>;
   }
 
-  /*
-   * Prepare an empty builder and the previously recorded wearable dimensions.
-   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
-   * ID, and a model where the saved recipe has one.
-   * Parameter seed: The seed that draws the saved dimensions and model, or
-   * undefined for the original defaults.
-   * Parameter kind: The saved kind whose recipe is used.
-   * Returns: The builder and dimensions the named producer reads.
-   * When the model or a fixed parameter
-   * lies outside its admitted recipe.
+  /**
+   * Admit the dimensions for one saved wearable shape.
+   *
+   * @param kind Selector for the applicable measurement record.
+   * @param params Optional ID and finite fixed values accepted by that record.
+   * @param seed Numeric seed or undefined for the original band defaults.
+   * @returns The four admitted dimensions and a builder using the same draw.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,

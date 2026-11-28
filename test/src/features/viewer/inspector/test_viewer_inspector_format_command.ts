@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *    Single-quoted module and request arguments double literal ASCII and smart
  *    single quotes and keep the dollar sign literal.
  * 4. A supplied PowerShell script prefix with plain arguments is sent as is.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the plain invocation and quoted arguments, including PowerShell executable and path handling.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes structured command arguments into the formatter and compares the emitted shell text without launching either command.
+ * @evidence contracts/development/testing.md#independent-expectations Expected literals encode spaces and embedded quotes in their respective shell syntax. Distinct executable and script-prefix cases establish when PowerShell needs the invocation operator.
  */
 export function test_viewer_inspector_format_command(): void {
   TestValidator.equals(

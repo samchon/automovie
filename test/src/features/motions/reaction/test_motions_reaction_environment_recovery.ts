@@ -8,17 +8,20 @@ import { throwsError } from "../../internal/throwsError";
 import { vclose } from "../../internal/vclose";
 
 /**
- * The `planEnvironmentRecovery` law's cues (`environmentRecoveryCue`): a trip
- * hands the body 0.28 of the swinging toe's forward speed along the heading; a
- * slip hands it 0.18 of the relative horizontal load times the friction's
- * shortfall `1 - μ / μ_required`, along the sole's slide.
+ * Check how nearby obstacles and insufficient traction contribute recovery
+ * cues.
  *
  * Scenarios:
  *
- * 1. A toe 1 cm from the kerb swinging at 2 m/s, heading 90, trips at 0.56 m/s
- *    along +X; one 5 cm clear, or at rest, is refused.
- * 2. A 3-4 load (5 m/s²) needing μ 0.5 on a 0.2 surface, sliding along +Z, slips
- *    at 0.18 · 5 · 0.6 = 0.54 m/s along +Z; a surface of 0.6 carries it.
+ * 1. At heading 90 degrees, a toe moving at 2 m/s within 1 cm of the kerb
+ *    trips at 0.56 m/s along +X. Refuse a toe 5 cm away or stationary.
+ * 2. With a 3-4 load and +Z sole motion, a friction coefficient of 0.2
+ *    against the required 0.5 gives a 0.54 m/s cue. At 0.6 the surface
+ *    carries the load.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the obstacle and traction conditions and resulting cue units.
+ * @evidence contracts/development/testing.md#behavioral-verification The tests assert the cue direction, severity and eligibility from distinct physical inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The expected trip speed is `0.28 * 2`, and the slip uses the 3-4-5 magnitude and `0.18 * 5 * (1 - 0.2 / 0.5)`.
  */
 export function test_motions_reaction_environment_recovery(): void {
   const trip: environmentRecoveryCue.ICue = environmentRecoveryCue.trip(

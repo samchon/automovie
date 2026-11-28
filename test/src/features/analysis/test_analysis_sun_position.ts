@@ -27,22 +27,24 @@ import { throwsError } from "../internal/throwsError";
  * 4. Out-of-domain inputs throw naming the field: latitude 91, month 13, 29
  *    February of 2025, pressure 0 and temperature -300; 29 February of 2024, a
  *    leap year, is accepted.
+ * 5. Nonfinite site and atmosphere values and fractional integer UTC fields throw
+ *    naming the field. A fractional second, second 60 and equivalent longitudes
+ *    apart by one turn are admitted.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported solver on calendar instants and asserts its zenith, azimuth and elevation, the refraction gate through pressure sensitivity, and its refusals; a wrong Julian Day, sidereal time, azimuth convention or refraction gate moves these angles by far more than the tolerance.
  * @evidence contracts/development/testing.md#independent-expectations The first case's values are the published example of Reda and Andreas 2004 (NREL/TP-560-34302, table A5.1); the 0.02-degree tolerance is the issue's bound on the low-accuracy method. The equinox case follows from declination near zero and an equation of time near -7.5 minutes. Refraction proportional to pressure is the cited equation 42's form, not the implementation's output.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a mid-latitude afternoon, a near-zenith equinox noon, a sun below and above the refraction floor, and each class of refused field with a leap-year twin that must pass. Direction in world space belongs to test_analysis_sun_direction.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name; no host, file or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with their inputs and expected angles or refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation Compares the solver to the published Reda and Andreas site and an equatorial equinox. Exercises pressure-sensitive refraction, finite site inputs, integral civil fields, fractional seconds and the inclusive leap-second bound.
  */
 export function test_analysis_sun_position(): void {
-  const example: IAutoMovieSunPosition = AutoMovieEngineEnvironment.solveSunPosition({
-    latitude: 39.742476,
-    longitude: -105.1786,
-    elevation: 1830.14,
-    pressure: 820,
-    temperature: 11,
-    utc: utc(2003, 10, 17, 19, 30, 30),
-  });
+  const example: IAutoMovieSunPosition =
+    AutoMovieEngineEnvironment.solveSunPosition({
+      latitude: 39.742476,
+      longitude: -105.1786,
+      elevation: 1830.14,
+      pressure: 820,
+      temperature: 11,
+      utc: utc(2003, 10, 17, 19, 30, 30),
+    });
   TestValidator.predicate(
     "published example zenith",
     nclose(example.zenith, 50.11162, 0.02),
@@ -56,11 +58,12 @@ export function test_analysis_sun_position(): void {
     nclose(example.elevation, 90 - example.zenith, 1e-12),
   );
 
-  const equinox: IAutoMovieSunPosition = AutoMovieEngineEnvironment.solveSunPosition({
-    latitude: 0,
-    longitude: 0,
-    utc: utc(2025, 3, 20, 12, 0, 0),
-  });
+  const equinox: IAutoMovieSunPosition =
+    AutoMovieEngineEnvironment.solveSunPosition({
+      latitude: 0,
+      longitude: 0,
+      utc: utc(2025, 3, 20, 12, 0, 0),
+    });
   TestValidator.predicate(
     "equinox noon at the equator is near the zenith",
     equinox.zenith >= 0 && equinox.zenith < 3,
@@ -129,6 +132,55 @@ export function test_analysis_sun_position(): void {
       temperature: true,
       leap: false,
     },
+  );
+  for (const value of [NaN, Infinity, Number.NEGATIVE_INFINITY])
+    for (const field of [
+      "longitude",
+      "elevation",
+      "pressure",
+      "temperature",
+    ] as const)
+      TestValidator.predicate(
+        `nonfinite ${field} is refused for ${value}`,
+        refuses({ [field]: value }, field),
+      );
+  for (const [field, value] of [
+    ["year", 2025.5],
+    ["year", Infinity],
+    ["month", 3.5],
+    ["day", 20.5],
+    ["hour", 12.5],
+    ["minute", 30.5],
+    ["second", Infinity],
+  ] as const)
+    TestValidator.predicate(
+      `invalid UTC ${field} is refused for ${value}`,
+      refuses(
+        { utc: { ...utc(2025, 3, 20, 12, 0, 0), [field]: value } },
+        `utc.${field}`,
+      ),
+    );
+  const at: (
+    longitude: number,
+    minute: number,
+    second: number,
+  ) => IAutoMovieSunPosition = (
+    longitude: number,
+    minute: number,
+    second: number,
+  ): IAutoMovieSunPosition =>
+    AutoMovieEngineEnvironment.solveSunPosition({
+      latitude: 0,
+      longitude,
+      utc: utc(2025, 3, 20, 12, minute, second),
+    });
+  TestValidator.predicate(
+    "an additional full longitude turn preserves the elevation",
+    nclose(at(375, 30, 30.25).elevation, at(15, 30, 30.25).elevation, 1e-9),
+  );
+  TestValidator.predicate(
+    "second sixty maps to the following minute in the Julian-day formula",
+    nclose(at(15, 30, 60).elevation, at(15, 31, 0).elevation, 1e-9),
   );
 }
 

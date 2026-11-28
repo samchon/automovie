@@ -1,14 +1,12 @@
 /**
  * Qualification and measured work of contour interaction refinement.
  *
- * RefineAutoMovieContourInteractions64 projects a common planar section onto
- * its dominant coordinate plane and classifies represented binary64 chords by
- * exact dyadic orientation signs. Contacted curved source restrictions may be
- * split while preserving endpoint identity and the supplied physical tolerance.
- * Linear contacts and exhausted refinement remain explicit unresolved results.
- * Input rings and source callbacks must already be admitted; callback and
- * arithmetic failures can throw, and the surrounding preparation stage records
- * those failures separately instead of fabricating a successful result.
+ * Refinement chooses a coordinate projection from the first selected ring and
+ * classifies its represented chords by exact dyadic orientation signs.
+ * Contacted curved restrictions can be split at their source phases. Linear
+ * contact and exhausted refinement remain unresolved. Supply admitted rings in
+ * a common planar section and source callbacks. Surrounding preparation records
+ * callback and arithmetic failures.
  */
 export namespace IAutoMovieRefineContourInteractions64 {
   /**
@@ -18,9 +16,8 @@ export namespace IAutoMovieRefineContourInteractions64 {
    */
   export type IResult = {
     /**
-     * No unresolved represented chord contact remained when refinement ended.
-     * Successful separation after earlier contact can still leave trace
-     * messages.
+     * No unresolved chord contact remained in the chosen projection. The trace
+     * can still record contact that was subsequently separated.
      */
     qualified: boolean;
     /**

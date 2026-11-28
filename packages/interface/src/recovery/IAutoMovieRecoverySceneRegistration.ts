@@ -1,26 +1,26 @@
-/** Source-order registration status against the last accepted checkpoint. */
+/**
+ * Current registration coverage for one original source at the scene's final
+ * accepted revision.
+ */
 export interface IAutoMovieRecoverySceneRegistration {
-  /** Index in the fixed source array. */
+  /** Index of this camera in the original source array. */
   viewIndex: number;
 
-  /** Current accepted checkpoint status, not an attempted pose. */
+  /** Current registration disposition at the final accepted revision. */
   status: "registered" | "insufficient-support" | "refused" | "not-attempted";
 
-  /**
-   * Distinct existing landmark/target feature pairs at the final accepted
-   * revision.
-   */
+  /** Number of distinct landmark and target-feature pairs at the final revision. */
   candidates: number;
 
   /**
-   * Latest attempt ledger index for this source, possibly at an earlier
-   * revision; null if never attempted.
+   * Latest index in `attempts` for this source, or null if it never entered the
+   * ledger.
    */
   lastAttempt: number | null;
 
   /**
-   * Current status or same-revision refusal reasons; historical details stay in
-   * attempts.
+   * Current coverage reasons, including a same-revision attempt's refusal
+   * reasons when applicable.
    */
   reasons: string[];
 }

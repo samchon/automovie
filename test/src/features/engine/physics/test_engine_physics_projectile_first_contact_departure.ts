@@ -50,6 +50,10 @@ const DRAG_RETURN: number = 1e-3;
  *    shared-resolver clearance certificates throw.
  * 6. A box in a fixed frame departs by its supporting plane and is met again at
  *    2v/g; the same box read through an opaque pose keeps the contact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies which resolved contacts may depart without shifting the launch clock and distinguishes reentry, unrelated collisions and invalid proof.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries plane and placed-shape contact with stationary, outgoing and accelerating trajectories, then feeds a measured impact into actual continuation.
+ * @evidence contracts/development/testing.md#independent-expectations Drag-free return is 2v/g, an independent atan/acosh expression bounds drag return within 1 ms, and other collider times retain their distance-over-speed or initial-contact expectations.
  */
 export function test_engine_physics_projectile_first_contact_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

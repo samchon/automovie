@@ -31,9 +31,7 @@ import { createCaptureMemory } from "./createCaptureMemory";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public run with a draw function that fails and one that draws the wrong raster, then reads the record and the decoded sheet; a run that stopped at the failure, dropped the cell, wrote a blank still or resized the wrong raster fails.
  * @evidence contracts/development/testing.md#independent-expectations The failures and colours are the ones this test makes; the marked colour is the documented marker, and the sheet cell positions follow from three 64 by 36 cells in one row, which fit a 1568 px budget unreduced, with a strip of two lines of the scale-1 font, 15 px, under each, because the longest caption, `f10 1.000s not drawn`, wraps at 15 characters.
- * @evidence contracts/development/testing.md#distinguishing-cases A drawn cell, a throwing draw and a wrong raster in one run. The successful order of files is owned by `test_capture_run_order`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_run_failed_cell`; it draws in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation A successful draw and two different failed draws produce ordered rows, distinct sheet cells and a file list containing the one successful still.
  */
 export async function test_capture_run_failed_cell(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();

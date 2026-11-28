@@ -46,6 +46,10 @@ function broken(
  * 11. Both unmapped profile keys are listed in one round (pivot and mirror).
  * 12. Inherited constructor/toString/**proto** properties do not supply a semantic
  *     mapping; an explicit own mapping of the same spelling passes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the owner paths for model, articulation and binding defects, with inherited and explicit mapping controls.
+ * @evidence contracts/development/testing.md#behavioral-verification The test changes a known forge spec one fault at a time and calls the real prop gate. It checks complete findings, missing mapping coverage and a valid explicit binding for inherited-name spellings.
+ * @evidence contracts/development/testing.md#independent-expectations Authored IDs and parent edges determine model joins and graph faults independently. Both pivot and mirror are unmapped in the collection case, so both addresses must appear. Only own explicit keys identify a mapping even when their spelling exists on a prototype.
  */
 export function test_engine_film_forge_prop_gates(): void {
   for (const key of ["constructor", "toString", "__proto__"]) {

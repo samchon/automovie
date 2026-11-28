@@ -15,13 +15,15 @@ import { AutoMovieArchetypeBoxData } from "./internal/AutoMovieArchetypeBoxData"
 /** Constructs the box archetype from its recipe. */
 export namespace AutoMovieArchetypeBox {
 /**
- * A cardboard box carried in two hands.
+ * Build a cardboard carton with two side contacts and a stacking face.
  *
- * The box stands on the floor at the origin, its width along `+X`. A hand takes
- * each side at half height, so the two grips are the box's width apart; its top
- * is a face another box rests on.
+ * The box's width is along +X and its bottom is at y = 0. With
+ * `sideHandles: true`, two round bars run along the depth at half height,
+ * with mounts that join them to the carton. The `left` and `right` affordances
+ * sit at the bar centres. The default places those affordances on the carton
+ * walls and uses a single box collider.
  *
- * @param params The load and any dimension the author fixes.
+ * @param params Load, fixed dimensions, and whether to add round side handles.
  * @param seed The seed that draws every dimension left free inside its band;
  *   absent, each takes the middle of its band.
  * @returns The box.
@@ -79,20 +81,61 @@ export function create(
   for (const [id, sign] of [
     ["left", 1],
     ["right", -1],
-  ] as const)
+  ] as const) {
+    const wall = (sign * width) / 2;
+    const y = height / 2;
+    if (params.sideHandles !== true) {
+      builder.affordance({
+        id,
+        kind: "handle",
+        symmetry: "none",
+        frame: AutoMovieArchetypeFrame.facing(
+          AutoMovieEngineVector3.create(wall, y, 0),
+          AutoMovieEngineVector3.create(sign, 0, 0),
+          AutoMovieEngineVector3.create(0, 0, 1),
+        ),
+        extent: null,
+        grip: "two-hand",
+        length: depth,
+      });
+      continue;
+    }
+    const center = wall + sign * 0.065;
+    const radius = 0.018;
+    const halfLength = 0.11;
+    const point = (x: number, z: number) => AutoMovieEngineVector3.create(x, y, z);
+    builder.rod(
+      id + "-handle",
+      radius,
+      point(center, -halfLength),
+      point(center, halfLength),
+      { round: true, color: "#8e633c" },
+    );
+    for (const end of [-1, 1] as const) {
+      const z = end * halfLength;
+      builder.rod(
+        id + "-handle-mount-" + end,
+        0.012,
+        point(wall, z),
+        point(center, z),
+        { color: "#8e633c" },
+      );
+    }
     builder.affordance({
       id,
       kind: "handle",
-      symmetry: "none",
+      symmetry: "round",
       frame: AutoMovieArchetypeFrame.facing(
-        AutoMovieEngineVector3.create((sign * width) / 2, height / 2, 0),
+        point(center, 0),
         AutoMovieEngineVector3.create(sign, 0, 0),
         AutoMovieEngineVector3.create(0, 0, 1),
       ),
       extent: null,
-      grip: "two-hand",
-      length: depth,
+      grip: "power",
+      aperture: radius * 2,
+      length: halfLength * 2,
     });
+  }
   builder.affordance({
     id: "top",
     kind: "stack-top",
@@ -129,8 +172,8 @@ export function create(
   /**
    * The affordance ids:
    *
-   * - `left`, `right`: the side faces at half height, on `+X` and `-X`, where the
-   *   two hands hold the box.
+   * - `left`, `right`: the +X and -X side walls or the centres of the
+   *   optional round handles, at half height.
    * - `top`: the upper face, on which another object rests.
    * - `front`: the `+Z` face, pushed or leaned on.
    */
@@ -154,16 +197,20 @@ export function create(
     mass: "kg",
   };
 
-  /**
-   * The parameters: the load, and any free dimension fixed to a value inside
-   * its band.
-   */
+  /** Box dimensions, load and the optional supported side handles. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `box` when absent. */
+    /** Scene model id. Uses `box` when omitted. */
     id?: string;
 
-    /** The mass of what the box holds, kilograms, at most 25; empty when absent. */
+    /** Added contents, from zero to 25 kilograms. The default is zero. */
     load?: number;
+
+    /**
+     * Add a round 36 mm-diameter handle supported by two mounts on each
+     * side. The grip is centred along 220 mm of the bar. The default is false
+     * and preserves the side-wall contacts.
+     */
+    sideHandles?: boolean;
   }
 
   /** The band of each free dimension. */

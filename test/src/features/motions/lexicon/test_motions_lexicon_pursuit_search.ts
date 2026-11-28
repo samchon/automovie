@@ -34,6 +34,10 @@ class Recorder {
  *    second and stand as `search1`; a named search with a 1 s pause anchors
  *    `look0` and stands 1 s.
  * 2. Three sweeps run from each anchor's start to its end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines an authored search's ordered walk and stand sequence, anchor names and sweeps within each pause.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds default and custom named routes for specified virtual places and schedules sweeps across their returned anchor times.
+ * @evidence contracts/development/testing.md#independent-expectations Two places yield successive default `search0` and `search1` holds of 2 s. The supplied 1 s pause and prefix change the first to `look0`, and three sweeps occupy the exact anchor span.
  */
 export function test_motions_lexicon_pursuit_search(): void {
   TestValidator.equals(

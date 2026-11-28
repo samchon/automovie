@@ -24,6 +24,10 @@ import { nclose } from "../../internal/nclose";
  * 2. The interval [1/2, 1] gives x = 1.5, 2, 2.5, 3.
  * 3. The interval from 1 to 1/2 gives the same controls reversed.
  * 4. An empty interval is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies whole, restricted and reversed native cubic controls and empty interval refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads all three subinterval orientations from an explicit line and submits an empty interval.
+ * @evidence contracts/development/testing.md#independent-expectations The exact line x(t)=3t has evenly spaced cubic controls. Its upper half therefore gives x=1.5, 2, 2.5, 3.
  */
 export function test_recovery_internal_read_event_curve_controls(): void {
   const net: AutoMovieCubicBezierControls3 = [

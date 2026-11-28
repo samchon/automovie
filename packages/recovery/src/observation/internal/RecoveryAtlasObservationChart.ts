@@ -262,4 +262,4 @@ export function RecoveryAtlasObservationChart(
   });
 }
 type Prepared =
-  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
+  IAutoMovieRecoveryChartBatch.IInput["charts"][number];

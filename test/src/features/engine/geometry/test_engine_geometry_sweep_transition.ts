@@ -34,6 +34,10 @@ type Corner = { s: number; t: number };
  *    1e-12.
  * 4. Subdivided twice, the tube stays within each tier's bounds.
  * 5. An odd difference, more than a doubling and zero rows are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names quads and extraordinary vertices, reflected layouts, tier round trips, cylinder tolerances and invalid transitions.
+ * @evidence contracts/development/testing.md#behavioral-verification Lays out count changes, samples and subdivides the actual tube, transports face coordinates and checks cage incidence and geometry at each tier.
+ * @evidence contracts/development/testing.md#independent-expectations The two authored bands imply their specific valence and end-ring counts. A fixed cylinder supplies independent radial and normal error bounds.
  */
 export function test_engine_geometry_sweep_transition(): void {
   const cage: IAutoMovieSurfaceCage = AutoMovieEngineSweep.sampleSurfaceNetwork({

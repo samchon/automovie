@@ -24,27 +24,25 @@ import type { IAutoMovieRenderReplaceDrawInspectionProps } from "./IAutoMovieRen
  * The draw page's placement of its subject: the current inspection, the framing
  * boxes of fitted views and the dialogue mouths handed to the subject.
  *
- * Every placement it makes is a shot planned by `AutoMovieRenderDraw.planPicture` and
- * placed on its own entry clock by `placeDrawLayer`: the drawn second
- * and each of its trail times as the shot the drawn second's picture shows, and
- * each framing second as the shot its own picture shows. So a trail at a cut's
- * first frame traces only the incoming shot, a trail of a transition's outgoing
- * shot traces that shot, through its handles past its ends, and a fitted view
- * in a dissolve's first half frames the outgoing shot the picture shows.
+ * Every placement it makes is a shot planned by
+ * `AutoMovieRenderDraw.planPicture` and placed on its own entry clock by
+ * `placeDrawLayer`: the drawn second and each framing or trail time as the shot
+ * its own picture shows. Trail segments stop at a change in the displayed
+ * playback entry.
  *
  * `inspect` ends the current inspection before placement, so a subject may
- * replace its objects during a seek, samples each `trail` pattern of the
- * request over `AutoMovieRenderInspection.planTrailTimes`, places the drawn second,
- * calls the caller's observation of the settled scene and binds a fresh
- * inspection to the resulting objects with their current marks and sampled
- * trails. `frame` places and inspects each framing second of a fitted view and
- * frames the union of what the inspection leaves drawn, or its focus, measured
- * once per view text, selection and span of seconds. `restore` ends the current
- * inspection before the host places the scene itself.
+ * replace its objects during a seek, samples all `trail` patterns of the
+ * request in one pass, places the drawn second, calls the caller's observation
+ * of the settled scene and binds a fresh inspection to the resulting objects
+ * with their current marks and sampled trails. `frame` places and inspects each
+ * framing second of a fitted view and frames the union of what the inspection
+ * leaves drawn, or its focus, measured once per view text, selection and span
+ * of seconds. `restore` ends the current inspection before the host places the
+ * scene itself.
  *
  * `speak` hands a subject with `speak` the film's dialogue mouths through an
- * `AutoMovieRenderDialogueMouthRecorder`, whose record is cleared right before the
- * drawn second is placed, so `mouths` are what the subject read for that
+ * `AutoMovieRenderDialogueMouthRecorder`, whose record is cleared right before
+ * the drawn second is placed, so `mouths` are what the subject read for that
  * second.
  */
 export class AutoMovieRenderDrawPlacement {
@@ -106,13 +104,15 @@ export class AutoMovieRenderDrawPlacement {
   /**
    * Place the shot the picture at `seconds` shows, its trails included, and
    * bind a fresh inspection of `request`, calling `onPlaced` on the settled
-   * scene before the inspection changes it. A refused plan rejects before
-   * anything is placed.
+   * scene before the inspection changes it. `onTrails` receives the samples
+   * used for the marks when the request finds a trail. A refused plan rejects
+   * before anything is placed.
    */
   public async inspect(
     request: IAutoMovieInspectionRequest,
     seconds: number,
     onPlaced?: () => void,
+    onTrails?: (trails: readonly IAutoMovieInspectionTrail[]) => void,
   ): Promise<IAutoMovieRenderInspectionHandle> {
     const previous: IAutoMovieRenderInspectionHandle | null = this.applied_;
     this.applied_ = null;
@@ -124,7 +124,7 @@ export class AutoMovieRenderDrawPlacement {
         renderer: this.renderer,
         markKinds: this.scene.markKinds,
         place: (): Promise<IAutoMovieMark[]> =>
-          this.place(request, seconds, onPlaced),
+          this.place(request, seconds, onPlaced, onTrails),
       });
     this.applied_ = handle;
     return handle;
@@ -167,38 +167,33 @@ export class AutoMovieRenderDrawPlacement {
     request: IAutoMovieInspectionRequest,
     seconds: number,
     onPlaced?: () => void,
+    onTrails?: (trails: readonly IAutoMovieInspectionTrail[]) => void,
   ): Promise<IAutoMovieMark[]> {
     const scene: IAutoMovieRenderDrawScene = this.scene;
     const placed: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null =
       AutoMovieRenderDraw.planPicture(this.name, scene, seconds).placed;
     const seek: (at: number) => Promise<void> = (at: number): Promise<void> =>
       placeDrawLayer(this.name, scene, placed, at);
-    const trails: IAutoMovieInspectionTrail[] = [];
-    if (request.trail.length !== 0) {
-      const times: number[] = AutoMovieRenderInspection.planTrailTimes({
-        request,
-        seconds,
-        durationSeconds: scene.durationSeconds,
-      });
-      for (const pattern of request.trail)
-        trails.push(
-          ...(await AutoMovieRenderInspection.sampleTrails({
-            scene: scene.scene,
-            pattern,
-            times,
-            seek,
-          })),
-        );
-    }
+    const trails: IAutoMovieInspectionTrail[] =
+      request.trail.length === 0
+        ? []
+        : await AutoMovieRenderDraw.samplePlayedTrails(
+            this.name,
+            scene,
+            request,
+            seconds,
+          );
 
     // The mouths read from here on are the ones placed at the drawn second.
     this.spoken_?.clear();
     await seek(seconds);
     onPlaced?.();
-    return [
+    const marks: IAutoMovieMark[] = [
       ...(scene.marks?.(seconds) ?? []),
       ...AutoMovieRenderInspection.markTrails(trails, seconds),
     ];
+    if (trails.length !== 0) onTrails?.(trails);
+    return marks;
   }
 }
 

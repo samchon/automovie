@@ -43,8 +43,6 @@ const TURN: number = 0.02;
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the prepared grip reader, the metre and radian bounds, its endpoint behavior and the preserved entry of a changed action.
  * @evidence contracts/development/testing.md#behavioral-verification Calls prepareHumanGripHand on a supplied placed performer, reads its frames and detects whether a later action changes already-authored frame components.
  * @evidence contracts/development/testing.md#independent-expectations The displayed hand bounds position and rotation. A later cubic root translation has the same entry value and moves the hand afterward, so earlier positions and rotations must match exactly.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises a normal span, reads outside it, film-end clipping, an empty span, an unchanged entry into a changed action and a clock-limited action boundary.
- * @evidence contracts/development/testing.md#execution-ownership The exported entry calls the grip owner using the shared stored body and two synthetic action records. It runs no scene, host process or flight.
  */
 export async function test_motions_perform_grip_hand(): Promise<void> {
   const { state } = await standingPerformanceState();

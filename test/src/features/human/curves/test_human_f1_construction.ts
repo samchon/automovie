@@ -18,11 +18,9 @@ import type {
  * 5. A port stands on the trunk: each loop's centre station lies inside the trunk part's stations and its phase semi-axis is under pi.
  * 6. Rings round a turn stand no farther apart on the skin than the layers: on the arm, the hand and the leg, between neighbouring stations before the closed end, no ring point moves more than the declared 4 mm (5 % allowed for the part's own interpolation) by the course frame's sweep. Round the shoulder the deltoid's cap moved 7 to 10 mm between layers 4 mm apart and showed every ring as a stripe.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1.construction`, `armscye` and `mammary` and walks the tree they return.
- * @evidence contracts/development/testing.md#independent-expectations The counts are the body's own: two legs, two arms each continued by a hand, two ears with a plate, a helix, an antihelix and a bowl each, two armpit slits, two breasts, five fingers and five toes a side; mirror symmetry of the reference is a property of f1, not of this code.
- * @evidence contracts/development/testing.md#distinguishing-cases Splits, ports and merges are counted apart, both sides are compared, and the nesting of merges under limbs is told from merges over the whole body.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit that declares the tree and resolves its parts without realizing a surface, reached by `--include human_f1_construction`.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the anatomical fact it is checked against.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls F1 construction and the two port-loop readers, checks the returned operator tree and samples emitted loft chains across selected turns.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture fixes 42 source leaves and the independently enumerated operator counts, including five ports, eight merges and six cuts. Reflected loops have the same station and semi-axes and opposite phases. Ring spacing is bounded by 4 mm plus 5%.
+ * @evidence contracts/development/common.md#meaningful-documentation The stored declaration is checked for its operator and source counts, mirrored attachments, host subtrees, port positions and ring spacing through turns.
  */
 export function test_human_f1_construction(): void {
   const failures: string[] = [];

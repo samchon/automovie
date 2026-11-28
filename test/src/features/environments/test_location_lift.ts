@@ -34,11 +34,9 @@ import { environmentLiftFixture } from "./environmentLiftFixture";
  * share of it (the ride at 70 % of the travel, the doors at its half and half a
  * second after the upper doors open).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the authored choreography, the movement consumers and the negative schedule cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks lift sill and cab height, the closed dock, separated panel motion and sole ownership on entering and exiting. Exercises unsupported crossing times and an alternative floor spacing.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public environment and transfer producer, native AutoMovieMotionHumanPerformance plans and actual poses, and the engine's baked object motion frames.
  * @evidence contracts/development/testing.md#independent-expectations Expected sill heights and midpoint travel come from explicit fixture dimensions. The choreography's ownership comes from its independently named stage props, and the expected resting contact is the upper sill plane.
- * @evidence contracts/development/testing.md#distinguishing-cases Closed dock versus absent cab, different floor spacing, separated landing and moving panels, and both entered and exited sole ownership distinguish geometry, state and moving support.
- * @evidence contracts/development/testing.md#execution-ownership One named synchronous test exercises reused product motion and clip seams. The issued production capture owns image verification.
  */
 export function test_location_lift(): void {
   const fixture: ReturnType<typeof environmentLiftFixture> =

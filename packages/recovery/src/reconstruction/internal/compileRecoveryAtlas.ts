@@ -2,6 +2,7 @@ import { AutoMovieEngineGeometry } from "@automovie/engine";
 import {
   type IAutoMovieBicubicAtlasGeometry,
   type IAutoMovieModel,
+  type IAutoMovieRealizeBicubicAtlas64,
   type IAutoMovieRecoveryAtlasCompilation,
 } from "@automovie/interface";
 
@@ -14,7 +15,7 @@ import {
 export function compileRecoveryAtlas(
   geometry: IAutoMovieBicubicAtlasGeometry,
 ): IAutoMovieRecoveryAtlasCompilation {
-  const generated: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> =
+  const generated: IAutoMovieRealizeBicubicAtlas64.IResult =
     AutoMovieEngineGeometry.realizeBicubicAtlas64(geometry);
   const base: IAutoMovieModel = {
     id: "recovery.atlas",

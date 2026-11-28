@@ -27,6 +27,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    at five (u, v), recover u, v and the offset within 1e-6, the planes level
  *    though the spine bends.
  * 4. A point above the straight spine's end takes u = 1; one at the end, u = 1.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names direction-based inversion, explicit and default modes, signed offsets, bent level frames and clamped end queries.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates real source points on straight and bent sweeps, modifies them by stated offsets and recovers parameters through locateSweepPoint.
+ * @evidence contracts/development/testing.md#independent-expectations The authored chart values identify each sample before inversion. Radial displacement fixes the signed offset. A point beyond the last straight station resolves to u = 1.
  */
 export function test_engine_geometry_sweep_locate(): void {
   const sweep: IAutoMovieSweep = {

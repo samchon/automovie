@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  *    is dimmed from the newer picture.
  * 4. Pictures of different sizes, a picture whose pixels do not match its size,
  *    and a negative tolerance are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Reports changed pixels, maximum channel difference and their bounds, and paints the diff without writing the originals.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares explicit matching and changed 4 × 3 rasters, exercises both sides of the tolerance boundary, and submits invalid raster or tolerance inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Two known changed coordinates give one-sixth changed pixels and fixed box corners. Exact magenta, dimmed pixels and an inclusive tolerance distinguish all report fields.
  */
 export function test_render_picture_compare_rasters(): void {
   const picture = (

@@ -21,9 +21,7 @@ import type { AutoMovieVector2Tuple } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production split, tissue and extreme on made numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is hand arithmetic on the circle's four extremes, written as literals with their derivation in the scenario list.
- * @evidence contracts/development/testing.md#distinguishing-cases Equal and unequal ratios, with and without bone, extremes on and off the centre line, the identity and five refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made section and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation Depth and breadth splits, fixed bone and mobile tissue, asymmetric scaling, identity and invalid range choices are compared against explicit section coordinates.
  */
 export function test_human_native_site_reaches(): void {
   const failures: string[] = [];

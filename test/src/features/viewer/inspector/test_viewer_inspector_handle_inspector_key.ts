@@ -33,6 +33,10 @@ type Target = { closest(selectors: string): unknown } | null;
  * 7. For a 5.6 s film at 12 fps, comma from the exact end reaches frame 67 and
  *    period returns to the exact end. From a second that lies between frames,
  *    stepping starts from the displayed frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names play, frame stepping and the input and modifier cases that suppress or admit the hotkey.
+ * @evidence contracts/development/testing.md#behavioral-verification Dispatches synthetic key events to the handler and checks handled status and playhead changes under focused editable and noneditable targets.
+ * @evidence contracts/development/testing.md#independent-expectations The authored keys define play and frame steps. A single step uses the fixture's stated frame cadence, while the unused key and suppressed inputs leave the supplied position and playback unchanged.
  */
 export function test_viewer_inspector_handle_inspector_key(): void {
   const playhead: AutoMovieViewerInspectorPlayhead = new AutoMovieViewerInspectorPlayhead();

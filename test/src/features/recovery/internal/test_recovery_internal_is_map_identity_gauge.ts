@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Rotation I₃ and translation 0 hold.
  * 2. One diagonal entry 0.5, or translation (0, 0, 1), does not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies an exact rotation and translation gauge.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the identity, a modified rotation diagonal and nonzero translation.
+ * @evidence contracts/development/testing.md#independent-expectations Identity gives the three exact diagonal ones and zero translation. Each authored change violates a separate gauge condition.
  */
 export function test_recovery_internal_is_map_identity_gauge(): void {
   const identity: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];

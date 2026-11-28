@@ -65,9 +65,7 @@ function flat(shade: number): IAutoMovieRasterImage {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public video capture against in-memory storage and a runner that writes what FFmpeg would (the report and the numbered stills) for the arguments it receives, then reads the records and comparisons. It catches captures that lose cut frames or unmatched cells, compare pixels across backends or pair file beauty with a different pass. No FFmpeg is launched.
  * @evidence contracts/development/testing.md#independent-expectations The runner selects frames by evaluating the planned `select` expression itself, so the stills it writes follow the arguments, and every expected frame and second is worked from 10 fps by hand; the side-by-side rule is the campaign's decision that pixels are compared within one backend only.
- * @evidence contracts/development/testing.md#distinguishing-cases A full-length file against a short one, file against source and file against file, cuts against none, a refused request, and a source with beauty before depth, after depth, or absent. Argument and report formats are owned by `test_capture_video_ffmpeg_plans`, and frame windows by `test_capture_frame_windows`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_video_pairing`; its runner is in memory and starts no process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Recorded subprocess requests and numbered fixture frames exercise cut windows, short input, same- and different-backend pairing, incompatible passes and early refusals.
  */
 export async function test_capture_video_pairing(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();

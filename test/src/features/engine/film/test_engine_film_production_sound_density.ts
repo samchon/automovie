@@ -284,6 +284,10 @@ const amplitudeAt: (pcm: Float32Array, frame: number) => number = (
  *    standing 20 m across and 20 m in front of a hundred-strong crowd emits
  *    from `(20/101, -3010/101)`. The subject-count mean `(10, -20)` would place
  *    it roughly ten metres from that weighted centre on either axis.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the adopted box and count model, the controlled count ratio, and the separately derived emitter centroid.
+ * @evidence contracts/development/testing.md#behavioral-verification The test passes authored formations, instances and a node through planning. It observes count, spread, attenuation and emitter position, then mixes controlled events and compares their actual sample levels.
+ * @evidence contracts/development/testing.md#independent-expectations Equal placement and footprint cancel distance in the controlled pair. Sixty-four times the source count gives eight times the model's amplitude. Uniform-box variance supplies the RMS term, and weighting a hero at (20, -10) and 100 members at (0, -30) gives x = 20/101 and z = -3010/101.
  */
 export function test_engine_film_production_sound_density(): void {
   const plan: IAutoMovieProductionSoundPlan =

@@ -10,10 +10,8 @@ import { tessellateToMesh } from "./tessellateToMesh";
 /*
  * Resolve each public geometry recipe through its deterministic engine owner.
  * Mesh input is borrowed unchanged; recipes produce newly owned arrays. Atlas
- * completion and diagnostics describe processing, not shape quality. Retained
- * finite geometry is returned by default, including for indirect framing and
- * drawing callers. Only an explicit complete-processing query refuses partial
- * output; display never opts into that gate.
+ * completion and diagnostics describe processing. Display uses the atlas's
+ * retained mesh. A complete-processing request refuses an incomplete atlas.
  */
 export function realizeGeometry(
   geometry: IAutoMovieGeometry,

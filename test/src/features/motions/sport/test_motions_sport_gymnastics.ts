@@ -53,6 +53,10 @@ const STAND: IAutoMovieMotionHumanPosture = {
  *    `min(knuckle range, 90 - (wrist range - 5))`, the fingers extending by as
  *    much; the knuckle reads 8 cm along the hand's own +Z however it is
  *    turned.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines shared motion flight, touchdown, rotated and centered poses, lowest point and palm geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates a ballistic arc and floor crossing, poses a stored rig with known transforms, freezes a knee and measures a knuckle under rotation.
+ * @evidence contracts/development/testing.md#independent-expectations Constant acceleration gives (2, 3 − g/8, −0.5) at 0.5 s and √(2/g) fall time. A 0.5 m root lift raises the lowest point equally and the knuckle stays 0.08 m in the hand frame.
  */
 export async function test_motions_sport_gymnastics(): Promise<void> {
   // 1. The parabola and its fall.

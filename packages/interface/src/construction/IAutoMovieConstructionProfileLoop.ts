@@ -1,41 +1,36 @@
 import type { IAutoMovieConstructionProfilePiece } from "./IAutoMovieConstructionProfilePiece";
 
 /**
- * A complete oriented contour over a physical station interval.
- *
- * Its ordered original pieces close an outer contour or hole. The station
- * domain is in metres inside the family's domain. orientation describes winding
- * in the plane; surfaceOrientation independently sets the world surface sign
- * and defaults to +1. pole declares whole-loop collapse only at named ends; an
- * absent pole leaves regular open ends. AutoMovieEngineConstructionProfile
- * preparation resolves sources and domains; declaring a loop does not prove
- * simplicity or global regularity.
+ * Oriented closed contour or hole over a retained station interval in metres.
+ * Its ordered curve pieces join on that interval. Plane winding and the sign of
+ * the outward world surface are declared separately. Omission of pole keeps
+ * both ends regular and open.
  */
 export interface IAutoMovieConstructionProfileLoop {
-  /** Unique loop identity in the family. */
+  /** Unique loop identity within the generating family. */
   id: string;
 
-  /** Outer component or hole; coincidence with another loop does not sew it. */
+  /** Outer contour or hole in the original plane. */
   kind: "outer" | "hole";
 
-  /** Signed winding in the common plane's original local coordinates. */
+  /** Signed winding of the ordered pieces in the original plane. */
   orientation: 1 | -1;
 
   /**
-   * Sign taking the actual world station/traversal cross product outward;
-   * omitted means 1, independently of 2D winding.
+   * Outward sign of the world station/traversal cross product. Omission uses
+   * +1.
    */
   surfaceOrientation?: 1 | -1;
 
-  /** Actual station interval, metres, inside the family's domain. */
+  /** Retained physical station interval in metres inside the family's domain. */
   domain: [number, number];
 
   /**
-   * Actual whole-loop point collapse at the named domain ends; absent ends stay
-   * regular and open. This declaration supplies no missing physical2.
+   * End or ends where the whole loop collapses to a point. Omission leaves open
+   * regular ends.
    */
   pole?: "bottom" | "top" | "both";
 
-  /** Ordered open or whole-period original intervals completing this loop. */
+  /** Ordered original curve intervals that form the complete contour. */
   pieces: IAutoMovieConstructionProfilePiece[];
 }

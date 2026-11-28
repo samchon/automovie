@@ -83,9 +83,7 @@ const shaped = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves generated bodies' surfaces and places them by forward kinematics under hand shapes.
  * @evidence contracts/development/testing.md#independent-expectations Anatomy: a tip ends its digit, a pad faces the palm, fingers lie in order across the hand, a curled pad faces into its finger's curl, the body is mirror-symmetric.
- * @evidence contracts/development/testing.md#distinguishing-cases Four bodies, ten digits, two sides and two shapes.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test; no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation The distal joint and tip have positive separation along each finger. A flat hand checks tip order, and reflected left-right geometry checks paired placement.
  */
 export function test_engine_finger_surfaces(): void {
   const complaints: string[] = [];

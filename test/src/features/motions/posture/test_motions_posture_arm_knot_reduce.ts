@@ -26,6 +26,10 @@ import { nclose } from "../../internal/nclose";
  *    the velocity's, 0.00048828125 on the acceleration's; its band is one
  *    knot's three values.
  * 3. The row on the middle frame reads the middle knot's position alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines transform of grid curvature, linear terms and constraints to endpoint knot coordinates.
+ * @evidence contracts/development/testing.md#behavioral-verification Reduces a one-coordinate, three-knot fixture with identity grid curvature and one fixed middle-frame row.
+ * @evidence contracts/development/testing.md#independent-expectations Manual midpoint basis gives Wᵀq = (4, 0.3125, 0.0625); WᵀW and the pinned position row determine curvature and bandwidth independently.
  */
 export function test_motions_posture_arm_knot_reduce(): void {
   const knots: number[] = [0, 0.5, 1];

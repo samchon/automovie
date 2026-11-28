@@ -7,18 +7,17 @@ import type {
 } from "..";
 
 /**
- * Estimate the explicit seed using only globally admitted direct reciprocal
- * links. This reconstructs pose support under the complete identity policy
- * instead of deleting landmarks after a prior local-map fit has influenced its
- * cameras.
+ * Callable estimation of the source-zero and source-one seed from globally
+ * admitted reciprocal links.
  */
 
 export namespace IAutoMovieRecoverySceneSeedInitializationOperation {
   /**
-   * Estimate the explicit seed using only globally admitted direct reciprocal
-   * links. This reconstructs pose support under the complete identity policy
-   * instead of deleting landmarks after a prior local-map fit has influenced
-   * its cameras.
+   * Use views zero and one, their admitted charts and observed features. Pass
+   * only directly reciprocal seed matches whose feature pair belongs to a
+   * nonconflicting global track into pair qualification. A missing seed match
+   * pair raises an error. A completed pair keeps its own qualification and
+   * diagnostic status.
    */
 
   export type Operation = (

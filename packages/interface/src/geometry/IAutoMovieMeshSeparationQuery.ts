@@ -7,18 +7,16 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
  * A compiled resident-surface separation query, returned by
  * `createMeshSeparationQuery`.
  *
- * Calling it measures a feature, a nonempty finite run of XYZ vertices in the
- * resident metre frame taken as its convex hull, against every resident
- * triangle: the target-capped global lower bound, its limiting triangle and any
- * attachment caps. `separated` answers only the clearance decision on the same
- * snapshot through the same walk, ending at the first refuting triangle. Both
- * spend the shared budget before each unit of work they actually perform, and
- * both throw on a malformed feature or options and on budget exhaustion. The
- * hair builder compiles one query over the binary64 skin and one over its
- * Float32 representation.
+ * Supply a nonempty run of finite vertices in the resident XYZ metre frame. The
+ * feature is their convex hull. The clearance is finite and nonnegative, and
+ * the caller-owned budget has a nonnegative safe integer balance. Full
+ * measurement gives the target-capped lower bound and any attachment caps. The
+ * decision method stops at the first refuting triangle. Both spend the budget
+ * before each counted operation. Invalid numeric inputs are refused before
+ * spending. Work that needs another unit at a zero balance throws.
  */
 export interface IAutoMovieMeshSeparationQuery {
-  /** Measure one feature completely against every resident triangle. */
+  /** Measure one feature, including subtrees qualified by their box bounds. */
   (
     vertices: readonly IAutoMovieVector3[],
     options: IAutoMovieMeshSeparationOptions,

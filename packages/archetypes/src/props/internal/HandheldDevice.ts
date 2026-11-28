@@ -12,18 +12,14 @@ import {
 import { HandheldDeviceData } from "./HandheldDeviceData";
 
 
-/*
- * Shared case construction and the existing records for handheld electronics.
+/**
+ * Shared dimension records and construction for the named handheld device producers.
  */
 export namespace HandheldDevice {
-  /*
-   * The kinds of device.
-   */
+  /** Saved handheld selectors, including `walkieTalkie` for the named radio. */
   export type Kind = "phone" | "camera" | "remote" | "tablet" | "walkieTalkie";
 
-  /*
-   * Every kind, for a caller that reads one at run time.
-   */
+  /** Saved kind order used by the Device entry and stock gallery. */
   export const KINDS: readonly Kind[] = [
     "phone",
     "camera",
@@ -32,21 +28,8 @@ export namespace HandheldDevice {
     "walkieTalkie",
   ];
 
-  /*
-   * The affordance ids:
-   *
-   * - `grip`: the hold, a power grip: across the back of a phone, a remote, a
-   *   tablet or a walkie-talkie, on a camera's grip bar at its `-X` end.
-   * - `support`: the camera's lower front edge at its far `+X` side, where the
-   *   other hand supports it from underneath.
-   * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
-   * - `screen`: the face that is looked at: a phone's or a tablet's front, a
-   *   camera's back.
-   * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
-   * - `button`: a camera's shutter release on its top, a remote's keys on its
-   *   face; it states no travel, so its press stays at rest until a source
-   *   gives one.
-   * - `speaker`: a walkie-talkie's front, which the voice meets.
+  /**
+   * Names the shared grip and pinch, camera support, screen, lens, button and front speaker contacts.
    */
   export type Affordance =
     | "grip"
@@ -57,19 +40,12 @@ export namespace HandheldDevice {
     | "button"
     | "speaker";
 
-  /*
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`: along `+X`.
-   * - `height`: along `+Y`.
-   * - `thickness`: along `+Z`; a camera's body without its lens.
-   * - `mass`: kilograms.
+  /**
+   * Case width along X, height along Y and thickness along Z in metres. A camera's thickness excludes its lens. Mass is in kilograms.
    */
   export type Dimension = "width" | "height" | "thickness" | "mass";
 
-  /*
-   * Each dimension's unit, which its band and any model's figure for it share.
-   */
+  /** Measurement units for free dimensions and catalogue figures. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -79,37 +55,29 @@ export namespace HandheldDevice {
     mass: "kg",
   };
 
-  /*
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+  /**
+   * Saved kind and applicable author settings for the selected named producer.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /*
-     * Which device.
-     */
+    /** Selects the producer and its bands or catalogue. */
     kind: Kind;
 
-    /*
-     * A camera's, a tablet's or a walkie-talkie's model; drawn from the seed
-     * when absent.
+    /**
+     * Catalogue choice for camera, tablet or radio. Saved phone and remote recipes ignore this field. Their named inputs require its omission.
      */
     model?: Model;
 
-    /*
-     * The model's id, unique in a scene; `device` when absent.
-     */
+    /** Scene object ID, defaulting to `device`. */
     id?: string;
   }
 
-  /*
-   * A model's read figures, by dimension.
+  /**
+   * Finite case dimensions and mass supplied by one catalogue entry, in the producer's units.
    */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /*
-   * The models read: Ricoh's GR III and Fujifilm's X100VI; Apple's iPad (10th
-   * generation) Wi-Fi and cellular; Motorola's CP200d with each of its four
-   * batteries.
+  /**
+   * Compact camera, tablet configuration and radio battery labels accepted by their own kinds.
    */
   export type Model =
     | "grIII"
@@ -121,21 +89,14 @@ export namespace HandheldDevice {
     | "liIon2250"
     | "liIon2900";
 
-  /*
-   * Each kind's models whole, the default first, width x height x thickness and
-   * mass:
+  /**
+   * Dimension and mass rows for Ricoh GR III, Fujifilm X100VI, Apple
+   * iPad and Motorola CP200d. Each kind's first row is its seedless model.
    *
-   * - Camera: the Ricoh GR III, 109.4 x 61.9 x 33.2 mm and 257 g
-   *   (https://www.ricoh-imaging.co.jp/english/products/gr-3/spec/), and the
-   *   Fujifilm X100VI, 128.0 x 74.8 x 55.3 mm and 471 g without its battery
-   *   (https://fujifilm-dsc.com/en/manual/x100vi/technical_notes/spec/).
-   * - Tablet: the iPad (10th generation), 179.5 x 248.6 x 7 mm, 477 g Wi-Fi and
-   *   481 g cellular (https://support.apple.com/en-us/111840).
-   * - WalkieTalkie: the MOTOTRBO CP200d, 61.5 x 127.7 mm and, with its NiMH 1400,
-   *   slim Li-Ion 1600, high-capacity Li-Ion 2250 and ultra-high-capacity
-   *   Li-Ion 2900 mAh batteries, 42.0, 39.0, 44.0 and 44.0 mm deep and 406,
-   *   341, 346 and 348 g (data sheet 06-2020, p. 3,
-   *   https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf).
+   * @see https://www.ricoh-imaging.co.jp/english/products/gr-3/spec/
+   * @see https://fujifilm-dsc.com/en/manual/x100vi/technical_notes/spec/
+   * @see https://support.apple.com/en-us/111840
+   * @see https://www.daywireless.com/downloads/motorola/motorola_cp200d_specsheet.pdf
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -181,8 +142,8 @@ export namespace HandheldDevice {
     },
   };
 
-  /*
-   * The band of each free dimension, by kind.
+  /**
+   * Device dimension bands by kind. Only phone and remote have free dimensions.
    */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
@@ -204,24 +165,28 @@ export namespace HandheldDevice {
     walkieTalkie: {},
   };
 
-  /*
-   * What draw prepares for its caller.
+  /**
+   * A given device's admitted complete dimensions and a builder attached to its draw session.
    */
   export interface IDrawResult<Id extends string> {
-    /*
-     * The prepared `builder` this call returns.
+    /**
+     * The composite builder that records the selected device's dimension provenance.
      */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /*
-     * The prepared `size` this call returns.
-     */
+    /** Complete admitted case dimensions in metres and mass in kilograms. */
     size: Record<Dimension, number>;
   }
 
-  /*
-   * Draws original dimensions in metres and mass in kilograms before geometry
-   * is built.
+  /**
+   * Admit the selected device's settings and prepare a geometry builder.
+   *
+   * @param kind Saved device kind whose bands and catalogue apply.
+   * @param name Displayed name for the model.
+   * @param params Optional scene ID and the selected kind's applicable settings.
+   * @param seed Numeric seed or undefined for band midpoints and first model.
+   * @returns Complete size and the builder carrying dimension provenance.
+   * @throws {AutoMovieArchetypeRefusal} If a dimension or model is inadmissible.
    */
   export function draw<Id extends string>(
     kind: Kind,
@@ -262,8 +227,13 @@ export namespace HandheldDevice {
     };
   }
 
-  /*
-   * Builds a dark rectangular case in metres, centered on its bottom edge.
+  /**
+   * Add a rectangular `body` resting on its lower Y face.
+   *
+   * @param builder The prepared device builder.
+   * @param width Case width along X in metres.
+   * @param height Upright height along Y in metres.
+   * @param depth Thickness along Z in metres.
    */
   export function caseBody<Id extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
@@ -281,8 +251,12 @@ export namespace HandheldDevice {
     );
   }
 
-  /*
-   * Faces the front of a case at a given height and depth in metres.
+  /**
+   * Place a contact on the `+Z` face of an upright case.
+   *
+   * @param y Height above the model origin, metres.
+   * @param depth Case thickness in metres.
+   * @returns A contact frame centred in X and facing `+Z`.
    */
   export function front(
     y: number,
@@ -295,13 +269,16 @@ export namespace HandheldDevice {
     );
   }
 
-  /*
-   * The contact ids smallGrips builds or reads.
-   */
+  /** Contact names for the lower lateral pinch and back power grasp. */
   export type SmallGripsContact = "grip" | "pinch";
 
-  /*
-   * Constructs the two grasps of a shallow case.
+  /**
+   * Make rear grip frames for the phone and remote.
+   *
+   * @param width Case width in metres.
+   * @param height Case height in metres.
+   * @param depth Case thickness in metres, used as the hand aperture.
+   * @returns A power grip at 40 percent height and lateral pinch 0.02 metres above the bottom.
    */
   export function smallGrips(
     width: number,
@@ -340,23 +317,24 @@ export namespace HandheldDevice {
     ];
   }
 
-  /*
-   * The face contact ids fullFace can add beside the grip.
-   */
+  /** Front-face contact name for a tablet screen or radio speaker. */
   export type FaceContact = "screen" | "speaker";
 
-  /*
-   * The grip together with the face contact a slab adds.
-   */
+  /** The full-height back grip and its companion front-face ID. */
   export type FaceAndGrip<Face extends FaceContact> = "grip" | Face;
 
-  /*
-   * The values fullFace accepts at this place in its signature.
-   */
+  /** Kinds that use the slab with a full-face contact. */
   export type FullFaceKind = "tablet" | "walkieTalkie";
 
-  /*
-   * Builds a full-height grip and front surface on the upright slab.
+  /**
+   * Build a rectangular tablet or radio with a rear grip and front face.
+   *
+   * @param kind Catalogue kind, `tablet` or `walkieTalkie`.
+   * @param name Displayed name of the device.
+   * @param params Optional scene ID and the selected catalogue model.
+   * @param seed Numeric seed for an omitted model.
+   * @param face Use `screen` for tablets and `speaker` for radios.
+   * @returns The slab and both named contact frames.
    */
   export function fullFace<Face extends FaceContact>(
     kind: FullFaceKind,

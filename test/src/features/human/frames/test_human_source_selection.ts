@@ -10,9 +10,7 @@ import { FamilyConicSourceSelection as Selection } from "../../../reference-coni
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual pure selection used by source-only PNG consumers with made offered ids and directions, without metadata filtering or rendering.
  * @evidence contracts/development/testing.md#independent-expectations Literal arm/figure and front/top require two sources and two views; absent options must preserve the offered three-by-three plan.
- * @evidence contracts/development/testing.md#distinguishing-cases Explicit reduced/absent valid cases accompany bad ids, unsupported views, duplicate/empty tokens and ambiguous repeated or valueless flags.
- * @evidence contracts/development/testing.md#execution-ownership No body, geometry, artifact, process or renderer runs.
- * @evidence contracts/development/common.md#meaningful-documentation Three numbered cases specify the PNG-only selection boundary and absence semantics.
+ * @evidence contracts/development/common.md#meaningful-documentation PNG source selection preserves explicit order and defaults to the offered plan. Unknown, duplicate, empty, and repeated values refuse on either axis.
  */
 export function test_human_source_selection(): void {
   const sources: string[] = ["figure", "trunk", "arm"];

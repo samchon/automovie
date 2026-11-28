@@ -14,13 +14,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A tube of 10 mm whose course leaves the end of a straight parent 30 degrees off its course, with the plane between the tube's
  *    knots: every point of the published loop lies in the plane and on that ellipse, and the centre is the course's piercing point.
  * 2. The same tube with its first knot 17 mm past the plane: the section is the same, carried back along the fields' end tangents.
- * 3. A tube running along the plane publishes no section and says so.
+ * 3. A tube whose course stays parallel to the plane and clear of it refuses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public `AutoMovieHumanF1.rootSection` on made families through the same loft the figure uses.
  * @evidence contracts/development/testing.md#independent-expectations The expected ellipse and centre are the closed form of a cylinder cut by an oblique plane, none read from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases A section cut square to the child's own course would be a circle and fail the long half axis by 1.55 mm; a section taken at the child's first knot would stand off the plane.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit over two made families of two knots each, reached by `--include human_f1_root_section`; it builds no person and reads no reference.
- * @evidence contracts/development/common.md#meaningful-documentation States the geometric identity, the three scenarios and the made defects' sizes.
+ * @evidence contracts/development/common.md#meaningful-documentation An oblique cylinder crossing, the same crossing before the first knot, and a course parallel to the plane provide distinct centre, loop and refusal cases.
  */
 export function test_human_f1_root_section(): void {
   const parent: IAutoMovieHumanConicLoft.IFamily = tube("parent", [0, 0, 0], [100, 0, 0], [0, 100], 30);

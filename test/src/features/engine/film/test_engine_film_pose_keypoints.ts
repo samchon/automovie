@@ -116,6 +116,10 @@ const of: (
  * 3. Omit a missing joint and intersect the default set with the actual two-bone
  *    rig.
  * 4. Apply raised node placement, square aspect and a sampled static camera clip.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify normalized hip and head coordinates, crop edges, unclamped and absent joints, node placement, aspect and sampled camera.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls pose-keypoint resolution on the prepared two-joint rig and camera, then observes coordinates and visibility with crop, placement, aspect and animated-camera controls.
+ * @evidence contracts/development/testing.md#independent-expectations The authored centered hips and one-metre head give the independent projection coordinates. Only actual joints can appear in the requested or default set. Behind, far and crop-exterior positions retain their declared classification, and visible boundary points remain inside.
  */
 export function test_engine_film_pose_keypoints(): void {
   // 1. basic projection.

@@ -3,20 +3,20 @@ import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { type AutoMovieArchetype } from "../core";
 import { StationeryDraw } from "./internal/StationeryDraw";
 
-/** Creates an Esselte clipboard archetype with a writing face and an edge grip. */
+/**
+ * Constructs an Esselte clipboard proxy with a writing face and near-edge pinch.
+ */
 export namespace AutoMovieArchetypeClipboard {
 /**
- * Clipboard with a grip on its near edge and a level writing surface.
+ * Build a level A4 clipboard with its near edge at model `+Z`.
  *
- * The near edge lies toward model `+Z` and the clip end toward model `-Z`, so
- * `face` reads with model `-Z` as its top.
+ * Both catalogue entries use a 232 by 349 millimetre board, 3 millimetres
+ * thick. The upper writing frame uses model `-Z` as its head direction.
  *
- * @param params The optional scene ID and Esselte model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * @param params Optional scene ID and Esselte model. Defaults to ID `stationery`.
+ * @param seed Numeric seed for an omitted model. Omit it for `56055` at 168 grams.
+ * @returns The board with `face` on top and `grip` at its near edge.
+ * @throws {AutoMovieArchetypeRefusal} If the catalogue model is unavailable.
  */
 export function create(
   params: AutoMovieArchetypeClipboard.IParams = {},
@@ -47,25 +47,19 @@ export function create(
 
 
   /* The contacts and dimensions of {@link AutoMovieArchetypeClipboard}. */
-  /**
-   * The original producer parameters.
-   */
+  /** Optional scene ID and a recorded Esselte clipboard model. */
   export interface IParams {
-    /** The clipboard identifier, unique within its scene. */
+    /** Scene object ID, defaulting to `stationery`. */
     id?: string;
-    /** The Esselte clipboard model; omitted for seeded selection. */
+    /** Selects `56055` or `604037`. Omit it and the seed for `56055`. */
     model?: StationeryDraw.Model;
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Upward writing `face` and a precision `grip` at the `+Z` edge. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Board width in X, length in Z and thickness in Y, in metres. Model mass is in kilograms.
    */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 }

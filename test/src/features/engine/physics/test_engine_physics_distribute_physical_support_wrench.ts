@@ -17,6 +17,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 3. Diagonal demand cannot exploit the corners of a circumscribed friction box.
  * 4. Pulling, point-contact yaw and unsupported flight retain explicit wrench
  *    residuals.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual-point allocation with feasible pressure, friction and yaw, plus residual for unsupported force.
+ * @evidence contracts/development/testing.md#behavioral-verification Allocates weight on finite patches and point supports, adds horizontal and torsional demand, and exercises diagonal, downward and flight cases.
+ * @evidence contracts/development/testing.md#independent-expectations Nonnegative normal forces and the circular Coulomb cone constrain achievable force. Coplanar moments balance full weight, and a single point or airborne body lacks the relevant support authority.
  */
 export function test_engine_physics_distribute_physical_support_wrench(): void {
   const origin: V = { x: 0, y: 1, z: 0 };

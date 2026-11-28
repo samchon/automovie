@@ -62,6 +62,10 @@ function kinked(t: number): IAutoMoviePose {
  * 3. The kinked root: before 0 s it moves at (0, 0, 1) turning at 0, after it at
  *    (1, 0, 1) turning at 2 rad/s (the quaternion's half angle), at 0.5 s at
  *    (2, 0, 1); centred at the kink it reads the mean, 0.5 and 1.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names continuation-based rates, the rounding budget, rejected zero parameters, and one-sided and centered readings at a kink.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public sampler with a rounded pose source and an exact continuation, then without the continuation and on a piecewise-linear root. The tolerance helper receives valid and zero parameters directly.
+ * @evidence contracts/development/testing.md#independent-expectations A linear knee continuation gives 33.7 degrees per second despite a hundredth-degree display quantization. The stated quintic budget gives the expected tolerance at a 0.001 s step and 0.4 s decay. The centered difference at the kink averages its two translational and rotational rates.
  */
 export function test_engine_motion_sample_pose_velocity(): void {
   // 1. A continuation.

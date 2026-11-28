@@ -32,6 +32,10 @@ const OVERSHOOT: number = 0.01;
  * 3. On a 0.01 s scan the speed and acceleration stay within a hundredth past
  *    their limits, the overshoot asked.
  * 4. Two coinciding consecutive knots are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rest-to-rest time parameterization and limit checks between samples, with repeated-knot refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Times a one-metre piece under 1 m/s and 1 m/s² limits, scans at 0.01 s and tries coincident consecutive knots.
+ * @evidence contracts/development/testing.md#independent-expectations The independent bang-coast-bang lower bound is 2 s. Both endpoints are at rest and sampled rates stay within the declared 1 percent overshoot.
  */
 export function test_motions_posture_knot_timing(): void {
   const timed: HumanKnotTiming.ITimed = HumanKnotTiming.parametrize({

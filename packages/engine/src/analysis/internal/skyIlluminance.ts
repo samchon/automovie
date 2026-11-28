@@ -20,8 +20,8 @@ import { skyward } from "./skyward";
  * so a tilted plane loses the sky it cannot see.
  *
  * An unobstructed plane facing the ground's up sees every direction, so its
- * estimate equals `illuminance` with no sampling error; a tilted or shaded
- * plane's estimate depends on `count`. Throws, through
+ * full-sky fraction is one. A tilted or shaded plane's estimate depends on
+ * `count`. Throws, through
  * `hemisphereDirections`, when `count` is not a positive safe integer
  * or `normal` is zero or non-finite.
  * Parameter props: Plane normal, ground, direction count, sky illuminance and
@@ -51,6 +51,10 @@ export const skyIlluminance: (
         })
       )
         ++visible;
-    return (props.illuminance * visible) / props.count;
+    const illuminance: number = props.illuminance;
+    const scaled: number = illuminance * visible;
+    return Number.isFinite(scaled) || !Number.isFinite(illuminance)
+      ? scaled / props.count
+      : illuminance * (visible / props.count);
   };
 };

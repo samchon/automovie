@@ -19,8 +19,6 @@ import { throwsError } from "../internal/throwsError";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Inspects actual decoded channels and the diagnostics from direct ingestion calls.
  * @evidence contracts/development/testing.md#independent-expectations The fixture contains two identity rotations, a unit translation and authored cubic tangents.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates byte decoding from source and retarget admission.
- * @evidence contracts/development/testing.md#execution-ownership Exercises one in-memory accepted document and the independent field mutation fixtures.
  * @evidence contracts/development/common.md#meaningful-documentation States the supported interpolation and refusal families.
  */
 export function test_ingest_motion_sampler_admission(): void {

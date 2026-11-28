@@ -18,7 +18,11 @@ const WATER = 0.8;
 const SAMPLE = 1 / 240;
 type Stroke = IAutoMovieMotionHumanSwim.Kind;
 
-/** A surface swimmer keeps the waterline and continues from its displayed pose. */
+/** A surface swimmer keeps the waterline and continues from its displayed pose. *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines authored surface stroke clocks, continuous mode cuts, upright breathing and consistency of split and combined takes.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes actual played swim modes on a stored rig, samples hips, hands and mouth near cuts and cues, and compares two same-mode takes against one two-cycle take.
+ * @evidence contracts/development/testing.md#independent-expectations The water plane is 0.8 m and the tread mouth target is 0.85 m. Declared cut displacement and mouth tolerances bound playback, while equivalent two-cycle takes must agree within 2 mm at sampled bones.
+ */
 export function test_motions_sport_swim_modes(): void {
   const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body("m-average");
   for (const [stroke, seconds] of [

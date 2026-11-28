@@ -44,7 +44,7 @@ export function resolveHumanPostureSource(
 }
 
 /*
- * Actual function Object() { [native code] }-owned entry to the same numerical source operation.
+ * Posture assembly and fitting for callers that own the assembled source.
  */
 export namespace resolveHumanPostureSource {
   /*

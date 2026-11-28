@@ -86,13 +86,14 @@ import { triangleIndicesOf as triangleIndicesOfImplementation } from "./internal
 /** Public operations for Auto Movie Engine Geometry. */
 export namespace AutoMovieEngineGeometry {
   /**
-   * Admit the global recipe and identify its structurally usable patch
-   * occurrences. Invalid coefficient or canonical-boundary declarations omit only
-   * incident patches and retain exact diagnostics; valid independent patches
-   * remain available for display. Producer source-fit qualifications are retained
-   * as diagnostics independently of structural completeness and never suppress
-   * finite usable patches. An empty declared patch array is an explicit
-   * incomplete generated domain.
+   * Select the usable patches of a model-space bicubic atlas.
+   *
+   * The model tolerance and retained XYZ coefficients must be representable in
+   * millimetres. Global work policy requires a positive tolerance, at least one
+   * cell and at least three vertices with safe integer limits. An invalid
+   * coefficient, registry ordinal or canonical interval omits its incident
+   * patches and preserves independent occurrences with their original IDs.
+   * Source-fit diagnostics describe an independent qualification.
    */
   export function admitBicubicAtlas(input: IAutoMovieBicubicAtlasGeometry): IAutoMovieAdmitBicubicAtlas.IResult {
     return admitBicubicAtlasImplementation(input);
@@ -129,195 +130,96 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * The distances from a point on one triangle of a measured mesh to the nearest
-   * convex and the nearest concave feature edge in that triangle's list, capped
-   * at `reach`: the CPU reference of what a worn material's fragment shader
-   * computes at its bind-pose position.
+   * Read the convex and concave feature distances at a triangle point.
    *
-   * Every list holds each feature edge within reach of its triangle, so for a
-   * point on the triangle any edge nearer than `reach` is listed, unless the list
-   * hit its limit of 16. The capped result is therefore the exact distance to the
-   * nearest feature edge of each sign whenever that distance is below `reach`,
-   * and `reach` otherwise, however finely the faces are tessellated.
-   *
-   * @throws When `triangle` is not an index of the measured triangles.
+   * Supply the bind-pose point and original triangle ordinal from a measured
+   * feature table. Each sign returns its nearest listed segment distance,
+   * capped at the table's reach. Missing signs return reach. A full
+   * sixteen-edge row may exclude other nearby edges. An unknown triangle
+   * ordinal raises an error.
    */
   export function featureEdgeDistance(props: IAutoMovieFeatureEdgeDistance.IProps): IAutoMovieFeatureEdgeDistance.IResult {
     return featureEdgeDistanceImplementation(props);
   }
 
   /**
-   * A conservative separation of the convex hulls of nonempty finite XYZ vertex
-   * runs. Points, closed segments, filled triangles and convex cells are
-   * measured, including degenerate hulls. Coordinates are represented binary64
-   * metres; vectors and arrays remain caller-owned and the scalar result owns no
-   * mutable snapshot.
+   * Prove a lower bound on the separation of two represented convex hulls in
+   * metres.
    *
-   * For any nonzero stored direction d, every convex combination has a projection
-   * between its vertices' extrema. A positive projection gap divided by |d| is
-   * therefore a lower bound on Euclidean separation by Cauchy-Schwarz. Each
-   * subtraction, product, sum, square root and division is enclosed outward by
-   * adjacent binary64 numbers. The direction's norm uses an upper enclosure. No
-   * fixed spatial tolerance or approximate closest distance can create PASS.
-   * Input coordinates and differences must admit finite enclosing arithmetic;
-   * overflow throws instead of returning an unqualified separation, as do an
-   * empty run, a non-finite coordinate and a negative or NaN `sufficient`.
-   *
-   * Candidate directions are every vertex-triple normal, `b`'s first, then the
-   * displacement between the two first vertices, then the closest-point
-   * displacement of every vertex pair of `a` against every vertex pair of `b`,
-   * taken from the shared segment kernel. Approximate witnesses only choose
-   * directions: even a poor direction retains the projection proof. Zero means
-   * touching, intersecting, or unresolved; it does not assert an intersection.
-   * This is neither signed side classification nor a complete contact-manifold
-   * query. In particular a triangle containing an allowed attachment point still
-   * receives zero when another part crosses.
-   *
-   * `sufficient` stops once a direction already proves that nonnegative requested
-   * separation. The returned bound can then be weaker than another direction's;
-   * omitted or infinite `sufficient` examines all directions. This cost control
-   * changes no admission: callers accept only a bound at least their requested
-   * separation. `spend` is an optional caller-owned work counter, invoked before
-   * each normal triple, each projection axis and each pair calculation; the
-   * resident mesh separation query always supplies its budget and passes its
-   * resident triangle as `b`.
+   * Supply nonempty finite XYZ vertex runs in one frame. Degenerate hulls may
+   * be points or segments. Candidate axes come from face normals, the first
+   * vertex displacement and closest segment witnesses. A zero bound leaves
+   * separation unresolved. A nonnegative sufficient bound allows an early
+   * return, while its default of infinity examines every candidate. The
+   * optional spend callback accounts for attempted triples, projections and
+   * pair calculations.
    */
   export function boundConvexSeparation(a: readonly IAutoMovieVector3[], b: readonly IAutoMovieVector3[], sufficient?: number, spend?: () => void): number {
     return boundConvexSeparationImplementation(a, b, sufficient, spend);
   }
 
   /**
-   * Internal squared point-to-box lower bound for admitted nearest-query data.
-   * Bounds and point use XYZ metres; cutoff is the running nonnegative squared
-   * distance, with infinity admitting the complete sum. The signed-query owner
-   * validates finite coordinates and representable distance arithmetic before
-   * traversal; this hot primitive borrows that admission and checks no buffers.
+   * Bound squared XYZ distance from a point to a query box.
    *
-   * Terms accumulate in X/Y/Z order, matching the complete squared distance. A
-   * partial sum strictly above cutoff can return immediately because adding
-   * nonnegative squared terms cannot lower it. Such a return is a pruning
-   * witness, not the full box distance. Equality continues, preserving equal
-   * distance candidates and original triangle tie-breaking. Node ordering omits
-   * cutoff and therefore receives the unchanged complete distance.
+   * Supply an admitted point and bounds in metres. With an omitted cutoff,
+   * return the entire squared distance. A nonnegative squared cutoff permits
+   * returning an X or XY partial sum as soon as it exceeds the cutoff. Equality
+   * continues so equally near features remain eligible.
    */
   export function boundMeshQueryPoint(node: Readonly<Pick<IAutoMovieSpatialQueryEntry, "low" | "high">>, point: readonly number[], cutoff?: number): number {
     return boundMeshQueryPointImplementation(node, point, cutoff);
   }
 
   /**
-   * A lower bound on the Euclidean separation of two convex hulls, proved along
-   * one stored direction.
+   * Prove a convex-hull separation lower bound along one supplied direction.
    *
-   * Each run is a nonempty list of binary64 vertices in one metre frame, taken as
-   * its convex hull: a complete convex feature, or the two opposite corners of a
-   * box when the direction is a coordinate axis. Degenerate hulls are admitted. A
-   * zero direction proves nothing and returns zero, as does any direction along
-   * which the two projections overlap or touch; zero therefore means unproved,
-   * not intersecting. The bound qualifies the represented coordinates only, not
-   * an analytic surface, a signed side or a contact manifold. Nothing is
-   * mutated.
-   *
-   * Throws on an empty run and, through `measureProjectionIntervals`, on
-   * a non-finite coordinate or an overflowing enclosure.
-   * `boundConvexSeparation` and the resident separation query's box
-   * pruning are the consumers; their approximate witnesses only choose the
-   * direction.
-   *
-   * @param a First vertex run.
-   * @param b Second vertex run.
-   * @param raw Stored direction; any nonzero scale.
-   * @returns A nonnegative separation lower bound in metres.
+   * Both nonempty vertex runs and the direction use one finite XYZ frame.
+   * Return a nonnegative bound in metres. A zero direction or overlapping
+   * projection intervals returns zero, which leaves separation unresolved.
+   * An empty run, nonfinite coordinate or unrepresentable projection enclosure
+   * raises an error. A coordinate-axis proof can use two opposite box corners.
    */
   export function boundProjectionSeparation(a: readonly IAutoMovieVector3[], b: readonly IAutoMovieVector3[], raw: IAutoMovieVector3): number {
     return boundProjectionSeparationImplementation(a, b, raw);
   }
 
   /**
-   * Bound how far from its root any contact of an anchored fan with one support
-   * triangle can lie.
+   * Bound how far one support triangle can contact an anchored fan.
    *
-   * `fan[0]` is the root, already registered on the support by the caller's
-   * canonical seat check, and `fan[1]` and `fan[2]` are the row's actual corners;
-   * `support` is one original host triangle. Both are metres in one frame and are
-   * only read. The function trusts the root's registration and says nothing about
-   * any other host triangle, which needs its own strict separation proof; the
-   * resident separation query supplies both.
-   *
-   * The support's stored face normal is only a direction. Outward intervals
-   * enclose the whole support slab along it; with H its top, the root's deficit
-   * is delta = max(0, H - root low) and the corners' smallest clearance above H
-   * is s. When s > 0, a contact point's combined non-root barycentric weight is
-   * at most delta / (delta + s), so its distance from the root is at most that
-   * weight times the larger corner L1 distance from the root. A shallow emergence
-   * therefore enlarges the cap through the explicit denominator. A nonpositive s
-   * or a collapsed support leaves the proof false. Neither the winding nor the
-   * cap says anything about tissue volume or burial.
-   *
-   * Throws when either triangle is not three finite vertices, when the support's
-   * edge differences overflow, or, through the shared enclosure arithmetic, when
-   * an enclosure step overflows.
-   *
-   * @param fan Root followed by the two row corners.
-   * @param support One original host triangle.
-   * @returns The proof flag, the cap in metres, and the slab quantities behind
-   *   it.
+   * The fan lists its registered root first, then the two row corners. Supply
+   * both triangles in the same finite metre frame. A positive outward slab gap
+   * for both corners permits a conservative metre cap around the root.
+   * Collapsed support or a nonpositive corner gap leaves the proof false. The
+   * returned slab quantities apply to that support triangle. Malformed triangle
+   * records or unrepresentable slab arithmetic raise errors.
    */
   export function boundTriangleAttachmentContact(fan: readonly IAutoMovieVector3[], support: readonly IAutoMovieVector3[]): IAutoMovieTriangleAttachmentContactBound {
     return boundTriangleAttachmentContactImplementation(fan, support);
   }
 
   /**
-   * Partition resident entry boxes into a median box hierarchy.
+   * Build a median box hierarchy over admitted entries in one metre frame.
    *
-   * The signed, separation and crossing queries supply triangle boxes, lash
-   * contact supplies capsule boxes and the body envelope supplies point boxes,
-   * all with finite XYZ extrema and centres in one metre frame. Every node
-   * encloses every descendant, so its box distance is a lower bound for any
-   * nearest-feature walk. No coordinate or identity changes; the stage sorts the
-   * caller's array in place and keeps the original entries in its leaves, and an
-   * input of at most twelve entries is returned as one leaf holding that same
-   * array. Changing any entry's geometry requires rebuilding the tree.
-   *
-   * The widest node axis chooses each split, with X before Y before Z on equal
-   * widths, and the stable centre sort keeps input order among equal centres. The
-   * twelve-entry leaf size bounds direct entry work per leaf; it changes
-   * traversal cost, never a query's answer. An empty input yields one leaf with
-   * positive and negative infinity extrema, the empty union's sentinels rather
-   * than a finite box; the signed query refuses empty surfaces before this
-   * stage.
-   *
-   * @param entries Caller-owned entries, reordered in place.
-   * @returns The hierarchy's root node.
+   * Unions bound every descendant. For more than twelve entries, sort the
+   * caller's array by centre on the widest axis and split it at the median.
+   * Axis ties prefer X, then Y, then Z, and centre ties retain input order.
+   * Smaller populations keep the original array as one leaf. An empty leaf has
+   * infinity union sentinels. Rebuild or refit after its entry geometry
+   * changes.
    */
   export function buildMeshQueryHierarchy<T extends IAutoMovieMeshQueryHierarchy.IEntry>(entries: T[]): IAutoMovieMeshQueryHierarchy<T> {
     return buildMeshQueryHierarchyImplementation<T>(entries);
   }
 
   /**
-   * Collect the hierarchy entries whose boxes can meet a subject box, ordered by
-   * the first cell of an XYZ grid they share with the subject.
+   * Return resident entries ordered by their first grid cell shared with a
+   * subject box.
    *
-   * `hierarchy` is the tree `buildMeshQueryHierarchy` built from the
-   * owner's resident entries, and `subject` is a box in the same metre frame.
-   * `overlap` keeps entries whose actual boxes overlap the subject's, boundaries
-   * included. `shared-cell` keeps the wider population whose boxes occupy a
-   * common grid cell of width `cell`, which lash contact reads as its contact
-   * neighbourhood. In both modes the result is sorted by the first shared cell
-   * index in X, then Y, then Z, and then by original ordinal, so the order is a
-   * deterministic function of the geometry and not of the tree's shape.
-   *
-   * Cell indices are read from coordinates by division and floor, never by
-   * stepping through cells, so work follows the resident population and not
-   * coordinate magnitude. An infinite cell width puts every finite coordinate in
-   * cell zero, and indices that overflow to the same infinity compare equal and
-   * fall to the ordinal tie-break. No entry geometry, coordinate or contact
-   * allowance is changed.
-   *
-   * @param hierarchy Tree over the resident entries.
-   * @param subject Box the candidates must reach.
-   * @param cell Positive cell width in metres for ordering and `shared-cell`.
-   * @param population Which entries qualify.
-   * @returns Qualifying entries by reference, in cell then ordinal order.
+   * The overlap population includes contact on actual box boundaries. The
+   * shared-cell population tests intersections of integer cell ranges. Use a
+   * positive cell width in metres. Infinity places all finite coordinates in
+   * one cell. The result borrows entries and orders them by first cell in XYZ
+   * order, then original ordinal.
    */
   export function collectSpatialQueryCandidates<T extends IAutoMovieSpatialQueryEntry>(hierarchy: IAutoMovieMeshQueryHierarchy<T>, subject: IAutoMovieSpatialQueryEntry, cell: number, population: "overlap" | "shared-cell"): T[] {
     return collectSpatialQueryCandidatesImplementation<T>(hierarchy, subject, cell, population);
@@ -337,6 +239,12 @@ export namespace AutoMovieEngineGeometry {
    *    each patch keeps its own analytic normal fan so a C0-only axial join
    *    retains both limits. C1 remains the caller's constraint rather than an
    *    inferred property.
+   *
+   * Supply finite adjacent Y intervals, finite centre controls, positive finite
+   * radii and exactly shared endpoints. The returned coefficients are finite
+   * model metres, with exact authored Y at each endpoint. This producer forwards
+   * a positive finite tolerance and positive safe integer budgets. Realizing the
+   * result requires a vertex budget of at least three.
    */
   export function createEllipticLoftAtlas(input: IAutoMovieCreateEllipticLoftAtlas.IInput): IAutoMovieCreateEllipticLoftAtlas.IResult {
     return createEllipticLoftAtlasImplementation(input);
@@ -383,169 +291,95 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Index a resident mesh for repeated axis-aligned depth queries.
+   * Index a mesh for repeated axis-aligned depth queries.
    *
-   * The returned sampler takes a point `(u, v)` in the plane perpendicular to
-   * `axis` and answers the smallest and largest depth along `axis` at which a
-   * triangle covers it, or `null` when none does. The query plane is Y/Z for
-   * depth X, Z/X for depth Y and X/Y for depth Z, in the mesh-local metre frame.
-   * An open surface may return equal depths, winding does not matter, and a point
-   * on a shared edge belongs to both neighbours. A triangle whose projection has
-   * zero area, one parallel to the query axis, is skipped, so the sampler reports
-   * a surface envelope and not a closed-volume test.
+   * Finite query coordinates are mesh-local metres. Depth X reads Y/Z,
+   * depth Y reads Z/X and depth Z reads X/Y. Covering triangles give the
+   * minimum and maximum axial depth, which may be equal on one sheet.
+   * A miss returns null. Winding is immaterial, shared edges are included
+   * and projections with zero area are skipped. This is a surface envelope.
    *
-   * The mesh is copied into the index at creation, so later caller mutations
-   * never change an answer. Creation throws on an invalid axis, a malformed index
-   * buffer, a non-finite position, or projected area or extent arithmetic that
-   * overflows; a query throws on a non-finite coordinate or depth.
+   * The index copies its triangle coordinates. Later mesh changes leave
+   * answers unchanged. Creation rejects invalid axes, malformed triangles,
+   * nonfinite positions or unrepresentable projected area or bounds.
+   * A read rejects nonfinite coordinates and unrepresentable interpolation.
    *
-   * @param mesh Resident surface, snapshotted.
+   * @param mesh Resident surface, copied into the index.
    * @param axis Depth axis.
-   * @returns The depth query.
+   * @returns The synchronous depth query.
    */
   export function createMeshDepthSampler(mesh: IAutoMovieMesh, axis: "x" | "y" | "z"): IAutoMovieCreateMeshDepthSampler.IResult {
     return createMeshDepthSamplerImplementation(mesh, axis);
   }
 
   /**
-   * Index a resident mesh for repeated ray queries.
+   * Index a copied triangle mesh for repeated ray queries.
    *
-   * The mesh is copied into typed arrays at creation, so later caller mutations
-   * never change an answer. The index is a bounding volume hierarchy: each node
-   * splits its triangles at the median of their centroids along the axis the
-   * centroids spread furthest, down to four triangles a leaf. `nearest` returns
-   * the travel to the first triangle in metres along the normalized direction, or
-   * null; `nearestHit` also returns that triangle's original ordinal, the lowest
-   * one among equal travels, with the same raw travel including the sign of zero;
-   * `blocked` answers only whether any triangle lies in range and stops at the
-   * first. Returned records are new per query.
+   * Each ray takes a finite XYZ origin in mesh-local metres and a finite,
+   * nonzero direction. The direction is normalized, including when its raw
+   * norm is subnormal or exceeds binary64. Hit travel is in metres and uses
+   * the closed interval from a finite nonnegative minimum (default 0) to the
+   * maximum. Use positive infinity for an unbounded maximum.
    *
-   * A hit counts when its travel lies in `[minimum, maximum]`, minimum defaulting
-   * to zero so a ray leaving a surface can skip the triangle it starts on, and
-   * positive infinity meaning no maximum. A query may exclude original triangle
-   * ordinals, such as the faces around its own attachment vertex; that changes
-   * which triangles are targets, never the origin or a band of near hits. Winding
-   * does not matter, an edge belongs to both its triangles, and a ray whose
-   * Moller-Trumbore determinant is within 1e-18 of zero is treated as parallel to
-   * that triangle and passes it. A missing hit is an observation gap, not proof
-   * that the origin is inside or outside anything.
+   * The caller may exclude original triangle ordinals. Nearest hit returns
+   * the lowest ordinal among equal travels. A miss returns null through the
+   * nearest operations and false through blocked. Winding is immaterial and
+   * shared edges qualify for either neighbour.
    *
-   * Finite coordinates do not guarantee representable intermediate arithmetic.
-   * Creation throws on a malformed index buffer, a non-finite position or an
-   * unrepresentable edge; a query throws, naming the triangle where one is
-   * involved, on unrepresentable box, determinant, barycentric or travel
-   * arithmetic instead of producing a NaN hit. Centroids whose sum overflows are
-   * averaged after scaling by their largest magnitude, a direction whose norm
-   * overflows or is subnormal is normalized after the same scaling, and a
-   * subnormal direction component whose reciprocal is infinite uses direct slab
-   * division; ordinary inputs keep plain arithmetic.
-   *
-   * @param mesh Resident surface, snapshotted.
-   * @returns The three ray queries over one shared index.
+   * @param mesh Resident triangle mesh, copied into the index.
+   * @returns Nearest travel, attributed hit and blocked reads over one index.
+   * @throws Error for malformed geometry or ray queries, or unrepresentable
+   *   triangle intersection arithmetic.
    */
   export function createMeshRayCaster(mesh: IAutoMovieMesh): IAutoMovieMeshRayCaster {
     return createMeshRayCasterImplementation(mesh);
   }
 
   /**
-   * Compile a resident surface into a conservative whole-feature separation
-   * query.
+   * Compile conservative whole-feature separation against a copied resident mesh.
    *
-   * The mesh is snapshotted, so changing its positions or indices later needs a
-   * new query. Open sheets, disconnected components and degenerate triangles are
-   * admitted, since unsigned separation needs no winding, closure or volume.
-   * `representation` chooses whether the snapshot measures the source binary64
-   * coordinates or their Float32 roundings, the buffer an exporter will write;
-   * both keep the binary64 coordinates as the reference for attachment seats.
-   * Original triangle ordinals survive the hierarchy's reordering.
+   * The snapshot uses source binary64 coordinates by default. Float32 mode
+   * rounds the measured coordinates but preserves the source attachment seats.
+   * Original triangle ordinals remain visible in results. Open, disconnected
+   * or degenerate triangle sets can serve as the resident surface.
    *
-   * A call takes a feature, a nonempty finite XYZ vertex run in the same metre
-   * frame measured as its convex hull, a nonnegative requested clearance and a
-   * caller-owned work budget. It bounds the feature's separation from every
-   * resident triangle: a hierarchy box is skipped only when an enclosed axis
-   * projection already proves the requested clearance, and every remaining
-   * triangle is bounded by `boundConvexSeparation`. This is neither ray
-   * sampling nor a nearest-corner test. `certified` means the complete feature is
-   * at least the clearance away, and at zero clearance strictly positive; false
-   * means unproved, including touches, crossings and rounding at an exact limit,
-   * and neither diagnoses penetration nor selects a closest point. `lowerBound`
-   * is capped at the clearance, or is the smallest positive double at zero
-   * clearance, which is a proof threshold rather than a distance estimate;
-   * `triangle` is the original ordinal of the triangle that lowered it below that
-   * cap, the lowest on ties, or -1 when none did.
+   * A query supplies a nonempty finite XYZ vertex run in the same metre frame,
+   * a finite nonnegative clearance and a caller-owned nonnegative safe integer
+   * work budget. Certification applies to the convex hull of the feature.
+   * Positive clearance needs that full separation. Zero needs strict
+   * separation or the declared attachment proof for a canonical fan.
    *
-   * At zero clearance, a three-vertex fan may carry attachment metadata: its
-   * root's canonical barycentric seat on a source triangle and the original
-   * triangles incident to that seat. The root must equal that seat exactly, in
-   * the snapshot's representation, and each support must contain the seat's
-   * supporting corners. Each support must then bound the whole fan's contact
-   * through `boundTriangleAttachmentContact`, reported as an
-   * `attachmentCaps` entry, and every other triangle still needs strict positive
-   * separation. Such a result reports `lowerBound` zero, because certification is
-   * that combined proof and not positive separation. Without metadata a fan
-   * touching its root is simply unproved.
+   * Full measurement returns a target-capped lower bound and attachments.
+   * The decision read stops when a triangle refutes the target.
    *
-   * Compilation throws on an unknown representation, a malformed or empty index
-   * buffer, a non-finite position, or a Float32 rounding that overflows. Every
-   * visited box, with its up to three axis projections, spends one budget unit,
-   * and every tested support, triangle, normal triple, projection axis and edge
-   * pair spends one more before its work. Exhaustion and malformed input throw by
-   * name; the caller owns the spent count and must not reset it during
-   * refinement. A failed call accepts no geometry and retries nothing. The
-   * returned query's `separated` runs the same walk and stops at the first
-   * triangle whose bound falls below the target; since the running bound only
-   * falls, its decision equals the full measurement's and it never spends more.
-   *
-   * @param mesh Resident surface, snapshotted.
-   * @param representation Coordinates the snapshot measures.
-   * @returns The compiled query.
+   * @param mesh Resident mesh, copied into the selected representation.
+   * @param representation Source coordinates or Float32 coordinates.
+   * @returns Full separation and early decision reads.
+   * @throws Error for malformed geometry, nonfinite represented coordinates,
+   *   invalid clearance or budget, or exhausted required work.
    */
   export function createMeshSeparationQuery(mesh: IAutoMovieMesh, representation?: "source" | "float32"): IAutoMovieMeshSeparationQuery {
     return createMeshSeparationQueryImplementation(mesh, representation);
   }
 
   /**
-   * Compile a closed oriented surface, or an open oriented sheet, into a
-   * nearest-point and signed-distance query.
+   * Read nearest oriented surface distance from a copied triangle mesh.
    *
-   * Unlike a depth envelope, which cannot tell the inside from empty space
-   * between solids or behind a concavity, this reads the nearest feature: its
-   * face projection or closed edge segment gives the distance, and the side of
-   * its pseudonormal, the face normal, the sum of an edge's face normals or the
-   * angle-weighted vertex normal (Baerentzen and Aanaes, 2005), gives the sign,
-   * positive on the oriented exterior. Coordinates are metres, and a point near
-   * the surface gets the computed value, not one forced through a tolerance.
+   * Closed mode is the default and requires paired, oppositely directed edges.
+   * Open mode also allows rim edges. Both admit finite positions and connected
+   * vertex fans, welding exact-coordinate copies. The caller supplies the
+   * outward orientation and embedded geometry needed for a volume reading.
    *
-   * The mesh is snapshotted, so changing it later needs a new query. Vertices
-   * that share exact coordinates are welded, joining UV-split copies without
-   * moving them. Admission throws on a malformed or empty index buffer, a
-   * non-finite position, a triangle without positive finite area, an edge used by
-   * more than two triangles or by two with the same direction, and a vertex whose
-   * incident triangles form more than one fan. A closed surface also requires
-   * every edge to be paired. The caller still owns an embedded,
-   * non-self-intersecting, outward-oriented surface, cavity walls included, which
-   * this neither infers nor repairs; reversing every face reverses the sign.
+   * A query takes three finite mesh-local metre coordinates. The nearest
+   * feature's pseudonormal determines the sign. Equal distances select the
+   * lowest original triangle ordinal. Open rim features carry a boundary flag.
+   * The previous winner may seed a later query as a pruning bound.
    *
-   * With `boundary: "open"` an oriented sheet is admitted: an edge used by one
-   * triangle takes that face's normal as its pseudonormal. A sheet's sign is
-   * meaningful only within its reach, the distance below which the nearest
-   * feature's orientation still separates the two sides, which the caller states
-   * from its own geometry; a result whose nearest feature is a rim edge or rim
-   * vertex reports `boundary: true`, meaning its side is not a side of the
-   * sheet's interior. A closed surface never reports it.
-   *
-   * Callers query in very large numbers, such as a hair strand stepping a few
-   * millimetres at a time against a head, so the leaf loop allocates nothing and
-   * each query first measures the triangle the previous one won, which for a
-   * walking caller supplies the bound that prunes most of the tree. Neither
-   * changes an answer: only boxes farther than the running best are skipped, and
-   * among equally near features the lowest triangle ordinal wins. A query throws
-   * on a point that is not three finite coordinates or whose distance to the
-   * surface's box overflows.
-   *
-   * @param mesh Surface to snapshot.
-   * @param options Closed (default) or open boundary contract.
-   * @returns The query for one XYZ point.
+   * @param mesh Oriented triangle surface to snapshot.
+   * @param options Boundary mode, closed by default.
+   * @returns A nearest-point, normal, signed distance and feature query.
+   * @throws Error for unsupported modes, malformed surfaces or points, and
+   *   unrepresentable distance arithmetic.
    */
   export function createSignedMeshQuery(mesh: IAutoMovieMesh, options?: IAutoMovieSignedMeshQueryOptions): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit {
     return createSignedMeshQueryImplementation(mesh, options);
@@ -583,89 +417,79 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Evaluate a completed generating level without another topology refinement.
+   * Evaluate a completed quad generating level at its existing topology.
    *
-   * This boundary lets a refined fitting domain emit its existing LOD instead of
-   * multiplying render triangles merely because fitting added controls. Original
-   * source-face parameters and indexed face-varying UV identities are copied from
-   * the level unchanged. The level must come from cage admission or the
-   * maintained refiner; this function performs no admission or repair.
+   * Each face in the input must have four corners. A level-zero quad cage
+   * qualifies directly. Refine a polygonal cage once before passing its level
+   * here. The result shares the level's face, position and UV buffers and
+   * supplies limit positions, normals and source-face parameters.
+   *
+   * @param level Completed quad topology and its generating coordinates.
+   * @returns Quad surface in the level's cage-local metre frame.
+   * @throws Error for a nonquad input level or unresolved limit evaluation.
    */
   export function evaluateSubdivisionLevel(level: IAutoMovieSubdivisionLevel): IAutoMovieSubdivisionSurface {
     return evaluateSubdivisionLevelImplementation(level);
   }
 
   /**
-   * Fit an explicitly refined generating domain to authored coarse limit points.
+   * Fit a manifold quad crop to authored limit points after two refinements.
    *
-   * Two uniform Catmull-Clark steps introduce fitting freedom, as in the
-   * refinement principle of Halstead, Kass and DeRose (1993), section 5. The
-   * objective is instead the frozen discrete cotangent bending norm documented by
-   * subdivisionBendingRows, not that paper's analytic plate integral.
-   * https://www.eecs.umich.edu/courses/eecs598-1/halstead.pdf
+   * Supply finite cage-local controlling positions and optional finite limit
+   * targets in metres, dense anchor flags and safe integer source-face
+   * ordinals. Anchor rows constrain the source controls. A limit target
+   * constrains the corresponding refined limit point. Coarse controls and
+   * fine detail compose on the same refinement identities.
    *
-   * Coordinates are hierarchical: Q = R P + D, with D zero at retained original
-   * indices. Source control anchors constrain P. Independent source limit targets
-   * constrain the limit of Q; an index may carry both equations. Fine controls
-   * wholly supported by anchored P have zero detail. Outside regionFaces the
-   * refined original control surface is fixed, preserving the consumer's
-   * neighbouring surface rather than an isolated patch's boundary rule.
+   * The support collar and the refined surface outside the region stay fixed.
+   * Active limit targets along unsupported interior creases are refused.
+   * Output contains the generating level, solved coarse controls and largest
+   * local equality residual. The caller checks the resulting shape and poses.
    *
-   * The input is a manifold quad crop with a caller-owned support collar. Active
-   * limit targets incident to an interior sharp edge are refused because their
-   * limit masks are not smooth/boundary masks. Other support creases retain their
-   * actual affine refinement and sharpness. The caller must validate support
-   * against the whole joined consumer and preserve physical measurements not
-   * implied by point equations. No embedding, no-fold, clinical measurement, or
-   * pose guarantee is made.
+   * @throws Error for invalid geometry or constraints, incomplete solves or
+   *   unrepresentable fitted values.
    */
   export function fitSubdivisionDomain(props: IAutoMovieFitSubdivisionDomain.IProps): IAutoMovieFitSubdivisionDomain.IResult {
     return fitSubdivisionDomainImplementation(props);
   }
 
   /**
-   * Fit disjoint geometric regions on their actual joined subdivision domain.
+   * Fit disjoint source-face regions and compose their deltas on the joined cage.
    *
-   * Every region receives four edge-adjacent face rings of support: two are the
-   * two-step refinement support and two retain the limit one-ring. The collar's
-   * controls and the exterior refined surface are anchored. Local-to-global
-   * vertex identity is followed through exact edge/face subdivision identities,
-   * never spatial welding. Only solved control deltas are composed into the
-   * globally refined original cage, so artificial crop boundaries cannot replace
-   * the joined surface. Original indexed UVs and source-face parameters refine
-   * globally once and never pass through a value-based UV repacker.
+   * The requested refinement level is a whole number from 2 through 6 and
+   * defaults to 2. Each nonempty region names a disjoint set of source faces,
+   * with finite samples and limit targets in cage-local metres. All constraint
+   * vertices must belong to the region. An empty list uniformly refines the
+   * original cage and returns zero fitting residual.
    *
-   * Regions must be disjoint source-face sets; shared boundaries are exterior
-   * anchors for both. Constraints must lie on their region's source vertices.
-   * Support creases preserve their actual refinement; active target fans with
-   * interior sharp edges are refused by the domain fitter. The fit result still
-   * requires the caller's physical measurement, intersection and pose checks.
+   * Four edge-adjacent rings support each local solve. The support collar and
+   * shared boundaries stay anchored. Globally refined topology, source-face
+   * parameters and indexed UVs retain their identities. The result includes
+   * the largest local equality residual. The caller checks the resulting
+   * shape, intersections and poses.
+   *
+   * @throws Error for invalid depths, geometry or regions, incomplete fits or
+   *   unrepresentable fitted coordinates and residuals.
    */
   export function fitSubdivisionRegions(props: IAutoMovieFitSubdivisionRegions.IProps): IAutoMovieFitSubdivisionRegions.IResult {
     return fitSubdivisionRegionsImplementation(props);
   }
 
   /**
-   * Integrate a strongest-site equal-radius compact radial field over a convex
-   * planar domain.
+   * Integrate the strongest compact radial site field over a convex polygon.
    *
-   * Coordinates and radius use one common unit in an orthonormal plane frame;
-   * each site's z is its signed distance from that plane. The scalar is the
-   * strongest positive sphere section q^power, where q=1-distance²/radius². Equal
-   * radii make the strongest site a nearest-site half-plane partition. Green's
-   * theorem reduces each cell's radial polynomial to edge integrals: four-point
-   * Gauss-Legendre is exact for the interior degree-six polynomial in real
-   * arithmetic, and the exterior zero-divergence flux uses a signed angle. The
-   * returned gradient is the area integral of that scalar's physical planar
-   * derivative, not a normal-map or BRDF average.
+   * The caller supplies a dense finite polygon and at most 512 finite sphere
+   * centres in one common length unit and an orthonormal plane frame. Site Z
+   * is signed distance from the plane. The common radius is positive with
+   * representable nonzero square. The field is the strongest positive
+   * (1 - distance² / radius²) raised to power 2 or 3.
    *
-   * The caller supplies the actual convex domain, rather than an extrapolation
-   * from a smaller domain. This operation neither enumerates sites nor chooses an
-   * application-specific field scale or eligibility. At most 512 sites bound
-   * quadratic cell clipping; larger requests fail explicitly. Floating-point
-   * cancellation near tangent circles or nearly coincident sites remains finite
-   * precision, not a directed-rounding certificate. Degenerate footprints return
-   * zero after input admission.
+   * Returns the unsigned footprint area, integrated scalar in squared units
+   * and integrated planar gradient in length units. A degenerate footprint
+   * or an empty field returns zero scalar and gradient. The caller owns
+   * convexity and site selection. Estimates use binary64 arithmetic.
+   *
+   * @throws Error for invalid input or unrepresentable geometry arithmetic.
    */
   export function integrateRadialField(props: IAutoMovieIntegrateRadialField.IProps): IAutoMovieIntegrateRadialField.IOutput {
     return integrateRadialFieldImplementation(props);
@@ -685,98 +509,47 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Turn the witnesses of a mesh clearance measurement into inspection marks: one
-   * segment per witness from its point on the front surface to the matching point
-   * on the back surface, flagged where the back lies in front.
+   * Draw one clearance segment per witness in the supplied order.
    *
-   * A witness's front point is its front triangle's vertices weighted by its
-   * barycentric weights, and its back point is that point moved `gap` metres back
-   * along the measured axis, because the gap is the front depth minus the back
-   * depth there. Each becomes a segment of kind `clearance`, label `clearance
-   * witness`, colour yellow-green `9acd32`, at path `<path>/clearance/<ordinal>`,
-   * flagged when its gap is negative. Coordinates are those of the meshes, which
-   * share one frame; `anchor` names the scene object that frame belongs to, or
-   * null for world space.
+   * Each witness names three safe integer front vertices and three finite
+   * weights. Its front position is their weighted sum in mesh-local metres.
+   * The back position subtracts the finite signed gap on the selected X, Y
+   * or Z axis. A negative gap flags the mark. The caller's anchor names the
+   * shared frame, with null for world space.
    *
-   * It throws for a witness that names a vertex outside the front mesh or does
-   * not hold three vertices and three weights.
-   *
-   * @param props.path The front object's path, which the marks extend.
-   * @param props.front The front mesh the witnesses were measured on.
-   * @param props.axis The depth axis the clearance was measured along.
-   * @param props.witnesses Witnesses as `measureMeshClearance` hands
-   *   them to its visitor.
-   * @param props.anchor Path of the object whose frame the meshes share, or null
-   *   for world space.
-   * @returns One mark per witness, in the witnesses' order.
+   * @param props The front mesh, measured axis, ordered witnesses and mark path.
+   * @returns Clearance marks with owned segment points and the supplied anchor.
+   * @throws Error for malformed witness data, addressing or nonfinite endpoints.
    */
   export function markMeshClearance(props: IAutoMovieMarkMeshClearance.IProps): IAutoMovieMark[] {
     return markMeshClearanceImplementation(props);
   }
 
   /**
-   * Find a triangle mesh's convex and concave feature edges and, for each
-   * triangle, the ones within reach of it.
+   * Measure convex and concave feature edges and their nearby triangle rows.
    *
-   * 1. Vertices with exactly equal positions are welded, so a flat-shaded mesh whose
-   *    vertices are split at hard edges still shares those edges. Triangles of
-   *    zero area are skipped.
-   * 2. An edge shared by exactly two welded triangles is a feature edge when the
-   *    angle between their face normals exceeds 30°; an edge with one triangle (a
-   *    boundary) or more than two (non-manifold) is not. The edge is convex when
-   *    the second triangle's centroid lies behind the first triangle's plane,
-   *    against its normal, and concave otherwise. Edges are listed in the order
-   *    their first triangle and its side occur in the input.
-   * 3. Each triangle keeps the feature edges whose segment lies within `reach` of
-   *    the triangle, nearest first with ties broken by edge index, up to 16. The
-   *    segment-to-triangle distance is zero when the segment pierces the
-   *    triangle, and otherwise the least of its endpoints' distances to the
-   *    triangle and its distances to the triangle's three sides, which is exact
-   *    for a segment and a triangle in 3D.
-   *
-   * Because a triangle lists every edge within reach, not only its own sides, a
-   * fragment inside a face subdivided into many triangles sees the same edges as
-   * in the face's one quad; edges themselves are split into collinear pieces by
-   * such subdivision, which leaves every distance unchanged. The work is a fixed
-   * function of the input, so a mesh measured twice gives equal output.
-   *
-   * Cost is O(T log T) for welding and adjacency plus O(T × E) for the lists,
-   * with T triangles and E feature edges; meshes this measures are generated sets
-   * of at most tens of thousands of triangles, measured once when a model is
-   * built.
-   *
-   * @throws When `reach` is not finite and above zero, or an index is out of
-   *   range.
+   * Supply complete finite XYZ triangles and a positive finite reach in metres.
+   * Vertex addresses are safe integers in the input. Coincident positions share
+   * welded edge identity. Edges with two
+   * nondegenerate incident triangles and a dihedral above 30 degrees qualify.
+   * The second face's centroid behind the first face marks a convex feature.
+   * Each triangle stores up to sixteen edges by segment-to-triangle distance,
+   * with ties resolved by feature ordinal.
    */
   export function measureFeatureEdges(props: IAutoMovieMeasureFeatureEdges.IProps): IAutoMovieMeasureFeatureEdges.IResult {
     return measureFeatureEdgesImplementation(props);
   }
 
   /**
-   * Measure front-minus-back depth along one axis over the complete projected
-   * overlap of two triangle meshes.
+   * Measure minimum front-minus-back depth over projected triangle overlap.
    *
-   * Each entry belongs to one front triangle, by ordinal, and gives its smallest
-   * signed depth separation from any back triangle in mesh-local metres: positive
-   * is clear, zero is contact, negative breaks the declared front-back ordering.
-   * A front triangle with no projected overlap is not reported. The projection
-   * plane is Y/Z for depth X, Z/X for depth Y and X/Y for depth Z. Triangles
-   * parallel to the depth axis are skipped, so this is directional surface
-   * ordering, not a closed-volume collision test. Both meshes must already share
-   * a frame; callers own transforms and which pairs may touch. Neither input is
-   * changed.
-   *
-   * The optional `visit` receives every overlap polygon vertex as a witness,
-   * clear ones included, so a later coupled displacement can keep every one of
-   * those inequalities and not only the violated ones. Throws on an invalid axis,
-   * a malformed index buffer, a non-finite position, and projected area, clipping
-   * or depth arithmetic that overflows.
-   *
-   * @param front Mesh that should lie in front.
-   * @param back Mesh that should lie behind.
-   * @param axis Depth axis; larger values are farther front.
-   * @param visit Optional receiver of every overlap witness.
-   * @returns Minimum depth gap per overlapping front triangle, in ordinal order.
+   * Read both meshes in one metre frame. Project onto the two axes orthogonal
+   * to the selected depth axis, and skip triangles of zero projected area. The
+   * result in original front-triangle order contains only triangles with
+   * overlap. Positive gaps are clear, zero is contact and negative reverses the
+   * requested order. The optional visitor receives every overlap vertex and its
+   * front barycentric weights. Invalid mesh buffers, a bad axis or overflowing
+   * clearance arithmetic raise errors.
    */
   export function measureMeshClearance(front: IAutoMovieMesh, back: IAutoMovieMesh, axis: "x" | "y" | "z", visit?: (witness: IAutoMovieMeshClearanceWitness) => void): IAutoMovieMeasureMeshClearance.IResult {
     return measureMeshClearanceImplementation(front, back, axis, visit);
@@ -872,14 +645,14 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Place a prepared rigid triangle at a requested centroid, heading and normal.
-   * Output points retain their source order and pairwise distances up to binary64
-   * rounding. The target normal fixes the plane; forward is projected into it and
-   * normalized, so neither direction supplies scale. Prepared data is borrowed
-   * unchanged and output records are independent. Invalid directions, malformed
-   * offset counts, nonfinite offsets or unrepresentable results throw. Three
-   * targets constrain a rigid patch; they do not prove whole-body support or IK
-   * reachability, which remain with the actual consumer.
+   * Place a prepared rigid triangle in a destination metre frame.
+   *
+   * Supply all three finite offsets in original order. The normalized heading
+   * and plane normal determine the basis, and the target origin provides the
+   * centroid. Retain the triangle size and return three newly owned points. A
+   * missing offset, nonfinite component, invalid basis or unrepresentable
+   * placement raises an error. The result supplies rigid points for the
+   * caller's separate support and reach checks.
    */
   export function placeSurfaceFrame(prepared: IAutoMoviePreparedSurfaceFrame, target: IAutoMovieSurfaceFrame): [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] {
     return placeSurfaceFrameImplementation(prepared, target);
@@ -917,84 +690,79 @@ export namespace AutoMovieEngineGeometry {
    * surface addresses. Optional patch coefficients are the actual post-binding
    * kernel grids in mm, filtered to patches with retained triangles. They let
    * construction consume that same field instead of re-evaluating a pre-binding
-   * recipe. Omitted/false retains no coefficient snapshots; invalid retention
-   * flags reject before work.
+   * recipe. Supply Boolean retention flags before work starts. An omitted or
+   * false flag leaves its associated optional buffer absent. Invalid model
+   * coefficients and declarations keep their admission diagnostics, and the
+   * realized mesh includes the independent retained patches.
    */
   export function realizeBicubicAtlas64(input: IAutoMovieBicubicAtlasGeometry, options?: IAutoMovieRealizeBicubicAtlas64.IOptions): IAutoMovieRealizeBicubicAtlas64.IResult {
     return realizeBicubicAtlas64Implementation(input, options);
   }
 
   /**
-   * Resolve each public geometry recipe through its deterministic engine owner.
-   * Mesh input is borrowed unchanged; recipes produce newly owned arrays. Atlas
-   * completion and diagnostics describe processing, not shape quality. Retained
-   * finite geometry is returned by default, including for indirect framing and
-   * drawing callers. Only an explicit complete-processing query refuses partial
-   * output; display never opts into that gate.
+   * Resolve a geometry recipe to its mesh and processing diagnostics.
+   *
+   * Mesh input is returned by reference. A primitive produces fresh arrays and
+   * follows the dimension rule in {@link tessellate}. The default `display`
+   * mode returns the retained mesh of a partially processed bicubic atlas.
+   * Use `complete` to require a fully processed atlas. Completion describes
+   * recipe processing.
+   *
+   * @param geometry The mesh, primitive or atlas recipe to resolve.
+   * @param requirement Atlas processing requirement, defaulting to `display`.
+   * @returns The mesh, processing completion and diagnostics.
+   * @throws Error for an invalid primitive, unknown recipe or incomplete atlas
+   * requested in `complete` mode.
    */
   export function realizeGeometry(geometry: IAutoMovieGeometry, requirement?: "complete" | "display"): IAutoMovieRealizeGeometry.IResult {
     return realizeGeometryImplementation(geometry, requirement);
   }
 
   /**
-   * Compose one Catmull-Clark refinement with sparse affine source stencils.
-   * Vertex, edge and face output order agrees with refineSubdivisionPoints.
-   * Coefficients come from topology and sharpness, never from basis probing.
+   * Compose one Catmull-Clark step over sparse source stencils.
+   *
+   * Supply one source stencil per vertex of the admitted topology. New maps
+   * hold vertex, edge and face-point coefficients in the same order as {@link
+   * refineSubdivisionPoints}. Each key addresses the original source basis.
    */
   export function refineSubdivisionStencils(topology: IAutoMovieSubdivisionTopology, source: ReadonlyArray<ReadonlyMap<number, number>>): Array<Map<number, number>> {
     return refineSubdivisionStencilsImplementation(topology, source);
   }
 
   /**
-   * Refit an admitted hierarchy's fixed partition with fresh replacement entries.
-   * The internal query owner supplies one replacement for every original leaf
-   * entry, retaining its population and identity. Replacement bounds must enclose
-   * the actual current geometry in one common metre frame. No entry is removed,
-   * reordered or inspected for area; even a currently degenerate triangle keeps
-   * its place for later snapshots. Boxes are recomputed from every replacement.
+   * Recompute boxes inside an existing hierarchy partition.
    *
-   * The returned tree and leaf arrays are independent of the source tree. Entry
-   * ownership belongs to replace; the crossing owner returns fresh triangle
-   * records, so snapshots share only their immutable index layout. This primitive
-   * neither mutates a resident tree nor caches a previous world placement.
+   * Supply one replacement for every original leaf entry, in the same common
+   * metre frame. The callback owns the replacement records. Recompute each leaf
+   * union and then each parent union. The result has new nodes and leaf arrays
+   * with the original traversal layout, including entries whose current
+   * geometry is degenerate.
    */
   export function refitMeshQueryHierarchy<T extends IAutoMovieMeshQueryHierarchy.IEntry, U extends IAutoMovieMeshQueryHierarchy.IEntry>(source: IAutoMovieMeshQueryHierarchy<T>, replace: (entry: T) => U): IAutoMovieMeshQueryHierarchy<U> {
     return refitMeshQueryHierarchyImplementation<T, U>(source, replace);
   }
 
   /**
-   * Select the connected triangle patch on the inward side of an oriented mesh
-   * boundary.
+   * Select the triangle patch on the inward side of an oriented boundary.
    *
-   * The boundary lists each vertex once, in the order the selected faces wind:
-   * the triangle that traverses boundary edge `a -> b` in that direction is
-   * inside. Selection floods across shared edges from those triangles and never
-   * crosses a boundary edge, so it depends on connectivity alone and a pose or a
-   * folded projection cannot change which triangles a closed loop encloses.
-   *
-   * The input must have consistently wound manifold edges, every triangle with
-   * three distinct vertices. A boundary edge missing from the mesh is refused, a
-   * loop that does not separate the surface is refused, and on an open surface
-   * the patch may not reach a free edge outside the supplied boundary.
-   *
-   * @param props.indices Triangle corner indices, three per triangle.
-   * @param props.boundary Distinct vertex indices of the closed loop, at least
-   *   three, wound like the selected faces.
-   * @returns Sorted original triangle ordinals of the patch, suitable for removal
-   *   without renumbering.
-   * @throws Error naming the failed requirement when the input or boundary breaks
-   *   any rule above.
+   * Supply consistently wound manifold triangles and a loop of distinct
+   * vertices winding like the selected faces. All vertex identities are
+   * nonnegative safe integers. The traversal uses
+   * connectivity, with each directed loop edge on its selected face. Missing
+   * boundary edges, a nonseparating loop or an outside free edge raise errors.
+   * Return original triangle ordinals in ascending order.
    */
   export function selectTriangleRegion(props: IAutoMovieSelectTriangleRegion.IProps): number[] {
     return selectTriangleRegionImplementation(props);
   }
 
   /**
-   * Frozen-metric discrete bending residuals M^(-1/2) C on a quad cage. C is
-   * cotangent stiffness and M barycentric area mass. The diagonal 0–2 matches the
-   * emitted render triangles. This discrete norm approximates bending; it is not
-   * the analytic plate integral of Halstead et al. (1993). Zero-area triangles or
-   * zero vertex mass are refused, with no regularizer.
+   * Build sparse frozen-metric bending rows for a quad level.
+   *
+   * Split every quad on diagonal 0–2. Cotangent stiffness, barycentric area
+   * mass and one common energy normalization define the frozen metric. A
+   * degenerate triangle or a vertex with no positive area raises an error. Each
+   * returned map holds the source vertex coefficients of one row.
    */
   export function subdivisionBendingRows(level: IAutoMovieSubdivisionLevel): Array<Map<number, number>> {
     return subdivisionBendingRowsImplementation(level);
@@ -1043,52 +811,19 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * List every defect of a triangle mesh with the vertices that carry it, so an
-   * inspection can draw each one where it is instead of reading a count.
+   * Locate triangle and edge defects in a borrowed indexed or nonindexed mesh.
    *
-   * `positions` is flat xyz in any one length unit and `indices` holds triangle
-   * corners, or is `null` for a non-indexed list whose every three vertices are
-   * one triangle. Both are read in place, typed arrays included, and neither is
-   * changed. Vertices weld by position: each coordinate is multiplied by
-   * `options.weld`, the number of lattice cells per unit of length, and rounded
-   * to the nearest whole cell, and vertices in the same cell on all three axes
-   * are one corner. The default is `AutoMovieEngineMeshWeldGrid`, a nanometre grid when the
-   * unit is the metre. Welding by cell is not welding by distance: two points
-   * closer than a cell that fall on either side of a rounding boundary stay
-   * apart.
+   * Use complete XYZ and corner triples, including typed arrays. Referenced
+   * vertex ordinals are safe integers in range, and the positive finite weld
+   * factor must place every coordinate in a finite cell. The optional positive
+   * finite sliver threshold measures longest edge divided by altitude.
+   * Collinear triangles on three distinct cells have infinite aspect.
    *
-   * A triangle whose corners weld onto fewer than three cells is `degenerate` and
-   * contributes no edges. Every other triangle contributes its three edges
-   * between welded corners. An edge used by exactly one triangle is `open`, by
-   * more than two `non-manifold`, and by exactly two that traverse it in the same
-   * direction `inconsistent`, which is also what a triangle stored twice reports
-   * on all three edges. A non-manifold edge is not tested for winding. `sliver`
-   * is reported only when `options.sliver` is given: a triangle on three distinct
-   * cells whose aspect, its longest edge squared divided by twice its area,
-   * exceeds that limit. The aspect is dimensionless and equals the longest edge
-   * over the height standing on it: `2 / sqrt(3)` for an equilateral triangle, 2
-   * for a right isosceles one, and infinite for collinear corners on distinct
-   * cells. It is measured on the stored positions, not on the lattice.
-   *
-   * Defects come in ascending order of the first triangle that carries them.
-   * Within one triangle its own `degenerate` or `sliver` defect comes first, then
-   * its edges in corner order: corner 0 to 1, 1 to 2, 2 to 0. An edge is listed
-   * once, at the first triangle that uses it. The same input always gives the
-   * same list.
-   *
-   * It throws a named `Error` for a position count not divisible by three, a
-   * corner count not divisible by three, an index that is not a whole number
-   * inside the position buffer, a `weld` or `sliver` that is not positive and
-   * finite, a vertex whose lattice coordinate is not finite, and more than 94 906
-   * 265 vertices. Only edge incidence is measured: a vertex where two fans touch
-   * and surfaces that cross each other are not found here.
-   *
-   * @param mesh Position and index buffers to measure.
-   * @param options `weld` is the lattice's cells per unit of length, default
-   *   `AutoMovieEngineMeshWeldGrid`. `sliver` is the aspect limit above which a triangle is a
-   *   sliver; absent, no sliver is reported.
-   * @returns The defects, empty for a closed, consistently wound mesh without
-   *   degenerate triangles.
+   * A lattice-collapsed triangle contributes a degenerate defect. Other
+   * triangles expose open, inconsistent and nonmanifold edges through their
+   * cell incidence. The first incident triangle owns each defective edge.
+   * Defects follow triangle order, with a triangle defect before its edges and
+   * edges following traversal order.
    */
   export function measureMeshDefects(mesh: IAutoMovieMeasureMeshDefects.IMesh, options?: IAutoMovieMeasureMeshDefects.IOptions): IAutoMovieMeshDefect[] {
     return measureMeshDefectsImplementation(mesh, options);
@@ -1160,41 +895,20 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Refine a polygon cage into a Catmull-Clark subdivision surface and evaluate
-   * its limit positions and normals.
+   * Refine polygon cages into ordered Catmull-Clark quads and evaluate their limits.
    *
-   * Each level applies Catmull and Clark's (1978) face, edge and vertex rules.
-   * Boundary edges are infinitely sharp, so a boundary follows the cubic B-spline
-   * of its cage edges, and a boundary vertex with one face is rounded rather than
-   * kept, OpenSubdiv's edge-only boundary interpolation. Creases follow DeRose,
-   * Kass and Truong (1998): a vertex with two sharp edges takes the crease rule,
-   * one with three or more is a corner, and semi-sharp edges blend into smooth
-   * ones as their sharpness decays. After the first level every face is a quad,
-   * so the cage may mix triangles, pentagons and other polygons with its quads.
+   * Choose one through six whole refinement levels. The first level emits
+   * one quad per original corner. Each later level emits four per quad.
+   * Boundary edges follow edge-only interpolation and semi-sharp crease
+   * weights decay as refinement proceeds.
    *
-   * The limit position and normal of each vertex come from the published limit
-   * masks, evaluated after any semi-sharp sharpness left at the final level is
-   * spent, so they are what infinite refinement gives and do not depend on the
-   * level. A vertex on an infinitely sharp crease or boundary gets one normal per
-   * side. The exceptions are boundary or crease sides of one face, such as a cage
-   * corner under edge-only interpolation, or of four or more faces: there the
-   * limit surface has no tangent plane containing the crease, and the normal is
-   * OpenSubdiv's approximating mask, as `limitSubdivisionRing` explains.
+   * The returned positions and limit positions are in cage-local metres.
+   * Limit normals and indexed UVs are face-varying. UV chart boundaries
+   * stay pinned, and the source-face parameters retain their cage identities.
+   * Unresolved normals and unrepresentable output arithmetic throw.
    *
-   * UVs refine face-varying with every chart boundary pinned, so an authored UV
-   * layout keeps its chart outlines exactly. The surface is deterministic: the
-   * same cage and level give the same numbers in the same order on every host.
-   *
-   * Refused before refinement: every defect `admitSubdivisionCage` lists, and a
-   * level that is not an integer from 1 to 6. The cap exists because each level
-   * multiplies the quad count by four, so the output is at most 1,024 quads per
-   * cage corner. A vertex whose limit normal vanishes, such as an interior vertex
-   * of valence two or a collapsed cage, is refused after refinement.
-   *
-   * @param props.cage The control cage, only read.
-   * @param props.levels Number of refinement steps, an integer from 1 to 6.
-   * @returns The refined quads, limit positions and normals, UVs and cage
-   *   parameters.
+   * @param props The authored cage and number of refinement levels.
+   * @returns The generated surface with positions, normals, UVs and parameters.
    */
   export function subdivideSurface(props: IAutoMovieSubdivideSurface.IProps): IAutoMovieSubdivisionSurface {
     return subdivideSurfaceImplementation(props);
@@ -1325,30 +1039,14 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Measure a mesh's triangle topology and signed volume from its actual buffers
-   * instead of assuming them.
+   * Measure edge incidence and signed origin-tetrahedron volume from a mesh.
    *
-   * Without physical source correspondence, vertices weld by position on the
-   * `AutoMovieEngineMeshWeldGrid` lattice, so face-local corners can still form one shell. A
-   * mesh that declares physical sources instead keeps their incidence across
-   * contact: two different sources stay distinct even where they touch. A
-   * triangle whose corners collapse onto fewer than three grid cells is counted
-   * degenerate, by ordinal, and contributes no edges in either mode. A closed
-   * solid reports `watertight`; an assembly whose members share faces, or a
-   * surface meant to stay open, reports its boundary and non-manifold edge counts
-   * rather than passing. Non-finite components are counted across positions,
-   * normals, UVs, colours and relief weights. Coordinates are metres and the
-   * volume, by the divergence theorem, is cubic metres, positive for an
-   * outward-wound closed shell.
-   *
-   * This measures; it does not judge. `validateMeshTopology` is the verdict on
-   * the same surface, adding winding consistency and an `expectClosed`
-   * declaration, and `validateModel` runs it on every mesh a model carries. A
-   * malformed index buffer and invalid physical correspondence throw their own
-   * named refusals. The mesh is only read.
-   *
-   * @param mesh Mesh to measure.
-   * @returns Counts, degenerate ordinals, closure and volume.
+   * Positions are finite metres and referenced vertices need representable weld
+   * cells. Explicit physical sources retain distinct incidence at coincident
+   * contacts. A lattice-collapsed face contributes its ordinal and no edges. A
+   * nonempty edge set with exactly two uses per edge is watertight by
+   * incidence. Volume is signed in cubic metres. An empty mesh has zero volume
+   * and an empty incidence set.
    */
   export function inspectMeshTopology(mesh: IAutoMovieMesh): IAutoMovieMeshTopology {
     return inspectMeshTopologyImplementation(mesh);
@@ -1563,20 +1261,20 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Validate a subdivision cage and turn it into level zero.
+   * Admit a polygon cage as a copied subdivision level zero.
    *
-   * Refused, each with the offending index, before any refinement: positions that
-   * are empty, not packed in threes or not finite; no faces; a face with fewer
-   * than three corners, a corner that indexes no vertex, or a repeated vertex; a
-   * crease with an invalid end, equal ends, a sharpness outside 0 to 10, a
-   * repeated edge, or no matching cage edge; UVs without UV faces or the reverse,
-   * UVs not packed in pairs or not finite, UV faces not shaped like the faces, a
-   * UV index out of range, a UV shared by two vertices, or an unused UV; and
-   * every manifold refusal of `buildSubdivisionTopology`. Inputs are only read.
+   * Positions are complete finite XYZ triples in metres. Every polygon has
+   * at least three distinct safe integer vertex ordinals and belongs to a
+   * consistent manifold fan. Creases join existing edges with finite
+   * sharpness from 0 through 10. Optional UV pairs are finite and provide
+   * one valid UV ordinal per face corner.
    *
-   * @param cage The authored cage.
-   * @returns Level zero, with each quad corner at its parameter square corner and
-   *   each other corner at `(0, 0)` of its own sub-face.
+   * Quad corners use their unit-square parameters. Other polygons keep one
+   * sub-face address per corner at (0, 0) for the first refinement.
+   *
+   * @param cage The original control polygons and optional crease and UV data.
+   * @returns The level-zero positions, topology, UVs and parameter arrays.
+   * @throws Error for malformed storage, geometry, ordinals or topology.
    */
   export function admitSubdivisionCage(cage: IAutoMovieSubdivisionCage): IAutoMovieSubdivisionLevel {
     return admitSubdivisionCageImplementation(cage);
@@ -1647,23 +1345,15 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Build the edges and vertex fans of polygon rows, refusing anything that is
-   * not an oriented manifold.
+   * Build oriented edge and vertex-fan tables for admitted polygon rows.
    *
-   * Edges are numbered by first appearance walking faces in order and corners in
-   * order. Each fan is walked from its start by stepping to the opposite corner
-   * of the current corner's in-edge, which is the counter-clockwise neighbour
-   * when the two faces traverse the edge in opposite directions. Refused, by cage
-   * vertex and face indices: an edge used by more than two faces, an edge two
-   * faces traverse in the same direction, a vertex in no face, and a vertex whose
-   * faces form more than one fan. Rows must already hold valid, distinct vertex
-   * indices per face; `subdivideSurface` checks that before calling.
-   *
-   * @param vertexCount Number of vertices the rows index.
-   * @param faceOffsets Row starts, one more entry than faces.
-   * @param faceVertices Vertex of every corner.
-   * @param sharpnessOf Sharpness of the interior edge between two vertices.
-   * @returns The level's connectivity, with boundary edges at sharpness 10.
+   * Face offsets include the final corner count. Within each row use distinct
+   * valid vertex indices. Edges follow first occurrence in face and corner
+   * order. The fan follows the opposite corner across each entering edge.
+   * Boundary edges have sharpness 10, and the interior callback measures each
+   * remaining edge once. Inconsistent edge winding, excess incident faces,
+   * isolated vertices and disconnected vertex fans raise errors. The result
+   * borrows the input row arrays.
    */
   export function buildSubdivisionTopology(vertexCount: number, faceOffsets: number[], faceVertices: number[], sharpnessOf: (a: number, b: number) => number): IAutoMovieSubdivisionTopology {
     return buildSubdivisionTopologyImplementation(vertexCount, faceOffsets, faceVertices, sharpnessOf);
@@ -1723,37 +1413,16 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Compile any triangle surface into a query that tells solid from empty space
-   * at one point by the generalized winding number.
+   * Snapshot a triangle surface for generalized winding queries in metres.
    *
-   * The winding number is the sum of the signed solid angles every triangle
-   * subtends at the point, divided by 4 pi (Jacobson, Kavan and Sorkine-Hornung
-   * 2013, "Robust Inside-Outside Segmentation using Generalized Winding
-   * Numbers"); each triangle's solid angle is the closed form of Van Oosterom and
-   * Strackee (1983). Unlike the pseudonormal sign of
-   * `createSignedMeshQuery`, it needs no closed, embedded manifold: an
-   * open tube, overlapping shells in one index buffer, an edge shared by more
-   * than two triangles and a nearly closed surface all read as the share of the
-   * view they cover. A point counts as `inside` when it is not on the surface and
-   * its absolute winding number is at least 0.5, so an inward-wound shell is
-   * solid too and `winding` keeps the sign.
-   *
-   * Solid angles are singular on the surface, so the same pass first tests
-   * whether the point lies on a triangle: within a slack of 1e-9 of that
-   * triangle's doubled area from its plane and inside its three edges, edges and
-   * corners included, the test `builtSpaceContainsPoint` has always used. A
-   * triangle whose doubled area is at most 1e-12 m2 has no plane to test: it
-   * holds no surface point and contributes nothing to the sum, which is its exact
-   * solid angle when its area is zero; the closed form would instead give plus or
-   * minus 2 pi at a point on its line.
-   *
-   * The mesh is snapshotted, so changing it later needs a new query. Coordinates
-   * are metres in the mesh's frame. Admission throws on a malformed index buffer,
-   * a non-finite position and a mesh without triangles. A query throws on a point
-   * that is not three finite coordinates.
-   *
-   * @param mesh Surface to snapshot; only read.
-   * @returns The query for one XYZ point in metres.
+   * Supply three finite XYZ coordinates as a point in the same frame as the
+   * mesh. Nonfinite mesh positions, query coordinates or winding raise errors.
+   * The winding value is the signed sum of triangle solid angles divided
+   * by 4π. The surface flag includes triangle edges and corners within the
+   * plane-test tolerance of 1e−9 times the triangle's doubled area. Inside
+   * requires a point off the surface and absolute winding at least one half.
+   * This classification also applies to open patches or multiple shells and
+   * keeps the sign of reversed winding.
    */
   export function createMeshWindingQuery(mesh: IAutoMovieMesh): ((point: readonly number[]) => IAutoMovieMeshWinding) {
     return createMeshWindingQueryImplementation(mesh);
@@ -1965,16 +1634,13 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Whether a point lies inside a closed ring by the even-odd rule, casting a ray
-   * along +X.
+   * Classify an off-edge point by the even-odd rule in a closed XY ring.
    *
-   * The answer is defined only for a point off the ring: both callers have
-   * already refused ring contact, so the point they probe never lies on an edge.
-   * The ring may be wound either way. Unlike the architecture graph's
-   * `pointInPolygon`, a boundary point is not classified as inside.
+   * The last corner joins the first. Either winding gives the same answer.
+   * Apply the required boundary policy before calling this classifier.
    *
-   * @param point Point to classify.
-   * @param ring Closed ring, the last corner joined back to the first.
+   * @param point Finite off-edge point in the ring's frame and units.
+   * @param ring Finite corners in ring order.
    * @returns True when the ray crosses the ring an odd number of times.
    */
   export function pointInPlanarRing(point: IAutoMoviePlanarPoint, ring: readonly IAutoMoviePlanarPoint[]): boolean {
@@ -2007,40 +1673,27 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Refine a subdivision level once into an all-quad level.
+   * Refine one admitted subdivision level into quads.
    *
-   * Parent corner `c`, at vertex `v` of face `f`, becomes child face `c` with
-   * corners `v`, the point of its out-edge, the point of `f`, and the point of
-   * its in-edge, which keeps the parent winding. The two halves of a parent edge
-   * take its decayed sharpness and the edges inside a parent face are smooth.
-   *
-   * Corner parameters halve: a child corner takes its parent corner's value, the
-   * midpoint towards the neighbouring corner, or the face centroid. The cage's
-   * non-quad faces instead give each child quad its own unit square on sub-face
-   * `k`, as `IAutoMovieSubdivisionParameter` documents.
-   *
-   * @param level The level to refine.
-   * @returns The next level.
+   * Each parent corner creates one child quad in parent winding: vertex,
+   * outgoing edge, face point and incoming edge. The two halves of a parent
+   * edge inherit its decayed interior sharpness. Quad charts transfer corners,
+   * midpoints and the centroid. Each nonquad cage corner starts its own
+   * unit-square chart. Admitted UV rows follow the corresponding refinement,
+   * and absent UVs stay absent.
    */
   export function refineSubdivisionLevel(level: IAutoMovieSubdivisionLevel): IAutoMovieSubdivisionLevel {
     return refineSubdivisionLevelImplementation(level);
   }
 
   /**
-   * Apply one Catmull-Clark step to vertex positions: every vertex, edge and face
-   * point of the next level.
+   * Compute vertex, edge and face points for one Catmull-Clark step.
    *
-   * The output holds the vertex points in vertex order, then the edge points in
-   * edge order, then the face points in face order. A face point is the average
-   * of its corners. An edge point is `(A + B + F0 + F1) / 4`, the ends and the
-   * two adjacent face points, blended towards the midpoint `(A + B) / 2` by
-   * `subdivisionEdgeSmoothness`, so boundary and sharp edges take the midpoint. A
-   * vertex point applies `subdivisionVertexMask` to the vertex, its edge
-   * neighbours and the new face points of its fan.
-   *
-   * @param topology Connectivity of the current level.
-   * @param positions Packed positions of the current level.
-   * @returns Packed next-level points and the vertex mask used for each vertex.
+   * Read packed XYZ triples in the admitted topology's vertex order. Place new
+   * vertices first, then edges and faces in their original orders. Face points
+   * average corners, edge points blend a smooth four-point average with the
+   * endpoint midpoint, and vertex points use the fan's sharpness mask. The
+   * output also returns each vertex mask in vertex order.
    */
   export function refineSubdivisionPoints(topology: IAutoMovieSubdivisionTopology, positions: readonly number[]): IAutoMovieRefineSubdivisionPoints.IResult {
     return refineSubdivisionPointsImplementation(topology, positions);
@@ -2089,17 +1742,12 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Refine a vertex's quad one-ring once, giving the one-ring of the vertex's
-   * child.
+   * Refine the centre of an admitted quad one-ring and its neighbours.
    *
-   * The child's diagonals are the new face points `(C + E_i + D_i + E_{i+1}) /
-   * 4`, its edge neighbours the new edge points of the ring edges, and its centre
-   * the new vertex point, by the same rules as `refineSubdivisionPoints`. Every
-   * point it needs lies inside the ring's quads, so the ring refines without the
-   * rest of the mesh.
-   *
-   * @param ring The current one-ring.
-   * @returns The child's one-ring with decayed sharpness.
+   * Centre, ordered edge neighbours and diagonal points retain their ring
+   * layout. Each child diagonal averages the corresponding parent quad. The
+   * edges and centre follow the Catmull-Clark sharpness rules, and the returned
+   * edge sharpness values decay for the next step.
    */
   export function stepSubdivisionRing(ring: IAutoMovieSubdivisionRing): IAutoMovieSubdivisionRing {
     return stepSubdivisionRingImplementation(ring);
@@ -2122,75 +1770,45 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * The limit point and two tangent vectors of a ring's vertex, from the dominant
-   * left eigenvectors of the ring's own subdivision matrix.
+   * Estimate the limit point and tangent span of an admitted stationary quad
+   * ring.
    *
-   * Refining a one-ring is linear in its points, so it is a square matrix `S`
-   * over the centre, edge neighbours and diagonals, built here by refining one
-   * unit ring per point with `stepSubdivisionRing`. Because the rules are affine,
-   * `S` keeps constants, so its dominant eigenvalue is 1 and the matching left
-   * eigenvector, scaled to sum 1, is the limit-position mask; the two dominant
-   * left eigenvectors among the masks that sum to zero span the tangent masks
-   * (Halstead, Kass and DeRose 1993 derive the smooth case in closed form). Both
-   * are found by iteration on `S` from the left: plain power iteration for the
-   * limit, and orthogonal iteration of a two-dimensional zero-sum subspace for
-   * the tangents, re-orthonormalised every step so the weaker tangent is never
-   * lost to the stronger one. `limitSubdivisionRing` uses this for darts and for
-   * crease sides of three faces, whose sharp edges give them other matrices than
-   * the published masks assume. The tangent search converges at the ratio of the
-   * third to the second dominant zero-sum eigenvalue, about 0.94 for a dart of
-   * valence 12, so `EIGEN_STEPS` iterations reach rounding.
-   *
-   * @param ring A one-ring whose sharpness is only 0 or 10.
-   * @returns The limit point and two vectors spanning the tangent plane,
-   *   unoriented.
+   * Use sharpness 0 or 10 so the subdivision rule stays fixed. Affine iteration
+   * gives the limit point, and two iterated zero-sum masks yield tangent
+   * vectors. The vectors span the tangent plane without a prescribed
+   * orientation or magnitude.
    */
   export function subdivisionRingEigenbasis(ring: IAutoMovieSubdivisionRing): IAutoMovieSubdivisionRingEigenbasis.IResult {
     return subdivisionRingEigenbasisImplementation(ring);
   }
 
   /**
-   * The Catmull-Clark vertex-point mask for a vertex with the given fan edge
-   * sharpness, including the semi-sharp transition blend.
+   * Compute the Catmull-Clark centre, edge and face weights for one fan.
    *
-   * The rule follows the number of fan edges with positive sharpness (boundary
-   * edges count, at 10): none or one (smooth or dart) takes Catmull and Clark's
-   * `(F + 2R + (n - 3) P) / n`, which is `(n - 2) / n` on the vertex and `1 /
-   * n^2` on each edge neighbour and face point; two (crease) takes the crease
-   * rule `(6 P + A + B) / 8` over the two sharp neighbours; three or more
-   * (corner) keeps the vertex. When decaying the sharpness changes the rule, the
-   * mask is the blend DeRose, Kass and Truong (1998) give for fractional
-   * sharpness: the parent rule weighted by the mean parent sharpness of the edges
-   * that turn smooth, at most one, and the child rule weighted by the rest, as
-   * OpenSubdiv computes it.
-   *
-   * @param sharpness Sharpness of each fan edge, 10 for boundary edges.
-   * @param faceCount Number of fan faces.
-   * @returns The vertex, edge-neighbour and face-point weights.
+   * Use ordered incident sharpness values and the number of face points in the
+   * fan. Zero or one sharp edge selects the smooth rule. Two select a crease
+   * with weights 3/4, 1/8 and 1/8. Three or more retain the corner. If
+   * sharpness decay changes rules, blend them using the mean of the sharpness
+   * values that turn smooth, capped at one.
    */
   export function subdivisionVertexMask(sharpness: readonly number[], faceCount: number): IAutoMovieSubdivisionVertexMask {
     return subdivisionVertexMaskImplementation(sharpness, faceCount);
   }
 
   /**
-   * Tessellate a {@link AutoMoviePrimitiveShape} into a triangle mesh.
+   * Build indexed triangles for a primitive from its dimensions.
    *
-   * Lets the LLM-authored "named dimensions" path (a 0.4 m sphere, a capsule)
-   * become concrete geometry a renderer can draw, without the model ever emitting
-   * vertices. The engine owns this fixed primitive recipe independently of the
-   * rendering host; renderer precision and appearance are separate observations.
+   * Authored dimensions must be finite and strictly positive. Positions are
+   * local metres around the origin, with winding counterclockwise as seen
+   * from outside. Curved primitives use sixteen angular segments. The sphere
+   * uses twelve latitude intervals, and a capsule adds its cylindrical height
+   * between the hemispheres. A plane uses the zero-height box topology.
+   * Extreme finite dimensions can overflow derived geometry arithmetic.
    *
-   * Coordinates are local metres, centred on the origin, and faces wind
-   * counter-clockwise from outside. Dimensions must already have passed model
-   * validation. Sphere, cylinder and cone use sixteen angular segments; the
-   * sphere has twelve latitude rings. Planes retain the zero-height box topology.
-   * Capsules share the sphere's latitude lattice, with two equator rings joined
-   * by the authored cylindrical body height and hemispheres centred at its ends.
-   * Each call returns fresh indexed position and normal arrays, without UVs.
-   * Finite admitted dimensions can still overflow derived capsule height or
-   * normal arithmetic; this producer does not refuse every extreme invalid mesh.
-   *
-   * @throws Error when the runtime primitive discriminator is unknown.
+   * @param shape The primitive and its dimensions in metres.
+   * @returns Fresh arrays for positions, normals and triangle indices.
+   * @throws RangeError for a nonfinite or nonpositive authored dimension.
+   * @throws TypeError for an unknown primitive discriminator.
    */
   export function tessellate(shape: IAutoMoviePrimitiveShape): IAutoMovieTessellation {
     return tessellateImplementation(shape);
@@ -2226,68 +1844,34 @@ export namespace AutoMovieEngineGeometry {
   }
 
   /**
-   * Tessellate a primitive and wrap it as a complete {@link IAutoMovieMesh}.
+   * Convert a primitive to an indexed {@link IAutoMovieMesh}.
    *
-   * The mesh is indexed, carries the primitive's own normals, and has no UVs and
-   * no skin, because a primitive states no atlas and rides its part's bone as a
-   * rigid whole. Callers use it where a mesh is required, such as placing a
-   * primitive with {@link transformMesh} or merging it with authored
-   * parts.
+   * Uses {@link tessellate} for admission and geometry. The mesh has normals
+   * and null UV and skin fields.
    *
-   * @param shape Primitive to tessellate.
-   * @returns A new mesh whose arrays are owned by the caller.
-   * @throws Error when `shape.type` is not a known primitive.
+   * @param shape The primitive and its dimensions in metres.
+   * @returns A new mesh with caller-owned arrays.
+   * @throws RangeError for a nonfinite or nonpositive authored dimension.
+   * @throws TypeError for an unknown primitive discriminator.
    */
   export function tessellateToMesh(shape: IAutoMoviePrimitiveShape): IAutoMovieMesh {
     return tessellateToMeshImplementation(shape);
   }
 
   /**
-   * Place a rigid mesh by translation, unit quaternion, and per-axis scale.
+   * Place an unskinned mesh by per-axis scale, unit quaternion and metre
+   * translation.
    *
-   * Positions take the full placement, normals take the inverse transpose (so a
-   * non-uniform scale does not tilt them off the surface), and a mirroring scale
-   * flips triangle winding so the outward face stays outward. UVs ride along
-   * untouched, because a placement moves a surface without re-cutting its atlas.
-   * Linear RGB and relief weights follow the same vertex identities and are
-   * copied unchanged. Physical correspondence is admitted, copied with its
-   * original source pairs, and admitted again on the placed positions, because a
-   * placement must not separate aliases on the shared weld grid. Reusing a pair
-   * in another placement still asserts one point; a later merge refuses
-   * disagreement rather than renaming the physical instance.
+   * Positions and normals must be finite triples. Scale is finite and nonzero
+   * per axis, and rotation's norm may differ from one by at most 1e-6. Normals
+   * take inverse scale and rotation before normalization. Reflection reverses
+   * triangle winding, and finite zero normals remain zero. The result owns its
+   * arrays and carries the supplied UVs, colours, relief weights and physical
+   * correspondence. Aliases are checked before and after placement.
    *
-   * That is what makes a placed member's coordinates local rather than global,
-   * and it is the one thing to know before rotating an atlas-bearing member.
-   * {@link buildPolyhedron} decides each face's frame from world up in
-   * the frame the mesh was built in, so a panel built upright and then laid down
-   * by a rotation keeps the upright face's frame while presenting a level face.
-   * Build the member in the orientation it will be seen in, or accept that its
-   * grain travels with it, which is what a real board does when it is turned.
-   *
-   * A rotation is where riding along is free. A scale is not, and it is the one
-   * case where carrying the atlas unchanged costs the set its unit. A metric set
-   * says one unit is one metre of surface, and a scaled placement stretches the
-   * surface while leaving the numbers where they were, so a member built at unit
-   * size and placed at three times it reads one metre where the surface now
-   * measures three: the finish comes out three times too large, uniformly. A
-   * non-uniform scale is worse than wrong by a constant, because each face takes
-   * its own factor and the set stops being metric by any single number at all.
-   *
-   * Nothing downstream recovers it. `validateTextureScale` measures a binding
-   * against the part's own coordinate span and never reads a placement, so a
-   * scaled member's declaration passes exactly as it did before it was scaled.
-   * Author an atlas-bearing member at the size it will be seen at and place it
-   * with translation and rotation, or drop `coordinateSource` on it rather than
-   * claiming metres a scale has already falsified.
-   *
-   * @param mesh Unskinned mesh in its local metre frame; never modified.
-   * @param transform Placement, each field defaulting to identity.
-   * @returns A new mesh whose arrays share nothing with the input; its index
-   *   buffer is always present.
-   * @throws Error when the mesh is skinned, its indices are incomplete or out of
-   *   range, its physical correspondence is malformed before or after placement,
-   *   a placement field is not finite, the rotation is not unit within 1e-6, or a
-   *   scale component is zero.
+   * UVs retain their original chart values. For finishes expressed in metres,
+   * build at the intended size and use rigid translation and rotation for
+   * placement.
    */
   export function transformMesh(mesh: IAutoMovieMesh, transform: IAutoMovieMeshTransform): IAutoMovieMesh {
     return transformMeshImplementation(mesh, transform);

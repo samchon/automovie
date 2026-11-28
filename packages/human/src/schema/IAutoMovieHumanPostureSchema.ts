@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanPosture } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanPosture. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Standing sagittal measurements for typia validation. Pelvic tilt, sacral
+ * slope, thoracic kyphosis and craniovertebral angle use degrees. Sagittal
+ * vertical axis is a signed horizontal distance in millimetres.
+ */
 export type IAutoMovieHumanPostureSchema = IAutoMovieHumanPosture & {
   /**
    * Pelvic tilt: the angle from the vertical of the line from the axis of the femoral heads to the midpoint of the sacral plate, degrees, positive when the sacral plate lies behind the hips. It rises with age as the pelvis tilts back, about 12 to 15 degrees under 50 and 20 to 25 at 80 (Asai et al. 2017, PLoS ONE 12(6):e0178697).

@@ -8,18 +8,18 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The `catchObject` law's interception (`catchObjectApproach.tossFlight`,
- * `meetFlight`): a self-toss is met as it falls back to the catch, the later
- * root of `fall + vy t - g t² / 2 = 0`; another's throw where it comes within
- * reach, the distance ahead over the closing speed.
+ * Check the flight time of a self-toss and of an approaching throw.
  *
  * Scenarios:
  *
- * 1. Tossed up at 3 m/s from 0.5 m above the catch, it flies `(3 + sqrt(9 + g)) /
- *    g` and lands on the catch's height; a toss not rising, or one never
- *    reaching the catch, is refused.
- * 2. A throw 3 m beyond the reach closing at 6 m/s is met in 0.5 s; one released
- *    within reach, or not closing, is refused.
+ * 1. From 0.5 m above the catch at 3 m/s upward, land at the descending root.
+ *    Refuse a non-rising toss and one that cannot reach the catch height.
+ * 2. A throw 3 m outside reach closing at 6 m/s is met in 0.5 s. Refuse
+ *    release already within reach and zero closing speed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the two flight frames, roots and rejected inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The toss and meeting computations are checked directly against their small scalar fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Solving the ballistic height equation gives `(3 + sqrt(9 + g)) / g`. Dividing distance by closing speed gives the other time.
  */
 export function test_motions_throwing_catch_object(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

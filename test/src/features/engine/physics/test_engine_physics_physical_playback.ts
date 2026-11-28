@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Seeks at 0, 0.1, 0.25, 0.4 and 0.5 (on and between frames) equal the cache's,
  *    in time order.
  * 2. The same seeks reversed equal them too.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies playback of every body and segment field at frame ticks and between them, independent of seek order.
+ * @evidence contracts/development/testing.md#behavioral-verification Encodes and decodes a typed two-body cache whose reused bone names carry distinct per-frame values, then seeks in both directions.
+ * @evidence contracts/development/testing.md#independent-expectations Fixture seed values vary by frame, body and segment. Each archived read must exactly equal the corresponding live read at 0, 0.1, 0.25, 0.4 and 0.5 s.
  */
 export async function test_engine_physics_physical_playback(): Promise<void> {
   const rate: number = 4;

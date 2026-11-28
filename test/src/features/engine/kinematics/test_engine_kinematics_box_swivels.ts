@@ -27,6 +27,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The same with an immobile twist (null): the neutral swivels are 0 and 180.
  * 3. No constraint: nothing refused, every swivel feasible, no immobile or least
  *    analysis (null).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers two-chart rejection, feasible arcs, immobile neutral points and an unconstrained swivel.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls all four box swivel operations on one fixed hinge basis with limited, immobile and absent constraints.
+ * @evidence contracts/development/testing.md#independent-expectations Rotation in the fixture is solely about the twist axis, so the principal chart exceeds its 30-degree bound outside the expected arc. The alternate chart has flexion 180. An immobile axis reads neutral at the two half-turn-separated roots.
  */
 export function test_engine_kinematics_box_swivels(): void {
   const basis: IAutoMovieJointAxes = {

@@ -21,6 +21,10 @@ import { nclose } from "../../internal/nclose";
  * 3. Baseline a=1 can certify its 26th accepted endpoint without a 27th trial; a=9
  *    remains incomplete at100. Acceleration retains the same physical KKT and
  *    trial limit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the physical slack recurrence and shared trial limit for baseline and SQP cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs both schedules with slopes one and nine and varying Hessian scaling, then compares every selected update and exact-cap termination.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's linear objective and affine row yield s_next=a*s/(1+a) for fixed tilt and a*s³/(1+a) for resolved nominal mixing.
  */
 export function test_recovery_internal_refine_feasible_state_feasible_sqp_rate(): void {
   const checks: boolean[] = [];

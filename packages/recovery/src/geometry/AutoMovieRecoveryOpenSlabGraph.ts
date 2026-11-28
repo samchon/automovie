@@ -7,15 +7,18 @@ import type {
 
 import { AutoMovieRecoverySlabGraph as G } from "./AutoMovieRecoverySlabGraph";
 
-/** Observe ordinary open-arc transport without exporting source addresses. */
+/** Observes ordinary open-arc transport between saved cuts. */
 export namespace AutoMovieRecoveryOpenSlabGraph {
   /**
-   * Prepare boundary incidence once and observe critical-free ordinary open
-   * pairs. Binary64 zero-area checks and combinatorial paths do not certify
-   * embedding. Source winding conflicts warn separately from undirected sheet
-   * admission. The producer must supply every critical-event face as a defect;
-   * this helper alone does not certify a height-product structure from endpoint
-   * counts.
+   * Prepares one immutable source for open-slab incidence queries.
+   *
+   * Supply aligned source positions and scalar heights in millimetres with
+   * idempotent canonical addresses for exact aliases. The returned query
+   * borrows those arrays. Provide complete, ordered original face candidates
+   * and the support of every known defect or critical event in the slab.
+   * Returned ordinary pairs refer to saved arc ordinals and record reversal.
+   * Winding warnings and unsupported groups have separate outputs. The
+   * admission uses binary64 triangle tests and combinatorial incidence.
    */
   export function prepare(
     source: IAutoMovieRecoveryOpenSlabGraph.Source,

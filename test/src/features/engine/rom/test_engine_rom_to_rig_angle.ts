@@ -21,6 +21,10 @@ const FRAME: IAutoMovieAxisFrame = { sign: -1, neutral: 10 };
  * 1. Clinical -20 under sign -1, neutral 10 is (-20 - 10) / -1 = 30.
  * 2. No frame leaves the angle, and null stays null.
  * 3. The prepared reader answers the same on a repeated frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the inverse reversed-neutral conversion, identity cases and the prepared repeated reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Kinematics.toRigAngle and its prepared reader with explicit frame, missing frame and null inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture solves clinical = -rig + 10 at -20 and 10, yielding rig 30 and zero. The unframed 5 and null samples retain their input values.
  */
 export function test_engine_rom_to_rig_angle(): void {
   TestValidator.predicate(

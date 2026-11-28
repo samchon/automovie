@@ -19,6 +19,10 @@ import { InspectionScene } from "../../internal/InspectionScene";
  *    under its path, and records them all.
  * 3. A `parts`, `hide`, `label` or `color` pattern that matches no object, mark or
  *    kind is refused, leaving the scene as it was.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the distinct selection of one construction curve and all descendants, plus unmatched request refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates three construction curves on one named mesh. Calls inspection with an exact curve path and then the object path. Reads emitted segments and selected paths and executes four unmatched request forms.
+ * @evidence contracts/development/testing.md#independent-expectations The middle triangle is authored at Z 1 and gives three sides. Selecting the whole object must include three triangles for nine sides, and the original surface stays on layer 1. Invalid requests leave the original scene with one child.
  */
 export function test_render_scene_apply_inspection_select(): void {
   const hero: THREE.Mesh = InspectionScene.quad("hero");

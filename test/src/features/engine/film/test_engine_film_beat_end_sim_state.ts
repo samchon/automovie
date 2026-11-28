@@ -122,6 +122,10 @@ const plant: (
  *    zero velocity) instead of dividing by its empty period.
  * 10. A performance that starts exactly at shot end (local time 0) has an empty
  *     velocity window: zero, not NaN.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state incoming and clamped velocity, active foot-plant boundaries and tie rules, mounted and absent state and duplicate-data refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification The test samples prepared beat-end snapshots with a one-shot clip and supplied simulation data. It inspects velocities, phase, held state, plants and mount records and calls the same owner with malformed duplicate inputs.
+ * @evidence contracts/development/testing.md#independent-expectations A two-metre move over one second gives 2 m/s before and at the cut, then a held zero once time lies beyond its end. Input run endpoints and ordering identify active and later-equal-start plants. A zero-duration cycle or zero-width velocity window supplies no motion interval.
  */
 export function test_engine_film_beat_end_sim_state(): void {
   const flight: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatEnd({

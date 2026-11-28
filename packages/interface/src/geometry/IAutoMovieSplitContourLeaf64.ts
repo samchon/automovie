@@ -4,14 +4,11 @@ import type { IAutoMovieContourLoftCurves64 } from "./IAutoMovieContourLoftCurve
 /** Source-curve split point and chord-qualified restrictions on both sides. */
 export namespace IAutoMovieSplitContourLeaf64 {
   /**
-   * Split endpoint and repartitioned children of a retained source restriction
-   * at its declared interior phase, under one finite-segment chord bound. A
-   * parent's bound need not hold against a child's different chord, even for a
-   * straight geometric trace. The shared point is the Bernstein split endpoint,
-   * never its proxy chord point. Ancestry depth and phase limits are inherited
-   * without resetting subdivision. Already qualified explicit children need no
-   * additional adaptive work, even if their exact restriction increases
-   * ancestry beyond the adaptive depth limit.
+   * The actual Bernstein split endpoint and qualified restrictions on both
+   * sides of a strict interior source phase. Each side checks its own chord
+   * with the original tolerance. The restrictions inherit phase limits and
+   * ancestry. Already qualified explicit children can exceed the adaptive
+   * recursion limit.
    */
   export type IResult = {
     /**

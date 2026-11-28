@@ -22,6 +22,10 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
  * 1. A genuine finite floor violation is independently observable.
  * 2. Negative tolerances, missing references and an inconsistent clock refuse.
  * 3. Negative fall tolerances and fall times refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes refusal of invalid promises and observations for floor overlap, fall and material-side policies.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs a real falling-sphere audit, changes tolerances, clocks and body references, then audits explicit fall and material overlap cases.
+ * @evidence contracts/development/testing.md#independent-expectations A finite floor violation must remain visible. Declared soft depth, rigid geometry and undeformed geometry give distinct outcomes, while negative tolerances and noncausal timing are refused.
  */
 export async function test_engine_physics_audit_physical_outcomes_limits(): Promise<void> {
   const fixture: () => IAutoMovieMotionAudit.IInput =

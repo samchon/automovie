@@ -180,11 +180,9 @@ const LISTED: readonly IListed[] = [
  * 4. The ATM's screen splits its 381 mm diagonal (width짼 + depth짼 = 381짼 mm짼
  *    within 0.5 mm짼) and lies on the cabinet's front face, z = 0.400 m.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the producers, the three geometric checks and the ATM's measured diagonal and face.
- * @evidence contracts/development/testing.md#behavioral-verification Builds each producer through its public entry and casts rays at the drawn render model, reading the surface it meets.
- * @evidence contracts/development/testing.md#independent-expectations The face's position and normal come from the rendered geometry, the top from model `+Y` on that measured plane or the producer's documented flat orientation, and the ATM figures from NCR's 381 mm diagonal and 800 mm cabinet depth.
- * @evidence contracts/development/testing.md#distinguishing-cases A frame inside the cabinet, a missing dimension, a frame turned upside down or mirrored about its normal, or a face hidden behind another part each fail; tool working faces and articulated surfaces are not listed and not read.
- * @evidence contracts/development/testing.md#execution-ownership Runs in memory on CPU three.js ray casts against locally built models, with no host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the surface-bearing producers, expected ray orientation and ATM diagonal and contact conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each public model and casts CPU rays onto its geometry from the authored frame. It reads actual intersection distance and facing and catches hidden, inverted, mirrored or displaced contacts.
+ * @evidence contracts/development/testing.md#independent-expectations A ray starting 5 mm along a surface normal reaches its plane after 5 mm. Projected model up gives the surface's top where the plane is tilted. The NCR ATM's exterior dimension and 381 mm diagonal give independent depth and panel checks.
  */
 export function test_archetype_surface_extents(): void {
   const findings: string[] = [];

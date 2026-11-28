@@ -12,6 +12,10 @@ import { createRecoveryConflictingSceneFixture } from "../../internal/createReco
  * 1. With one reciprocal index link joining the seam tracks of identities 0 and
  *    48, the whole conflicting component is excluded from the seed's matches
  *    and from the final points, which keep the other 70 tracks.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the late transitive identity conflict and the resulting seed and landmark exclusions.
+ * @evidence contracts/development/testing.md#behavioral-verification Adds one reciprocal seam link, runs scene construction and checks support before and after registration.
+ * @evidence contracts/development/testing.md#independent-expectations A link combining the independently authored tracks with IDs 0 and 48 removes two from the original population of 72.
  */
 export function test_recovery_internal_create_camera_scene_conflicts(): void {
   const fixture: ReturnType<typeof createRecoveryConflictingSceneFixture> =

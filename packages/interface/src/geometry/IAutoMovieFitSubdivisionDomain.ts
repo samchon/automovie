@@ -6,10 +6,10 @@ import type { IAutoMovieSubdivisionLevel } from "./IAutoMovieSubdivisionLevel";
  * limit constraints.
  *
  * All positions are local metre triples; anchors constrain original controls
- * while limit targets constrain the refined surface. Cage admission and the
- * fitter check topology, constraint sizes and finite values; interior-crease
- * targets, degenerate metrics and incomplete solves refuse. Support adequacy
- * and physical validity remain caller checks.
+ * while limit targets constrain the refined surface. Supply finite controls and
+ * targets in a manifold quad domain. The fitter refuses targets on interior
+ * creases and incomplete solves. The caller checks support adequacy and the
+ * fitted surface against the required measurements.
  */
 export namespace IAutoMovieFitSubdivisionDomain {
   /**
@@ -38,10 +38,10 @@ export namespace IAutoMovieFitSubdivisionDomain {
    * measurements not implied by point equations. No embedding, no-fold,
    * clinical measurement, or pose guarantee is made.
    *
-   * Inputs are borrowed for the synchronous solve and are not mutated. Cage
-   * admission validates connectivity and finite buffers; the fitter validates
-   * source-length constraints, finite targets and region identities before
-   * solving.
+   * The synchronous solve borrows inputs. Supply one anchor and one optional
+   * limit target per source vertex. Region faces use safe source ordinals.
+   * Fixed surrounding controls preserve the consumer's support. Nonfinite
+   * controls, targets, solved geometry or residuals cause refusal.
    */
   export type IProps = {
     /**
@@ -50,7 +50,7 @@ export namespace IAutoMovieFitSubdivisionDomain {
      */
     cage: IAutoMovieSubdivisionCage;
 
-    /** Existing joined controls, metres, packed like cage.positions. */
+    /** Finite existing controls in packed metre XYZ, aligned to cage.positions. */
     controlPositions: readonly number[];
 
     /** Exact original coarse-control constraints; one flag per source vertex. */
@@ -62,7 +62,7 @@ export namespace IAutoMovieFitSubdivisionDomain {
      */
     limitTargets: ReadonlyArray<readonly [number, number, number] | null>;
 
-    /** Source face indices permitted to change, with an anchored support collar. */
+    /** Original integer face indices allowed to change, with exterior anchors. */
     regionFaces: ReadonlySet<number>;
   };
 

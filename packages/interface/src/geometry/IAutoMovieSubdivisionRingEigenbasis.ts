@@ -1,11 +1,10 @@
 /**
  * A ring's evaluated limit point and two dominant tangent directions.
  *
- * The result contains spatial xyz vectors in the ring's local metre frame, not
- * eigenvector coefficients; tangents have arbitrary mask scale and are not unit
- * normals. The caller supplies an admitted ring with stable sharpness; fixed
- * 512-step iteration has no independent convergence certificate and
- * limitSubdivisionRing validates the resulting normal.
+ * The result contains one spatial point and two XYZ tangent vectors in the
+ * ring's local frame. Tangent scale and sign are arbitrary. Supply an admitted
+ * ring with stable sharpness. The fixed 512 steps approximate the masks. The
+ * consumer checks whether their cross product defines a normal.
  */
 export namespace IAutoMovieSubdivisionRingEigenbasis {
   /**
@@ -23,11 +22,8 @@ export namespace IAutoMovieSubdivisionRingEigenbasis {
    * iteration for the limit, and orthogonal iteration of a two-dimensional
    * zero-sum subspace for the tangents, re-orthonormalised every step so the
    * weaker tangent is never lost to the stronger one. `limitSubdivisionRing`
-   * uses this for darts and for crease sides of three faces, whose sharp edges
-   * give them other matrices than the published masks assume. The tangent
-   * search converges at the ratio of the third to the second dominant zero-sum
-   * eigenvalue, about 0.94 for a dart of valence 12, so `EIGEN_STEPS`
-   * iterations reach rounding.
+   * uses this for darts and three-face crease sides. Iteration accuracy depends
+   * on the gap between the tangent subspace and remaining eigenvalues.
    *
    * All vectors are newly allocated. Their lengths and finiteness are not
    * separately checked here; limitSubdivisionRing owns normal normalization and

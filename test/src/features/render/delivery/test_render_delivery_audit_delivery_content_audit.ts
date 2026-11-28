@@ -31,6 +31,10 @@ type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
  *    minimum, such as a boundary moved one frame by encoding, is not reported.
  * 8. Reference silence explains delivered silence on the audio clock, and a
  *    reference that stops short of the film explains nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Classifies measured black, freezes and silence using authored allowances, native time and reference coverage.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the audit on prepared measured intervals, independent stream coverage, exact video/audio clocks and matching or incomplete references.
+ * @evidence contracts/development/testing.md#independent-expectations Literal intervals and authored coverage set expected splits, blocking flags and detector boundaries. The 1602-sample case distinguishes legitimate quantization from a two-sample shortfall.
  */
 export function test_render_delivery_audit_delivery_content_audit(): void {
   const video = (ticks: number): Timestamp => ({ ticks, timeBase: [1, 15360] });

@@ -1,9 +1,13 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannelClaim,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
+import { motionHumanChannel } from "../../compose/internal/motionHumanChannel";
 import { HumanSegment } from "./HumanSegment";
 
 /*
@@ -69,20 +73,79 @@ export namespace HumanSegmentOverlayRun {
     );
   }
 
-  /*
-   * How far an overlay still holds its channels at a second, released to the
-   * carrier over the fade before its end unless it hands them on.
-   */
+  /* The carrier fade and the claims retained by the next overlay. */
+  export interface IRelease {
+    weight: number;
+    retained?: readonly AutoMovieMotionHumanChannelClaim[];
+  }
+
+  /* Fade unclaimed joints back to the carrier as an overlay ends. */
   export function released(
     person: IAutoMovieMotionHumanSegment.IPerson,
     overlay: IAutoMovieMotionHumanSegment.IOverlay,
     seconds: number,
+  ): IRelease {
+    const remaining: number = overlay.end - seconds;
+    if (
+      remaining >= HumanSegment.FADE ||
+      (entering !== undefined && Math.abs(entering - overlay.end) <= HANDOFF)
+    )
+      return { weight: 1 };
+    const retained: AutoMovieMotionHumanChannelClaim[] = person.overlays.flatMap(
+      (candidate) =>
+        candidate.index > overlay.index &&
+        endsAt(overlay, candidate.entryTime) &&
+        candidate.end > candidate.entryTime &&
+        shares(overlay, candidate)
+          ? candidate.channels
+          : [],
+    );
+    if (
+      retained.length > 0 &&
+      overlay.channels.every((claim) =>
+        motionHumanChannel.claims(retained, claim),
+      )
+    )
+      return { weight: 1 };
+    const weight: number = fadeOut(remaining, HumanSegment.FADE);
+    return retained.length === 0 ? { weight } : { weight, retained };
+  }
+
+  /* The displayed entry joints owned by an earlier overlay at the handoff. */
+  export function handedIn(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    overlay: IAutoMovieMotionHumanSegment.IOverlay,
+  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose> | undefined {
+    if (overlay.index === 0 || overlay.end <= overlay.entryTime) return undefined;
+    const previous: IAutoMovieMotionHumanSegment.IOverlay[] =
+      person.overlays.filter(
+        (candidate) =>
+          candidate.index < overlay.index &&
+          endsAt(candidate, overlay.entryTime) &&
+          shares(candidate, overlay),
+      );
+    if (previous.length === 0) return undefined;
+    return new Map(
+      overlay.context.entry.pose.joints
+        .filter(({ bone }) =>
+          previous.some((candidate) =>
+            motionHumanChannel.covers(candidate.channels, bone),
+          ),
+        )
+        .map((joint) => [joint.bone, joint]),
+    );
+  }
+
+  /* A short overlay must start its inherited channel at full weight. */
+  export function releaseHandoff(
+    overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    seconds: number,
+    release: number,
   ): number {
-    return handsOn(person, overlay)
-      ? 1
-      : AutoMovieEngineMotionSampling.minimumJerkShare(
-          Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
-        );
+    const span: number = overlay.end - overlay.entryTime;
+    return release >= 1 || span >= HumanSegment.FADE
+      ? release
+      : fadeOut(overlay.end - seconds, span);
   }
 
   /*
@@ -103,27 +166,31 @@ export namespace HumanSegmentOverlayRun {
     a: IAutoMovieMotionHumanSegment.IOverlay,
     b: IAutoMovieMotionHumanSegment.IOverlay,
   ): boolean {
-    return a.channels.some((channel: (typeof a.channels)[number]): boolean =>
-      b.channels.includes(channel),
+    return (
+      a.channels.some((channel) =>
+        motionHumanChannel.claims(b.channels, channel),
+      ) ||
+      b.channels.some((channel) =>
+        motionHumanChannel.claims(a.channels, channel),
+      )
     );
   }
 
-  /*
-   * Whether an overlay hands its channels on at its end: to one that enters
-   * then, or to the act whose entry is being read there
-   * (`HumanSegmentOverlayRun.handing`).
-   */
-  function handsOn(
-    person: IAutoMovieMotionHumanSegment.IPerson,
+  /* Match only a played predecessor's realized ending second. */
+  function endsAt(
     overlay: IAutoMovieMotionHumanSegment.IOverlay,
+    seconds: number,
   ): boolean {
-    if (entering !== undefined && Math.abs(entering - overlay.end) <= HANDOFF)
-      return true;
-    return person.overlays.some(
-      (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
-        o !== overlay &&
-        Math.abs(o.entryTime - overlay.end) <= HANDOFF &&
-        shares(o, overlay),
+    return (
+      overlay.end > overlay.entryTime &&
+      Math.abs(overlay.end - seconds) <= HANDOFF
+    );
+  }
+
+  /* Remaining release share for the given fade duration. */
+  function fadeOut(remaining: number, duration: number): number {
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
+      Math.min(1, Math.max(0, remaining / duration)),
     );
   }
 }

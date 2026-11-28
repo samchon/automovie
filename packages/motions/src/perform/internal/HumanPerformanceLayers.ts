@@ -20,7 +20,8 @@ import { HumanSegment } from "./HumanSegment";
 export namespace HumanPerformanceLayers {
   /*
    * The film second of an instant: a second as given, or a named instant of an
-   * anchored action or of a cue track.
+   * anchored action or of a cue track. An action contributes only the events
+   * it plays within its realized interval, including its exact cut instant.
    * Parameter at: The instant.
    * Parameter entries: Earlier schedule entries available while placing an action.
    * Returns: The film second.
@@ -80,25 +81,40 @@ export namespace HumanPerformanceLayers {
         : (entries ?? self.schedule?.entries)?.find(
             (e: IAutoMovieScheduleEntry): boolean => e.index === placed.entry,
           );
-    if (placed !== undefined && at.event === undefined)
-      return (entry?.contact ?? placed.entryTime) + (at.offset ?? 0);
-    const events: readonly IAutoMovieScheduleCue[] =
-      placed === undefined
-        ? track!
-        : [
-            { name: "start", seconds: placed.entryTime },
-            ...placed.plan.events.map((e) => ({
-              name: e.name,
-              seconds: placed.start + e.share * placed.plan.duration,
-            })),
-            {
-              name: "end",
-              seconds:
-                entry === undefined
-                  ? placed.end
-                  : (self.clipped.get(entry.index) ?? entry.end),
-            },
-          ];
+    let events: readonly IAutoMovieScheduleCue[] = track ?? [];
+    if (placed !== undefined) {
+      const start: number = placed.entryTime;
+      const end: number =
+        entry === undefined
+          ? placed.end
+          : (self.clipped.get(entry.index) ?? entry.end);
+      if (at.event === undefined) {
+        const contact: number | undefined = entry?.contact;
+        return (
+          (contact !== undefined && contact >= start && contact <= end
+            ? contact
+            : start) + (at.offset ?? 0)
+        );
+      }
+      // Placement stores plan events on the film clock. Reuse that conversion
+      // so an exact cut and the event defining it compare as the same second.
+      const planned: readonly IAutoMovieScheduleCue[] =
+        entry?.events ??
+        placed.plan.events.map(
+          (e): IAutoMovieScheduleCue => ({
+            name: e.name,
+            seconds: placed.start + e.share * placed.plan.duration,
+          }),
+        );
+      events = [
+        { name: "start", seconds: start },
+        ...planned.filter(
+          (event: IAutoMovieScheduleCue): boolean =>
+            event.seconds >= start && event.seconds <= end,
+        ),
+        { name: "end", seconds: end },
+      ];
+    }
     const found: IAutoMovieScheduleCue | undefined = events.filter(
       (e: IAutoMovieScheduleCue): boolean => e.name === at.event,
     )[at.index ?? 0];
@@ -169,7 +185,10 @@ export namespace HumanPerformanceLayers {
     const located = (
       refusal: IAutoMovieMotionHumanRefusal.IProps,
     ): IAutoMovieMotionHumanRefusal =>
-      new AutoMovieMotionHumanRefusal({ performer: person.performer.subject, ...refusal });
+      new AutoMovieMotionHumanRefusal({
+        performer: person.performer.subject,
+        ...refusal,
+      });
     if (!(to > from))
       throw located({
         kind: "parameter",

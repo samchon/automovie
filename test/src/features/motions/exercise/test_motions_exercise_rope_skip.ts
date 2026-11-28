@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. At the period's start and end the root stands at the stance.
  * 3. A 0.4 s flight, past the 0.36 s band, or a period no longer than the flight,
  *    is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Rope skipping times its aerial hop on the period and keeps the grounded pose outside flight.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the hop law at default boundaries and apex, then asks for excessive flight or a period too short for it.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.26-second flight centered in a 1.7 Hz period fixes takeoff and landing. Gravity and half-flight time give the expected apex.
  */
 export function test_motions_exercise_rope_skip(): void {
   const hop: ropeSkipHop.IHop = ropeSkipHop({}, 0);

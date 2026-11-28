@@ -17,6 +17,10 @@ import { vclose } from "../../internal/vclose";
  *    along the bisector, 1.5 / sqrt 2 on x and z.
  * 2. From (1, 0, 0) to (-1, 0, 0), halfway turns about +Z to (0, 1, 0).
  * 3. From zero to (0, 0, 2), halfway is the linear (0, 0, 1).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines great-circle offset rotation with linear radius and fallback for opposite and zero directions.
+ * @evidence contracts/development/testing.md#behavioral-verification Interpolates distinct perpendicular, antiparallel and zero virtual offsets at half progress and endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations Perpendicular offsets give radius 1.5 on the x/z bisector. Opposite vectors turn to +Y, and a zero start gives linear halfway z = 1.
  */
 export function test_motions_striking_kick_swing_turned(): void {
   const r: number = 1.5 / Math.SQRT2;

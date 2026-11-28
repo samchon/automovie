@@ -13,6 +13,10 @@ import { vclose } from "../../internal/vclose";
  * 1. A frame at (1, 2, 3) turned 90° about +Y (q = (0, sin 45°, 0, cos 45°)) sends
  *    local (1, 0, 0) to (1, 2, 2), since +X turns to −Z.
  * 2. That frame's +Z axis is +X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the local-to-parent point and basis-direction queries.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public point and axis readers with a literal rotation and translation.
+ * @evidence contracts/development/testing.md#independent-expectations A positive quarter turn about Y moves local X to negative Z and local Z to positive X. Translation affects only the point.
  */
 export function test_archetypes_core_frame_point(): void {
   const frame: IAutoMovieTransform = {

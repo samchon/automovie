@@ -48,6 +48,10 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  * 1. The partner's head and chest appended to the goal's hips, no rests added.
  * 2. With the partner's chest to rest on, `rests` holds it.
  * 3. A posture with no right arm goal is returned unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names appending posed clearance segments and rest information and returning the original pose for an absent limb goal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanPartnerClear.onto with explicit partner segments and a typed posture, then reads resulting segment order, optional rests and identity.
+ * @evidence contracts/development/testing.md#independent-expectations The original hips entry must precede the new head and chest. The separate rest contains chest only, and the fixture's left-arm list retains its single original entry.
  */
 export function test_motions_compose_partner_clear(): void {
   // 1. Clear.

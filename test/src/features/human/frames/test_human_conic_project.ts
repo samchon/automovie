@@ -19,9 +19,7 @@ import { FamilyConicProject as P } from "../../../reference-conics/FamilyConicPr
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `project`, `difference`, `symmetrised`, `symmetric` and `fitSamples` of `FamilyConicProject`.
  * @evidence contracts/development/testing.md#independent-expectations A projection onto the space a net already lies in is the net, and so is a fit to samples of the net's own surface; a mirror pair's mean and the zero rings are closed forms written here.
- * @evidence contracts/development/testing.md#distinguishing-cases Heights that differ in every row and column tell a transposed or shifted solve from the right one; the symmetric net on its own grid fails when a mirror column's weight is left out of the solve.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_project`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with what it is checked against.
+ * @evidence contracts/development/common.md#meaningful-documentation Projection and fitted samples use identity, coarsening, mirrored controls and zero boundary rings. Low-count or even symmetric grids exercise refusal.
  */
 export function test_human_conic_project(): void {
   const failures: string[] = [];

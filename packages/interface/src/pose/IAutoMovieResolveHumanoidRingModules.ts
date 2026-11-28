@@ -15,6 +15,8 @@ export namespace IAutoMovieResolveHumanoidRingModules {
       | readonly [number, number, number]
       | null;
     /** Positive girth radius of the segment, metres. */ radius: number;
+    /** A point on the heel plane at the hallux tip's transverse station, metres. */
+    heel?: readonly [number, number, number];
   }
 
   /** One section of a module. */
@@ -31,7 +33,8 @@ export namespace IAutoMovieResolveHumanoidRingModules {
   /** One rigid module. */
   export interface IModule {
     /** The joint whose segment this module is. */ bone: string;
-    /** The direction the rings are stacked along; not a unit. */ axis: IAutoMovieVector3;
+    /** A nonzero normal to the ring planes. Its length need not be one. */
+    axis: IAutoMovieVector3;
     /**
      * The direction of the rings' breadth, or null for the default frame whose
      * depth axis is forward.

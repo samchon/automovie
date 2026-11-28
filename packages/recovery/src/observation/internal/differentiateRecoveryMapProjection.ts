@@ -1,10 +1,11 @@
-import { AutoMovieEngineMatrix3 } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryMapLocalCurvature,
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
+import { evaluateRecoveryMapProjectionChart } from "./evaluateRecoveryMapProjectionChart";
+import { transformRecoveryMapPoint } from "./transformRecoveryMapPoint";
 
 /*
  * Differentiate the map's current-radius pinhole chart at current pixels. A
@@ -33,36 +34,22 @@ export function differentiateRecoveryMapProjection(
     }
   const count: number = tangent === null ? 6 : tangent.length === 0 ? 0 : 5;
   const width: number = count + 3;
-  const rotated: [number, number, number] = AutoMovieEngineMatrix3.apply(
-    pose.rotation,
-    point,
-  );
-  const q: number[] = rotated.map(
-    (value: number, axis: number): number => value + pose.translation[axis]!,
-  );
+  const { rotated, camera: q }: ReturnType<typeof transformRecoveryMapPoint> =
+    transformRecoveryMapPoint(pose, point);
   // The curvature terms divide by the depth twice; a depth whose inverse square
   // overflows has no representable second derivative.
   const inverseDepth: number = 1 / q[2]!;
   if (
     !(q[2]! > 0) ||
-    q.some(overflowed) ||
+    !q.every(Number.isFinite) ||
     inverseDepth * inverseDepth === Infinity
   )
     return null;
-  const x: number = q[0]! / q[2]!,
-    y: number = q[1]! / q[2]!;
-  const pixel: [number, number] = [
-    intrinsic[0]! * x + intrinsic[1]! * y + intrinsic[2]!,
-    intrinsic[4]! * y + intrinsic[5]!,
-  ];
-  const gradient: number[][] = [
-    [
-      intrinsic[0]! / q[2]!,
-      intrinsic[1]! / q[2]!,
-      -(intrinsic[0]! * x + intrinsic[1]! * y) / q[2]!,
-    ],
-    [0, intrinsic[4]! / q[2]!, (-intrinsic[4]! * y) / q[2]!],
-  ];
+  const {
+    pixel,
+    gradient,
+  }: ReturnType<typeof evaluateRecoveryMapProjectionChart> =
+    evaluateRecoveryMapProjectionChart(q, intrinsic);
   const first: number[][] = Array.from({ length: 3 }, (): number[] =>
     new Array<number>(width).fill(0),
   );
@@ -110,7 +97,7 @@ export function differentiateRecoveryMapProjection(
           0,
         ),
       );
-      if ([squared, fourth, ...products].some(overflowed)) return null;
+      if (![squared, fourth, ...products].every(Number.isFinite)) return null;
       const differential: [number, number, number][] | null =
         differentiateRecoveryMapTangent(pose.translation, tangent);
       if (differential === null) return null;
@@ -186,20 +173,13 @@ export function differentiateRecoveryMapProjection(
       }
     }
     if (
-      local.some(overflowed) ||
-      hessian.some((row: number[]): boolean => row.some(overflowed))
+      !local.every(Number.isFinite) ||
+      hessian.some((row: number[]): boolean => !row.every(Number.isFinite))
     )
       return null;
     jacobian.push(local);
     hessians.push(hessian);
   }
-  if (pixel.some(overflowed)) return null;
+  if (!pixel.every(Number.isFinite)) return null;
   return { pixel, jacobian, hessians };
-}
-
-/*
- * Whether a derivative entry overflowed binary64.
- */
-function overflowed(value: number): boolean {
-  return value === Infinity || value === -Infinity;
 }

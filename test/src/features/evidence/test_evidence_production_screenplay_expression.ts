@@ -33,8 +33,6 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/development/testing.md#behavioral-verification Installs the scaffold's actual screenplay questions in a native graph and checks the verdict before and after restoring the two sets of answers. The long script has no expression answers throughout.
  * @evidence contracts/development/testing.md#independent-expectations The four wording, fidelity, exchange and rhythm items need section evidence. The three comparisons each need one file respondent. The fixture answers the screenplay's other items independently.
- * @evidence contracts/development/testing.md#distinguishing-cases Both short and long screenplays must pass. The long script can close before the screenplay opens. Explicit work and language duties exercise separate selection paths.
- * @evidence contracts/development/testing.md#execution-ownership This portable test calls the scaffold and Evidence APIs in process. Each route owns its temporary production and removes it in finally.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the draft and final respondents, their checks, the local contracts and the supported stages.
  */
 export async function test_evidence_production_screenplay_expression(): Promise<void> {

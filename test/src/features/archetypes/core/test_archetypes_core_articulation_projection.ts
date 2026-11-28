@@ -12,7 +12,22 @@ import { vclose } from "../../internal/vclose";
 /** Covers one rigid turn and successive contact placements at this metre scale. */
 const PROJECT_ROUNDING: number = 128 * Number.EPSILON;
 
-/** A reversible follower resolves a drive, and a crank carries a level pedal. */
+/**
+ * Resolves coupled travel, carries a level pedal and isolates motion reads.
+ *
+ * Scenarios:
+ *
+ * 1. A reversible follower drives a quarter-turn crank. The carried pedal
+ *    moves around it, lowers by its own travel and retains its orientation.
+ * 2. A later empty state restores the normal pedal and two equivalent inputs
+ *    for one degree of freedom refuse.
+ * 3. A caller can modify a direct stationary motion, a slider's rotation and
+ *    a prepared motion without changing a later read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the coupled drive, pedal frame, repeated-query, refusal and result-ownership cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public prepare and motion APIs with real in-memory contacts. Reads their motion and frame results before and after editing a returned record.
+ * @evidence contracts/development/testing.md#independent-expectations The crank's quarter turn takes the pedal's positive X offset to negative Z. The vertical slide subtracts 0.25 metres. A fresh identity and the same admitted pose establish the caller-mutation controls.
+ */
 export function test_archetypes_core_articulation_projection(): void {
   const origin = AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
   const crank: IAutoMovieAffordance = {
@@ -84,4 +99,44 @@ export function test_archetypes_core_articulation_projection(): void {
       refusal.kind === "articulation" &&
       refusal.axis === lever.id,
   );
+
+  const fixed: IAutoMovieAffordance = {
+    id: "fixed",
+    kind: "socket",
+    frame: origin,
+    extent: null,
+  };
+  const failures: string[] = [];
+  const still: AutoMovieArchetypeFrame.IMotion =
+    AutoMovieArchetypeArticulation.motion(fixed, 0);
+  const restX: number = still.translation.x;
+  try {
+    still.translation.x = 5;
+    if (AutoMovieArchetypeArticulation.motion(fixed, 0).translation.x !== 0)
+      failures.push("a returned stationary motion changes the next motion");
+  } finally {
+    still.translation.x = restX;
+  }
+
+  const slide: AutoMovieArchetypeFrame.IMotion =
+    AutoMovieArchetypeArticulation.motion(lever, 1);
+  const restW: number = slide.rotation.w;
+  try {
+    slide.rotation.w = 0;
+    if (AutoMovieArchetypeArticulation.motion(lever, 1).rotation.w !== 1)
+      failures.push("a returned slider rotation changes the next motion");
+  } finally {
+    slide.rotation.w = restW;
+  }
+
+  const projected: AutoMovieArchetypeFrame.IMotion = read.motion(pedal);
+  const projectedX: number = projected.translation.x;
+  try {
+    projected.translation.x += 1;
+    if (!vclose(read.frame(pedal.id)!.translation, frame.translation, PROJECT_ROUNDING))
+      failures.push("a returned motion changes the prepared frame");
+  } finally {
+    projected.translation.x = projectedX;
+  }
+  TestValidator.equals("mutating a read never changes its source", failures, []);
 }

@@ -13,6 +13,10 @@ import { qclose } from "../../internal/qclose";
  * Scenario: toes ahead and instep up is no turn; toes along +X with the instep
  * up is a quarter turn about +Y; toes down with the instep ahead pitches the
  * foot 90 degrees about +X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the foot frame's local +Z toe and +Y instep axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the rig foot orientation for aligned toes and instep, yawed toes, and a pitched foot.
+ * @evidence contracts/development/testing.md#independent-expectations These orthogonal input bases give identity, a quarter turn about +Y and a quarter turn about +X, respectively.
  */
 export function test_motions_striking_body(): void {
   TestValidator.predicate(

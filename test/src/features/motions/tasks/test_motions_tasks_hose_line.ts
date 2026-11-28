@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  * 1. The reaction is 75.75 lbf, 336.94 N.
  * 2. A 70 kg member leans `atan(168.47 / 686.7)` = 13.78 degrees.
  * 3. Two sweeps open the stream at 0.6 s and shut it at 3 s, 3.6 s in all.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the staged nozzle reaction, shared rig lean and open, sweep and shut timing.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the reaction, stance and timeline helpers with fixed nozzle rating, mass and two sweeps.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied reaction formula gives 75.75 lbf, and half its converted load over 70g sets the 13.78° lean. The authored phases total 3.6 s.
  */
 export function test_motions_tasks_hose_line(): void {
   const stand: hoseLineReaction.IStand = hoseLineReaction(70, 2, 1);

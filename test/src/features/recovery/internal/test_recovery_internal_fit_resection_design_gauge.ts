@@ -17,6 +17,10 @@ import { nclose } from "../../internal/nclose";
  *    rotated/scaled/translated world preserve the proper rotation,
  *    unknown-scale translation and physical pixel predictions under their
  *    coordinate transformation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names noisy nonplanar observations, world transforms and fixed physical pixel predictions.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits resection in four independently transformed charts and checks the rigid projection and pre-projection projective block.
+ * @evidence contracts/development/testing.md#independent-expectations Changing coordinates alone leaves the same authored observations. Known scale, rotation and origin transform the recovered reference camera analytically.
  */
 export function test_recovery_internal_fit_resection_design_gauge(): void {
   const fixture: ReturnType<typeof createRecoveryMapNumericalFixture> =

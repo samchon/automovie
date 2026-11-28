@@ -34,9 +34,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public force and volume on closed-form segments; a cap volume off its formula, buoyancy at the wrong depth, drag along the velocity or linear in speed, or a shape's volume misread fails.
  * @evidence contracts/development/testing.md#independent-expectations Archimedes' principle, the spherical cap's volume, quadratic drag's law and the shapes' volumes, all written out.
- * @evidence contracts/development/testing.md#distinguishing-cases Under, on, above and between the surface, still and moving at two speeds, two densities, three shape kinds and the refusals; the summed body in water belongs to `test_human_motion_water`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and their closed forms.
+ * @evidence contracts/development/common.md#meaningful-documentation Submerged buoyancy and still or moving drag use hand formulas. Density scaling, sphere, capsule and box volumes and nonpositive inputs exercise separate physical cases.
  */
 export function test_engine_hydrodynamic_force(): void {
   const findings: string[] = [];

@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    identity, so time and aperture position are not correlated.
  * 4. Every eye offset lies within the aperture radius 12 mm / tan(fovY / 2) /
  *    fNumber / 2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify lens-only and shutter-only sampling, the deterministic combined permutation and the physically derived aperture bound.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the film-response sample planner with each optics combination and observes point indices, time offsets, eye vectors and repeatability.
+ * @evidence contracts/development/testing.md#independent-expectations The independent radius is 12 mm divided by tan(fovY/2), f-number and two. Eye offsets must lie inside that circle. The index population is fixed at 0 through N minus one, so a repeatable nonidentity permutation must preserve every lens point.
  */
 export function test_engine_film_plan_film_samples(): void {
   const lens: IAutoMovieFilmOptics.ILens = { fNumber: 2.8, focusDistance: 3 };

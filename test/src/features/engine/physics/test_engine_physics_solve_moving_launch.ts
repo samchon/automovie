@@ -47,6 +47,10 @@ function flown(velocity: IAutoMovieVector3, t: number): IAutoMovieVector3 {
  *    - G dy`, iterated four times from `|d| / s`, move least before the last, and a
  *         four-iteration cap returns that closest one.
  * 4. A target fleeing at 30 m/s from 40 m at speed 10, and a zero speed, are null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes fixed-point lead, an iteration cap returning the closest iterate, and unreachable-target admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes a held point, linear target and accelerating trajectory to the direct lead solver with one, four and default iteration counts.
+ * @evidence contracts/development/testing.md#independent-expectations An independent constant-acceleration landing check validates the sliding lead. A hand-derived lower root supplies all four residuals and identifies the closest iterate before the last.
  */
 export function test_engine_physics_solve_moving_launch(): void {
   // 1. A held target.

@@ -97,10 +97,8 @@ const look: (to: IAutoMovieActionTarget) => IAutoMovieMotion | null = (
  * Scenarios:
  * - Equal and unequal eye heights, their centroid, and an explicit point at ground level.
  * - Zero-height actors, cameras and props have literal placement targets. A direction or missing node has no position.
- * @evidence contracts/development/testing.md#behavioral-verification Samples the synthesized head and checks exact clip equivalence where lifting is identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the synthesized head and checks exact clip equivalence where lifting is identity. The same guard is addressed once by its staged node and once by an explicit ground location in metres.
  * @evidence contracts/development/testing.md#independent-expectations Elevation is the negative arc tangent of height difference over horizontal separation.
- * @evidence contracts/development/testing.md#distinguishing-cases The same guard is addressed by both node and explicit ground location.
- * @evidence contracts/development/testing.md#execution-ownership Uses a synthetic actor context and coordinates in metres.
  * @evidence contracts/development/common.md#meaningful-documentation Separates point resolution from joint-range allocation.
  */
 export function test_motion_gaze_target_height(): void {

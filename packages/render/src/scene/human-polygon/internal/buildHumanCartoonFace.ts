@@ -23,22 +23,7 @@ import { mountHumanCartoonFace } from "./mountHumanCartoonFace";
  * Returns: Owned face geometry, explicit unsupported fields and its disposer.
  */
 export function buildHumanCartoonFace(
-  head: {
-    /*
-     * Actual head-local minimum in metres.
-     */
-    min: [number, number, number];
-
-    /*
-     * Actual head-local maximum in metres.
-     */
-    max: [number, number, number];
-
-    /*
-     * Most anterior local triangle X at Y/Z; undefined outside its silhouette.
-     */
-    frontAt: (y: number, z: number) => number | undefined;
-  },
+  head: AutoMovieRenderHumanCartoon.IHeadBounds,
   expression?: AutoMovieRenderHumanCartoon.IExpression,
   pose?: AutoMovieRenderHumanCartoon.IHeadPose,
 ): {
@@ -60,7 +45,7 @@ export function buildHumanCartoonFace(
   const extent: THREE.Vector3 = new THREE.Vector3(...head.max).sub(
     new THREE.Vector3(...head.min),
   );
-  if (Math.min(extent.x, extent.y, extent.z) <= 0)
+  if (!extent.toArray().every((length: number): boolean => Number.isFinite(length) && length > 0))
     throw new Error("Cartoon face needs finite positive polygon head bounds");
 
   const centreY: number = (head.min[1] + head.max[1]) / 2;
@@ -107,7 +92,7 @@ export function buildHumanCartoonFace(
     side: "left" | "right",
     value: number,
   ): void => {
-    if (value < 0 || value > 1)
+    if (!(value >= 0 && value <= 1))
       throw new Error("Cartoon AU intensity must be in [0, 1]");
     const address: string = unit + "/" + side;
     if (used.has(address))
@@ -262,8 +247,10 @@ export function buildHumanCartoonFace(
   for (const side of [0, 1]) {
     const sign: number = side === 0 ? 1 : -1;
     const name: string = side === 0 ? "left" : "right";
-    const eyeY: number = centreY + extent.y * 0.115;
-    const eyeZ: number = centreZ + sign * extent.z * 0.235;
+    const anchor: readonly [y: number, z: number] | undefined =
+      side === 0 ? head.anchors?.leftEye : head.anchors?.rightEye;
+    const eyeY: number = anchor?.[0] ?? centreY + extent.y * 0.115;
+    const eyeZ: number = anchor?.[1] ?? centreZ + sign * extent.z * 0.235;
     const aperture: number = Math.max(
       0.025,
       (1 +
@@ -325,7 +312,7 @@ export function buildHumanCartoonFace(
                 inner * (1 - u) +
                 outer * u +
                 0.018 * Math.sin(Math.PI * u)),
-          centreZ + sign * extent.z * (0.095 + 0.285 * u),
+          eyeZ + sign * extent.z * (-0.14 + 0.285 * u),
         );
       },
     );
@@ -334,14 +321,18 @@ export function buildHumanCartoonFace(
 
   const nose: THREE.Mesh = mesh(
     "nose",
-    new THREE.ConeGeometry(extent.z * 0.055, extent.x * 0.13, 4),
+    new THREE.ConeGeometry(
+      extent.z * 0.055,
+      extent.x * (head.anchors === undefined ? 0.13 : 0.065),
+      4,
+    ),
     noseMaterial,
   );
   nose.rotation.z = -Math.PI / 2;
   nose.position.set(
-    front + extent.x * 0.04,
-    centreY - extent.y * 0.045,
-    centreZ,
+    front + extent.x * (head.anchors === undefined ? 0.04 : 0.01),
+    head.anchors?.nose[0] ?? centreY - extent.y * 0.045,
+    head.anchors?.nose[1] ?? centreZ,
   );
 
   // A sided centreline carries the corners; opening adds a dark mouth mark.
@@ -359,7 +350,8 @@ export function buildHumanCartoonFace(
             0.09 * au("lipsPart", side),
         ),
       );
-  const mouthY: number = centreY - extent.y * 0.235;
+  const mouthY: number = head.anchors?.mouth[0] ?? centreY - extent.y * 0.235;
+  const mouthZ: number = head.anchors?.mouth[1] ?? centreZ;
   const halfWidths: number[] = [0, 1].map(
     (side: number): number =>
       extent.z *
@@ -413,7 +405,7 @@ export function buildHumanCartoonFace(
     new THREE.Vector3(
       front + extent.x * 0.028 + jawForward,
       mouthY + corner(u) + vertical,
-      centreZ + u * halfWidths[u >= 0 ? 0 : 1]! + jawSide,
+      mouthZ + u * halfWidths[u >= 0 ? 0 : 1]! + jawSide,
     );
   if (opening > 0) {
     // Paired columns preserve the front's central ridge instead of spanning it

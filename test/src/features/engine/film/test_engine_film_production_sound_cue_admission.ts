@@ -18,6 +18,10 @@ import { namedFacts, throwsError } from "../../internal/predicates";
  *    source and refuses by cue identity.
  * 2. Empty spans or sources, negative starts or offsets and a cue past the film
  *    end retain their refusals.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify invalid source and film spans, empty sources and negative start or trim fields. Refusal diagnostics identify the authored cue.
+ * @evidence contracts/development/testing.md#behavioral-verification The test gives the public mixer one modified cue at a time over resident PCM and checks the error text for each addressed field.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's complete two-frame source admits a two-frame trim at zero offset. Shifting that two-frame trim one frame exceeds the source. Empty lengths, negative coordinates and film overrun each violate a separate interval premise.
  */
 export function test_engine_film_production_sound_cue_admission(): void {
   const {

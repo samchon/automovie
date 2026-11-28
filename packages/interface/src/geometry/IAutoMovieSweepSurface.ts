@@ -1,8 +1,8 @@
-import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import type { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
+import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
  * A sweep compiled for evaluation, from `compileSweep`.
@@ -17,9 +17,9 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * guarantees. Coordinates use the authored model frame and metres. Returned
  * points and frames are fresh mutable records. The compiled surface retains its
  * source declaration and coefficients; preserve authored data while using it.
- * compileSweep admits authored geometry, while individual queries
- * refuse invalid generated radii or section coordinates; finite query arguments
- * remain the caller's responsibility.
+ * compileSweep admits authored geometry, while individual queries refuse
+ * invalid generated radii or section coordinates; finite query arguments remain
+ * the caller's responsibility.
  */
 export interface IAutoMovieSweepSurface {
   /**
@@ -54,22 +54,7 @@ export interface IAutoMovieSweepSurface {
    * @returns U along the spine and v in unwrapped turns
    * @throws Error when the feature index does not exist
    */
-  feature(
-    index: number,
-    t: number,
-  ): {
-    /**
-     * Spine-domain coordinate on the fitted feature course; the cubic can
-     * overshoot authored u knots.
-     */
-    u: number;
-
-    /**
-     * Unwrapped fitted angular coordinate in turns, preserving continuity
-     * through the seam.
-     */
-    v: number;
-  };
+  feature(index: number, t: number): IAutoMovieSweepSurface.IFeaturePoint;
 
   /**
    * Point in the section plane before scale, the shape a compiled rig caches.
@@ -168,4 +153,16 @@ export interface IAutoMovieSweepSurface {
    *   differences divide by their actual clipped span
    */
   along(u: number, v: number, loop?: number): IAutoMovieVector3;
+}
+
+/** Named values returned by the compiled sweep surface. */
+export namespace IAutoMovieSweepSurface {
+  /** Domain coordinate evaluated on a fitted feature course. */
+  export type IFeaturePoint = {
+    /** Spine coordinate, which may overshoot the authored U knots. */
+    u: number;
+
+    /** Unwrapped section coordinate in turns across seam crossings. */
+    v: number;
+  };
 }

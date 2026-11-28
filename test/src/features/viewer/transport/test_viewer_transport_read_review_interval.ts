@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. "?start=2&end=4&speed=0.5": { 2, 4, 0.5 }.
  * 3. An empty start, a start of "abc", an overflowing end, an end past 10, a start
  *    at the end and speed 2 refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines URL defaults and admission for time window and supported speed.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads absent and explicit time/speed queries over one fixed range, then passes invalid tokens, outside endpoints and unsupported speed.
+ * @evidence contracts/development/testing.md#independent-expectations Absent parameters give [0, 10] at 1× and explicit values [2, 4] at 0.5×. Blank or nonfinite times and a collapsed or out-of-range interval refuse.
  */
 export function test_viewer_transport_read_review_interval(): void {
   const read: (query: string) => {

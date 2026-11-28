@@ -5,114 +5,82 @@ import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 import type { IAutoMovieViewAxis } from "./IAutoMovieViewAxis";
 
 /**
- * A part as its views draw it, the input of the view-to-section operator
- * (`AutoMovieEngineViewLoft`).
+ * Kernel input for building a part from its front and side outlines. The axis
+ * places a section frame at each physical station in millimetres. Front edges
+ * set signed u extremes, side edges set signed v extremes, and the chosen
+ * fullness law gives the shape between their guides. The four guide phases
+ * follow +u, +v, −u and −v.
  *
- * At each station the declared axis supplies the section's origin and plane, in
- * the chart `(x, z)` of that plane's axes `(u, v)`. The axis may follow a
- * straight or curved course, or move fixed parallel planes; those planes need
- * not be perpendicular to the origin's course. The front view sees the part
- * along `v`, so its two edges are the section's extremes along `u`; the side
- * view sees it along `u`, so its two edges are the extremes along `v`. At each
- * station those four edges make a box about the axis, the section touches the
- * box once on each side at the guide angles 0, `pi / 2`, `pi` and `3 pi / 2`
- * (the `+u`, `+v`, `-u` and `-v` directions), and the fullness of the four
- * quarters between the guides is owned by the girth or by a sourced fullness
- * law (`fullness`).
- *
- * Each outline interpolates named source knots in its declared station, root or
- * angle parameter: natural cubics by default, or explicitly requested
- * shared-jet/range quintics. Smoothness in that parameter does not promise a
- * finite station jet at a singular pole. Each knot's value remains the input at
- * its published site. Which anatomical edge is `+u` (lateral or medial, left or
- * right) is the part's own declaration through its axis.
- *
- * Ownership (fairing by ownership): the outlines own the extremes, the girth or
- * the fullness law owns the quarters' fullness, and the diagonals are
- * observations only (`AutoMovieEngineViewSection.ISection.diagonals`).
+ * Read each source outline in its declared station, root or angle coordinate.
+ * Direct shoulder and top sources retain their continuous scalar fields. Girth
+ * publishes a section through the admitted coefficient representation. Derived
+ * diagonals remain inspection observations.
  */
 export interface IAutoMovieViewPart {
-  /** Chain name of the lofted part, such as `trunk`, `leg.left` or `nose`. */
+  /** Stable part and result-chain name used to identify source diagnostics. */
   name: string;
 
   /**
-   * The declared section planes along authored stations, including straight,
-   * transported curved and fixed-basis parallel courses.
+   * Section frame reader at physical stations in millimetres. Use its
+   * world-millimetre origin and u and v axes to define the part's chart
+   * orientation.
    */
   axis: IAutoMovieViewAxis.IAxis;
 
   /**
-   * Stations of the emitted chain's layers in mm, strictly increasing. They For
-   * a direct shoulder/top source, its continuous functions own every knot even
-   * without a layer there. Generic girth's coefficient representation requires
-   * each retained contour/fullness knot as a declared station. Controls outside
-   * that interval may remain to preserve the original scalar function and
-   * explicit parameter; they emit no layer. Between sites, stations follow the
-   * surface's needs. Generic girth checks all those declared knots regardless
-   * of site label; internal interpolation and axis-source knots require no
-   * extra layers.
+   * Strictly increasing principal stations in millimetres. Include every
+   * retained extent and fullness knot for girth. Direct shoulder and top
+   * sources can evaluate their knots between principal stations. A declared
+   * closed tip remains an endpoint and carries no regular section.
    */
   stations: number[];
 
-  /**
-   * The front view's two edges: chart coordinates of the section's extremes
-   * along `+u` and `-u`.
-   */
+  /** Two front-view outlines giving signed u chart extremes in millimetres. */
   front: IAutoMovieViewPart.IPair;
 
-  /**
-   * The side view's two edges: chart coordinates of the section's extremes
-   * along `+v` and `-v`.
-   */
+  /** Two side-view outlines giving signed v chart extremes in millimetres. */
   side: IAutoMovieViewPart.IPair;
 
-  /** What owns the quarters' fullness at each station. */
+  /**
+   * Owner of the shape between the four support guides, as girth, a common
+   * shoulder or separate quarter controls.
+   */
   fullness: IAutoMovieViewPart.Fullness;
 
   /**
-   * The end that closes in a point, or both ends (`both`: a foot from the heel
-   * to its forefoot cap; a fingertip, a toe tip, the heel, the perineum's cap),
-   * where all four outlines and the girth have a knot of value 0 at that end's
-   * station. The chain then carries that point as its `pole`. Radial source
-   * preparation uses a signed square-root parameter for one pole and an angle
-   * parameter for two by default. An explicit original parameter must have the
-   * same singular endpoint and inward side at every actual pole; its other
-   * endpoint may lie outside the retained interval. Parameter endpoints alone
-   * declare no cap. Preserving an old native field requires the removed cap's
-   * actual effects to vanish on the kept interval. The loft adds rings at equal
-   * steps of the root of pole distance and moves shoulders toward the conic
-   * ellipse value by a quintic smoothstep over the nearest outline-knot span. A
-   * top fullness with touch offsets or splits keeps its own angles and
-   * shoulders instead: its touch offsets and split coordinates also have a knot
-   * of value 0 at the pole, and the cap is the end section shrunk to that
-   * point. These construction choices require regular compatible source/frame
-   * jets for a smooth dome; this field does not prove G2 regularity of the
-   * resulting pole. Absent, both ends are open sections.
+   * Close the bottom, top or both endpoint stations in points. Omit it for two
+   * open ends. At each cap tip the affected length outlines require an endpoint
+   * knot within the source's zero tolerance. By default a single cap uses a
+   * signed-root parameter and both caps use an angle parameter. An explicit map
+   * must match the selected closing ends.
+   *
+   * ViewLoft adds rings at equal root-distance steps near the tip. Four-quarter
+   * fullness approaches the ellipse share by a quintic cap weight. A top source
+   * with touch or split geometry keeps its own angular and shoulder inputs; the
+   * touch and split coordinates close with the length outlines.
    */
   pole?: "bottom" | "top" | "both";
 
   /**
-   * Control points of every section's periodic cubic B-spline, a positive
-   * multiple of 4 so each guide stands on a knot.
+   * Number of periodic cubic spline controls per coordinate. Use a multiple of
+   * four at least eight to put every cardinal guide on a knot.
    */
   order: number;
 
-  /** Uniform phases of the chain's own rings, as `IAutoMovieLoftChain.samples`. */
+  /** Positive count of ring vertices, independent of the section's spline order. */
   samples: number;
 
   /**
-   * The chain's own ring phases when they are not uniform
-   * (`IAutoMovieLoftChain.phases`): radians, strictly increasing within one
-   * turn from the first, `samples` of them. Absent, uniform.
+   * Optional ring phase samples in radians. Supply samples strictly increasing
+   * entries within one turn from the first. Omit them for uniform phase
+   * spacing.
    */
   phases?: number[];
 
   /**
-   * Features written as heights over windows of the lofted chain's chart,
-   * millimetres of station and radians of phase (`IAutoMovieLoftRelief`),
-   * composed onto the chain the loft returns (its `reliefs`), so every reader
-   * of that chain, the construction tree's realized face included, reads the
-   * part with them. Absent means none: the chain is unchanged.
+   * Authored height features in the loft's station-millimetre and phase-radian
+   * windows. The loft carries them into the chain's placement reads. Omit the
+   * list for a bare part.
    */
   reliefs?: IAutoMovieLoftRelief[];
 }
@@ -120,83 +88,84 @@ export interface IAutoMovieViewPart {
 /** Data and callback contracts shared by the ViewPart operations. */
 export namespace IAutoMovieViewPart {
   /**
-   * One named source value, with optional first/second derivatives in the whole
-   * source's normalized interpolation parameter.
+   * One named scalar measurement at a physical station in millimetres. An
+   * optional jet supplies its first and second derivatives in the whole
+   * outline's normalized parameter.
    */
   export interface IKnot {
     /**
-     * The measurement site, such as `stylion` or `waist`, for diagnostics and
-     * identity tests.
+     * Measurement site label carried into outline diagnostics and source
+     * inspection.
      */
     site: string;
 
-    /** Station of the site along the part's axis, mm. */
+    /** Physical station of this source knot in millimetres. */
     station: number;
 
     /**
-     * The value at the site: a chart coordinate in mm, a girth in mm, or a
-     * shoulder share.
+     * Scalar value at the site in the outline's units, such as chart
+     * millimetres, length in millimetres or a dimensionless share.
      */
     value: number;
 
     /**
-     * Optional first/second derivatives in the whole outline's normalized
-     * source parameter, with the value's units.
+     * Optional derivatives of the value with respect to the whole source span's
+     * normalized parameter. The derivative values use the scalar's units.
      */
     jet?: IAutoMovieConstructionOutlineJet;
   }
 
   /**
-   * A scalar source through at least two named knots in increasing station: the
-   * default natural cubic, or explicitly requested shared-jet/range quintics,
-   * C2 within the closed source span in its selected parameter. Radial closure
-   * selects its pole parameter by default; a nonclosing coordinate parameter
-   * imposes no zero value. Tangent extension of an authored nonzero end
-   * curvature is only C1.
+   * Scalar outline through at least two named knots with increasing stations.
+   * The default is a natural cubic in its interpolation coordinate. Authored
+   * jets or a range request quintic interpolation. Outside the knot span,
+   * permitted queries use the endpoint tangent. A pole parameter changes the
+   * derivative coordinate.
    */
   export interface IOutline {
-    /** Knots by strictly increasing station. */
+    /** At least two named scalar knots by increasing physical station. */
     knots: IAutoMovieViewPart.IKnot[];
 
     /**
-     * Optional source parameter, with endpoint station lengths in kernel
-     * millimetres; choosing it does not impose a zero scalar value.
+     * Optional interpolation map with endpoint lengths in kernel millimetres.
+     * Nonclosing outlines may use a nonzero value at a parameter endpoint.
      */
     parameter?: IAutoMovieConstructionOutlineParameter;
 
     /**
-     * Optional sufficient control-hull bound on the closed scalar knot span, in
-     * the value's units; no world-frame or extension bound is implied.
+     * Optional scalar range in the outline's own units. The quintic preparation
+     * checks a sufficient control hull on the closed knot span.
      */
     range?: IAutoMovieConstructionOutlineRange;
   }
 
   /**
-   * One view's two edges as signed chart coordinates: `positive` is the
-   * coordinate of the extreme on the axis's positive side (above zero),
-   * `negative` of the extreme on its negative side (below zero). A box that
-   * does not hold its axis strictly inside cannot be a polar section about it,
-   * and is reported.
+   * Signed view outlines on two sides of one chart axis. At a regular section
+   * station use positive and negative coordinates whose interval strictly
+   * contains the axis. Each outline follows the selected closure at a cap.
    */
   export interface IPair {
-    /** The edge on the positive side of the axis, mm, above zero. */
+    /** Outline of the positive chart extreme in millimetres. */
     positive: IAutoMovieViewPart.IOutline;
 
-    /** The edge on the negative side of the axis, mm, below zero. */
+    /**
+     * Outline of the negative chart extreme in millimetres. The directional
+     * half-extent is its negation.
+     */
     negative: IAutoMovieViewPart.IOutline;
   }
 
   /**
-   * Four values, one per quarter of the section, by increasing angle: quarter
-   * `q` runs from guide `q` to guide `q + 1`, so quarter 0 lies between `+u`
-   * and `+v`, 1 between `+v` and `-u`, 2 between `-u` and `-v`, 3 between `-v`
-   * and `+u`.
+   * Four values in cyclic phase order. Quarter zero starts at +u, then the
+   * starts are +v, −u and −v. Each quarter ends at the following guide.
    */
   export type IQuarters<T> = [T, T, T, T];
 
   /**
-   * Exactly one owner of quarter fullness: tape girth, one shoulder law with
-   * optional departures, or four top-view shoulder laws.
+   * Choose one source of quarter fullness for the entire part. Girth solves one
+   * common share from a measured length. Shoulder supplies the common share
+   * directly. Top supplies each quarter and any contact or split geometry
+   * explicitly.
    */
   export type Fullness =
     | IAutoMovieViewPart.IGirth
@@ -204,109 +173,112 @@ export namespace IAutoMovieViewPart {
     | IAutoMovieViewPart.ITop;
 
   /**
-   * A tube's taut-tape girth per station: the perimeter of the section's convex
-   * hull, solved into one shoulder value shared by the four quarters (plus
-   * their declared departures).
+   * Measured taut-tape girth along the part, in millimetres. The solver selects
+   * a common shoulder for the requested numerical perimeter and adds the
+   * authored quarter departures. The result may retain a reach endpoint and a
+   * diagnostic.
    */
   export interface IGirth {
-    /** Discriminator. */
+    /** Select measured-girth fullness. */
     kind: "girth";
 
-    /** The girth, mm, knots at the published tape sites. */
+    /**
+     * Taut-tape length outline in millimetres at the authored measurement
+     * sites.
+     */
     girth: IAutoMovieViewPart.IOutline;
 
     /**
-     * Sourced departures of each quarter's shoulder from the solved one, in
-     * shoulder share; absent means none. Each needs a published source or a
-     * derivation; a departure is never fitted to a reference.
+     * Optional dimensionless quarter offsets added to the common solved
+     * shoulder, in cyclic order. Omission uses four zeros. Supply departures
+     * from authored observations or an explicit derivation.
      */
     departures?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
   }
 
   /**
-   * A sourced fullness law per station, as the conic shoulder value `rho`
-   * (`AutoMovieEngineViewSection`): the share along a quarter's corner diagonal from
-   * its chord to the box's corner. `sqrt(2) - 1` is the conic ellipse reference
-   * for a centred symmetric box; it does not certify that the shared-guide
-   * construction on every asymmetric box is an exact ellipse.
+   * Original common conic shoulder share across stations. The share controls
+   * the corner diagonal between the quarter's chord and box corner. Add
+   * optional authored departures to get the four section shares. The ellipse
+   * reference share is √2 − 1.
    */
   export interface IShoulder {
-    /** Discriminator. */
+    /** Select one sourced common shoulder law. */
     kind: "shoulder";
 
-    /** The shoulder value per station. */
+    /**
+     * Dimensionless common shoulder outline read at the physical station before
+     * quarter departures.
+     */
     shoulder: IAutoMovieViewPart.IOutline;
 
-    /** Sourced departures of each quarter's shoulder, as for {@link IGirth}. */
+    /**
+     * Optional per-quarter dimensionless offsets from the common shoulder, in
+     * cyclic order.
+     */
     departures?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
   }
 
   /**
-   * A part whose third view is the top (the nose's base, the sole, the lips'
-   * arch): the top outline gives the section's shape at its key stations as
-   * each quarter's shoulder value, carried by that outline's selected scalar
-   * interpolation. The top outline's extremes are the front and side outlines'
-   * values there; the outlines keep owning them.
+   * Four separate shoulder outlines from the top view, with optional contact
+   * offsets and splits. The front and side views retain the four support
+   * extremes. Declare either a single split per quarter or ordered split
+   * lists.
    */
   export interface ITop {
-    /** Discriminator. */
+    /** Select top-view quarter fullness and its contact controls. */
     kind: "top";
 
     /**
-     * Each quarter's shoulder value, knots at the top view's key stations; with
-     * {@link splits}, the shoulder of the quarter's first piece.
+     * Dimensionless shoulder outline of each quarter, or of its first piece
+     * when that quarter is split.
      */
     shoulders: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
 
     /**
-     * Where each guide touches its support line, millimetres along it from the
-     * chart axis: the `v` of the `+u` and `-u` extremes and the `u` of the `+v`
-     * and `-v` extremes, so a section's extreme point stands where the section
-     * actually reaches it (classic conic lofting's maximum half-breadth line
-     * has its own height). Absent: every guide on its axis line, the
-     * four-quarter section's convention.
+     * Optional guide contact offsets in chart millimetres. At the ±u supports
+     * they give v, and at the ±v supports they give u. Omission puts each
+     * contact on its chart axis.
      */
     touch?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
 
     /**
-     * Each quarter split into two conic pieces at a point of the section
-     * (#3158): quarter q runs from guide q to split q with shoulder
-     * `shoulders[q]` and from split q to guide q + 1 with `splits[q].shoulder`,
-     * each piece a rational quadratic on its two end points and tangent lines
-     * (`AutoMovieEngineViewChain`). Absent: one conic per quarter.
+     * Optional single split point with tangent and following shoulder per
+     * quarter. The first piece uses the guide's shoulder. Use this form when
+     * pieces is absent.
      */
     splits?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.ISplit>;
 
     /**
-     * Each quarter split into conic pieces at its ordered points of the section
-     * (#3158), in increasing phase: quarter q runs from guide q through
-     * `pieces[q][0]`, `pieces[q][1]`, ... to guide q + 1, its first piece with
-     * shoulder `shoulders[q]` and each later piece with the shoulder of the
-     * point that starts it, each a rational quadratic on its two end points and
-     * tangent lines (`AutoMovieEngineViewChain`). An empty list leaves the quarter
-     * one conic. Absent: one conic per quarter.
+     * Optional ordered split points within each quarter. The guide supplies the
+     * first shoulder and each split supplies the following piece's shoulder. An
+     * empty list leaves one piece. Use this form when splits is absent.
      */
     pieces?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.ISplit[]>;
   }
 
   /**
-   * One quarter's split point, its tangent and the shoulder of the piece that
-   * starts there, each supplied as an outline in station.
+   * One interior conic split supplied by four outlines across stations. The u
+   * and v coordinates give the local point, angle sets its forward tangent and
+   * shoulder controls the piece that leaves the point.
    */
   export interface ISplit {
-    /** The split point's `u`, chart millimetres. */
+    /** Split point's u coordinate in chart millimetres. */
     u: IAutoMovieViewPart.IOutline;
 
-    /** The split point's `v`, chart millimetres. */
+    /** Split point's v coordinate in chart millimetres. */
     v: IAutoMovieViewPart.IOutline;
 
     /**
-     * The tangent direction there, radians from `+u` toward `+v`, oriented in
-     * increasing phase.
+     * Forward tangent angle in radians from +u toward +v, oriented in
+     * increasing polar phase.
      */
     angle: IAutoMovieViewPart.IOutline;
 
-    /** The shoulder of the piece starting at this split, in (0, 1). */
+    /**
+     * Dimensionless shoulder share in (0, 1) for the piece starting at this
+     * split.
+     */
     shoulder: IAutoMovieViewPart.IOutline;
   }
 }

@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Hips → leftFoot names a declared but unreachable bone at `to`.
  * 3. Hips → head names a bone the skeleton lacks at `to`.
  * 4. Hips → hips with radius 0 is refused at the capsule and at its radius.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers resident and reachable endpoint rules, distinct endpoints and the positive-radius boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateCapsule on explicit endpoint pairs with a separately defined declared and reachable set.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture admits only hips and spine as reachable; leftFoot exists but is disconnected and head is absent. A self-pair and zero radius violate two independent conditions.
  */
 export function test_engine_validation_validate_capsule(): void {
   const skeleton: ReadonlySet<AutoMovieHumanoidBone> = new Set([

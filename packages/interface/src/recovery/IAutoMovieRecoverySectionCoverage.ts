@@ -1,32 +1,29 @@
-/** Explicit station-prefix checkpoint whose section observation is incomplete. */
+/** Coverage of a bounded station prefix from automatic source extraction. */
 export interface IAutoMovieRecoverySectionCoverage {
-  /**
-   * This checkpoint is incomplete; omission of the enclosing record indicates
-   * full extraction.
-   */
+  /** Literal false for this incomplete checkpoint. */
   complete: false;
 
-  /** Number of sections planned for the full automatic extraction. */
+  /** Number of automatic stations in the full planned coordinate sequence. */
   plannedSections: number;
 
-  /** Number of sections retained in this checkpoint. */
+  /** Number of planned stations retained by the current prefix. */
   retainedSections: number;
 
-  /** Full source extent along the slicing axis, millimetres. */
+  /** Full admitted source scalar range [minimum, maximum] in millimetres. */
   sourceRangeMm: [number, number];
 
-  /** Physical range of retained section stations, millimetres. */
+  /** First and last retained station coordinates in millimetres. */
   observedStationRangeMm: [number, number];
 
   /**
-   * Unobserved planned-station range in millimetres, or null when no planned
-   * stations remain.
+   * First and last remaining planned stations in millimetres, or null when the
+   * prefix exhausted the plan.
    */
   unobservedStationRangeMm: [number, number] | null;
 
   /**
-   * Source extent outside observed coverage in millimetres, or null when no
-   * extent is missing.
+   * Unobserved upper source extent in millimetres, or null when the retained
+   * stations reach it.
    */
   missingSourceRangeMm: [number, number] | null;
 }

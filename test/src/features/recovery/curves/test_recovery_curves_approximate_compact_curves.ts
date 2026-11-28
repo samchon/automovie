@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The quintic (t, t^5) fits one complete quintic piece at degree five, and a
  *    cubic held to one piece cannot meet the tolerance, so it is refused.
  * 3. An invalid query budget or nonfinite knot is refused before sampling.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exact polynomial recovery, whole-chart piece budget and invalid admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs a sixteen-piece cubic and a quintic through degree and query limits, then checks their output at independent parameter samples.
+ * @evidence contracts/development/testing.md#independent-expectations A polynomial of degree three has one cubic representation across all fifteen interior breaks. A degree-five monomial admits one quintic and fails the tightly bounded single-cubic fit.
  */
 export function test_recovery_curves_approximate_compact_curves(): void {
   const options: IAutoMovieCompactCurveApproximation.IOptions = {

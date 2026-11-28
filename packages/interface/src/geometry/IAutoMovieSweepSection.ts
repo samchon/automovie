@@ -1,22 +1,9 @@
 /**
- * One closed cross-section curve of a sweep, in the plane of its station.
+ * Discriminated closed curve types for a local sweep section in metres.
  *
- * Coordinates are metres in the station's section plane: `x` along the plane's
- * first axis and `y` along its second, both measured from the spine point,
- * which is the section's origin. Under the sweep's default direction
- * correspondence a section is read as its radius at every polar angle about
- * that origin, so it must be star-shaped about it: every ray from the origin
- * crosses the curve exactly once; angles grow counterclockwise from `+x` toward
- * `+y`, and a curve must run that way. Under parameter correspondence a section
- * is read by its own parameter instead, so it need only be simple.
- *
- * The kinds cover the forms a section family needs: an analytic superellipse
- * with a half-axis and an exponent per quadrant for rounded or boxy, symmetric
- * or egg-shaped sections; a periodic cubic B-spline whose control polygon a
- * junction can share; a closed piecewise cubic Bezier for authored outlines
- * with tangents; a polygon for sections with corners; and radii at even angles
- * for sections composed from additive terms. A new kind joins the union with
- * its own evaluation and leaves the others unchanged.
+ * Direction correspondence needs a simple counterclockwise section admitting
+ * one ray crossing at each direction. Parameter correspondence uses a curve's
+ * own cyclic parameter and admits simple concave contours and holes.
  */
 export type IAutoMovieSweepSection =
   | IAutoMovieSweepSection.ISuperellipse
@@ -25,129 +12,142 @@ export type IAutoMovieSweepSection =
   | IAutoMovieSweepSection.IPolygon
   | IAutoMovieSweepSection.IRadial;
 
-/** Data and callback contracts shared by the SweepSection operations. */
+/** Named closed-curve variants and local point records for sweep sections. */
 export namespace IAutoMovieSweepSection {
-  /** Exponents for the quadrants in counterclockwise order from `+x +y`. */
+  /** Four exponent values in counterclockwise superellipse quadrant order. */
   export interface IQuadrantExponents {
-    /** Exponent in the upper-right (`+x +y`) quadrant. */
+    /** Finite exponent in [1, 20] for the positive X, positive Y quadrant. */
     upperRight: number;
 
-    /** Exponent in the upper-left (`-x +y`) quadrant. */
+    /** Finite exponent in [1, 20] for the negative X, positive Y quadrant. */
     upperLeft: number;
 
-    /** Exponent in the lower-left (`-x -y`) quadrant. */
+    /** Finite exponent in [1, 20] for the negative X, negative Y quadrant. */
     lowerLeft: number;
 
-    /** Exponent in the lower-right (`+x -y`) quadrant. */
+    /** Finite exponent in [1, 20] for the positive X, negative Y quadrant. */
     lowerRight: number;
   }
 
-  /** A point of a section plane. */
+  /**
+   * One pair of local section coordinates measured from the spine point in
+   * metres.
+   */
   export interface IPoint {
-    /** Metres along the section plane's first axis. */
+    /** Metres along the section's first axis from the spine point. */
     x: number;
 
-    /** Metres along the section plane's second axis. */
+    /** Metres along the section's second axis from the spine point. */
     y: number;
   }
 
   /**
-   * A superellipse with its own half-axis and exponent in each quadrant.
+   * Four positive signed-axis extents, four exponents and an optional centre
+   * for one closed superellipse.
    *
-   * Quadrant `k` runs from angle `k * 90` degrees to `(k + 1) * 90`; in it the
-   * curve is `x = c.x + a * sign(cos p) |cos p|^(2/n)`, `y = c.y + b * sign(sin
-   * p) |sin p|^(2/n)` for its half-axes `a`, `b` and exponent `n`. Exponent 2
-   * is an ellipse quadrant, larger values square it toward a rectangle's
-   * corner, values toward 1 straighten it toward a diamond. Neighbouring
-   * quadrants share a half-axis, so the curve is closed and meets each axis
-   * with a tangent perpendicular to it.
+   * For a quadrant parameter p, signed cosine and sine powers `2 / exponent`
+   * are multiplied by the quadrant's metre half-axes. Quadrants share axis
+   * intercepts and close about the supplied centre.
    */
   export interface ISuperellipse {
-    /** Discriminator. */
+    /** Selects analytic superellipse quadrant evaluation. */
     type: "superellipse";
 
-    /** Metres from the centre to the curve along `+x`, positive. */
+    /**
+     * Positive finite distance from the centre to the positive X intercept, in
+     * metres.
+     */
     right: number;
 
-    /** Metres from the centre to the curve along `+y`, positive. */
+    /**
+     * Positive finite distance from the centre to the positive Y intercept, in
+     * metres.
+     */
     up: number;
 
-    /** Metres from the centre to the curve along `-x`, positive. */
+    /**
+     * Positive finite distance from the centre to the negative X intercept, in
+     * metres.
+     */
     left: number;
 
-    /** Metres from the centre to the curve along `-y`, positive. */
+    /**
+     * Positive finite distance from the centre to the negative Y intercept, in
+     * metres.
+     */
     down: number;
 
     /**
-     * Exponent per quadrant, counterclockwise from `+x +y`: from 1 (straight)
-     * through 2 (elliptic) to at most 20 (nearly square).
+     * Quadrant powers in counterclockwise order. Two gives an ellipse and
+     * higher values round toward a rectangle corner.
      */
     exponents: IAutoMovieSweepSection.IQuadrantExponents;
 
     /**
-     * Offset of the centre from the spine point; omitted, the centre is the
+     * Optional finite local XY centre in metres. Omission places it at the
      * spine point.
      */
     centre?: IAutoMovieSweepSection.IPoint;
   }
 
   /**
-   * A closed uniform cubic B-spline: the curve approximates its control
-   * polygon, which closes from the last point back to the first. Its points are
-   * where a Catmull-Clark ring of the same control points converges, so a sweep
-   * end can match a subdivision ring exactly.
+   * Closed uniform cubic B-spline described by a cyclic control polygon.
+   *
+   * The uniform cubic control polygon gives the curve of a compatible
+   * subdivision limit ring.
    */
   export interface IBSpline {
-    /** Discriminator. */
+    /** Selects closed uniform cubic B-spline evaluation. */
     type: "bspline";
 
-    /** Control points, at least three, counterclockwise. */
+    /**
+     * At least three finite section-plane controls in cyclic order, with the
+     * closing connection implicit.
+     */
     points: IAutoMovieSweepSection.IPoint[];
   }
 
   /**
-   * A closed piecewise cubic Bezier curve.
-   *
-   * Points come in threes per segment: an anchor, the anchor's outgoing handle
-   * and the next anchor's incoming handle; the next segment starts at the next
-   * anchor, and the last segment ends at the first anchor.
+   * Closed piecewise cubic B?zier with one anchor and two handle entries per
+   * segment.
    */
   export interface IBezier {
-    /** Discriminator. */
+    /** Selects periodic piecewise cubic B?zier evaluation. */
     type: "bezier";
 
-    /** Anchors and handles, a positive multiple of three, counterclockwise. */
+    /**
+     * Finite control entries in triples of anchor, outgoing handle and next
+     * anchor's incoming handle, with a positive number of segments.
+     */
     points: IAutoMovieSweepSection.IPoint[];
   }
 
-  /**
-   * A closed polygon, straight between its corners, for sections with corners
-   * such as a profile, a moulding or a duct. Under parameter correspondence
-   * corner `k` of one station meets corner `k` of the next, so a polygon need
-   * not be star-shaped there and may be concave.
-   */
+  /** Closed simple polygon with explicit corners joined by straight sides. */
   export interface IPolygon {
-    /** Discriminator. */
+    /** Selects piecewise-linear polygon evaluation. */
     type: "polygon";
 
-    /** Corners, at least three, a simple polygon. */
+    /**
+     * At least three finite corners in boundary order. Supply a simple loop
+     * with implicit closure.
+     */
     points: IAutoMovieSweepSection.IPoint[];
   }
 
   /**
-   * Radii at evenly spaced angles, the first along `+x`, joined by the periodic
-   * C2 spline of `interpolateSpline`, with continuous curvature and
-   * the spline's sampled overshoot policy. Positive inputs need not give
-   * positive interpolation; the section sampler refuses a non-positive or
-   * non-finite sampled radius.
+   * Closed section represented by positive metre radii sampled at even polar
+   * directions.
+   *
+   * The tension selection scans for overshoot. Keep the queried radius positive
+   * when using this profile in a section.
    */
   export interface IRadial {
-    /** Discriminator. */
+    /** Selects radii-by-direction evaluation. */
     type: "radial";
 
     /**
-     * Metres from the spine point at angles `2 pi k / radii.length`, at least
-     * three, positive.
+     * At least three positive finite metre radii at angles 2?k divided by
+     * sample count, starting on the positive first axis.
      */
     radii: number[];
   }

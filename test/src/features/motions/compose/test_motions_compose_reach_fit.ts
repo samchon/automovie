@@ -36,6 +36,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * The body is built whole (`humanFixtureBody`): the reach reads the body's pose
  * rig and arm chain by forward kinematics, records only
  * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names within-reach retention and separate clamping and refusal choices beyond the straight-arm reach.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanReach.fit using stored posed shoulder coordinates and targets along one ray under both resolution policies.
+ * @evidence contracts/development/testing.md#independent-expectations Half of the independently measured arm length lies within reach. Clamping the longer ray should return the shoulder plus the full arm length along that same direction, and refusing it must throw.
  */
 export async function test_motions_compose_reach_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

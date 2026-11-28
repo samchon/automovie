@@ -54,6 +54,10 @@ const REST: number = 1e-4;
  *    1 m/s onto a surface rising at 2 m/s leaves at 2
  *
  *    - 0.5 * 3 = 3.5 m/s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes continuation through repeated bounces, sliding, rolling, sticking and material coefficient boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Finds actual floor contacts along a drop, continues them on the same clock, and exercises explicit coefficient and moving-surface fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Restitution 0.5 quarters each rebound height. The roll stop follows v²/(2cg), a gripping shell leaves at 1.8 m/s and a sliding shell leaves at 2.7 m/s.
  */
 export function test_engine_physics_projectile_continue_bounce(): void {
   const ground: IAutoMovieProjectileFirstContact.ICollider =

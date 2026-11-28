@@ -34,10 +34,8 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 6. A subject without a name or with a zero raster is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans requests the grammar accepts against a subject that cannot honour them and observes each refusal and its message; a planner that drew an empty selection, an unknown view or a time outside the subject fails.
- * @evidence contracts/development/testing.md#independent-expectations The refused values lie outside the hand-written subject (its one view, two mark kinds, one object and four seconds); the accepted controls lie inside it.
- * @evidence contracts/development/testing.md#distinguishing-cases Each refusal against the nearest accepted value: an unknown name against an offered one, a non-matching mark pattern against matching ones, the end second against one past it. Malformed text is owned by `test_capture_request_malformed_value`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_plan_refusals`; it plans in memory and draws nothing.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/testing.md#independent-expectations The authored subject offers front, two mark kinds, one object and duration 4 s. A specimen at 4 s succeeds and 4.01, 4.5 and 5 s exceed the declared end. The two case-only view names map to colliding PNG identities in the same plan.
+ * @evidence contracts/development/common.md#meaningful-documentation The test covers unknown and offered views, selected marks and objects, endpoint admission, invalid subject metadata and case-only filename collisions.
  */
 export function test_capture_plan_refusals(): void {
   const plan: (

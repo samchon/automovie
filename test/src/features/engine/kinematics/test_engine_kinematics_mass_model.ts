@@ -24,6 +24,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  *    `AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia` and its momentum over 0.1 s
  *    `AutoMovieEngineKinematics.resolveAutoMovieMomentum`, all exactly.
  * 4. `apply` of [[1,2,3],[4,5,6],[7,8,9]] to (1, 0, -1) is (-2, -2, -2).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers mass setup from a rig, weighted segment readings, prepared and direct operations, and tensor application.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the stock model and two resolved poses, then exercises the direct and prepared mass, centre, part, inertia and momentum readers. It releases prepared model storage.
+ * @evidence contracts/development/testing.md#independent-expectations The profile supplies segment masses for an independently accumulated index-weighted mean. Multiplying the written tensor by (1, 0, -1) gives (-2, -2, -2). Prepared and direct agreement is a separate consistency check.
  */
 export async function test_engine_kinematics_mass_model(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

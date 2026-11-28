@@ -32,11 +32,9 @@ import { TestValidator } from "@nestia/e2e";
  *    strong dominance does not reach far enough to keep the lips shut through
  *    the vowel.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the chunks, rates, frames and the bound each case checks.
+ * @evidence contracts/development/common.md#meaningful-documentation Authored phoneme spans pin centre vowels and neighbour weight. Rapid bilabial and labiodental transitions obey their tested bounds, and a repeat preserves normalized weights.
  * @evidence contracts/development/testing.md#behavioral-verification Times phonemes with `productionPhonemesToVisemes`, binds them with `joinDialogueVisemes` and samples `sampleDialogueVisemeWeights`. A per-chunk instead of per-phoneme timing, a mouth that ignores the bilabial, or a sampler that snaps between ranges (a step of 1) fails.
  * @evidence contracts/development/testing.md#independent-expectations Shares are 24 000 / 3; frames are samples × 24 / 48 000; the centred frames follow from them; the 0.5 step bound and the dominance ordering are the requirements of #4054, and a vowel showing on its own frames between bilabials is the supervisor's decision on their reach; none is computed by the sampler under test.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a stressed and an unstressed chunk, a consonant and a vowel frame, a line that includes the silence on both sides, a bilabial against a labiodental, and a short vowel between bilabials; the IPA table belongs to `test_engine_dialogue_viseme_mpeg4_map` and speaker binding outcomes to `test_engine_dialogue_viseme_join`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_viseme_coarticulation`; it starts no process.
  */
 export function test_engine_dialogue_viseme_coarticulation(): void {
   const timeline: (

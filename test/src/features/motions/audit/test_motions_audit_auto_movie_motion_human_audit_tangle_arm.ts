@@ -39,6 +39,10 @@ const FOREARM: RegExp = /^left(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
  *
  * The body is built whole (`humanFixtureBody`): the score reads the body's
  * tangle model and colliders on the posed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the quiet left and right arm scores and the isolated left-arm overlap at the chest.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditTangle.arm for each side on stored-body bones, then repeats after moving the left wrist and forearm into an authored chest placement.
+ * @evidence contracts/development/testing.md#independent-expectations The quiet repose supplies the zero baseline on each side. The left wrist is deliberately placed inside the trunk, so only that side should produce positive excess over its baseline.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_tangle_arm(): Promise<void> {
   // Reads every segment's colliders and tangle probes (`body.tangle`), a whole-body read.

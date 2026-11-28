@@ -35,6 +35,10 @@ import { makePose } from "../../internal/makePose";
  *    succeeds; a rotation with w = 2 fails with a range finding at
  *    `$input.root.rotation`; a scale y of 0 fails with a range finding at
  *    `$input.root.scale.y`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers pose identity, named and unique joints, default and overridden limits, and root transform admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validatePoseResult on the conventional rig with isolated substitutions of identity, bone, range or root records.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture names its rig and available bones, so the alternate id and absent or repeated bone are detectable. Elbow 175 exceeds the default 150 but fits the 200 override. Quaternion norm and positive scale are independent root conditions.
  */
 export function test_engine_validation_pose_result(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

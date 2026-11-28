@@ -19,6 +19,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  *    the new x* within 1e-6 mm.
  * 2. A profile with no knots under `compose` is admitted; one with a knot, and one
  *    with a heading, are refused naming the conflict.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names frame-dependent relocation and admissible empty profile versus conflicting controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the changed lean and plane, then submits empty, knotted and headed profiles to the same composed split.
+ * @evidence contracts/development/testing.md#independent-expectations Using b = 0.45 in the crossing formula fixes the moved fork. Authored knots and heading conflict with planes determined from the child frames.
  */
 export function test_engine_geometry_split_compose_frames(): void {
   const wide = C.realize(

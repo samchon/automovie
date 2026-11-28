@@ -1,8 +1,7 @@
+import { AutoMovieEngineSolidVector } from "@automovie/engine";
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/*
- * Euclidean vector magnitude, retaining the operand's units.
- */
-export const len: (a: AutoMovieVector3Tuple) => number = (
-  a: AutoMovieVector3Tuple,
-): number => Math.hypot(a[0], a[1], a[2]);
+/* Euclidean magnitude in the operand's physical unit. */
+export function len(a: AutoMovieVector3Tuple): number {
+  return AutoMovieEngineSolidVector.norm(a);
+}

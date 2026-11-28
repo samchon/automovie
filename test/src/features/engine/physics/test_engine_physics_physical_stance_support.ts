@@ -34,6 +34,10 @@ const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
  *    union by the margin from every hull edge, and keeps area for two
  *    edge-borne feet and for a seated tripod with a rear toe edge; `shorten`
  *    takes the margin off an edge along its length only.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines bearing footprints from lowest surface vertices, support shrink and effective swing mass.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a flat and rolled box hull, combines narrow and edge-supported soles and measures swing weight for a leg with authored masses.
+ * @evidence contracts/development/testing.md#independent-expectations The 5 mm threshold rejects top vertices 20 mm up and the far rolled edge 17 mm up. Shrinking a square by 0.02 m moves every edge inward by that amount.
  */
 export function test_engine_physics_physical_stance_support(): void {
   const failures: string[] = [];

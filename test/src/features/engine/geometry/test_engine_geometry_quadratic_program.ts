@@ -40,6 +40,10 @@ type Result = ReturnType<typeof AutoMovieEngineMath.solveQuadraticProgram>;
  *    curvature with bounds +-1e29 and an equality at 0 with an initial value. A
  *    zero-dimensional kernel call reports a negative setup status and the next
  *    public solve still succeeds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names solved, infeasible and unbounded certificates, residual tolerances, near-parallel binding rows and input failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public and kernel solvers on explicit bounded and unbounded systems and checks minimizers, residuals, Farkas witness, descent ray and repeatability.
+ * @evidence contracts/development/testing.md#independent-expectations Completing squares and Lagrange multipliers give exact small solutions. Opposed x bounds are contradictory, and minimizing −x without a cap has a positive descent ray.
  */
 export function test_engine_geometry_quadratic_program(): void {
   const solve = AutoMovieEngineMath.solveQuadraticProgram;

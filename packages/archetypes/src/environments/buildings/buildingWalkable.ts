@@ -4,6 +4,8 @@ import type {
   IAutoMovieRegionTriangulation,
 } from "@automovie/interface";
 
+import { offsetPlanarMiter } from "../../core/internal/offsetPlanarMiter";
+
 /*
  * Keep walking support inside the inner faces of the plan's walls.
  *
@@ -84,13 +86,12 @@ function insetRing(
   );
   const inner: IAutoMovieProfilePoint[] = ring.map(
     (p: IAutoMovieProfilePoint, i: number): IAutoMovieProfilePoint => {
-      const a: IAutoMovieProfilePoint =
-        normals[(i + ring.length - 1) % ring.length]!;
-      const b: IAutoMovieProfilePoint = normals[i]!;
-      // The sum of the normals has dot product 1 + cos(turn) with
-      // either one. Scaling sets the perpendicular clearance to distance.
-      const scale: number = distance / (1 + a.x * b.x + a.y * b.y);
-      return { x: p.x + (a.x + b.x) * scale, y: p.y + (a.y + b.y) * scale };
+      return offsetPlanarMiter(
+        p,
+        normals[(i + ring.length - 1) % ring.length]!,
+        normals[i]!,
+        distance,
+      );
     },
   );
   for (let i: number = 0; i < ring.length; ++i) {

@@ -25,6 +25,10 @@ import { armPlannerFixture } from "../../internal/armPlanner/armPlannerFixture";
  *    its tolerance (nothing interpenetrates), and the played arm C2 across
  *    every knot.
  * 3. Solving the same problem again gives the same solution, bit for bit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes recovery from a refused authored sweep using the actual stored animated arm problem.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the laid course refusal, solves the typed 2.2 s fixture and measures the played arm, then repeats the solver on the same input.
+ * @evidence contracts/development/testing.md#independent-expectations The authored contact disc, rig ranges and played-grid tolerance bound the solution. Derivative continuity is measured at every knot and repeated solutions must match bit for bit.
  */
 export async function test_motions_posture_arm_planner_choku_zuki(): Promise<void> {
   const loaded: armPlannerFixture.ILoaded =

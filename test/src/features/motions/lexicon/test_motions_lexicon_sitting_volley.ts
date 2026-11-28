@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  * 2. At the release the seat has scooted all the way and the palm still reaches;
  *    at the receive the platform is formed and the palm has lifted.
  * 3. At the end the platform has eased off.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines seated shift, one palm plant, platform formation and the ease-off phase.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the authored shift at plant, midway through supported movement, release, receive and finish.
+ * @evidence contracts/development/testing.md#independent-expectations Fixture boundaries 0.25, 0.55 and 0.8 separate palm completion, seat arrival and platform formation. Midpoint scoot is half and final platform weight is zero.
  */
 export function test_motions_lexicon_sitting_volley(): void {
   const plant: humanSittingVolleyPhases.IPhases =

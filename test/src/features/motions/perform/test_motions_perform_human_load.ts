@@ -19,13 +19,10 @@ const HIPS: IAutoMovieMotionHumanSustainedForce["at"] = {
 };
 
 /**
- * `HumanLoad` reads what a load does to a body: the lean back that balances a
- * load carried ahead, `−asin(F a / (M h))`; the inertial force of an
- * accelerated frame, `−m a`; whether an acceleration tips a body, `h |a| / g
- *
- * > Half its base`; the friction a ground acceleration needs, `|a_level| / (g
- *
- * - A_y)`; and the sustained forces on a subject at a second, summed.
+ * `HumanLoad` computes balancing lean, inertial force in an accelerated
+ * frame, tipping, required friction and active sustained forces.
+ * Tipping compares `h |a| / g` with the half-base. Required friction divides
+ * the horizontal acceleration magnitude by `g + a_y`.
  *
  * Scenarios:
  *
@@ -36,6 +33,10 @@ const HIPS: IAutoMovieMotionHumanSustainedForce["at"] = {
  * 4. A level 5 m/s² needs `5 / g` of friction; falling freely, any is too little.
  * 5. The sum on `a` at 1 s is its two sustained forces' values, not its impulse
  *    nor `b`'s force.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The fixture separates balancing lean, inertial force, tipping, required friction, and aggregation of one subject's active sustained forces.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `HumanLoad` operations on typed loads, accelerations and forces and checks physical components and absence for an infeasible lean. The sustained read also distinguishes an impulse and another actor.
+ * @evidence contracts/development/testing.md#independent-expectations A 20 kg load half a metre ahead of a 70 kg body with centre at 1 m gives sine 1/7. Multiplying (1, 0, 2) by -70 gives inertial force (-70, 0, -140) N. A level (3, 0, 4) acceleration has norm 5 and needs 5/g friction.
  */
 export function test_motions_perform_human_load(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

@@ -10,8 +10,8 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
    * Immutable millimetre coefficient registry, bicubic charts and finite-work
    * policy. Keep the complete input unchanged until generator completion or
    * cancellation; canonical position closures read borrowed controls during
-   * emission. Admission in bicubicAtlasPlan64 and boundary preparation
-   * throws before yielding.
+   * emission. Admission in bicubicAtlasPlan64 and boundary preparation throws
+   * before yielding.
    */
   export type Input = {
     /**
@@ -28,63 +28,13 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
      * Canonical cubic owners; omitted or empty declares none. Bindings
      * construct patch edges from oriented restrictions of these controls.
      */
-    boundaryAuthorities?: readonly {
-      /**
-       * Unique nonblank authority name within this input; coordinate equality
-       * does not equate different names.
-       */
-      id: string;
-
-      /**
-       * Four safe nonnegative registry indices in cubic Bernstein order,
-       * defining the authority from normalized phase zero to one.
-       */
-      controlIds: readonly [number, number, number, number];
-    }[];
+    boundaryAuthorities?: readonly IBoundaryAuthority[];
     /**
      * Explicit side restrictions and independent render-normal fans. Omitted or
      * empty uses legacy complete-edge ID matching; matching unbound four-ID
      * sides inherit a declared restriction with a separate legacy fan.
      */
-    boundaryBindings?: readonly {
-      /**
-       * Existing input patch ID; at most one explicit binding may address each
-       * patch/side pair.
-       */
-      patch: string;
-
-      /**
-       * Side using increasing local coordinate: 0 bottom v=0, 1 right u=1, 2
-       * top v=1, 3 left u=0. Top/left are not reversed merely for boundary
-       * walk.
-       */
-      side: 0 | 1 | 2 | 3;
-
-      /**
-       * Existing boundaryAuthorities ID whose cubic controls own this side
-       * restriction.
-       */
-      authority: string;
-
-      /**
-       * Finite canonical phase in [0,1] at local side coordinate zero. Must
-       * differ from end.
-       */
-      start: number;
-
-      /**
-       * Finite canonical phase in [0,1] at local side coordinate one; less than
-       * start reverses the authority restriction.
-       */
-      end: number;
-
-      /**
-       * Nonblank render-normal sharing identity at a physical boundary point.
-       * Equal fan IDs reuse the first emitted normal/index; different fans
-       * retain distinct indices at the same physical position.
-       */
-      normalFan: string;
-    }[];
+    boundaryBindings?: readonly IBoundaryBinding[];
     /**
      * Positive finite analytic-field to piecewise-linear Taylor estimate
      * request in millimetres; not an outward-rounded distance or
@@ -116,13 +66,13 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
 
     /**
      * Retain six patch-local numbers per accepted triangle, in index-corner
-     * order; omitted allocates none.
+     * order. Omission defaults to false. Supplied values must be boolean.
      */
     retainTriangleParameters?: boolean;
     /**
      * Retain prepared millimetre root-grid copies, including initial
-     * constructed grids for plans stopped by coefficient conflicts; omitted or
-     * false allocates no snapshots.
+     * constructed grids for plans stopped by coefficient conflicts. Omission or
+     * false allocates no snapshots. Supplied values must be boolean.
      */
     retainPatchCoefficients?: boolean;
   };
@@ -191,19 +141,7 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
      * constructed grid; snapshots are not an admission or conformity
      * certificate.
      */
-    patchCoefficients?: {
-      /**
-       * Input patch ID associated with this prepared coefficient snapshot,
-       * including when that patch has no retained cells.
-       */
-      patch: string;
-      /**
-       * Copied prepared 4-by-4 tensor Bernstein grid in millimetres, indexed v
-       * row then u column. Includes grids of plans omitted for coefficient
-       * conflicts or resource limits.
-       */
-      gridMm: Readonly<AutoMovieVector3Tuple>[][];
-    }[];
+    patchCoefficients?: IPatchCoefficients[];
     /** Total admitted analytic patches in this run. */
     patches: number;
     /** Patches with at least one unprocessed region. */
@@ -229,5 +167,78 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
      * all copied here.
      */
     diagnostics: string[];
+  };
+
+  /** A named cubic boundary defined by four ordered shared control IDs. */
+  export type IBoundaryAuthority = {
+    /**
+     * Unique nonblank authority name within this input; coordinate equality
+     * does not equate different names.
+     */
+    id: string;
+
+    /**
+     * Four safe nonnegative registry indices in cubic Bernstein order, defining
+     * the authority from normalized phase zero to one.
+     */
+    controlIds: readonly [number, number, number, number];
+  };
+
+  /**
+   * Attach one patch side and its normal fan to a directed boundary
+   * restriction.
+   */
+  export type IBoundaryBinding = {
+    /**
+     * Existing input patch ID; at most one explicit binding may address each
+     * patch/side pair.
+     */
+    patch: string;
+
+    /**
+     * Side using increasing local coordinate: 0 bottom v=0, 1 right u=1, 2 top
+     * v=1, 3 left u=0. Top/left are not reversed merely for boundary walk.
+     */
+    side: 0 | 1 | 2 | 3;
+
+    /**
+     * Existing boundaryAuthorities ID whose cubic controls own this side
+     * restriction.
+     */
+    authority: string;
+
+    /**
+     * Finite canonical phase in [0,1] at local side coordinate zero. Must
+     * differ from end.
+     */
+    start: number;
+
+    /**
+     * Finite canonical phase in [0,1] at local side coordinate one; less than
+     * start reverses the authority restriction.
+     */
+    end: number;
+
+    /**
+     * Nonblank render-normal sharing identity at a physical boundary point.
+     * Equal fan IDs reuse the first emitted normal/index; different fans retain
+     * distinct indices at the same physical position.
+     */
+    normalFan: string;
+  };
+
+  /** A prepared patch's copied tensor Bernstein grid in millimetres. */
+  export type IPatchCoefficients = {
+    /**
+     * Input patch ID associated with this prepared coefficient snapshot,
+     * including when that patch has no retained cells.
+     */
+    patch: string;
+    /**
+     * Copied prepared 4-by-4 tensor Bernstein grid in millimetres, indexed v
+     * row then u column. Includes grids of plans omitted for coefficient
+     * conflicts or resource limits.
+     */
+    gridMm: Readonly<AutoMovieVector3Tuple>[][];
   };
 }

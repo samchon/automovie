@@ -26,6 +26,10 @@ import { throwsError } from "../../internal/throwsError";
  *    adjacent doubles.
  * 3. A contact span to an infinite end, and a step (1e-20 s) whose count over one
  *    second passes 2^53, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes finite iterators for representable steps and explicit refusal of invalid grids.
+ * @evidence contracts/development/testing.md#behavioral-verification Schedules normal and unrepresentable 120 Hz spans and resolves an already-touching late collider near adjacent doubles, then supplies infinite and excessive grids.
+ * @evidence contracts/development/testing.md#independent-expectations At 1e20 s neighboring floats are 16384 s apart and cannot advance a 120 Hz period. A known late live time fixes contact, while interval count past 2^53 is invalid.
  */
 export function test_engine_physics_step_planner_degenerate_termination(): void {
   // 1. A clock period under the time resolution.

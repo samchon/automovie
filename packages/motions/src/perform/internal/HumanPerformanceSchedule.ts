@@ -1,6 +1,31 @@
-import { AutoMovieEngineKinematics, AutoMovieEngineScheduleCut, AutoMovieEngineScheduleError, AutoMovieEngineVector3, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieIntent, IAutoMovieIntentTiming, IAutoMovieMotionEvent, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting, IAutoMovieSchedule, IAutoMovieScheduleAlignment, IAutoMovieScheduleContext, IAutoMovieScheduleCue, IAutoMovieScheduleEntry, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMath,
+  AutoMovieEngineSchedule,
+  AutoMovieEngineScheduleCut,
+  AutoMovieEngineScheduleError,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieIntent,
+  IAutoMovieIntentTiming,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanRefusal,
+  IAutoMovieMotionHumanResponse,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionMeeting,
+  IAutoMovieSchedule,
+  IAutoMovieScheduleAlignment,
+  IAutoMovieScheduleContext,
+  IAutoMovieScheduleCue,
+  IAutoMovieScheduleEntry,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanResponse } from "../../skill/internal/HumanResponse";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
@@ -77,6 +102,7 @@ export namespace HumanPerformanceSchedule {
         state: (entry: IAutoMovieScheduleEntry): void => {
           const overlay: boolean = self.riding.has(entry.index);
           if (!overlay && entry.cut === undefined) return;
+          motionPrepared.invalidate();
           const person: IAutoMovieMotionHumanSegment.IPerson =
             HumanPerformanceRead.person(self, entry.subject);
           if (overlay) HumanPerformanceOverlays.finish(person, entry);
@@ -132,7 +158,9 @@ export namespace HumanPerformanceSchedule {
    * The second an action must start at for one of its instants to fall on a
    * target second. The time to that instant depends on the state the action is
    * entered from, which depends on when it starts, so it is planned at the
-   * start found so far until that settles; nothing is placed.
+   * start found so far until that settles. A measured bracket can recover a
+   * start when the iteration oscillates. Only a plan whose event actually
+   * reaches the target within CUT can use that bracket; nothing is placed.
    */
   export function align(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -148,24 +176,13 @@ export namespace HumanPerformanceSchedule {
     const previous: IAutoMovieMotionHumanSegment | undefined =
       intent.parameters?.over === true ? undefined : person.segments.at(-1);
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
-    let start: number = target;
-    let lead: number = 0;
-
-    // The start is the fixed point of planning at a start and moving it by
-    // the lead that plan gives. It lies between the floor and the target, so
-    // a map that settles at least as fast as a bisection of that span meets
-    // the schedule's resolution (`CUT`) within as many rounds as halvings of
-    // the span down to it; a start still moving by more after them refuses.
-    const rounds: number =
-      Math.ceil(Math.log2(Math.max(1, Math.abs(target - floor) / CUT))) + 1;
-    let moved: number = Infinity;
-    for (let round: number = 0; round < rounds; ++round) {
+    function leadAt(start: number): number {
       // Planning a mutual action records its meeting; a trial must not.
       const meetings: [string, IAlignMeetingsItem][] = [...self.meetings];
       const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
         self,
         intent,
-        Math.max(floor, start),
+        start,
         entries,
         where,
         true,
@@ -206,15 +223,52 @@ export namespace HumanPerformanceSchedule {
           reason: `${intent.capability} has no instant named ${instant}`,
           fix: "align one of the instants the action has",
         });
-      lead = share * timing.duration;
+      return share * timing.duration;
+    }
+    let start: number = target;
+    let planned: number = target;
+    let lead: number = 0;
+    let early: number | undefined;
+    let late: number | undefined;
 
-      // A plan is a function of the start it is planned at: a round that
-      // asks for the start it was planned at has settled, and planning it
-      // there again would give the same lead.
-      const planned: number = Math.max(floor, start);
+    // Start with the fixed point: try the target minus the lead the previous
+    // plan gave. Keep a measured bracket within the legal starts.
+    const rounds: number =
+      Math.ceil(Math.log2(Math.max(1, Math.abs(target - floor) / CUT))) + 1;
+    let moved: number = Infinity;
+    for (let round: number = 0; round < rounds; ++round) {
+      planned = Math.max(floor, start);
+      lead = leadAt(planned);
       start = target - lead;
       moved = Math.abs(Math.max(floor, start) - planned);
       if (moved === 0) break;
+      if (planned < start && (late === undefined || planned < late))
+        early = Math.max(early ?? planned, planned);
+      if (planned > start && (early === undefined || planned > early))
+        late = Math.min(late ?? planned, planned);
+    }
+    if (!(moved <= CUT) && early !== undefined && late !== undefined) {
+      const errorAt = (seconds: number): number =>
+        seconds + leadAt(seconds) - target;
+      const before: number = errorAt(early);
+      if (Math.abs(before) <= CUT) return early;
+      const after: number = errorAt(late);
+      if (Math.abs(after) <= CUT) return late;
+      if (before < 0 && after > 0) {
+        const candidate: number = AutoMovieEngineMath.bracketedRoot(
+          (seconds: number): number => {
+            const error: number = errorAt(seconds);
+            return Math.abs(error) <= CUT ? 0 : error;
+          },
+          early,
+          late,
+          Number.EPSILON * Math.max(1, Math.abs(late)),
+          rounds,
+        );
+        // A narrow sign bracket can enclose a discontinuity. Keep only the
+        // exact trial whose recomputed event reaches the named instant.
+        if (Math.abs(errorAt(candidate)) <= CUT) return candidate;
+      }
     }
     if (!(moved <= CUT))
       throw new AutoMovieMotionHumanRefusal({
@@ -263,7 +317,7 @@ export namespace HumanPerformanceSchedule {
               : `sync it to ${anchor.event} index ${earliest} of ${anchor.of} (${same[earliest]!.seconds.toFixed(3)} s), the earliest it can meet, or shorten what its performer does before it`,
       });
     }
-    return start;
+    return planned;
   }
 
   /*

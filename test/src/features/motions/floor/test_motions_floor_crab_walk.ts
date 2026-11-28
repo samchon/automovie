@@ -10,25 +10,21 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * `crabWalkClock` times the crab walk: `ceil(D / (0.18 stature))` whole cycles
- * of 0.9 s after a 0.8 s settle, the progress a minimum-jerk course in cycles;
- * `step` swings an end over the first half of each of its cycles on a
- * minimum-jerk course lifted on a half sine and stands over the second; and
- * `contacts` plants each end between its swings.
+ * Check the crab-walk clock, progression and hand support by film second.
  *
- * Scenarios, over 1.2 m for a 1.75 m stature (`1.2 / 0.315 = 3.81`, so 4 cycles
- * of 0.3 m, 4.4 s in all):
+ * Scenarios:
  *
- * 1. Four cycles of 0.3 m over 4.4 s.
- * 2. The progress is 0 at the settle, 2 half way through the travel (2.6 s, the
- *    course's symmetry) and 4 at the end; `at(2)` is 2.6 s.
- * 3. An end of phase 0 stands at the start, is half way through its first swing at
- *    the top of its lift at u = 0.25, stands one stride on at u = 0.75, and
- *    rests at the last stride past the end; an end of phase 0.5 has not left at
- *    u = 0.25.
- * 4. With the right hand at phase 0 and the left at 0.5, the right hand does not
- *    bear while it swings at `at(0.25)` and the left does, the other way round
- *    at `at(0.75)`, and each bears from its last landing to the end.
+ * 1. Travel 1.2 m at a stature of 1.75 m. Four 0.3 m strides fit into a 4.4 s
+ *    clock.
+ * 2. At 2.6 s, progression is halfway through the distance and its inverse
+ *    returns the same second.
+ * 3. Check the first swing's midpoint and lift, its landing and the terminal
+ *    plant. The hands alternate bearing during those swings and both bear at
+ *    the end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give distance, stature, stride timing and alternating plants.
+ * @evidence contracts/development/testing.md#behavioral-verification The clock, progress reader and support reader answer the same four-stride course.
+ * @evidence contracts/development/testing.md#independent-expectations The 18-percent stature cap gives four strides. Four 0.9 s strides plus 0.8 s give the duration, and minimum-jerk symmetry gives the midpoint.
  */
 export async function test_motions_floor_crab_walk(): Promise<void> {
   const clock: crabWalkClock.IClock = crabWalkClock(1.2, 1.75);

@@ -11,6 +11,10 @@ import * as THREE from "three";
  * 1. Rigid rotated parents preserve solved world frames and authored detail.
  * 2. Compensating local scales cannot conceal a nonuniform ancestor.
  * 3. Invalid display admission leaves the bone's authored local pose intact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names solved world-frame display, rigid ancestry and refusal with retained authored locals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds mapped native model bones and passes typed solved poses through the adapter. Reads world and local transforms and collects discrepancies for a rotated parent and a compensating-scale invalid parent.
+ * @evidence contracts/development/testing.md#independent-expectations The solved world frame is the reference under rigid ancestry. Undoing a parent scale lower in the hierarchy cannot admit the nonuniform ancestor. Refused input preserves the previously recorded authored locals.
  */
 export function test_render_scene_create_physical_pose_adapter(): void {
   const object: THREE.Group = new THREE.Group();

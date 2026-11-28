@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  *    models.
  * 2. The seat starts at the cushion's front edge and uses the same width and
  *    depth.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two sedan models, seat height endpoints and contact at the cushion's leading edge.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each sedan, reads its actual driver cushion collider and compares its box dimensions and forward upper edge with the public seat frame.
+ * @evidence contracts/development/testing.md#independent-expectations The authored floor and seating-reference height give the vertical contact after the 0.0975 metre offset. The measured box half-extents give the leading edge, full width and depth.
  */
 export function test_archetypes_catalogue_sedan_cushion(): void {
   for (const [model, height] of [

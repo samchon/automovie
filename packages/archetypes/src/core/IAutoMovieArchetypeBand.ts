@@ -1,36 +1,26 @@
 import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 
 /**
- * The band one free dimension of an archetype may take, with the source that
- * states it.
+ * Inclusive finite interval with its measurement unit and source.
  *
- * A producer draws the dimension uniformly inside the band from its seed, takes
- * the middle of the band without a seed, and refuses a value an author fixes
- * outside it. The band is therefore the whole variation of that dimension:
- * nothing an act reads leaves it.
+ * A draw session uses the named dimension's seeded sample or the interval's
+ * midpoint. An explicit finite value can use either endpoint.
  */
 export interface IAutoMovieArchetypeBand {
-  /** The least value, in `unit`. */
+  /** Inclusive lower endpoint in `unit`. */
   minimum: number;
 
   /**
-   * The greatest value, in `unit`; equal to `minimum` for a dimension a
-   * standard fixes.
+   * Inclusive upper endpoint in `unit`. When equal to `minimum`, the band fixes the value.
    */
   maximum: number;
 
-  /** The unit of both ends. */
+  /** Shared measurement unit of both endpoints. */
   unit: AutoMovieArchetypeBandUnit;
 
-  /**
-   * Where the band comes from: the standard's clause or the measurement, with
-   * the address it was read at.
-   */
+  /** Measurement, reference or estimate used to set the interval. */
   source: string;
 
-  /**
-   * True when the band could not be read at its primary source, or is an
-   * estimate from a secondary one.
-   */
+  /** True when the interval is estimated or relies on a secondary source. */
   provisional?: boolean;
 }

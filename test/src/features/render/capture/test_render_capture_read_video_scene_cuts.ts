@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A frame without the time takes it from `pts_time` in its header.
  * 3. A frame without a score, or with an unreadable one, is refused, and an
  *    empty report has no cuts.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines parsing of cut times and scores from metadata, header-time fallback and invalid report handling.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads two explicit cut records, a missing time with `pts_time`, an empty report and malformed scores.
+ * @evidence contracts/development/testing.md#independent-expectations Typed fixture times and scores are literal independent values. A valid header gives the missing time, and a frame without a readable score refuses.
  */
 export function test_render_capture_read_video_scene_cuts(): void {
   TestValidator.equals(

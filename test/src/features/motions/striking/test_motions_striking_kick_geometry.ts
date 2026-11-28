@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    0.2 and at 1, the left pivots throughout.
  * 2. Stepping, the left pivots to 0.2, bears to 0.5 and pivots after.
  * 3. With the right still landing, its first plant is dropped.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes support and swing foot windows when standing, stepping and entering with an unresolved plant.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the window planner for one rig at launch 0.2 and chamber 0.5, toggling stepping and entry landing.
+ * @evidence contracts/development/testing.md#independent-expectations A stable support pivots throughout. Stepping changes bearing only between 0.2 and 0.5, and an entering landing removes the initial plant.
  */
 export function test_motions_striking_kick_geometry(): void {
   const timing = { duration: 1, prep: 0.2, chamber: 0.5 };

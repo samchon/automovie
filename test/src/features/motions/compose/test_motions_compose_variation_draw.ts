@@ -31,9 +31,13 @@ import { motionVariationSource } from "../../internal/motionVariationSource";
  *    points within radius 1.
  * 3. `cell` gives the five values above, and 0 on an axis of one name.
  * 4. `basis` is a right-handed orthonormal frame along its direction, including a
- *    vertical one, and along +Z for a zero direction.
+ *    nearly vertical one, and along +Z for a zero direction.
  * 5. `quantity` lies between the spread's two ends and narrows from a novice to an
  *    elite; `scalar` never exceeds its bound, and gives 0 without room.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names seeded stream stability, truncated normal and disc checks, cell boundaries, oriented bases and skill-scaled offset bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Draws from 400 deterministic series and calls the cell, basis, quantity and scalar helpers on explicit fixtures. Reads sample moments, point frequencies, determinant and limits.
+ * @evidence contracts/development/testing.md#independent-expectations The truncated distributions give standard deviation 0.8796 and disc mass 0.455 within radius 1, checked against fixed tolerances. Named cell midpoints determine literal limits. Unit dot products and determinant 1 certify the basis, and explicit scalar caps set the offset bounds.
  */
 export function test_motions_compose_variation_draw(): void {
   const sample = (seed: string, key: string): number =>

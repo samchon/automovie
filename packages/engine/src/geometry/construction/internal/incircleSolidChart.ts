@@ -1,5 +1,7 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
+import { finiteBinary64Grid } from "../../../math/internal/finiteBinary64Grid";
+
 /*
  * Exact in-circle sign of a fourth represented binary64 chart point against the
  * circle through three others.
@@ -27,13 +29,16 @@ export function incircleSolidChart(
   c: Readonly<AutoMovieVector2Tuple>,
   d: Readonly<AutoMovieVector2Tuple>,
 ): number {
-  const values: number[] = [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]];
-  const adx: number = a[0] - d[0];
-  const ady: number = a[1] - d[1];
-  const bdx: number = b[0] - d[0];
-  const bdy: number = b[1] - d[1];
-  const cdx: number = c[0] - d[0];
-  const cdy: number = c[1] - d[1];
+  const values = [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]] as const;
+  if (!values.every(Number.isFinite))
+    throw new RangeError("Solid chart coordinates must be finite");
+  const [ax, ay, bx, by, cx, cy, dx, dy] = values;
+  const adx: number = ax - dx;
+  const ady: number = ay - dy;
+  const bdx: number = bx - dx;
+  const bdy: number = by - dy;
+  const cdx: number = cx - dx;
+  const cdy: number = cy - dy;
   const alift: number = adx * adx + ady * ady;
   const blift: number = bdx * bdx + bdy * bdy;
   const clift: number = cdx * cdx + cdy * cdy;
@@ -59,19 +64,7 @@ export function incircleSolidChart(
     Math.abs(determinant) > bound
   )
     return determinant > 0 ? 1 : -1;
-  const numbers: Dyadic[] = values.map(decode);
-  const nonzero: Dyadic[] = numbers.filter(
-    (value: Dyadic): boolean => value.significand !== 0n,
-  );
-  if (nonzero.length === 0) return 0;
-  const exponent: number = Math.min(
-    ...nonzero.map((value: Dyadic): number => value.exponent),
-  );
-  const n: bigint[] = numbers.map((value: Dyadic): bigint =>
-    value.significand === 0n
-      ? 0n
-      : value.significand << BigInt(value.exponent - exponent),
-  );
+  const n: bigint[] = finiteBinary64Grid(values);
   const x: bigint[] = [n[0]! - n[6]!, n[2]! - n[6]!, n[4]! - n[6]!];
   const y: bigint[] = [n[1]! - n[7]!, n[3]! - n[7]!, n[5]! - n[7]!];
   const lift: bigint[] = [0, 1, 2].map(
@@ -82,37 +75,6 @@ export function incircleSolidChart(
     lift[1]! * (x[2]! * y[0]! - x[0]! * y[2]!) +
     lift[2]! * (x[0]! * y[1]! - x[1]! * y[0]!);
   return exact > 0n ? 1 : exact < 0n ? -1 : 0;
-}
-
-/*
- * Exact integer significand multiplied by two to exponent.
- */
-interface Dyadic {
-  /*
-   * Signed integer significand; zero has no relevant exponent.
-   */
-  significand: bigint;
-
-  /*
-   * Binary exponent of the integer's least significant bit.
-   */
-  exponent: number;
-}
-
-/*
- * Decode a finite double without arithmetic on its significand. Calls are
- * synchronous and have no callbacks.
- */
-function decode(value: number): Dyadic {
-  VIEW.setFloat64(0, value, false);
-  const bits: bigint = VIEW.getBigUint64(0, false);
-  const biased: number = Number((bits >> 52n) & 2047n);
-  const fraction: bigint = bits & ((1n << 52n) - 1n);
-  const unsigned: bigint = biased === 0 ? fraction : fraction + (1n << 52n);
-  return {
-    significand: bits >> 63n === 0n ? unsigned : -unsigned,
-    exponent: biased === 0 ? -1074 : biased - 1075,
-  };
 }
 
 /*
@@ -127,8 +89,3 @@ const SMALLEST: number = 2 ** -200;
  * inside the finite range.
  */
 const LARGEST: number = 2 ** 200;
-
-/*
- * Fixed decoding storage, never exposed or retained by an input/result.
- */
-const VIEW: DataView = new DataView(new ArrayBuffer(8));

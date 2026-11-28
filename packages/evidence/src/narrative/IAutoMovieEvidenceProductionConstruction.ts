@@ -1,48 +1,29 @@
 import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 
-/** Selects each layer's construction stage and its native parent references. */
+/** Controls whether Evidence checks the selected narrative layers. */
 export interface IAutoMovieEvidenceProductionConstruction {
   /**
-   * Sets the long-route settings outline document's own construction stage.
-   *
-   * The outline's part principle and arrangement obligation claims follow this
-   * stage, so the outline's evidence can open or close apart from the settings
-   * files. The file-to-outline-entry claim stays on the settings stage.
-   * Omitted, the outline follows the settings stage.
+   * Controls the long route's settings outline. It follows settings when
+   * omitted. Checks that settings files appear in the outline stay on
+   * settings.
    */
   index?: AutoMovieEvidenceProductionStage;
 
-  /** Settings is the long route's source layer and has no upstream references. */
+  /** Controls the settings source layer on the long route. */
   settings: AutoMovieEvidenceProductionStage;
 
-  /**
-   * Sets the short route's brief construction stage.
-   *
-   * The brief is the short route's source layer and has no upstream references.
-   * Omitted, it is disabled.
-   */
+  /** Controls the brief source layer on the short route. Omission disables it. */
   brief?: AutoMovieEvidenceProductionStage;
 
-  /**
-   * Sets the treatments construction stage.
-   *
-   * Requires the approved settings construction.
-   */
+  /** Controls long-route treatments and checks their relationship to settings. */
   treatments: AutoMovieEvidenceProductionStage;
 
-  /**
-   * Sets the scripts construction stage.
-   *
-   * Requires the approved treatments construction.
-   */
+  /** Controls long-route scripts and checks their realization of treatments. */
   scripts: AutoMovieEvidenceProductionStage;
 
   /**
-   * Sets the screenplay construction stage.
-   *
-   * Requires approved scripts and treatments construction in long productions.
-   * Short productions require approved brief construction, and compact short
-   * productions approved settings construction.
+   * Controls screenplay construction. Checks relate a short's scenes to its
+   * brief, and a long work's scenes to its scripts and treatments.
    */
   screenplay: AutoMovieEvidenceProductionStage;
 }

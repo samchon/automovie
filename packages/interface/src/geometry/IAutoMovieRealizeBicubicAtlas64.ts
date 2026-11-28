@@ -1,30 +1,15 @@
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
 import type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAtlasTessellation64";
 
-/** Data and callback contracts shared by the RealizeBicubicAtlas64 operations. */
+/** Request and result contracts for Engine bicubic atlas realization. */
 export namespace IAutoMovieRealizeBicubicAtlas64 {
   /**
-   * Realize the public metre-valued bicubic recipe through its owning engine.
-   * The polynomial kernel receives millimetres once and returns model metres.
-   * Complete prior chunks survive a declared output budget; no source mesh is
-   * read. Shared physical identities and actual global indices remain
-   * unchanged. complete describes the retained patch domain, while
-   * approximationQualified separately states whether the requested
-   * field-to-triangle estimate was met. Retained coarse cells can preserve a
-   * complete domain with approximation false; source-fit and normal
-   * qualifications remain independent of both fields. After streaming ends,
-   * unreferenced render vertices left by a local omission are compacted out.
-   * Triangle ordinals and physical domain/ID pairs remain the same; only the
-   * returned render indices and source-table slots are remapped. Requested
-   * triangle parameters retain actual chart coordinates per corner, aligned
-   * with triangle ordinals and primitiveRanges, through that compaction. A
-   * shared render vertex can have different incident chart coordinates; these
-   * records are not per-vertex UV0, skin weights or semantic surface addresses.
-   * Optional patch coefficients are the actual post-binding kernel grids in mm,
-   * filtered to patches with retained triangles. They let construction consume
-   * that same field instead of re-evaluating a pre-binding recipe.
-   * Omitted/false retains no coefficient snapshots; invalid retention flags
-   * reject before work.
+   * Select the optional data that survives atlas realization.
+   *
+   * Both options default to false. Supplied values must be booleans and are
+   * checked before realization. Request triangle parameters to locate the
+   * returned corners in their charts. Request patch coefficients to read the
+   * bound millimetre grids for patches with retained triangles.
    */
   export type IOptions = {
     /**
@@ -40,27 +25,13 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
   };
 
   /**
-   * Realize the public metre-valued bicubic recipe through its owning engine.
-   * The polynomial kernel receives millimetres once and returns model metres.
-   * Complete prior chunks survive a declared output budget; no source mesh is
-   * read. Shared physical identities and actual global indices remain
-   * unchanged. complete describes the retained patch domain, while
-   * approximationQualified separately states whether the requested
-   * field-to-triangle estimate was met. Retained coarse cells can preserve a
-   * complete domain with approximation false; source-fit and normal
-   * qualifications remain independent of both fields. After streaming ends,
-   * unreferenced render vertices left by a local omission are compacted out.
-   * Triangle ordinals and physical domain/ID pairs remain the same; only the
-   * returned render indices and source-table slots are remapped. Requested
-   * triangle parameters retain actual chart coordinates per corner, aligned
-   * with triangle ordinals and primitiveRanges, through that compaction. A
-   * shared render vertex can have different incident chart coordinates; these
-   * records are not per-vertex UV0, skin weights or semantic surface addresses.
-   * Optional patch coefficients are the actual post-binding kernel grids in mm,
-   * filtered to patches with retained triangles. They let construction consume
-   * that same field instead of re-evaluating a pre-binding recipe.
-   * Omitted/false retains no coefficient snapshots; invalid retention flags
-   * reject before work.
+   * Return the retained atlas mesh and its processing results.
+   *
+   * The mesh uses model metres. A resource stop preserves earlier chunks in the
+   * result. Domain completion and field-to-triangle approximation are separate
+   * outcomes. A complete atlas can retain coarse cells outside the requested
+   * approximation. The returned triangle order and its per-corner data persist
+   * through vertex compaction.
    */
   export type IResult = {
     /**
@@ -71,7 +42,8 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
     mesh: IAutoMovieMesh;
     /**
      * Requested [u0,v0,u1,v1,u2,v2] per retained triangle, with patch ownership
-     * in primitiveRanges.
+     * in `primitiveRanges`. Shared vertices can have different chart
+     * coordinates on their incident triangles.
      */
     triangleParameters?: number[];
     /**
@@ -92,10 +64,7 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
      * qualifications.
      */
     approximationQualified: boolean;
-    /**
-     * Ordered chunk and terminal qualification messages, including explicit
-     * resource omissions; no diagnostic invents replacement geometry.
-     */
+    /** Ordered messages from admission, retained chunks and the terminal result. */
     diagnostics: string[];
     /**
      * Aggregated work and numerical qualifications from retained chunks, before
@@ -106,49 +75,17 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
      * Patch and parameter-cell ownership of consecutive retained triangles;
      * triangle ordinals remain stable through render-vertex compaction.
      */
-    primitiveRanges: {
-      /** Original patch identity owning this triangle range. */
-      patch: string;
-      /**
-       * Zero-based first triangle ordinal in the complete returned mesh, not a
-       * chunk-local index.
-       */
-      firstTriangle: number;
-      /**
-       * Number of consecutive retained triangles attributed to this parameter
-       * cell.
-       */
-      triangleCount: number;
-      /**
-       * Lower normalized u bound of the owning cell in its original patch
-       * chart.
-       */
-      u0: number;
-      /**
-       * Upper normalized u bound of the owning cell in its original patch
-       * chart.
-       */
-      u1: number;
-      /**
-       * Lower normalized v bound of the owning cell in its original patch
-       * chart.
-       */
-      v0: number;
-      /**
-       * Upper normalized v bound of the owning cell in its original patch
-       * chart.
-       */
-      v1: number;
-      /**
-       * Actual cell approximation estimate in millimetres, which may exceed
-       * requested tolerance when coarse retention was explicitly selected.
-       */
-      approximationBoundMm: number;
-    }[];
+    primitiveRanges: IPrimitiveRange[];
   };
 
-  /** The counts object of {@link IResult}. */
-  export type IResultCounts = {
+  /** Work totals and maximum cell estimate across retained atlas chunks. */
+  export type IResultCounts = Pick<
+    IResultCountFields,
+    keyof IResultCountFields
+  >;
+
+  /** Numeric fields shared by realization and Recovery counts. */
+  export interface IResultCountFields {
     /**
      * Count of retained over-tolerance leaf cells explicitly admitted by the
      * retain-coarse budget policy.
@@ -165,9 +102,45 @@ export namespace IAutoMovieRealizeBicubicAtlas64 {
      */
     unresolvedVertexNormals: number;
     /**
-     * Largest represented cell's binary64 Taylor error estimate, in
-     * millimetres despite metre output geometry.
+     * Largest represented cell's binary64 Taylor error estimate, in millimetres
+     * despite metre output geometry.
      */
     maxErrorBoundMm: number;
-  };
+  }
+
+  /** Consecutive retained triangles owned by one parameter cell on a patch. */
+  export type IPrimitiveRange = Pick<
+    IPrimitiveRangeFields,
+    keyof IPrimitiveRangeFields
+  >;
+
+  /** Patch and triangle span fields shared by realization and Recovery. */
+  export interface IPrimitiveRangeFields {
+    /** ID of the generating atlas patch. */
+    patch: string;
+
+    /** Zero-based first triangle ordinal in the returned mesh. */
+    firstTriangle: number;
+
+    /** Number of consecutive retained triangles owned by this cell. */
+    triangleCount: number;
+
+    /** Lower normalized U bound in the generating patch chart. */
+    u0: number;
+
+    /** Upper normalized U bound in the generating patch chart. */
+    u1: number;
+
+    /** Lower normalized V bound in the generating patch chart. */
+    v0: number;
+
+    /** Upper normalized V bound in the generating patch chart. */
+    v1: number;
+
+    /**
+     * Cell approximation estimate in millimetres. When coarse retention is
+     * selected this estimate can exceed the requested tolerance.
+     */
+    approximationBoundMm: number;
+  }
 }

@@ -34,6 +34,10 @@ const CENTRE: number = 1e-9;
  * 3. A profile with a segment on a bone the rig lacks is refused.
  * 4. A profile without positive mass is refused.
  * 5. Placing the model on bones that miss a segment's bone is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers profile-derived body mass and neutral centre, with missing-bone and nonpositive-mass refusal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the centre-of-mass model and placement owners on the stored average man and small woman profiles and explicitly invalid variants.
+ * @evidence contracts/development/testing.md#independent-expectations Summing segment masses and their neutral world centres weighted by mass gives a reference from the stored profile. Missing segments and zero total mass cannot produce that mean.
  */
 export async function test_engine_kinematics_resolve_center_of_mass(): Promise<void> {
   for (const name of humanFixture.NAMES) {

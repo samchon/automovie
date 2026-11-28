@@ -16,9 +16,7 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Compares a source booking at its one-second closing step with step 400 and observes a source whose start is beyond the sample, catching inflow outside the authored half-open window.
  * @evidence contracts/development/testing.md#independent-expectations Fixed dyadic dt independently locates the one-second closure; positive prior booking, strict later booking identity and zero before a 1000-second start follow the half-open window contract. Exact rate-times-time booking belongs to the source/drain ledger entry.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves active-before-close, unchanged-after-close and not-yet-open source cases; drain windows, sill gates and full source/return balance belong to other ledger entries.
- * @evidence contracts/development/testing.md#execution-ownership This named portable unit owns the absolute CPU source-window observations using shared authored records, without a timer, process, audio clock or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The unchanged 6 x 6 basin reaches the one-second closing step and absolute step 400.).
+ * @evidence contracts/development/common.md#meaningful-documentation The source books water before its one-second close and keeps that total afterward. Moving its start past the seek yields exactly zero booking.
  */
 export function test_fluid_source_window_ledger(): void {
   const steps: number = 400;

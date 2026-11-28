@@ -130,7 +130,14 @@ function scenario_test_motions_perform_force_impulse(): void {
   }
 }
 
-/** HumanForce, an applied force and its impulse on a body, each scenario below. */
+/**
+ * Timed forces attach to the specified actor and vanish outside their window.
+ * A caught ball transfers only the momentum lost to its receiving target.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names subject and time filtering, sustained forces, synthetic impulse falloff, and transferred momentum or missing recipient.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanForce` and `HumanBlast.impulse` with typed timed forces and an interaction event for a caught ball. It checks overlap counts, force values and delivered impulse or absence.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.5–2.5 s interval includes Ann's impulse at 1 and the start of her push at 2, but 1.2–1.8 s includes neither. The constant 5 N push ends before 3.5 s. A 0.25 kg ball stopping from -2, 0, or 2 m/s gives X impulses -0.5, 0, or 0.5 N·s.
+ */
 export function test_motions_perform_force(): void {
   scenario_test_motions_perform_force();
   scenario_test_motions_perform_force_impulse();

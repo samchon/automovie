@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  *    interpolates to 15, and 5 clamps to 20.
  * 3. Dyadic tables retain exact travel when the product, the fraction, or a
  *    knot span falls outside binary64's normal range.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers ratio travel, table knots and clamping, and exact dyadic interpolation at binary64 extremes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls affordanceFollowedTravel with a ratio, a hand-written cam table and extreme finite dyadic inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The ratio case gives two. The clamped table has endpoints zero and twenty, a knot at ten and an interior value fifteen. Exact powers of two independently expose premature underflow or overflowing spans.
  */
 export function test_engine_validation_affordance_followed_travel(): void {
   const ratio: IAutoMovieAffordanceCoupling = { id: "gear", ratio: 0.5 };

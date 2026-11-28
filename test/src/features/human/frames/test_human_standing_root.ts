@@ -29,9 +29,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production law on made chains and reads the placed chain's own frames through the chain composer.
  * @evidence contracts/development/testing.md#independent-expectations Every expected rise is the closed-form height component of a rotated offset, written as cosines of the made angles, not read from the law; the chain composer that reads the result back is not the module under test.
- * @evidence contracts/development/testing.md#distinguishing-cases A longer and a shorter segment at two depths of the chain, their sum, the unchanged identities, a second floor normal and four refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic on a four-segment made chain; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made chain, each scenario and its closed form.
+ * @evidence contracts/development/common.md#meaningful-documentation The support height determines the signed root correction on the floor normal. Both length changes, an unaffected support and invalid frame or chain cases are exercised.
  */
 export function test_human_standing_root(): void {
   const failures: string[] = [];

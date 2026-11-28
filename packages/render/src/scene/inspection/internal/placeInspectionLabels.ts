@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { rasterLabelBox } from "../../../picture/internal/rasterLabelBox";
+
 /*
  * Place labels on a picture: project each labelled path's centre through the
  * camera into pixels and keep a label only where its box overlaps no label kept
@@ -16,7 +18,7 @@ import * as THREE from "three";
  * right and y down, and its box is the box `AutoMovieRenderPicture.stampRasterLabel` stamps
  * at `scale` with its top-left corner on the anchor: `scale * (4 * length + 3)`
  * pixels wide and `9 * scale` high. Labels are taken in the order given; one
- * whose box overlaps a kept box, or whose anchor lies behind the camera or
+ * whose clamped paint box overlaps a kept box, or whose anchor lies behind the camera or
  * outside the picture, is listed in `dropped` with its projected anchor
  * instead, so a reader knows it was asked for.
  *
@@ -59,8 +61,8 @@ export function placeInspectionLabels(props: {
     ["height", props.height],
     ["scale", props.scale],
   ] as const)
-    if (!(value > 0))
-      throw new Error(`Label ${name} ${value} is not a positive integer`);
+    if (!Number.isSafeInteger(value) || value <= 0)
+      throw new Error(`Label ${name} ${value} is not a positive safe integer`);
 
   const labels: IAutoMovieInspectionLabel[] = [];
   const dropped: IAutoMovieInspectionLabel[] = [];
@@ -74,27 +76,29 @@ export function placeInspectionLabels(props: {
         (box.min.z + box.max.z) / 2,
       )
       .project(props.camera);
+    const x: number = ((point.x + 1) / 2) * props.width;
+    const y: number = ((1 - point.y) / 2) * props.height;
+    const visible: boolean =
+      point.z >= -1 && point.z <= 1 &&
+      x >= 0 && x < props.width && y >= 0 && y < props.height;
     const label: IAutoMovieInspectionLabel = {
       path: box.path,
       text: box.path.split("/").at(-1) || "(root)",
-      x: Math.round(((point.x + 1) / 2) * props.width),
-      y: Math.round(((1 - point.y) / 2) * props.height),
+      x: visible ? Math.min(props.width - 1, Math.round(x)) : Math.round(x),
+      y: visible ? Math.min(props.height - 1, Math.round(y)) : Math.round(y),
     };
+    if (!visible) {
+      dropped.push(label);
+      continue;
+    }
+    const paint = rasterLabelBox(props, label.text, props.scale, label);
     const area: [number, number, number, number] = [
-      label.x,
-      label.y,
-      label.x + props.scale * (4 * label.text.length + 3),
-      label.y + 9 * props.scale,
+      paint.left,
+      paint.top,
+      paint.left + paint.width,
+      paint.top + paint.height,
     ];
-    const visible: boolean =
-      point.z >= -1 &&
-      point.z <= 1 &&
-      label.x >= 0 &&
-      label.x < props.width &&
-      label.y >= 0 &&
-      label.y < props.height;
     if (
-      !visible ||
       boxes.some(
         (kept: [number, number, number, number]): boolean =>
           area[0] < kept[2] &&

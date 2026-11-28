@@ -1,6 +1,7 @@
 import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
 import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
+import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail";
 
 /**
  * Records what a planned capture cell draws, its sheet position and its outcome.
@@ -41,37 +42,7 @@ export type IAutoMovieCaptureCellRecord = {
   /** Column of the cell on its sheet, from zero at the left. */
   column: number;
 } & (
-  | {
-      /** The still was drawn and written. */
-      state: "drawn";
-
-      /** File name of the still. */
-      file: string;
-
-      /** Content hash of the still's pixels, from `AutoMovieRenderPicture.hashRasterImage`. */
-      hash: string;
-
-      /** SHA-256 of the stored still's encoded file bytes when provided by the host. */
-      fileSha256?: string;
-
-      /** Identity of the renderer that drew it, or null when the host did not state it. */
-      backend: string | null;
-
-      /**
-       * Resolved camera as written by the host, or null if omitted. A draw page
-       * writes its `IAutoMovieInspectionCamera` as JSON.
-       */
-      camera: string | null;
-
-      /**
-       * A fixed view with its scale and up direction when needed. A later round
-       * copies the text to draw the same camera. Null if the host omitted it.
-       */
-      repeat: string | null;
-
-      /** Topmost resolved paths and counts for each request and view pattern, or null if omitted. */
-      resolved: IAutoMovieCaptureResolution[] | null;
-    }
+  | IAutoMovieCaptureCellRecord.IDrawn
   | {
       /** The draw function failed; the sheet shows a marked cell in its place. */
       state: "failed";
@@ -80,3 +51,44 @@ export type IAutoMovieCaptureCellRecord = {
       cause: string;
     }
 );
+
+export namespace IAutoMovieCaptureCellRecord {
+  /** A still written to the capture folder, with the evidence it drew. */
+  export interface IDrawn {
+    /** The still was drawn and written. */
+    state: "drawn";
+
+    /** File name of the still. */
+    file: string;
+
+    /** Content hash of the still's pixels, from `AutoMovieRenderPicture.hashRasterImage`. */
+    hash: string;
+
+    /** SHA-256 of the stored still's encoded file bytes when provided by the host. */
+    fileSha256?: string;
+
+    /** Identity of the renderer that drew it, or null when the host did not state it. */
+    backend: string | null;
+
+    /**
+     * Resolved camera as written by the host, or null if omitted. A draw page
+     * writes its `IAutoMovieInspectionCamera` as JSON.
+     */
+    camera: string | null;
+
+    /**
+     * A fixed view with its scale and up direction when needed. A later round
+     * copies the text to draw the same camera. Null if the host omitted it.
+     */
+    repeat: string | null;
+
+    /** Topmost resolved paths and counts for each request and view pattern, or null if omitted. */
+    resolved: IAutoMovieCaptureResolution[] | null;
+
+    /**
+     * Selected source-backed motion trail segments written with this still,
+     * including their bounded samples. Absent when that evidence was not read.
+     */
+    readonly motionTrails?: readonly IAutoMovieInspectionTrail[];
+  }
+}

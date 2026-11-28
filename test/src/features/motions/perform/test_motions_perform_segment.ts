@@ -139,7 +139,15 @@ function scenario_test_motions_perform_segment_ridden(): void {
   );
 }
 
-/** HumanSegment, a performance segment and a ridden one, each scenario below. */
+/**
+ * A segment derives action keys, driven hands and plan shares. A following
+ * action carries earlier holds within their fade and overlays opening inside
+ * its tested span.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the action's tool key, driven-hand ownership, share and event resolution, and hold or overlay admission around a fade.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanSegment.weapon`, `drives` and `share` with direct inputs, then passes typed hold and overlay windows to the segment preparation gate. Its two named helper scenarios run from the exported test.
+ * @evidence contracts/development/testing.md#independent-expectations Action index 2 and tool ID fist yield 2:fist. The authored impact maps to share 0.4. Relative to the next action's entry at 2 s, a hold ending half a fade earlier still rides, while one ending two fades earlier has expired. Its own hold and a later overlay remain outside their tested categories.
+ */
 export function test_motions_perform_segment(): void {
   scenario_test_motions_perform_segment();
   scenario_test_motions_perform_segment_ridden();

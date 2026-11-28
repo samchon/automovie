@@ -8,7 +8,13 @@ import { nclose } from "../../internal/nclose";
 /** Allows the few station additions and subtractions in this layout. */
 const LAYOUT_ROUNDING: number = 64 * Number.EPSILON;
 
-/** Van loading and pickup bed dimensions place different parts of the cabin. */
+/**
+ * Van loading and pickup bed dimensions place different parts of the cabin.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines van loading and pickup bed stations, seat reference height and opposite handedness.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual layout for each authored body and checks longitudinal stations, bed rail and mirrored lateral reference.
+ * @evidence contracts/development/testing.md#independent-expectations The van's authored 0.42 metre step plus 0.4 metre seat height gives 0.82 metres. The pickup rail lies at `0.75+0.5` metres, and the stated body dimensions determine the loading stations.
+ */
 export function test_archetypes_vehicles_car_body_layout(): void {
   const common = {
     wheelbase: 3.5,

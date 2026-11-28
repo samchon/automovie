@@ -26,6 +26,10 @@ import { nclose } from "../../internal/predicates";
  *    state and the first interval.
  * 4. Direct flight construction rejects nonfinite vector components and an
  *    overflowing drag factor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States global speed-bound and reader behavior for zero drag and the refusal of nonfinite launch data or query times.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds direct drag-flight readers with each drag factor set to zero and queries thin colliders, prelaunch time and invalid parameters.
+ * @evidence contracts/development/testing.md#independent-expectations Gravity permits unbounded speed with zero drag, while zero gravity retains launch speed. A thin collider fixture catches an unsound finite bound and finite prelaunch time retains phase zero.
  */
 export function test_engine_physics_projectile_drag_flight(): void {
   for (const zero of ["coefficient", "area", "density"] as const) {

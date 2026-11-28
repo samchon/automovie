@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    "mesh:x" has no revision.
  * 2. "hero" names no kind, "thing:x" an unknown kind, "model:" no id and
  *    "model:x@" an empty revision.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe how one kind prefix and the final `@` delimiter identify a subject and optional revision.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks canonical subject-key parsing with no revision or embedded `@`, and refuses missing fields and unknown kinds.
+ * @evidence contracts/development/testing.md#independent-expectations Compares against hand-written records for `model:hero@r2`, `part:a@b@c`, and `mesh:x`, plus explicit invalid strings.
  */
 export function test_render_scene_parse_viewer_subject_key(): void {
   TestValidator.equals(

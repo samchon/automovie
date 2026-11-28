@@ -96,6 +96,10 @@ const ENTRY: IAutoMovieMotionHumanPosture = {
  *    twice, is refused.
  * 9. The breaststroke hands meet the rotated wall separately, and each foot stays
  *    at its own material anchor until push-off, in shuffled read order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the hull contacts, pose and timing transforms, artistic support assignments and the separate hand and foot contacts of a rotated wall turn.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the individual aquatic owners on explicit inputs. It also places the breaststroke plan on a stored body and reads its resolved palm and sole sockets through the wall contact.
+ * @evidence contracts/development/testing.md#independent-expectations Evaluates the stated minimum-jerk fraction and quarter-turn geometry independently. The named bases and clock fix the support windows. The wall plane and first loaded sole placements bound the repeated and shuffled socket reads.
  */
 export async function test_motions_sport_aquatic(): Promise<void> {
   // 1. The crew's windows.

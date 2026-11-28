@@ -13,8 +13,8 @@ import * as THREE from "three";
 import { createHumanPolygonFixture } from "../internal/createHumanPolygonFixture";
 
 /**
- * The polygon man's colliders are the surface that is drawn: each module's
- * convex solids and its drawn mesh coincide in both directions.
+ * Verify that the stock polygon drawing and convex solids share their ring
+ * vertices and agree within the fixture's between-vertex distance bound.
  *
  * Scenarios:
  * 1. Every drawn module but a finger phalanx has at least one solid, and no
@@ -28,11 +28,12 @@ import { createHumanPolygonFixture } from "../internal/createHumanPolygonFixture
  *    mesh, unless it is on or inside another solid of the same module, where
  *    two cut runs meet inside the body.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the drawing through the viewer's public entry and the solids through Human's, then measures actual triangles against actual hulls; a ring edited for one consumer only moves a vertex off its solid, and a concave run kept as one hull fails the cut of scenario 2.
- * @evidence contracts/development/testing.md#independent-expectations The expected vertex gap is zero, because both are stated to be built from one set of ring points; the 10 micrometre allowance is the single precision of the mesh buffer over a body two metres tall. Between vertices the two may differ, since the hull of two rings of different proportions can join one ring's corner to the next ring's neighbouring corner where the drawing folds the quad of matching corners (1.94 mm on this fixture's chest); that is held to the 3 mm fidelity the contact laws rely on. Triangle distance comes from three.js, hull distance from the engine.
- * @evidence contracts/development/testing.md#distinguishing-cases A trunk of rings with three different proportions (skew bands), a pelvis that must be cut, round limbs, a palm and a foot on tilted axes, and a head closed on a pole; mesh to solid and solid to mesh are measured separately since either can pass alone.
- * @evidence contracts/development/testing.md#execution-ownership One portable CPU unit over the synthetic skeleton fixture: no Human is generated and no renderer starts; it owns and disposes its drawing.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
+ * 5. Rebuilding the same input map after increasing the head radius widens the
+ *    head's solid geometry. Restoring that radius restores the original solids.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the drawing through the viewer's public entry and the solids through Human's, then measures actual triangles against actual hulls; a ring edited for one consumer only moves a vertex off its solid, and a concave run kept as one hull fails the cut of scenario 2. The fixture uses skew bands, a split pelvis, a tilted palm and foot, and a head closed at a pole. It measures both directions, disposes its drawing and rebuilds the same map with a changed radius and then the original one.
+ * @evidence contracts/development/testing.md#independent-expectations The expected vertex gap is zero, because both are stated to be built from one set of ring points; the 10 micrometre allowance is the single precision of the mesh buffer over a body two metres tall. Between vertices the two may differ, since the hull of two rings of different proportions can join one ring's corner to the next ring's neighbouring corner where the drawing folds the quad of matching corners (1.94 mm on this fixture's chest); that is held to the 3 mm fidelity the contact laws rely on. Triangle distance comes from three.js, hull distance from the engine. The head radius controls its maximum side extent in the canonical frame.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the shared drawn and solid surfaces, the concave split, the error bound and the changed-radius rebuild.
  */
 export function test_human_canonical_solids_surface(): void {
   const input: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed"> =
@@ -43,25 +44,50 @@ export function test_human_canonical_solids_surface(): void {
     y: p[1]!,
     z: p[0]!,
   });
+  const joints: Map<string, IAutoMovieHumanCanonicalSolids.IJoint> = new Map(
+    input.bones.map(
+      (
+        bone: IAutoMovieHumanBindBone,
+      ): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
+        bone.bone,
+        {
+          parent: bone.parent,
+          carrier: "hips",
+          position: reflect(bone.position),
+          tip: bone.tip === null ? null : reflect(bone.tip),
+          radius: bone.radius,
+        },
+      ],
+    ),
+  );
   const solids: IAutoMovieHumanCanonicalSolids.ISolid[] =
-    AutoMovieHumanCanonicalSolids.build(
-      new Map(
-        input.bones.map(
-          (
-            bone: IAutoMovieHumanBindBone,
-          ): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
-            bone.bone,
-            {
-              parent: bone.parent,
-              carrier: "hips",
-              position: reflect(bone.position),
-              tip: bone.tip === null ? null : reflect(bone.tip),
-              radius: bone.radius,
-            },
-          ],
+    AutoMovieHumanCanonicalSolids.build(joints);
+  const head: IAutoMovieHumanCanonicalSolids.IJoint = joints.get("head")!;
+  joints.set("head", { ...head, radius: head.radius + 0.005 });
+  const wider: IAutoMovieHumanCanonicalSolids.ISolid[] =
+    AutoMovieHumanCanonicalSolids.build(joints);
+  const headExtent = (
+    pieces: readonly IAutoMovieHumanCanonicalSolids.ISolid[],
+  ): number =>
+    Math.max(
+      ...pieces
+        .filter((piece): boolean =>
+          piece.id === "head" || piece.id.startsWith("head."),
+        )
+        .flatMap((piece): number[] =>
+          piece.points.map((point): number => point.x + piece.centre.x),
         ),
-      ),
     );
+  TestValidator.predicate(
+    "a changed radius widens the next head built from the same map",
+    headExtent(wider) > headExtent(solids),
+  );
+  joints.set("head", head);
+  TestValidator.equals(
+    "restoring the radius restores the solids",
+    AutoMovieHumanCanonicalSolids.build(joints),
+    solids,
+  );
   const of = (bone: string): IAutoMovieHumanCanonicalSolids.ISolid[] =>
     solids.filter(
       (solid: IAutoMovieHumanCanonicalSolids.ISolid): boolean =>

@@ -11,15 +11,18 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The `collapse` law's timetable (`collapseClock`): a sag, the knees on the
- * floor `knockdown.SEATED` (0.45 s) after it, the body down `knockdown.DOWN`
- * (1.1 s) after it, and a hold, one second by default.
+ * Check the collapse clock from the initial sag through the hold on the
+ * floor.
  *
  * Scenarios:
  *
- * 1. A 0.3 s sag puts the knees down at 0.75 s, the body down at 1.4 s, and with
- *    the default hold ends at 2.4 s.
- * 2. A negative sag or hold is refused.
+ * 1. A 0.3 s sag puts the knees down at 0.75 s and the body down at 1.4 s.
+ *    The default hold ends at 2.4 s.
+ * 2. Refuse a negative sag or hold.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the sag, both landings, default hold and rejected times.
+ * @evidence contracts/development/testing.md#behavioral-verification The clock exposes the authored transition cues and limits both variable intervals.
+ * @evidence contracts/development/testing.md#independent-expectations The expected cue times add the specified 0.45 s and 1.1 s landing offsets to the sag, and the default hold adds one second.
  */
 export function test_motions_reaction_collapse(): void {
   const clock: IAutoMovieMotionClock = collapseClock({ sag: 0.3 });

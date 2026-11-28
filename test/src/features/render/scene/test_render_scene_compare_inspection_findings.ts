@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. With equal confidence, an error against a warning is 1.
  * 3. With both equal, rank 3 against 2 is 1, rank 2 against none is 1, and equal
  *    ranks are 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names precedence by confidence, error category and optional witness rank.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes controlled pairs of typed findings to the public comparison and compares all results with the expected ordered signs.
+ * @evidence contracts/development/testing.md#independent-expectations Confidence outranks category and rank. With equal confidence, error outranks warning. Otherwise rank 3 exceeds 2, 2 exceeds an absent rank and equal ranks produce zero.
  */
 export function test_render_scene_compare_inspection_findings(): void {
   const finding: (

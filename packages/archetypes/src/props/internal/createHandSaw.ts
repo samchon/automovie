@@ -70,6 +70,24 @@ export function createHandSaw(
     AutoMovieEngineVector3.create(0, handle + d.blade! / 2, 0),
     { color: "#b9bcc0", density: 11 },
   );
+  // The heel cheeks close the rigid loop between the grip and the blade root.
+  const heelRadius: number = radius / 2;
+  const heelReach: number = held / 2 - radius;
+  for (const [part, side] of [
+    ["heelFront", 1],
+    ["heelBack", -1],
+  ] as const)
+    builder.rod(
+      part,
+      heelRadius,
+      AutoMovieEngineVector3.addScaled(centre, across, side * heelReach),
+      AutoMovieEngineVector3.create(
+        0,
+        handle + heelRadius,
+        (side * HandToolDraw.BLADE_DEPTH) / 3,
+      ),
+      { color: "#8a5a35" },
+    );
   builder.affordance({
     id: "face",
     kind: "ledge",

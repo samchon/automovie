@@ -22,11 +22,11 @@ export function followPathMotion(
   props: IAutoMovieFollowPathMotion.IProps,
 ): IAutoMoviePathLocomotion {
   const turnWindow: number = props.turnWindow ?? DEFAULT_TURN_WINDOW;
-  if (props.speed <= 0)
+  if (!Number.isFinite(props.speed) || props.speed <= 0)
     throw new Error("path speed must be finite and positive");
-  if (props.gait.duration <= 0)
+  if (!Number.isFinite(props.gait.duration) || props.gait.duration <= 0)
     throw new Error("path gait duration must be finite and positive");
-  if (turnWindow < 0)
+  if (!Number.isFinite(turnWindow) || turnWindow < 0)
     throw new Error("path turn window must be finite and non-negative");
 
   const segments: ISegment[] = buildSegments(props.waypoints);
@@ -37,7 +37,7 @@ export function followPathMotion(
     Math.round(length / (props.speed * props.gait.duration)),
   );
   const duration: number = cycles * props.gait.duration;
-  if (duration <= 0)
+  if (!Number.isFinite(duration) || duration <= 0)
     throw new Error("path duration must be finite and positive");
   const speed: number = length / duration;
   const halfWindows: number[] = cornerHalfWindows(segments, turnWindow);

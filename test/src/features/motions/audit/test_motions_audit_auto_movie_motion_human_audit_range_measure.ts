@@ -30,6 +30,10 @@ const ROUNDING: number = 1e-9;
  *    instant.
  * 4. A joint the table does not list (the hips, whose turn is the root's) is
  *    unconstrained.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names admissible flexion, a late overshoot, an unavailable axis and an unlisted bone.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies authored displayed elbow and hips angles to AuditRange.measure on a one-second four-Hz grid.
+ * @evidence contracts/development/testing.md#independent-expectations Flexion 160 exceeds the upper limit 150 by ten degrees from 0.5 s, giving three of five samples. A five-degree angle on the absent axis overshoots by its full size at every sample.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_range_measure(): void {
   const posed = (

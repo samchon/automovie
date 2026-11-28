@@ -40,6 +40,10 @@ const SWING: StrikingStepTransition.IFootwork = {
  *    at 0; pivoting it bears throughout; the right always bears.
  * 7. Booked as the second of two beats, the left plants from 0.725 and the right
  *    from 0.5; a pivoting left pivots from 0.5 to 0.725 first.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes planar travel, anchored pivot, carried rig pose, leading order and contact bookkeeping across authored beats.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the transition helpers on fixed coordinates and headings and books a second beat with regular, entering and pivoting support.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree turn maps (1, 5, 0) to (0, 5, -1). The authored second beat and support split fix timeline shares 0.5 and 0.725.
  */
 export function test_motions_striking_step_transition(): void {
   const o = { x: 0, y: 0, z: 0 };

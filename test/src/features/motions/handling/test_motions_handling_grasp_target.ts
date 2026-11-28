@@ -40,6 +40,10 @@ const TURN: IAutoMovieQuaternion = {
  * 2. A hook with no explicit aperture spans the nearest collider, whose local
  *    X half width is 4 mm. Removing the name or the colliders refuses the
  *    corresponding input and identifies a repair.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines placed named grip, inferred aperture, approach frame, and remedies for missing sites or collider geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a body grip through two prop poses, inspects one hook with no aperture and submits nonexistent site and collider-free models.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn carries the authored local inward +X into world −Z while retaining +Y as the wrapped axis. A 4 mm half-width determines the hook's collider-derived aperture.
  */
 export function test_motions_handling_grasp_target(): void {
   const placed: IAutoMovieRigidTransform = {

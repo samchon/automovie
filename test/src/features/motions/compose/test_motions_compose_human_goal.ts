@@ -65,6 +65,10 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  * 3. `toward` on a limb with no goal and no origin is refused.
  * 4. A pulse rising over 0 to 1 s and falling over 2 to 3 s at size 0.5 claims the
  *    right arm from 0 to 3 s and at 1.5 s writes half the way.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes a quarter-weight limb goal, clamped endpoint identity, frame and missing-origin refusals, and an authored pulse.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanGoal.mix and toward with written limb goals and samples a pulse on a resident clock and posture.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter of the coordinate differences yields point (0.1, 1.05, 0.2) and bend (0.1, 1, -0.8). The spherical quarter turn is 20 degrees. Endpoint weights select the original objects, and the pulse holds a half-strength position.
  */
 export function test_motions_compose_human_goal(): void {
   // 1. A quarter.

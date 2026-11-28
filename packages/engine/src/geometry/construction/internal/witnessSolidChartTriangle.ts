@@ -3,6 +3,7 @@ import type {
   IAutoMovieSolidMeshConstraints,
 } from "@automovie/interface";
 
+import { isOnSolidChartSegment } from "./isOnSolidChartSegment";
 import { orientSolidChart } from "./orientSolidChart";
 
 /*
@@ -105,7 +106,11 @@ export function witnessSolidChartTriangle(
         storedD[0],
         storedD[1] + (lift + boundary.turn) * (period ?? 0),
       ];
-      if (crosses(a, probe, c, d) || crosses(b, probe, c, d) || on(c, d, probe))
+      if (
+        crosses(a, probe, c, d) ||
+        crosses(b, probe, c, d) ||
+        isOnSolidChartSegment(c, d, probe)
+      )
         return false;
     }
   }
@@ -136,25 +141,7 @@ function crosses(
   d: Readonly<AutoMovieVector2Tuple>,
 ): boolean {
   return (
-    orientSolidChart(a, b, c) * orientSolidChart(a, b, d) <
-      0 &&
+    orientSolidChart(a, b, c) * orientSolidChart(a, b, d) < 0 &&
     orientSolidChart(c, d, a) * orientSolidChart(c, d, b) < 0
-  );
-}
-
-/*
- * A closed segment contact at the probe is not a valid interior witness.
- */
-function on(
-  a: Readonly<AutoMovieVector2Tuple>,
-  b: Readonly<AutoMovieVector2Tuple>,
-  point: Readonly<AutoMovieVector2Tuple>,
-): boolean {
-  return (
-    point[0] >= Math.min(a[0], b[0]) &&
-    point[0] <= Math.max(a[0], b[0]) &&
-    point[1] >= Math.min(a[1], b[1]) &&
-    point[1] <= Math.max(a[1], b[1]) &&
-    orientSolidChart(a, b, point) === 0
   );
 }

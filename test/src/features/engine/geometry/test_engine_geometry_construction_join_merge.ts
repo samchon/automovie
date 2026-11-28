@@ -36,6 +36,10 @@ import { nclose } from "../../internal/predicates";
  *    same seam as the named point seed.
  * 4. The same merge seeded by a search along the post's station line at phase pi /
  *    2 traces the same seam on both cylinders.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the seam, rail lengths, G1 and G2 tests, wrong-reference controls and alternative seeds.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a merge through named, serialized and searched seeds and reads its returned seam, rail points, blend normals and cross-rail curvature.
+ * @evidence contracts/development/testing.md#independent-expectations The independent cylinder equations and authored 6 mm offsets constrain seam and rails. At each rail the receiving cylinder determines its normal and normal curvature.
  */
 export function test_engine_geometry_construction_join_merge(): void {
   type V3 = [number, number, number];

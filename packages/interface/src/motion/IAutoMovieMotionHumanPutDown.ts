@@ -5,38 +5,20 @@ import type { AutoMovieHumanSide } from "../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 
 /**
- * Setting a held prop down at a place and letting go.
+ * Set down a held prop while preserving the grip until placement.
  *
- * The goal is the prop's resting frame, not the hand: the author names where
- * the prop's origin goes (and optionally its heading), and the hand is placed
- * wherever holds the prop there, by the rigid hand-to-prop offset the grip has
- * kept since it closed (the prop's displayed frame and the hand's at the start,
- * so whatever the grasp was, the same grasp lays the prop down). With `on`, the
- * prop is put on a bone of the performer's own body instead, at its frame on
- * that bone as the body stands at the start, and is worn there from `placed`
- * (`IAutoMovieMotionHumanActionPlan.wears`). With `onto`, it is set on another
- * prop's socket, its own socket laid on it, and rides that socket from `placed`
- * as the other prop's articulations pose it
- * (`IAutoMovieMotionHumanActionPlan.mounts`): an arrow nocked on a bow's
- * string, drawn back with it. A prop is put down as it rested: its resting
- * rotation is the one it was declared with, turned about the vertical to the
- * asked heading, so a bottle carried at a tilt still lands upright. The arm
- * keeps the configuration it carried the prop in
- * (`IAutoMovieHumanLimbGoal.reference`). Inverse kinematics solves the arm; the
- * rest of the body holds the posture it was entered in.
+ * Give a world point with `to` to place the prop's origin within 10 mm of the
+ * mark, including when the heading is free. The hand moves to the frame that
+ * maintains its rigid offset to the prop. If that grip and arm cannot reach the
+ * placement, the action refuses.
  *
- * Phases: a transport of the hand to the placing frame, timed by the
- * reach-to-grasp movement time over the travel
- * ({@link IAutoMovieMotionHumanPickUp} gives the model: about 0.5 s for a 0.4 m
- * travel), its last 0.05 m straight down so the prop lands rather than slides
- * (provisional setback); the release, the fingers opening flat over 0.2 s
- * (provisional) as the grip ends, which leaves the prop where it was placed;
- * and the hand's return to where the arm hangs, rising the same 0.05 m first,
- * over another movement time.
+ * Use `on` to wear the prop on a performer bone or `onto` to mount it on a
+ * named receiver. These attachments begin at `placed`. A socket mount can
+ * follow the receiver's articulation.
  *
- * Events: `placed` transfers the prop from the grip to its resting frame.
- * `release` marks the end of finger opening. A placing frame beyond the arm's
- * reach is refused, as is a placement without a destination.
+ * The default carry approaches the mark from above in its last 0.05 m and
+ * withdraws upward after release. These setbacks are provisional. The grip ends
+ * at `placed` and the fingers finish opening 0.2 s later at `release`.
  */
 export namespace IAutoMovieMotionHumanPutDown {
   /** Parameters. */
@@ -45,16 +27,12 @@ export namespace IAutoMovieMotionHumanPutDown {
     prop: string;
 
     /**
-     * Where the prop's origin goes, world metres; required unless `on` or
-     * `onto` is given.
+     * Target prop origin in world metres. Required when `on` and `onto` are
+     * both absent.
      */
     to?: IAutoMovieVector3;
 
-    /**
-     * The bone of the performer's own body the prop is put on, worn there from
-     * `placed` with its frame `offset` in the bone's posed frame (a hat on the
-     * head, a pistol in a hip holster); set down at `at` when absent.
-     */
+    /** A performer bone and local frame that carry the prop from `placed`. */
     on?: IParamsOn;
 
     /**
@@ -74,18 +52,16 @@ export namespace IAutoMovieMotionHumanPutDown {
     onto?: IParamsOnto;
 
     /**
-     * The prop's heading about +Y at rest, degrees; its current heading when
-     * absent.
+     * Rest heading about world +Y in degrees. When absent, the planner tries
+     * headings around the currently held orientation to find a reachable fit.
      */
     yaw?: number;
 
     /**
-     * The prop's whole resting attitude at `at`, a world unit quaternion,
-     * instead of its declared rest rotation turned to `yaw`: a card laid face
-     * up after it was dealt face down, or turned into a fan. Read only with
-     * `at`; `yaw` is ignored when it is given. The hand keeps its grip, so an
-     * attitude the wrist cannot reach is refused as any placement beyond the
-     * arm is.
+     * Optional resting attitude for a world-point placement, as a unit
+     * quaternion. A supplied `yaw` keeps the quaternion as the fitting target.
+     * When `yaw` is absent, the target may turn about +Y to fit the arm. The
+     * task checks the origin and a point along the prop's up axis.
      */
     rotation?: IAutoMovieQuaternion;
 

@@ -16,28 +16,24 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeStairsData } from "./internal/AutoMovieArchetypeStairsData";
 
-/** Constructs the stairs archetype from its recipe. */
+/**
+ * Creates straight flights with numbered nosings and optional handrail contacts.
+ */
 export namespace AutoMovieArchetypeStairs {
 /**
- * A straight flight of stairs with its top landing and its handrails.
+ * Creates a straight flight rising along `+Z`, with a level landing at its top.
  *
- * The flight rises along `+Z` from the floor at the origin: the first riser
- * stands at `z = 0`, and each of the `steps` risers lifts by the same `riser`
- * onto a tread of the same `tread` depth, the last onto the landing. Every
- * nosing is a `ledge` named `step1` upward, facing down the flight, so a foot
- * is placed from the nosing by the tread's depth. A handrail is a `bar` along
- * the flight's slope at the rail height above the line of the nosings, on the
- * climber's left (`+X`) or right.
+ * Use `step1` onward as the nosing contacts. The first sits at `z = 0`. Each
+ * subsequent one rises by `riser` and advances by `tread`. The final nosing
+ * begins the landing. Each selected handrail exposes its sloped gripping run.
  *
- * @param params The number of risers, the rails, the occupant class and any
- *   dimension the author fixes.
- * @param seed The seed that draws the occupant class when it is not given and
- *   every dimension left free inside its band; absent, the first class and the
- *   middle of each band.
- * @returns The flight.
- * @throws {AutoMovieArchetypeRefusal} For an occupant class the code does not
- *   list, a fixed dimension outside its band, or a number of risers that is not
- *   a whole number from 2 to 20.
+ * @param params Riser count, rail sides, occupancy, ID and fixed dimensions.
+ *   The default has 12 risers and rails on both sides.
+ * @param seed Draws the omitted occupancy and free dimensions. Omit the seed
+ *   for `under50` and the midpoint of each free band.
+ * @returns The composite flight with body mass equal to `mass` times `steps`.
+ * @throws {AutoMovieArchetypeRefusal} If steps is not an integer from 2 to 20,
+ *   a rail or occupancy is unknown, or a fixed free dimension is invalid.
  */
 export function create(
   params: AutoMovieArchetypeStairs.IParams = {},
@@ -190,45 +186,32 @@ export function create(
   return builder.build(d.mass * steps);
 }
 
-  /** Which sides have a handrail. */
+  /** Handrail selection seen while facing uphill along `+Z`. */
   export type Rail = "left" | "right" | "both" | "none";
 
-  /** Every rail choice, for a caller that reads one at run time. */
+  /** Accepted `rail` values in the order `left`, `right`, `both`, `none`. */
   export const RAILS: readonly Rail[] = ["left", "right", "both", "none"];
 
-  /**
-   * The most risers in one flight: at the tallest riser, 178 mm, twenty rise
-   * 3560 mm, under the 3658 mm of IBC 2021 1011.8.
-   */
+  /** Maximum riser count per flight, 20. The minimum is 2. */
   export const STEPS: number = 20;
 
   /**
-   * A rail's clearance from the stair's side, metres: the 1-1/2 in (38 mm) of
-   * 2010 ADA Standards 505.5.
+   * Horizontal gap from the flight edge to the outside of its rail, 0.038 m.
    */
   export const CLEARANCE: number = 0.038;
 
-  /**
-   * A rail's level run beyond the top riser, metres: the 12 in (305 mm) of 2010
-   * ADA Standards 505.10.2.
-   */
+  /** Level rail extension uphill beyond the final nosing, 0.305 m. */
   export const EXTENSION: number = 0.305;
 
-  /**
-   * The greatest depth of the top landing along the flight, metres, 48 in: the
-   * landing is as deep as the flight is wide, up to this. An estimate, not read
-   * at a source.
-   */
+  /** Maximum landing depth along the flight, 48 in (1.2192 m). */
   export const LANDING: number = 48 * AutoMovieArchetypeUnits.INCH;
 
   /**
-   * The affordance ids:
+   * Names the staged contacts on the flight.
    *
-   * - `step1` to `step<steps>`: each nosing from the bottom up, an edge across
-   *   the flight facing down it; the last is the landing's edge.
-   * - `landing`: the top landing.
-   * - `leftRail`, `rightRail`: the handrails on `+X` and `-X`, each a bar along
-   *   the slope.
+   * `step1` through `step<steps>` are ledges facing `-Z`, with the last at the
+   * first edge of the landing. `landing` covers the level top. `leftRail` and
+   * `rightRail`, when present, are sloped bars on `+X` and `-X`.
    */
   export type Affordance =
     | `step${number}`
@@ -237,15 +220,12 @@ export function create(
     | "rightRail";
 
   /**
-   * The free dimensions, metres unless stated:
+   * Measurements that determine the model's flight and handrails.
    *
-   * - `riser`: the rise of every step.
-   * - `tread`: the going of every step, nosing to nosing.
-   * - `width`: the flight's least width, its occupant class's.
-   * - `railHeight`: the top of a rail's gripping surface above the line of the
-   *   nosings, measured vertically.
-   * - `railDiameter`: a rail's round section.
-   * - `mass`: kilograms per riser.
+   * In metres, `riser` is the step height, `tread` the nosing-to-nosing run,
+   * `width` the occupancy-selected flight width, `railHeight` the vertical
+   * height above the nosings to the sloped bar's top, and `railDiameter` the
+   * bar diameter. `mass` is kilograms per riser.
    */
   export type Dimension =
     | "riser"
@@ -255,7 +235,7 @@ export function create(
     | "railDiameter"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for flight and rail lengths, kilograms per riser for `mass`. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -268,14 +248,14 @@ export function create(
   };
 
   /**
-   * The code's occupant classes for a stair's width: under 50 occupants, and 50
-   * or more.
+   * Width class `under50` for fewer than 50 occupants or `over50` for 50 or more.
    */
   export type Occupancy = "under50" | "over50";
 
   /**
-   * Each class's least width, metres, the default first: IBC 2021 1011.2, "36
-   * in (914 mm)" under 50 occupants and "44 in (1118 mm)" otherwise.
+   * Flight widths in metres by occupancy class.
+   *
+   * `under50` is 0.914 m and is the seedless default. `over50` is 1.118 m.
    */
   export const OCCUPANCIES: Readonly<
     Record<Occupancy, Readonly<Partial<Record<Dimension, number>>>>
@@ -285,29 +265,39 @@ export function create(
   };
 
   /**
-   * The parameters: the count, the rails, the occupant class, and any free
-   * dimension fixed to a value inside its band.
+   * Sets the flight's count, rail sides, occupancy, ID and fixed dimensions.
+   *
+   * Select `occupancy` to set the width. Give a fixed value from its band for
+   * any of the other dimensions you need to control.
    */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "width">, number>
   > {
     /**
-     * The occupant class the flight's width serves; drawn from the seed when
-     * absent.
+     * Width class. The seed chooses an omitted class. The seedless default
+     * is `under50`.
      */
     occupancy?: Occupancy;
 
-    /** How many risers the flight has, 2 to 20; 12 when absent. */
+    /**
+     * Integer number of risers, 2 through 20, including the final rise onto
+     * the landing. Defaults to 12.
+     */
     steps?: number;
 
-    /** Which sides have a handrail; both when absent. */
+    /** Rail sides while facing uphill. Defaults to `both`. */
     rail?: Rail;
 
-    /** The model's id, unique in a scene; `stairs` when absent. */
+    /** Scene-unique model ID. Defaults to `stairs`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /**
+   * Inclusive intervals for dimensions that callers may fix or let the seed draw.
+   *
+   * Riser 0.102?0.178 m, tread 0.279?0.3302 m, rail height 0.865?0.965 m,
+   * rail diameter 0.032?0.051 m and mass 30?60 kg per riser.
+   */
   export const BANDS: Readonly<
     Record<Exclude<Dimension, "width">, IAutoMovieArchetypeBand>
   > = {

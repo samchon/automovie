@@ -73,6 +73,10 @@ function launch(
  *    at `0.5 + hitTime`, not where it stood `hitTime` after the shot began.
  * 9. A nodeless aim without onHit keeps its flight/contact; requesting a recoil
  *    with a null targetNode is refused rather than silently omitted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the baked path, reaction start, travel direction, arc variants, unreachable and zero-velocity controls and moving-target timing.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles authored test-scene launches and samples their emitted clip endpoints and reaction records. It varies arc, target movement, reaction request and the presence of a target identity.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies source speed, target path and launch delay independently. The reaction must use authored start plus computed contact and point along the sampled incoming path. A high arc is compared against a direct arc to the same position, and a delayed moving target is evaluated at that same full shot time.
  */
 export function test_engine_film_launch(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };

@@ -1,14 +1,24 @@
 import type { IAutoMovieSpace } from "../scene/IAutoMovieSpace";
 import type { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
 
-/** Prepared footprint index for all surfaces in a space. */
+/**
+ * Reusable footprints for the authored surfaces of one space, kept in their
+ * original order.
+ *
+ * Preparation copies polygon coordinates into footprint records. Reuse those
+ * records while the source footprints and authored surface ordering stay
+ * stable.
+ */
 export interface IAutoMoviePreparedSpace {
-  /** The source space this prepared index was built from. */
+  /**
+   * The original space reference whose surfaces supplied the footprint
+   * preparation. Use this prepared view with that space.
+   */
   readonly space: IAutoMovieSpace;
 
   /**
-   * Prepared authored rings and holes, preserving concavity rather than taking
-   * convex hulls.
+   * One prepared footprint and source reference per authored surface, in source
+   * order. Rebuild if a source polygon or its holes change.
    */
   readonly surfaces: readonly IAutoMoviePreparedSurface[];
 }

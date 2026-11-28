@@ -21,6 +21,10 @@ const ROUNDING: number = 1e-12;
  * 3. A segment across it 0.2 m off in Z, skew to it, lies 0.2 m away.
  * 4. A collinear segment beginning 1 m past its end lies 1 m away.
  * 5. A point 0.4 m above its middle lies 0.4 m away.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Segment separation covers parallel, crossing, skew, collinear and point cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls prepared segment distance against one fixed axis and five explicit segment configurations.
+ * @evidence contracts/development/testing.md#independent-expectations The known coordinate offsets and shared points yield distances of 0.3, 0, 0.2, 1, and 0.4 metres by inspection of those configurations.
  */
 export function test_motions_actions_walk_leg_capsules_prepare_apart(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({

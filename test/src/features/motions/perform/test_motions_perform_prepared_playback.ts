@@ -1,14 +1,18 @@
 import type {
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import {
   HumanPreparedPlayback
 } from "../../../../../packages/motions/src/perform/internal/HumanPreparedPlayback";
+import { prepareStand } from "../../../../../packages/motions/src/actions/internal/prepareStand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixture } from "../../internal/fixtures/humanFixture";
+import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
+import { motionActionContext } from "../../internal/motionActionContext";
 import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan";
 
 /**
@@ -29,9 +33,16 @@ import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan"
  * 4. Another body reads nothing.
  * 5. A reader observes the first declared owner at overlaps and exact shared
  *    seconds, including an instant-only phase, in shuffled seek order.
+ * 6. A native grounded stand skips limb continuation on the same body after
+ *    placement wraps its original writer, even when the plan is copied.
+ *    A prop-carried or replaced writer keeps the ordinary continuation path.
  *
  * The bodies are records of the stored average man's and smallest woman's rigs:
  * the binding reads only a body's identity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names reader binding and phase copying, plan setup and body identity, uncovered instants, first-declared interval precedence, and the grounded stand writer that can omit continuation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the native playback attachment, location, setup, and read owners using existing archived rig identities and prepared sample functions. It counts setup once and probes overlapping and exact instant phases with nonchronological reads. It checks grounded, carried and replaced stand writers.
+ * @evidence contracts/development/testing.md#independent-expectations The first declared [3, 5] phase wins both shared endpoints. At 5.001 s the [5, 6] phase takes over. The [8, 8] phase wins exactly at 8, and the broad [7, 9] phase wins at 8.001. The fixture labels owners by phase index in sampled yaw. A ground stand writes joint angles and two planted legs, while a carried or replaced writer keeps the ordinary path.
  */
 export async function test_motions_perform_prepared_playback(): Promise<void> {
   const body: HumanPreparedPlayback.IBody = {
@@ -44,6 +55,34 @@ export async function test_motions_perform_prepared_playback(): Promise<void> {
     duration: 2,
   });
   const sampled: IAutoMovieMotionHumanPosture = plan.posture(0);
+  const standingBody: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const standing = prepareStand(motionActionContext(standingBody, {}), "right")(
+    0.7,
+  );
+  const carried = prepareStand(
+    motionActionContext(standingBody, { on: { prop: "deck" } }),
+    "right",
+  )(0.7);
+  const copy = { ...standing };
+  const writer = copy.posture;
+  const forwarded: typeof writer = (...args) => writer(...args);
+  HumanPreparedPlayback.locate(copy, writer, forwarded, {
+    performer: "ann",
+    act: "stand",
+    instance: 1,
+  });
+  copy.posture = forwarded;
+  TestValidator.predicate(
+    "only the native grounded stand writer omits continuation",
+    HumanPreparedPlayback.isGroundedStand(copy, standingBody) &&
+      !HumanPreparedPlayback.isGroundedStand(copy, other) &&
+      !HumanPreparedPlayback.isGroundedStand(carried, standingBody),
+  );
+  copy.posture = (...args) => forwarded(...args);
+  TestValidator.predicate(
+    "replacing the located writer restores the ordinary path",
+    !HumanPreparedPlayback.isGroundedStand(copy, standingBody),
+  );
   let setups: number = 0;
   const source: IAutoMovieMotionHumanPlayback = {
     mode: "posture",

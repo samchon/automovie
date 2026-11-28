@@ -9,34 +9,40 @@ import type {
 } from "..";
 
 /**
- * Physical section coefficients and source-free observations produced by mesh
- * extraction.
+ * Collected automatic section extraction with fitted loft input, source
+ * observations and coverage.
  */
 export interface IAutoMovieRecoveryMeshSections {
-  /** Engine loft contract with the retained physical section coefficients. */
+  /**
+   * Retained closed loops, admitted events and observed adjacent-station groups
+   * for contour lofting.
+   */
   loft: IAutoMovieContourLoft64;
 
-  /**
-   * Same-order section reports, including open fitted arcs and tolerance
-   * status.
-   */
+  /** Per-station observation reports in the same order as the loft sections. */
   reports: IAutoMovieRecoverySectionReport[];
 
-  /** Unresolved events, flat plateaus and numerical source issues. */
+  /** Collection-wide findings from automatic station and source observation. */
   diagnostics: string[];
 
-  /** Unsupported physical intervals that reconstruction must leave open. */
+  /**
+   * Observed event preimages for which no supported closed continuation was
+   * established.
+   */
   topologyGaps: IAutoMovieRecoveryTopologyGap[];
 
-  /** Source events that have no consumable incident closed curve. */
+  /** Observed critical events without an admitted reconstruction declaration. */
   unconsumedEvents: IAutoMovieRecoveryUnconsumedEvent[];
 
-  /** Extraction policy without the source vertex and triangle arrays. */
+  /**
+   * Observation settings needed to compare or consume this saved bundle,
+   * excluding source triangles and positions.
+   */
   policy: Omit<IAutoMovieRecoveryInput, "verticesMm" | "triangles">;
 
-  /** Counts of observations, coefficients and topology declarations. */
+  /** Counts measured from the retained extraction and its original observations. */
   summary: IAutoMovieRecoverySectionSummary;
 
-  /** Present only for an incomplete automatic station-prefix checkpoint. */
+  /** Explicit incomplete coverage for a bounded computational station prefix. */
   coverage?: IAutoMovieRecoverySectionCoverage;
 }

@@ -51,9 +51,7 @@ const refuses: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls generateSurfacePattern on malformed scalar, zone, polygon, exclusion, generated-candidate, reach, and lattice declarations, requiring specific Error fragments and checking admitted scalar/touching controls.
  * @evidence contracts/development/testing.md#independent-expectations Authored invalid fields determine the named refusal causes; a two-by-one metre region with half-metre square modules independently yields eight surviving placements. Explicit overlapping versus edge-touching rectangles distinguish positive shared area from contact, and the existing generated-candidate helper overrides authored inputs rather than laid output.
- * @evidence contracts/development/testing.md#distinguishing-cases Individual scalar failures share one otherwise valid pattern, while boundary scalars and touching zones/exclusions remain accepted. Blank/duplicate ids, nonfinite coordinates, collinear/reflex outlines, seven candidate-field overrides, reach overflow, and an oversized lattice require their own located messages.
- * @evidence contracts/development/testing.md#execution-ownership Uses synchronous local pattern records and authored generator callbacks through the product seam, with existing Error and named-fact predicates; no renderer, resources, clocks, global replacement, or separate test host is involved. The cell-cap case observes its refusal message without profiling enumeration or memory use.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Envelope scalars are refused one at a time: blank id, no zones, negative).
+ * @evidence contracts/development/common.md#meaningful-documentation Envelope, zone, lattice, polygon, exclusion and module defects give distinct refusals. Shared zone edges remain legal, and the oversized lattice is rejected before the generator walks it.
  */
 export function test_architecture_surface_pattern_refusals(): void {
   TestValidator.equals(

@@ -4,32 +4,50 @@ import type {
   IAutoMovieRecoverySceneLandmark,
 } from "..";
 
-/** Complete detached scene transaction outcome, not an automatic publication. */
+/**
+ * Detached outcome of completing one scene checkpoint. The caller can commit
+ * the geometry only when `accepted` is true.
+ */
 export interface IAutoMovieRecoverySceneCheckpoint {
-  /** All transaction qualification gates passed. */
+  /**
+   * True when convergence, gauge, final retained-point qualification and
+   * population closure all pass.
+   */
   accepted: boolean;
 
-  /** Complete available failed qualifications. */
+  /** Available qualification failures from the last evaluated proposal. */
   reasons: string[];
 
-  /** Accepted source-order poses with unregistered nulls, or empty on failure. */
+  /**
+   * Accepted poses in original source order with nulls for unregistered views,
+   * or an empty array on refusal.
+   */
   poses: (IAutoMovieRecoveryMapPose | null)[];
 
-  /** Accepted points/measurements and actual support, or empty on failure. */
+  /**
+   * Accepted points with their retained measurements and actual supporting
+   * pairs, or an empty array on refusal.
+   */
   landmarks: IAutoMovieRecoverySceneLandmark[];
 
-  /** Last completed fit, null before one completes. */
+  /** Last completed joint fit report, or null before a report exists. */
   joint: IAutoMovieRecoveryMapJointFit | null;
 
-  /** Total points in the last evaluated proposal. */
+  /** Number of points in the last evaluated fitting population. */
   proposedLandmarks: number;
 
-  /** Total retained observations in that proposal. */
+  /** Number of image measurements in the last evaluated fitting population. */
   proposedObservations: number;
 
-  /** Largest final pixel distance, null on failure. */
+  /**
+   * Largest retained Euclidean pixel residual on acceptance, or null on
+   * refusal.
+   */
   maximumReprojectionErrorPx: number | null;
 
-  /** Minimum pointwise strongest acute support angle, null on failure. */
+  /**
+   * Minimum across retained points of their strongest actual acute ray angle in
+   * degrees, or null on refusal.
+   */
   minimumPointParallaxDegrees: number | null;
 }

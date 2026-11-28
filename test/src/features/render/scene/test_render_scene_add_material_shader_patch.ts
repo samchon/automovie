@@ -14,6 +14,10 @@ import { MeshBasicMaterial } from "three";
  *    same order.
  * 2. Replacing the first key keeps the other patch and adds the replacement once
  *    at the end. Other materials do not inherit either registration.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names insertion, replacement order and per-material isolation.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers two named patches and a replacement on a Three.js material. Reads back the actual registration objects and program cache key. A second material supplies the isolation control.
+ * @evidence contracts/development/testing.md#independent-expectations The first two objects must appear in insertion order as first+second. Replacing first should leave exactly second then the new first, with second+first as the key. The untouched material starts and stays empty.
  */
 export function test_render_scene_add_material_shader_patch(): void {
   const material: MeshBasicMaterial = new MeshBasicMaterial();

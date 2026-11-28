@@ -16,7 +16,7 @@ import { tessellate } from "./tessellate";
  * parts.
  * Parameter shape: Primitive to tessellate.
  * Returns: A new mesh whose arrays are owned by the caller.
- * Error when `shape.type` is not a known primitive.
+ * Uses the same admission and geometry as tessellate.
  */
 export const tessellateToMesh: (
   shape: IAutoMoviePrimitiveShape,

@@ -16,20 +16,19 @@ import { TestValidator } from "@nestia/e2e";
 type Endpoint = Parameters<typeof checkSupportTransferDock>[0];
 
 /**
- * `checkSupportTransferDock` admits stepping from one support onto another:
- * both rectangles level at the start, and through trailing touchdown either
- * both props still (stationary), or the deck carried with the platform's rigid
- * motion within a millimetre at its centre and corners and a tenth of a degree
- * (co-moving), sampled at 120 Hz.
+ * Check docking geometry through a one-second support transfer.
  *
- * Scenarios, a platform at the origin and a deck 1 m ahead, each a 0.5 by 0.5 m
- * rectangle, over a 1 s transfer:
+ * Scenarios:
  *
- * 1. Two still props are admitted, stationary or co-moving.
- * 2. Both translating together along +X at 1 m/s are admitted co-moving, and
- *    refused stationary on `from`, the platform moving first.
- * 3. A deck drifting 2 mm a second off the platform is refused co-moving on `to`.
- * 4. A deck tilted 5 degrees about X is refused on `to`.
+ * 1. With two level half-metre rectangles, admit still supports in both
+ *    docking modes. Admit equal one-metre-per-second translation in co-moving
+ *    mode and refuse it on `from` in stationary mode.
+ * 2. Refuse the destination on `to` when it drifts 2 mm per second or is
+ *    tilted five degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish still and co-moving endpoints and identify the axes of motion and tilt refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture exercises stationary and co-moving docking with explicit endpoint axes for movement and tilt.
+ * @evidence contracts/development/testing.md#independent-expectations The frame callbacks prescribe zero, equal or different translations, making the relative drift and tilt independent of the docking reader.
  */
 export function test_motions_carrier_check_support_transfer_dock(): void {
   const up: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();

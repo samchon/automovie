@@ -23,6 +23,9 @@ export namespace IAutoMovieHumanCanonicalSolids {
 
     /** Girth radius, metres. */
     radius: number;
+
+    /** A point on the foot's longitudinal heel plane, in canonical metres. */
+    heel?: IAutoMovieVector3;
   }
 
   /** One convex solid of the body. */

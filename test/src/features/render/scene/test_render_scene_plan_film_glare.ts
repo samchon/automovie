@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    kernel keeps at most 12 taps a side besides its centre, since the chosen
  *    level leaves a deviation below four level pixels, so the cost per level
  *    pixel stays bounded whatever the raster.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases state the frame size, impulse strength, reference center weight and tolerance, energy bound, and per-level work bound.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks normalized taps, the glare impulse's center response and total energy, and bounded kernel work when the frame grows.
+ * @evidence contracts/development/testing.md#independent-expectations Derives the expected center 904.7 from `0.9 × 1000 + 0.1 × 1000 × 0.0470` and holds summed energy to the independent 1000-pixel impulse.
  */
 export function test_render_scene_plan_film_glare(): void {
   const kernels: IAutoMovieRenderFilmGlareKernel[] = AutoMovieRenderFilmResponseStage.planGlare(720);

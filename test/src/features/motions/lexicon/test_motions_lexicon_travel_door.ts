@@ -47,6 +47,10 @@ const wall = (
  * 1. A walker at the origin passes a door at (0, 0, 2) along +Z, one metre past
  *    the sill at (0, 0, 3); from the far side the way runs along -Z.
  * 2. No such obstacle, or a wall of two openings with none named, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines selection of a named or unique opening and the forward exit on the other side.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a door path from both sides of a sole opening and submits a missing obstacle and unnamed multi-opening wall.
+ * @evidence contracts/development/testing.md#independent-expectations Perpendicular opening direction is ±Z for the authored plane. The walk from zero passes the sill at z = 2 and ends one metre beyond it.
  */
 export function test_motions_lexicon_travel_door(): void {
   const near: humanTravelDoorWay.IWay = humanTravelDoorWay(

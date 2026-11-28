@@ -44,6 +44,10 @@ export function formationSlotPosition(
     throw new RangeError(
       `Formation "${formation.id}" slot ${slot} is outside 0..${formation.count - 1}.`,
     );
+  if (!Number.isSafeInteger(slot))
+    throw new RangeError(
+      `Formation "${formation.id}" slot ${slot} must be a safe integer.`,
+    );
   // A design laid in blocks places the slot by its block's layout, then the block's facing and offset in the design's frame.
   const blocked: ILocalPoint | null =
     formation.blocks === undefined || formation.blocks.length === 0

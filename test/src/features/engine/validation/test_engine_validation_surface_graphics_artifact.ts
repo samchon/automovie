@@ -16,8 +16,12 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. A rigid surface track with left-inclusive keys is valid.
  * 2. Duplicate pair, unstaged node and missing affordance give distinct paths.
- * 3. A moving surface is refused, and absent, late or repeated keys fail under the
- *    particular key field that owns the error.
+ * 3. A moving surface without a matching articulated carrier is refused.
+ *    Absent, late or repeated keys fail on their own fields.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers valid surface keys, duplicate or unresolved targets, missing articulation support and precise clock faults.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls appendSurfaceGraphicsArtifact with explicit placement, surface affordance and key records under a one-second shot.
+ * @evidence contracts/development/testing.md#independent-expectations A known fixed surface has keys at zero and one half. A hinged surface without a resolved carrier is invalid. Empty keys, repeated zero and time one lie on distinct missing, strict-order and exclusive-tail decisions.
  */
 export function test_engine_validation_surface_graphics_artifact(): void {
   const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

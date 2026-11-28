@@ -19,6 +19,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    supplied.
  * 3. A geometric receipt that asserts a solved impulse or completed solver samples
  *    is refused by both consumers.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States when effect recipes and surface marks trust a measured impulse or an explicit estimate and when each rejects a geometric receipt.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes the same solver, geometric and forged receipts to the impact compiler and direct surface sampler with and without estimates.
+ * @evidence contracts/development/testing.md#independent-expectations Rates 10 particles and 0.1 weight per unit give 20/0.2 from measured impulse 2 and 30/0.3 from estimate 3. The conflicting estimate 7 and forged claims expose the authority boundary.
  */
 export function test_engine_physics_sample_contact_surface_response(): void {
   const solver: IAutoMovieContactReceipt = receipt("hit", "solver", 2);

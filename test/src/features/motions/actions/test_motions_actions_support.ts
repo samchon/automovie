@@ -72,8 +72,10 @@ namespace part_scramble {
    * Scenarios:
    *
    * 1. The row's family is `support`.
-   * 2. The knee and foot bear while the hands release before the final rise.
-   * 3. The last second still ends in the standing stance on both feet.
+   * 2. The right knee remains just inside the same ledge edge during all
+   *    three bearing stances. Both palms keep their original inset.
+   * 3. The knee and foot bear while the hands release before the final rise.
+   * 4. The last second still ends in the standing stance on both feet.
    */
   export function verify(): void {
     TestValidator.predicate(
@@ -92,6 +94,27 @@ namespace part_scramble {
         ["rightKnee", "leftFoot"],
         ["leftFoot", "rightFoot"],
       ],
+    );
+    const contacts = AutoMovieMotionHumanSupport.SCRAMBLE.stances.flatMap(
+      (stance) => stance.contacts,
+    );
+    TestValidator.equals(
+      "the same inboard knee target through hand release",
+      contacts
+        .filter(({ part }) => part === "rightKnee")
+        .map(({ target, inset }) => ({ target, inset })),
+      [
+        { target: "on", inset: 0.1 },
+        { target: "on", inset: 0.1 },
+        { target: "on", inset: 0.1 },
+      ],
+    );
+    TestValidator.equals(
+      "both palms keep their same top placements",
+      contacts
+        .filter(({ part }) => part.endsWith("Hand"))
+        .map(({ target, inset }) => ({ target, inset })),
+      Array.from({ length: 6 }, () => ({ target: "on" as const, inset: 0.5 })),
     );
     const [release, standing] =
       AutoMovieMotionHumanSupport.SCRAMBLE.stances.slice(-2);
@@ -125,6 +148,10 @@ namespace part_scramble {
  *   interval's root lift exactly at knots AutoKnots places over the share, no
  *   finer than one frame of the grid, and reads it between them from the shared
  *   knot course.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Support courses retain declared stances, reproduce prepared lift knots and finish at the existing standing cue.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the support lift reader over a fixed bump and reads the scramble's repeated knee and palm targets and final standing event.
+ * @evidence contracts/development/testing.md#independent-expectations The authored lift at its quarter knot, its zero endpoints and the row's standing cue determine the expected path and timing.
  */
 export async function test_motions_actions_support(): Promise<void> {
   part_prepare_support_lift_course.verify();

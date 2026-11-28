@@ -18,6 +18,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    composed rotations.
  * 2. Moving outward along the selected normal projects back to that same surface
  *    witness.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the selected world witness must agree with native surface geometry and follow the composed bone frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries direct surface anchors for a sphere, capsule and box under two rotations, and probes outward from each returned witness.
+ * @evidence contracts/development/testing.md#independent-expectations Native closest-point reads verify zero surface distance and recover that witness from a point moved along its outward normal.
  */
 export async function test_engine_physics_physical_shape_surface(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();

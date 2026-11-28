@@ -38,29 +38,21 @@ const K: number = (70 * 10 * 1) / 80;
 const RK4: number = (Math.sqrt(K) * AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()) ** 4;
 
 /**
- * The grappling force exchange: a partner drawn off balance by a constant pull
- * as a linear inverted pendulum (Hof, Gazendam and Sinke 2005), the pull that
- * breaks a base, its spread over grips, the static resistance, and the swing
- * about a fulcrum.
- *
- * A 70 kg partner at ω = 3 /s; 63 N is `e M ω²` for a 0.1 m base.
+ * Check the mechanical calculations used for a paired force exchange.
  *
  * Scenarios:
  *
- * 1. Pulled by 63 N, the centre is at `a (cosh ωt - 1)` with `a = 0.1` m, its
- *    speed `a ω sinh ωt` and its extrapolation `x + v / ω`, at rest at the
- *    start.
- * 2. The pull breaking the base in 1 s is `63 / (e³ - 1)` N, and that pull breaks
- *    it in 1 s.
- * 3. From the middle of a 0.2 m square the edge lies 0.1 m ahead, `0.1 sqrt(2)` m
- *    along the diagonal, and none from outside.
- * 4. 100 N through two grips is 50 N on each over the window.
- * 5. 100 N at 1 m against 70 kg at g = 10 shifts the centre of pressure 1/7 m,
- *    held by a 0.2 m base and not by a 0.1 m one.
- * 6. A 70 kg body with 80 kg m² about a fulcrum 1 m away, from 0.2 rad at 0.5
- *    rad/s, swings to its release at π / 2 at the energy's rate, within the
- *    bisection's `BRACKET` and the method's `RK4` error; from behind the
- *    vertical too slowly, it does not swing.
+ * 1. Compare a 63 N pull on a 70 kg pendulum with offset, speed and
+ *    extrapolation in closed form. Calculate a pull that crosses the base in
+ *    one second.
+ * 2. Measure the edge of a square base and divide 100 N equally between two
+ *    grips. Compare static resistance for 0.2 and 0.1 m base reaches.
+ * 3. Compare swing release speed and angle with conserved energy. An
+ *    insufficient initial swing has no release.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the pendulum, footprint, grip force, torque and release controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Separate fixtures exercise the draw, break, footprint edge, shared force, static resistance and fulcrum motion.
+ * @evidence contracts/development/testing.md#independent-expectations The assertions use the inverted pendulum formulas, square geometry, torque balance and gravitational energy.
  */
 export function test_motions_grappling_force_exchange(): void {
   // 1. Drawn.

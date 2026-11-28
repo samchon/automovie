@@ -21,6 +21,10 @@ import { vclose } from "../../internal/vclose";
  * 2. The left hand repeats the change with a different rotation. The prop follows
  *    a straight line halfway through and ends at the fitted second grasp when
  *    the grip window's displacement is applied at the socket.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines displayed prop translation through an offset grip while the supporting wrist stays fixed.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages right and left grasp changes with distinct rotations and reads the actual prop through the grip-window interpolation.
+ * @evidence contracts/development/testing.md#independent-expectations An independently fitted second grasp provides the endpoint. The midpoint follows the local socket's translated half displacement and the fixed wrist does not drift.
  */
 export async function test_motions_handling_regrasp_grip_frame(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

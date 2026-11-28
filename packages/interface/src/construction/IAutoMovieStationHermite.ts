@@ -1,20 +1,25 @@
 /** Data and callback contracts shared by the StationHermite operations. */
 export namespace IAutoMovieStationHermite {
   /**
-   * A layer's value, station slope and optional station curvature for one
-   * equally sized array.
+   * Value and derivative rows for one Hermite endpoint. Use matching array
+   * lengths and order. Derivatives use the interpolation coordinate, normally
+   * physical station in millimetres. Supply curvature at both ends for quintic
+   * interpolation; cubic interpolation uses the two values and slopes.
    */
   export interface IEnd {
-    /** Values at the layer. */
+    /** Endpoint values in the field owner's order and units. */
     value: readonly number[];
 
     /**
-     * First derivatives in the interpolation coordinate: per station mm
-     * normally, or the explicit coefficient-source parameter.
+     * First derivatives of the corresponding values in the interpolation
+     * coordinate, normally per station millimetre.
      */
     slope: readonly number[];
 
-    /** Second derivatives in that same coordinate; absent for a cubic end. */
+    /**
+     * Second derivatives in the same coordinate and value order. Cubic ends may
+     * omit this row.
+     */
     curvature?: readonly number[];
   }
 }

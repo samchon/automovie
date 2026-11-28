@@ -21,9 +21,7 @@ import { builtOpeningTestPartition } from "../internal/builtOpeningTestPartition
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs validateBuiltEnvironment with two operations on parent and child elements and asserts a combined-state refusal naming the child. Positive controls remove each alternative separately, catching both missed interactions and rejection of all movable hierarchies.
  * @evidence contracts/development/testing.md#independent-expectations In XY, the parent is diag(2,1)*R90 and the child diag(0.5,1)*R45. Either rotation alone leaves orthogonal world basis columns, while both yield a nonzero column dot product; translation has no role in that calculation. Finite local scales whose product exceeds Number.MAX_VALUE cannot produce finite world TRS.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers coupled alternatives, each single-alternative neighbor, the same coupled defect at a distant world origin, and multiplication overflow. Existing test_architecture_built_opening owns panel fit, missing state values and individual opening travel limits.
- * @evidence contracts/development/testing.md#execution-ownership The exported test_architecture_combined_operating_shear entry is a portable validator unit using the shared authored partition fixture; all four cases execute synchronously without starting a renderer, process or dynamic test registry.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two individually admissible states jointly produce shear and are refused.).
+ * @evidence contracts/development/common.md#meaningful-documentation Two operations compose to shear when used together, while either alone is admissible. Large translation preserves the defect and a world-scale overflow receives a separate refusal.
  */
 export function test_architecture_combined_operating_shear(): void {
   const source: IAutoMovieBuiltEnvironment = builtOpeningTestPartition();

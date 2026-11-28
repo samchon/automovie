@@ -30,6 +30,10 @@ const at = (
  *    pose omits reads zeros.
  * 2. A hip at 1 m, a knee at 0.5 m and the ankle swung forward to a right angle
  *    include 90 degrees at the knee.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines default joint channel readings and the geometric included angle of a displayed limb.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads present, null and absent joint axes, then measures a knee in an independently laid right-angle fixture.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied flexion 40° remains and unset axes give zero. Perpendicular hip and ankle rays at the knee produce 90°.
  */
 export function test_motions_executable_stance_verdicts(): void {
   const shown: Pick<Parameters<typeof StanceVerdicts.joint>[0], "pose"> = {

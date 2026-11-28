@@ -14,6 +14,10 @@ import * as THREE from "three";
  *    material.
  * 2. Repeated disposal emits each native disposal event once.
  * 3. Duplicate identities and point exhaustion refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names closed and open line geometry, shared material disposal and point-budget and identity refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds typed generating lines through the scene owner. Reads native geometry and material identity, attaches disposal listeners and calls dispose twice. Passes duplicate identity and insufficient-budget fixtures to the same builder.
+ * @evidence contracts/development/testing.md#independent-expectations The authored closed and open line orders determine their native position rows. Two geometries share one material, so three resources are disposed once. Five supplied points fit budget 5 and exhaust budget 4. Duplicate identity refuses.
  */
 export async function test_render_scene_build_construction(): Promise<void> {
   const lines: Parameters<typeof AutoMovieRenderSceneLayout.buildConstruction>[0]["lines"] = [

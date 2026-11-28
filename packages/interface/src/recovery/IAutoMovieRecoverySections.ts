@@ -7,64 +7,44 @@ import type {
 } from "..";
 
 /**
- * Source-free fitted curves at explicitly requested physical planes. Empty
- * sections, all closed components, open fits and rejected-contour diagnostics
- * remain in request order. This collection declares no between-plane topology,
- * continuation, selection or surface authorization.
+ * Requested physical section observations, fitting evidence and optional source
+ * terminal observations.
  */
 export interface IAutoMovieRecoverySections {
-  /** Collection identity used in every curve name. */
+  /** Caller-supplied name of the fixed-section collection. */
   name: string;
 
-  /**
-   * Original caller direction, before normalization; a fresh millimetre-frame
-   * triple.
-   */
+  /** Original caller section direction supplied to build the physical frame. */
   axis: Readonly<AutoMovieVector3Tuple>;
 
-  /**
-   * Original caller frame reference, before orthogonal projection; a fresh
-   * triple.
-   */
+  /** Original caller direction whose planar projection selects frame V. */
   reference: Readonly<AutoMovieVector3Tuple>;
 
-  /**
-   * Actual right-handed orthonormal frame; coordinates measure along n from
-   * originMm and u cross v equals n.
-   */
+  /** Origin and right-handed orthonormal axes used for all requested cuts. */
   frame: {
-    /** Section-plane origin in the registered millimetre Cartesian frame. */
+    /** Common registered frame origin in millimetres before station translation. */
     originMm: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * Unit section-plane normal in the registered Cartesian frame; u cross v
-     * equals n.
-     */
+    /** Unit cutting normal along the signed physical station axis. */
     n: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * Unit u-axis of the right-handed section plane, in the registered
-     * Cartesian frame.
-     */
+    /** Unit in-plane U axis forming a right-handed frame with V and N. */
     u: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * Unit v-axis of the right-handed section plane, in the registered
-     * Cartesian frame.
-     */
+    /** Unit in-plane V axis aligned with the projected caller reference. */
     v: Readonly<AutoMovieVector3Tuple>;
   };
 
-  /**
-   * Every requested plane in original order, including empty cuts; curves
-   * retain measured winding.
-   */
+  /** Fitted closed-loop sections in observation order. */
   sections: IAutoMovieContourLoft64.ISection[];
 
-  /** Same-order fit diagnostics, open curves and isolated contacts. */
+  /** Fit and contact observations aligned with sections by array position. */
   reports: IAutoMovieRecoverySectionReport[];
 
-  /** Fit and incidence policy without source arrays. */
+  /**
+   * Fitting tolerance and span cap, alias policy, material orientation override
+   * and corner threshold used for the observation.
+   */
   policy: Pick<
     IAutoMovieRecoverySectionsInput,
     | "toleranceMm"
@@ -74,29 +54,16 @@ export interface IAutoMovieRecoverySections {
     | "cornerDegrees"
   >;
 
-  /**
-   * Actual requested planes, raw observations admitted to successful fits and
-   * fitted cubic spans.
-   */
+  /** Counts of retained planes, fitting observations and cubic spans. */
   summary: {
-    /**
-     * Actual observed section-plane population, including planes with no
-     * admitted coefficient loops.
-     */
+    /** Number of planes retained in the observed collection. */
     sections: number;
-    /** Actual raw observation population processed by this operation. */
+    /** Number of physical sample observations used by successful contour fits. */
     observations: number;
-    /**
-     * Actual retained cubic-span population, separate from original observation
-     * count.
-     */
+    /** Number of emitted cubic spans across successful contour fits. */
     spans: number;
   };
 
-  /**
-   * Present only when terminalSeeds were requested; observed source extrema and
-   * critical qualification do not constitute generated caps or inferred loop
-   * continuation.
-   */
+  /** Source terminal results when the caller supplied terminal seeds. */
   terminals?: IAutoMovieRecoverySourceTerminal[];
 }

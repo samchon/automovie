@@ -31,6 +31,10 @@ import { throwsError } from "../../internal/throwsError";
  *    m on, at standard gravity.
  * 3. Without a prop there is nothing to release.
  * 4. Without an aimed point, or with one above the rising line, it is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines both hand grips through the authored release time and gravity-only flight to an admitted aim.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the planned release and flight with valid ball and aim, with no prop, and with missing or geometrically unreachable aim.
+ * @evidence contracts/development/testing.md#independent-expectations Normalized time 0.5 fixes both grip endpoints. The independent parabola leaves at 30° and reaches the point ten metres ahead and one metre down under standard gravity.
  */
 export function test_motions_sport_throw_in(): void {
   const clock: IAutoMovieMotionClock = motionClock.sequence([

@@ -26,6 +26,10 @@ import { TestValidator } from "@nestia/e2e";
  *    on the shoulder alone: `qd = M^-1 (tau h, 0)`.
  * 3. On a free torso, shoulder and elbow motors driving opposite ways keep the
  *    system's linear and angular momentum at zero and both anchors together.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains that a motor drives its whole articulation with a coupled inertia and respects its impulse cap.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps a two-link arm from rest under normal and capped shoulder drives and drives a free torso internally in opposite directions.
+ * @evidence contracts/development/testing.md#independent-expectations The inverse double-pendulum mass matrix gives both angular speeds. A capped impulse is τh and a free internal motor pair must conserve total linear and angular momentum.
  */
 export async function test_engine_physics_xpbd_articulated_motor(): Promise<void> {
   const findings: string[] = [];

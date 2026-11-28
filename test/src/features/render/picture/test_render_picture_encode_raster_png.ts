@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *    height 1, depth 8 and colour type 2 (RGB), and ends with the empty IEND.
  * 2. With alpha the colour type is 6.
  * 3. An empty raster and a mismatched buffer are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Writes the PNG signature, 8-bit header and terminal chunk for RGB and RGBA rasters.
+ * @evidence contracts/development/testing.md#behavioral-verification Encodes a 2 × 1 fixture, checks both color types and exercises empty or inconsistent inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Literal signature and IHDR bytes pin the dimensions, depth and color types, and the terminal IEND bytes identify a complete structure.
  */
 export async function test_render_picture_encode_raster_png(): Promise<void> {
   const raster: { width: number; height: number; pixels: Uint8ClampedArray } = {

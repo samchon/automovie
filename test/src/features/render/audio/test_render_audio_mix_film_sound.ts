@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    24 frames with no cue and no dialogue and a WAVE file that no asset was
  *    read for.
  * 2. Mixing the same input again gives the same fingerprint and digest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Produces a deterministic silent WAVE and empty sound plan when a film has no lines or cues.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the mixer twice for a 24-frame silent film using an asset reader that would fail if called.
+ * @evidence contracts/development/testing.md#independent-expectations The known one-second duration and absent authored inputs give the empty plan and RIFF expectation. Exact repeated fingerprint and digest distinguish nondeterministic output.
  */
 export async function test_render_audio_mix_film_sound(): Promise<void> {
   const mix = () =>

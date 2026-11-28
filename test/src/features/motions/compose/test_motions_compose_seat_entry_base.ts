@@ -19,6 +19,10 @@ import { nclose } from "../../internal/nclose";
  * 1. Enter before the preceding seat bears and keep only the grounded foot.
  * 2. Enter on the seat's first bearing instant and keep it in the same frame
  *    throughout the next act, including an out-of-order posture read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes entry before a preceding seat bears and entry exactly at the seat contact, including reverse-time reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the held upper-body base at two entry instants of a synthetic preceding action, then reads active contacts and queries the clamped posture.
+ * @evidence contracts/development/testing.md#independent-expectations Before the seat starts, only the fixture's left foot bears. At its first bearing instant the prop stool's disc becomes support for the whole one-second hold, and all reads return the supplied posture.
  */
 export function test_motions_compose_seat_entry_base(): void {
   const posture: IAutoMovieMotionHumanPosture = {

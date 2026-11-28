@@ -27,6 +27,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    pressure a front edge at 0.4 (-0.2) + 0.6 (0.4) = 0.16; a command far
  *    ahead is allocated there, where the front foot's share is exactly 0.6,
  *    never more (MIT Cheetah-Software `maxForce`; Chen et al. 2022, `f_max`).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents directional Jacobian torque limits and the pressure region left by a capped front foot.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes capacity for known hip and knee geometry, then allocates across two finite foot patches under a front-load limit.
+ * @evidence contracts/development/testing.md#independent-expectations Lever and torque bounds give 500 N at the hip and 600 N at the knee, so the leg is limited to 500 N. The front pressure edge is 0.4(−0.2) + 0.6(0.4) = 0.16.
  */
 export function test_engine_physics_physical_leg_capacity(): void {
   const failures: string[] = [];

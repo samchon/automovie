@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Both prepared composers equal `AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis` for each joint.
  * 2. The prepared decomposer equals `AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis` for each
  *    composed rotation, which in turn reads the joint back within 1e-9.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers prepared composition and decomposition in the same stock clinical frame over several joint triples.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares both composer routes and the decomposer, then calls them and their direct forms on the same three named angle tuples.
+ * @evidence contracts/development/testing.md#independent-expectations The authored triples are independent round-trip references. Agreement with direct conversion is an additional equivalence check across positive, mixed-sign and zero angles.
  */
 export function test_engine_kinematics_prepared_joint_basis(): void {
   const basis: IAutoMovieJointAxes = AutoMovieEngineHumanoidJointAxes.leftUpperArm!;

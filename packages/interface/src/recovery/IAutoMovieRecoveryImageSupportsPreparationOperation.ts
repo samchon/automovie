@@ -1,71 +1,56 @@
 import type { IAutoMovieRecoveryImageObservation } from "..";
 
 /**
- * Admit measured image supports and prepare their common physical row chart.
- * Retain every original row inside the shared interval; interpolate other views
- * linearly only within their measured domains. This changes neither image bytes
- * nor the meaning of a recorded row. Cameras and rigidity remain supplied
- * inputs.
+ * Prepare a shared millimetre row chart for measured orthographic image
+ * support.
  */
 
 export namespace IAutoMovieRecoveryImageSupportsPreparationOperation {
   /**
-   * Admit measured image supports and prepare their common physical row chart.
-   * Retain every original row inside the shared interval; interpolate other
-   * views linearly only within their measured domains. This changes neither
-   * image bytes nor the meaning of a recorded row. Cameras and rigidity remain
-   * supplied inputs.
+   * Admit at least three measured views under explicit view and source-row
+   * limits. Intersect their physical Y ranges and collect the original
+   * stations in that interval. Return view-aligned support bounds evaluated
+   * at the same stations.
    */
 
   export type Operation = (
     observation: IAutoMovieRecoveryImageObservation,
     limits: {
-      /** Maximum admitted image-view population for this support solve. */
+      /** Maximum admitted measured view count, as a positive safe integer. */
       maxViews: number;
-      /** Maximum admitted support-observation rows across the selected views. */
+      /**
+       * Maximum total original support rows, as a positive safe integer,
+       * counted before interpolation.
+       */
       maxRows: number;
     },
   ) => {
-    /** Minimum common admitted vertical support coordinate in millimetres. */
+    /** Lower endpoint of the shared physical Y interval, in millimetres. */
     lower: number;
 
-    /** Maximum common admitted vertical support coordinate in millimetres. */
+    /** Upper endpoint of the shared physical Y interval, in millimetres. */
     upper: number;
 
-    /**
-     * Declared physical projection or tangent directions in the owning
-     * observation chart.
-     */
+    /** Horizontal direction coefficients in source view order. */
     directions: {
-      /**
-       * Cosine of the view's declared azimuth; dimensionless horizontal
-       * direction coefficient.
-       */
+      /** Dimensionless cosine of the supplied azimuth, along +X. */
       c: number;
-      /**
-       * Sine of the view's declared azimuth; dimensionless horizontal direction
-       * coefficient.
-       */
+      /** Dimensionless sine of the supplied azimuth, along +Z. */
       s: number;
     }[];
 
-    /** Sorted common vertical image-observation stations in millimetres. */
+    /** Unique original Y stations in the shared interval, increasing in millimetres. */
     stations: number[];
 
     /**
-     * Original source-incidence support assigned to the corresponding boundary
-     * observations.
+     * Support intervals indexed by source view and then by common station.
+     * At an unmeasured station, interpolate between adjoining rows of that
+     * view.
      */
     supports: {
-      /**
-       * Lower physical support or componentwise enclosure bound, in the
-       * declared registered millimetre frame.
-       */
+      /** Lower support bound along that view's image U, in millimetres. */
       lowerMm: number;
-      /**
-       * Upper physical support or componentwise enclosure bound, in the
-       * declared registered millimetre frame.
-       */
+      /** Upper support bound along that view's image U, in millimetres. */
       upperMm: number;
     }[][];
   };

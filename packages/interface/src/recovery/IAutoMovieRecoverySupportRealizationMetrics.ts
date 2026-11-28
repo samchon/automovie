@@ -1,13 +1,21 @@
 import type { IAutoMovieRecoverySupportGeneration } from "..";
 
 /**
- * Convex-support generation counts with a face chord bound and numerical event
- * qualification.
+ * Convex-support realization metrics with the ruled-face interpolation
+ * tolerance and scope of the event calculation. These extend the counts and
+ * boundary defect already recorded for generation.
  */
 export interface IAutoMovieRecoverySupportRealizationMetrics extends IAutoMovieRecoverySupportGeneration {
-  /** Numerical face chord bound, metres. */
+  /**
+   * Requested metre bound used to plan ruled-face interpolation within the
+   * numerical event partition. Event isolation, boundary roundoff and source
+   * fitting have separate error scopes.
+   */
   faceChordBoundMeters: number;
 
-  /** Scope of the binary64 event calculation, without certification. */
+  /**
+   * Qualification that event isolation and active-plane incidence are binary64
+   * numerical computations without a certificate.
+   */
   eventQualification: "binary64-numerical-not-certified";
 }

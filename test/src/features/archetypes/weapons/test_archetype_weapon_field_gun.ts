@@ -13,11 +13,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 4. The vent's orifice is on the breech's top over its entry a quarter of the 3.67 in bore ahead of the bore's bottom, moved to the rear by its rise through the metal at 80 degrees to the axis, its `+Y` up and to the rear along the vent.
  * 5. At 12 degrees of elevation the muzzle rises by 34.91 in times the sine of 12 degrees, and at 8 degrees of depression (a travel of -8) it falls by 34.91 in times the sine of 8 degrees; the elevation goes no higher than 12 and no lower than -8 (p. 74).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the gun, measures its colliders and frames, and articulates its elevation; a figure off the manual's, a vent at the wrong end or leaning forward, a muzzle off the wheels' front, or an elevation about the wrong axis or the wrong way is caught.
- * @evidence contracts/development/testing.md#independent-expectations The manual's tables for the tube (p. 19) and the carriage (pp. 68, 74), its vent (p. 16), and Gibbon's rear-leaning vent (p. 306); scenario 2 checks one table against the other.
- * @evidence contracts/development/testing.md#distinguishing-cases The gun at rest and elevated, a fixed point (the trunnions), a riding one (the muzzle, the vent), the carriage's ends and its wheels.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the scenic model's body and wheel extents, named frames and posed rotation cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual scenery model, measures colliders and reads its rest and articulated contact frames. The asserted positions distinguish a misplaced part and opposite rotation direction.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's stated historical model dimensions and its independent rigid-rotation expectation. Two source rows separately constrain the body and support geometry.
  */
 export function test_archetype_weapon_field_gun(): void {
   const inch: number = AutoMovieArchetypeUnits.INCH;

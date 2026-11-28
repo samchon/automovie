@@ -12,6 +12,10 @@ import { createHash } from "node:crypto";
  *    three colour bytes.
  * 2. Alpha is not hashed.
  * 3. A pixel buffer that does not match the size is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Hashes the raster dimensions and RGB bytes, preserving identity across alpha-only changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls raster hashing on a one-pixel image, then changes its alpha and supplies a mismatched buffer.
+ * @evidence contracts/development/testing.md#independent-expectations The independent big-endian size bytes and RGB values form the SHA-256 input. The second alpha value must leave that digest identical.
  */
 export function test_render_picture_hash_raster_image(): void {
   const expected: string = `sha256:${createHash("sha256")

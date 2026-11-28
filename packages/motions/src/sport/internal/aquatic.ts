@@ -21,19 +21,19 @@ import { AquaticSail } from "./AquaticSail";
 import { AquaticScull } from "./AquaticScull";
 import { AquaticTeam } from "./AquaticTeam";
 
-/*
- * Sequences in a pool or on a small craft. The planner owns the actor's clock;
- * every moving hull or grip is sampled from the performance at that same
- * second.
+/**
+ * Plans aquatic sequences with performer and prop reads on the film clock.
  */
 export namespace aquatic {
-  /*
-   * The registered action key.
+  /**
+   * Registered action key for the aquatic chain and performance.
    */
   export const name: AutoMovieMotionHumanActionKey = "aquatic";
 
-  /*
-   * Only the recovered ending is an authored interruption window.
+  /**
+   * Inertialize when leaving from `relax` through the end of the planned action.
+   *
+   * A motion without a `relax` cue cannot open this interruption window.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [
@@ -41,8 +41,23 @@ export namespace aquatic {
     ],
   };
 
-  /*
-   * Plan the selected aquatic sequence from the entered body and scene.
+  /**
+   * Plan a pool, paired rescue, swimming, or small-craft sequence.
+   *
+   * The action uses elapsed seconds from its scheduled start. Named performer
+   * and prop reads use the matching film seconds. `water` is the horizontal
+   * world height in metres and defaults to zero. An omitted `phase` starts
+   * at zero. The range for an authored phase is [0, 1].
+   *
+   * A rescuer and the towed performer name each other in `partner` and the
+   * same world destination in `at`. A direct deck exit uses the `edge` on
+   * the named support and its material `deckFace` when available. Fin actions
+   * require the named prop's `blade` width and depth.
+   *
+   * @param context Entered pose, body, film start, parameters, and scene readers.
+   * @returns The sequence's duration, posture reader, cues and contact data.
+   * @throws {AutoMovieMotionHumanRefusal} For an out-of-range phase or
+   *   a branch-specific staging, contact, or reach refusal.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAquatic.IParams>,

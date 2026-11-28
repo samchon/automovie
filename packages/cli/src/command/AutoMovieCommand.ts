@@ -1,4 +1,11 @@
-/** One public CLI command request. */
+/**
+ * Result of parsing the command name and its outer arguments. Narrow it by
+ * `command` before reading variant-specific fields.
+ *
+ * Help and version carry only their command. Create and add carry an admitted
+ * target and scaffold options. The five production operations carry their
+ * remaining tokens for their own option readers.
+ */
 export type AutoMovieCommand =
   | IAutoMovieHelpCommand
   | IAutoMovieVersionCommand
@@ -10,137 +17,114 @@ export type AutoMovieCommand =
   | IAutoMovieReviewCommand
   | IAutoMovieCheckCommand;
 
-/**
- * One admitted CLI request, discriminated by `command`.
- *
- * `help` and `version` carry nothing because they are standalone requests.
- * `create` and `add` carry their targets exactly as typed; `run` resolves them
- * against the working directory. An explicit `name` is carried as typed; `run`
- * chooses the name when it is absent.
- */
+/** Usage request from an empty token list or a lone `-h` or `--help` flag. */
 interface IAutoMovieHelpCommand {
   /** Print the usage text. */
   command: "help";
 }
 
+/** Version request from a lone `-v` or `--version` flag. */
 interface IAutoMovieVersionCommand {
-  /** Print this package's version. */
+  /** Print the installed package's version. */
   command: "version";
 }
 
+/** Create a standalone production or workspace at one target directory. */
 interface IAutoMovieCreateCommand {
-  /**
-   * Install a single production, or with `workspace` a workspace root, into
-   * `directory`.
-   */
+  /** Select the scaffold creation operation. */
   command: "create";
 
   /**
-   * Target directory as typed, never blank; `run` resolves it against the
-   * working directory.
+   * The nonblank directory token as supplied. Execution resolves it against the
+   * current working directory. Spell a relative directory beginning with a
+   * hyphen with a leading `./`.
    */
   directory: string;
 
-  /** Install a pnpm workspace root instead of a single production. */
+  /** False creates one production. True creates a pnpm workspace root. */
   workspace: boolean;
 
   /**
-   * Admit a non-empty target, writing over same-path files and keeping the
-   * rest.
+   * False refuses a nonempty target. True allows writing the scaffold's files
+   * there, replacing matching paths and retaining unrelated files.
    */
   force: boolean;
 
-  /** Package name as typed; absent, `run` derives or asks for one. */
+  /**
+   * When omitted, execution derives or asks for the name. An explicit `--name`
+   * is carried as supplied. The scaffold validates the chosen name.
+   */
   name?: string;
 }
 
+/** Add a production to the workspace rooted at the current directory. */
 interface IAutoMovieAddCommand {
-  /**
-   * Add one production to the workspace whose root is the working
-   * directory.
-   */
+  /** Select the workspace production operation. */
   command: "add";
 
-  /** `shorts` for brief → screenplay, `series` for the whole long route. */
+  /** First segment of the target. Selects `movies/shorts` or `movies/series`. */
   family: "shorts" | "series";
 
   /**
-   * The production's directory under `movies/<family>`, one admitted path
-   * segment.
+   * Second segment of the target. It is one portable directory name with no
+   * surrounding spaces.
    */
   directory: string;
 
   /**
-   * Admit a non-empty production directory, writing over same-path files
-   * and keeping the rest.
+   * False refuses a nonempty target. True allows replacing matching scaffold
+   * paths and keeps unrelated files.
    */
   force: boolean;
 
   /**
-   * Package name as typed; absent, `run` derives one from the directory
-   * segment.
+   * When omitted, execution derives the name from `directory`. An explicit
+   * `--name` is carried as supplied. The scaffold validates the chosen name.
    */
   name?: string;
 }
 
+/** Capture a production subject or stills from an encoded video file. */
 interface IAutoMovieCaptureCommand {
-  /**
-   * Capture stills of a subject or a video file in the production at the
-   * working directory.
-   */
+  /** Select the capture option reader and host. */
   command: "capture";
 
-  /**
-   * The tokens after `capture`, as typed; `run` reads them through the
-   * production's request grammar, which only the production's
-   * `@automovie/render` holds.
-   */
+  /** Remaining tokens in order. Capture validates them during execution. */
   args: string[];
 }
 
+/** Serve the Inspector page for a production or package subject module. */
 interface IAutoMovieInspectCommand {
-  /**
-   * Serve the inspector page over a subject module of the production or
-   * package at the working directory.
-   */
+  /** Select the Inspector option reader and server. */
   command: "inspect";
 
-  /**
-   * The tokens after `inspect`, as typed; `run` reads them through the
-   * production's request grammar, as for `capture`.
-   */
+  /** Remaining tokens in order. Inspect validates them during execution. */
   args: string[];
 }
 
+/** Draw and encode one production subject. */
 interface IAutoMovieRenderCommand {
-  /**
-   * Render one subject of the production at the working directory into a
-   * video.
-   */
+  /** Select the render option reader and video delivery path. */
   command: "render";
 
-  /**
-   * The tokens after `render`, as typed; `run` reads them with the
-   * production's option reader.
-   */
+  /** Remaining tokens in order. Render validates them during execution. */
   args: string[];
 }
 
+/** Record Inspector playback or write or reopen a file-bound review. */
 interface IAutoMovieReviewCommand {
-  /** Record real-time playback of the production's running inspector page. */
+  /** Select the review option reader. */
   command: "review";
 
-  /**
-   * The tokens after `review`, as typed; `run` reads them with the
-   * production's option reader.
-   */
+  /** Remaining tokens in order. Review validates them during execution. */
   args: string[];
 }
 
+/** Read production observations or run and gate declared checks. */
 interface IAutoMovieCheckCommand {
-  /** Verify scoped production checks and observations. */
+  /** Select the production check option reader. */
   command: "check";
 
-  /** The tokens after `check`, as typed; the check command reads them. */
+  /** Remaining tokens in order. Check validates them during execution. */
   args: string[];
 }

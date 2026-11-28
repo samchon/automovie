@@ -17,21 +17,20 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * `HumanSupportCarry` carries what stands on a moving support from where it was
- * planned to a later second: a point by the support's motion since the start, a
- * turn and a heading by its turn; `blend` passes from one carry to another
- * about an anchor, and `posture` carries a posture's root, heading and free
- * limb goals, leaving a goal held on a bone where it is.
+ * Check which posture geometry inherits the motion of its support.
  *
- * Scenarios, a bench at (1, 0, 0) at 0 s that by 2 s has moved to (3, 0, 0) and
- * turned 90 degrees about +Y:
+ * Scenarios:
  *
- * 1. A point 0.5 m along +Z of the bench at 0 s is carried to 0.5 m along +X of it
- *    at 2 s, the turn's heading 90.
- * 2. Half way between staying still and that carry, about the bench's origin, the
- *    origin lies half way to (3, 0, 0) and the heading is 45.
- * 3. A posture rooted on the bench at 0 s is rooted on it at 2 s, its heading
- *    turned 90, its free foot goal carried and a goal held on the chest kept.
+ * 1. Translate the bench from x = 1 to x = 3 m and turn it 90 degrees. A
+ *    point 0.5 m ahead becomes 0.5 m to its right.
+ * 2. Halfway between still and full carry, the bench origin lies at x = 2 m
+ *    and yaw is 45 degrees.
+ * 3. Carry the root, heading and free foot of the fixture. Preserve the goal
+ *    held on the chest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the support's two poses and identify which geometry moves with them.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture tests full and partial rigid carry and distinguishes free and attached limb goals.
+ * @evidence contracts/development/testing.md#independent-expectations The root and point expectations use a quarter-turn axis exchange and independent linear interpolation of the two origins.
  */
 export function test_motions_carrier_human_support_carry(): void {
   const frame: (seconds: number) => IAutoMovieRigidTransform = (

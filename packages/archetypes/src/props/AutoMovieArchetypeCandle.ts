@@ -2,17 +2,21 @@ import type { AutoMovieArchetype } from "../core";
 import { PracticalLightConstruction } from "./internal/PracticalLightConstruction";
 import type { AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
-/** Canonical producer and authoring contract for Candle. */
+/** Constructs an upright candle with a precision hold and a wick socket. */
 export namespace AutoMovieArchetypeCandle {
   /**
-   * A candle with a precision grasp on its taper and a light frame at its top.
+   * Build a cylindrical candle with its base at Y zero and wick toward `+Y`.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The round `grip` lies halfway up the taper and faces `-Z`. The
+   * upward `light` socket sits at the top of the candle.
+   *
+   * @param params Optional scene ID and finite length, diameter or mass
+   *   within their bands. The ID defaults to `light`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.255 metres tall,
+   *   0.022 metres in diameter and 0.0645 kilograms.
+   * @returns The candle and its local taper grip and wick socket.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypeCandle.IParams = {},
@@ -21,15 +25,16 @@ export namespace AutoMovieArchetypeCandle {
     return PracticalLightConstruction.wick("candle", params, seed);
   }
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Overall axial height and taper diameter in metres. Mass is in kilograms.
    */
   export type Dimension = "diameter" | "length" | "mass";
 
-  /** The contact IDs declared by this producer. */
+  /** Round precision `grip` on the taper and upward `light` at wick height. */
   export type Affordance = "grip" | "light";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional scene ID, finite taper length and diameter in metres, and mass in kilograms.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeLight.IParams,
     "id" | "length" | "diameter" | "mass"

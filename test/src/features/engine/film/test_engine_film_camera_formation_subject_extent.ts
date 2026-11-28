@@ -169,6 +169,10 @@ const seesCentroid: (
  *    under the cue playing at that instant.
  * 7. A group's box is the union of what its members occupy, so a node standing
  *    behind the line widens the same subject.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios describe live formation bounds, stand-in height, flank and inside views, a cue-driven move and group union.
+ * @evidence contracts/development/testing.md#behavioral-verification The test measures an authored formation and its direct framed box, then checks sampled box, segment and moving-view intersections. Its final group check adds a subject outside the formation.
+ * @evidence contracts/development/testing.md#independent-expectations The authored 100-metre footprint gains a 0.5-metre radius on each edge and extends vertically from 0.2 to 2.4 metres. A view at the flank can intersect that box while missing the centered segment. Moving the formation 500 metres shifts its current box out of the same look.
  */
 export function test_engine_film_camera_formation_subject_extent(): void {
   const rest: ReturnType<typeof AutoMovieEngineFilm.formationSubjectBox> = boxAt(0);

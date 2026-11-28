@@ -13,6 +13,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. A top exactly one hip height ahead and half a hip height above the floor is
  *    admitted.
  * 2. A top behind, level with the floor, too far or too high is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines forward and vertical extent admission for a named vault top scaled by entering hip height.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the exact forward and raised bounds and varies sign and each excessive component independently.
+ * @evidence contracts/development/testing.md#independent-expectations A top one hip height forward and half that height up is admitted at equality. Behind, level, too far and too high are distinct refusals.
  */
 export function test_motions_terrain_named_vault_top(): void {
   planNamedVault.admitTop({ near: 1, height: 0.5 }, 1, "deck");

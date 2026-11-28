@@ -6,21 +6,20 @@ import type { IAutoMovieConstructionProfile } from "./IAutoMovieConstructionProf
  */
 export namespace IAutoMovieConstructionNativeProfile {
   /**
-   * Nonempty owner addresses accompanying one native profile preparation.
-   * NativeProfile rejects falsy material, binding or revision strings and
-   * copies revisions into the returned pure definition. The caller changes
-   * revision tokens and prepares again when the original dependencies change.
+   * Nonempty material, binding and revision identities supplied when adapting a
+   * direct native view part to an original profile. Rebuild the source when one
+   * of those dependencies changes.
    */
   export type IIdentity = {
-    /** Original material owner address published on the native profile's region. */
+    /** Material owner address assigned to the native profile's region. */
     material: string;
 
-    /** Original binding owner address published alongside that material. */
+    /** Binding owner address assigned to the native profile's region. */
     binding: string;
 
     /**
-     * Source, constraint and topology revision tokens copied into the new
-     * definition.
+     * Source, constraint and topology revision identities copied into the
+     * returned definition.
      */
     revisions: IAutoMovieConstructionProfile["revisions"];
   };

@@ -18,11 +18,11 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 const CLEARANCE: number = 1e-5;
 
 /**
- * Physical geometry behavior.
+ * Native geometry finds penetrations and reads a rotated box's clearance. Its contact receipts have no measured impulse and cannot satisfy an outcome that requires solver contact.
  *
- * Scenarios:
- *
- * 1. Exercise actual public inputs and compare physical quantities.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks that native geometry reads overlap and clearance without manufacturing solver impulse.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries spheres, a quarter-turned box and a floor, then feeds the sphere receipt to a solver-authority outcome audit.
+ * @evidence contracts/development/testing.md#independent-expectations Radius 0.1 m gives overlap at separation 0.15 m and a miss at 0.25 m. The box's rotated vertical extent leaves 0.775 m clearance, and a geometric receipt cannot satisfy the solver promise.
  */
 export async function test_engine_physics_prepare_physical_geometry_layers(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();

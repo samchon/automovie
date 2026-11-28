@@ -13,9 +13,7 @@ import { FamilyConicCaseSelection as Input } from "../../../reference-conics/Fam
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual shared selection boundary and observes selected identity or refusal, without a figure or filesystem.
  * @evidence contracts/development/testing.md#independent-expectations Literal ids and source digests identify the requested second record; explicit unresolved statuses cannot be successful captures.
- * @evidence contracts/development/testing.md#distinguishing-cases A valid second-case counterpart accompanies every malformed selection and fingerprint in one accumulated round.
- * @evidence contracts/development/testing.md#execution-ownership Small made input records only; no anatomy, constructor, solver, renderer or process.
- * @evidence contracts/development/common.md#meaningful-documentation Names three numbered selection, status and provenance scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Selection checks second-record identity, missing or unavailable case states, schema and fingerprint refusals, and a stage tied to its recorded build digest.
  */
 export function test_human_capture_case_selection(): void {
   const first: {

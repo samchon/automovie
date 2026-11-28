@@ -13,15 +13,19 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 8 * Number.EPSILON;
 
 /**
- * The displayed pelvis lands at the descending root of the vertical flight.
+ * Check the descending landing time from the pelvis's vertical flight.
  *
  * Scenarios:
  *
- * 1. A half-second loft returns to the same height at one second, while a still
- *    release over a half-gravity drop falls for one second.
- * 2. A 2^-80 m descent at 1 m/s still has positive film time. A descending pelvis
- *    already at the landing reaches it immediately. A pelvis below the landing
- *    is refused on the authored swing.
+ * 1. A launch with a 0.5 s ascent returns to its starting height at 1 s. A
+ *    stationary drop over `g / 2` metres also lands after 1 s.
+ * 2. A descent of 2^-80 m at 1 m/s keeps positive flight time. A descending
+ *    pelvis at landing arrives immediately, and an entry below landing
+ *    refuses on the authored swing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify each direction and height at release along with the landing result.
+ * @evidence contracts/development/testing.md#behavioral-verification The landing reader covers both positive roots, a tiny displacement, an immediate event and a below-landing refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The one-second roots follow from `height + velocity * t - g * t ** 2 / 2 = 0`, and the tiny positive height still requires positive time.
  */
 export function test_motions_carrier_swing_leap_flight(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

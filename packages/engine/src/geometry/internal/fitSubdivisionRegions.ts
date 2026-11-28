@@ -30,8 +30,8 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 export function fitSubdivisionRegions(
   props: IAutoMovieFitSubdivisionRegions.IProps,
 ): IAutoMovieFitSubdivisionRegions.IResult {
-  const requested: number = props.levels ?? 2;
-  if (requested < 2 || requested > 6)
+  const requested: number = props.levels === undefined ? 2 : props.levels;
+  if (!Number.isSafeInteger(requested) || requested < 2 || requested > 6)
     throw new Error("fitted subdivision levels must be an integer from 2 to 6");
   const source: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
   const levels: IAutoMovieSubdivisionLevel[] = [source];
@@ -60,7 +60,7 @@ export function fitSubdivisionRegions(
   for (const region of props.regions) {
     const inside: Set<number> = new Set();
     for (const f of region.faces) {
-      if (f < 0 || f >= faceCount || owned.has(f))
+      if (!Number.isSafeInteger(f) || f < 0 || f >= faceCount || owned.has(f))
         throw new Error(
           "fitting regions must name disjoint valid source faces",
         );
@@ -78,6 +78,11 @@ export function fitSubdivisionRegions(
         throw new Error(
           "fitting region constraint is outside its source vertices",
         );
+    for (const targets of [region.samples, region.limitTargets])
+      for (const target of targets.values())
+        // Validate grouping before samples become flat cage positions.
+        if (!Array.isArray(target) || target.length !== 3)
+          throw new Error("Fitting constraints must contain metre triples");
     const selected: Set<number> = new Set(region.faces);
     let front: number[] = [...region.faces];
     for (let ring: number = 0; ring < 4; ring++) {
@@ -144,8 +149,8 @@ export function fitSubdivisionRegions(
         region.faces.has(f) ? [i] : [],
       ),
     );
-    const fitted: IAutoMovieFitSubdivisionDomain.IResult =
-      fitSubdivisionDomain({
+    const fitted: IAutoMovieFitSubdivisionDomain.IResult = fitSubdivisionDomain(
+      {
         cage: { positions: samples, faces, creases },
         controlPositions: controls,
         anchors,
@@ -154,7 +159,8 @@ export function fitSubdivisionRegions(
             region.limitTargets.get(v) ?? null,
         ),
         regionFaces,
-      });
+      },
+    );
     maximumEqualityError = Math.max(
       maximumEqualityError,
       fitted.maximumEqualityError,
@@ -197,5 +203,15 @@ export function fitSubdivisionRegions(
   }
   for (let step: number = 2; step < requested; step++)
     output = refineSubdivisionLevel(output);
+  if (
+    !Number.isFinite(maximumEqualityError) ||
+    output.positions.some(
+      (coordinate: number): boolean => !Number.isFinite(coordinate),
+    ) ||
+    output.uvs?.some(
+      (coordinate: number): boolean => !Number.isFinite(coordinate),
+    )
+  )
+    throw new Error("Fitted subdivision arithmetic must remain finite");
   return { level: output, maximumEqualityError };
 }

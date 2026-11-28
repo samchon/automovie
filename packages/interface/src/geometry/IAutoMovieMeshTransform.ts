@@ -2,28 +2,30 @@ import type { IAutoMovieQuaternion } from "./IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * A placement of a rigid mesh: per-axis scale first, then a unit-quaternion
- * rotation, then a translation, as `transformMesh` applies it.
+ * Optional rigid mesh placement components applied as per-axis scale, unit
+ * quaternion rotation and metre translation. Use finite fields and scales whose
+ * output is representable.
  *
- * Normals take the inverse transpose of the scale and rotation, and a scale
- * with a negative product flips triangle winding. UVs ride along unchanged, so
- * a scaled placement leaves metric texture coordinates measuring the unscaled
- * surface. `transformMesh` throws on a non-finite field, a rotation
- * whose norm differs from one by more than 1e-6, and a zero scale component.
+ * Normals take inverse scale before rotation and normalization. Texture
+ * coordinates are copied unchanged, so a scaling placement preserves the chart
+ * measured on the original geometry.
  */
 export interface IAutoMovieMeshTransform {
-  /** Metres added after scale and rotation; omitted means no translation. */
+  /**
+   * Finite metre offsets added after scale and rotation. Omission gives a zero
+   * offset.
+   */
   translation?: IAutoMovieVector3;
 
   /**
-   * Unit quaternion applied after scale; omitted means identity. A norm off by
-   * more than 1e-6 is refused.
+   * Finite unit quaternion applied after scale. Omission gives identity, and
+   * the norm may differ from one by at most 1e-6.
    */
   rotation?: IAutoMovieQuaternion;
 
   /**
-   * Nonzero per-axis factors applied first; omitted means unit scale. A
-   * negative product mirrors the mesh and flips its winding.
+   * Finite nonzero factors applied first, with unit scale as the default. An
+   * odd number of negative factors reverses triangle winding.
    */
   scale?: IAutoMovieVector3;
 }

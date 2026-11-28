@@ -40,10 +40,9 @@ export namespace motionHumanLawSweep {
   /**
    * One actual scene performer and their world placement.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Members name the performer, actual body, floor position and heading units.
-   * @evidence contracts/development/design.md#principled-representation Keeps canonical IHumanBody and world placement together for both performance construction and independent audit ownership.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only the public performer facts the stage and audit read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The body remains the actual polygon fixture, never a test geometry proxy.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the actual scene body, stable subject and placement in world coordinates.
+   * @evidence contracts/development/design.md#principled-representation Carries the production body and world XYZ placement and yaw through the builder to the real performer input.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The scene supplies identity and placement; performer planning and returned bones stay with the performance.
    */
   export interface IPerson {
     /** The subject. */
@@ -62,10 +61,9 @@ export namespace motionHumanLawSweep {
   /**
    * A row's actual people, composition and props.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs a row performs.
-   * @evidence contracts/development/design.md#principled-representation A scene contains the same public composition and prop inputs passed to AutoMovieMotionHumanPerformance.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Groups the three values every staged cell supplies.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no expected pose or scene-specific exception.
+   * @evidence contracts/development/common.md#meaningful-documentation Names actual people, composition and the props supplied by one staged row.
+   * @evidence contracts/development/design.md#principled-representation Uses the public composition and prop records alongside concrete placed people for the real scene.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only the fields needed to turn an authored row into a performance.
    */
   export interface IScene {
     /** The people. */
@@ -81,20 +79,18 @@ export namespace motionHumanLawSweep {
   /**
    * A row's requested parameter value, absent when it leaves that parameter.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what undefined means.
-   * @evidence contracts/development/design.md#principled-representation A named lookup preserves omitted parameters apart from explicit ledger values.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One argument and the optional ledger string the stage consumes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default pose or expected result is supplied by the lookup.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the named setting lookup and undefined case for an omitted setting.
+   * @evidence contracts/development/design.md#principled-representation The staging wrapper reads the named row value and separately records supplied keys actually queried.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A single lookup lets the stage choose its own settings; row storage and unused-key reporting belong to the wrapper.
    */
   export type Pick = (param: string) => string | undefined;
 
   /**
    * Build a row's scene from its requested values and two actual bodies.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the requested values, body roles and resulting scene.
-   * @evidence contracts/development/design.md#principled-representation The stage selects public composition inputs while the performance remains the motion producer.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Its three inputs are the facts all stage tables require.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame-producing callback or expected result enters the stage signature.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the settings reader and two actual body inputs used to build a scene.
+   * @evidence contracts/development/design.md#principled-representation The stage receives public bodies and produces the same IScene that will be passed to performance.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The type keeps parameter tracking outside the stage while giving the stage its actual physical inputs.
    */
   export type Stage = (
     pick: Pick,
@@ -105,10 +101,9 @@ export namespace motionHumanLawSweep {
   /**
    * One executed cell's identity, elapsed observation and complaints.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Every field names the row, bodies, seed, elapsed units or findings.
-   * @evidence contracts/development/design.md#principled-representation Keeps failure identity beside observations so a refused or invalid cell remains attributable.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the ledger coordinates, timing observation and complaint lines are returned.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Elapsed milliseconds are a report field, never a physical correctness threshold or proof of optimization.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the executed row, body pair, seed, elapsed time and attributed complaints.
+   * @evidence contracts/development/design.md#principled-representation The result records stage identity and observed complaints separately from elapsed milliseconds. Wall timing measures that execution.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The optional keep callback owns any retained film. The cell record carries only identity, elapsed timing and complaint strings.
    */
   export interface ICell {
     /** The law. */
@@ -159,13 +154,9 @@ export namespace motionHumanLawSweep {
   /**
    * An empty runtime-parameter chain; the subject defaults to a.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the empty chain and default performer id.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates construction to the sweep chain that appends ordinary public intents.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One constructor call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Creates no pose or law-specific motion.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size chain construction.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses MotionHumanSweepChain.subject's intent representation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned chain is caller-owned; this helper stores nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the empty parameterized chain and default subject a.
+   * @evidence contracts/development/implementation.md#principled-implementation Calls the actual runtime chain builder with the requested subject so the staged composition retains its real binding.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Delegates one chain construction and leaves its ownership with the caller.
    */
   export function chain(subject: string = "a"): MotionHumanSweepChain {
     return MotionHumanSweepChain.subject(subject);
@@ -174,13 +165,9 @@ export namespace motionHumanLawSweep {
   /**
    * A world target at x/y/z metres, retaining a supplied surface normal.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the point frame, units and optional normal.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the public point-target record with frame world.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record with an optional normal member.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Passes coordinates and normal unchanged; the actual target resolver owns admission and normalization.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant record construction.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No repeated computation or request coordination occurs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the caller's returned target retains the supplied normal.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the world target coordinate in metres and the optional surface normal.
+   * @evidence contracts/development/implementation.md#principled-implementation Returns the requested world position unchanged and includes the authored normal when supplied.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Builds one constant-size target and borrows the optional normal for its lifetime.
    */
   export function point(
     x: number,
@@ -199,13 +186,9 @@ export namespace motionHumanLawSweep {
   /**
    * A subject and region named by a ledger stage as a person target.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the target identity and runtime region input.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the public person-target shape for the actual law to resolve.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not invent a region coordinate or silently repair an unknown name.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant record construction.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No completed computation is repeated here.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing outside the returned record.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the target subject and region supplied by its stage.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses those exact semantic region and subject labels in an explicit person target.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Allocates one target and retains no records outside its return value.
    */
   export function person(subject: string, region: string): object {
     return { kind: "person", subject, region };
@@ -214,13 +197,9 @@ export namespace motionHumanLawSweep {
   /**
    * The canonical lateral sign: left is +X; every other input uses right's -X.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the axis convention and undefined/non-left default.
-   * @evidence contracts/development/implementation.md#principled-implementation One comparison implements the stage's left/right coordinate convention.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing right-side default without claiming to validate ledger values.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant scalar work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work There is no reusable computation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the left +X convention and the other-input fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation The check selects +1 for the left literal and −1 for every remaining value, including the general default.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The function uses one comparison and retains no data.
    */
   export function sign(side: string | undefined): number {
     return side === "left" ? 1 : -1;
@@ -229,13 +208,9 @@ export namespace motionHumanLawSweep {
   /**
    * Requested named parameters, omitting only values the row leaves undefined.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which values are copied and the omitted-value rule.
-   * @evidence contracts/development/implementation.md#principled-implementation Queries the stage's Pick once per supplied name and copies explicit values under that same key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One traversal into a new record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not replace omitted values with defaults or discard an explicitly empty string.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the requested names and retained string values.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads through Pick's existing row lookup without another parser.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns copied entries; the callback is not retained.
+   * @evidence contracts/development/common.md#meaningful-documentation Explains lookup by requested parameter and omission only on undefined.
+   * @evidence contracts/development/implementation.md#principled-implementation Visits the supplied names and writes the actual lookup result for each present value, including an empty string.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Executes one lookup per requested name, with storage for present settings in the returned object only.
    */
   export function set(pick: Pick, ...params: string[]): Record<string, string> {
     const out: Record<string, string> = {};
@@ -250,13 +225,9 @@ export namespace motionHumanLawSweep {
    * One actual body at the world origin facing +Z, on the given chain and
    * props.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States placement and that an omitted prop list is empty.
-   * @evidence contracts/development/implementation.md#principled-implementation Assembles public performer, composition and prop inputs without producing motion.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One performer record and scene record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual supplied body, chain node and props rather than expected frames.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size assembly; the input prop list is not traversed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the chain's existing node and supplied prop list directly.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned scene retains its inputs; no scene is kept globally.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the origin and +Z heading, actual body and borrowed props and composition.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the public scene with subject a, zero position and zero yaw and the existing chain node.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Assembles a constant-size scene and forwards the props array directly; motion preparation stays with the later perform call.
    */
   export function solo(
     a: IAutoMovieMotionHumanBody,
@@ -274,13 +245,9 @@ export namespace motionHumanLawSweep {
    * Two actual bodies gap metres apart on +Z; b faces a by default, else +Z. A
    * pair of chains becomes parallel in its given order; a node is kept as is.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States placement, heading default and the two composition inputs.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds public scene records and a parallel node only for a chain pair.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two performer records and one tuple-or-node branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change the supplied gap to avoid collision or manufacture a partner's pose.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size scene construction.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains the supplied bodies, prop list and existing composition nodes.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources References transfer with the returned scene; the helper keeps no cache.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the absolute placements, b's default orientation and the two accepted composition forms.
+   * @evidence contracts/development/implementation.md#principled-implementation Places a at the origin and b at the authored +Z gap, with b at 180-degree yaw when facing. A pair of chain nodes maps to parallel composition in input order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Allocates two performer records and at most one parallel node. Existing composition and props remain borrowed in the returned scene.
    */
   export function duo(
     a: IAutoMovieMotionHumanBody,
@@ -320,13 +287,9 @@ export namespace motionHumanLawSweep {
    * @param bodies The bodies of `a` and of the partner.
    * @param unstaged Hears a parameter the stage never asked for.
    * @returns The scene.
-   * @evidence contracts/development/common.md#meaningful-documentation States the row syntax, body roles and unconsumed-parameter observer.
-   * @evidence contracts/development/implementation.md#principled-implementation Parses comma-separated settings into a Map and records each explicitly supplied value the stage queries; remaining keys are reported after construction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Parse, call one stage with canonical bodies, then report untouched keys.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An ignored row setting remains observable rather than silently passing as the default; stage errors propagate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear row parsing and parameter bookkeeping, plus the stage and body-fixture owners' construction costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses motionHumanBody fixtures and one Map lookup per Pick call.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The Map and consumed-key Set are call-local; the returned scene retains its actual inputs and no staging state is stored globally.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes row-setting syntax, the two body roles and untouched-key reporting.
+   * @evidence contracts/development/implementation.md#principled-implementation Parses default or comma-delimited name/value entries, tracks supplied entries queried by the real stage, and reports every supplied key that the stage skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Aside from fixture and stage costs, bookkeeping is linear in row text and parameter queries. Its map and set are local and only the stage's scene escapes.
    */
   export function staged(
     row: string,
@@ -363,13 +326,9 @@ export namespace motionHumanLawSweep {
    * @param seed The seed.
    * @param scene The scene.
    * @returns The film.
-   * @evidence contracts/development/common.md#meaningful-documentation States the seed, scene and actual-film result.
-   * @evidence contracts/development/implementation.md#principled-implementation Passes the scene's people, public composition and props unchanged to the real performance owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to motionHumanLaw.perform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame producer, replacement pose or correctness expectation is supplied.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is the actual performance construction; delegation removes none of its scheduling or IK work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing film owner and its per-film displayed-frame cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns film ownership to the caller and adds no separate retained state.
+   * @evidence contracts/development/common.md#meaningful-documentation States the seed, actual scene and returned film.
+   * @evidence contracts/development/implementation.md#principled-implementation Passes the scene's bodies, positions, composition and props to motionHumanLaw.perform under the supplied seed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the existing performance setup and per-film cache. This wrapper retains no second scene or frame state.
    */
   export function perform(seed: string, scene: IScene): motionHumanLaw.IFilm {
     return motionHumanLaw.perform(
@@ -392,13 +351,9 @@ export namespace motionHumanLawSweep {
    * @param repeat Whether the film is performed a second time to check the
    *   seed's determinism; true when absent.
    * @returns The cell.
-   * @evidence contracts/development/common.md#meaningful-documentation States cell coordinates, optional kept film, repeat default and elapsed wall-time observation.
-   * @evidence contracts/development/implementation.md#principled-implementation Stages real inputs and delegates unchanged physical checks and the independent 4 Hz finite-position/orientation repeat to motionHumanLawSweepCell; Error messages become cell-attributed first-line complaints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Record identity, stage and verify, transfer the first film, then return elapsed time and findings.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps refusals and unused parameters as findings, calls keep even for measured complaints, and introduces no result-specific threshold or skip.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One first film serves all detectors; repeat adds one independently staged performance and sampled comparison. Elapsed milliseconds are observational and prove no speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The verification helper calls this namespace's existing perform owner; the kept film is the exact first film every detector read.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Complaint text has no added cap and is returned; the optional keeper owns any retained film, while the cell stores neither film nor callbacks globally on return or error.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the cell attribution, default repeat, optional film keeper and elapsed measurement.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the real stage and physical verifier with the configured law settings, retains unused parameters as complaints and records Error messages as attributed refusals. Repeat builds a second scene for independent comparison.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Shares one first film across all checks and sends that film to the optional owner. Repeat adds an independent staged performance. Only the returned complaint list and timing survive by default.
    */
   export function cell(
     law: string,
@@ -452,13 +407,9 @@ export namespace motionHumanLawSweep {
    * @param table Each law's stage.
    * @returns One line per ledger law without a stage, per row whose parameter
    *   its stage never asks for, and per row whose stage throws.
-   * @evidence contracts/development/common.md#meaningful-documentation States that this reads ledger-stage coverage without performing films.
-   * @evidence contracts/development/implementation.md#principled-implementation Scans each ledger law and row, using the same staging reader on f-small and m-large and collecting missing stages, untouched settings and stage errors.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A law loop with a missing-stage branch and per-row construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing and failed stages remain explicit complaints; no physical verdict is inferred from staging alone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in ledger rows plus each stage's construction cost, with no performance or audit execution.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses staged and the canonical body-fixture owner rather than duplicating parameter-consumption logic.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns complaint strings without an added cap; row bookkeeping stays call-local and no scene or film is retained here.
+   * @evidence contracts/development/common.md#meaningful-documentation States that the result covers absent stages, unread settings and stage errors without film execution.
+   * @evidence contracts/development/implementation.md#principled-implementation Walks the authored ledger and runs each available stage with f-small and m-large. Missing stages and untouched settings remain explicit; a stage error keeps its first line.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads the ledger once for this pass and reuses staged's consumption checking. Cost follows rows and stage work; no film runs or surviving scene cache.
    */
   export async function unstaged(
     table: Readonly<Record<string, Stage>>,

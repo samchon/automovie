@@ -1,11 +1,7 @@
 import type { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegion";
 
 /**
- * One perturbation law whose response follows from the forces on its performer:
- * the body absorbs an impulse within its base, catches it with capture steps,
- * or falls, as the engine's balance outcome decides from the impulse, the
- * body's mass and its support (`resolveBalanceOutcome`), or as the
- * author fixes the outcome.
+ * Plan a balance response from the performer's entered pose and support.
  *
  * The impulse is the sum of the impulses on the performer
  * (`IAutoMovieMotionHumanActionContext.forces`) from one pendulum time constant
@@ -21,9 +17,14 @@ import type { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegio
  *   step's landing from Maki and McIlroy 1997, as `stagger` cites).
  * - **fall**: `knockdown` from the side the impulse comes from.
  *
- * An author's outcome the impulse cannot produce is refused with the impulse
- * range that would produce it, never clamped; with no impulse on the performer
- * the outcome is an absorb of nothing, a still stance.
+ * A performer bearing on a prop starts with velocity relative to the declared
+ * bearing frame. The frame's onset acceleration contributes an inertial load
+ * over one pendulum time constant. Uniform translation of an unforced quiet
+ * stance preserves that stance. An absorb or recovery step follows the declared
+ * support.
+ *
+ * The default automatic outcome uses the available balance. An authored outcome
+ * outside the feasible range is refused with that range.
  *
  * First pass: the step outcome lays one capture step, `stagger`'s; the engine's
  * outcome may ask for more, which this law refuses naming the fall instead
@@ -35,8 +36,8 @@ export namespace IAutoMovieMotionHumanPerturb {
   /** Parameters. */
   export interface IParams {
     /**
-     * The outcome: decided by the impulse (`auto`), or fixed by the author and
-     * refused when the impulse cannot produce it; `auto` when absent.
+     * Response outcome, `auto` when absent. The law uses the load and
+     * support-relative entry state and refuses an infeasible authored outcome.
      */
     outcome?:
       | "auto"

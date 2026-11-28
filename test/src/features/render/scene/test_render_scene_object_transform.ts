@@ -12,6 +12,10 @@ import * as THREE from "three";
  *
  * 1. An object given a translation, rotation and scale reads back the same
  *    record, and moving the object afterwards leaves the record unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The case describes both the initial translation, rotation and scale and the later object mutation.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that transform reading preserves numeric components and that later position changes leave the returned record detached.
+ * @evidence contracts/development/testing.md#independent-expectations Compares against the fixture's original transform and retains the literal translation X value 1 after changing the object.
  */
 export function test_render_scene_object_transform(): void {
   const transform: {

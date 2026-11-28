@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  *    remain in one gauge despite points absent from both original seed views.
  * 3. Caller numerical observations remain unchanged, and common joint
  *    population/coverage and aggregate consumed work are explicit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the visibility chain, shared world gauge and observed work budget.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs scene creation on the five prescribed cameras and compares registration, poses, world points, provenance and the original fixture.
+ * @evidence contracts/development/testing.md#independent-expectations The synthetic visibility graph admits each successive camera from already registered observations. Prescribed points and poses determine support and gauge expectations.
  */
 export function test_recovery_internal_create_camera_scene(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =

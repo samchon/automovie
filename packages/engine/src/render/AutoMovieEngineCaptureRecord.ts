@@ -3,7 +3,10 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieCaptureTime,
   IAutoMovieInspectionDiagnostics,
+  IAutoMovieInspectionTrail,
 } from "@automovie/interface";
+
+import { readCaptureMotionTrails } from "./internal/readCaptureMotionTrails";
 
 /** Admit stored capture journals and expose the data each reader can use. */
 export namespace AutoMovieEngineCaptureRecord {
@@ -19,7 +22,10 @@ export namespace AutoMovieEngineCaptureRecord {
     return Array.isArray(files) && files.every(isFileName) ? files : null;
   }
 
-  /** Read a complete round with comparable cells and any recorded audit. */
+  /**
+   * Read a complete round with comparable cells, any valid retained source
+   * trails, and any recorded audit. A legacy row can omit the trails.
+   */
   export function comparison(
     value: unknown,
   ): IAutoMovieCaptureRecord.IComparison | null {
@@ -40,8 +46,11 @@ export namespace AutoMovieEngineCaptureRecord {
   /**
    * Read diagnostic evidence from a complete round. Older observations can omit
    * sheet layout and audit counters; they still need usable cell clocks,
-   * coverage, findings, and still identities. Hash and scope verification are
-   * the consumer's responsibility.
+   * coverage, findings, and still identities. Coverage can retain the paths
+   * and static or swept basis the checker supplied. Drawn rows can carry
+   * source-backed motion trail segments with aligned clocks and positions.
+   * Malformed retained trails make the record unreadable. Hash and scope
+   * verification are the consumer's responsibility.
    */
   export function observe(
     value: unknown,
@@ -172,6 +181,10 @@ interface IStoredStill {
    * The existing encoded-file digest, when recorded.
    */
   readonly fileSha256?: string;
+  /*
+   * Source-backed trails validated in the retained drawn row, when present.
+   */
+  readonly motionTrails?: readonly IAutoMovieInspectionTrail[];
 }
 
 /*
@@ -182,7 +195,8 @@ function isStill(row: IFields): row is IFields & IStoredStill {
     row.state === "drawn" &&
     AutoMovieEngineCaptureRecord.isFileName(row.file) &&
     (row.hash === undefined || typeof row.hash === "string") &&
-    (row.fileSha256 === undefined || typeof row.fileSha256 === "string")
+    (row.fileSha256 === undefined || typeof row.fileSha256 === "string") &&
+    (row.motionTrails === undefined || readCaptureMotionTrails(row.motionTrails, isTime))
   );
 }
 
@@ -196,7 +210,8 @@ function readCell(
   if (row === null || !hasCellAddress(row)) return null;
   const { view, pass, time }: IAutoMovieCaptureRecord.IObservedCellAddress =
     row;
-  if (row.state === "failed") return { type: "failed", view, pass, time };
+  if (row.state === "failed")
+    return row.motionTrails === undefined ? { type: "failed", view, pass, time } : null;
   if (!isStill(row)) return null;
   return {
     type: "drawn",
@@ -206,6 +221,7 @@ function readCell(
     file: row.file,
     ...(row.hash === undefined ? {} : { hash: row.hash }),
     ...(row.fileSha256 === undefined ? {} : { fileSha256: row.fileSha256 }),
+    ...(row.motionTrails === undefined ? {} : { motionTrails: row.motionTrails }),
   };
 }
 
@@ -234,7 +250,8 @@ function isComparisonCell(
     )
   )
     return false;
-  if (row.state === "failed") return typeof row.cause === "string";
+  if (row.state === "failed")
+    return typeof row.cause === "string" && row.motionTrails === undefined;
   return (
     isStill(row) &&
     typeof row.hash === "string" &&
@@ -454,6 +471,10 @@ function isCoverage(value: unknown): boolean {
     typeof coverage.check === "string" &&
     typeof coverage.key === "string" &&
     typeof coverage.required === "boolean" &&
+    (coverage.paths === undefined ||
+      (Array.isArray(coverage.paths) &&
+        coverage.paths.every((path: unknown) => typeof path === "string" && path.trim() !== ""))) &&
+    (coverage.basis === undefined || coverage.basis === "static" || coverage.basis === "swept") &&
     (coverage.status === "checked" ||
       ((coverage.status === "deferred" ||
         coverage.status === "unsupported" ||

@@ -1,7 +1,5 @@
 import type { IAutoMovieRecoveryImageInput } from "@automovie/interface";
-import {
-  AutoMovieRecoveryObservation,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,9 +23,13 @@ interface RecoveryImageMutation {
  *    including exact equality. Empty, clipped, holed and disconnected support
  *    refuse; eight-connected diagonals remain admitted.
  * 3. Unrepresentable pixel charts and exhausted pixel, row and view budgets
- *    refuse.
+ *    refuse, as do malformed capture identities, channels and cameras.
  * 4. Cancellation and a failing progress observer preserve terminal outcome
  *    semantics.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names measured physical rows, classification boundaries, malformed captures and callback outcomes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls observeImages on resident calibrated RGB arrays and checks its measured rows, acquisition diagnostic or cancellation state after changing the relevant inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Derives support coordinates from the analytic silhouette and the half-pitch cell limit. Exhausts byte values around integral and fractional thresholds and distinguishes input refusal from callback failure.
  */
 export function test_recovery_observation_observe_images(): void {
   const input: IAutoMovieRecoveryImageInput = recoveryImageFixture();
@@ -206,20 +208,71 @@ export function test_recovery_observation_observe_images(): void {
       },
       reason: "invalid-capture",
     },
+    {
+      name: "truncated RGB view",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        value.views[0].rgb8 = value.views[0].rgb8.subarray(0, -1);
+      },
+      reason: "invalid-capture: RGB8 length",
+    },
+    {
+      name: "fractional background channel",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        value.background.rgb[0] = 240.5;
+      },
+      reason: "invalid-capture: fixed RGB background",
+    },
+    {
+      name: "nonfinite background threshold",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        value.background.threshold = Infinity;
+      },
+      reason: "invalid-capture: fixed RGB background",
+    },
+    {
+      name: "missing object identity",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        value.objectId = " ";
+      },
+      reason: "invalid-capture: fixed object",
+    },
+    {
+      name: "duplicate view identity",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        value.views[1].id = value.views[0].id;
+      },
+      reason: "invalid-capture: distinct view identities",
+    },
+    {
+      name: "nonfinite supplied azimuth",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        value.views[0].camera.azimuthRadians = NaN;
+      },
+      reason: "invalid-pixel-chart: finite supplied camera",
+    },
   ];
+  const unrefused: string[] = [];
   for (const variant of variants) {
     const malformed: IAutoMovieRecoveryImageInput = recoveryImageFixture();
     variant.make(malformed);
-    const refusal: ReturnType<typeof AutoMovieRecoveryObservation.observeImages> =
-      AutoMovieRecoveryObservation.observeImages(malformed);
-    TestValidator.equals(`${variant.name} refuses`, refusal.status, "refused");
-    TestValidator.predicate(
-      `${variant.name} retains its cause`,
-      refusal.diagnostics.some((message: string): boolean =>
+    const refusal: ReturnType<
+      typeof AutoMovieRecoveryObservation.observeImages
+    > = AutoMovieRecoveryObservation.observeImages(malformed);
+    if (
+      refusal.status !== "refused" ||
+      !refusal.diagnostics.some((message: string): boolean =>
         message.includes(variant.reason),
-      ),
-    );
+      )
+    )
+      unrefused.push(
+        `${variant.name}: ${refusal.status} ${refusal.diagnostics.join(" ")}`,
+      );
   }
+  TestValidator.equals(
+    "invalid captures retain their admission causes",
+    unrefused,
+    [],
+  );
   for (const invalid of [
     Number.NaN,
     Number.POSITIVE_INFINITY,

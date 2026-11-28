@@ -45,6 +45,10 @@ function rising(
  * 2. Within the first action its local second is read: 1.5 s reads 10.5.
  * 3. Between the second's entry and its start its first second is read: 20.
  * 4. Past the last action's end its final pose holds: 4 s reads 20.5.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The posture read uses initial state before entry, the selected plan clock, clamping before the delayed plan start and retention after the end.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes two typed placed actions and a distinct initial posture to `readPlacedHumanPosture`. The synthetic posture's root height encodes its local time for direct observation.
+ * @evidence contracts/development/testing.md#independent-expectations Before entry the initial posture retains its identity. At film 1.5 s the first base 10 plus local 0.5 gives 10.5. At 2.1 s the entered second action has not started locally, so its height is 20. After the final 0.5 s motion it holds 20.5.
  */
 export function test_motions_perform_placed_posture(): void {
   const initial: IAutoMovieMotionHumanPosture = {

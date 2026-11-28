@@ -8,11 +8,11 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 
 /**
- * Physical planner behavior.
+ * Schedules walks for two or four supports. A reservation holds all swings clear of its interval. Between swings, each foot stays planted and starts its next swing at its last landing.
  *
- * Scenarios:
- *
- * 1. Exercise actual public inputs and compare physical quantities.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks that two- and four-support schedules honor a reserved interval and keep planted coordinates through the next departure.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates the step planner for a five-second forward path with two or four limbs and one reservation, then queries two times between successive phases.
+ * @evidence contracts/development/testing.md#independent-expectations The clock requires reserved phase at 2.2 s and every swing outside [2, 2.4] s. A planted segment stays fixed and each next departure equals the last landing.
  */
 export function test_engine_physics_step_planner(): void {
   for (const count of [2, 4]) {

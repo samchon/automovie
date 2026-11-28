@@ -20,6 +20,10 @@ import { makePose } from "../../internal/makePose";
  * 1. The left arm's three joints, the hand's missing twist as 0, its fingers but
  *    not the right's, a repeated forearm record ignored.
  * 2. The right arm with no hand record reads the hand as zeros.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names first-record precedence, missing values and joints, and isolation of each arm's own digit records.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads each side through AutoMovieMotionHumanArmAngles.angles on one typed pose containing asymmetric joints and a repeated forearm.
+ * @evidence contracts/development/testing.md#independent-expectations Literal triples retain the first forearm angle of 90 degrees, fill the missing twist and right hand with zeros, and give index flexion 15 for the left and 40 for the right.
  */
 export function test_motions_compose_arm_angles(): void {
   const pose: IAutoMoviePose = makePose([

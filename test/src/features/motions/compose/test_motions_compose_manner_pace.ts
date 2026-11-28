@@ -66,7 +66,11 @@ const UNREAD: IAutoMovieRandom = {
  *    = 1.5125, the 1.51 times the time it cites, and hold 1.5125 · 1.09; its
  *    clock keeps every instant's name and order.
  * 5. A performer with elite timing and novice path skill has separate tempo and
- *    extent spreads. Explicit consistency replaces both spreads.
+ *    extent spreads. Explicit consistency changes the extent spread in this case.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names pace, ordered scaled instants, equal phase and rate, weary timing and independent skill axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves manners with input pace, a preset and a seeded skill record, then reads scaled clocks and compares numerical derivatives at three phases.
+ * @evidence contracts/development/testing.md#independent-expectations Pace 2 halves the authored seconds and doubles the progress rate by the chain rule. Weary tempo is 1.21/0.8 and hold multiplies that by 1.09. Fixed draw positions and literal spreads determine timed and spatial variation separately.
  */
 export function test_motions_compose_manner_pace(): void {
   const clock: IAutoMovieMotionClock = motionClock(3, [

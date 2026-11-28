@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Four uv numbers for three vertices report `m.uvs`.
  * 5. An index 3 for three vertices reports `m.indices[2]`.
  * 6. A colour component of 2 reports `m.colors[0]`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers mesh buffer layout, UV arity, index bounds and color-channel findings.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMesh on one typed triangle and isolated changes to positions, UVs, indices and colors.
+ * @evidence contracts/development/testing.md#independent-expectations Three XYZ vertices use nine position scalars and six UV scalars. Vertex index three is out of bounds, an empty mesh has no vertex, and color value two exceeds the admitted range.
  */
 export function test_engine_validation_mesh(): void {
   const base = (): IAutoMovieMesh => ({

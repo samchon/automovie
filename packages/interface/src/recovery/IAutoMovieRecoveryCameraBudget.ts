@@ -1,41 +1,48 @@
-/** Finite positive integer limits for automatic image-pair work. */
+/**
+ * Positive safe integer limits for observing and fitting a calibrated camera
+ * pair. Map and scene estimation also reuse the per-view extraction and
+ * per-direction matching ceilings.
+ */
 export interface IAutoMovieRecoveryCameraBudget {
-  /** Aggregate resident pixels of both images. */
+  /** Maximum total resident pixels in the two seed images. */
   maxPixels: number;
 
-  /** Descriptor-valid Harris candidates per image before spatial suppression. */
+  /** Maximum window-valid Harris candidates per image before spatial selection. */
   maxCandidates: number;
 
-  /** Retained physical interest points per image, no more than maxCandidates. */
+  /** Maximum selected detector candidates per image, at most `maxCandidates`. */
   maxFeatures: number;
 
   /**
-   * Maximum detection Gaussian-pyramid levels; pixels are downsampled without
-   * upscaling.
+   * Maximum detection pyramid levels. Downsampling stops when the image becomes
+   * too small for the detector window.
    */
   maxPyramidLevels: number;
 
-  /** Exact descriptor pairs compared, not descriptor scalar operations. */
+  /** Maximum actual descriptor comparisons in one directed search. */
   maxDescriptorPairs: number;
 
-  /** Maximum proposals for each independent fundamental or homography consensus. */
+  /**
+   * Maximum proposals in each independent epipolar or homography consensus
+   * search.
+   */
   maxRansacTrials: number;
 
-  /** Minimum proposals before adaptive conditional-confidence stopping. */
+  /**
+   * Minimum proposals before conditional-confidence stopping, at most
+   * `maxRansacTrials`.
+   */
   minimumRansacTrials: number;
 
   /**
-   * Maximum proposals with at least eight calibrated inliers refined in draw
-   * order before winner comparison. Exhaustion can miss a better basin.
+   * Maximum eligible epipolar proposals entering local refinement in draw
+   * order.
    */
   maxLocalRefinements: number;
 
-  /**
-   * Maximum local pose iterations per refit; at most three inlier refits are
-   * attempted.
-   */
+  /** Maximum nonlinear iterations in one fixed-subset pose refit. */
   maxRefinementIterations: number;
 
-  /** Maximum complete Jacobi sweeps per original-design decomposition. */
+  /** Maximum Jacobi sweeps per design singular decomposition. */
   maxSingularSweeps: number;
 }

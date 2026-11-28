@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  *    shares 0.5 to 0.75 (2 to 3 s, the contact clipped to the span).
  * 2. With the root owned, the inside piece is not physical.
  * 3. An action from 5 to 6 s, outside the span, is read as it is.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the three action pieces, a replaced owned foot plant, a retained plant, the root-ownership judgment and an unaffected action.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls splitSolvedHumanAuditSpan with authored contacts and solver ownership, checking the whole output timeline and each contact record.
+ * @evidence contracts/development/testing.md#independent-expectations Intersecting solved contact 2 to 5 s with ownership 1 to 3 s yields 2 to 3 s. Dividing by the four-second action maps to shares 0.5 through 0.75. The left fit replaces its plant and the right plant remains.
  */
 export function test_motions_audit_split_solved_human_audit_span(): void {
   const plant = (

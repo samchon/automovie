@@ -6,6 +6,7 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../../core";
+import { ArchetypeShapes } from "../../core/internal/ArchetypeShapes";
 import { AutoMovieArchetypeVessel } from "../AutoMovieArchetypeVessel";
 
 /*
@@ -160,6 +161,21 @@ export namespace VesselConstruction {
           length: 0.1,
         });
       }
+      for (const [id, side, end] of [
+        ["leftHandleFront", 1, 1],
+        ["leftHandleBack", 1, -1],
+        ["rightHandleFront", -1, 1],
+        ["rightHandleBack", -1, -1],
+      ] as const) {
+        const z: number = end * (0.05 - grip / 2);
+        builder.rod(
+          id,
+          grip / 2,
+          v(side * (r - AutoMovieArchetypeVessel.WALL / 2), d.height - grip, z),
+          v(side * (r + 0.03), d.height - grip, z),
+          { color: "#2c2f33" },
+        );
+      }
     }
     return builder.build(d.mass);
   }
@@ -252,13 +268,19 @@ function draw<Id extends AutoMovieArchetypeVessel.Affordance>(
     width: d.diameter,
     depth: d.diameter,
   });
+  // Keep the rectangular site inside both the walls and the round floor hull.
+  const supportedSpan: number = Math.min(
+    d.diameter - 2 * wall,
+    d.diameter * Math.cos(Math.PI / ArchetypeShapes.SIDES) * Math.SQRT1_2,
+  );
   builder.affordance({
     id: "inside",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
     extent: null,
-    width: d.diameter - 2 * wall,
-    depth: d.diameter - 2 * wall,
+    materialPart: "floor",
+    width: supportedSpan,
+    depth: supportedSpan,
   });
   return { builder, d };
 }

@@ -11,10 +11,8 @@ import { nclose } from "../../internal/predicates";
  * 2. Constant controls stay exactly constant, and malformed/nonfinite periodic inputs are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual native rail-range owner and the existing periodic reader; a control-only bound fails while a conservative whole-source bound is allowed.
- * @evidence contracts/development/testing.md#independent-expectations Solving the four cyclic cubic equations gives the literal13/16 and35/16 midpoint values; their containment is independent of the bound implementation.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes undershoot, overshoot, the unchanged constant counterpart and missing/nonfinite controls.
- * @evidence contracts/development/testing.md#execution-ownership Made four-control scalar source and synchronous pure range admission only, with no person, loft, mesh or process.
- * @evidence contracts/development/common.md#meaningful-documentation Names conservative source-range scope and two scenarios.
+ * @evidence contracts/development/testing.md#independent-expectations Solving the four cyclic cubic equations gives exact midpoint values 13/16 and 35/16, both outside the control extrema. The bound must contain them and contain only the constant value for constant input.
+ * @evidence contracts/development/common.md#meaningful-documentation Periodic cubic midpoints outside the control extrema must lie inside the returned bound. Constant and malformed controls supply separate cases.
  */
 export function test_human_periodic_rail_range(): void {
   const failures: string[] = [];

@@ -33,6 +33,10 @@ const ID: string = "body";
  *    carrying half of it fail the momentum balance (an unrecorded force holding
  *    it); a sample half a metre off its bone fails provenance; a landed step
  *    whose leg never left the floor fails.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes sustained recovery, one-step recovery and fall verdicts, with separate momentum, provenance and swing audit failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds the judge and audit synthetic timelines with added steps, falling or settled bodies, insufficient reaction and an impossible landing.
+ * @evidence contracts/development/testing.md#independent-expectations At rest the floor impulses must carry full weight and belong to the relevant bone. One landed swing satisfies recovery, two or none fail, and a step under a sustained push fails.
  */
 export function test_engine_physics_physical_disturbance_verdicts(): void {
   const subject: PhysicalDisturbance.ISubject = PhysicalDisturbance.planted(

@@ -1,37 +1,40 @@
-import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { AutoMovieCubicBezierControls3 } from "./AutoMovieCubicBezierControls3";
+import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 
 /**
- * A named closed cubic transverse section over one turn and its complete
- * control-wise first variation per longitudinal millimetre. The supplied
- * longitudinal axis declares the world measurement direction.
+ * Named closed transverse cubic section and complete derivative controls per
+ * longitudinal millimetre.
+ *
+ * Full derivative controls retain the section's chart and physical denominator.
+ * The world longitudinal direction is authored independently of these
+ * controls.
  */
 export interface IAutoMovieCurveBoundary64 {
   /**
-   * Stable declared boundary or node identity, not a selector for a body
-   * catalogue.
+   * Stable nonblank identity, equal to the section's name and to its declared
+   * context edge.
    */
   id: string;
 
   /**
-   * Transverse section in its owning chart, consumed with its complete
-   * longitudinal first variation.
+   * Closed cubic transverse chart in its owner frame, with phase widths summing
+   * to one turn.
    */
   section: IAutoMovieCubicBezierCurve64;
 
   /**
-   * One finite four-control cubic derivative span per section span, not a
-   * direction hint.
+   * One finite XYZ cubic first-variation coefficient field per section span,
+   * per longitudinal millimetre.
    */
   fullJ: readonly AutoMovieCubicBezierControls3[];
 
-  /** Physical denominator of fullJ; this boundary uses longitudinal millimetres. */
+  /** Fixed millimetre denominator for the stored longitudinal first variation. */
   longitudinalUnit: "mm";
 
   /**
-   * Caller-supplied world unit axis of longitudinal measurement; boundary
-   * admission checks finite components, not unit length.
+   * Caller-supplied world unit axis along increasing longitudinal distance.
+   * Boundary admission checks all three components are finite.
    */
   longitudinalAxis: Readonly<AutoMovieVector3Tuple>;
 }

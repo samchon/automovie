@@ -22,6 +22,10 @@ import { throwsError } from "../../internal/throwsError";
  * 4. An eight-patch elliptic loft atlas limited to one cell is incomplete: shown
  *    for "display", refused for "complete" ("Bicubic atlas processing is
  *    incomplete").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names dispatch to each recipe owner, mesh reference identity and the difference between display and complete processing.
+ * @evidence contracts/development/testing.md#behavioral-verification Dispatches primitive, mesh and atlas inputs, comparing the generated data with the direct owner and querying both policies on an exhausted atlas.
+ * @evidence contracts/development/testing.md#independent-expectations Dispatch should return the exact mesh input reference or the matched owner's result. A one-cell budget cannot process every patch of the eight-patch fixture.
  */
 export function test_engine_geometry_realize_geometry(): void {
   // 1.

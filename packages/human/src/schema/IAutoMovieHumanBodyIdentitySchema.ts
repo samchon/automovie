@@ -9,7 +9,11 @@ import type { IAutoMovieHumanBodyAnatomySchema } from "./IAutoMovieHumanBodyAnat
 import type { IAutoMovieHumanLegIdentitySchema } from "./IAutoMovieHumanLegIdentitySchema";
 import type { IAutoMovieHumanPostureSchema } from "./IAutoMovieHumanPostureSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanBodyIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Detailed trunk and limb measurements for typia validation. Supply standing
+ * and seated dimensions, posture and each arm and leg independently. Lengths
+ * use millimetres. Angular fields retain their stated degree conventions.
+ */
 export type IAutoMovieHumanBodyIdentitySchema = IAutoMovieHumanBodyIdentity &
   Required<
     Pick<

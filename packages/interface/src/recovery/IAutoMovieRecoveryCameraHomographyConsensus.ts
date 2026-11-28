@@ -1,41 +1,41 @@
-/** Competing planar explanation on the fixed final epipolar-inlier population. */
+/**
+ * Evidence from a competing planar fit on the selected epipolar inliers. A
+ * large enough observed overlap can refuse the nonplanar route.
+ */
 export interface IAutoMovieRecoveryCameraHomographyConsensus {
-  /**
-   * Fixed final epipolar-inlier population; returned matches identify its
-   * members.
-   */
+  /** Number of fixed epipolar inliers offered to the planar competitor. */
   population: number;
 
-  /** Best finite symmetric-transfer support count within that population. */
+  /**
+   * Number of those pairs within the symmetric transfer bound for the best
+   * homography.
+   */
   support: number;
 
-  /**
-   * Integer count at or above which the declared overlap refuses this nonplanar
-   * route.
-   */
+  /** Smallest integer overlap count that refuses the nonplanar route. */
   forbiddenSupport: number;
 
-  /** Actual four-point proposal count. */
+  /** Four-point proposals evaluated, including numerical refusals. */
   trials: number;
 
-  /** Conditional ideal target for the forbidden support, null when unattainable. */
+  /**
+   * Ideal sampling target for finding the forbidden support, or null when a
+   * finite target is unavailable.
+   */
   requiredTrialsAtForbiddenSupport: number | null;
 
   /**
-   * Completed target for the conditional absence search; never a geometric
-   * proof of absence.
+   * Whether the proposal count met the configured minimum and the conditional
+   * target at the forbidden support.
    */
   conditionalTrialTargetMet: boolean;
 
-  /**
-   * Direct observed ambiguity evidence, independent of an unfinished absence
-   * target.
-   */
+  /** Whether an evaluated homography reaches or exceeds the forbidden support. */
   forbiddenOverlapFound: boolean;
 
-  /** Numerical proposal failures. */
+  /** Raw four-point proposals refused by numerical fitting or scoring. */
   numericalRefusals: number;
 
-  /** Numerical failures while refitting an improving homography support set. */
+  /** Recognized numerical failures while refitting an improving support set. */
   refitRefusals: number;
 }

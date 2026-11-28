@@ -13,6 +13,10 @@ import { fluidDomain } from "../../internal/fluidFixtures";
  *
  * 1. A 2 × 1 grid: 2 cells, 3 + 4 = 7 faces, 72 bytes, 2000 updates over 1000
  *    steps, no spray.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Passes a two-cell pond fixture directly to AutoMovieEngineFluid.fluidDomainBudget and checks the returned domain, topology, state size, step budget, work estimate and inactive spray cap.
+ * @evidence contracts/development/testing.md#independent-expectations The two cells have three X faces and four Z faces. The nine depth and velocity values occupy 72 bytes, and two cells over 1,000 steps give 2,000 cell updates.
+ * @evidence contracts/development/common.md#meaningful-documentation The two-cell grid exercises both staggered face axes, the declared step budget and the zero-emitter spray case.
  */
 export function test_engine_fluid_domain_budget(): void {
   const budget: IAutoMovieFluidBudget = AutoMovieEngineFluid.fluidDomainBudget(fluidDomain());

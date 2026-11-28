@@ -21,6 +21,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    including virtual anchors beyond the safe sample range.
  * 4. Both the planner and the public mixer reject a gain above unity and a
  *    negative ramp.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state overlapping adopted dialogue, the strongest gain rule, the untouched ambience, exact ramp anchors and policy refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification The test derives and renders ducked and dry plans. It subtracts separately rendered speech to observe the music and ambience buses, checks fractional and clipped ramp samples and exercises errors from both planner and mixer.
+ * @evidence contracts/development/testing.md#independent-expectations The constant fixture beds contribute 0.25 music and 0.125 ambience before speech. The expected sample values use only the stronger of overlapping ramps and apply that gain to music. The authored fractional frame clock and absolute ramp endpoints also determine the clipped and long-anchor samples.
  */
 export function test_engine_film_production_sound_score_ducking(): void {
   const audioCue: IAutoMovieFilmTimeline["tracks"]["audio"][number] = {

@@ -1,96 +1,99 @@
 import type { AutoMovieHumanActionUnit as AutoMovieHumanActionUnitContract } from "@automovie/interface";
 
 /**
- * A facial action unit of the Facial Action Coding System (FACS; Ekman and Friesen 1978), named by its action.
+ * Serialized names for facial action units.
  *
- * Each unit describes the visible effect of one muscle or muscle group. The FACS number follows each name. Units for gross behaviour (tongue show, jaw thrust, cheek puff and the like), head position and gaze are not facial deformation and are not listed. Head position belongs to pose, while gaze describes eye orientation. Blink (45) and wink (46) are timed or one-sided forms of eye closure, authored as `eyesClosed` with a side.
+ * Set `unit` in an `IAutoMovieHumanActionUnitActivation`. Intensity and
+ * anatomical side are separate fields. The FACS numbers identify visible
+ * actions. The cartoon face draws its supported subset and reports other
+ * nonzero requests.
  */
 export namespace AutoMovieHumanActionUnit {
-  /** AU1, frontalis medial part: the inner brow rises. */
+  /** AU1 lifts the medial brow. */
   export const InnerBrowRaiser: "innerBrowRaiser" = "innerBrowRaiser" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU2, frontalis lateral part: the outer brow rises. */
+  /** AU2 lifts the lateral brow. */
   export const OuterBrowRaiser: "outerBrowRaiser" = "outerBrowRaiser" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU4, corrugator, depressor supercilii and procerus: brows down and together. */
+  /** AU4 lowers the brows and draws them together. */
   export const BrowLowerer: "browLowerer" = "browLowerer" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU5, levator palpebrae superioris: the upper lid rises. */
+  /** AU5 raises the upper eyelid. */
   export const UpperLidRaiser: "upperLidRaiser" = "upperLidRaiser" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU6, orbicularis oculi orbital part: the cheek rises toward the eye. */
+  /** AU6 raises the cheek toward the eye. */
   export const CheekRaiser: "cheekRaiser" = "cheekRaiser" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU7, orbicularis oculi palpebral part: the lids tighten. */
+  /** AU7 tightens the eyelids. */
   export const LidTightener: "lidTightener" = "lidTightener" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU9, levator labii superioris alaeque nasi: the nose wrinkles. */
+  /** AU9 wrinkles the nose. */
   export const NoseWrinkler: "noseWrinkler" = "noseWrinkler" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU10, levator labii superioris: the upper lip rises. */
+  /** AU10 raises the upper lip. */
   export const UpperLipRaiser: "upperLipRaiser" = "upperLipRaiser" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU11, zygomaticus minor: the nasolabial furrow deepens. */
+  /** AU11 deepens the nasolabial furrow. */
   export const NasolabialDeepener: "nasolabialDeepener" = "nasolabialDeepener" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU12, zygomaticus major: the mouth corner pulls up and back. */
+  /** AU12 draws the mouth corner upward and back. */
   export const LipCornerPuller: "lipCornerPuller" = "lipCornerPuller" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU13, levator anguli oris: the mouth corner rises sharply. */
+  /** AU13 lifts the mouth corner sharply. */
   export const SharpLipPuller: "sharpLipPuller" = "sharpLipPuller" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU14, buccinator: the mouth corner draws in, dimpling. */
+  /** AU14 draws the mouth corner inward to form a dimple. */
   export const Dimpler: "dimpler" = "dimpler" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU15, depressor anguli oris: the mouth corner lowers. */
+  /** AU15 lowers the mouth corner. */
   export const LipCornerDepressor: "lipCornerDepressor" = "lipCornerDepressor" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU16, depressor labii inferioris: the lower lip lowers. */
+  /** AU16 lowers the lower lip. */
   export const LowerLipDepressor: "lowerLipDepressor" = "lowerLipDepressor" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU17, mentalis: the chin skin and lower lip rise. */
+  /** AU17 lifts the chin skin and lower lip. */
   export const ChinRaiser: "chinRaiser" = "chinRaiser" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU18, incisivus labii: the lips push forward and gather. */
+  /** AU18 gathers the lips and pushes them forward. */
   export const LipPucker: "lipPucker" = "lipPucker" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU20, risorius with platysma: the mouth corner stretches sideways. */
+  /** AU20 stretches the mouth corner sideways. */
   export const LipStretcher: "lipStretcher" = "lipStretcher" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU21, platysma: the neck tightens. */
+  /** AU21 tightens the neck. */
   export const NeckTightener: "neckTightener" = "neckTightener" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU22, orbicularis oris: the lips funnel outward. */
+  /** AU22 forms an outward lip funnel. */
   export const LipFunneler: "lipFunneler" = "lipFunneler" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU23, orbicularis oris: the lips narrow and tighten. */
+  /** AU23 narrows and tightens the lips. */
   export const LipTightener: "lipTightener" = "lipTightener" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU24, orbicularis oris: the lips press together. */
+  /** AU24 presses the lips together. */
   export const LipPressor: "lipPressor" = "lipPressor" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU25: the lips part. */
+  /** AU25 parts the lips. */
   export const LipsPart: "lipsPart" = "lipsPart" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU26, masseter and temporalis relaxed: the jaw drops moderately. */
+  /** AU26 lowers the jaw to open the mouth. */
   export const JawDrop: "jawDrop" = "jawDrop" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU27, pterygoids and digastric: the mouth stretches wide open. */
+  /** AU27 opens the mouth wide. */
   export const MouthStretch: "mouthStretch" = "mouthStretch" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU28, orbicularis oris: the lips are sucked in over the teeth. */
+  /** AU28 draws the lips inward over the teeth. */
   export const LipSuck: "lipSuck" = "lipSuck" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU38, nasalis alar part: the nostrils flare. */
+  /** AU38 flares the nostrils. */
   export const NostrilDilator: "nostrilDilator" = "nostrilDilator" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU39, nasalis transverse part and depressor septi: the nostrils narrow. */
+  /** AU39 narrows the nostrils. */
   export const NostrilCompressor: "nostrilCompressor" = "nostrilCompressor" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU41, levator relaxed: the upper lid droops. */
+  /** AU41 lets the upper eyelid droop. */
   export const LidDroop: "lidDroop" = "lidDroop" satisfies
     AutoMovieHumanActionUnitContract;
-  /** AU43, levator relaxed: the eyes close. */
+  /** AU43 closes the eye on the selected side. */
   export const EyesClosed: "eyesClosed" = "eyesClosed" satisfies
     AutoMovieHumanActionUnitContract;
 }

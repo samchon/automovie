@@ -85,6 +85,10 @@ function edges(
  * 3. From the points' mean, along each edge's outward normal the directional
  *    margin is at least the distance to the nearest edge, and its least is that
  *    distance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Static balance uses the signed distance to a support edge, and directional balance reaches that minimum along the nearest edge normal.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the fixed two-foot stock support and calls both static and directional margins.
+ * @evidence contracts/development/testing.md#independent-expectations A brute-force polygon over the bearing points supplies signed edge distances without calling the margin implementation. Its outward normals determine the minimum directional result.
  */
 export async function test_motions_everyday_human_balance_margin(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

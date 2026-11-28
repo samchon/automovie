@@ -35,6 +35,10 @@ const ROUNDING: number = 1e-9;
  * 3. With the ball half `TOUCH` up, the bend is the larger of 20 × smoothstep(½)
  *    and the tip's bound.
  * 4. High above the floor a flat foot's toes stay straight.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names flat and risen feet, full heel counter-rotation, contact fade and the support-clearance lower bound.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanToesOnFloor.bend with foot placements pivoted about the ball on the stored sole geometry and checks all four returned angles.
+ * @evidence contracts/development/testing.md#independent-expectations With ball down the 20-degree heel rise needs 20 degrees of toe bend. At half the contact height the smoothstep supplies half that value, competing with the tip bound derived from the inverse sine of the two vertical offsets.
  */
 export async function test_motions_compose_toes_on_floor(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

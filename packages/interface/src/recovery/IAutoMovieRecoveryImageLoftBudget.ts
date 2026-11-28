@@ -1,14 +1,18 @@
 /**
- * Requested tessellation tolerance and finite output budgets for an elliptic
- * loft.
+ * Atlas tessellation controls supplied with an elliptic image recipe. The
+ * compiler admits the tolerance and both counts before storing them for later
+ * realization.
  */
 export interface IAutoMovieRecoveryImageLoftBudget {
-  /** Requested tessellation tolerance, metres. */
+  /** Positive finite atlas-to-triangle tolerance in metres. */
   tolerance: number;
 
-  /** Maximum permitted tessellation cells. */
+  /** Positive safe integer cap on tessellation cells for atlas realization. */
   maxCells: number;
 
-  /** Maximum permitted generated vertices. */
+  /**
+   * Safe integer cap of at least three generated vertices for atlas
+   * realization.
+   */
   maxVertices: number;
 }

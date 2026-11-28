@@ -1,29 +1,28 @@
 /**
- * Population and contact classification for the mesh triangle crossing census
- * `AutoMovieEngineMeshCrossingQuery.measure`.
- *
- * A transverse point is supplied only after the strict edge/triangle predicate
- * admits it. Rejecting that point continues through the remaining edges and
- * candidate triangles; it never exempts the whole triangle pair. Coplanar
- * overlap has no transverse point and keeps its separate report.
+ * Controls pair retention and transverse witness admission for the triangle
+ * crossing query.
  */
 export interface IAutoMovieMeshCrossingOptions {
-  /** Retain every crossing pair; omitted reports one pair per first triangle. */
+  /**
+   * True retains each admitted crossing pair. Omission keeps one witness per
+   * first triangle and prefers a transverse witness over a coplanar one.
+   */
   allPairs?: boolean;
 
   /**
-   * Dimensionless interior margin in segment and triangle coordinates, in [0,
-   * 0.5), that classifies near-boundary residues as contact; omitted is zero
-   * and a value outside the range throws.
+   * Finite dimensionless margin in [0, 0.5) applied to segment and triangle
+   * interior coordinates. Omission uses zero.
    */
   interiorTolerance?: number;
 
   /**
-   * Return true to count this transverse intersection, given in the meshes'
-   * shared frame with the first and second triangle ordinals of the original
-   * index buffers. The callback must not mutate geometry. Omitted counts every
-   * strict intersection. The connected face and lash clearance readers use it
-   * to classify individual insertion witnesses without exempting a pair.
+   * Optional classifier for each admitted transverse intersection point in the
+   * common metre frame. Its two ordinals address the original first and second
+   * meshes.
+   *
+   * Returning false rejects only this witness and continues the search. Leave
+   * the mesh buffers unchanged during the call. Coplanar overlap follows its
+   * own predicate.
    */
   acceptTransversePoint?: (
     point: readonly number[],

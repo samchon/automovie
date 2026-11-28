@@ -1,31 +1,34 @@
 import type { IAutoMovieRecoveryCameraCalibration } from "..";
 
-/** Identity and caller-supplied calibration of one observed image. */
+/**
+ * Detached identity and supplied calibration of one admitted camera capture.
+ * Its position in the enclosing evidence preserves the original source order.
+ */
 export interface IAutoMovieRecoveryCameraSource {
-  /** Unique acquisition identity in first/second order. */
+  /** Unique supplied capture ID. */
   id: string;
 
   /**
-   * Caller-asserted fixed source-byte hash; Node hosts verify their acquired
-   * source inputs.
+   * Lowercase SHA-256 of the original encoded image bytes, asserted by the
+   * resident caller or verified by the file host.
    */
   sourceSha256: string;
 
   /**
-   * Declared decoding, crop, orientation and correction history for the current
-   * chart.
+   * Declared decoding, orientation, crop and correction history of the chart
+   * used by the detector.
    */
   pixelProvenance: string;
 
-  /** Resident integer-centre dimensions in pixels. */
+  /** Original resident chart width in pixels. */
   width: number;
 
-  /** Resident integer-centre height in pixels. */
+  /** Original resident chart height in pixels. */
   height: number;
 
   /**
-   * Supplied corrected pinhole intrinsics, including nullable asserted
-   * uncertainty.
+   * Supplied corrected pinhole calibration and optional asserted uncertainty
+   * for this chart.
    */
   camera: IAutoMovieRecoveryCameraCalibration;
 }

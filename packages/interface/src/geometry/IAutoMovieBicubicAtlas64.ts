@@ -1,5 +1,5 @@
-import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { AutoMovieBernsteinGrid64 } from "./AutoMovieBernsteinGrid64";
+import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBoundaryPhase64";
 import type { IAutoMoviePrepareBicubicAtlasBoundary64 } from "./IAutoMoviePrepareBicubicAtlasBoundary64";
 
@@ -295,17 +295,7 @@ export namespace IAutoMovieBicubicAtlas64 {
      * First retained incident patch and its exact unit-corner coordinates,
      * fixed during registry construction.
      */
-    owner: {
-      /**
-       * Zero-based input patch ordinal chosen as this corner's deterministic
-       * owner.
-       */
-      patch: number;
-      /** Owning patch corner's normalized u coordinate, either 0 or 1. */
-      u: number;
-      /** Owning patch corner's normalized v coordinate, either 0 or 1. */
-      v: number;
-    };
+    owner: ICornerOwner;
     /**
      * Admitted shared corner coefficient in millimetres, before render-position
      * conversion to metres.
@@ -321,5 +311,17 @@ export namespace IAutoMovieBicubicAtlas64 {
      * emits it.
      */
     vertex?: IAutoMovieBicubicAtlas64.Vertex;
+  };
+
+  /** Deterministic patch and unit coordinates owning a shared corner. */
+  export type ICornerOwner = {
+    /** Zero-based input patch ordinal chosen by the registry. */
+    patch: number;
+
+    /** Owning patch corner's unit U coordinate, either 0 or 1. */
+    u: number;
+
+    /** Owning patch corner's unit V coordinate, either 0 or 1. */
+    v: number;
   };
 }

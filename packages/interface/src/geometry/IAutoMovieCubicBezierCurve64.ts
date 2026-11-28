@@ -1,9 +1,9 @@
 import type { AutoMovieCubicBezierControls3 } from "./AutoMovieCubicBezierControls3";
 
 /**
- * Piecewise cubic position coefficients in millimetres, with positive piece
- * widths in one declared phase chart. Closure is declared metadata; continuity
- * and regularity need separate checks.
+ * Cubic Bézier spans in millimetres, ordered in one declared phase chart. Each
+ * span has one positive width. The closure flag records authored intent;
+ * continuity and regularity require their own checks.
  */
 export interface IAutoMovieCubicBezierCurve64 {
   /**
@@ -12,10 +12,7 @@ export interface IAutoMovieCubicBezierCurve64 {
    */
   type: "cubicBezier";
 
-  /**
-   * Stable semantic course identifier carried into actual inspection and source
-   * attribution.
-   */
+  /** Nonblank course identity used in source attribution and inspection. */
   name: string;
 
   /**
@@ -37,14 +34,11 @@ export interface IAutoMovieCubicBezierCurve64 {
   phaseUnit: "turn" | "mm" | "normalized";
 
   /**
-   * Ordered positive widths of every actual piece; cumulative values retain the
-   * parameter chart for derivatives and joins.
+   * One positive finite width per span. Their finite cumulative sums must
+   * increase strictly in binary64 and address successive seams.
    */
   phaseIntervals: readonly number[];
 
-  /**
-   * Ordered cubic Bernstein P0 through P3 coefficients; handles are not
-   * through-points or Catmull-Rom waypoints.
-   */
+  /** Four ordered XYZ Bernstein coefficients, P0 through P3, for each span. */
   spans: readonly AutoMovieCubicBezierControls3[];
 }

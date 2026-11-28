@@ -18,6 +18,10 @@ import { createDialogueReceiptFixture } from "../../internal/createDialogueRecei
  *    changed cue asset changes the fingerprint.
  * 3. A line id declared twice, a line that speaks past the film's end and an
  *    asset that cannot be read are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Combines dialogue and an effects cue in two seconds of stereo WAVE and binds asset bytes into the fingerprint.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sound mixing with one line and one cue, repeats with the same and changed bytes, and supplies duplicate, late and unreadable inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Half a second at 24 fps ends the line at frame 12, and two seconds at 48 kHz determine the WAVE byte length. A changed source must change the fingerprint.
  */
 export async function test_render_audio_mix_film_sound_line_and_cue(): Promise<void> {
   // A 1 kHz tone of amplitude 0.25, about -16 LUFS, inside the mix's correction.

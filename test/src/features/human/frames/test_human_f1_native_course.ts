@@ -33,9 +33,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production `create`, `unchanged` and `admit` on f1's stored leg and arm placed through the production chain and datum laws, and reads the returned course's frames.
  * @evidence contracts/development/testing.md#independent-expectations A rigid bone carries its far joints by one vector and turns nothing, so the course's stand-off from each joint centre and its section planes are the reference's own; the moved centres are a stored offset through the stored frames.
- * @evidence contracts/development/testing.md#distinguishing-cases A course that kept the reference's arclength misses the ankle by the shank's growth; one that mapped stations by a pose map misses the turn middles; an identity that rebuilt runs fails 1 and 3; a silent trunk stretch fails 4.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on stored tables and course frames; no source, loft or realization is built.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios name each input and its expected frames.
+ * @evidence contracts/development/common.md#meaningful-documentation Reference lengths retain the stored runs. A longer shank moves only the owning leg course, and both unsupported trunk length requests have named refusals.
  */
 export function test_human_f1_native_course(): void {
   const failures: string[] = [];

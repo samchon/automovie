@@ -1,23 +1,29 @@
-/** Conditional accepted relative camera in the first-camera unit-baseline gauge. */
+/**
+ * Qualified transform from the first camera into the second. The first camera
+ * fixes the axes and the fitted translation has unit norm.
+ */
 export interface IAutoMovieRecoveryCameraRelativePose {
-  /** First source is identity, looking along+Z with image+X right and+Y down. */
+  /**
+   * First-camera axes with a unit baseline. Camera X points right, Y down and Z
+   * forward.
+   */
   gauge: "first-camera-unit-baseline";
 
-  /** Physical length scale is unobserved. */
+  /** Physical length scale remains unknown. */
   metricScale: "unknown";
 
   /**
-   * Row-major proper rotation mapping first-camera coordinates into the second
-   * camera.
+   * Nine row-major coefficients of the proper rotation from first-camera axes
+   * into the second camera.
    */
   rotation: number[];
 
-  /** Unit translation in second-camera coordinates in X2=R*X1+t. */
+  /** Unit translation in the second camera coordinates for `X2 = R × X1 + t`. */
   translation: [number, number, number];
 
   /**
-   * Relative Frobenius discrepancy when the final calibrated model is equalized
-   * in essential space; numerical consistency, not covariance or truth error.
+   * Dimensionless relative Frobenius difference from replacing the calibrated
+   * essential singular values with equal leading values and zero third value.
    */
   essentialProjectionDiscrepancy: number;
 }

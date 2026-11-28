@@ -7,13 +7,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Each medium is admitted against the anatomical limit of its footing.
+ * Check each medium's measured anatomical depth limit.
  *
  * Scenarios:
  *
- * 1. Water permits positive depths to the chest inclusive, and refuses dry and
- *    deeper cases. Mud admits dry footing and the shank boundary.
- * 2. Snow below or beyond the shank is refused with that shank's range.
+ * 1. With a chest at 1.2 m and a 0.4 m shank, admit water at chest depth.
+ *    Refuse water at 0 and 1.3 m with a 1.2 m maximum.
+ * 2. Admit mud at zero and shank depth. Refuse snow at -0.01 and 0.5 m with a
+ *    0.4 m maximum.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the anatomical measurements and each medium's depth cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The gate distinguishes water's positive depth from the shallower measured limits and reports `medium.depth` on refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The test sets the chest and shank lengths directly and compares the exact reporting maxima against those inputs.
  */
 export function test_motions_carrier_medium_depth(): void {
   const measure: HumanMediumWalk.IMeasure = { chestHeight: 1.2, shank: 0.4 };

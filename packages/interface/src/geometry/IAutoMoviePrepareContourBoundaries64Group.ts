@@ -1,7 +1,7 @@
 /**
- * Shared slab-group view used by source interaction refinement and slit
- * preparation. The same group object keys the preparation result's interaction
- * map.
+ * Borrowed incidence group for one pair of adjacent cuts. Boundary preparation
+ * uses the group object as its interaction-map key and writes local refusal
+ * reasons on that same object.
  */
 export interface IAutoMoviePrepareContourBoundaries64Group {
   /**
@@ -15,9 +15,9 @@ export interface IAutoMoviePrepareContourBoundaries64Group {
    */
   b: number[];
   /**
-   * Mutable local omission reason. Preparation fills it from the first
-   * unsupported incident ring when no prior reason exists, then skips this
-   * group.
+   * Mutable omission reason. Preparation preserves a prior reason, otherwise
+   * copies the first unsupported incident ring's reason before interaction
+   * refinement. A slit failure can record a reason after refinement.
    */
   unsupported?: string;
 }

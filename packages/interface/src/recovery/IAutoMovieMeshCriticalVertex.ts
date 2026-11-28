@@ -1,34 +1,28 @@
 import type { AutoMovieVector3Tuple } from "..";
 
 /**
- * Private transient PL critical point; serialize physical observations, never
- * vertex addresses.
+ * Observed critical scalar level and adjacent source link components at one
+ * canonical vertex.
  */
 export interface IAutoMovieMeshCriticalVertex {
-  /**
-   * Transient canonical source address, discarded before publishing
-   * observations.
-   */
+  /** Canonical representative vertex address in the original registered mesh. */
   vertex: number;
 
-  /** Physical scalar projection onto the unit sweep axis. */
+  /** Signed source scalar height of the vertex in millimetres. */
   level: number;
 
-  /** Physical source location of the critical event. */
+  /** Original registered Cartesian vertex position in millimetres. */
   p: AutoMovieVector3Tuple;
 
-  /** Number of connected components in the lower vertex link. */
+  /** Count of connected components in the lower source link. */
   lower: number;
 
-  /** Number of connected components in the upper vertex link. */
+  /** Count of connected components in the upper source link. */
   upper: number;
 
-  /**
-   * Whether neighbouring vertices share the exact scalar level and need a
-   * symbolic tie.
-   */
+  /** Whether an incident link neighbor shares this vertex's exact scalar level. */
   flat: boolean;
 
-  /** Whether the complete welded link is one connected degree-two cycle. */
+  /** Whether the original source link is a connected simple cycle. */
   manifold: boolean;
 }

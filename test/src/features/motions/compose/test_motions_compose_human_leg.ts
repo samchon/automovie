@@ -75,6 +75,10 @@ const CLOCK: IAutoMovieMotionClock = motionClock(2, [
  *    chord, then returns.
  * 6. Tapping 5 cm along +X with a 4 cm clearance: it touches the target at the
  *    stroke, and is clear of it on the way out and back.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names plant, placement, stepping, lift with support, ball pivot and tap paths, including the direction of travel and clearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples each leg primitive on the stored body and resolves pose bones for ankles and sole points; compares the leg targets to authored placements.
+ * @evidence contracts/development/testing.md#independent-expectations The stance and 5 cm targets determine the endpoint checks. A 4 cm arc raises the step midpoint above its chord, the lift adds 5 cm, and a 15-degree ball pivot moves the heel by twice its radius times sin(7.5 degrees).
  */
 export async function test_motions_compose_human_leg(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

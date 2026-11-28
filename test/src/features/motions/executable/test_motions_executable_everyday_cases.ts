@@ -52,6 +52,10 @@ const world = (
  * 4. A keyboard placed at (0, 0.75, 0.4) turns its +Z, the typist's side, to -Z
  *    and its key field is `typeText.WIDTH` wide.
  * 5. A 2 degree overshoot fails a 1 degree limit, shown in degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines captured everyday staging and metrics for joint angle, wave clock, peak count, kerb and keyboard geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls family helpers on independent vectors and timed motions, builds actual stage props and checks an accepted-limit comparison.
+ * @evidence contracts/development/testing.md#independent-expectations The vectors give 45°, a quarter of 3–4 s gives 3.25 s, and the kerb's center lies 0.15 m past its leading edge. A 2° measurement fails a 1° band.
  */
 export function test_motions_executable_everyday_cases(): void {
   TestValidator.predicate(

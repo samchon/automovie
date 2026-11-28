@@ -45,6 +45,10 @@ const SWAY: readonly IAutoMovieVector3[] = [
  * 1. At every sway of the root (up to 8 cm down and 5 cm aside) the left foot's
  *    joint lies within a millimetre of its planted point.
  * 2. So does the left hand's, on its held point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines world stationarity for held hand and planted foot endpoints while the root sways.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves a fully built rig across the set of imposed pelvis sway positions and reads its ankle and wrist endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The independently authored world points are fixed throughout the sway; both endpoints must remain within 1 mm of their respective targets.
  */
 export async function test_motions_posture_plant_hold(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

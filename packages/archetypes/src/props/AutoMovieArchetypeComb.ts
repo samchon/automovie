@@ -2,18 +2,23 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type GroomingPropDraw } from "./internal/GroomingPropDraw";
 import { createComb as createCombImplementation } from "./internal/createComb";
 
-/** Public operations for Auto Movie Archetype Comb. */
+/**
+ * Constructs a pocket comb with a sideways spine grip and downward working edge.
+ */
 export namespace AutoMovieArchetypeComb {
   /**
-   * Pocket comb with a sideways spine grip and a working edge along the teeth.
+   * Build a pocket comb with its length along model `+Z`.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * The teeth are one block below the spine. The grip faces `+X` and
+   * the teeth's `face` points down along `-Y`.
+   *
+   * @param params Optional scene ID and finite length, width, thickness or mass
+   *   admitted by the bands. The ID defaults to `careItem`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.133 metres long, 0.026 metres tall,
+   *   0.0035 metres thick and 0.015 kilograms.
+   * @returns The comb with a lateral spine grip and a full-length working edge.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     GroomingPropDraw.IParams,
@@ -22,14 +27,10 @@ export namespace AutoMovieArchetypeComb {
     return createCombImplementation(params, seed);
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Lateral `grip` along the spine and downward `face` along the teeth. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Metre-valued length along Z, height as `width` and thickness along X. Mass is in kilograms.
    */
   export type Dimension = "length" | "mass" | "thickness" | "width";}

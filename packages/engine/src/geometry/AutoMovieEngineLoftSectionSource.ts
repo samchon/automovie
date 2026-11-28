@@ -155,7 +155,12 @@ function fits(
   binding: IAutoMovieLoftSectionSourceBinding,
   expectedWidth?: number,
 ): boolean {
-  if (binding === null || binding === undefined || binding.station !== layer.y)
+  if (
+    binding === null ||
+    binding === undefined ||
+    !Number.isFinite(binding.station) ||
+    binding.station !== layer.y
+  )
     return false;
   const value: number[] = layer.coefficients;
   const valueSnapshot: unknown = binding.value;
@@ -203,6 +208,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
     return (
+      Number.isInteger(value.order) &&
       value.order > 0 &&
       value.rows.length === 3 &&
       [0, 1, 2].every(
@@ -223,7 +229,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
     ) &&
     [...value.inputs.extents, ...value.inputs.shoulders].every(
       (jet: readonly number[], q: number): boolean =>
-        jet[0]! > 0 && (q < 4 || jet[0]! < 1),
+        finiteRow(jet, 3) && jet[0]! > 0 && (q < 4 || jet[0]! < 1),
     )
   );
 }
@@ -233,9 +239,9 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
  * never become complete jets.
  */
 function finiteRow(value: readonly number[], width: number): boolean {
-  if (value.length !== width) return false;
+  if (!Array.isArray(value) || value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
-    if (!Object.hasOwn(value, q)) return false;
+    if (!Object.hasOwn(value, q) || !Number.isFinite(value[q])) return false;
   return true;
 }
 
@@ -255,7 +261,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
       const left: unknown = a[q];
       const right: unknown = b[q];
       if (typeof left === "number") {
-        if (left !== right) return false;
+        if (left !== right || (numeric && !Number.isFinite(left))) return false;
       } else if (
         numeric ||
         !Array.isArray(left) ||

@@ -22,6 +22,10 @@ import { createModel } from "../../internal/fixtures";
  * 3. Unknown and imported nodes refuse entries. Duplicate stand-ins, a wrong model
  *    id, the wrong origin and missing skeleton report their own paths. Model
  *    validation also locates a missing material inside the forged model.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the cast-to-model join, an ordinary own key spelled __proto__, and the distinct indexed model and cast failures.
+ * @evidence contracts/development/testing.md#behavioral-verification The test admits prepared cast records and stand-ins and checks actual model lookup, ownership and emitted findings for missing, duplicate, foreign and invalid inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's imported node is already backed by a model, while the generated node requires the supplied stand-in. Directly comparing the declared IDs and source paths establishes which input each invalid record must name.
  */
 export function test_engine_film_admit_forged_cast_entries(): void {
   const actor: IAutoMovieCastMember = {

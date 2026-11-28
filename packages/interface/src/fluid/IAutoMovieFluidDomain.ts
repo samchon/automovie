@@ -29,9 +29,9 @@ import type { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
  * The solver assumes caller-run validateFluidDomain admission for version 1,
  * metre units, identity, array lengths, finite authored values, initial depths
  * within design depth, nonsolid flow sites and count budgets. It does not
- * repeat those checks. The Courant comparison uses the initial design depth and
- * can miss derived NaN; integration and surface/spray arithmetic retain
- * separate finite-result and representation limits.
+ * repeat those checks. Admission requires a Courant value at most one at the
+ * design depth. Integration, surface and spray arithmetic retain separate
+ * finite-result and representation limits.
  */
 export interface IAutoMovieFluidDomain {
   /** Schema version; the validator accepts only `1`. */

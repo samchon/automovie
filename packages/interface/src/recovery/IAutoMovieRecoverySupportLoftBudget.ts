@@ -1,24 +1,34 @@
-/** Finite continuous-planning and tessellation limits for a convex-support loft. */
+/**
+ * Finite limits for qualifying and realizing a convex-support loft. Engine
+ * applies these controls to boundary planning and tessellation in the generated
+ * model frame.
+ */
 
 export interface IAutoMovieRecoverySupportLoftBudget {
-  /** Positive model-space chord tolerance, metres. */
+  /** Positive finite chord tolerance in model-space metres. */
   tolerance: number;
 
   /**
-   * Maximum support-plane count; at least three surrounding directions are
-   * required.
+   * Positive safe integer cap on support planes. A realizable section needs at
+   * least three surrounding directions.
    */
   maxPlanes: number;
 
-  /** Nonnegative integer maximum retained boundary events. */
+  /**
+   * Nonnegative safe integer cap on retained boundary events. Zero allows an
+   * event-free result.
+   */
   maxEvents: number;
 
-  /** Positive integer maximum tessellation cells. */
+  /** Positive safe integer cap on tessellation cells. */
   maxCells: number;
 
-  /** Positive integer maximum generated vertices. */
+  /** Positive safe integer cap on generated vertices. */
   maxVertices: number;
 
-  /** Positive minimum plane-pair direction sine, strictly less than one. */
+  /**
+   * Finite sine threshold strictly between zero and one for testing
+   * support-plane direction pairs.
+   */
   minimumDirectionSine: number;
 }

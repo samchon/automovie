@@ -17,8 +17,13 @@ import { AutoMovieEngineLoftAdmissionError } from "./AutoMovieEngineLoftAdmissio
  */
 export namespace AutoMovieEngineConstructionProfileTopology {
   /**
-   * Validate only the declared capability shape; actual source geometry remains
-   * authoritative.
+   * Admit the explicit end-role tag and any declared source clock period.
+   * Supported end roles are bottom, top and both. An original curve period must
+   * be finite and positive in that curve's own clock units.
+   *
+   * @param definition Profile carrying the end roles and piece source keys.
+   * @param source Original curve owners looked up by those keys.
+   * @throws AutoMovieEngineLoftAdmissionError for an invalid role or period.
    */
   export function admit(
     definition: IAutoMovieConstructionProfile,
@@ -37,7 +42,10 @@ export namespace AutoMovieEngineConstructionProfileTopology {
       for (const piece of loop.pieces) {
         const curve: IAutoMovieConstructionProfileSource.ICurve | undefined =
           source.curves.get(piece.source);
-        if (curve?.period !== undefined && !(curve.period > 0))
+        if (
+          curve?.period !== undefined &&
+          (!(curve.period > 0) || !Number.isFinite(curve.period))
+        )
           throw new AutoMovieEngineLoftAdmissionError(
             `Original piece ${piece.id} has no finite positive declared period.`,
           );

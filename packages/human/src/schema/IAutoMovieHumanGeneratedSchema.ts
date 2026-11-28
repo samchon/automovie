@@ -2,8 +2,13 @@ import type { IAutoMovieHumanGenerated } from "@automovie/interface";
 
 import type { IAutoMovieHumanParametersSchema } from "./IAutoMovieHumanParametersSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanGenerated. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Validation schema for a complete Human model envelope supplied with its
+ * parameters. It carries the engine model and adds Human input constraints to
+ * the associated parameters. Current Human builders return body or component
+ * records.
+ */
 export type IAutoMovieHumanGeneratedSchema = IAutoMovieHumanGenerated & {
-  /** Actual parameters used to generate this model. */
+  /** Parameters associated with the model supplied in the envelope. */
   parameters: IAutoMovieHumanParametersSchema;
 };

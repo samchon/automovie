@@ -8,15 +8,17 @@ import { throwsError } from "../../internal/throwsError";
 import { vclose } from "../../internal/vclose";
 
 /**
- * The `stageDeflect` law's own logic (`stageDeflectRebound`): a ball met head
- * on by a still palm comes back at `-e v`, its incoming velocity read from the
- * flight just before the touch.
+ * Check a rebound computed from an incoming flight at touch.
  *
  * Scenarios:
  *
- * 1. A ball flying (3, 1, -4) m/s, touched at 0.5 s with restitution 0.6, leaves
- *    at (-1.8, -0.6, 2.4) m/s.
- * 2. A ball at rest at the touch is refused.
+ * 1. At 0.5 s, reverse an incoming (3, 1, -4) m/s velocity and scale it by
+ *    restitution 0.6.
+ * 2. Refuse a ball at rest at touch.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases give the contact instant, restitution, vectors and rejected condition.
+ * @evidence contracts/development/testing.md#behavioral-verification The rebound operation reads the fixture flight near touch and exercises admission without staging an entire action.
+ * @evidence contracts/development/testing.md#independent-expectations Multiplying the authored incoming vector by -0.6 gives the expected outgoing velocity.
  */
 export function test_motions_throwing_stage_deflect(): void {
   const flying = (t: number): IAutoMovieVector3 => ({

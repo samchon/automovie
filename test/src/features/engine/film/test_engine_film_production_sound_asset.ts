@@ -15,6 +15,10 @@ import { nclose } from "../../internal/predicates";
  *    offset 1000 with authored gain 0.5.
  * 2. Absent PCM uses an audible distinct stand-in; longer-source trims stay at
  *    unit rate, and a cue ending at film frame 6 remains supported.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the source ramp, required gain and rate, alternate stand-in path, source trim and legal film-tail boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification The test renders variants of the same plan with a named decoded asset, absent PCM, a longer alternate source and an offset cue. It reads actual mono-channel values from the resulting stereo PCM.
+ * @evidence contracts/development/testing.md#independent-expectations The ramp directly supplies sample 1000 and the offset sample. Both must appear at gain 0.5 within 1e-6 at unit rate. An absent asset produces a distinct audible stand-in, and a cue ending exactly at frame six fits its three-frame span.
  */
 export function test_engine_film_production_sound_asset(): void {
   const {

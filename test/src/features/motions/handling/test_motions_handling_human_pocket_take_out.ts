@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenario, on a chain for subject `a`: taking `phone` out by `grip` with the
  * right hand appends that `pickUp`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines authored chain expansion to pick up the carried pocket prop by its named site with no lift.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds one `takeOut` action on subject a using a phone, grip and right hand and inspects the appended action.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies phone, grip and right side explicitly. They must be transferred to the resulting pickup with its zero lift.
  */
 export function test_motions_handling_human_pocket_take_out(): void {
   const last = (node: IAutoMovieComposition): IAutoMovieIntent => {

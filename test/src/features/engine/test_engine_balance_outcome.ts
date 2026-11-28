@@ -42,9 +42,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public outcome on closed-form bodies; a velocity change not `J / m`, a bound off its closed form, an outcome that does not flip at its bound, a wrong cross product or a step laid off the push fails.
  * @evidence contracts/development/testing.md#independent-expectations Hof's extrapolated centre against a square base in closed form, the step recurrence's fixed point written out, momentum's `J / m` and the moment `(p - c) × J`.
- * @evidence contracts/development/testing.md#distinguishing-cases Three masses, three directions, both sides of both bounds, a push above and at the centre, a sweep of impulses and the refusals; the perturbation law that plans these outcomes belongs to `test_human_motion_perturb`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios, the bodies and the bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation Zero impulse exercises absorption, and independent impulse bounds separate absorb from step decisions. Mass, application height and step counts check response before malformed mechanics are refused.
  */
 export function test_engine_balance_outcome(): void {
   const findings: string[] = [];

@@ -1,10 +1,24 @@
-import { AutoMovieEngineKinematics, AutoMovieEngineVector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanAuditMeasure,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanRefusal } from "@automovie/motions";
-import { AutoMovieMotionHumanAuditPartner } from "../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditPartner";
-import { HumanHand } from "../../packages/motions/src/posture/internal/HumanHand";
 import { strict as assert } from "node:assert";
 
+import { AutoMovieMotionHumanAuditPartner } from "../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditPartner";
+import { HumanHand } from "../../packages/motions/src/posture/internal/HumanHand";
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../src/playground/structures/IPlaygroundComposition";
 import { SceneTake } from "../src/scenes/SceneTake";
@@ -17,7 +31,10 @@ const FACE: number = 0.005;
 /** The hand contact and partner penetration allowance in metres. */
 const TOUCH: number = 0.01;
 
-/** A tenth of a millisecond on either side distinguishes a pose jump from motion. */
+/**
+ * A tenth of a millisecond on either side distinguishes a pose jump from
+ * motion.
+ */
 const STEP: number = 0.0001;
 
 /** The landmarks that must remain continuous into and out of a held contact. */
@@ -36,17 +53,20 @@ const PAIRS: readonly (readonly [string, string])[] = [
 ];
 
 /**
- * Play all four authored Farewell takes. Read the actual mouth, cheek,
- * forehead and fist frames from the displayed skeletons at their events.
+ * Play all four authored Farewell takes. Read the actual mouth, cheek, forehead
+ * and fist frames from the displayed skeletons at their events.
  *
  * Scenarios:
- * 1. Tia's and Val's cheek kisses and Val's forehead kiss each meet their
- *    region through the hold and are apart at entry and exit, in that order.
- * 2. The fist bump and pinky promise each bring both fists together at the
- *    same instants, after the kisses, and part on the way in and out.
- * 3. No two friends pass into each other, and every segment boundary is
+ *
+ * 1. Tia's and Val's cheek kisses and Val's forehead kiss each meet their region
+ *    through the hold and are apart at entry and exit, in that order.
+ * 2. The fist bump and pinky promise each bring both fists together at the same
+ *    instants, after the kisses, and part on the way in and out.
+ * 3. Uli waits for Val's hand to clear the shoulder and reaches its surface from
+ *    planted toes. Tia's exit determines the cut's end.
+ * 4. No two friends pass into each other, and every segment boundary is
  *    continuous.
- * 4. Val moved 0.7 m away makes Tia's cheek kiss refuse on its region.
+ * 5. Val moved 0.7 m away makes Tia's cheek kiss refuse on its region.
  */
 export function checkFarewellScene(): void {
   const scene: IScene | undefined = SCENES_DAILY.find(
@@ -120,7 +140,10 @@ function checkTake(
     assert(Math.abs(meet - at(b, "meet")) < 1e-9);
     assert(Math.abs(rebound - at(b, "rebound")) < 1e-9);
     const gap: (seconds: number) => number = (seconds: number): number =>
-      AutoMovieEngineVector3.distance(fist(film, "tia", seconds), fist(film, "val", seconds));
+      AutoMovieEngineVector3.distance(
+        fist(film, "tia", seconds),
+        fist(film, "val", seconds),
+      );
     assert(
       [meet, (meet + rebound) / 2, rebound].every(
         (seconds: number): boolean => gap(seconds) <= TOUCH,
@@ -145,18 +168,75 @@ function checkTake(
       audit.where + " penetrates by " + audit.value + " m",
     );
   }
-  const uli: string[] = film
-    .segments("uli")
-    .map((segment: IAutoMovieMotionHumanSegment): string => segment.name);
+  const uli: readonly IAutoMovieMotionHumanSegment[] = film.segments("uli");
+  checkShoulder(film, named(uli, "shoulderPat"), named(val, "handOnHeart"));
   named(tia, "blownKissSend");
-  assert(uli.includes("shoulderPat") && uli.includes("comfort"));
+  named(uli, "comfort");
   assert.equal(tia.at(-1)?.name, "trudge");
   assert.equal(val.at(-1)?.name, "handOnHeart");
+  assert(Math.abs(film.duration - named(tia, "trudge").end) < 1e-9);
   for (const { subject } of composition.performers) {
     for (const segment of film.segments(subject))
       continuous(film, subject, segment.start, segment.end);
     assert(film.bones(subject, film.duration).has("head"));
   }
+}
+
+/** Check the pat's actual palm, shoulder and toe positions at arrival. */
+function checkShoulder(
+  film: IAutoMovieMotionHumanPerformance,
+  pat: IAutoMovieMotionHumanSegment,
+  heart: IAutoMovieMotionHumanSegment,
+): void {
+  assert(pat.start >= heart.end, "the shoulder approach follows hand release");
+  const seconds: number = at(pat, "ready");
+  const bonesAtContact = film.bones("uli", seconds);
+  const palm: IAutoMovieVector3 = HumanHand.frame(
+    body(film, "uli"),
+    bonesAtContact,
+    "left",
+    "palm",
+  ).point;
+  const shoulder: IAutoMovieHumanoidSurfaces.IFrame = body(film, "val").surfaces
+    .regions.shoulderLeft;
+  const radius: number | undefined = shoulder.radius;
+  assert(radius !== undefined, "Val's left shoulder supplies a contact radius");
+  const site = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
+    shoulder,
+    film.bones("val", seconds).get(shoulder.bone)!,
+  );
+  const gap: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+    palm,
+    site.point,
+  );
+  const normal: number = AutoMovieEngineVector3.dot(gap, site.normal);
+  const tangent: number = AutoMovieEngineVector3.length(
+    AutoMovieEngineVector3.subtract(
+      gap,
+      AutoMovieEngineVector3.scale(site.normal, normal),
+    ),
+  );
+  assert(Math.abs(normal) <= TOUCH, `the palm is ${normal} m off the shoulder`);
+  assert(
+    tangent <= radius,
+    `the palm lies outside the shoulder by ${tangent - radius} m`,
+  );
+  const entry = film.bones("uli", pat.start);
+  const observed = [
+    film.bones("uli", (pat.start + seconds) / 2),
+    bonesAtContact,
+  ];
+  for (const toe of ["leftToes", "rightToes"] as const)
+    assert(
+      observed.every(
+        (frame) =>
+          AutoMovieEngineVector3.distance(
+            entry.get(toe)!.worldPosition,
+            frame.get(toe)!.worldPosition,
+          ) <= TOUCH,
+      ),
+      toe + " retains its world support at the sampled approach frames",
+    );
 }
 
 /**

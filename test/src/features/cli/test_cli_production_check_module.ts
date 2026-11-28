@@ -10,23 +10,24 @@ import { pathToFileURL } from "node:url";
 import { repositoryRoot } from "../internal/repositoryRoot";
 
 /**
- * An editable verification entry can import additional TypeScript targets in
- * the layout the scaffold emits without compiling unrelated work.
+ * Load scoped checks from a type-module production through the CLI.
  *
  * Scenarios:
  *
- * 1. A type-module production owns a verification module and one imported target
- *    next to it.
- * 2. An unrelated incomplete production module remains untouched. The imported
- *    target still participates in the selected required stage.
- * 3. Authored TypeScript and CommonJS retain their own source bytes when a runtime
- *    loader transforms modules. Installed and linked packages resolve.
+ * 1. Read the imported target beside the check entry despite an unrelated draft
+ *    with invalid syntax. A disabled required row blocks the stage.
+ * 2. Verify authored measurements and installed or linked dependencies. Refuse
+ *    missing imports and aliases that lead beyond the production.
+ * 3. Keep a previously measured result when an unselected target changes.
+ *    Invalidate it when its own dependency changes.
+ * 4. Verify authored bytes despite loader transforms. Refuse a change during
+ *    load and cached sources that a fresh read cannot establish.
+ * 5. Native JSON imports retain their file evidence through Node's shared
+ *    cache record, and prior cache records refuse verification.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the native module boundary and unrelated-source control.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the actual CLI entry in the fixture directory and checks its output and status while Node loads the two authored TypeScript files.
- * @evidence contracts/development/testing.md#independent-expectations A disabled explicitly required row prevents stage completion, and unrelated invalid source must not prevent a read.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises an imported target with both ordinary status and explicit stage enforcement.
- * @evidence contracts/development/testing.md#execution-ownership Builds only the CLI into an owned temporary directory and waits for two local Node subprocesses; the fixture's production files are loaded by the command.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the authoring entry, required gate, source identity and the shared native JSON cache cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Bundles the CLI entry and launches it in a task-owned type-module production. Native imports and CommonJS require share a JSON record. The check sees fresh JSON changes and refuses previously loaded bytes. Separate preload hooks exercise source transformations and ordinary cached modules.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's literal measurement of 3 passes the inclusive bound of 2. A measured adjustment of −2 changes the result to 1 and fails. Editing another target preserves the receipt. Missing files, aliases outside the project, source changes during load and previously cached modules each produce a refusal at their own boundary.
  */
 export async function test_cli_production_check_module(): Promise<void> {
   const workspace: string = await fs.mkdtemp(
@@ -117,6 +118,44 @@ export async function test_cli_production_check_module(): Promise<void> {
       definition("const adjustment: number = 0;"),
     );
     expect(verify("--run", "--require", "handoff"), 0, "passed");
+
+    const jsonModule: string = path.join(executable, "native-shape.json");
+    await fs.writeFile(jsonModule, '{"adjustment":0}\n');
+    await fs.writeFile(
+      measureModule,
+      definition([
+        'import shape from "./native-shape.json" with { type: "json" };',
+        "const adjustment: number = shape.adjustment;",
+      ].join("\n")),
+    );
+    expect(verify("--run", "--require", "handoff"), 0, "passed");
+    await fs.writeFile(jsonModule, '{"adjustment":-2}\n');
+    expect(verify("--require", "handoff"), 1, "stale");
+    const jsonPreload: string = path.join(executable, "cache-shape.mjs");
+    await fs.writeFile(jsonPreload, 'import "./native-shape.json" with { type: "json" };\n');
+    const priorJson: SpawnSyncReturns<string> = execute(
+      ["--run", "--require", "handoff"],
+      ["--import", pathToFileURL(await fs.realpath(jsonPreload)).href],
+    );
+    assert.ifError(priorJson.error);
+    assert.equal(priorJson.status, 1);
+    assert.match(priorJson.stderr, /Verification source could not be observed: .*native-shape\.json/u);
+    const nativeCommon: string = path.join(executable, "native-shape.cjs");
+    await fs.writeFile(nativeCommon, [
+      'const shape = require("./native-shape.json");',
+      'exports.default = [{ id: "chair", checks: [{ id: "fit", title: "Check shape", scope: "support", kind: "measure", inputs: ["model.txt"], unit: "cm", minimum: 2, measure: () => 3 + shape.adjustment }], required: { handoff: ["fit"] } }];',
+    ].join("\n"));
+    await fs.writeFile(jsonModule, '{"adjustment":0}\n');
+    const nativeCommonStage: readonly string[] = ["--module", nativeCommon, "--run", "--require", "handoff"];
+    expect(execute(nativeCommonStage), 0, "passed");
+    const priorCommonJson: SpawnSyncReturns<string> = execute(
+      nativeCommonStage,
+      ["--import", pathToFileURL(await fs.realpath(jsonPreload)).href],
+    );
+    assert.ifError(priorCommonJson.error);
+    assert.equal(priorCommonJson.status, 1);
+    assert.match(priorCommonJson.stderr, /Verification source could not be observed: .*native-shape\.json/u);
+    await fs.writeFile(measureModule, definition("const adjustment: number = 0;"));
 
     const compilerPreload: string = path.join(executable, "compiler.cjs");
     await fs.writeFile(

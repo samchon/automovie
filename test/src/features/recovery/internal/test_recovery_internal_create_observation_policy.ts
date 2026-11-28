@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. An input with a critical policy keeps every setting and that policy.
  * 2. Without one, the policy is the same settings without a critical policy.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States which mesh and optional critical-policy fields participate in the copy.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares policy projection for identical observation settings with and without the critical-policy field.
+ * @evidence contracts/development/testing.md#independent-expectations The two authored input objects differ only in critical policy. Expected projection preserves declared settings and omits the source mesh.
  */
 export function test_recovery_internal_create_observation_policy(): void {
   const input: IAutoMovieRecoveryInput = {

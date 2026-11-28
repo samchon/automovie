@@ -41,6 +41,10 @@ function refusedOn(run: () => unknown, field: string): boolean {
  *    one of 0.25, the rebound's height `2^2 / 16`, stays in flight at (3, 2,
  *    0); a radius of 0.5 rolls at (3, 0, 0), decelerating at `8 r` for a
  *    resistance of 0 or 2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents floor and ceiling response under pressing, zero and outward gravity, including the strict roll-height boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Continues typed impacts against opposite normals and gravity choices, samples roll or flight and submits invalid rolling inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Rebound height v²/(2g) is 0.25 m for the 2 m/s, 8 m/s² case. Equality remains flight, greater radius rolls, and a no-gravity roll keeps 2 m/s.
  */
 export function test_engine_physics_projectile_continue(): void {
   // 1. A surface pushes, never pulls.

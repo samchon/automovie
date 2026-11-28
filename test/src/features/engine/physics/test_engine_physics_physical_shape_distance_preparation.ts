@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    sideways from the axis, a 1/8 taper reads 5/8.
  * 3. The center reads -1/4 after either distance branch and reverse queries
  *    recover the same bare-axis result. The axis and all offsets are dyadic.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains that preparing a shape distance reader fixes the composed world frame before queries, including a later parent mutation.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a capsule reader, mutates its parent, and asks the same reader for point, tapered-segment and reversed reads.
+ * @evidence contracts/development/testing.md#independent-expectations The initial composed center is y = 2.5, the cap axis reaches y = 3.5 and the radius is 1/4. Those lengths give 1/4 for the bare query, 5/8 for the tapered query and -1/4 at center.
  */
 export function test_engine_physics_physical_shape_distance_preparation(): void {
   const pose: IAutoMovieRigidTransform = {

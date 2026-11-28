@@ -29,6 +29,10 @@ import { throwsError } from "../../internal/throwsError";
  * 5. A translation by 2 over radius 1000 at the origin: unmasked and under weight
  *    0.5 with gradient -0.25 it is admitted; with gradient -1 the map reverses
  *    and is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the differentiated mask, zero and unit controls, rescued and reversed orientation, and invalid samples.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits explicit per-vertex weights and gradients to the compiled field and checks positions, normals, refusals and preserved input.
+ * @evidence contracts/development/testing.md#independent-expectations The product rule differentiates f(x)(1−x²/4)³. A constant zero or unit mask fixes its extreme behavior. Large negative mask gradient reverses the local map.
  */
 export function test_engine_geometry_mesh_deformer_influence(): void {
   const mesh: IAutoMovieMesh = {

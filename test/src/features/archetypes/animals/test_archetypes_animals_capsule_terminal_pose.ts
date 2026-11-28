@@ -16,6 +16,10 @@ import { observeQuadrupedAttachment } from "./observeQuadrupedAttachment";
  *    bar length, radius and source frame.
  * 2. Direct fixed and lifted foot goals put each complete capsule at its
  *    requested clearance and preserve attachment, carriers and read ownership.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names cylinder-to-capsule preservation, fixed and lifted support and attachment ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Replaces the terminal form on authored fixtures and checks the actual solved capsule geometry and floor clearance at fixed and lifted goals. Measures attached pieces and preserved source records.
+ * @evidence contracts/development/testing.md#independent-expectations A capsule extends its barrel by one radius along either end. The requested clearance applies to the complete support solid and the authored barrel's length and axes remain fixed.
  */
 export function test_archetypes_animals_capsule_terminal_pose(): void {
   const findings: string[] = [];

@@ -53,6 +53,10 @@ const LIP: IAutoMovieAffordance = {
  * 4. A glass lying 5 cm past the grip socket of an unturned wrist at (1, 1, 1),
  *    turned 30 degrees about +Y, is held 5 cm along the frame's own axis with
  *    its own turn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a transformed lip and direction, unknown contact, whole-action grip window and inverse grasp placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motionHumanHeld point, grip and grasped with an authored glass, posed wrist and the stored grip socket.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn maps the lip's +Y displacement to -X, giving position (-0.1, 0, 0) and direction -X. Subtracting the grip socket yields the separate 0.05 m local grasp offset, while the local quaternion and literal contact record identify its turn and support.
  */
 export async function test_motions_compose_human_held(): Promise<void> {
   // 1. A contact in the grip frame.

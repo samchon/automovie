@@ -26,6 +26,10 @@ const BOUND_TOLERANCE: number = 0;
  *    translates the arrow by +3 X, the anchor by +2 Y. The arrow reaches (4, 2,
  *    4), extending the box from (-1,-1,-1) to (4,2,4).
  * 2. An unselected object and a chosen mark without vertices yield no row.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The case names the shared path, instance transform, anchor transform, and controls that should yield no path row.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the path bounds include the drawn box and transformed mark endpoint while unselected geometry and an empty mark leave no row.
+ * @evidence contracts/development/testing.md#independent-expectations Combines the fixture box from `(-1,-1,-1)` to `(1,1,1)` with the hand-computed transformed mark endpoint `(4,2,4)`.
  */
 export function test_render_scene_measure_inspection_paths(): void {
   const geometry: BoxGeometry = new BoxGeometry(2, 2, 2);

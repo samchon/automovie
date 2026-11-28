@@ -1,13 +1,21 @@
-import { AutoMovieEnginePhysicalGeometry } from "@automovie/engine";
+import {
+  AutoMovieEngineFilm,
+  AutoMovieEnginePhysicalGeometry,
+} from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
+  IAutoMoviePlaybackEvent,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
-import { type IAutoMovieRenderDrawScene, type IAutoMovieRenderDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
+import {
+  AutoMovieRenderDraw,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderDrawSubject,
+} from "@automovie/render";
 import type * as THREE from "three";
 
 import type { IFilm } from "./IFilm";
@@ -29,17 +37,22 @@ import { readFilmVerdicts } from "./readFilmVerdicts";
  * the same state through the same camera response. A film with `playback` hands
  * its timeline over as the subject's `cut`, which the render records in its
  * report, and its sequence, whose transitions every film picture draws through
- * the film's `seekShot`: the shot and its shot-local time pass through
+ * the film's `seekShot`. It forwards declared shot-local discontinuities to
+ * the shared motion trail sampler. The shot and its shot-local time pass through
  * unclamped, a sample's handle before the trim included, and the film second is
- * clamped. A film with `speak` takes the dialogue mouths the capture and the
- * render hand the subject, and reads them in its own placements.
+ * clamped. When the playback includes the shots used to approve the cut, the
+ * Engine places their interaction cues on the output clock once per mount.
+ * Playback without those shots leaves cues absent. A refused projection
+ * disposes the mounted film before returning the failure. A film with `speak`
+ * takes the dialogue mouths the capture and the render hand the subject, and
+ * reads them in its own placements.
  *
  * @param name The film's registered name, which the subject is drawn under.
  * @param film The registered film.
  * @returns The film's draw subject.
- * @evidence contracts/development/common.md#meaningful-documentation States what the subject is, who draws it, how its raster, placements and readers are taken and what passes through `seekShot` unclamped.
- * @evidence contracts/development/implementation.md#principled-implementation Maps the film's placement, readers and shared marks onto the draw contract, clamping only the film second, and binds optional soft surfaces after every placement, a shot placement included. No film is named; a member the film lacks is left absent rather than stubbed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One mapping of one film; `subjects` maps the registry through it. Constant work per mapped member; the film is created only when its subject is, and its verdict reader reads the whole performance once, at the first capture or delivery sample. A mapping made once per film and page. The subject's dispose releases the film, and the render adapter independently releases any soft prop meshes it mounts.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the shared draw adapter, raster defaults, placement clocks, reader timing, the authored shots required for played cues, and the declared breaks a trail receives.
+ * @evidence contracts/development/implementation.md#principled-implementation Clamps the film clock and forwards the original shot clock. The soft-prop adapter reads after each placement. Draw receives the same shot-local breaks the production supplied. Draw metadata uses `sequenceEventTimeline` with the film's cut and its authored shots and leaves cues absent when those shots are unavailable. A refused projection disposes the film and preserves any disposal failure alongside the original error.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each mount builds the film once and projects supplied cues through the Engine once, copying the read-only shot list for the SDK call. The verdict reader reads the whole performance only on demand. Disposal releases the film and any soft prop resources owned by the draw adapter.
  */
 export function subjectOfFilm(
   name: string,
@@ -47,9 +60,30 @@ export function subjectOfFilm(
 ): IAutoMovieRenderDrawSubject {
   return {
     create: async (): Promise<IAutoMovieRenderDrawScene> => {
-      const geometry: Awaited<ReturnType<typeof AutoMovieEnginePhysicalGeometry.prepare>> =
-        await AutoMovieEnginePhysicalGeometry.prepare();
+      const geometry: Awaited<
+        ReturnType<typeof AutoMovieEnginePhysicalGeometry.prepare>
+      > = await AutoMovieEnginePhysicalGeometry.prepare();
       const production: IFilmProduction = await film.create();
+      const playback: IFilmProduction["playback"] = production.playback;
+      let playedCues: IAutoMoviePlaybackEvent[] | undefined;
+      if (playback?.shots !== undefined) {
+        try {
+          playedCues = AutoMovieEngineFilm.sequenceEventTimeline(
+            playback.sequence,
+            [...playback.shots],
+          );
+        } catch (error) {
+          try {
+            production.dispose();
+          } catch (disposeError) {
+            throw new AggregateError(
+              [error, disposeError],
+              "Played cue projection and film disposal both failed",
+            );
+          }
+          throw error;
+        }
+      }
       // One reader per mount: a capture or delivery run reads the whole
       // performance once, and the viewer never asks.
       const verdicts: ReturnType<typeof readFilmVerdicts> =
@@ -72,12 +106,16 @@ export function subjectOfFilm(
               speak: (mouths: IAutoMovieDialogueMouths): void =>
                 production.speak!(mouths),
             }),
-        ...(production.playback === undefined
+        ...(playback === undefined
           ? {}
           : {
-              cut: production.playback.timeline,
-              sequence: production.playback.sequence,
+              cut: playback.timeline,
+              sequence: playback.sequence,
+              ...(playback.discontinuities === undefined
+                ? {}
+                : { trailDiscontinuities: playback.discontinuities }),
             }),
+        ...(playedCues === undefined ? {} : { playedCues }),
         height: film.height ?? 720,
         markKinds: [
           ...(production.markKinds ?? []),

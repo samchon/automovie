@@ -31,6 +31,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 5. A declared shin approach turns the shin toward it, and the report splits the
  *    point and approach residuals; the fit is local, so a weighted approach
  *    trades point error for direction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes rerooting for a held contact, reach from additional joints, original range and anchor limits, and the optional approach direction.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits the same ankle target first with a single leg and then with the pelvis and opposite leg free, tests approach weighting and verifies the restored joint tree.
+ * @evidence contracts/development/testing.md#independent-expectations The ankle target requires 133° against the lone hip's 120° limit. Whole-body motion reaches within 5 mm while declared anchors and the planted point remain fixed.
  */
 export function test_engine_physics_fit_physical_whole_body_target(): void {
   const { profile } = PhysicalModelFixtures.stickman();

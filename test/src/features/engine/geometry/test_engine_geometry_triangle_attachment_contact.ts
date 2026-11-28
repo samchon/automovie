@@ -29,6 +29,10 @@ import { vclose } from "../../internal/vclose";
  *    budget; the shallower one's cap is over 100 times the steeper one's.
  * 4. A fan or support missing a point ("complete fan") and a support whose
  *    differences overflow ("differences") are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names binary64 seat, Float32 registration difference, slope comparison, admitted contact and malformed fan inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual barycentric seat and compares a Float32 rounded support and two clearance fans through the contact and separation owners.
+ * @evidence contracts/development/testing.md#independent-expectations The three weighted points give (0.375,0.375,0.25). The rounded affine plane lies above it at the same chart coordinates, and the shallower fan needs the greater allowance.
  */
 export function test_engine_geometry_triangle_attachment_contact(): void {
   const support: IAutoMovieVector3[] = [

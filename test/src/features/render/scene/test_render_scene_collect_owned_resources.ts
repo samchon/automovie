@@ -11,6 +11,10 @@ import * as THREE from "three";
  *    material once; objects that are not meshes add nothing.
  * 2. A mesh's custom depth material is listed too.
  * 3. Textures a material holds are listed only when the caller owns textures.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shared resource deduplication, custom depth material and optional texture ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Traverses a native model subtree through the public resource collector. Compares the actual returned resource references with owned and borrowed texture settings.
+ * @evidence contracts/development/testing.md#independent-expectations Two meshes use the same geometry and material instances, so each appears once. Their declared custom depth material is included. A borrowed texture is excluded unless the caller enables texture ownership.
  */
 export function test_render_scene_collect_owned_resources(): void {
   const geometry: THREE.BoxGeometry = new THREE.BoxGeometry(1, 1, 1);

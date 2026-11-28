@@ -5,12 +5,18 @@ import type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAt
  * complete-edge peer. Explicit records are borrowed; transported records are
  * new.
  */
-export type IAutoMoviePrepareBicubicAtlasBoundary64Binding = NonNullable<
-  IAutoMovieBicubicAtlasTessellation64.Input["boundaryBindings"]
->[number] & {
-  /**
-   * Canonically oriented comma-separated four-control-ID tuple for a
-   * transported legacy fan; absent for explicitly authored bindings.
-   */
-  legacy?: string;
-};
+export type IAutoMoviePrepareBicubicAtlasBoundary64Binding =
+  IAutoMovieBicubicAtlasTessellation64.IBoundaryBinding &
+    IAutoMoviePrepareBicubicAtlasBoundary64Binding.ILegacyFan;
+
+/** Named supplemental values of the prepared record. */
+export namespace IAutoMoviePrepareBicubicAtlasBoundary64Binding {
+  /** Optional key of the transported legacy normal fan. */
+  export type ILegacyFan = {
+    /**
+     * Canonically oriented comma-separated four-control-ID tuple for a
+     * transported legacy fan; absent for explicitly authored bindings.
+     */
+    legacy?: string;
+  };
+}

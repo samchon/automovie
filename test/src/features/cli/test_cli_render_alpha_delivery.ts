@@ -37,11 +37,9 @@ import * as path from "node:path";
  *    differs from the kept file's, and leaves the film's
  *    `videos/render-report.json` untouched.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the CLI render with render's real composer over a fake draw session and an FFmpeg boundary that wraps the drawn files into a minimal QuickTime file, then reads the published folder; an encode instead of a wrap, an audio input, a shared folder, an unchecked sample or a replaced layer fails.
- * @evidence contracts/development/testing.md#independent-expectations The fixture writes the sample table as ISO/IEC 14496-12 defines it, one chunk of back-to-back samples; digests are Node's SHA-256 of the files; the default folder is the documented `transparent/`.
- * @evidence contracts/development/testing.md#distinguishing-cases A conforming and a corrupted sample, a published and a blocked attempt, and the film's own report beside them; option parsing is owned by `test_cli_render_review_options` and pixel blending by `test_draw_alpha_dissolve_blend`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_render_alpha_delivery`; it owns an isolated temporary directory and runs no FFmpeg, browser or device.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names straight-alpha output, PNG sample copying, audio absence, corrupt sample refusal and previously published file preservation.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the CLI render with a recording draw boundary and a fixture QuickTime wrapper. Checks default paths, transparent draw requests, wrap arguments and actual copied bytes, then verifies a corrupt attempt preserves the previous publication and normal film report.
+ * @evidence contracts/development/testing.md#independent-expectations Uses known PNG fixture bytes and independent SHA-256 digests of copied samples, asserts `-c:v copy`, and changes only the second stored sample for the corruption control.
  */
 export async function test_cli_render_alpha_delivery(): Promise<void> {
   const root: string = await fs.mkdtemp(

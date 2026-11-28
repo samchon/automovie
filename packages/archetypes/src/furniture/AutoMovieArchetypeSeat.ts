@@ -12,29 +12,28 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { SEAT_BANDS } from "./constants/SEAT_BANDS";
 
-/** A seat selected from the supported furniture forms. */
+/** Creates chairs, stools and shared seats with named body contacts. */
 export namespace AutoMovieArchetypeSeat {
-  /**
- * A seat: a dining chair, an office chair, an armchair, a stool, a bar stool, a
- * bench or a sofa.
+/**
+ * Creates a seat with the contacts supported by its chosen furniture kind.
  *
- * The model is a seat slab on legs, a column or a plinth, with a back and arms
- * where the kind has them: enough to tell a chair from a stool from a sofa and
- * nothing more. What a sitter reads is exact: the `seat` frame stands at the
- * seat height on the middle of the front edge, facing `+Z`, with the depth, the
- * width and the back's height the bands below give. A bench or a sofa has one
- * `seat` as wide as all its places; place `k` of `n` is the site `seat` at `u =
- * (k + 0.5) / n`, counted from the sitter's right.
+ * The origin is on the floor under the seat's centre. The `seat` frame is
+ * at the top of the front edge and faces `+Z`. A bench or sofa has one
+ * shared contact that defaults to two places. For zero-based place `k` of
+ * `n`, use `site("seat", (k + 0.5) / n)`. The sites run from the sitter's
+ * right to left. A stool's contact uses the square around its round seat.
+ * Its stable central site is `site("seat")`.
  *
- * The origin is on the floor under the middle of the seat.
- *
- * @param params The kind, the number of places and any dimension the author
- *   fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The seat.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
- *   or a number of places the kind does not have.
+ * @param params The required kind, optional scene ID and places, and fixed
+ *   dimensions in their band units.
+ * @param seed Finite numeric seed for omitted dimension draws. Omit it to
+ *   use each applicable band's midpoint.
+ * @returns A generated seat with its local contact frames.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported kind, invalid place
+ *   count or a fixed dimension unsupported by the kind or band.
+ * @example
+ * const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, 31);
+ * const seat = chair.affordance("seat");
  */
 export function create(
   params: AutoMovieArchetypeSeat.IParams,
@@ -282,7 +281,7 @@ export function create(
 }
 
 
-  /** The kinds of seat. */
+  /** Selects the geometry, dimension bands and available seat contacts. */
   export type Kind =
     | "dining"
     | "office"
@@ -292,7 +291,7 @@ export function create(
     | "bench"
     | "sofa";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Lists the kinds accepted by the factory at runtime. */
   export const KINDS: readonly Kind[] = [
     "dining",
     "office",
@@ -359,15 +358,12 @@ export function create(
     mass: "kg",
   };
 
-  /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
-   */
+  /** Selects a seat and any fixed dimensions for that kind. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which seat. */
+    /** Furniture kind with its available contacts and bands. */
     kind: Kind;
 
-    /** The model's id, unique in a scene; `seat` when absent. */
+    /** Scene ID, defaulting to `seat`. */
     id?: string;
 
     /**
@@ -377,7 +373,7 @@ export function create(
     places?: number;
   }
 
-  /** The band of each free dimension, by kind. */
+  /** The applicable dimension bands and sources for each kind. */
   export const BANDS: typeof SEAT_BANDS = SEAT_BANDS;
 }
 

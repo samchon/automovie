@@ -19,29 +19,13 @@ import { nclose } from "../../internal/nclose";
 const EXACT: number = 1e-6;
 
 /**
- * The capture population: ANSUR 1988's measures (Gordon et al. 1989) under the
- * sex's multivariate normal, each end's drivers held at their deviates and the
- * rest at their conditional means inside the surveyed and declared bounds,
- * written into public Human inputs.
+ * Exercise the stock capture population from its survey model through the Human input fields. Condition female mass on stature, read the declared and surveyed bounds, then compare the tall and average cases with their independent formulas.
  *
- * ANSUR 1988's women stand 1629.37 mm (SD 63.604) and weigh 62.01 kg (SD
- * 8.351), correlated 0.5287, surveyed 1428 to 1870 mm and 41.3 to 96.7 kg; the
- * declared stature domain starts at 1450 mm. The 99th percentile deviate is
- * 2.326.
+ * The conditional case uses the ANSUR 1988 female means of 1629.37 mm and 62.01 kg, their standard deviations of 63.604 mm and 8.351 kg, and correlation 0.5287. The tall case fixes stature at 2.326 deviations above its mean. The average case checks body fat percentage, cephalic index and left palm length in the published Human input.
  *
- * Scenarios:
- *
- * 1. With stature one deviation above its mean, mass rises by `r sd` and its
- *    deviation narrows to `sd sqrt(1 - r^2)`.
- * 2. The women's stature is bounded by the domain's 1450 mm below and the survey's
- *    1870 mm above; mass, which no control declares, keeps the survey's
- *    extremes.
- * 3. The tall woman stands 2.326 SD up and weighs the regression's `62.01 + 0.5287
- *    · 8.351 · 2.326` kg.
- * 4. The average woman's inputs carry Deurenberg et al. (1991)'s fat percentage
- *    `1.2 · 23.3357 + 0.23 · 26.2 - 5.4` at her mean BMI and age, the cephalic
- *    index `100 breadth / length`, and ANSUR II's palm share 108.7 / 181.1 of
- *    her hand.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the conditioning, bounds, tall measure and average parameter cases exercised by this runner entry.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the conditioning, end-limit, end-measure and parameter-build owners directly using a female stature deviation and the f-tall and f-average stock ends. Reads the resulting anatomy, head and left palm inputs from IAutoMovieHumanParameters.
+ * @evidence contracts/development/testing.md#independent-expectations The correlation gives the bivariate mean shift and conditional spread. The stature bound intersects the declared floor with the surveyed maximum, while mass keeps its survey bounds. Tall stature and mass follow the specified normal deviate and survey moments. Average fat uses Deurenberg's BMI-and-age formula. Head breadth over length and the ANSUR II 108.7/181.1 palm share set the remaining expectations. The tolerances cover the rounded inputs and arithmetic.
  */
 export function test_motions_executable_human_population(): void {
   // 1. The conditioning.

@@ -25,6 +25,10 @@ import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
  * 2. Rails of width 8 on both faces solve: at the first curve point the
  *    explanation has no refusal, facing 1, side 1, lambda 8 within 1e-6, and
  *    the rail of `rail(t)` (the same s and host face).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the failed kept-side premise and the successful rail's matching explanation.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates a join with a backward part rail and another with admitted widths, then checks diagnostic text and returned rail and explanation data.
+ * @evidence contracts/development/testing.md#independent-expectations Station −5 lies behind contact on the written side. The successful rail's prescribed width 8 fixes lambda, and both read routes describe the same chart root.
  */
 export function test_engine_geometry_solid_merge_rail_explain(): void {
   const r: number = 20;

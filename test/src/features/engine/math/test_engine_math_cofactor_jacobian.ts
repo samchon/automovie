@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/predicates";
  *    refused, and the returned matrix is separate storage from the input.
  *    Cofactor overflow with a finite determinant stays raw: [1e308,0,0,
  *    0,1e-308,0, 0,0,1e308] has matrix[4] = Infinity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers cofactor and determinant values, reflected or unrepresentable cases, raw cofactor overflow and result ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cofactorJacobian on explicit row-major arrays. The test mutates one output to check storage ownership and exercises malformed arrays and determinant refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Diagonal cofactors are pairwise scale products. The quarter turn and shear give explicit cofactors and a zero tangent dot product. Positive representable determinants distinguish rejected orientation or arithmetic from the admitted raw overflow of one cofactor.
  */
 export function test_engine_math_cofactor_jacobian(): void {
   const identity = AutoMovieEngineMath.cofactorJacobian([1, 0, 0, 0, 1, 0, 0, 0, 1]);

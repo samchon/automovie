@@ -77,6 +77,10 @@ function angles(joint: IAutoMovieJointPose): [number, number, number] {
  * 2. Projected, every joint of the wild pose has no overshoot.
  * 3. Projecting the projected pose changes no angle.
  * 4. The mild pose projects onto itself.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines positive range excess outside the rig and idempotent projection onto legal joint coordinates.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures mild and extreme postures across rig joints, projects the latter twice and checks the mild input.
+ * @evidence contracts/development/testing.md#independent-expectations Specified rig bounds identify each extreme before projection. Legal poses show zero excess and rerunning projection cannot change their coordinates.
  */
 export async function test_motions_posture_joint_rom(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

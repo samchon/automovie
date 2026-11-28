@@ -8,18 +8,16 @@ import { throwsError } from "../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. Frames 57 to 63, 90 and 92, given unsorted with a repeat, plan `select='between(n,57,63)+eq(n,90)+eq(n,92)'`, `-fps_mode passthrough`, RGB stills numbered from `s00000.png` in the given folder, and no shell quoting.
+ * 1. Unsorted frames 57 to 63, 90 and 92 with a repeat select the first video stream. The plan uses `select='between(n,57,63)+eq(n,90)+eq(n,92)'`, `-fps_mode passthrough` and RGB stills numbered from `s00000.png` in the given folder.
  * 2. An empty frame list and a negative index are refused.
- * 3. Scene-cut detection at threshold 10 plans `scdet=threshold=10` with the metadata filters printing to the report, and a report path holding a drive colon and a comma is escaped for both filter-graph levels.
+ * 3. Scene-cut detection selects the first video stream and runs `scdet=threshold=10`. The metadata filters print to the report, escaping a drive colon and a comma for both filter-graph levels.
  * 4. A threshold above 100 is refused.
  * 5. A report of two marked frames, with Windows line endings and an extra key, reads as two cuts with their seconds and scores; a frame without `lavfi.scd.time` falls back to its `pts_time`.
  * 6. An empty report reads as no cut, and a marked frame without a score is refused naming it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public planners and reader and inspects the argument lists and parsed cuts; a select expression naming other frames, a missing passthrough, an unescaped path or a reader that dropped a cut fails. No FFmpeg is launched.
- * @evidence contracts/development/testing.md#independent-expectations The expected arguments follow FFmpeg's documented `select`, `eq`, `between`, `scdet` and `metadata` syntax and its two-level filter-graph escaping; the report text is written by hand in the `metadata` filter's print format.
- * @evidence contracts/development/testing.md#distinguishing-cases Runs against lone frames, a repeated frame, refusals, plain and special-character paths, both line endings, the time key against its fallback, empty and malformed reports. Running the planned arguments is owned by `test_capture_video_pairing`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_video_ffmpeg_plans`; it starts no process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public planners and report reader with literal inputs and asserts the argument lists, invalid-input errors and parsed cuts. Both command vectors must explicitly map the first video stream.
+ * @evidence contracts/development/testing.md#independent-expectations The expected arguments name the first video stream as 0:v:0 and enumerate the independent frame runs and scene filter syntax. The hand-written metadata report prescribes the two expected times and scores.
+ * @evidence contracts/development/common.md#meaningful-documentation Literal argument vectors cover stream mapping, frame selection, output numbering and filter escaping. Cut reports cover primary and fallback timing, no cuts and a missing score.
  */
 export function test_capture_video_ffmpeg_plans(): void {
   // 1. Exactly the planned frames.
@@ -36,6 +34,8 @@ export function test_capture_video_ffmpeg_plans(): void {
       "-y",
       "-i",
       "in.mp4",
+      "-map",
+      "0:v:0",
       "-an",
       "-vf",
       "select='between(n,57,63)+eq(n,90)+eq(n,92)'",
@@ -71,6 +71,8 @@ export function test_capture_video_ffmpeg_plans(): void {
       "-nostats",
       "-i",
       "in.mp4",
+      "-map",
+      "0:v:0",
       "-an",
       "-vf",
       "scdet=threshold=10,metadata=mode=select:key=lavfi.scd.time,metadata=mode=print:file=out/scenecut.txt",
@@ -79,13 +81,14 @@ export function test_capture_video_ffmpeg_plans(): void {
       "-",
     ],
   );
+  const escaped: string[] = AutoMovieRenderCapture.planVideoSceneCuts({
+    file: "in.mp4",
+    report: "D:/a,b/cut.txt",
+    threshold: 10,
+  });
   TestValidator.equals(
     "a drive colon and a comma are escaped twice",
-    AutoMovieRenderCapture.planVideoSceneCuts({
-      file: "in.mp4",
-      report: "D:/a,b/cut.txt",
-      threshold: 10,
-    })[6],
+    escaped[escaped.indexOf("-vf") + 1],
     "scdet=threshold=10,metadata=mode=select:key=lavfi.scd.time,metadata=mode=print:file=D\\\\:/a\\,b/cut.txt",
   );
 

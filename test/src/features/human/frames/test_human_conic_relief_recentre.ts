@@ -30,9 +30,7 @@ import type { IAutoMovieLoftRelief, IAutoMovieViewAxis } from "@automovie/interf
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production conversion and reads its nets through the engine's own height and direction.
  * @evidence contracts/development/testing.md#independent-expectations The circle's radius about a shifted origin, the stored address of a wall point, the stored skin's polar radius about its own course and an edge point's polar angle are closed forms of the made inputs.
- * @evidence contracts/development/testing.md#distinguishing-cases A kept axis, a turning in-plane direction, a turning direction out of the plane, the identity move, the unconverted net as a red case and one refusal, every finding collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on a made cylinder; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and expectation.
+ * @evidence contracts/development/common.md#meaningful-documentation The converted relief checks carried axes, inward casts and mapped window edges on a circle with moved origin. Zero movement and an unconverted net provide controls.
  */
 export function test_human_conic_relief_recentre(): void {
   const failures: string[] = [];

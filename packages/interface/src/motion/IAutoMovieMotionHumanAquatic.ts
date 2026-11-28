@@ -46,7 +46,7 @@ export namespace IAutoMovieMotionHumanAquatic {
 
   /**
    * The performer's part in a team or crew. Water polo uses attack, defend and
-   * keeper; artistic swimming uses figure, base and flyer; sailing uses helm
+   * keeper. Artistic swimming uses figure, base and flyer. Sailing uses helm
    * and crew.
    */
   export type Role =
@@ -71,13 +71,20 @@ export namespace IAutoMovieMotionHumanAquatic {
     water?: number;
 
     /**
-     * Boat subject id for a craft, the fixed end-wall subject with a finite
-     * level edge facing across the swimmer's lane, or the pool edge an exit or
-     * a lift-out is made over.
+     * Subject ID of the required support for the chosen sequence.
+     *
+     * A boat action names its hull. A race with a named wall uses its finite
+     * level edge across the lane. A pool exit or lift names an edge with
+     * water along local `+Z`. `edgeExit` uses `deckFace` when the support
+     * supplies it and refuses freeboard above 0.5 m.
      */
     support?: string;
 
-    /** Paddle or water polo ball subject id. */
+    /**
+     * Subject id of the paddle, water polo ball, or worn fin used by the
+     * selected sequence. Fin swimming, snorkelling and duck dives require a fin
+     * with width and depth on its `blade` affordance.
+     */
     prop?: string;
 
     /**
@@ -87,8 +94,9 @@ export namespace IAutoMovieMotionHumanAquatic {
     wall?: number;
 
     /**
-     * World point in metres through which a held ball should pass after
-     * release.
+     * World point in metres. A water polo attack can aim its release through
+     * this point. `rescueTow` and `towed` use the same point as their edge or
+     * shore destination, with the tow directed along its horizontal axes.
      */
     at?: IAutoMovieVector3;
 
@@ -100,29 +108,43 @@ export namespace IAutoMovieMotionHumanAquatic {
 
     /**
      * Start offset as a fraction of a stroke or figure for crew contrast, in
-     * [0, 1].
+     * [0, 1]. Defaults to 0.
      */
     phase?: number;
 
     /** Bow or stroke station on an articulated racing shell for double scull. */
     station?: Station;
 
-    /** Polo attack or defense, artistic figure role, or dinghy crew role. */
+    /**
+     * The role for water polo, an artistic figure, or a dinghy. The respective
+     * defaults are `attack`, `figure`, and `helm`.
+     */
     role?: Role;
 
     /**
-     * Seconds of a distress before submersion (20 to 60, 30 when absent), or of
-     * a fin swim or snorkel (4 when absent).
+     * Time in seconds. `distress` lasts 20 to 60 seconds before submersion and
+     * defaults to 30. `finSwim` and `snorkel` default to 4 seconds. `duckDive`
+     * uses a 30-second breath-hold budget by default and refuses a depth it
+     * cannot reach and return from in that time.
+     *
+     * `rescueTow` uses this field to limit the approach to the victim. Omit it
+     * to leave the approach time unrestricted. A refused approach reports the
+     * reachable distance for the supplied time.
      */
     duration?: number;
 
     /**
-     * The victim a rescuer tows or lifts out, or the rescuer a towed victim
-     * holds on to.
+     * The other performer's ID for a tow or lift. The rescuer names the person
+     * receiving help, and the towed or lifted performer names the rescuer.
+     * During a tow the rescuer's hold tracks the other performer's chest.
      */
     partner?: string;
 
-    /** Metres below the surface a duck dive reaches before it ascends. */
+    /**
+     * Depth below the surface in metres. `finSwim` holds the hips at this depth
+     * and defaults to 2. `duckDive` defaults to 3 and requires a positive depth
+     * within the breath-hold budget.
+     */
     depth?: number;
 
     /**

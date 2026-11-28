@@ -19,33 +19,22 @@ import type { QuadrupedPosePlan } from "./quadruped/QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./quadruped/QuadrupedRestFloor";
 import { QuadrupedRestLimb } from "./quadruped/QuadrupedRestLimb";
 
-/** Deterministic sternal-rest planning for a quadruped. */
+/** Plans an authored standing, sternal-rest and rise cycle for a quadruped. */
 export namespace AutoMovieArchetypeQuadrupedRest {
   /**
-   * Plan a deterministic standing-to-sternal-rest hold and supported rise.
+   * Plans a symmetric sternal-rest cycle at fixed foot footprints.
    *
-   * Four foot footprints stay at their source X/Z coordinates. Their terminal cap
-   * centres follow the exact sole clearance of their bar shape as it rotates;
-   * this permits geometric rolling, not a claimed no-slip material contact. The
-   * trunk surface determines the supported belly height. All source contact ids
-   * and semantics follow their explicitly declared bones.
+   * Each terminal-bar cap keeps its source X/Z position and adjusts height
+   * for sole clearance as it rotates. The trunk determines the resting
+   * height. The declared carriers keep attached parts and contacts on their
+   * bones throughout the cycle. Descent reverses the authored rise geometry.
    *
-   * Ellis et al. 2018, Frontiers in Bioengineering and Biotechnology 6:162,
-   * doi:10.3389/fbioe.2018.00162, motivates symmetric belly-lying and fixed foot
-   * placements. Their measured greyhound hip/knee/ankle extension windows were
-   * approximately 0–20%, 10–50%, 25–60% of rising. This rig's goal fit couples
-   * the proximal joints; it does not reproduce those clinical curves, forces or
-   * other species' behavior. Distal windows, pitch and durations remain authored.
-   * Descent reverses the authored geometric path; side rolling is unsupported.
-   *
-   * @param animal The independently built quadruped; never modified.
-   * @param params Explicit floor, cycle clock, distal carriage, pitch and
-   *   complete carriers.
-   * @returns A finite cycle with named contact/standing events and time-only
-   *   sampling.
-   * @throws {RangeError} For malformed authoring input, inconsistent source
-   *   geometry, unsupported parts, impossible reach, a goal miss or below-floor
-   *   geometry at a requested sample.
+   * @param animal Source rest model. Sample poses use independent records.
+   * @param params Floor, clock, distal settings, phase windows and carriers.
+   * @returns A finite clip with belly-contact, rise and standing event times
+   *   and independently evaluated samples.
+   * @throws {RangeError} If clock or geometry admission fails, or if a
+   *   requested sample misses a foot goal or penetrates the floor.
    */
   export function plan<
     Id extends string,
@@ -55,21 +44,25 @@ export namespace AutoMovieArchetypeQuadrupedRest {
     params: AutoMovieArchetypeQuadrupedRestPlan.IParams,
   ): AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, Dimension> {
     const floorY: number = params.floorY;
+    if (!Number.isFinite(floorY))
+      throw new RangeError("Rest floor height must be finite");
     const lowering: number = positive(params.loweringSeconds, "loweringSeconds");
     const resting: number = params.restingSeconds;
     const rising: number = positive(params.risingSeconds, "risingSeconds");
     const pitch: number = params.restPitch;
     const tailAngle: number = params.tailDirection;
-    if (Math.abs(tailAngle) > 180)
+    if (!(Math.abs(tailAngle) <= 180))
       throw new RangeError(
         "Rest tail direction must be within [-180, 180] degrees",
       );
-    if (resting < 0 || Math.abs(pitch) >= 90)
+    if (!Number.isFinite(resting) || resting < 0 || !(Math.abs(pitch) < 90))
       throw new RangeError(
-        "Rest requires nonnegative hold time and |restPitch| < 90 degrees",
+        "Rest requires finite nonnegative hold time and |restPitch| < 90 degrees",
       );
     const riseStart: number = lowering + resting;
     const duration: number = riseStart + rising;
+    if (!Number.isFinite(duration))
+      throw new RangeError("Rest cycle duration must be finite");
     const windows: Record<
       "body" | "fore" | "hind",
       AutoMovieArchetypeQuadrupedRestPlan.IWindow
@@ -375,7 +368,8 @@ export namespace AutoMovieArchetypeQuadrupedRest {
  * Admit a positive transition clock without supplying a biological duration.
  */
 function positive(value: number, name: string): number {
-  if (!(value > 0)) throw new RangeError(`Rest ${name} must be positive`);
+  if (!Number.isFinite(value) || value <= 0)
+    throw new RangeError(`Rest ${name} must be finite and positive`);
   return value;
 }
 
@@ -401,7 +395,7 @@ function directions(
 ): readonly [number, number] {
   const a: number = value.thirdDegrees;
   const b: number = value.fourthDegrees;
-  if (Math.abs(a) > 180 || Math.abs(b) >= 90)
+  if (!(Math.abs(a) <= 180 && Math.abs(b) < 90))
     throw new RangeError(
       "Rest distal directions require |third| <= 180 and |fourth| < 90 degrees",
     );

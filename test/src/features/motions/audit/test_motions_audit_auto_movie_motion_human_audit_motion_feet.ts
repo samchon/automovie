@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. At 1.5 s the left foot swings from the floor to the tread: its floor is the
  *    floor it left, 0, below the person's 0.3; the right foot's is the tread.
  * 3. At 2.5 s both bear on the tread: 0.3 for each.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names foot floors before the rise, during swing between levels and while both feet bear on the tread.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds foot and body floor readers from one typed support action and queries them at three film seconds.
+ * @evidence contracts/development/testing.md#independent-expectations The authored left foot leaves height 0 and returns at 0.3 m. At the swing midpoint its floor remains the lower endpoint, while the right foot and body read 0.3 m. Both limbs then read 0.3 m.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_motion_feet(): void {
   const motion: IAutoMovieMotionHumanAuditMotion = {

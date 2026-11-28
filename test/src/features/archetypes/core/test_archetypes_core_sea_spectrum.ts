@@ -9,7 +9,13 @@ import { nclose } from "../../internal/nclose";
 /** Allows floating-point arithmetic in ratios and their square roots. */
 const SPECTRUM_ROUNDING: number = 128 * Number.EPSILON;
 
-/** The discrete deep-water spectrum retains its similarity and variance. */
+/**
+ * The discrete deep-water spectrum retains its similarity and variance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines spectral similarity, physical dispersion, variance, periodic bearing and invalid height boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds sea fields at ordinary and extreme heights and checks actual component frequency, wavenumber, amplitude and phase. Reads directional samples and the two structured height refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Deep-water dispersion requires `2*pi*f = sqrt(g*k)`. Fourier variance is the sum of squared amplitudes divided by two, and four times its square root gives the significant height within the authored quadrature tolerance.
+ */
 export function test_archetypes_core_sea_spectrum(): void {
   const reference = AutoMovieArchetypeSea.of({ height: 1, seed: 24 });
   for (const height of [1e-180, 1e180]) {

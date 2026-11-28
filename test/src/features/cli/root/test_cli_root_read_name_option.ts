@@ -8,6 +8,10 @@ import { AutoMovieCliScaffold } from "automovie";
  *
  * 1. Ordinary and surrounding-spaced names are returned as typed.
  * 2. A missing token, a blank token and an option token refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines exact preservation of a supplied create or add package name after CLI option admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads ordinary and surrounding-spaced create input and ordinary add input, then tries missing, blank and option-valued names.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied name text keeps its spaces. The invalid tokens contain no usable name, so each must produce a refusal.
  */
 export function test_cli_root_read_name_option(): void {
   TestValidator.equals(

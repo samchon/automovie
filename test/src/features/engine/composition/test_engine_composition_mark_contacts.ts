@@ -24,7 +24,7 @@ import { nclose } from "../../internal/nclose";
  *    step's duration, and a geometric receipt draw nothing; a step with a
  *    positive separation draws nothing.
  * 3. Of two steps, the later one at or before the drawn second is read.
- * 4. A scale that is zero or not finite, and an acting step with no duration, are
+ * 4. A nonpositive scale and an acting step with no duration are
  *    refused.
  * 5. With the hand dynamic and the wall without ownership history, a stated zero
  *    flags only the hand, a transfer the hand received flags nothing, the
@@ -35,7 +35,11 @@ import { nclose } from "../../internal/nclose";
  * 6. Under a 0.05 m maximum the 0.1 m arrows keep their directions at 0.05 m as
  *    unflagged `contact/clamped` marks labelled with the clamp and the 25 N
  *    they stand for at least; under a 0.1 m or 0.2 m maximum they stay
- *    `contact` at 0.1 m; a maximum that is zero or not finite is refused.
+ *    `contact` at 0.1 m. A nonpositive maximum is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names receipt and time eligibility, force direction and scale, sample selection, dynamic ownership flags, clamp labeling and nonpositive inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Hands typed solver and geometric receipts with prepared samples and ownership transitions directly to CompositionContact.markContacts. Reads the two marks' collider paths, arrow vectors, flags and clamp fields.
+ * @evidence contracts/development/testing.md#independent-expectations Dividing 0.5 N s by 0.01 s and scaling by 0.002 m/N gives opposed 0.1 m arrows. The later 1 N s sample doubles them. A 0.05 m cap means 25 N, and only explicitly zero transfers to dynamic sides qualify for the ownership flag.
  */
 export function test_engine_composition_mark_contacts(): void {
   const step = (

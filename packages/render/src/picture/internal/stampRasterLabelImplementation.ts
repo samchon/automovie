@@ -3,6 +3,8 @@ import type {
   IAutoMovieRasterPoint,
 } from "@automovie/interface";
 
+import { rasterLabelBox } from "./rasterLabelBox";
+
 /*
  * Burn a short caption, such as a film second or a mark's label, into a
  * picture, white on a dark box, so a thumbnail on a contact sheet still says
@@ -20,24 +22,9 @@ export function stampRasterLabelImplementation(
   scale: number,
   at: IAutoMovieRasterPoint = { x: 0, y: 0 },
 ): void {
-  if (scale <= 0) throw new Error("Label scale must be a positive integer");
   const pad: number = scale * 2;
-  const boxWidth: number = Math.min(
-    raster.width,
-    pad * 2 + text.length * 4 * scale - scale,
-  );
-  const boxHeight: number = Math.min(raster.height, pad * 2 + 5 * scale);
-
-  // The box starts at the anchor, moved back inside the picture where it would leave it.
-  const left: number = Math.max(
-    0,
-    Math.min(Math.round(at.x), raster.width - boxWidth),
-  );
-  const top: number = Math.max(
-    0,
-    Math.min(Math.round(at.y), raster.height - boxHeight),
-  );
-  fill(raster, left, top, boxWidth, boxHeight, [16, 16, 16]);
+  const { left, top, width, height } = rasterLabelBox(raster, text, scale, at);
+  fill(raster, left, top, width, height, [16, 16, 16]);
   for (const [n, character] of [...text.toLowerCase()].entries()) {
     const rows: readonly number[] = GLYPHS[character] ?? [0, 0, 0, 0, 0];
     for (let row: number = 0; row < 5; row++)

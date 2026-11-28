@@ -26,11 +26,9 @@ import { throwsError } from "../internal/predicates";
  * 4. A symbol outside the table, such as the Kokoro-specific capital "A", is
  *    refused by name.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the articulation classes checked, the affricate spellings, the untimed marks and the refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation Consonants and vowels map to the expected visemes. Tie-bar and ligature affricates stay single, stress marks consume no slot and unknown symbols exercise omission.
  * @evidence contracts/development/testing.md#behavioral-verification Maps single-phoneme chunks through `productionPhonemesToVisemes` and reads each viseme. A table that sends consonants to rest, splits affricates or times stress marks fails.
  * @evidence contracts/development/testing.md#independent-expectations Each expectation is written from the place and manner of articulation in Ladefoged and Johnson's A Course in Phonetics and the class names of ISO/IEC 14496-2 Annex C, not read from the engine table.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers every viseme but `sil`, both affricate spellings, all three untimed marks and one refusal; timing and coarticulation belong to `test_engine_dialogue_viseme_coarticulation`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_viseme_mpeg4_map`; it starts no process.
  */
 export function test_engine_dialogue_viseme_mpeg4_map(): void {
   const rows: [string, AutoMovieViseme][] = [

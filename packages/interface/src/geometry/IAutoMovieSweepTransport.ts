@@ -1,80 +1,82 @@
 /**
- * A spine compiled into buffers that can be rewritten and recompiled in place,
- * from `transportSweepSpine`.
+ * Reusable spine transport with writable control arrays and packed point,
+ * tangent and frame queries.
  *
- * The caller writes the points, the starting direction and any end tangents
- * into the arrays, calls `update`, then queries. Queries write into a caller
- * array at an offset and allocate nothing, so a sweep riding a skeleton is
- * re-transported every frame into the same memory. `frameSweepSpine`
- * wraps one of these in the object-returning `IAutoMovieSweepPath`.
+ * Write the full authored arrays and update before the first query or after any
+ * edit. Query output belongs to the supplied array. Use numeric chord
+ * parameters with a defined normalized value.
  */
 export interface IAutoMovieSweepTransport {
-  /** Number of spine points. */
+  /** Number of control points fixed when storage is created. */
   count: number;
 
-  /**
-   * Packed points `[x, y, z, ...]`, metres, `3 * count` numbers, written by the
-   * caller.
-   */
+  /** Writable packed metre XYZ controls, three per point in spine order. */
   points: Float64Array;
 
-  /** Direction of the section plane's first axis at the start, three numbers. */
+  /**
+   * Writable XYZ direction used to seed the first section axis after projection
+   * perpendicular to the starting tangent.
+   */
   normal: Float64Array;
 
   /**
-   * Direction the path leaves its first point along, three numbers; all zero,
-   * the spline's own.
+   * Writable XYZ departure direction. An all-zero sentinel uses the spline's
+   * first derivative direction.
    */
   start: Float64Array;
 
   /**
-   * Direction the path reaches its last point along, three numbers; all zero,
-   * the spline's own.
+   * Writable XYZ arrival direction. An all-zero sentinel uses the spline's last
+   * derivative direction.
    */
   end: Float64Array;
 
   /**
-   * Recompile the curve and, when the transport carries frames, the frame table
-   * from the arrays.
+   * Recompile the path and optional frame table from the current control
+   * buffers.
    *
-   * @throws Error as `frameSweepSpine` documents
+   * @throws Error for unsupported spine geometry, including coincident adjacent
+   *   controls, a reversal or unavailable frame tangent.
    */
   update(): void;
 
   /**
-   * Length of the point polygon, the chord-length scale of `u`.
+   * Return the current control-polygon length in metres, used to scale the
+   * normalized chord coordinate.
    *
-   * @returns Metres
+   * @returns Current control-polygon length in metres.
    */
   length(): number;
 
   /**
-   * Write the curve point at `u`, clamped to `[0, 1]`.
+   * Write three model-metre scalars of the compiled spine point at the clamped
+   * chord parameter.
    *
-   * @param u Chord-length parameter
-   * @param out Receives three numbers
-   * @param at Offset into `out`
+   * @param u Normalized chord coordinate, clamped to [0, 1].
+   * @param out Borrowed destination with three writable scalars from at.
+   * @param at Scalar starting offset in out.
    */
   point(u: number, out: Float64Array, at: number): void;
 
   /**
-   * Write the unit tangent at `u`.
+   * Write the unit tangent in increasing chord-parameter direction. A vanishing
+   * derivative throws.
    *
-   * @param u Chord-length parameter
-   * @param out Receives three numbers
-   * @param at Offset into `out`
-   * @throws Error when the tangent vanishes there
+   * @param u Normalized chord coordinate, clamped to [0, 1].
+   * @param out Borrowed destination with three writable scalars from at.
+   * @param at Scalar starting offset in out.
+   * @throws Error when the tangent vanishes.
    */
   tangent(u: number, out: Float64Array, at: number): void;
 
   /**
-   * Write the rotation-minimizing frame at `u`: origin, first axis, second axis
-   * and normal, twelve numbers.
+   * Write twelve scalars as origin, first axis, second axis and normal. Frame
+   * queries require transport compiled with frames.
    *
-   * @param u Chord-length parameter
-   * @param out Receives twelve numbers
-   * @param at Offset into `out`
-   * @throws Error when the transport was created without frames
+   * @param u Normalized chord coordinate, clamped to [0, 1].
+   * @param out Borrowed destination with twelve writable scalars from at.
+   * @param at Scalar starting offset in out.
+   * @throws Error when the transport carries no frame table.
    */
   frame(u: number, out: Float64Array, at: number): void;
 }

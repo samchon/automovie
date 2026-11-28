@@ -48,6 +48,10 @@ function rendererFacts(draw: () => void): Renderer {
  *    draw.
  * 4. Failed retirement keeps its original outcome without another disposal
  *    attempt; later scene passes, including another scene, request no draw.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe filter changes, shared shadow/depth targets, disposal failures, and retained failure on later passes.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that filter transitions clear public slots and dispose each owned shadow target once, retain all failures, and block future draws after unsuccessful retirement.
+ * @evidence contracts/development/testing.md#independent-expectations Uses fixture target identities, event counters and separately created disposal failures to specify exactly-once retirement and preserved failure.
  */
 export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): void {
   let draws: number = 0;

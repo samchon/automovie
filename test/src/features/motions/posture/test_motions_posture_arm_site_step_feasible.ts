@@ -7,6 +7,10 @@ import { TestValidator } from "@nestia/e2e";
  * Refuse a linearized site equality outside the pose's trust box. The form `2 x
  * - 3 y` on `[1, 2] × [-1, 4]` reaches `[-10, 7]`, including both endpoints.
  * Preserve the allowed Cartesian residual past either endpoint.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the allowed Cartesian residual beyond a row's signed trust-box extrema.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the same signed affine row on the exact bounds, just outside them and with residual allowance.
+ * @evidence contracts/development/testing.md#independent-expectations Coefficients 2 and -3 attain -10 and 7 over the independent box endpoints. Only the stated residual extends that interval.
  */
 export function test_motions_posture_arm_site_step_feasible(): void {
   const box: Parameters<typeof HumanArmSiteStepFeasible>[1] = [

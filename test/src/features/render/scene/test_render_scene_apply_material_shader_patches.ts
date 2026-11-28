@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An empty list preserves the caller's state reference and edit sequence.
  * 3. A middle operation writes then throws its original Error, preserving
  *    predecessor effects and skipping the successor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the shared mutable input, execution order, empty sequence and original failure.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies ordered callback patches to the public material operation. Checks reference identity inside a callback, the observed edits after each call and the propagated error object.
+ * @evidence contracts/development/testing.md#independent-expectations Each callback's literal edit lets the next observe its predecessor. No callback means no new edit. The middle callback writes before throwing its known error, so its edit stays and the successor's marker stays absent.
  */
 export function test_render_scene_apply_material_shader_patches(): void {
   const state: { rendererState: { owner: string }; edits: string[] } = {

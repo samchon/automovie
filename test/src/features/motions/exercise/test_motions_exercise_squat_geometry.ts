@@ -21,7 +21,13 @@ import { TestValidator } from "@nestia/e2e";
 const ACTOR = "a";
 const THIGH = { quarter: 60, half: 45, parallel: 0 } as const;
 
-/** Squat depth, sole support and pace on the displayed exercise. */
+/**
+ * Squat depth, sole support and pace on the displayed exercise.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Displayed squats reach three thigh depths, preserve phased pose across paces, and keep both sole contacts.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples stock quarter, half, parallel and reduced-depth squats, and compares omitted backward travel with explicit zero.
+ * @evidence contracts/development/testing.md#independent-expectations Prescribed thigh angles, floor gaps and joint limits are explicit bounds. Equal normalized phases at two paces must place the pelvis at the same world point.
+ */
 export function test_motions_exercise_squat_geometry(): void {
   const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body("m-average");
   for (const depth of ["quarter", "half", "parallel"] as const) {

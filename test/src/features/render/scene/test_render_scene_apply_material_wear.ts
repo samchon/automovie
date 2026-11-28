@@ -51,6 +51,10 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  * to its subpixel grid, so the two meshes of one surface put the same pixel at
  * points up to 0.5 mm apart on SwiftShader, and the weight's gradient turns
  * that into a difference of up to 0.014 that no shader could remove.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the expanded box, per-triangle edge lists, texture distances and material hook placements.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the render wear owner on a tessellated box, decodes its native vertex attributes and edge texture, and reads the physical material compile hook's output. Compares sampled data with the Engine's distance and weight operations.
+ * @evidence contracts/development/testing.md#independent-expectations The twelve box triangles each require three non-indexed vertices and one list shared by those vertices. The measured endpoints and convexity give the reference texture fields and CPU distance probes. The reference weight is positive on an edge and falls to zero at its declared width.
  */
 export function test_render_scene_apply_material_wear(): void {
   const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({

@@ -1,10 +1,11 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import type { ChangeEvent, JSX } from "react";
+import type { AutoMovieRenderInspectionMarks } from "@automovie/render";
+import { type ChangeEvent, type JSX, useState } from "react";
 
+import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector";
 import type { AutoMovieViewerInspectorPlayhead } from "../../AutoMovieViewerInspectorPlayhead";
 import type { IAutoMovieViewerInspectorAction } from "../../IAutoMovieViewerInspectorAction";
 import type { IAutoMovieViewerInspectorScene } from "../../IAutoMovieViewerInspectorScene";
-import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector";
 
 /*
  * Diagnostics: the confirmed errors this mount has reported, newest first, each with buttons that show its evidence.
@@ -16,6 +17,11 @@ export function InspectorDiagnosticsPanel(props: {
    * Reported incidents, newest first.
    */
   incidents: readonly IAutoMovieViewerInspectorScene.IIncident[];
+
+  /* Current path text and original records matched by it. */
+  coveragePath: string;
+  selectedCoverage: AutoMovieRenderInspectionMarks.ISelectedDiagnostics | null;
+  onCoveragePath: (path: string) => void;
 
   /*
    * The identity paths the scene draws.
@@ -42,6 +48,8 @@ export function InspectorDiagnosticsPanel(props: {
    */
   dispatch: (action: IAutoMovieViewerInspectorAction) => void;
 }): JSX.Element {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const maximum = expanded ? undefined : 12;
   const show: (
     observation: IAutoMovieInspectionDiagnostics.IObservation,
   ) => void = (
@@ -65,6 +73,73 @@ export function InspectorDiagnosticsPanel(props: {
         />{" "}
         show witnesses
       </label>
+      <label>
+        Coverage path{" "}
+        <input
+          type="text"
+          value={props.coveragePath}
+          onChange={(event): void => props.onCoveragePath(event.target.value)}
+        />
+      </label>
+      {props.coveragePath.trim() === "" ? null : props.selectedCoverage ===
+        null ? (
+        <p>No diagnostic sample recorded.</p>
+      ) : (
+        <div>
+          <p>
+            {props.selectedCoverage.coverage.length} of{" "}
+            {props.selectedCoverage.totalCoverage} coverage ranges,{" "}
+            {props.selectedCoverage.episodes.length} of{" "}
+            {props.selectedCoverage.totalEpisodes} finding episodes
+          </p>
+          {props.selectedCoverage.coverage.length === 0 ? (
+            <p>No coverage recorded for this path.</p>
+          ) : (
+            <ul>
+              {props.selectedCoverage.coverage
+                .slice(0, maximum)
+                .map(({ range, status }, index) => (
+                  <li key={index}>
+                    <code>{range.coverage.check}</code>{" "}
+                    {range.coverage.paths?.join(" / ")}{" "}
+                    {range.coverage.basis === undefined
+                      ? ""
+                      : range.coverage.basis + " "}
+                    {status.replaceAll("-", " ")}
+                    {" at "}
+                    {clock(range.first)}
+                    {range.samples === 1 ? "" : " to " + clock(range.last)}
+                    {range.coverage.status === "checked"
+                      ? ""
+                      : " (" + range.coverage.reason + ")"}
+                  </li>
+                ))}
+            </ul>
+          )}
+          {props.selectedCoverage.episodes
+            .slice(0, maximum)
+            .map((episode, index) => (
+              <p key={index}>
+                <code>{episode.worst.finding.code}</code>{" "}
+                {episode.worst.finding.paths.join(" / ")}{" "}
+                <button type="button" onClick={(): void => show(episode.first)}>
+                  first
+                </button>{" "}
+                <button type="button" onClick={(): void => show(episode.worst)}>
+                  worst
+                </button>
+              </p>
+            ))}
+          {Math.max(
+            props.selectedCoverage.coverage.length,
+            props.selectedCoverage.episodes.length,
+          ) > 12 ? (
+            <button type="button" onClick={(): void => setExpanded(!expanded)}>
+              {expanded ? "Show fewer records" : "Show all selected records"}
+            </button>
+          ) : null}
+        </div>
+      )}
       {props.incidents.length === 0 ? (
         <p style={{ margin: 0, color: "#666" }}>
           No confirmed error reported yet.

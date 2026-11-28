@@ -18,9 +18,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives the three actual supported room paths and applies each to the same impulse, observing retained dry onset, nonzero delayed tail, .1 cross-room gain, byte-identical outdoor copying and unchanged borrowed input.
  * @evidence contracts/development/testing.md#independent-expectations Literal dry [1,0] and 20 dB partition loss determine onset/input and .1 amplitude expectations independently. Outdoor checks raw buffer bytes; numeric records use the existing shape-preserving zero-tolerance comparator. A nonzero tail alone does not prove all samples finite or measured acoustic fidelity.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves same-room, different-room and outdoor twins over the original two-sample mono 100 Hz input; original nclose transmission tolerance and strict nonzero/longer-tail predicates remain unchanged. Unavailable and malformed PCM facts have separate admission units.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh returned arrays and borrows the unchanged dry buffer through the existing fixture, opening no file, audio device, codec process, solver host, renderer, browser or GPU and replacing no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The same-room impulse retains its dry onset and adds a nonzero delayed tail; the different-room path applies gain 0.1.).
+ * @evidence contracts/development/common.md#meaningful-documentation Same-room, different-room and outdoor paths exercise onset, tail and exact outdoor copying. All three retain the tested frame and ownership properties.
  */
 export function test_engine_interior_acoustic_pcm_paths(): void {
   const {

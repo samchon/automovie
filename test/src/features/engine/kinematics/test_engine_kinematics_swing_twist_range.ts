@@ -26,18 +26,16 @@ import { throwsError } from "../../internal/throwsError";
  * 1. A prepared frame reads A=Rz(30), B=Rx(20)Rz(-15), restored A and -A. Physical
  *    direction/swing/twist follow those equations. Earlier reading records
  *    remain owned after caller mutation and later numerical reads.
- * 2. Preparation performs no numerical axis read. An owned input getter's
- *    transient refusal propagates, then a successful retry admits the same
- *    numeric basis. Later changing rotations share that admitted basis. Its
- *    observed read count measures basis-input work, not projection work.
- * 3. Ordinary frames still admit changed axes. Spreading or inheriting an already
+ * 2. Ordinary frames still admit changed axes. Spreading or inheriting an already
  *    prepared frame does not transfer its admission to a new frame with
  *    malformed axes; only the original wrapper owns that preparation.
  *
- * Prepared axes and clinical mappings remain numerically unchanged. Only
- * ordinary raw frames, test-owned getters and returned readings are changed. No
- * range table, motion producer or Human imitation supplies an oracle. This
- * deferred CPU unit makes no full ROM, optimum or elapsed-time claim.
+ * The prepared basis stays fixed. The test edits an ordinary raw frame
+ * and its own returned readings. The oracle is the cardinal rotation above.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers prepared swing/twist readings, signed quaternion equivalence, output ownership and live validation of ordinary, copied and inherited frames.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares and reads a fixed basis in A/B/A order, mutates one result, and uses invalid-axis versions of raw and inherited frames to exercise admission separately.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit cardinal quaternion composition sends rest Z to (0, -sin(f), cos(f)), with swing |f| and clinical twist 10 minus rig twist. Positive flexion points toward -Y at azimuth -90.
  */
 export function test_engine_kinematics_swing_twist_range(): void {
   const findings: string[] = [];

@@ -225,6 +225,10 @@ namespace part_prepare_kneel_clock {
  *   second, each phase running from its own instant to the next phase's (the
  *   last to `end`), with its linear share of the phase's time and that share's
  *   minimum-jerk progress.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Kneeling phases, knee placement, and progress track fixed keys and the knee's attainable footprint.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the phase table, place reader, and prepared clock on explicit pose and time inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Prescribed key times determine which phase owns each sample and the minimum-jerk share within it. Equal segments give an independent reach boundary for the knee.
  */
 export async function test_motions_everyday_kneel(): Promise<void> {
   part_kneel_phase_table.verify();

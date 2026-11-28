@@ -17,6 +17,10 @@ const ROUNDING: number = 1e-12;
  *    starting at angle pi with sweep -pi.
  * 2. A zero bulge is a straight edge, null.
  * 3. A zero-length chord is null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the semicircle's centre, radius, start and sweep and the two null cases for zero bulge and zero chord length.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.autoMovieOpeningArc with two planar endpoints and explicit bulges, checking returned geometry and nulls.
+ * @evidence contracts/development/testing.md#independent-expectations A unit bulge means a half turn on a 2 m chord. Its centre is the midpoint x = 1, radius is 1, and the first endpoint fixes start pi with negative sweep pi under the declared convention.
  */
 export function test_engine_drawing_opening_arc(): void {
   const arc: IAutoMovieOpeningArc | null =

@@ -2,47 +2,81 @@ import type { IAutoMovieViewSectionField } from "./IAutoMovieViewSectionField";
 
 /** Data and callback contracts shared by the LoftViewRead operations. */
 export namespace IAutoMovieLoftViewRead {
-  /** Finite original values, before native shape admission. */
+  /**
+   * Effective scalar inputs at one physical station for a native local section.
+   * The reader evaluates the signed outlines as directional extents, applies
+   * fullness and any applicable cap shoulder policy, and reads declared touch
+   * and split controls. Native section preparation admits these values as
+   * geometry.
+   */
   export interface IValues {
-    /** Four extent values, mm; native section admission still checks positivity. */
+    /**
+     * Four chart extents in millimetres, in +u, +v, −u, −v order. The
+     * negative-axis outline values are sign-reversed into extents.
+     */
     extents: number[];
 
-    /** Four effective shoulder values after their existing cap law. */
+    /**
+     * Four effective dimensionless shoulder shares, in cyclic quarter order. A
+     * regular four-quarter read includes the applicable cap blend.
+     */
     shoulders: number[];
 
-    /** Four touch offsets, mm, when the source declares them. */
+    /**
+     * Four authored guide contact offsets in chart millimetres, in +u, +v, −u,
+     * −v order, when present.
+     */
     touch?: number[];
 
-    /** Four splits `[u, v, angle, shoulder]`, when the source declares them. */
+    /**
+     * One [u, v, tangent angle, following shoulder] per quarter, when declared.
+     * Coordinates are chart millimetres, the angle is radians and the share is
+     * dimensionless.
+     */
     splits?: number[][];
 
     /**
-     * Each quarter's ordered split points `[u, v, angle, shoulder]`, when the
-     * source declares them.
+     * Ordered split points within each of four quarters, when declared. Each
+     * point contains [u, v, tangent angle, following shoulder]. An empty
+     * quarter list retains one arc.
      */
     pieces?: number[][][];
   }
 
-  /** Actual finite physical-station source2 inputs of the shared native field. */
+  /**
+   * Effective native scalar values and physical-station derivatives at one
+   * direct-source station. Each scalar tuple contains value, first derivative
+   * and second derivative in increasing order. The derivative coordinate is
+   * physical station in millimetres, after any root or angle conversion.
+   */
   export interface IJets {
-    /** Four extent source2 tuples in physical station. */
+    /**
+     * Four extent jets in +u, +v, −u, −v order. Each triple uses millimetres,
+     * millimetres per millimetre, and inverse millimetres.
+     */
     extents: IAutoMovieViewSectionField.IStationJet[];
 
-    /** Four effective shoulder source2 tuples in that same station. */
+    /**
+     * Four effective shoulder jets in cyclic quarter order, with unitless value
+     * and derivatives per millimetre and per squared millimetre.
+     */
     shoulders: IAutoMovieViewSectionField.IStationJet[];
 
-    /** Four touch-offset source2 tuples, when the source declares them. */
+    /**
+     * Jets of declared guide offsets in +u, +v, −u, −v order. Values use chart
+     * millimetres and derivatives use physical station.
+     */
     touch?: IAutoMovieViewSectionField.IStationJet[];
 
     /**
-     * Four splits of four source2 tuples each, `[u, v, angle, shoulder]`, when
-     * the source declares them.
+     * One split per quarter when declared, each with station triples for u, v,
+     * tangent angle and following shoulder in that order.
      */
     splits?: IAutoMovieViewSectionField.IStationJet[][];
 
     /**
-     * Each quarter's ordered split points, four source2 tuples each, when the
-     * source declares them.
+     * Ordered splits within each of four quarters when declared. Each split
+     * gives station triples for u, v, tangent angle and following shoulder.
      */
     pieces?: IAutoMovieViewSectionField.IStationJet[][][];
   }

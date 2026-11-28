@@ -1,13 +1,11 @@
 import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 
 /**
- * Published normal-impact measurements, with the counterface and speed retained
- * so a material name cannot silently become a universal constant.
+ * Provides restitution measurements with their specimen, surface and speed.
  *
- * Jankowski's specimen tests use a ball and a massive plate of the same
- * material. They do not measure furniture, a fabric bag or an inflated ball.
- * The table records those limits instead of assigning unmeasured materials the
- * former builder-wide coefficient of 0.2.
+ * Each row applies to the named ball and massive plate tested at the named
+ * normal approach speed. A caller can compare its own contact to that
+ * specimen before choosing an authored coefficient.
  */
 export namespace AutoMovieArchetypeRestitution {
   /** A primary-source normal restitution measurement for a specified test. */

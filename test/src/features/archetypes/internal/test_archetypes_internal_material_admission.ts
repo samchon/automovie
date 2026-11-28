@@ -1,4 +1,8 @@
-import { AutoMovieArchetypeMaterial as material } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeDrinkware,
+  AutoMovieArchetypeMaterial as material,
+  AutoMovieArchetypeRefusal,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,6 +15,11 @@ import { TestValidator } from "@nestia/e2e";
  *    an interior value are valid. A value outside either end refuses.
  * 3. Friction resolves a measured pair in either operand order and refuses a pair
  *    with no measurement.
+ * 4. A serialized string does not become a restitution or fill ratio.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names material and friction admission, unknown and authored restitution, and the raw input representation check.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public coefficient selectors and makes a real drinkware request with a raw field in place of its typed fill.
+ * @evidence contracts/development/testing.md#independent-expectations Zero and one bound a finite numerical ratio. A value encoded as a string remains a separate representation. A measured friction pair identifies the same row in each operand order.
  */
 export function test_archetypes_internal_material_admission(): void {
   TestValidator.equals(
@@ -38,6 +47,22 @@ export function test_archetypes_internal_material_admission(): void {
   TestValidator.error("coefficient beyond one", (): unknown =>
     material.restitution("rubber", 3 / 2, "test"),
   );
+  const rawRatio: number = JSON.parse('"0.4"');
+  const invalidRatios: readonly [string, () => unknown][] = [
+    ["restitution", () => material.restitution("rubber", rawRatio, "test")],
+    ["fill", () => AutoMovieArchetypeDrinkware.create({ kind: "cup", fill: rawRatio })],
+  ];
+  const failures: string[] = [];
+  for (const [axis, call] of invalidRatios) {
+    try {
+      call();
+      failures.push(`${axis} accepted a serialized string`);
+    } catch (error) {
+      if (!(error instanceof AutoMovieArchetypeRefusal) || error.axis !== axis)
+        failures.push(`${axis} did not give a structured parameter refusal`);
+    }
+  }
+  TestValidator.equals("invalid ratio admissions", failures, []);
 
   const original: material.IFriction = material.friction(
     "concrete",

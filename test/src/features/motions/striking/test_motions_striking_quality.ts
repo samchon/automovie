@@ -19,6 +19,10 @@ import { nclose } from "../../internal/nclose";
  * 2. A hit and an unset accuracy stop; a graze and a miss do not.
  * 3. Two reaches with equal advance, wrist and elbow are the same; another advance
  *    is not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual hand depth, contact-stop categories and equality of solved reach records.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads depth for a fixed hand length, enumerates simulated contact labels and compares reach records that differ only in advance.
+ * @evidence contracts/development/testing.md#independent-expectations The declared factor 0.23 gives 0.046 m at length 0.2. Hit and unset allow the stop, and changing advance alone breaks equality.
  */
 export function test_motions_striking_quality(): void {
   TestValidator.predicate(

@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * Scenario: at 2 s a fist travelling along +X with no tail reads (2, 0, 0) and
  * none; a shin and a foot on one leg chain read its first and second, and its
  * second and third ends, the chain posed once.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes sampling standalone and shared-chain virtual collision geometry at one time.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples an independent moving point and two adjacent colliders that share one typed limb pose callback.
+ * @evidence contracts/development/testing.md#independent-expectations The free path is x = t with no tail. A shared three-joint chain yields spans [0, 1] and [1, 2] and the callback is invoked once.
  */
 export function test_motions_striking_weapon_sample(): void {
   let posed: number = 0;

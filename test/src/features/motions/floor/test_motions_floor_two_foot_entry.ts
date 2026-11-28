@@ -7,13 +7,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A two-foot crouch can start only while both feet bear.
+ * Check the footing required at the start of a two-foot floor action.
  *
  * Scenarios:
  *
- * 1. A two-foot stance is admitted.
- * 2. A left-only, right-only or unsupported entry asks for standing and carries
- *    the owning law's explanation and correction.
+ * 1. Accept an entry with both feet bearing.
+ * 2. Refuse left-only, right-only and unsupported entries. Each refusal
+ *    carries the supplied reason and correction and gives standing as the
+ *    sole feasible value.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios enumerate the support choices and the contents of the refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification All four support combinations exercise the entry gate and its structured refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture enumerates the two bearing flags and uses the authored refusal fields and feasible standing option as expectations.
  */
 export function test_motions_floor_two_foot_entry(): void {
   floorEntry.bothFeet(true, true, "Crouch over both feet", "Stand first");

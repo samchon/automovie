@@ -32,6 +32,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    unloaded has left the holds, its share zero; touching again it is
  *    re-latched once and its share ramps back over `FADE`, half of it at half
  *    the window (design-4017-qp3, Section 3, rules 2 and 3).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains geometry-based support membership, ramping contact shares and directional pressure room.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads grounded but unloaded feet, lift and recontact transitions, unloading outlines, boundary room and a contact with measured load.
+ * @evidence contracts/development/testing.md#independent-expectations Four grounded polygons retain their full support. Half of the fade gives half share, and a point on the leading edge has zero forward room and full backward depth.
  */
 export function test_engine_physics_physical_stance_seat(): void {
   const findings: string[] = [];

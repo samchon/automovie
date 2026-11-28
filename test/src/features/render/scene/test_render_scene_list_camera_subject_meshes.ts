@@ -12,6 +12,10 @@ import * as THREE from "three";
  *    one on a layer the camera does not see are skipped.
  * 2. A line, a shader material, a displacement map and a morph target each make
  *    the subject unsupported.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the camera layer and visibility controls, then name four subject features the exact measurement refuses.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that measurable mesh order follows traversal after skipping hidden or unmatched layers, and that incompatible scene features report an unsupported subject.
+ * @evidence contracts/development/testing.md#independent-expectations Compares with the original two visible mesh identities and explicit unsupported outcomes for a line, shader, displacement map, and morph target.
  */
 export function test_render_scene_list_camera_subject_meshes(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();

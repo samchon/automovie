@@ -4,44 +4,37 @@ import type { IAutoMovieEvidenceDevelopmentProps } from "../development/IAutoMov
 import type { IAutoMovieEvidenceNarrativeProps } from "../narrative/IAutoMovieEvidenceNarrativeProps";
 import type { IAutoMovieEvidenceNoNarrativeProps } from "../narrative/IAutoMovieEvidenceNoNarrativeProps";
 
-/** Configures a project's engineering evidence and optional narrative workflow. */
+/** Selects engineering and optional production Evidence claim families. */
 export interface IAutoMovieEvidenceConfigProps {
   /** Absolute project directory containing the production-owned contracts. */
   location: string;
 
   /**
-   * Directory of the shared `.agents/skills` tree holding the bundled
-   * contracts, absolute or relative to `location`.
+   * Path to the shared skills tree, absolute or relative to `location`.
    *
-   * The engineering and development checklists (`contracts/development/**`) and
-   * the shared story contracts (`contracts/story/**`) resolve here. The
-   * production's own `work/**` and `language/**` contracts always resolve under
-   * `<location>/docs/contracts`, never here. A workspace production passes the
-   * workspace root's tree; a standalone production omits it. Citation addresses
-   * are the same either way; only reference roots change.
-   *
-   * @default path.join(location, ".agents", "skills")
+   * Omit it when the production has its own `.agents/skills`. In a workspace,
+   * name the workspace's tree. The production keeps its work and language
+   * contracts under its own `docs/contracts` in either case.
    */
   skills?: string;
 
-  /** Native claims added to the default source and test engineering claims. */
+  /** Native claims appended to the engineering claims with their own roots. */
   claims?: IEvidenceClaim[];
 
   /**
-   * Omit for ordinary coding and standalone assets; provide a route for video
-   * writing, or mode none for a screenplay no narrative pass writes.
+   * Omit for engineering and standalone assets. Select a narrative route for
+   * authored stages or use `mode: "none"` for a supplied screenplay.
    */
-  narrative?: IAutoMovieEvidenceNarrativeProps | IAutoMovieEvidenceNoNarrativeProps;
+  narrative?:
+    | IAutoMovieEvidenceNarrativeProps
+    | IAutoMovieEvidenceNoNarrativeProps;
 
-  /**
-   * Selects development contracts for entities, behaviors, composition and a
-   * separate review catalog.
-   */
+  /** Selects development claims for the commissioned production. */
   development?: IAutoMovieEvidenceDevelopmentProps;
 
   /**
-   * Overrides research selection. By default a short selects all studies once
-   * one exists beyond the index. Other routes leave research disabled.
+   * Overrides research selection. A short defaults to selecting its studies
+   * once a file exists beyond the index. Other routes default to disabled.
    */
   research?: "disabled" | "evidence";
 }

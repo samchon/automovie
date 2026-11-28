@@ -1,42 +1,50 @@
 import type { IAutoMovieRecoveryCameraMapBudget } from "./IAutoMovieRecoveryCameraMapBudget";
 
 /**
- * Additional positive safe-integer ceilings for incremental camera
- * registration. Inherited map limits bound one fit and aggregate observations;
- * these limits bound the number and combined work of repeated scene
- * transactions.
+ * Positive safe integer ceilings for repeated camera registration. The
+ * inherited controls cover observations and individual fitting stages.
+ * Scene-specific controls bound additional attempts, charged work, and
+ * simultaneous numerical storage.
  */
 export interface IAutoMovieRecoveryCameraSceneBudget extends IAutoMovieRecoveryCameraMapBudget {
   /**
-   * Maximum supplied images, at least three; the actual active set fixes joint
-   * width 6N-7.
+   * Maximum supplied source count, with at least three allowed. Active camera
+   * count determines the joint design width.
    */
   maxViews: number;
 
-  /** Aggregate camera resection transactions, including refused attempts. */
+  /**
+   * Total camera registration attempts charged before a transaction, including
+   * refused attempts.
+   */
   maxCameraAttempts: number;
 
-  /** Aggregate six-point proposals across every attempted resection. */
+  /** Total six-point resection proposals charged across candidate transactions. */
   maxTotalResectionTrials: number;
 
-  /** Aggregate original point designs, including refused/retried triangulations. */
+  /**
+   * Total new-point designs charged during growth, including retries and
+   * geometric refusals.
+   */
   maxTriangulations: number;
 
-  /** Aggregate joint fits, including those rolled back after failure. */
+  /**
+   * Total detached joint fits charged, including the initial scene fit and
+   * later rolled-back fits.
+   */
   maxJointFits: number;
 
   /**
-   * Aggregate charged dimension-sweep units for new-point and joint designs;
-   * not FLOPs or milliseconds. Seed/resection retain their separate per-fit and
-   * proposal ceilings.
+   * Total charged numerical work units across scene growth and refinement.
+   * Charges derive from design dimensions and configured iteration or sweep
+   * costs.
    */
   maxLinearWork: number;
 
   /**
-   * Conservative simultaneous incremental point/resection/joint linear scalar
-   * slots, checked before factors or population growth; the seed fit retains
-   * seedBudget limits. Excludes image/descriptor storage and JS overhead, and
-   * is not a byte/RSS certificate.
+   * Maximum incremental linear scalar slots simultaneously retained. This
+   * estimate covers point and resection scratch, joint buffers and retained
+   * reports when applicable.
    */
   maxResidentLinearEntries: number;
 }

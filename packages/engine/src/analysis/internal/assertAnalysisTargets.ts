@@ -25,6 +25,10 @@ export function assertAnalysisTargets(
       throw new Error(
         `analysis target "${target.key}" must state the unit its value is in`,
       );
+    if (!Number.isFinite(target.value))
+      throw new Error(
+        `analysis target "${target.key}" value must be finite, but was ${target.value}`,
+      );
     if (target.comparison !== "at-least" && target.comparison !== "at-most")
       throw new Error(
         `analysis target "${target.key}" must compare "at-least" or "at-most", but was ${String(target.comparison)}`,

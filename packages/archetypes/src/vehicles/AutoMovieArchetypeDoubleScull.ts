@@ -14,21 +14,23 @@ import { AutoMovieArchetypeDoubleScullData } from "./internal/AutoMovieArchetype
 
 /** Constructs the double scull archetype from its recipe. */
 export namespace AutoMovieArchetypeDoubleScull {
-/**
- * A two-station racing shell. The model's +Z points towards the bow and Y = 0
- * is its reference waterline. Both rowers face aft. The seat and both oars at
- * each station move independently. Seat travel starts at the catch side and
- * increases towards the bow. Oar dimensions come from Empacher and Filippi. The
- * lock heights keep the two hands clear as the handles overlap. The cockpit,
- * rail, blade thickness and hull sections between the measured points are
- * staging estimates.
- *
- * @param params Optional scene identity and fixed figures within the stated
- *   dimensions.
- * @param seed Provenance seed. The reference figures themselves are fixed.
- * @returns Open racing hull, two sliding seats, four footplates and four
- *   sculls.
- */
+  /**
+   * Build a two-station racing shell with four articulated sculls.
+   *
+   * The bow points along local `+Z` and the reference waterline is `Y = 0`.
+   * The rowers face aft. Each seat slides towards the bow from its catch
+   * position. Separate sweep and dip joints carry the corresponding oar's
+   * handle and blade tip. Opposite lock heights separate the crossing handles
+   * in the model's reference geometry.
+   *
+   * Hull and oar dimensions use catalogue figures. The cockpit, rail, blade
+   * thickness and intervening hull sections are staging estimates.
+   *
+   * @param params Optional scene ID and fixed values in metres or kilograms.
+   * @param seed Optional seed for the factory. The dimension bands are fixed.
+   * @returns The hull, two sliding seats, four footplates, and four sculls.
+   * @throws {AutoMovieArchetypeRefusal} For a value other than the fixed figure.
+   */
 export function create(
   params: AutoMovieArchetypeDoubleScull.IParams = {},
   seed?: number,
@@ -58,19 +60,34 @@ export function create(
 }
 
   /* Fixed reference hull measurements and station contact ids. */
-  /** Forward station and rear station. */
+  /**
+   * Station prefix. `bow` is forward and `stroke` is aft.
+   */
   export type Station = "bow" | "stroke";
-  /** Side from the seated actor's heading, which faces the stern. */
+  /**
+   * Side suffix from the aft-facing rower's point of view.
+   */
   export type Side = "Left" | "Right";
-  /** Articulation and contact ids, scoped to their respective station. */
+  /**
+   * Station-prefixed seats, slides, feet, handles, sweep and dip joints, and blade tips.
+   *
+   * For example, `bowSlide` moves `bowSeat`. `bowLeftDip` rides
+   * `bowLeftSweep`, and carries `bowLeftHandle` and `bowLeftBladeTip`.
+   */
   export type Affordance =
     | `${Station}${"Seat" | "Slide"}`
     | `${Station}${Side}${"Foot" | "Handle" | "Sweep" | "Dip" | "BladeTip"}`;
-  /** Hull length, waterline beam, one scull's length, and assembled mass. */
+  /**
+   * Overall length, beam, and oar length in metres, complete mass in kilograms.
+   */
   export type Dimension = "length" | "beam" | "oarLength" | "mass";
-  /** Model overrides at the reference figures, and scene identity. */
+  /**
+   * Optional scene ID and values equal to the figures in {@link BANDS}.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject name. */
+    /**
+     * Scene subject ID. Defaults to `doubleScull`.
+     */
     id?: string;
   }
   /** Units of the fixed reference dimensions. */
@@ -82,7 +99,9 @@ export function create(
     oarLength: "m",
     mass: "kg",
   };
-  /** The reference hull, rig and assembled reference mass. */
+  /**
+   * Fixed hull and oar dimensions and the mass including four sculls.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(9.4, 9.4, AutoMovieArchetypeDoubleScullData.HULL),
     beam: AutoMovieArchetypeBand.metres(0.33, 0.33, AutoMovieArchetypeDoubleScullData.HULL),

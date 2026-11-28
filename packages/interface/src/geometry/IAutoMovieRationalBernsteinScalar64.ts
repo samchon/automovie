@@ -1,11 +1,20 @@
 /**
- * A rational scalar transition N/Q in the same local parameter as its
- * numerator.
+ * Scalar quotient represented by homogeneous Bernstein numerator and
+ * denominator coefficients on one parameter chart.
+ *
+ * Numerator, denominator and queried derivative arithmetic need representable
+ * intermediate products in the chosen homogeneous scale.
  */
 export interface IAutoMovieRationalBernsteinScalar64 {
-  /** Homogeneous scalar numerator coefficients. */
+  /**
+   * Mutable scalar numerator coefficients in Bernstein order. Keep the
+   * evaluated division and any needed derivative products representable.
+   */
   numerator: number[];
 
-  /** Scalar denominator coefficients in the same parameter. */
+  /**
+   * Mutable scalar denominator coefficients on the numerator's parameter chart.
+   * Supply a positive finite evaluated denominator.
+   */
   denominator: number[];
 }

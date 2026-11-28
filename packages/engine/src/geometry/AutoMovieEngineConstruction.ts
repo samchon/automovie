@@ -775,8 +775,7 @@ export namespace AutoMovieEngineConstruction {
   }
 
   /**
-   * Exact in-circle sign of a fourth represented binary64 chart point against
-   * the circle through three others.
+   * Compute the exact in-circle sign for four finite XY chart points.
    *
    * The determinant is Lawson's and Guibas–Stolfi's lifted test, `| a-d,
    * |a-d|^2 ; b-d, |b-d|^2 ; c-d, |c-d|^2 |`, positive when `d` lies strictly
@@ -788,12 +787,13 @@ export namespace AutoMovieEngineConstruction {
    * one common dyadic grid. This decides the represented points, without a
    * geometric tolerance, rounding or snapping.
    *
-   * @param a First circle point.
-   * @param b Second circle point, counter-clockwise after `a`.
-   * @param c Third circle point, counter-clockwise after `b`.
-   * @param d The point tested.
-   * @returns +1 inside, -1 outside and 0 exactly on the circle; for a clockwise
-   *   `(a, b, c)` the sign is reversed.
+   * @param a First point on the circle in the common chart frame.
+   * @param b Second point on the circle.
+   * @param c Third point on the circle.
+   * @param d Query point in the same chart frame and units.
+   * @returns For counterclockwise `(a, b, c)`, +1 inside, -1 outside and 0 on
+   * the circle. Clockwise winding reverses the sign. Collinear triples give
+   * the sign of the lifted determinant.
    * @throws RangeError for a nonfinite input coordinate.
    */
   export function incircleSolidChart(
@@ -1031,7 +1031,7 @@ export namespace AutoMovieEngineConstruction {
   }
 
   /**
-   * Exact orientation sign of three represented binary64 chart points.
+   * Compute the exact orientation sign of three finite XY chart points.
    *
    * A conservative arithmetic filter accepts a determinant separated from its
    * rounding error. Ambiguous, underflowed or overflowed arithmetic is
@@ -1040,9 +1040,9 @@ export namespace AutoMovieEngineConstruction {
    * without a geometric tolerance, coordinate rounding, snapping or new
    * intersection construction.
    *
-   * @param a First finite chart point.
-   * @param b Second finite chart point.
-   * @param c Third finite chart point.
+   * @param a First point in the common chart frame.
+   * @param b Second point in the same chart frame and units.
+   * @param c Third point in the same chart frame and units.
    * @returns +1 for counterclockwise, -1 for clockwise and 0 for exact
    *   collinearity.
    * @throws RangeError for a nonfinite input coordinate.
@@ -1211,11 +1211,10 @@ export namespace AutoMovieEngineConstruction {
    * come chain by chain in the realization's order: sections in layer order,
    * guides 0 to 3, then the axis.
    *
-   * It throws a named `Error` for `phases` that is not a whole number of at
-   * least 8 that four divides, for `steps` that is not a positive whole number,
-   * for a chain with no surface of its name, and for a chain whose owned range
-   * is not finite and ordered. An error thrown by the surface itself
-   * propagates.
+   * It throws an `Error` unless `phases` is a safe integer of at least 8 that
+   * four divides and `steps` is a positive safe integer. It also throws for a
+   * missing named surface or a nonfinite or unordered station range. Errors
+   * from the original surface propagate.
    *
    * @param realization The chains, their surfaces and the diagnostics of one
    *   realization. It is read and not changed.

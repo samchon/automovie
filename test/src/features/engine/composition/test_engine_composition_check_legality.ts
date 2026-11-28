@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    both fire on the last entry, in rule order, after the turn's own finding
  *    on the middle entry.
  * 2. No rule, or rules that always answer null, report nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies entry-major then rule-major findings and the silence of absent rules or null answers.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies Schedule.checkLegality with three entries and rule callbacks depending on both an individual entry and the whole schedule.
+ * @evidence contracts/development/testing.md#independent-expectations The middle and final entries are turns. Only the final entry ends at duration 3. Their ordered intersection predicts the three exact rule, entry and detail records.
  */
 export function test_engine_composition_check_legality(): void {
   const entry = (

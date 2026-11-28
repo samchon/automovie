@@ -24,6 +24,10 @@ import { throwsError } from "../../internal/predicates";
  * 2. A repeated call gives a fresh equal result; omitted and empty holes give 0,
  *    1, 2, 3; the triangle alone gives indices and triangles 0, 1, 2; two
  *    points are refused ("needs at least three points").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names all winding combinations, identity and fresh output, multiple holes and short controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Triangulates the same three rings with all reversal choices, verifies each source address and mutates one result to check ownership.
+ * @evidence contracts/development/testing.md#independent-expectations The ring populations have counts 4, 3 and 4 in canonical order. Areas 64, 2 and 4 give 58. Reversals change local source order while canonical output stays fixed.
  */
 export function test_engine_geometry_triangulate_region_identities(): void {
   const p = (x: number, y: number): IAutoMovieProfilePoint => ({ x, y });

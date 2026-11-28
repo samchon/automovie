@@ -20,6 +20,10 @@ const ROUNDING: number = 1e-6;
  * 2. Reached with a further 30 degrees about +Y, a turn about up: 0.
  * 3. Reached with a further 25 degrees about +X: 25.
  * 4. Nothing reached: infinite.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines carried-object tilt from how the relative hand rotation moves world up, including absent rotations.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares one requested yaw with exact reach, extra yaw, extra pitch and an absent reach.
+ * @evidence contracts/development/testing.md#independent-expectations World up is invariant under yaw, so the first two reads give zero. An extra 25° x rotation gives 25°, and a missing operand yields infinity.
  */
 export function test_motions_handling_human_handover_upright_angle(): void {
   const asked = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 40);

@@ -30,6 +30,10 @@ import { throwsError } from "../../internal/throwsError";
  *
  * The allocation law itself belongs to `test_physical_support_wrench`, and
  * binary transport to `test_physical_playback_archive`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the replay invariant for requested, allocated and residual support, and the causal clock shared by live and archived receipts.
+ * @evidence contracts/development/testing.md#behavioral-verification Admits typed unsupported and partial wrench predictions, reads a bounded contact episode into and out of an archive, and submits malformed records to both readers.
+ * @evidence contracts/development/testing.md#independent-expectations The requested-minus-allocated identity, the 64-ulp bound and samples dated before their episode distinguish valid support, rounding and noncausal replay.
  */
 export function test_engine_physics_admit_physical_playback_metadata(): void {
   const unsupported: IAutoMoviePhysicalSupportWrench = wrench(

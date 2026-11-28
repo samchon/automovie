@@ -15,6 +15,10 @@ import * as THREE from "three";
  * 2. Without one, red or red-green half floats and RGBA bytes, halves and
  *    floats map to theirs; RGBA unsigned shorts and an RGB format are
  *    undefined.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe recognized declared formats, supported inferences from components, and unrecognized choices.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that upload format follows a declared internal format first and otherwise follows supported component types and channels.
+ * @evidence contracts/development/testing.md#independent-expectations Compares concrete declared and component constants to literal expected format names and to undefined for unsupported choices.
  */
 export function test_render_scene_read_texture_upload_format(): void {
   const declared = (

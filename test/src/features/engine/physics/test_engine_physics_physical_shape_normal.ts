@@ -27,6 +27,10 @@ const NORMAL: number = 1e-3;
  * 4. Carried 1 mm at a time over a box's edge from one face to the next, the
  *    normal turns by under 10 degrees a step, where a face's own normal would
  *    step by 90.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes outward normals on smooth shapes and blended edge normals on a box.
+ * @evidence contracts/development/testing.md#behavioral-verification Places sphere, capsule, box and hull fixtures and queries face, cap and edge points as well as a sequence across a box edge.
+ * @evidence contracts/development/testing.md#independent-expectations Radial vectors, face directions and the two-face bisector specify the exact cases. A 1 mm step across the edge has an angular bound below 10 degrees.
  */
 export async function test_engine_physics_physical_shape_normal(): Promise<void> {
   const still: IAutoMovieRigidTransform = {

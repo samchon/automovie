@@ -10,21 +10,38 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
  */
 export namespace IAutoMovieLoftViewFullSource {
   /**
-   * Complete original scalar controls, their actual axis and immutable
-   * features.
+   * Direct view scalar construction with its actual axis and optional reliefs.
+   * Supply the original station domain, front and side outlines and direct
+   * shoulder or top fullness. Keep the axis and feature data unchanged while
+   * the reader retains them.
    */
   export type IInput = IAutoMovieLoftViewSource.IInput &
     Pick<IAutoMovieViewPart, "axis" | "reliefs">;
 
-  /** Two independent full-native capabilities on one inclusive original domain. */
+  /**
+   * Value and second-order readers on the original inclusive physical station
+   * domain. Both apply the supplied axis and reliefs. Point evaluation needs
+   * only axis values and can read an admitted collapsed pole; jet evaluation
+   * needs actual derivatives at a regular station.
+   */
   export interface IReader {
-    /** Inclusive physical station bounds, mm. */
+    /**
+     * Inclusive pair of original lower and upper physical stations, in
+     * millimetres, prepared from the direct view source.
+     */
     readonly domain: readonly [number, number];
-    /** Fresh full world Point0, mm; no axis.jet is requested. */
+    /**
+     * Read a fresh world point in millimetres at physical station s in
+     * millimetres and polar phase t in radians. This value-only operation reads
+     * the axis value and applies admitted relief. A valid collapsed pole
+     * returns its frame origin.
+     */
     point(s: number, t: number): AutoMovieVector3Tuple;
     /**
-     * Actual world total2: p mm, u per mm, v per radian and corresponding
-     * second orders.
+     * Read all world partials through total order two at physical station s in
+     * millimetres and polar phase t in radians. The solid-surface result uses u
+     * for station and v for phase. An outside station, collapsed pole or
+     * unavailable physical derivatives causes the reader to throw.
      */
     jet(s: number, t: number): IAutoMovieSolidSurface.IJet;
   }

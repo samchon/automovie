@@ -23,6 +23,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    bones[0].bone.
  * 4. A spine whose parent hips is absent is refused naming the missing bone.
  * 5. A hips and spine parent cycle is refused instead of recursing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the independent 1.2-metre joint span, empty skeleton and missing, duplicate or cyclic bone identities.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls computeRestHeight for both valid fixtures and each malformed hierarchy, then checks the span and refusal addresses.
+ * @evidence contracts/development/testing.md#independent-expectations Identity rest rotations make world height the sum of local Y offsets. The authored highest joint is at 1.7 and the lowest at 0.5, giving 1.2 metres. An empty skeleton has no span and invalid identity graphs cannot be traversed.
  */
 export function test_engine_film_rest_height(): void {
   const bone = (

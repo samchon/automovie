@@ -8,73 +8,73 @@ import type {
 } from "..";
 
 /**
- * Automatic image correspondences and conditional calibrated relative pose. A
- * successful computation may still refuse a camera. Accepted pose is in the
- * first-camera unit-baseline gauge, with unknown physical scale and no
- * recovered surface, unseen-region completion, covariance or
- * correspondence-truth claim.
+ * Tentative correspondences and the qualification outcome for two calibrated
+ * images. Use `status` to determine whether the observation supports a pose. An
+ * accepted pose uses the first camera's unit-baseline gauge. Physical scale
+ * remains unknown, and the correspondences remain tentative.
  */
-export interface IAutoMovieRecoveryCameraPairEstimate {
-  /** Versioned automatic relative-camera observation artifact. */
-  schema: "automovie-recovery-camera-pair-estimate-v1";
+export type IAutoMovieRecoveryCameraPairEstimate =
+  | IAutoMovieRecoveryCameraPairEstimate.IAccepted
+  | IAutoMovieRecoveryCameraPairEstimate.IRefused;
 
-  /** Fixed scene identity asserted by the acquisition caller. */
-  objectId: string;
+export namespace IAutoMovieRecoveryCameraPairEstimate {
+  /** Observations retained whether or not the camera qualifies. */
+  export interface IObservations {
+    /** Version of the camera-pair evidence record. */
+    schema: "automovie-recovery-camera-pair-estimate-v1";
 
-  /**
-   * Keeps analytic measurements, real photographs and inconsistent controls
-   * separate.
-   */
-  cohort: IAutoMovieRecoveryCameraPairInput["cohort"];
+    /** Fixed scene identity supplied by the caller. */
+    objectId: string;
 
-  /**
-   * Conditional camera qualification; refused evidence still records completed
-   * observations.
-   */
-  status: "accepted-relative-pose" | "refused";
+    /** Source category for the evidence, copied from the acquisition input. */
+    cohort: IAutoMovieRecoveryCameraPairInput["cohort"];
 
-  /**
-   * Every observed failed qualification, empty only for conditional camera
-   * acceptance.
-   */
-  refusalReasons: string[];
+    /** Qualification policy used for this observation. */
+    policy: IAutoMovieRecoveryCameraPairInput["policy"];
 
-  /**
-   * Complete operating point used for this artifact, copied without mutable
-   * pixel buffers.
-   */
-  policy: IAutoMovieRecoveryCameraPairInput["policy"];
+    /**
+     * Declared work limits. The feature and consensus counts report actual
+     * work.
+     */
+    budget: IAutoMovieRecoveryCameraPairInput["budget"];
 
-  /**
-   * Complete declared work limits; actual counters below distinguish work from
-   * a limit.
-   */
-  budget: IAutoMovieRecoveryCameraPairInput["budget"];
+    /** Caller-supplied source identities and camera assertions. */
+    sources: IAutoMovieRecoveryCameraSource[];
 
-  /**
-   * Source identities and caller assertions; resident operation does not verify
-   * original-file SHA or lens history.
-   */
-  sources: IAutoMovieRecoveryCameraSource[];
+    /** Feature counts in source order. */
+    features: IAutoMovieRecoveryCameraFeaturePopulation[];
 
-  /** Actual populations for each automatic image observation, in source order. */
-  features: IAutoMovieRecoveryCameraFeaturePopulation[];
+    /** Tentative mutual appearance matches and their fitted support flags. */
+    matches: IAutoMovieRecoveryCameraMatch[];
+  }
 
-  /**
-   * Tentative unique mutual appearance matches; epipolar support does not prove
-   * material identity.
-   */
-  matches: IAutoMovieRecoveryCameraMatch[];
+  /** All relative-pose qualification checks passed. */
+  export interface IAccepted extends IObservations {
+    /** The observation qualifies the returned relative pose. */
+    status: "accepted-relative-pose";
 
-  /**
-   * Null when fewer than eight tentative correspondences permit any epipolar
-   * proposal.
-   */
-  consensus: IAutoMovieRecoveryCameraConsensus | null;
+    /** No qualification failures were recorded. */
+    refusalReasons: [];
 
-  /**
-   * Present only after every qualification passes; this transform is camera
-   * evidence, not saved surface geometry.
-   */
-  pose: IAutoMovieRecoveryCameraRelativePose | null;
+    /** Measured epipolar support and final qualification statistics. */
+    consensus: IAutoMovieRecoveryCameraConsensus;
+
+    /** Rotation and unit-baseline translation in the first camera's frame. */
+    pose: IAutoMovieRecoveryCameraRelativePose;
+  }
+
+  /** The observation retained its measurements but failed camera qualification. */
+  export interface IRefused extends IObservations {
+    /** The observation does not qualify a relative pose. */
+    status: "refused";
+
+    /** One or more failed qualifications in evaluation order. */
+    refusalReasons: [string, ...string[]];
+
+    /** Attempted consensus, or `null` with fewer than eight tentative matches. */
+    consensus: IAutoMovieRecoveryCameraConsensus | null;
+
+    /** No pose passed all qualification checks. */
+    pose: null;
+  }
 }

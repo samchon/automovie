@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  * Scenarios:
  * 1. Set the Blackler stool's and NKBA counter's lower and upper seat heights.
  * 2. Read each emitted disc's full width and placement from its vertices.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States physical ordinary and bar seat height and diameter controls for both band endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds all four stool settings and reads the emitted seat disc's hull vertices and transform. Measures its top and width directly.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's Blackler and NKBA height inputs. The actual disc's maximum Y and full X span must match the authored top and diameter.
  */
 export function test_archetypes_catalogue_stool_bands(): void {
   for (const [kind, height, diameter] of [

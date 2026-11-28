@@ -14,6 +14,10 @@ import { repositoryRoot } from "../../internal/repositoryRoot";
  * were reordered along J's stored rows). Each entry of `J^T a`, `J2 d2` and
  * each rotated pair is summed and rotated in the same order, so a reordering of
  * the loops alone must leave every bit in place.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines regression identity for the dual active-set solver's stored programs and their floating-point sequencing.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves twelve serialized sparse and preferred-row programs of 8, 16 and 32 variables and serializes actual solution bits and active inequalities.
+ * @evidence contracts/development/testing.md#independent-expectations The stored expectations were recorded from the earlier solver. Exact IEEE-754 and active-set comparison detects order drift; independently derived optimality belongs to the dense-solver test.
  */
 export async function test_engine_physics_solve_xpbd_dual_active_set(): Promise<void> {
   const cases: {

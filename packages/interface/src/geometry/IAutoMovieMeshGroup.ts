@@ -1,18 +1,22 @@
-/**
- * The index range one assembly member occupies in a merged mesh, the material
- * group that lets one draw call still say which triangles belong to which
- * member.
- */
+/** One assembly member's contiguous span of triangle index entries. */
 export interface IAutoMovieMeshGroup {
   /**
-   * The contributing member's `IAutoMovieMeshPart.id`, unique within its
-   * assembly.
+   * Original assembly member ID, copied unchanged after duplicate checking.
+   *
+   * The ID identifies an index range that consumers can bind to a finish or
+   * distinguish in a quantity calculation.
    */
   id: string;
 
-  /** First index of the member's triangles inside the merged index array. */
+  /**
+   * Zero-based entry offset in the merged indices array. For zero-count members
+   * this marks the next write position.
+   */
   start: number;
 
-  /** How many indices the member contributes; always a multiple of three. */
+  /**
+   * Number of index entries in this range, divisible by three. An empty member
+   * contributes zero.
+   */
   count: number;
 }

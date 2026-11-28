@@ -30,55 +30,65 @@ export const admitSubdivisionCage = (
     throw new Error(
       "subdivision cage positions must hold x, y, z for at least one vertex",
     );
+  for (const [at, value] of positions.entries())
+    if (!Number.isFinite(value))
+      throw new Error(`subdivision cage positions[${at}] must be finite`);
   const vertexCount: number = positions.length / 3;
   if (cage.faces.length === 0)
     throw new Error("subdivision cage needs at least one face");
   const faceOffsets: number[] = [0];
   const faceVertices: number[] = [];
-  cage.faces.forEach((face: readonly number[], f: number): void => {
-    if (face.length < 3)
+  for (const [f, face] of cage.faces.entries()) {
+    if (!Array.isArray(face) || face.length < 3)
       throw new Error(
         `subdivision cage face ${f} needs at least three corners`,
       );
-    face.forEach((v: number, k: number): void => {
-      if (v < 0 || v >= vertexCount)
+    for (const [k, v] of face.entries()) {
+      if (!Number.isSafeInteger(v) || v < 0 || v >= vertexCount)
         throw new Error(
           `subdivision cage face ${f} corner ${k} must index a cage vertex`,
         );
       if (face.indexOf(v) !== k)
         throw new Error(`subdivision cage face ${f} repeats vertex ${v}`);
       faceVertices.push(v);
-    });
+    }
     faceOffsets.push(faceVertices.length);
-  });
+  }
 
   const key: (a: number, b: number) => number = (
     a: number,
     b: number,
   ): number => Math.min(a, b) * vertexCount + Math.max(a, b);
   const sharpness: Map<number, number> = new Map<number, number>();
-  (cage.creases ?? []).forEach(
-    (crease: IAutoMovieSubdivisionCrease, i: number): void => {
-      for (const end of [crease.from, crease.to])
-        if (end < 0 || end >= vertexCount)
-          throw new Error(
-            `subdivision cage crease ${i} must join two cage vertices`,
-          );
-      if (crease.from === crease.to)
-        throw new Error(
-          `subdivision cage crease ${i} must join two cage vertices`,
-        );
-      if (crease.sharpness < 0 || crease.sharpness > 10)
-        throw new Error(
-          `subdivision cage crease ${i} sharpness must be from 0 to 10`,
-        );
-      if (sharpness.has(key(crease.from, crease.to)))
-        throw new Error(
-          `subdivision cage crease ${i} repeats edge ${crease.from}-${crease.to}`,
-        );
-      sharpness.set(key(crease.from, crease.to), crease.sharpness);
-    },
-  );
+  for (const [i, crease] of (cage.creases ?? []).entries()) {
+    if (
+      crease === undefined ||
+      crease === null ||
+      !Number.isSafeInteger(crease.from) ||
+      !Number.isSafeInteger(crease.to) ||
+      crease.from < 0 ||
+      crease.from >= vertexCount ||
+      crease.to < 0 ||
+      crease.to >= vertexCount ||
+      crease.from === crease.to
+    )
+      throw new Error(
+        `subdivision cage crease ${i} must join two cage vertices`,
+      );
+    if (
+      !Number.isFinite(crease.sharpness) ||
+      crease.sharpness < 0 ||
+      crease.sharpness > 10
+    )
+      throw new Error(
+        `subdivision cage crease ${i} sharpness must be from 0 to 10`,
+      );
+    if (sharpness.has(key(crease.from, crease.to)))
+      throw new Error(
+        `subdivision cage crease ${i} repeats edge ${crease.from}-${crease.to}`,
+      );
+    sharpness.set(key(crease.from, crease.to), crease.sharpness);
+  }
   const topology: IAutoMovieSubdivisionTopology = buildSubdivisionTopology(
     vertexCount,
     faceOffsets,
@@ -140,23 +150,26 @@ const admitUvs: (
   const uvs: number[] = cage.uvs.slice();
   if (uvs.length % 2 !== 0)
     throw new Error("subdivision cage uvs must hold u, v pairs");
+  for (const [at, value] of uvs.entries())
+    if (!Number.isFinite(value))
+      throw new Error(`subdivision cage uvs[${at}] must be finite`);
   const uvCount: number = uvs.length / 2;
   if (cage.uvFaces.length !== cage.faces.length)
     throw new Error("subdivision cage uvFaces must hold one row per face");
   const cornerUvs: number[] = [];
-  cage.uvFaces.forEach((row: readonly number[], f: number): void => {
-    if (row.length !== cage.faces[f]!.length)
+  for (const [f, row] of cage.uvFaces.entries()) {
+    if (!Array.isArray(row) || row.length !== cage.faces[f]!.length)
       throw new Error(
         `subdivision cage uvFaces[${f}] must name one UV per corner`,
       );
-    row.forEach((t: number, k: number): void => {
-      if (t < 0 || t >= uvCount)
+    for (const [k, t] of row.entries()) {
+      if (!Number.isSafeInteger(t) || t < 0 || t >= uvCount)
         throw new Error(
           `subdivision cage uvFaces[${f}][${k}] must index a cage UV`,
         );
       cornerUvs.push(t);
-    });
-  });
+    }
+  }
   const owners: number[] = new Array<number>(uvCount).fill(-1);
   cornerUvs.forEach((t: number, c: number): void => {
     if (owners[t] !== -1 && owners[t] !== faceVertices[c])

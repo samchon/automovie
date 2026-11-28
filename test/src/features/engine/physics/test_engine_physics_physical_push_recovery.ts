@@ -31,6 +31,10 @@ import { nclose } from "../../internal/nclose";
  *    region, recovering; a second check, recovering, moves nothing; nor does
  *    one with 0.05 s left, nor one with a small error, which counts toward
  *    safe.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes swing side choice, safe counter, reduced swing duration and the once-per-recovery adjustment rule.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the recovery module over lateral and equidistant errors, repeated safe samples, unreachable points and late or repeated adjustment.
+ * @evidence contracts/development/testing.md#independent-expectations The short-foot fixture first reaches the allowable region at 0.48 s, from direct exponential prediction. Safety starts at sample 100 and near touchdown prevents a new adjustment.
  */
 export function test_engine_physics_physical_push_recovery(): void {
   const box = (

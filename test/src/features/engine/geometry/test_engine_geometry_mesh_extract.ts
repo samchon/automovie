@@ -26,6 +26,10 @@ import { nclose } from "../../internal/predicates";
  * 3. `reduce` of the straight dense run (0,0) to (4,4) at tolerance 0.01 keeps
  *    only its two ends with slope 1 and zero error; the tent (0,0), (1,1),
  *    (2,2), (3,1), (4,0) keeps its peak as well: indices 0, 2, 4.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the eight-crossing cube section, open triangle and minimal Hermite knots.
+ * @evidence contracts/development/testing.md#behavioral-verification Cuts supplied triangle buffers at the course plane and compares loops and reach, then reduces explicit linear and tent samples.
+ * @evidence contracts/development/testing.md#independent-expectations The cube section is the 10 mm square plus face-diagonal midpoints. The triangle gives one open segment. A line needs two endpoints and the tent needs its peak.
  */
 export function test_engine_geometry_mesh_extract(): void {
   const positions: number[] = [];

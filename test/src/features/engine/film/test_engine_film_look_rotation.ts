@@ -20,6 +20,10 @@ import { nclose, qclose, qunit, vclose } from "../../internal/predicates";
  * 3. Straight down and straight up have free roll, so only the forward mapping is
  *    checked.
  * 4. A zero direction gives the identity, not a camera rolled upside down.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the forward mapping, horizontal roll convention, vertical degeneracy, and straight-ahead and zero-vector identities.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls lookRotation for the stated directions and applies the returned quaternion to camera axes. It compares unit length, normalized forward and admissible roll.
+ * @evidence contracts/development/testing.md#independent-expectations Local forward is negative Z. The independently normalized direction must match its image, and horizontal local right requires a zero Y component off the vertical degeneracy. Vertical cases constrain just forward. Straight-ahead and zero have the authored identity result.
  */
 export function test_engine_film_look_rotation(): void {
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };

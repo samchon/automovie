@@ -45,7 +45,8 @@ export function validateEnvironmentContext(
   props: IAutoMovieValidateEnvironmentContext.IProps,
 ): IAutoMovieValidation {
   const context: IAutoMovieEnvironmentContext = props.context;
-  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const out: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const root: string = "$input";
   const reserved: Set<string> = new Set<string>(props.reserved ?? []);
 
@@ -110,20 +111,29 @@ export function validateEnvironmentContext(
       );
     instantIds.add(instant.id);
     owned(instant.id, `${path}.id`, "instant id");
-    if (previous !== null && instant.time <= previous)
+    if (!Number.isFinite(instant.time))
       out.push(
         "range",
         `${path}.time`,
-        `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
+        `instant time must be finite, but was ${instant.time}`,
         instant.time,
       );
-    previous = instant.time;
+    else {
+      if (previous !== null && instant.time <= previous)
+        out.push(
+          "range",
+          `${path}.time`,
+          `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
+          instant.time,
+        );
+      previous = instant.time;
+    }
     out.direction(`${path}.sun`, instant.sun, "sun direction");
     for (const [key, label] of [
       ["directNormalIlluminance", "direct normal illuminance"],
       ["diffuseHorizontalIlluminance", "diffuse horizontal illuminance"],
     ] as const)
-      if (instant[key] < 0)
+      if (!Number.isFinite(instant[key]) || instant[key] < 0)
         out.push(
           "range",
           `${path}.${key}`,
@@ -140,9 +150,13 @@ export function validateEnvironmentContext(
       );
     if (
       up !== null &&
+      Number.isFinite(instant.directNormalIlluminance) &&
       instant.directNormalIlluminance > 0 &&
       directionLength(instant.sun) !== null &&
-      AutoMovieEngineVector3.dot(AutoMovieEngineVector3.normalize(instant.sun), up) <= 0
+      AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.normalize(instant.sun),
+        up,
+      ) <= 0
     )
       out.push(
         "range",

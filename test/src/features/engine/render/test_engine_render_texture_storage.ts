@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Mipmapped 4 x 1 is 4, then 2 x 1, then 1 x 1 texels: 7 texels, 28 bytes.
  * 4. A zero width, an unknown or zero bytes per texel, and a size past the safe
  *    integers (2^30 x 2^30 at 16 bytes) give null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names un-mipped and mipped square textures, a single-row chain, and invalid or oversized storage cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls RenderTexture.measureAutoMovieTextureStorage with explicit dimensions, texel widths and mip flags, then checks sizes or null.
+ * @evidence contracts/development/testing.md#independent-expectations Four bytes times 16 texels gives 64. Square levels add 16 and 4 bytes, and the row uses seven texels across three levels. Multiplying the two powers of two and 16 yields a size beyond the safe integers.
  */
 export function test_engine_render_texture_storage(): void {
   TestValidator.equals(

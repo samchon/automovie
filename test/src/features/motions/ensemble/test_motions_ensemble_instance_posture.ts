@@ -19,14 +19,19 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON * 9;
 
 /**
- * Copy only the admissible rigid part of another member's posed motion.
+ * Check rigid playback of a compatible template member with a lag.
  *
  * Scenarios:
  *
- * 1. A half-second lag offsets the template's translation and turns +Z into +X for
- *    the left arm's world goal. The bone-relative right arm stays local.
- * 2. A different body identity, absent reader or 2 degree template turn is refused
- *    before a posture is sampled.
+ * 1. Read a half-second lag from the translated entry with 90 degrees of yaw
+ *    and retained pitch. Turn the world-space left-arm point and bend into
+ *    the new frame while keeping the right arm's bone-local point.
+ * 2. Refuse mismatched body identity, an absent reader and a template that
+ *    turns two degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the template restrictions and distinguish world and bone-local goals.
+ * @evidence contracts/development/testing.md#behavioral-verification The instance planner consumes an explicit template pose function and the test checks admission and posed samples.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter-turn maps +Z to +X, the lag determines elapsed displacement and bone-local coordinates are directly comparable.
  */
 export function test_motions_ensemble_instance_posture(): void {
   const body: object = {};

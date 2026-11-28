@@ -29,6 +29,10 @@ type P = IAutoMovieConstructionOutlineParameter;
  *    (sqrt 3 / 2, -1/4); from [0, 4] to [1, 5] it matches central differences
  *    in the target parameter within 1e-6; a map to itself is (1, 0); outside a
  *    domain null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names root and angle read and inverse jets, checked domains, ownership and transfer derivative comparisons.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries each map and inverse at authored stations, exercises tolerance and invalid domain input, and compares jets with closed forms or differences.
+ * @evidence contracts/development/testing.md#independent-expectations Differentiating sqrt distance and twice asin sqrt of a span gives the stated jets and inverses. The transfer follows the chain rule and a map transferred to itself has unit slope.
  */
 export function test_engine_geometry_view_parameter(): void {
   const V = AutoMovieEngineViewParameter;

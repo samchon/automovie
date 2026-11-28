@@ -40,6 +40,10 @@ const refusal: (
  * 2. A negative timeline frame is refused as invalid input.
  * 3. An identity whose edit fingerprint differs from the runtimes' is refused as
  *    stale.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines input-order film-runtime samples, owned equal records and refusal of invalid frame or stale identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a prepared two-runtime film, compares values and identities, then tries a negative frame and mismatched edit identifier.
+ * @evidence contracts/development/testing.md#independent-expectations The two source runtimes supply expected order and contents with separate object identity. Negative frame and changed ownership produce distinct defined refusals.
  */
 export function test_engine_effect_runtime_sample_production_film_effects(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

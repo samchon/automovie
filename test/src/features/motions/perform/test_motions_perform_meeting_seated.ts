@@ -11,12 +11,12 @@ import { actingPerformanceState } from "../../internal/fixtures/actingPerformanc
 
 /**
  * `HumanPerformanceMeeting.seated` reads whether a seat bears a performer at a
- * second: the action active then holds a seat window open at its share of that
- * second, the last action after every end.
+ * second. It uses an active action when present, or the last scheduled
+ * segment otherwise, and clamps the query to that action's plan bounds.
  *
  * A first action from 0 to 2 s seats the performer over the middle half of its
  * plan; a second from 2 to 4 s seats nothing; a third, entered at 4.5 s from
- * its zero at 4 s, seats the performer over its first tenth.
+ * its zero at 4 s, seats the performer over its first and last tenths.
  *
  * Scenarios:
  *
@@ -27,6 +27,10 @@ import { actingPerformanceState } from "../../internal/fixtures/actingPerformanc
  *    first window; at 4.5 s its share is a quarter, past it.
  * 4. After every end the last action's share is clamped to its end.
  * 5. Without actions nobody is seated.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The seat states distinguish inclusive plant endpoints, active unseated actions, a gap evaluated on the last scheduled segment, and an end clamped to a terminal seat.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the seated reader on three typed placed segments and a no-action control, comparing the full truth sequence over nine film seconds.
+ * @evidence contracts/development/testing.md#independent-expectations The first 2 s action is seated at shares [0.25, 0.75], including 0.5 and 1.5 s. In the gap at 4.2 s, the final segment's first seat ends at 4 + 2·0.1; 4.5 s is past it. At 9 s reading is clamped to 6 s inside the final seat window.
  */
 export async function test_motions_perform_meeting_seated(): Promise<void> {
   const seat = (

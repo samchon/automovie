@@ -49,6 +49,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { handToFaceArm } from "./handToFaceArm";
 import { handToFaceDrinkable } from "./handToFaceDrinkable";
 import { handToFaceMirrored } from "./handToFaceMirrored";
+import { handToFacePhone } from "./handToFacePhone";
 import { handToFaceRegion } from "./handToFaceRegion";
 import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
@@ -183,12 +184,16 @@ export namespace handToFace {
     // the prop that hand holds.
     // The held prop's effector is read within this plan once its hand first
     // asks for it, after the arm's geometry below is laid (`grasped`).
+    const phone: IAutoMovieMotionHumanTouchEffector.IEffector | undefined =
+      p.kind === "phone" && p.prop === undefined && body.profile.earRayOrigin !== undefined
+        ? handToFacePhone(body, first, row.effector)
+        : undefined;
     let held: IAutoMovieMotionHumanTouchEffector.IEffector | undefined;
     const effector = (
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanTouchEffector.IEffector => {
       if (p.prop === undefined || side !== first)
-        return AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind);
+        return AutoMovieMotionHumanTouchForm.curled(phone ?? row.effector, row.kind);
       if (held === undefined) held = grasped(p.prop);
       return held;
     };

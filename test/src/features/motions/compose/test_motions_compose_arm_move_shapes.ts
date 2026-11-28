@@ -23,6 +23,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * 2. The same input reaches 52.5 degrees for a fist with its 85-degree target
  *    flexion. A reverse query restores the independent flat sample.
  * 3. A fixed-shape preparation still writes the actual alternate target.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the flat and fist samples, the reverse-time query and the fixed-shape preparation with an alternate target.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes written target callbacks and a stored synthetic body to HumanArm.move and queries both writers at 0.25, 0.75 and 0.25 s.
+ * @evidence contracts/development/testing.md#independent-expectations The flat endpoint is 5 degrees with the added curl, and the fist endpoint is 90. Halfway from the authored 15 degrees gives respectively 10 and 52.5 degrees. The original finger stays at 15.
  */
 export async function test_motions_compose_arm_move_shapes(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

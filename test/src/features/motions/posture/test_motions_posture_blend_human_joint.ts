@@ -38,6 +38,10 @@ const ARC_TOLERANCE: number = 128 * 6 * 6 * Number.EPSILON * (180 / Math.PI);
  *    interior sampling and leaves both clipped endpoints usable.
  * 4. A bounded twist crosses through zero inside its interval when the shorter
  *    rotation would cross the missing arc around 180 degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rig metadata resolution, short legal rotation, clipping identity and invalid basis admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a blend with conflicting metadata, reads hinges and fallback joints, and samples a degenerate selected basis at clipped and interior shares.
+ * @evidence contracts/development/testing.md#independent-expectations The +170° to −170° pose has a 20° short arc unless the interval excludes it. Exact endpoint identity survives a refused interior and prepared axes are not reread.
  */
 export function test_motions_posture_blend_human_joint(): void {
   const rest: IAutoMovieTransform = {

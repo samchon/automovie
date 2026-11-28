@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    on the 96 Hz grid; one falling from its first sample is not a touch.
  * 2. Misses of 1, 4 and 2 mm against a 5 mm limit pass, worst 4 mm at 0.5 s, and
  *    fail a 3 mm limit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ordered contact-dip counting and worst-effector-miss verdicts on the sample clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads two analytic dips, an initially descending case and the same three discrete misses against two declared tolerances.
+ * @evidence contracts/development/testing.md#independent-expectations Dips at 0.25 and 0.75 s yield two entries. Worst miss 4 mm at 0.5 s passes 5 mm and fails 3 mm.
  */
 export function test_motions_executable_touch_verdicts(): void {
   TestValidator.equals(

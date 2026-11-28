@@ -15,6 +15,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 2. Aspects 4 and 0.25 exchange breadth and depth; doubling the girth to 200
  *    doubles both.
  * 3. The smallest positive girth, whose diameters underflow, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the extreme aspect, reciprocal axes, scale proportionality and underflow refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Sizes ovals at finite aspect extremes and both reciprocal ratios, then feeds the smallest positive girth.
+ * @evidence contracts/development/testing.md#independent-expectations Swapping the aspect reciprocates breadth and depth. Similarity doubles both at double perimeter. In the thin limit the breadth tends to half of the perimeter.
  */
 export function test_engine_geometry_cubic_oval(): void {
   const extreme: IAutoMovieCubicOval64.IAxesBySimpsonResult =

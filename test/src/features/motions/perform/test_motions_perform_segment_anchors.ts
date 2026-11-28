@@ -36,6 +36,10 @@ const NONE = (): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =>
  * 3. Two branches: the nearer anchor's seed, the first before the middle and the
  *    second after it.
  * 4. A fit only one anchor gives takes that one's seed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names missing preparation, a single-branch swivel blend, branch changes, and a fit available at just one anchor.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the anchor reader with a typed authored course and chosen film seconds. It checks the absent result, interpolated swivel, and exact identity of the chosen seeds expressed by their angles.
+ * @evidence contracts/development/testing.md#independent-expectations The 5 ms interval starts at 1 s. The symmetric rest-to-rest quintic reads 10 degrees at the start and 20 degrees halfway between 10 and 30. At 1.002 and 1.004 s the nearer distinct-branch seeds are 40 and 80 degrees. A fit present at only one anchor retains 5 degrees.
  */
 export function test_motions_perform_segment_anchors(): void {
   const seed = (swivel: number, branch: number): IAutoMovieSwivelSeed => ({

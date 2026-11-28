@@ -6,21 +6,32 @@ import { hashFnv1a64Implementation } from "./hashFnv1a64Implementation";
  *
  * The ids name what draws (a subject, a channel, a shot), never an ordinal, so
  * inserting or reordering unrelated content leaves every other stream's seed
- * unchanged. The seed is the 64-bit FNV-1a hash (hashFnv1a64Implementation)
- * of the UTF-8 bytes of the film seed and each id, each followed by a 0xff byte
- * that no UTF-8 text contains, so ["ab", "c"] and ["a", "bc"] differ. A derived
- * seed is reproducible identity, not a secret.
- * Parameter filmSeed: The production's own seed text.
- * Parameter ids: Stable ids of the drawing stream, outermost first.
- * Returns: The seed, `/^[0-9a-f]{16}$/`.
+ * unchanged. FNV-1a reads the UTF-8 bytes of the film seed and each ID,
+ * followed by 0xff after each field. UTF-8 never contains the framing byte.
  */
 export function deriveSeedValue(
   filmSeed: string,
   ...ids: string[]
 ): string {
+  return hashFnv1a64Implementation(seedBytes(filmSeed, ids));
+}
+
+/* Keep each source chunk bounded and retain pairs across UTF-16 boundaries. */
+function* seedBytes(
+  filmSeed: string,
+  ids: readonly string[],
+): IterableIterator<number> {
   const encoder: TextEncoder = new TextEncoder();
-  const bytes: number[] = [];
-  for (const text of [filmSeed, ...ids])
-    bytes.push(...encoder.encode(text), 0xff);
-  return hashFnv1a64Implementation(bytes);
+  const chunkUnits: number = 4096;
+  for (let field: number = 0; field <= ids.length; ++field) {
+    const text: string = field === 0 ? filmSeed : ids[field - 1]!;
+    for (let start: number = 0; start < text.length; ) {
+      let end: number = Math.min(start + chunkUnits, text.length);
+      const last: number = text.charCodeAt(end - 1);
+      if (end < text.length && last >= 0xd800 && last <= 0xdbff) --end;
+      yield* encoder.encode(text.slice(start, end));
+      start = end;
+    }
+    yield 0xff;
+  }
 }

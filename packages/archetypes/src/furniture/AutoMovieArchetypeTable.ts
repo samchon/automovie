@@ -3,31 +3,31 @@ import { createTable as createTableImplementation } from "./internal/createTable
 import { AutoMovieArchetypeUnits, AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
 import { TABLE_BANDS } from "./constants/TABLE_BANDS";
 
-/** Public operations for Auto Movie Archetype Table. */
+/** Creates tables and counters with named work surfaces and edges. */
 export namespace AutoMovieArchetypeTable {
   /**
-   * A table: a dining table, a desk, a counter, a coffee table, a raised bar
-   * counter, a service counter, a workbench, a pupil desk or an altar.
+   * Creates a table or counter with its physical top and contact frames.
    *
-   * The model is a top on four legs, on a solid base for a counter, a bar counter
-   * and a service counter, or on two pedestals for an altar. The top is centred
-   * over the origin with its length along `+X`; the `+Z` edge is the front, where
-   * a person sits or stands at it.
+   * The top sits above the floor origin, with length along `+X` and front
+   * toward `+Z`. Use `top` for surface contact and `stack` to support a
+   * placed prop on the same area. The named edges give their respective
+   * ledges. A bar counter sets its base back by 0.305 m under the front.
    *
-   * @param params The kind, a service counter's or a pupil desk's listed size,
-   *   and any dimension the author fixes.
-   * @param seed The seed that picks a listed size when none is given and draws
-   *   every dimension left free inside its band; absent, the first size and the
-   *   middle of each band.
-   * @returns The table.
-   * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a
-   *   fixed dimension outside its band.
+   * @param params The kind, optional catalogue size and fixed band dimensions.
+   * @param seed Finite numeric seed for omitted band and catalogue choices.
+   *   Omit it for the first applicable record and each band's midpoint.
+   * @returns The generated top, supports and affordances.
+   * @throws {AutoMovieArchetypeRefusal} For an unsupported kind, size or fixed
+   *   dimension. Select catalogue-owned height or length via `size`.
+   * @example
+   * const counter = AutoMovieArchetypeTable.create({ kind: "serviceCounter", size: "length36" });
+   * const stack = counter.affordance("stack");
    */
   export function create(params: AutoMovieArchetypeTable.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeTable.Affordance, AutoMovieArchetypeTable.Dimension> {
     return createTableImplementation(params, seed);
   }
 
-  /** The kinds of table. */
+  /** Selects the support geometry and available dimension choices. */
   export type Kind =
     | "dining"
     | "desk"
@@ -39,7 +39,7 @@ export namespace AutoMovieArchetypeTable {
     | "pupilDesk"
     | "altar";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Lists the kinds accepted by the factory at runtime. */
   export const KINDS: readonly Kind[] = [
     "dining",
     "desk",
@@ -181,16 +181,16 @@ export namespace AutoMovieArchetypeTable {
    * its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which table. */
+    /** Table or counter kind. */
     kind: Kind;
 
     /**
-     * A service counter's length or a pupil desk's height, one of the kind's
-     * `SIZES`; drawn from the seed when absent.
+     * A service counter's nominal length or a pupil desk's height.
+     * Unseeded defaults are 30 inches and 19 inches respectively.
      */
     size?: Size;
 
-    /** The model's id, unique in a scene; `table` when absent. */
+    /** Scene ID, defaulting to `table`. */
     id?: string;
   }
 

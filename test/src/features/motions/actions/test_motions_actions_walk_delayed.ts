@@ -30,6 +30,10 @@ const ROUNDING: number = 1e-12;
  * 4. The plan's contact second 1 moves to 2.
  * 5. A read inside the wait reads the plan's start; a read at 2.5 s reads it at
  *    1.5 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Delayed walks hold the opening pose and move events and contact times onto the longer clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the delay transform on a two-second plan with named instants, a contact window, and explicit queried seconds.
+ * @evidence contracts/development/testing.md#independent-expectations Adding one second and dividing by the new three-second length gives the expected shares. Reads during the wait stay at the opening and later reads subtract the delay.
  */
 export function test_motions_actions_walk_delayed(): void {
   const plan: IAutoMovieMotionHumanActionPlan = {

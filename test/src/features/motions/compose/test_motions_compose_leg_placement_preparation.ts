@@ -25,6 +25,10 @@ import { vclose } from "../../internal/vclose";
  * 3. A current foot rotation of 90 degrees about Y reads a metre along X under the
  *    direct changing-rotation branch. The normalized turn permits 32 ulps in
  *    metres for unit-scale calculations.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the prepared knee and toe geometry, free and bearing reads, goal ownership and a changed foot rotation.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses a prepared placement reader with a stored leg, mutates the original rest observations and samples fixed and turned placements with and without bearing.
+ * @evidence contracts/development/testing.md#independent-expectations The first bend adds a forward metre to the saved rest knee. The local contact uses the original ankle-to-toe subtraction. Under a quarter turn the metre offset is along +X, checked to 32 ulps at unit scale.
  */
 export async function test_motions_compose_leg_placement_preparation(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

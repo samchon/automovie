@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  * 2. About the y direction through (1, 0, 0), the centre is 1 from the line:
  *    3 + 2 * 1^2 = 5.
  * 3. A zero direction is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines principal and displaced inertia axes, an equivalent scaled direction and zero-direction refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public inertia projection on a synthetic mass tensor with unit, scaled and displaced axes. A zero direction exercises invalid line admission.
+ * @evidence contracts/development/testing.md#independent-expectations The Z principal moment is 4 for any nonzero Z direction. The Y moment through a point one metre away adds `2*1^2` to its central moment of 3.
  */
 export function test_archetypes_core_mass_about(): void {
   const properties: AutoMovieArchetypeMass.IProperties = {

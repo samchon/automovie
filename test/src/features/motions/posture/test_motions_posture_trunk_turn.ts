@@ -43,6 +43,10 @@ type Range = NonNullable<ReturnType<typeof AutoMovieEngineKinematics.getConstrai
  * 2. To the right the spine and chest move toward the other ends.
  * 3. A share of −0.4 to the left is a share of 0.4 to the right.
  * 4. A share of zero changes nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines signed trunk-range sharing and bounded compensating neck and head rotations.
+ * @evidence contracts/development/testing.md#behavioral-verification Turns a posed chest and spine both ways at share 0.4, then checks negative share and zero.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit ranges determine the linear 40 percent advances. Half of the summed trunk change is compensated by each head joint within its own range, and zero keeps the input.
  */
 export async function test_motions_posture_trunk_turn(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

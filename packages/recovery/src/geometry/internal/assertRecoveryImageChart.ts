@@ -12,6 +12,16 @@ export function assertRecoveryImageChart(
 ): ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> {
   const pitch: number = view.camera.pixelPitchMm;
   const [u0, v0]: [number, number] = view.camera.principalPointPx;
+  if (
+    view.camera.type !== "horizontal-orthographic" ||
+    view.camera.calibration !== "supplied" ||
+    view.camera.principalPointPx.length !== 2 ||
+    ![u0, v0, pitch, view.camera.azimuthRadians].every(Number.isFinite) ||
+    pitch <= 0
+  )
+    throw new Error(
+      "invalid-pixel-chart: finite supplied camera chart required",
+    );
   const scale: number = Math.max(
     1,
     Math.abs(u0),
@@ -29,7 +39,11 @@ export function assertRecoveryImageChart(
     (v0 - view.height) * pitch,
     v0 * pitch,
   ];
-  if (!(limits[0] < limits[1]) || !(limits[2] < limits[3]))
+  if (
+    !limits.every(Number.isFinite) ||
+    !(limits[0] < limits[1]) ||
+    !(limits[2] < limits[3])
+  )
     throw new Error(
       "invalid-pixel-chart: image edges need distinct finite metric coordinates",
     );

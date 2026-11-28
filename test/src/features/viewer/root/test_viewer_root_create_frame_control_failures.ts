@@ -11,6 +11,10 @@ import * as THREE from "three";
  * 1. Failed acquisition creates no lease and does not suppress ordinary ticks.
  * 2. Rebase and source release failures are both attempted and retained in order.
  * 3. A throwing terminal release is attempted once and never resumes the source.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Preserves original lease failures and attempts terminal source cleanup once.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls freeze and disposal with injected acquisition, rebase, ordinary release and terminal release errors.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied error objects and callback order determine aggregate cause identity. The acquire, release and resume counts expose a leaked or retried lease.
  */
 export function test_viewer_root_create_frame_control_failures(): void {
   const acquisition: Error = new Error("source pause failed");

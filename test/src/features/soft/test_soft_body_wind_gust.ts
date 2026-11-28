@@ -63,9 +63,7 @@ const breeze: (props: {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Solver coordinates and velocities catch changed phase, sign, force scaling or integration order; no wind must remain still and the later signed gust must slow the strip.
  * @evidence contracts/development/testing.md#independent-expectations The first four accelerations 2,1.5,1,.5 integrate to v=5/64 and displacement=15/4096; zero frequency supplies a constant acceleration sum. Dyadic fixtures pin exact local values without claiming universal cross-host floating proof.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserve ordinary/scaled direction, signed later phase, zero gust frequency and absent wind, with untouched transverse coordinates and zero strain; arbitrary collider motion is another test's responsibility.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_wind_gust; plain domain records and real solver output supply every case without a frame sampler, host process or replaced math API.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Four steps of the gust reproduce `v₄ = 5/64` and `p₄ = 15/4096` exactly, on).
+ * @evidence contracts/development/common.md#meaningful-documentation Hand-derived gust motion, a nonunit direction and signed reversal exercise force and phase. Zero frequency holds peak force, and the windless panel stays still.
  */
 export function test_soft_body_wind_gust(): void {
   const gusting: IAutoMovieSoftBodyDomain = breeze({

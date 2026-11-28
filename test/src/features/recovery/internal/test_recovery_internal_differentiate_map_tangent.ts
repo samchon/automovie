@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    stays.
  * 2. A zero translation has no direction: null.
  * 3. A one-row tangent is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names tangent projection, zero direction and a malformed basis size.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls differentiateMapTangent with finite typed translation and basis vectors, a zero translation and a short basis.
+ * @evidence contracts/development/testing.md#independent-expectations The projection subtracts only the component parallel to (0, 0, 2), making the first basis vector (1, 0, 0) and preserving the second vector. A zero direction cannot define a chart.
  */
 export function test_recovery_internal_differentiate_map_tangent(): void {
   TestValidator.equals(

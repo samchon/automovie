@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { AutoMovieEngineHumanoidSurfaceRays } from "../AutoMovieEngineHumanoidSurfaceRays";
 import { AutoMovieEngineHumanoidSurfaceRegions } from "../AutoMovieEngineHumanoidSurfaceRegions";
@@ -105,9 +106,10 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       return mirrored(
         offset(skeleton, profile, right, { up: tangent.up, out: -tangent.out }),
       );
-    const { local, station, exit, surface } =
+    const rays: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools> =
       AutoMovieEngineHumanoidSurfaceRays.tools(skeleton, profile);
-    const origin: IAutoMovieVector3 = station(def.station);
+    const { local, exit, surface } = rays;
+    const origin: IAutoMovieVector3 = regionRayOrigin(profile, rays, region, def.station);
     const d: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(def.direction);
     const reference: IAutoMovieVector3 =
       Math.abs(d.y) > 0.9 ? { x: 0, y: 0, z: 1 } : { x: 0, y: 1, z: 0 };
@@ -274,8 +276,9 @@ function resolveHumanoidSurfacesRun(
   profile: IAutoMoviePhysicalProfile,
   neutral?: AutoMovieHumanoidNeutralBounds.IPrepared,
 ): IAutoMovieHumanoidSurfaces.ISurfaces {
-  const { at, bounds, local, station, exit, surface } =
+  const rays: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools> =
     AutoMovieEngineHumanoidSurfaceRays.tools(skeleton, profile, neutral);
+  const { at, bounds, local, exit, surface } = rays;
 
   const regions = {} as Record<
     AutoMovieHumanoidRegion,
@@ -287,7 +290,7 @@ function resolveHumanoidSurfacesRun(
     AutoMovieHumanoidRegion,
     IAutoMovieHumanoidSurfaceRegions.IDefinition,
   ][]) {
-    const origin: IAutoMovieVector3 = station(def.station);
+    const origin: IAutoMovieVector3 = regionRayOrigin(profile, rays, name, def.station);
     const hit: IAutoMovieHumanoidSurfaceRays.ISurfacePoint = surface(
       def.station.bone,
       origin,
@@ -460,3 +463,23 @@ const KNUCKLE_RADIUS: number = 0.012;
  * rounding.
  */
 const BOUNDARY: number = 1e-9;
+
+/*
+ * A ray begins at the provider's neutral anatomical station when present.
+ * Full surfaces and tangent offsets use the same origin and collider normal.
+ */
+function regionRayOrigin(
+  profile: IAutoMoviePhysicalProfile,
+  rays: ReturnType<typeof AutoMovieEngineHumanoidSurfaceRays.tools>,
+  region: AutoMovieHumanoidRegion,
+  station: IAutoMovieHumanoidSurfaceRegions.IDefinition["station"],
+): IAutoMovieVector3 {
+  const ear: IAutoMovieVector3 | undefined = profile.earRayOrigin;
+  if (ear === undefined || (region !== "earLeft" && region !== "earRight"))
+    return rays.station(station);
+  const head = rays.at("head");
+  return AutoMovieEngineVector3.add(
+    head.worldPosition,
+    AutoMovieEngineQuaternion.rotateVector(head.worldRotation, ear),
+  );
+}

@@ -120,6 +120,10 @@ const out: (
  * 3. An IK driver is returned untouched.
  * 4. An influence of 2, a copy from a node that is not given, and a driven output
  *    on a translation are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names copy influence, dependency order, linear and curved remaps, deferred IK, and three invalid inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `resolveDrivers` on small typed sample maps for copy, remap, curve and deferred IK, then checks mutated channel values, the returned IK identity, and errors for malformed inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Half of source translation (2, 4, 6) gives (1, 2, 3). The dependency chain carries the full source to c. Scaling 0–10 into 0–100 gives 50 from 5 and 200 from 20, capped at 100 when requested. The curve's midpoint gives 5.
  */
 export function test_engine_resolve_resolve_drivers(): void {
   const half: Map<string, IAutoMovieSampledChannel> = new Map();

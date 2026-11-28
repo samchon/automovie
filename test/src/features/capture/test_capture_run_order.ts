@@ -72,9 +72,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public planner, folder and run against a Map-backed storage and reads the calls, the files and the record; a run that wrote a still before claiming it, wrote the record before the stills, touched a path outside its root, or recorded a hash of other bytes fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected call order is the order `AutoMovieRenderCaptureFolder` documents, the names follow the plan's documented form, and the hash is recomputed from the file's own decoded pixels; the drawn colours are written by this test.
- * @evidence contracts/development/testing.md#distinguishing-cases A fresh folder against one holding a previous capture, a matching folder against one opened for another round. Foreign files are owned by `test_capture_folder_ownership`, failed cells by `test_capture_run_failed_cell`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_run_order`; `node:fs/promises` is only assigned, never called, and no file, browser or process is touched.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation The capture checks storage and draw order, canonical records, row pixels and decoded hashes, reuse of a root, wrong-round refusal and sparse diagnostic sampling.
  */
 export async function test_capture_run_order(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();

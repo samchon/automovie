@@ -20,6 +20,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A socket grip closing at the second carries there only when asked.
  * 6. A wearable leaves the hand for the head at the exact stroke. Once on
  *    the head it keeps its carrier after the hand withdraws.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The custody cases distinguish an exact closure, a steadying hand, a new performer, the last release, and socket and wear ownership at their boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Sorted typed spans feed `HumanPerformanceCustody` with exact seconds and the socket admission flag. The checks compare returned identities and the earlier closure instant.
+ * @evidence contracts/development/testing.md#independent-expectations An opening hand at exact closure leaves the previous released carrier current for the query. A second hand by the same performer steadies, but a later performer replaces the carrier. The head takes the wearable exactly at 2 s and keeps it at 3 s.
  */
 export function test_motions_perform_custody(): void {
   const grip = (

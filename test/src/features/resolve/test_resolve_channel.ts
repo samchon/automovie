@@ -32,9 +32,7 @@ const pointer: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls channelKey and channelIsRotation on authored node/pointer records; asserts address namespaces and rotation classification.
  * @evidence contracts/development/testing.md#independent-expectations Literal node:id:path and ptr:pointer spellings and the declared rotation/quaternion kinds supply expectations independently of the helpers' results; this does not establish target existence or pointer syntax.
- * @evidence contracts/development/testing.md#distinguishing-cases Node rotation/translation and quaternion/scalar pointers distinguish both outcomes in each channel family; other supported paths/types and numerical sampling are not exhaustive here.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_channel entry executes portable synchronous address/classification semantics through direct product imports, without installing a scene host or replacing foreign methods.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A node channel keys to `node:{id}:{path}`; a pointer channel keys to).
+ * @evidence contracts/development/common.md#meaningful-documentation Node and pointer channels produce distinct canonical keys. The rotation classifier recognises node rotation and pointer quaternion and distinguishes the other authored channels.
  */
 export function test_resolve_channel(): void {
   // 1. keys

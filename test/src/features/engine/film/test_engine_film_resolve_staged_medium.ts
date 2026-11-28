@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The coefficients have separate nonnegative bounds. Both endpoints of the
  *    anisotropy interval are excluded.
  * 3. A competing fog reference and invalid medium can both be diagnosed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify absent and identity-preserved media, anisotropy and coefficient boundaries and competing extinction declarations.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the stage-medium owner for omitted, null and typed inputs, then reads the ordered collector after out-of-range anisotropy and competing malformed declarations.
+ * @evidence contracts/development/testing.md#independent-expectations Zero scattering and absorption satisfy nonnegative bounds. The anisotropy interval excludes both literal endpoints -1 and 1. The selected negative coefficients and simultaneously authored fog violate independent fields and determine the expected finding order.
  */
 export function test_engine_film_resolve_staged_medium(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

@@ -74,6 +74,10 @@ const SPEC: IAutoMovieRenderSpec = {
  * 4. Default frame/output paths sanitize the sequence id and produce pinned ffmpeg
  *    args; custom paths override those defaults.
  * 5. Target mismatch and zero-frame schedules reject before capture.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Plans trimmed shot spans, dissolve samples, frame paths and encoder inputs from one sequence manifest.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the planner on two trimmed shots with a half-second dissolve, default and custom paths, and invalid targets or clocks.
+ * @evidence contracts/development/testing.md#independent-expectations The overlap gives 2.5 seconds and ten frames at four fps. Explicit trims give outgoing and incoming source times and blend progress on each checked frame.
  */
 export function test_render_root_plan_sequence_render_sequence_plan(): void {
   const plan: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({

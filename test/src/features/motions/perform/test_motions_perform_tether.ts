@@ -53,6 +53,10 @@ const P = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
  *    in a hand, or a prop no line holds, is where it rests.
  * 5. `index` lists the lure's two lines with their reel, in declaration order.
  * 6. Refused: an unknown line, prop or point, and a line of no metres.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Reeling and slack, line-driven pulls and manual custody, reverse lookup and malformed line references each have a separate case.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the tether span, stretch, pull and index owners on staged reel and lure fixtures. It observes rest and rewound lengths, slack point samples, and refused prop or line records.
+ * @evidence contracts/development/testing.md#independent-expectations A 3 m gap against 2 m of free line produces one metre of stretch. Fifty degrees at 0.01 m per degree reels a 3 m line down to 2.5 m. The pull retains the lure's Y of 1 m and reduces its Z to the paid-out length when no hand owns it.
  */
 export async function test_motions_perform_tether(): Promise<void> {
   const line: IAutoMovieMotionHumanTether = {

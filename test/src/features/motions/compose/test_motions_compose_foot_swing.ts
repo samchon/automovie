@@ -38,6 +38,10 @@ const CLEARANCE: number = 0.05;
  * 3. Turning 30 degrees heel up as it lands, at every tenth of the swing the
  *    sole's lowest point is at least `clearance sin(πu)` above the line between
  *    the ends' lowest points.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes exact placement endpoints, flat swing midpoint and the clearance bound while landing heel up.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries motionHumanFootSwing on a stored sole with flat and tipped destinations, reading ankle and sole bounds at eleven phases.
+ * @evidence contracts/development/testing.md#independent-expectations Minimum jerk gives half the 0.4 m travel at the midpoint. The sinusoidal lift there equals CLEARANCE. The tipped case compares each lowest sole point with the endpoint-height interpolation plus the authored half sine.
  */
 export async function test_motions_compose_foot_swing(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

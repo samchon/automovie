@@ -4,10 +4,10 @@ import type { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWi
 /**
  * Inputs for turning directional clearance witnesses into inspection segments.
  *
- * The mesh and witness gap share metre coordinates; anchor selects the
- * object-local frame or null for world space. Witness lengths and front vertex
- * bounds are checked; finite mesh values, weights, gaps and a matching
- * measurement axis remain caller premises.
+ * Use the exact front mesh and axis from the measurement. Each witness needs
+ * three in-range integer front vertex ordinals, three matching barycentric
+ * weights and a finite gap. Positions and gap use the same metre frame. Supply
+ * its scene object path as anchor, or null for world coordinates.
  */
 export namespace IAutoMovieMarkMeshClearance {
   /**
@@ -24,8 +24,9 @@ export namespace IAutoMovieMarkMeshClearance {
    * are those of the meshes, which share one frame; `anchor` names the scene
    * object that frame belongs to, or null for world space.
    *
-   * It throws for a witness that names a vertex outside the front mesh or does
-   * not hold three vertices and three weights.
+   * Each witness must have three safe vertex ordinals and three finite weights.
+   * Affine weights may extrapolate. Invalid axes, nonfinite gaps, referenced
+   * positions or endpoints throw.
    */
   export type IProps = {
     /**

@@ -37,10 +37,11 @@ import { standingPerformanceState } from "../../internal/fixtures/standingPerfor
  *
  * 1. An unknown person is refused, offering the people.
  * 2. Segments and overlays are the person's own; the pose is the displayed one;
- *    bones read on request keep the full read's places; prepared bones read the
- *    same; the hand is the grip socket's; the root and projectile root are the
- *    placed posture's.
- * 3. A prop's frame is the hold's where no line holds it.
+ *    the requested and prepared head agree with its full-bone record. The
+ *    hand quaternion's W component agrees with the grip bone's. The root
+ *    and projectile root agree with the placed posture where checked.
+ * 3. A cup missing from both the performance and its holds raises an
+ *    affordance refusal through both readers.
  * 4. Not resolving, any second is read as asked; resolving, a second within the
  *    placed actions is.
  * 5. Resolving past them, with nothing to place the waiting part, the read is
@@ -51,6 +52,10 @@ import { standingPerformanceState } from "../../internal/fixtures/standingPerfor
  * 8. A demand that finds a cycle refuses the read, unless the person is the
  *    reader's partner, who is then read no later than their placed actions'
  *    end: 2 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names borrowed performance records, pose and root consistency, missing-prop refusal, and resolving-time reads before, during or beyond placed segments.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the read owner on a prepared standing fixture and explicit placement state variants. The demand callback records work and adds a placed segment when requested. The cycle branch checks a typed refusal and the partner-only clamped time.
+ * @evidence contracts/development/testing.md#independent-expectations Segments end at 1 and 2 s, with one intent waiting. At 4 s a horizon at 5 requires zero demands, a placed segment that reaches 6 permits one demand and the 4 s read, and a partner cycle clamps to 2 s. Lower-level pose, bone and stance reads supply consistency comparisons.
  */
 export async function test_motions_perform_read(): Promise<void> {
   const { state } = await standingPerformanceState();

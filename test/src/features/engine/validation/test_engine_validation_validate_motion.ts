@@ -35,6 +35,10 @@ import { makePose } from "../../internal/makePose";
  *    `[1].pose`), jaw weight 1.5 (range, `[1].expression`) and a shoulder
  *    turning 170 degrees in 0.1 s (temporal, `.pose`) fail; a joint first
  *    introduced by the second key passes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers clip clock limits, easing metadata, loop acceptance, pose or expression faults and new-joint behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion on a named two-key elbow clip with one authored clock, identity, easing, joint or expression variation per case.
+ * @evidence contracts/development/testing.md#independent-expectations Times zero and one bound the valid clock and repeated or late keys are explicit. Bezier X stays in [0, 1] while Y may overshoot. Elbow ROM and the 170-degree turn over 0.1 seconds expose separate pose decisions.
  */
 export function test_engine_validation_validate_motion(): void {
   const motion: IAutoMovieMotion = createValidMotion();

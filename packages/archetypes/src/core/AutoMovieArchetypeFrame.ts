@@ -7,9 +7,7 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The frame arithmetic every archetype shares: building a contact frame from
- * the directions its kind's convention names, composing a frame with a
- * placement, and moving a frame rigidly.
+ * Builds contact frames and composes rigid transforms in archetype space.
  *
  * Frames are `IAutoMovieTransform` records in metres with unit scale, in the
  * model's own space: `+Y` up, `+Z` the front of a thing that has one, and `+X`
@@ -29,18 +27,17 @@ export namespace AutoMovieArchetypeFrame {
     translation: IAutoMovieVector3;
   }
 
-  /** The unit scale every archetype frame carries. */
+  /** Unit scale for contact frames. Constructors copy these three components. */
   export const UNIT: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-  /** The motion that moves nothing. */
+  /** The identity rotation and zero translation. */
   export const STILL: IMotion = {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
     translation: { x: 0, y: 0, z: 0 },
   };
 
   /**
-   * Copy a frame and all three mutable geometric records without transforming
-   * it.
+   * Copies a frame's position, orientation and scale into independent records.
    *
    * @param frame Current scale, translation and orientation in the caller's
    *   frame.
@@ -55,7 +52,7 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A frame at a finite point whose `+Y` and `+X` follow two directions.
+   * Creates a unit-scale contact frame from its normal and along direction.
    *
    * @param at The frame's origin, metres.
    * @param out The direction of `+Y`, out of the contact; any length.
@@ -95,7 +92,7 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A frame at a point with the model's own axes.
+   * Places an unrotated contact frame at the supplied point in metres.
    *
    * @param at The frame's origin, metres.
    * @returns The frame, unrotated, with unit scale.
@@ -109,7 +106,7 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * One axis of a frame as a unit direction of the space the frame is in.
+   * Reads a rotated coordinate axis in the frame's parent space.
    *
    * @param frame The frame.
    * @param axis Which of its axes.
@@ -127,7 +124,9 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A point given in a frame's own coordinates, in the space the frame is in.
+   * Maps a rigid frame's local point to its parent space.
+   *
+   * Applies the frame's rotation and translation to metre coordinates.
    *
    * @param frame The frame.
    * @param local The point in the frame's coordinates, metres.
@@ -144,7 +143,7 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A frame moved by a rigid motion.
+   * Applies a rigid motion and copies the frame's existing scale.
    *
    * @param motion The motion of the space the frame is in.
    * @param frame The frame.
@@ -167,9 +166,10 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * A frame given in a parent frame's coordinates, in the space the parent is
-   * in: a model-local affordance frame under the model's placement is the
-   * affordance's world frame.
+   * Expresses a child contact frame in its parent's space.
+   *
+   * Applies the parent's rotation and translation. The result copies the
+   * child's scale.
    *
    * @param parent The parent frame, such as a model's placement in the world.
    * @param child The frame in the parent's coordinates.
@@ -186,7 +186,7 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * The motion that first applies one motion and then another.
+   * Composes two rigid motions in application order.
    *
    * @param after The motion applied second.
    * @param before The motion applied first.
@@ -205,10 +205,10 @@ export namespace AutoMovieArchetypeFrame {
   }
 
   /**
-   * The turn of a number of degrees about a line.
+   * Rotates about a line fixed in the frame's parent space.
    *
    * @param through A point of the line, metres.
-   * @param direction The line's direction; positive degrees turn about it by
+   * @param direction The line's nonzero direction. Positive angles follow
    *   the right-hand rule.
    * @param degrees The angle.
    * @returns The motion.

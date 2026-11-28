@@ -3,7 +3,11 @@ import type { tags } from "typia";
 
 import type { IAutoMovieHumanBodyAnatomySchema } from "./IAutoMovieHumanBodyAnatomySchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanLegIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Measurements and joint mobility for one leg, for typia validation. Lengths,
+ * girths and ankle and arch heights use millimetres. Mobility is measured in
+ * degrees.
+ */
 export type IAutoMovieHumanLegIdentitySchema = IAutoMovieHumanLegIdentity & {
   /**
    * Thigh length: trochanterion height minus tibiale height, the top of the greater trochanter to the upper edge of the medial tibial condyle, millimetres.

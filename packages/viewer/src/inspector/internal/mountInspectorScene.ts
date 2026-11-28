@@ -1,18 +1,26 @@
 import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
+  IAutoMovieInspectionTrail,
 } from "@automovie/interface";
-import { type IAutoMovieRenderDrawScene, type IAutoMovieRenderInspectionHandle, AutoMovieRenderInspectionOverlay, AutoMovieRenderDraw } from "@automovie/render";
+import {
+  AutoMovieRenderCapture,
+  AutoMovieRenderDraw,
+  AutoMovieRenderInspection,
+  AutoMovieRenderInspectionOverlay,
+  type IAutoMovieRenderDrawScene,
+  type IAutoMovieRenderInspectionHandle,
+} from "@automovie/render";
 import type * as THREE from "three";
 
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector";
-import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty";
-import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog";
 import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead";
-import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition";
-import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive";
 import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene";
 import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost";
+import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty";
+import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog";
+import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition";
+import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive";
 import { assertInspectorRaster } from "./assertInspectorRaster";
 import { changesObservedScene } from "./changesObservedScene";
 import { firstInspectorSecond } from "./firstInspectorSecond";
@@ -51,7 +59,10 @@ import { writeInspectorInspection } from "./writeInspectorInspection";
  * subject's optics and indirect shading as delivery draws one sample. While a
  * seek is pending no other is started, and the next frame seeks the newest
  * second, so a slow subject drops intermediate seconds instead of queueing
- * them. A drawing error pauses playback and is reported once until a frame
+ * them. A trail request shares Draw's bounded sampler. After sampling the host
+ * restores the requested pose, and a newer request or playhead jump discards
+ * the pending trace before paint. A drawing error pauses playback and is
+ * reported once until a frame
  * draws again.
  *
  * The picture's aspect is the subject's raster, not the canvas's, so a view
@@ -98,6 +109,7 @@ export function mountInspectorScene(
   let witnesses: boolean = true;
   let wanted: IAutoMovieCapturePlanRequest = props.request;
   let live: IAutoMovieInspectorLive | undefined;
+  let reportedTrails = false;
 
   // The instance arrives later; one that arrives after dispose is released at once.
   props.subject
@@ -119,7 +131,7 @@ export function mountInspectorScene(
     try {
       assertInspectorRaster(props.name, instance);
       playhead.setDuration(instance.durationSeconds);
-      playhead.seek(firstInspectorSecond(wanted));
+      playhead.seek(firstSecond(wanted, instance));
       seconds = playhead.getSnapshot().seconds;
       await instance.seek(seconds);
     } catch (error) {
@@ -136,12 +148,16 @@ export function mountInspectorScene(
     const held: (() => void)[] = [(): void => instance.dispose()];
     try {
       // Facts are read before the inspection adds its own objects to the scene.
-      const facts: IAutoMovieViewerInspectorScene.IFacts =
-        readInspectorFacts({ instance, seconds });
+      const facts: IAutoMovieViewerInspectorScene.IFacts = readInspectorFacts({
+        instance,
+        seconds,
+      });
       const { marks } = facts;
 
-      const { renderer, compositor }: IAutoMovieViewerInspectorSceneHost.ICreated =
-        host.createRenderer();
+      const {
+        renderer,
+        compositor,
+      }: IAutoMovieViewerInspectorSceneHost.ICreated = host.createRenderer();
       held.push((): void => renderer.dispose());
       const beauty: AutoMovieInspectorBeauty = new AutoMovieInspectorBeauty();
       held.push((): void => beauty.dispose());
@@ -150,7 +166,10 @@ export function mountInspectorScene(
       held.push((): void => transition.dispose());
 
       // The newest request, or the one that asks for nothing when the scene refuses it.
-      let applied: IAutoMovieCapturePlanRequest = wanted;
+      let applied: IAutoMovieCapturePlanRequest =
+        wanted.inspection.trail.length === 0
+          ? wanted
+          : { ...wanted, inspection: readInspectorAddress("").inspection };
       let inspection: IAutoMovieRenderInspectionHandle;
       let refusal: string | null = null;
       try {
@@ -164,13 +183,13 @@ export function mountInspectorScene(
           ...readInspectorAddress(""),
           subject: wanted.subject,
         };
+        wanted = applied;
         inspection = inspectInspectorRequest({
           ...{ instance, renderer, marks },
           request: applied,
         });
       }
       held.push((): void => inspection.restore());
-      wanted = applied;
       live = {
         instance,
         renderer,
@@ -185,6 +204,7 @@ export function mountInspectorScene(
         size: undefined,
         dirty: true,
         seeking: false,
+        trailRequestPending: false,
         error: null,
         labelled: false,
       };
@@ -232,38 +252,65 @@ export function mountInspectorScene(
     now.dirty = false;
     now.drawn = snapshot;
     now.seeking = true;
-    let ready: Promise<void>;
-    try {
-      // An observation and the subject's feeds read the scene as placed, without what the inspection changed.
-      if (
-        readsInspectorPlacedScene(now.instance) &&
-        changesObservedScene(now.applied.inspection)
-      )
-        now.inspection.restore();
-      // A transition's other layers are placed, painted and held, and the shot the picture shows most of is placed last.
-      ready = now.transition.place({
-        name: props.name,
-        instance: now.instance,
-        request: now.applied.inspection,
-        compositor: now.compositor,
-        seconds: snapshot.seconds,
-        paint: (): void =>
-          beauty(now, filmCamera(now, snapshot.seconds), snapshot.seconds),
-      });
-    } catch (error) {
-      ready = Promise.reject(
-        error instanceof Error ? error : new Error(String(error)),
+    const request: IAutoMovieCapturePlanRequest = wanted;
+    const bindingTrails: boolean =
+      now.trailRequestPending ||
+      request.inspection.trail.length !== 0 ||
+      now.applied.inspection.trail.length !== 0;
+    const current = (): boolean => {
+      const wantedPosition = playhead.getSnapshot();
+      return (
+        live === now &&
+        wanted === request &&
+        wantedPosition.jump === snapshot.jump &&
+        wantedPosition.playing === snapshot.playing
       );
-    }
-    ready
-      .then((): void => {
+    };
+    placePicture()
+      .then((trails): void => {
         now.seeking = false;
-        if (live === now) paint(now, snapshot);
+        if (live !== now || (bindingTrails && !current())) return;
+        paint(now, snapshot, bindingTrails ? { request, trails } : undefined);
       })
       .catch((error: unknown): void => {
         now.seeking = false;
-        if (live === now) fail(now, snapshot, error);
+        if (live === now && (!bindingTrails || current()))
+          fail(now, snapshot, error);
       });
+
+    async function placePicture(): Promise<IAutoMovieInspectionTrail[]> {
+      // Sample the subject's objects before the previous inspection changes them.
+      if (
+        bindingTrails ||
+        (readsInspectorPlacedScene(now.instance) &&
+          changesObservedScene(now.applied.inspection))
+      )
+        now.inspection.restore();
+      const trails: IAutoMovieInspectionTrail[] =
+        request.inspection.trail.length === 0
+          ? []
+          : await AutoMovieRenderDraw.samplePlayedTrails(
+              props.name,
+              now.instance,
+              request.inspection,
+              snapshot.seconds,
+              current,
+            );
+      if (bindingTrails && !current()) return [];
+      // This last placement restores the actual playhead pose and any transition.
+      await now.transition.place({
+        name: props.name,
+        instance: now.instance,
+        request: bindingTrails ? request.inspection : now.applied.inspection,
+        compositor: now.compositor,
+        seconds: snapshot.seconds,
+        paint: (): void => {
+          if (!bindingTrails || current())
+            beauty(now, filmCamera(now, snapshot.seconds), snapshot.seconds);
+        },
+      });
+      return trails;
+    }
   }
 
   /*
@@ -273,6 +320,10 @@ export function mountInspectorScene(
   function paint(
     now: IAutoMovieInspectorLive,
     snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
+    traced?: {
+      request: IAutoMovieCapturePlanRequest;
+      trails: readonly IAutoMovieInspectionTrail[];
+    },
   ): void {
     const { instance } = now;
     try {
@@ -287,8 +338,21 @@ export function mountInspectorScene(
       // The subject's render-target work, such as surface feeds, runs once on the placed scene's own materials before any shade applies, as the draw host runs it; only a WebGL renderer has render targets.
       if (now.compositor !== null)
         instance.beforeDraw?.(now.compositor, snapshot.seconds);
-      // Re-apply only an inspection that was restored for the scene's readers or changed; otherwise update its marks.
-      if (
+      let paintedTrails: readonly IAutoMovieInspectionTrail[] | undefined;
+      if (traced !== undefined) {
+        const marks = AutoMovieRenderInspection.markTrails(
+          traced.trails,
+          snapshot.seconds,
+        );
+        if (installInspection(now, traced.request, snapshot.seconds, marks)) {
+          now.applied = traced.request;
+          if (report.motionTrails !== undefined)
+            paintedTrails = traced.trails.filter(
+              (trail) => trail.motion !== undefined,
+            );
+        }
+        now.trailRequestPending = false;
+      } else if (
         readsInspectorPlacedScene(instance) &&
         (changesObservedScene(now.applied.inspection) ||
           changesObservedScene(wanted.inspection) ||
@@ -328,6 +392,10 @@ export function mountInspectorScene(
         ...{ now, report, camera, diagnosticLegend },
         playing: snapshot.playing,
       });
+      if (paintedTrails !== undefined && paintedTrails.length !== 0) {
+        reportedTrails = true;
+        report.motionTrails?.(paintedTrails, snapshot.seconds);
+      } else clearTrails(snapshot.seconds);
       if (now.error !== null) {
         now.error = null;
         report.error(null);
@@ -371,6 +439,13 @@ export function mountInspectorScene(
     });
   }
 
+  /* Clear the previous painted trace once when the selection loses it. */
+  function clearTrails(seconds: number): void {
+    if (!reportedTrails) return;
+    reportedTrails = false;
+    report.motionTrails?.([], seconds);
+  }
+
   /*
    * Report a drawing error once until a frame draws again, and stop playback on
    * it.
@@ -380,6 +455,7 @@ export function mountInspectorScene(
     snapshot: AutoMovieViewerInspectorPlayhead.ISnapshot,
     error: unknown,
   ): void {
+    clearTrails(snapshot.seconds);
     if (snapshot.playing) playhead.pause();
     const message: string = messageOfInspectorError(error);
     if (message !== now.error) {
@@ -396,29 +472,64 @@ export function mountInspectorScene(
     now: IAutoMovieInspectorLive,
     request: IAutoMovieCapturePlanRequest,
     seconds: number,
+    trailMarks?: ReturnType<typeof AutoMovieRenderInspection.markTrails>,
   ): boolean {
     return installInspectorRequest({
       ...{ now, request, seconds },
+      ...(trailMarks === undefined ? {} : { trailMarks }),
       refused: (error: unknown): void => {
         wanted = now.applied;
         report.refused(now.applied, messageOfInspectorError(error));
       },
     });
   }
+
+  function firstSecond(
+    request: IAutoMovieCapturePlanRequest,
+    instance: IAutoMovieRenderDrawScene,
+  ): number {
+    if (request.cue === undefined) return firstInspectorSecond(request);
+    return AutoMovieRenderCapture.resolveCue(
+      {
+        name: props.name,
+        durationSeconds: instance.durationSeconds,
+        ...(instance.playedCues === undefined
+          ? {}
+          : { playedCues: instance.playedCues }),
+      },
+      request.cue,
+    ).globalTime;
+  }
   return {
     apply: (request: IAutoMovieCapturePlanRequest): void => {
       if (disposed || request === wanted) return;
+      const previous: IAutoMovieCapturePlanRequest = wanted;
       wanted = request;
       const now: IAutoMovieInspectorLive | undefined = live;
       if (now === undefined) return;
 
-      // Opted-in subjects apply each request only after the current settled scene is observed.
-      if (now.instance.inspectPlaced !== undefined) {
-        if (
-          firstInspectorSecond(request) !==
-          firstInspectorSecond(now.applied)
-        )
-          playhead.seek(firstInspectorSecond(request));
+      let nextSecond: number;
+      let previousSecond: number;
+      try {
+        nextSecond = firstSecond(request, now.instance);
+        previousSecond = firstSecond(now.applied, now.instance);
+      } catch (error) {
+        wanted = now.applied;
+        report.refused(now.applied, messageOfInspectorError(error));
+        return;
+      }
+
+      if (request.inspection.trail.length === 0)
+        clearTrails(playhead.getSnapshot().seconds);
+
+      // Wait for the placed scene before binding a trail or observing an opted-in subject.
+      now.trailRequestPending =
+        now.trailRequestPending ||
+        request.inspection.trail.length !== 0 ||
+        previous.inspection.trail.length !== 0 ||
+        now.applied.inspection.trail.length !== 0;
+      if (now.instance.inspectPlaced !== undefined || now.trailRequestPending) {
+        if (nextSecond !== previousSecond) playhead.seek(nextSecond);
         now.dirty = true;
         return;
       }
@@ -440,11 +551,7 @@ export function mountInspectorScene(
         }
         report.legend([...now.inspection.legend]);
       }
-      if (
-        firstInspectorSecond(request) !==
-        firstInspectorSecond(now.applied)
-      )
-        playhead.seek(firstInspectorSecond(request));
+      if (nextSecond !== previousSecond) playhead.seek(nextSecond);
       now.applied = request;
       now.dirty = true;
     },
@@ -460,6 +567,7 @@ export function mountInspectorScene(
       live = undefined;
       if (now === undefined) return;
       releaseInspectorSteps([
+        (): void => clearTrails(playhead.getSnapshot().seconds),
         (): void => {
           if (now.frame !== undefined) host.cancelFrame(now.frame);
           now.frame = undefined;

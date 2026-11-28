@@ -25,6 +25,10 @@ import { material } from "../../internal/renderFixtures";
  *    keeps both asset and generating runtime attribution.
  * 3. Missing identity/decoding, duplicate owners and conflicting extents refuse a
  *    complete bound; runtime token renaming preserves target identity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe runtime table size and format, upload-key sharing, dual ownership and incomplete storage claims.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that upload-state variants split shared sources, equivalent runtime and authored uses retain both owners, and missing identity or conflicting extent refuses a complete bound.
+ * @evidence contracts/development/testing.md#independent-expectations Derives each allocation as `64 × 6 × 16` bytes for RGBA32F and uses separate fixture owners and upload variants to specify one or two allocations.
  */
 export async function test_render_scene_read_texture_source_runtime_texture_storage(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

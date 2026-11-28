@@ -24,9 +24,7 @@ type V3 = [number, number, number];
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `eye`, `muzzle`, `ring`, `orbit`, `wedge` and `tent` of `AutoMovieHumanF1FaceCentres` and reads the returned frames, planes and signed measures. It catches a frame built on the wrong exact axis, a mouth line placed without the tissue's depth or the modiolus's reach, a ring not square to its course, and a dividing surface with the wrong sign, the wrong semi-axis or no mirror symmetry.
  * @evidence contracts/development/testing.md#independent-expectations Each expectation is arithmetic on the made points written in the scenario list: a normalized difference, a dot product along a unit direction, an ellipse's equation, an arc as radius times angle, and membership of three points in the plane they define. The two priors are read from `AutoMovieHumanF1FacePriors` only as the offsets the definitions name.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside, on and outside points for every surface; a tilted canthal line so Z differs from the lateral hint; a cervical point off the course so the foot differs from the point. Real landmarks, the figure's frames and any fitted family are not read.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_f1_face_centres`; pure arithmetic, no figure, no reference, no host or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation States the six scenarios with the made points and the closed form each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation The synthetic landmarks define eye and mouth axes, a neck ring, an orbit, and the lip and nose separating surfaces and their signed distances.
  */
 export function test_human_f1_face_centres(): void {
   const failures: string[] = [];

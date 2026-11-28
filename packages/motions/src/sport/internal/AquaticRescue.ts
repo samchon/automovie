@@ -1,5 +1,22 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
@@ -7,18 +24,17 @@ import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanHand } from "../../posture/internal/HumanHand";
+import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticRescueBounds } from "./AquaticRescueBounds";
 
 /*
  * A water rescue as the American Red Cross Lifeguarding manual describes it:
  * the rescuer swims to the victim, takes a cross-chest hold from behind and
- * tows on the side with a scissor kick to a named edge. The victim's root moves
- * from where it struggled toward the edge at the tow speed, face up with the
- * mouth clear of the water; the rescuer keeps `BEHIND` behind it and lays the
- * near arm across its chest. Both read the same tow from the victim's struggle
- * position and the edge, so neither samples the other's plan: the rescuer reads
- * only the victim's displayed chest.
+ * tows alongside with a scissor kick to a named edge. The victim reclines
+ * around the chest held by the rescuer and keeps the mouth clear of the
+ * water. The victim's sternum follows the path from the hold toward the edge.
+ * The rescuer's palm follows that displayed surface through the turn and tow.
  */
 export namespace AquaticRescue {
   /*
@@ -32,9 +48,24 @@ export namespace AquaticRescue {
     const victim: IAutoMovieMotionHumanPerformerReader = partnerOf(context);
     const from: IAutoMovieVector3 = victim.root(start).position;
     const tow: ITow = plan(from, edgeOf(context));
-    const behind: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
-      from,
-      AutoMovieEngineVector3.scale(tow.toward, AquaticRescueBounds.BEHIND),
+    const away: IAutoMovieVector3 = AutoMovieEngineVector3.cross(tow.toward, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const beside: IAutoMovieVector3 = AutoMovieEngineVector3.scale(
+      away,
+      body.measure.hipHalfWidth +
+        body.measure.thighRadius +
+        victim.body.measure.hipHalfWidth +
+        victim.body.measure.thighRadius,
+    );
+    const behind: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      AutoMovieEngineVector3.subtract(
+        from,
+        AutoMovieEngineVector3.scale(tow.toward, AquaticRescueBounds.BEHIND),
+      ),
+      beside,
     );
     // The crawl stops `STANDOFF` short of the hold, clear of the victim's
     // flailing body, and the rescuer glides in onto its side as it takes
@@ -97,8 +128,8 @@ export namespace AquaticRescue {
           { pitch: 80, neck: -20 },
           // The recovering arm swings wide of the head.
           { hip: 5, knee: 10, raise: 40, elbow: 20 },
-          { shoulder: 95 + 60 * stroke },
-          { shoulder: 95 - 60 * stroke },
+          { shoulder: 95 + 50 * stroke },
+          { shoulder: 95 - 50 * stroke },
         ),
       );
     };
@@ -109,7 +140,7 @@ export namespace AquaticRescue {
       entry.posture,
       ExerciseKey.from(
         body,
-        { pitch: 70, roll: 80, neck: -10 },
+        { pitch: 70, roll: 35, neck: -10 },
         { hip: 30, knee: 40, shoulder: 60, raise: 30, elbow: 70 },
       ),
     );
@@ -124,7 +155,16 @@ export namespace AquaticRescue {
     // Both kicks change only descendants of the hips. The transition is
     // the only interval where the hips follow a varying trunk attitude.
     const crawlHips: IAutoMovieVector3 = hipsOf(swim);
-    const sideHips: IAutoMovieVector3 = hipsOf(side);
+    const relaxed = HumanHand.shape("left", "relaxed");
+    const fingers = prepareHumanShapeBlend(relaxed, {
+      ...relaxed,
+      ...Object.fromEntries(
+        Object.entries(HumanHand.shape("left", "flat")).filter(
+          ([bone]) => !bone.startsWith("leftThumb"),
+        ),
+      ),
+    });
+
     // The body without the holding arm's goal.
     const bodyAt: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
@@ -143,14 +183,28 @@ export namespace AquaticRescue {
             ? AutoMovieEngineVector3.lerp(
                 { ...standoff, y: 0 },
                 { ...behind, y: 0 },
-                AutoMovieEngineMotionSampling.minimumJerkShare((t - arrive) / AquaticRescueBounds.GRIP),
+                AutoMovieEngineMotionSampling.minimumJerkShare(
+                  (t - arrive) / AquaticRescueBounds.GRIP,
+                ),
               )
             : AutoMovieEngineVector3.add(
                 { ...behind, y: 0 },
-                AutoMovieEngineVector3.scale(tow.toward, along(tow, t - hold)),
+                AutoMovieEngineVector3.add(
+                  AutoMovieEngineVector3.scale(
+                    tow.toward,
+                    along(tow, t - hold),
+                  ),
+                  AutoMovieEngineVector3.scale(
+                    away,
+                    body.measure.thigh *
+                      Math.sin((25 * Math.PI) / 180) *
+                      AutoMovieEngineMotionSampling.minimumJerkShare(
+                        Math.min(1, (t - hold) / AquaticRescueBounds.GRIP),
+                      ),
+                  ),
+                ),
               );
-      const hips: IAutoMovieVector3 =
-        t < arrive ? crawlHips : t >= hold ? sideHips : hipsOf(shaped);
+      const hips: IAutoMovieVector3 = t < arrive ? crawlHips : hipsOf(shaped);
       const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
         shaped,
         AutoMovieEngineVector3.add(shaped.root, {
@@ -168,6 +222,11 @@ export namespace AquaticRescue {
       );
       const swing: number =
         k * Math.sin((2 * Math.PI * (t - arrive)) / AquaticRescueBounds.KICK);
+      // Turn both kick planes away together to clear the victim's feet and
+      // retain the space between the rescuer's left and right shank.
+      const separation: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+        Math.min(1, Math.max(0, (t - hold) / AquaticRescueBounds.GRIP)),
+      );
       const kicked: (
         bone: AutoMovieHumanoidBone,
         degrees: number,
@@ -178,7 +237,13 @@ export namespace AquaticRescue {
         const [x, y, z]: readonly [number, number, number] = placed.joints[
           bone
         ] ?? [0, 0, 0];
-        return [x + degrees, y, z];
+        const spread =
+          bone === "leftUpperLeg"
+            ? -30 * separation
+            : bone === "rightUpperLeg"
+              ? 30 * separation
+              : 0;
+        return [x + degrees, y + spread, z];
       };
       return {
         ...placed,
@@ -201,36 +266,47 @@ export namespace AquaticRescue {
         { name: "tow", share: hold / duration },
         { name: "relax", share: 1 },
       ],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (seconds, channels): IAutoMovieMotionHumanPosture => {
         const shaped: IAutoMovieMotionHumanPosture = bodyAt(seconds);
-        return seconds < arrive
-          ? shaped
+        if (seconds < arrive) return shaped;
+        const target: IHoldWorld = plannedGrip?.(seconds) ?? firstGrip;
+        const placed: IAutoMovieMotionHumanPosture =
+          seconds < hold || reachAtHold === undefined
+            ? shaped
+            : drawAlongside(shaped, target.wrist, reachAtHold);
+        return channels !== undefined && !channels.includes("leftArm")
+          ? placed
           : {
-              ...shaped,
-              limbs: { ...shaped.limbs, leftArm: grip(shaped, seconds) },
+              ...placed,
+              limbs: {
+                ...placed.limbs,
+                leftArm:
+                  seconds >= hold && plannedGrip === undefined
+                    ? firstLocal
+                    : inFrame(chestAt(placed).get("chest")!, target),
+              },
             };
       },
     };
 
-    // The hold rides the rescuer's own chest: the victim's displayed
-    // sternum and body are read once, where the hold is taken, and kept in
-    // the rescuer's chest frame, so the hand goes with the pair through the
-    // tow without reading the victim at a later second. During the reach the
-    // rescuer still closes in from the standoff while the victim stays where
-    // it was in the world, so each frame of the reach puts the hold in that
-    // frame's chest; from the hold on, in the hold's. The upper arm of the
-    // side-lying rescuer drapes over the victim's shoulder, the elbow back
-    // toward the rescuer.
-    const holdWorld = (): IHoldWorld => {
-      const sternum: IAutoMovieHumanoidSurfaces.IFrame =
-        victim.body.surfaces.regions.sternum;
-      const placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
-        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
-          sternum,
-          victim
-            .bones(start + hold, new Set([sternum.bone]))
-            .get(sternum.bone)!,
-        );
+    // The victim stays at the hold position during the reach. During the tow
+    // its displayed sternum and skin set the hand's position and attitude
+    // as the victim reclines. The near elbow bends back toward the rescuer.
+    const sternum: IAutoMovieHumanoidSurfaces.IFrame =
+      victim.body.surfaces.regions.sternum;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+      ...HumanColliders.bones(victim.body),
+      sternum.bone,
+    ]);
+    const holdWorld = (seconds: number): IHoldWorld => {
+      const bones: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =
+        victim.bones(start + Math.max(hold, seconds), requested);
+      const placed: ReturnType<
+        typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace
+      > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
+        sternum,
+        bones.get(sternum.bone)!,
+      );
       const chest: IAutoMovieVector3 = placed.point;
       // The palm lies on the sternum, facing into it, the fingers across
       // the victim's chest: the hand rests on the skin, not in it.
@@ -253,12 +329,12 @@ export namespace AquaticRescue {
         ),
         rotation,
         contact: palm.point,
-        rests: HumanColliders.placed(
-          victim.body,
-          victim.bones(start + hold, HumanColliders.bones(victim.body)),
-        ),
+        rests: HumanColliders.placed(victim.body, bones),
         bend: AutoMovieEngineVector3.add(
-          AutoMovieEngineVector3.subtract(chest, AutoMovieEngineVector3.scale(tow.toward, 0.25)),
+          AutoMovieEngineVector3.subtract(
+            chest,
+            AutoMovieEngineVector3.scale(tow.toward, 0.25),
+          ),
           {
             x: 0,
             y: 0.1,
@@ -267,9 +343,13 @@ export namespace AquaticRescue {
         ),
       };
     };
-    const w: IHoldWorld = holdWorld();
+    const firstGrip: IHoldWorld = holdWorld(hold);
+    let plannedGrip: ((seconds: number) => IHoldWorld) | undefined;
     // The hold in the rescuer's chest frame `own`.
-    const inFrame = (own: IAutoMovieResolvedBone): IAutoMovieHumanLimbGoal => {
+    const inFrame = (
+      own: IAutoMovieResolvedBone,
+      w: IHoldWorld,
+    ): IAutoMovieHumanLimbGoal => {
       const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
         own.worldRotation,
       );
@@ -285,9 +365,8 @@ export namespace AquaticRescue {
         point: local(w.wrist),
         rotation: AutoMovieEngineQuaternion.multiply(inverse, w.rotation),
         contact: w.contact,
-        // The victim's body, as it was where the hold was taken, rides the
-        // rescuer's chest with the hand: the arm keeps clear of it on its way
-        // and lays the hand on it.
+        // Express the observed victim colliders in the same frame as the
+        // wrist so the arm fit can keep clear of the body around the hold.
         clearanceOn: {
           clear: [],
           rests: w.rests.map(
@@ -297,7 +376,10 @@ export namespace AquaticRescue {
               ...segment,
               pose: {
                 position: local(segment.pose.position),
-                rotation: AutoMovieEngineQuaternion.multiply(inverse, segment.pose.rotation),
+                rotation: AutoMovieEngineQuaternion.multiply(
+                  inverse,
+                  segment.pose.rotation,
+                ),
               },
             }),
           ),
@@ -307,25 +389,94 @@ export namespace AquaticRescue {
     };
     const chestAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["chest"]);
-    const held: IAutoMovieHumanLimbGoal = inFrame(
+    const firstLocal: IAutoMovieHumanLimbGoal = inFrame(
       chestAt(bodyAt(hold)).get("chest")!,
+      firstGrip,
     );
-    const grip = (
-      shaped: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieHumanLimbGoal =>
-      seconds < hold ? inFrame(chestAt(shaped).get("chest")!) : held;
+    const shoulderAt: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["leftUpperArm"]);
+    let reachAtHold: number | undefined;
+    // Keep the elbow's reach reserve at the hold. The victim's turn changes
+    // both the wrist attitude and its offset from the retained skin point.
+    // Move alongside on the water plane when that change draws the held
+    // wrist outside the current shoulder's reach.
+    const drawAlongside = (
+      posture: IAutoMovieMotionHumanPosture,
+      wrist: IAutoMovieVector3,
+      reach: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const shoulder: IAutoMovieVector3 =
+        shoulderAt(posture).get("leftUpperArm")!.worldPosition;
+      const delta: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+        wrist,
+        shoulder,
+      );
+      const flat: number = Math.hypot(delta.x, delta.z);
+      const limit: number = Math.sqrt(Math.max(0, reach ** 2 - delta.y ** 2));
+      if (flat <= limit) return posture;
+      const share: number = 1 - limit / flat;
+      return AquaticPosture.translate(posture, {
+        x: posture.root.x + delta.x * share,
+        y: posture.root.y,
+        z: posture.root.z + delta.z * share,
+      });
+    };
     // The near arm reaches from its last crawl stroke to the victim's
     // sternum as one admitted course and holds it through the tow
     // (`courseArmGoal`); the victim never reads the rescuer.
     const opening: IAutoMovieMotionHumanPosture = swimming.posture(arrive);
-    return courseArmGoal({
-      context,
-      plan: swimming,
-      side: "left",
-      rest: AquaticPosture.rest(body, opening, "left"),
-      span: { start: arrive, ready: hold, relax: duration, end: duration },
-    });
+    const rest = AquaticPosture.rest(body, opening, "left");
+    const course = (): IAutoMovieMotionHumanActionPlan =>
+      courseArmGoal({
+        context,
+        plan: swimming,
+        side: "left",
+        rest,
+        span: { start: arrive, ready: hold, relax: duration, end: duration },
+      });
+    // Resolve the cue on a provisional course so the victim can align its
+    // takeover to it. Rebuild the arm trajectory after both actions have
+    // been placed, when the victim's moving sternum can be read.
+    const preliminary: IAutoMovieMotionHumanActionPlan = course();
+    let read: IAutoMovieMotionHumanActionPlan["posture"] = preliminary.posture;
+    return {
+      ...preliminary,
+      posture: (...args): IAutoMovieMotionHumanPosture => {
+        const posture = read(...args);
+        const [seconds, channels] = args;
+        if (
+          seconds < arrive ||
+          (channels !== undefined && !channels.includes("leftHand"))
+        )
+          return posture;
+        // Form the fingers in their own channel. The long fingers extend over
+        // the victim's curved chest while the thumb and solved wrist hold
+        // their course.
+        const extension: number =
+          AutoMovieEngineMotionSampling.minimumJerkShare(
+            Math.min(1, (seconds - arrive) / (hold - arrive)),
+          );
+        return {
+          ...posture,
+          joints: { ...posture.joints, ...fingers(extension) },
+        };
+      },
+      prepare: (): void => {
+        plannedGrip = holdWorld;
+        reachAtHold = Math.max(
+          AutoMovieEngineVector3.distance(
+            shoulderAt(bodyAt(hold)).get("leftUpperArm")!.worldPosition,
+            holdWorld(hold).wrist,
+          ),
+          body.measure.upperArm +
+            body.measure.forearm -
+            body.measure.forearmRadius,
+        );
+        const coupled = course();
+        coupled.prepare?.();
+        read = coupled.posture;
+      },
+    };
   }
 
   /*
@@ -343,16 +494,19 @@ export namespace AquaticRescue {
       ExerciseKey.from(
         body,
         { pitch: -60, neck: 10 },
-        { hip: 20, knee: 20, shoulder: 10, raise: 20, elbow: 20 },
+        { hip: 20, knee: 20, shoulder: 14, raise: 8, elbow: 70 },
       ),
     );
     const lie: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
       entry.posture,
       back,
     );
-    const mouthAt = (posture: IAutoMovieMotionHumanPosture): number =>
-      HumanTrunk.region(body, posture, "mouth").point.y;
-    const settledMouth: number = mouthAt(lie(1));
+    const mouthAt = HumanTrunk.preparePoint(body, "mouth");
+    const sternumAt = HumanTrunk.preparePoint(body, "sternum");
+    const first = sternumAt(lie(0));
+    const settled = lie(1);
+    const settledMouth: number = mouthAt(settled).y;
+    const settledSternum: IAutoMovieVector3 = sternumAt(settled);
     const duration: number = tow.seconds;
     return {
       duration,
@@ -364,9 +518,23 @@ export namespace AquaticRescue {
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.max(0, Math.min(duration, seconds));
         const settling: boolean = t < AquaticRescueBounds.GRIP;
-        const shaped: IAutoMovieMotionHumanPosture = lie(
-          t / AquaticRescueBounds.GRIP,
-        );
+        const share: number = t / AquaticRescueBounds.GRIP;
+        const shape = lie(share);
+        // Leave the distress arm press as the hold closes. The wrists drop
+        // before the trunk rolls, then travel with its chest as it reclines.
+        const arms = settling ? lie(3 * share).joints : shape.joints;
+        const shaped: IAutoMovieMotionHumanPosture = {
+          ...shape,
+          joints: {
+            ...shape.joints,
+            leftUpperArm: arms.leftUpperArm,
+            rightUpperArm: arms.rightUpperArm,
+            leftLowerArm: arms.leftLowerArm,
+            rightLowerArm: arms.rightLowerArm,
+            leftHand: arms.leftHand,
+            rightHand: arms.rightHand,
+          },
+        };
         const where: IAutoMovieVector3 = AutoMovieEngineVector3.add(
           { ...tow.from, y: 0 },
           AutoMovieEngineVector3.scale(tow.toward, along(tow, t)),
@@ -374,11 +542,16 @@ export namespace AquaticRescue {
         const lift: number =
           water +
           AquaticRescueBounds.CLEAR -
-          (settling ? mouthAt(shaped) : settledMouth);
+          (settling ? mouthAt(shaped).y : settledMouth);
+        // The torso tilts about the hold instead of taking the sternum off
+        // the planned horizontal tow path. The mouth still sets the height.
+        const sternum: IAutoMovieVector3 = settling
+          ? sternumAt(shaped)
+          : settledSternum;
         return AquaticPosture.translate(shaped, {
-          x: where.x,
+          x: where.x + first.x - sternum.x,
           y: shaped.root.y + lift,
-          z: where.z,
+          z: where.z + first.z - sternum.z,
         });
       },
     };
@@ -398,7 +571,9 @@ export namespace AquaticRescue {
     return {
       from,
       toward:
-        distance > 0 ? AutoMovieEngineVector3.scale(flat, 1 / distance) : { x: 0, y: 0, z: 1 },
+        distance > 0
+          ? AutoMovieEngineVector3.scale(flat, 1 / distance)
+          : { x: 0, y: 0, z: 1 },
       length,
       seconds: Math.max(
         AquaticRescueBounds.GRIP,
@@ -413,7 +588,10 @@ export namespace AquaticRescue {
    */
   function along(tow: ITow, t: number): number {
     return (
-      tow.length * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, t / tow.seconds)))
+      tow.length *
+      AutoMovieEngineMotionSampling.minimumJerkShare(
+        Math.min(1, Math.max(0, t / tow.seconds)),
+      )
     );
   }
 
@@ -479,7 +657,7 @@ interface ITow {
 }
 
 /*
- * The rescuer's hold in the world, read once where the hold is taken.
+ * The rescuer's hold and the victim's colliders in world coordinates.
  */
 interface IHoldWorld {
   /*

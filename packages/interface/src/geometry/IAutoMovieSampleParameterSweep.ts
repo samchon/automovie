@@ -1,74 +1,55 @@
 import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
-/**
- * Fixed Cartesian sampling footprint bound to a live sweep frame and scale
- * slots.
- */
+/** Fixed Cartesian quadrature footprint and live placement readers. */
 export namespace IAutoMovieSampleParameterSweep {
   /**
-   * Register a fixed-cell Cartesian section average for parameter
-   * correspondence.
+   * Fixed local quadrature footprint and live frame and scale access for a
+   * parameter-correspondence sample writer.
    *
-   * Parameter correspondence pairs the curve parameter, so an off-axis, concave
-   * section or an authored origin cannot be reconstructed from a polar radius.
-   * The tensor trapezoid first averages the unscaled two-dimensional shape over
-   * v, then its scaled points over u, in the centre frame just as the radial
-   * writer does. The u-dependent scale belongs inside that second average.
-   * Direction-correspondence radius averaging remains with rigSweep.
-   *
-   * Each signed coordinate is normalized by its largest magnitude before the
-   * weighted sum. This avoids overflow in the sum and preserves an ordinary
-   * positive subnormal constant. A genuine cancelling mean may be the origin;
-   * only a nonzero normalized result lost in multiplication is refused. Scale
-   * products, positive weights and world coordinates are admitted before output
-   * publication. A rejected write leaves the caller's output buffer unchanged.
+   * U-dependent scale is applied inside the trapezoidal average. Signed
+   * coordinates are normalized for the sum, preserving a genuinely cancelling
+   * origin. The writer validates all components before publication.
    */
   export type IProps = {
     /**
-     * Compiled rest sweep whose unscaled section-plane shape returns metre
-     * coordinates. Registration samples at most nine shape points and retains
-     * their weighted values, rather than re-reading shapes per pose.
+     * Compiled rest sweep whose unscaled shape returns chart metre X and Y.
+     * Registration samples and retains the needed shape coordinates.
      */
     surface: IAutoMovieSweepSurface;
     /**
-     * Center normalized chord-length coordinate. Offset quadrature stations
-     * clamp into [0,1] before shape and scale registration.
+     * Central normalized spine coordinate. Offset quadrature stations are
+     * clamped to [0, 1].
      */
     u: number;
     /**
-     * Center section parameter in turns; angular offsets are passed to the
-     * compiled shape reader, which owns wrapping.
+     * Central curve parameter in turns. The shape evaluator wraps around the
+     * section seam.
      */
     v: number;
     /**
-     * Finite nonnegative sample spacings below/above u then below/above v, in
-     * parameter units. Quadrature samples at minus half the lower spacing, the
-     * center and plus half the upper spacing. A zero pair samples only its
-     * center; unrepresentable span or positive weights throw during
-     * registration.
+     * Finite nonnegative spacings below and above u, then below and above v.
+     * Samples are at half-spacing offsets, with a zero pair taking the centre
+     * only.
      */
     cell: readonly [number, number, number, number];
     /**
-     * Scalar offset into the live frame buffer, not a frame ordinal. Reads
-     * origin XYZ then two section-axis XYZ vectors at offsets 0, 3 and 6;
-     * origin uses model metres and axes are dimensionless.
+     * Scalar offset into the live frame buffer, addressing metre origin XYZ
+     * followed by the first and second axis vectors.
      */
     frame: number;
     /**
-     * Register a normalized u station and return its integer scale slot. Called
-     * during compilation; the slot is retained for every later pose write.
+     * Register each sampled spine coordinate and return its stable integer
+     * scale slot.
      */
     scale: (u: number) => number;
     /**
-     * Read the current dimensionless scale at a registered slot. Each write
-     * requires positive finite scale and representable products; invalid values
-     * throw before modifying output.
+     * Read the current positive finite dimensionless scale for a previously
+     * registered slot. Invalid sampled products refuse before output writes.
      */
     readScale: (slot: number) => number;
     /**
-     * Return the current borrowed frame buffer after its owning rig has
-     * updated. The writer reads the registered center frame and publishes three
-     * finite metre coordinates; it does not retain an earlier returned buffer.
+     * Return the rig's current borrowed frame array. The writer obtains it anew
+     * before applying the centre frame.
      */
     frames: () => Float64Array;
   };

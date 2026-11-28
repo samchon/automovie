@@ -5,6 +5,7 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
   IAutoMovieCaptureStorage,
+  IAutoMovieCaptureVideoSource,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
@@ -15,10 +16,12 @@ import { loadProductionModule } from "../../production/internal/loadProductionMo
 import { readRevisionImplementation } from "../../production/internal/readRevisionImplementation";
 import { resolveFfmpeg } from "../../ffmpeg/internal/resolveFfmpeg";
 import { runFfmpeg } from "../../ffmpeg/internal/runFfmpeg";
+import { hashFileContents } from "../../file/internal/hashFileContents";
 import { AutoMovieCliCaptureHost } from "../AutoMovieCliCaptureHost";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { readCaptureHostOptions } from "./readCaptureHostOptions";
 import { readVideoProbeImplementation } from "./readVideoProbeImplementation";
+import { readVideoPresentation } from "./readVideoPresentation";
 
 /*
  * Run `automovie capture` in a production: read the options through the request
@@ -109,6 +112,7 @@ export async function captureProduction(
       load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
         loadProductionModule<AutoMovieFfmpegStaticPath>(root, id),
     });
+    const fileSha256: string = await hashFileContents(file);
     const probe: ReturnType<typeof readVideoProbeImplementation> =
       readVideoProbeImplementation(
         await runFfmpeg(ffmpeg, [
@@ -131,11 +135,21 @@ export async function captureProduction(
     record = await render.AutoMovieRenderCapture.runVideo({
       file,
       subject: { name, ...probe },
+      streamIndex: probe.streamIndex,
       request,
       storage,
       root: folder,
       run: async (args: readonly string[]): Promise<void> => {
         await runFfmpeg(ffmpeg, args);
+      },
+      extract: async (
+        args: readonly string[],
+        frames: readonly number[],
+      ): Promise<IAutoMovieCaptureVideoSource.Presentation> => {
+        const log: string = await runFfmpeg(ffmpeg, args);
+        if ((await hashFileContents(file)) !== fileSha256)
+          throw new Error(`Video ${file} changed during capture. Run the capture again.`);
+        return readVideoPresentation(log, probe.streamIndex, fileSha256, frames);
       },
       revision: readRevisionImplementation(root),
     });

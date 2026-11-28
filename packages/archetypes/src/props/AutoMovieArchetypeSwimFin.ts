@@ -12,17 +12,21 @@ import { AutoMovieArchetypeSwimFinData } from "./internal/AutoMovieArchetypeSwim
 
 /** Constructs the swim fin archetype from its recipe. */
 export namespace AutoMovieArchetypeSwimFin {
-/**
- * One full-foot swimming fin. Its origin is the foot pocket's heel, `+Z` along
- * the blade and `+Y` up from the sole. `wear` is the pocket the foot goes into,
- * `+Y` toward the foot, at the ankle's place over the heel; the blade's area is
- * `length` times `width`, which a fin-swimming law reads as the fin's
- * hydrodynamic area.
- *
- * @param params Scene identity and dimensions within their bands.
- * @param seed Draws free dimensions within their bands.
- * @returns The fin with its wear socket.
- */
+  /**
+   * Build one rubber full-foot swimming fin.
+   *
+   * The local origin is the pocket's heel, `+Y` points up, and `+Z` points
+   * towards the toe and blade. Mount the foot using the `wear` socket at the
+   * ankle. The `blade` surface exposes its width across the foot and depth
+   * along the foot in metres. Fin-swimming motion uses their product as the
+   * area of one blade.
+   *
+   * @param params Optional subject ID and fixed dimensions.
+   * @param seed Draws omitted dimensions within their bands. Omit it to use
+   *   0.375 m blade length, 0.20 m blade width, and 0.80 kg mass.
+   * @returns The fin with the foot socket and the upper blade face.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed value outside its band.
+   */
 export function create(
   params: AutoMovieArchetypeSwimFin.IParams = {},
   seed?: number,
@@ -80,19 +84,29 @@ export function create(
 }
 
   /* Dimensions and the socket of {@link createSwimFin}. */
-  /** The foot pocket, and the blade's upper face. */
+  /**
+   * `wear` mounts the pocket at the ankle. `blade` is the upper blade face.
+   */
   export type Affordance = "wear" | "blade";
 
-  /** Blade length and width, and the fin's mass. */
+  /**
+   * Blade length and width in metres and the mass of one fin in kilograms.
+   */
   export type Dimension = "length" | "width" | "mass";
 
-  /** Scene identity and fixed dimensions. */
+  /**
+   * Optional scene ID and fixed values within the fin's dimension bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
+    /**
+     * Scene subject ID. Defaults to `swimFin`.
+     */
     id?: string;
   }
 
-  /** Units of each dimension. */
+  /**
+   * Units used for the blade's two lengths and the mass of one fin.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -101,7 +115,9 @@ export function create(
     mass: "kg",
   };
 
-  /** Staged bands. */
+  /**
+   * Staging bands for one fin's blade lengths and mass.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(0.3, 0.45, AutoMovieArchetypeSwimFinData.STAGED, true),
     width: AutoMovieArchetypeBand.metres(0.18, 0.22, AutoMovieArchetypeSwimFinData.STAGED, true),

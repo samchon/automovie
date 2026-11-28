@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineBernsteinSubdivision64 as S } from "../../AutoMovieEngineBernsteinSubdivision64";
-import { AutoMovieEngineCurveMath64 as V } from "../../AutoMovieEngineCurveMath64";
 import { AutoMovieEngineLocalHermiteField64 as F } from "../../AutoMovieEngineLocalHermiteField64";
+import { boundBicubicSecondDerivatives64 } from "./boundBicubicSecondDerivatives64";
 
 /*
  * Prepare bounded adaptive leaves for one immutable physical Hermite run.
@@ -19,13 +19,18 @@ import { AutoMovieEngineLocalHermiteField64 as F } from "../../AutoMovieEngineLo
 export function planLocalHermite64(
   input: IAutoMovieLocalHermiteStream64.Input,
 ): IAutoMoviePlanLocalHermite64.IResult {
+  const vertexOffset: number = input.vertexOffset ?? 0;
   if (
     !input.name.trim() ||
     !input.topologyDomain.trim() ||
-    !(input.toleranceMm > 0) ||
+    !Number.isFinite(input.toleranceMm) ||
+    input.toleranceMm <= 0 ||
+    !Number.isSafeInteger(input.maxCellsPerInterval) ||
     input.maxCellsPerInterval < 1 ||
+    !Number.isSafeInteger(input.maxVerticesPerChunk) ||
     input.maxVerticesPerChunk < 3 ||
-    (input.vertexOffset ?? 0) < 0
+    !Number.isSafeInteger(vertexOffset) ||
+    vertexOffset < 0
   )
     throw new Error(
       "Named physical domain, positive finite tolerance and safe resource budgets required",
@@ -35,53 +40,6 @@ export function planLocalHermite64(
     input.courses,
     input.stationInterpolation ?? "quadratic",
   );
-  const norm: (p: AutoMovieVector3Tuple) => number = (
-    p: AutoMovieVector3Tuple,
-  ): number => Math.hypot(...p);
-  const bounds: (grid: AutoMovieBernsteinGrid64) => [number, number, number] = (
-    grid: AutoMovieBernsteinGrid64,
-  ): [number, number, number] => {
-    let uu: number = 0,
-      uv: number = 0,
-      vv: number = 0;
-    for (let r: number = 0; r < 4; r++)
-      for (let c: number = 0; c < 2; c++)
-        uu = Math.max(
-          uu,
-          6 *
-            norm(
-              V.add(
-                V.sub(grid[r]![c + 2]!, V.scale(grid[r]![c + 1]!, 2)),
-                grid[r]![c]!,
-              ),
-            ),
-        );
-    for (let r: number = 0; r < 2; r++)
-      for (let c: number = 0; c < 4; c++)
-        vv = Math.max(
-          vv,
-          6 *
-            norm(
-              V.add(
-                V.sub(grid[r + 2]![c]!, V.scale(grid[r + 1]![c]!, 2)),
-                grid[r]![c]!,
-              ),
-            ),
-        );
-    for (let r: number = 0; r < 3; r++)
-      for (let c: number = 0; c < 3; c++)
-        uv = Math.max(
-          uv,
-          9 *
-            norm(
-              V.sub(
-                V.sub(grid[r + 1]![c + 1]!, grid[r + 1]![c]!),
-                V.sub(grid[r]![c + 1]!, grid[r]![c]!),
-              ),
-            ),
-        );
-    return [uu / 8, uv / 4, vv / 8];
-  };
   const plan: (interval: number) => IAutoMoviePlanLocalHermite64Plan = (
     interval: number,
   ): IAutoMoviePlanLocalHermite64Plan => {
@@ -112,7 +70,9 @@ export function planLocalHermite64(
             reason: "resource-unprocessed: maxCellsPerInterval",
           };
         const cell: IAutoMoviePlanLocalHermite64Leaf = stack.pop()!,
-          b: [number, number, number] = bounds(cell.grid);
+          b: [number, number, number] = boundBicubicSecondDerivatives64(
+            cell.grid,
+          );
         cell.error = b[0] + b[1] + b[2];
         if (cell.error <= input.toleranceMm) {
           leaves.push(cell);

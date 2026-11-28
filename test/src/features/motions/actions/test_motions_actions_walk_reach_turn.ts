@@ -30,6 +30,10 @@ const ROUNDING: number = 1e-9;
  *    the flat right foot still holds the pelvis at the twist.
  * 5. With the right foot in mid-swing only the flat left one holds it, at the
  *    twist.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A foot's stance and swing share bound pelvic heading, and a raised heel can take excess heading on its toe.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls foot claims and pelvic turn with exact swing shares, flat contacts, raised heel, and an unclaimed swing foot.
+ * @evidence contracts/development/testing.md#independent-expectations Minimum jerk yields half claim at the two tested half-fade points and zero at midswing. The specified twist and 30-degree heel lift determine the allowed turn and toe pivot.
  */
 export function test_motions_actions_walk_reach_turn(): void {
   const foot: (

@@ -100,6 +100,10 @@ const evaluate: (
  *    source or capability operands retain their addressed refusal status.
  * 3. Nonfinite observations serialize as null, while the assertion wrapper returns
  *    the supported report and throws for insufficient bits.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exact clip matching, bit threshold, alternate projections, numeric refusal and assertion behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds typed authored and native camera fields and depth capability to the public evaluator. Reads the report's addressed statuses and exercises its assertion wrapper on the admitted and refused cases.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies equal clips and 24 bits, then mismatches the far clip and supplies 23 bits as independent failures. Explicit logarithmic and reversed modes retain distinct classifications. Nonfinite inputs serialize as null observations.
  */
 export function test_render_scene_evaluate_viewer_camera_depth_precision(): void {
   const accepted: ReturnType<typeof evaluate> = evaluate({});

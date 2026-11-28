@@ -11,121 +11,156 @@ import type {
 } from "..";
 
 /**
- * Last fully qualified sparse component and its complete extension ledger. An
- * accepted component may leave images unregistered; full requested coverage is
- * stated separately. Physical scale and an editable surface remain unknown.
+ * Completed sparse-scene evidence with the last qualified checkpoint and the
+ * attempt/work records that led to it. Read `status` for component
+ * qualification and `stopReason` for completeness. Coordinates use the
+ * first-camera unit-seed-baseline gauge.
  */
 export interface IAutoMovieRecoveryCameraSceneEstimate {
-  /** Versioned variable-view sparse-scene evidence. */
+  /** Schema of the completed scene estimate. */
   schema: "automovie-recovery-camera-scene-estimate-v1";
 
-  /** Caller-asserted rigid scene identity. */
+  /** Input identity of the asserted rigid scene. */
   objectId: string;
 
-  /** Analytic, photographic or inconsistent-control cohort. */
+  /** Input acquisition cohort carried into the scene evidence. */
   cohort: IAutoMovieRecoveryCameraSceneInput["cohort"];
 
-  /** A qualified component is not necessarily all requested images. */
+  /**
+   * Qualification of the accepted component. `seed-only` has exactly the seed
+   * views. `accepted-sparse-component` has additional registered views.
+   */
   status: "accepted-sparse-component" | "seed-only" | "refused";
 
-  /** Explicit reason the bounded extension process ended. */
+  /** Reason the seed or incremental registration ended. */
   stopReason:
     | "all-registered"
     | "no-qualified-growth"
     | "budget-exhausted"
     | "seed-refused";
 
-  /** Global termination qualifications; candidate failures remain in attempts. */
+  /** Available global termination reasons for the seed or extension process. */
   refusalReasons: string[];
 
-  /** All supplied source metadata in fixed input order. */
+  /** Detached metadata for all supplied sources, in input order. */
   sources: IAutoMovieRecoveryCameraSource[];
 
-  /** Seed estimated from only globally admitted direct seed links. */
+  /**
+   * Two-view qualification using direct reciprocal seed matches retained after
+   * global conflict filtering.
+   */
   seed: IAutoMovieRecoveryCameraPairEstimate;
 
-  /** Complete shared geometric thresholds. */
+  /** Admitted scene thresholds for point geometry, resection and joint fitting. */
   policy: IAutoMovieRecoveryCameraSceneInput["policy"];
 
-  /** Complete fit and repeated-work ceilings. */
+  /**
+   * Original admitted limits for the scene, including per-fit and cumulative
+   * work.
+   */
   budget: IAutoMovieRecoveryCameraSceneInput["budget"];
 
-  /** First pose fixed at I/0 and one seed baseline norm fixed to one. */
+  /**
+   * First camera fixed at identity rotation and zero translation. The seed
+   * translation norm is fixed at one.
+   */
   gauge: "first-camera-unit-seed-baseline";
 
-  /** No physical length anchor was observed. */
+  /** Physical length remains unknown in the unit-baseline gauge. */
   metricScale: "unknown";
 
   /**
-   * Final accepted source-order poses; unregistered/refused candidates are
-   * null.
+   * Accepted world-to-camera poses in source order, with null for each
+   * unregistered view.
    */
   poses: (IAutoMovieRecoveryMapPose | null)[];
 
-  /** Source indices retained by the last qualified checkpoint. */
+  /** Source indices with a pose in the latest qualified checkpoint. */
   registeredViews: number[];
 
-  /** Every remaining requested source index, including insufficient support. */
+  /** Remaining source indices without a qualified pose. */
   unregisteredViews: number[];
 
   /**
-   * Per-source coverage, current necessary support and most recent attempt
-   * linkage.
+   * Per-source state and necessary existing-map support at the final revision,
+   * with linkage to the latest attempt.
    */
   registration: IAutoMovieRecoverySceneRegistration[];
 
-  /** Accepted checkpoint revision; zero is the initially qualified seed. */
+  /**
+   * Accepted growth revision. Zero is used before extension, including a
+   * qualified seed with no later accepted view.
+   */
   revision: number;
 
-  /** Qualified points with original measurements and actual supporting pairs. */
+  /**
+   * Accepted sparse points with their source measurements and strongest
+   * observed supporting pair.
+   */
   landmarks: IAutoMovieRecoverySceneLandmark[];
 
-  /** Source-order feature populations extracted once each. */
+  /** Numbers of retained features in input source order. */
   featureCounts: number[];
 
-  /** Actual directed descriptor comparisons during this operation. */
+  /** Total directed descriptor comparisons performed by the observation step. */
   descriptorComparisons: number;
 
-  /** Bidirectionally intersected index links before transitive grouping. */
+  /** Count of reciprocal appearance links before transitive grouping. */
   intersectionMatches: number;
 
-  /** All globally linked components, including conflicts. */
+  /**
+   * Number of globally linked components before conflicting tracks are
+   * withheld.
+   */
   linkedTracks: number;
 
-  /** Global duplicate-view components withheld before seed geometry. */
+  /**
+   * Components containing distinct features from the same source view, withheld
+   * from geometry.
+   */
   conflictingTracks: number;
 
-  /** Nonconflicting components absent from the accepted landmark set. */
+  /**
+   * Nonconflicting linked tracks absent from the current checkpoint's landmark
+   * set.
+   */
   untriangulatedTracks: number;
 
-  /** Full candidate ledger; consumed work survives every geometry rollback. */
+  /**
+   * Recorded candidate transactions, including work that did not produce an
+   * accepted camera.
+   */
   attempts: IAutoMovieRecoverySceneAttempt[];
 
-  /** Accumulated work, including initial seed-point/joint construction. */
+  /**
+   * Cumulative scene work across seed-component construction and subsequent
+   * camera transactions.
+   */
   work: IAutoMovieRecoverySceneWork;
 
   /**
-   * Last accepted common-population joint report, null before seed
-   * qualification.
+   * Report from the latest accepted common-population joint fit, or null before
+   * a checkpoint qualifies.
    */
   joint: IAutoMovieRecoveryMapJointFit | null;
 
   /**
-   * Last completed fit of a refused initial checkpoint, possibly before a later
-   * closure capacity/budget refusal. Its own population is authoritative and it
-   * may be converged despite whole-checkpoint refusal. Absent without an
-   * admitted/completed report, after seed acceptance, or in older artifacts;
-   * absence does not prove that no internal fit ran. No failed pose or point
-   * geometry is exposed.
+   * Last completed joint report retained from a refused seed checkpoint. Its
+   * own population is authoritative. A later refusal can retain an already
+   * converged report. The field may be absent in older artifacts, before a
+   * report is retained, or after seed acceptance.
    */
   refusedSeedJoint?: IAutoMovieRecoveryMapJointFit;
 
   /**
-   * Maximum accepted retained-observation error in pixels, null without a
-   * checkpoint.
+   * Largest accepted retained-observation Euclidean distance in pixels, or null
+   * without a checkpoint.
    */
   maximumReprojectionErrorPx: number | null;
 
-  /** Minimum over points of each strongest actual acute supporting angle. */
+  /**
+   * Minimum across accepted points of their strongest observed acute
+   * supporting-ray angle in degrees, or null without a checkpoint.
+   */
   minimumPointParallaxDegrees: number | null;
 }

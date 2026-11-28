@@ -5,7 +5,11 @@ import type {
 import type { tags } from "typia";
 
 
-/** Typia admission/schema metadata for IAutoMovieHumanLipExpression. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Named lip and cheek action intensities for a typia validator or schema.
+ * Side-specific actions supply separate left and right values. Other actions
+ * use a single intensity. All supplied values lie in [0, 1].
+ */
 export type IAutoMovieHumanLipExpressionSchema =
   IAutoMovieHumanLipExpression & {
     /** AU10, levator labii superioris: the upper lip rises. */

@@ -17,11 +17,9 @@ const MM: number = 1e-3;
  * 4. A microwave's door states no travel: any travel but 0 is refused.
  * 5. A washbasin mixer's lever turns GROHE's 50 degrees each way, swinging its front toward `+X` and, turned back by its reverse, as far toward `-X`, and lifts GROHE's 39 degrees, raising its front; lifted after turning, it lifts in its turned plane.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Poses produced archetypes and measures the moved colliders; a lid that lifts instead of lowering, a door that swings into the cabinet or about the wrong edge, a handle left behind, or a door opened past what its source gives is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Expected places come from each thing's own drawn dimensions and the geometry of a quarter turn about the door's edge (a leaf of width `w` turned square reaches `w` out), not from the articulation code; the fridge's 90 and the washer's 160 degrees are the makers' and the millimetre is #3368's tolerance.
- * @evidence contracts/development/testing.md#distinguishing-cases A lid lowered from open, side-hung doors on both edges, a moved and an unmoved door on one model, and a door that does not open; the shared articulation rules belong to `test_archetype_contract_articulation`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes lid and door motion, both hinge edges, carried grips and the resting door without a travel range.
+ * @evidence contracts/development/testing.md#behavioral-verification Articulates actual generated fixtures and measures their moving colliders and contacts. Opposite hinge placements, a stationary sibling door and a control with no opening range exercise different ownership cases.
+ * @evidence contracts/development/testing.md#independent-expectations A leaf turned 90 degrees reaches one leaf width beyond its hinge axis. The stated maker travel limits and one millimetre tolerance give the door and refusal expectations.
  */
 export function test_archetype_fixture_articulation(): void {
   const findings: string[] = [];

@@ -10,18 +10,18 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `pourClock` lays the pour's five authored stages end to end, each scaled by
- * the tempo, after admitting each stage to 0.2 to 3 s, their sum and its
- * scaled sum to 10 s, the tilt to 35 to 90 degrees and the gap to 0.04 to
- * 0.18 m.
+ * Check the pour stages and bounds on time, tilt and gap.
  *
  * Scenarios:
  *
- * 1. Stages of 1, 0.5, 2, 0.5 and 1 s start at 0, 1, 1.5, 3.5 and 4 s and end at
- *    5 s.
- * 2. A tempo of 1.5 stretches every start and the end by 1.5.
- * 3. A stage under 0.2 s, a scaled sum over 10 s, a tilt under 35 degrees and a
- *    gap over 0.18 m are each refused.
+ * 1. Lay out stages of 1, 0.5, 2, 0.5 and 1 s. Read all five start cues and
+ *    the five-second end, then scale both cues and end by 1.5.
+ * 2. Refuse one stage below 0.2 s, a scaled total above 10 s, tilt below 35
+ *    degrees and gap above 0.18 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases give the authored stage intervals and the four rejected parameters.
+ * @evidence contracts/development/testing.md#behavioral-verification The timetable receives a valid parameter record and one changed field for each refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Prefix sums of the authored stage lengths and the input tempo give the expected seconds.
  */
 export async function test_motions_affordance_pour(): Promise<void> {
   const params: IAutoMovieMotionHumanPour.IParams = {

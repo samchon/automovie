@@ -11,10 +11,8 @@ import { nclose } from "../../internal/predicates";
  * 3. A flat tape18 does not identify any unique projection, and invalid scalar inputs are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual production projection policy on made scalar reading functions, exposing false early infeasibility and an ambiguous flat solution.
- * @evidence contracts/development/testing.md#independent-expectations Literal roots4 and0.6 follow from independent linear equations; a constant response cannot identify a projection.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes successful fixed-plane and moving-plane counterparts, flat ambiguity and invalid input admission.
- * @evidence contracts/development/testing.md#execution-ownership A bounded pure scalar solve uses no body, loft, reference or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists three scenarios and distinguishes a candidate-local bound from a global impossibility proof.
+ * @evidence contracts/development/testing.md#independent-expectations Solving 10 + 2p = 18 gives p = 4. Solving the moving-plane projection equation 80 + 20p = 92 gives p = 0.6. A constant tape cannot identify a projection.
+ * @evidence contracts/development/common.md#meaningful-documentation A fixed-plane target and a moving-plane target admit known projections. An unidentifiable constant tape and invalid scalars exercise refusal.
  */
 export function test_human_projection_constraint(): void {
   const failures: string[] = [];

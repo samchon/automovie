@@ -32,9 +32,7 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves actual ordered layer spans and observes identities, signed coordinates, total thickness and the first refusal, catching wrong prefix sums, mirrored extents, membrane advancement and missing host/substance admission.
  * @evidence contracts/development/testing.md#independent-expectations The manually added thicknesses 0.02 + 0.1 + 0.05 + 0 + 0.0125 give 0.1825 metres; explicit start/end/centre arrays and subtraction from 0.25 define the two coordinate directions independently of the resolver. Authored ids determine reference membership; these schematic layers are not a measured material assembly.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains positive and negative stacking, an interior zero-thickness membrane, matching and one-millimetre-mismatched host thickness, and complete versus missing substance tables. The companion assembly-defects test owns malformed fields, finish/wrap policies and invalid host domains.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable test_architecture_material_assembly_dimension entry owns every local case and invokes portable engine resolution through shared fixtures, without a native build, process, browser, GPU or dynamic registration.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Positive sense from a zero offset places every layer at its running sum (0 /).
+ * @evidence contracts/development/common.md#meaningful-documentation Forward and reverse stacks place the running layer spans, with a zero-thickness membrane at one plane. Valid and mismatching host thicknesses and substance lookup exercise admission.
  */
 export function test_architecture_material_assembly_dimension(): void {
   const layers: () => IAutoMovieMaterialLayer[] =

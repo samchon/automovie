@@ -1,19 +1,23 @@
 import type { IAutoMovieRecoveryImageCamera } from "..";
 
-/** One fixed P6 image file and its supplied orthographic camera. */
+/**
+ * Identify one fixed P6 image and its supplied horizontal orthographic camera.
+ * The host checks the original file bytes before decoding them for the named
+ * capture.
+ */
 export interface IAutoMovieRecoveryImageFile {
-  /** Stable identity within this saved publication. */
+  /** View identity, unique in the containing capture. */
   id: string;
 
   /**
-   * Image path resolved relative to the containing manifest; absolute paths are
-   * also accepted.
+   * Image path. Resolve relative paths against the manifest directory. Absolute
+   * paths are accepted.
    */
   path: string;
 
-  /** SHA-256 of the exact published or acquired bytes. */
+  /** SHA-256 of the exact original image bytes, as 64 hexadecimal characters. */
   sha256: string;
 
-  /** Supplied fixed camera chart associated with this image. */
+  /** Supplied horizontal orthographic chart calibrated for the decoded pixels. */
   camera: IAutoMovieRecoveryImageCamera;
 }

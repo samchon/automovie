@@ -19,6 +19,10 @@ import { createDoorPropSpec } from "../../internal/createDoorPropSpec";
  *    staging join.
  * 2. A rigid prop (articulation null) passes on the model contract alone: the
  *    articulation gates never fire for it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the articulated door and the rigid control, and state what accepted output carries into staging.
+ * @evidence contracts/development/testing.md#behavioral-verification The test forges the full authored door and a version with articulation removed, then compares success and the returned spec used by staging.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture includes the required generated model, physical body and affordance. Its articulation binds its own declared nodes. Removing the articulation leaves the same valid model, so any articulation-specific gate cannot apply to the rigid case.
  */
 export function test_engine_film_forge_prop(): void {
   const spec: IAutoMoviePropSpec = createDoorPropSpec();

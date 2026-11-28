@@ -15,32 +15,26 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeNecklaceData } from "./internal/AutoMovieArchetypeNecklaceData";
 
-/** Constructs the necklace archetype from its recipe. */
+/**
+ * Constructs a closed chain or ribbon loop with an inside aperture and paired grips.
+ */
 export namespace AutoMovieArchetypeNecklace {
 /**
- * A neck loop worn around the neck and set over a head (#4015): a chain
- * necklace with a small pendant (`chain`) or a ribbon medal (`ribbon`).
+ * Build a rigid elliptical necklace lying in model XZ with its back
+ * at the origin and its pendant toward `+Z`.
  *
- * The coarse prop is one rigid closed loop, so it goes on over the head rather
- * than being opened and clasped: it lies in its `XZ` plane, an ellipse
- * `breadth` across along `X` whose perimeter is the drawn `length`, its back
- * point (the clasp, or the ribbon's middle) at the origin and its front at
- * `+Z`. `wear` is the back point, its `+Y` into the loop (`+Z`), the point laid
- * on the wearer's nape; `front` is the pendant or the disc; `opening` is the
- * loop's inside as an aperture a head passes through: its frame at the back
- * inside the thread, `+Y` toward the front, `+Z` along the loop's normal, its
- * `width` and `height` the inner breadth and length; `holdLeft` and `holdRight`
- * are where the two hands take the loop, on the wearer's left (`+X`) and right
- * sides: near the clasp for a chain (`CLASP` from the back), at the loop's
- * widest for a ribbon (`SIDE`).
+ * The drawn length and breadth set the nominal ellipse. Twenty-four
+ * straight pieces approximate that centreline. A short, wide chain
+ * uses a shallower front-to-back axis to retain both measurements.
  *
- * @param params The kind, any dimension the author fixes inside its band, and
- *   an optional scene id.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, the middle of each band.
- * @returns The loop.
- * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension
- *   outside its band.
+ * @param params Chain or ribbon, optional scene ID and finite
+ *   measurements admitted by that kind. Omission selects `chain`.
+ * @param seed Numeric seed for omitted measurements. Without it,
+ *   the chain is 0.7112 metres long and 0.21 metres across.
+ * @returns The fixed neck loop with rear and pendant sockets, an inner
+ *   aperture and two grips. The default ID is `necklace` for chain
+ *   and `neckMedal` for ribbon.
+ * @throws {AutoMovieArchetypeRefusal} If a kind or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeNecklace.IParams = {},
@@ -72,7 +66,16 @@ export function create(
     draw,
   });
   const b: number = d.breadth / 2;
-  const a: number = AutoMovieArchetypeNecklace.depth(d.length, b);
+  const scaledPerimeter: number = d.length / (Math.PI * b);
+  // Short, wide chains use the shallow root of the same ellipse perimeter.
+  const a: number =
+    scaledPerimeter >= 2
+      ? AutoMovieArchetypeNecklace.depth(d.length, b)
+      : (b *
+          (3 * scaledPerimeter -
+            4 +
+            Math.sqrt(3 * scaledPerimeter ** 2 + 12 * scaledPerimeter - 20))) /
+        6;
   const point = (theta: number): IAutoMovieVector3 =>
     AutoMovieEngineVector3.create(b * Math.sin(theta), 0, a * (1 - Math.cos(theta)));
   const thread: number = kind === "chain" ? 0.0015 : 0.004;
@@ -155,15 +158,15 @@ export function create(
   return builder.build(d.mass);
 }
 
-  /** The kinds: a chain with a small pendant, or a ribbon medal. */
+  /** Selects a chain with a small pendant or a ribbon with a medal disc. */
   export type Kind = "chain" | "ribbon";
 
-  /** The kinds, as data. */
+  /** Both admitted closed-loop kinds in gallery order. */
   export const KINDS: readonly Kind[] = ["chain", "ribbon"];
 
   /**
-   * The contacts: the back point laid on the nape, the pendant, the opening a
-   * head passes through, and the two hands' places.
+   * Rear `wear` and pendant `front` sockets, inner `opening`, and
+   * opposed `holdLeft` and `holdRight` along the loop.
    */
   export type Affordance =
     | "wear"
@@ -172,22 +175,20 @@ export function create(
     | "holdLeft"
     | "holdRight";
 
-  /** The dimensions the author may fix inside their bands. */
+  /**
+   * Nominal loop perimeter, centreline breadth and disc diameter in metres. Mass is in kilograms.
+   */
   export type Dimension = "length" | "breadth" | "disc" | "mass";
 
-  /**
-   * How far round from the back a chain's hands take it, radians: beside the
-   * clasp (provisional).
-   */
+  /** Chain grip angle from the back centre, 35 degrees expressed in radians. */
   export const CLASP: number = (35 * Math.PI) / 180;
 
   /**
-   * How far round from the back a ribbon's hands take it, radians: at the
-   * loop's widest.
+   * Ribbon grip angle at the widest points, pi over two radians from the back.
    */
   export const SIDE: number = Math.PI / 2;
 
-  /** Each dimension's unit. */
+  /** Units for the saved loop perimeter, breadth, disc diameter and mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -197,16 +198,22 @@ export function create(
     mass: "kg",
   };
 
-  /** The kind, the dimensions fixed by the author, and an optional scene id. */
+  /**
+   * Optional chain or ribbon kind, scene ID and applicable finite band measurements.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The kind; `chain` when absent. */
+    /** Selects the chain or ribbon bands. Omission uses `chain`. */
     kind?: Kind;
 
-    /** A unique scene identifier, defaulting to the family name. */
+    /**
+     * Scene object ID, defaulting to `necklace` for chain or `neckMedal` for ribbon.
+     */
     id?: string;
   }
 
-  /** The sourced bands of each kind. */
+  /**
+   * Per-kind bands for the nominal perimeter, breadth, disc diameter and mass.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
@@ -229,16 +236,15 @@ export function create(
   };
 
   /**
-   * The ellipse's half-axis front to back whose perimeter is `length` at the
-   * half-breadth `b`, by bisection on Ramanujan's first approximation `pi (3
-   * (a
+   * Find the front-to-back half-axis for a circular or deeper ellipse.
    *
-   * - B) - sqrt((3a + b)(a + 3b)))`.
+   * Uses Ramanujan's first perimeter approximation. The public helper
+   * keeps the half-axis at least the supplied half-breadth. The factory
+   * uses the shallow root directly for its short and wide chain recipes.
    *
-   * @param length The loop's perimeter, metres.
-   * @param b The half-breadth, metres.
-   * @returns The front-to-back half-axis, metres; `b` when the perimeter is no
-   *   more than the circle's.
+   * @param length Nominal loop perimeter in metres.
+   * @param b Positive half-breadth in metres.
+   * @returns The half-depth in metres, with a minimum of `b`.
    */
   export function depth(length: number, b: number): number {
     const perimeter = (a: number): number =>

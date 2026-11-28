@@ -2,10 +2,17 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanJumpAirborne } from "./IAutoMovieMotionHumanJumpAirborne";
 import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
 
-/**
- * Authoring parameters for jump operations.
- */
+/** Authoring parameters for jump operations. */
 export namespace IAutoMovieMotionHumanJump {
+  /** A high-hands vertical contest driven from both feet on the court. */
+  export interface IVerticalContest {
+    /** Positive finite rise of the centre of mass above take-off, in metres. */
+    apex: number;
+
+    /** How the lowering and return are paced. Gravity fixes the flight clock. */
+    manner?: IAutoMovieMotionManner;
+  }
+
   /** Parameters. */
   export interface IParams {
     /**

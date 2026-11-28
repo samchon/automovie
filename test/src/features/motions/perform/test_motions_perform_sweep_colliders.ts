@@ -65,6 +65,10 @@ const at = (
  * 6. A round prop at 2 m/s can leave a resting surface. The scan advances 0.125 s
  *    to cross its 0.25 m feature size. An equally fast surface, opposite normal
  *    or uncleared next interval retains the initial contact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The collider suite covers reach and minimum thickness, bounded culling, moving-point speed, and certification of departure from an initial contact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the collider reader on literal shapes, rig fixtures, counted distances and supplied contact data. The checks observe returned distances, velocity, the selected thickness, and the earliest clear scan result.
+ * @evidence contracts/development/testing.md#independent-expectations A sphere at (0.3, 0.4, 0) with radius 0.1 reaches 0.6 m. Rotation at 2 rad/s about +Y gives velocity (0, 0, -2) at local +X. Crossing a 0.25 m feature at 2 m/s advances 0.125 s beyond the 1 s contact.
  */
 export async function test_motions_perform_sweep_colliders(): Promise<void> {
   const ball: IAutoMoviePhysicalShape = {

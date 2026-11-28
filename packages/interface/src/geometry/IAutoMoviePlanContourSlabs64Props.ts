@@ -10,13 +10,7 @@ import type { IAutoMoviePreparedContourEvent64 } from "./IAutoMoviePreparedConto
  */
 export interface IAutoMoviePlanContourSlabs64Props {
   /** Retained saved cuts in increasing order, aligned one-to-one with rings. */
-  slices: readonly {
-    /**
-     * Physical saved cut coordinate in millimetres, used by exact equality for
-     * event/interval addressing.
-     */
-    y: number;
-  }[];
+  slices: readonly IAutoMoviePlanContourSlabs64Props.ISliceAddress[];
 
   /**
    * Borrowed sampled ring objects, first by cut and then by saved local loop
@@ -42,4 +36,13 @@ export interface IAutoMoviePlanContourSlabs64Props {
    * undefined enables geometric same-winding correspondence.
    */
   intervals?: readonly IAutoMovieContourLoft64.IInterval[];
+}
+
+/** Address types for saved contour slab planning. */
+export namespace IAutoMoviePlanContourSlabs64Props {
+  /** Physical station of one retained section in the planning input. */
+  export type ISliceAddress = {
+    /** Saved cut in millimetres, compared by equality for interval and events. */
+    y: number;
+  };
 }

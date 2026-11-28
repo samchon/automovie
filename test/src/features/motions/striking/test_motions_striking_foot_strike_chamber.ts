@@ -28,6 +28,10 @@ const BASE: footStrikeChamber.IPrepared = {
  *
  * 1. A side kick chambers at (0, 0.64, 0.2). An axe chambers at (0, 1.48, 0.24).
  * 2. A hook chambers 0.8 sqrt(0.265) m from the hip along (0, -0.9, -0.3).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains how different authored pose categories choose a virtual ankle waypoint relative to the hip.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the chamber helper with straight, elevated and curved virtual variants on one fixed reach and line.
+ * @evidence contracts/development/testing.md#independent-expectations Authored normalized offsets give (0, 0.64, 0.2) and (0, 1.48, 0.24), while independent diagonal length fixes the curved waypoint.
  */
 export function test_motions_striking_foot_strike_chamber(): void {
   TestValidator.predicate(

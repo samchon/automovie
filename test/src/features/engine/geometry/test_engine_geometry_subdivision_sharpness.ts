@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Decay: 0 and 0.5 to 0, 2.5 to 1.5, 10 and 12 to 10.
  * 2. Smoothness: 0 to 1, 0.25 to 0.75, 1, 3 and 10 to 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names finite crease decay, persistent sentinel and fractional transition weights.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public sharpness and smoothness functions on boundary, fractional and extreme cases.
+ * @evidence contracts/development/testing.md#independent-expectations The decay step subtracts one and clamps at zero, preserving the sentinel. The smooth fraction below one is its complement and becomes zero at one.
  */
 export function test_engine_geometry_subdivision_sharpness(): void {
   // 1.

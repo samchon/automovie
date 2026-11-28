@@ -17,11 +17,9 @@ const MM: number = 1e-3;
  * 2. Over 200 seeds its butt is exactly one of Viking's 1.205, 1.25 and 1.295 in and its tip one of McDermott's 11.5, 12, 12.5 and 13 mm, every pairing drawn, the tip read off the front half of the shaft, whose diameter is the mean of the butt's and three tips'; its mass is 18 to 21 oz; the `butt` handle's aperture is the butt's diameter.
  * 3. `tip` lies at the cue's `+X` end, `butt` and `shaft` at their halves' middles, each as long as its half.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a cue off its makers' length, tip or weight is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are McDermott's, Cuetec's and Viking's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases The two halves and the tip; a picked butt and tip, and a ranging mass.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the cue's length and two halves, independent butt and tip selections, total mass and named frame locations.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures actual cue colliders and grip and tip contacts over 200 seeds. The observations check every butt-tip pair, both grip midpoints and the working tip position on the +X end.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's 58 inch reference length, Viking butt variants and McDermott tip sizes. Two equal axial halves supply the 29 inch grip lengths and centre positions.
  */
 export function test_archetype_cue(): void {
   const findings: string[] = [];

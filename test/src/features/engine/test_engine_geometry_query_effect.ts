@@ -210,9 +210,7 @@ function measure(
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual effect geometry query on authored compiled cues, observing activity/count, density/opacity, camera distance/ray intersection, capped visibility-risk proxy, subject-root inclusion and named query refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal cube dimensions, six exterior roots and camera placements determine volume, crossing and inclusion arithmetic independently. Particle count deliberately comes from the same maintained sampler to test composition rather than independently certify its distribution; no pixel occlusion, rendered fog or visual acceptance is observed.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts active/sole inactive cues, no subjects and six exterior faces, far-plane clipping, parallel/away rays, absent/ambiguous zones, invalid times/shot/camera/frame format and oversized/duplicate subject lists. Existing derived numeric tolerances remain unchanged and formerly exact floating observations use zero tolerance.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns local recipes, compiled records and query callbacks through the existing model fixture. It opens no file, render host, browser or GPU; caller-established compiled freshness and valid cue bounds remain premises rather than native compilation observations.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: At 2 s, inside the cue, the stream is active with the sampler's particles;).
+ * @evidence contracts/development/common.md#meaningful-documentation An active stream counts particles in the observed subjects, while no subjects and an out-of-cue time exercise empty cases. Crossing length clips at camera range, and missing or unsupported stream requests refuse.
  */
 export function test_engine_geometry_query_effect(): void {
   const reference: IAutoMovieEffectSample = AutoMovieEngineEffect.sample(

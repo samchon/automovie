@@ -5,6 +5,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
@@ -85,7 +86,7 @@ export namespace HumanSegmentShown {
     if (count >= all.length) return read();
     person.overlays = all.slice(0, count);
     try {
-      return read();
+      return motionPrepared.branch(read);
     } finally {
       person.overlays = all;
     }

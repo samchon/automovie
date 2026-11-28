@@ -7,40 +7,41 @@
  */
 export namespace IAutoMovieLoftContract {
   /**
-   * A numerical construction premise rejected by its producer.
-   *
-   * The producing operation decides the failure effect: optional Human pieces
-   * can roll back to their base, while ViewLoft can return null final geometry
-   * and retain admitted sections. This record alone neither throws nor performs
-   * rollback, and foreign callback exceptions need not be converted into
-   * diagnostics.
+   * Plain record of a construction premise a producer could not establish. The
+   * producer names the piece, construction level, condition and detail, and
+   * owns any recovery or refusal.
    */
   export interface IDiagnostic {
-    /** The piece that broke the contract, such as `human.mouth`. */
+    /**
+     * Identifier of the construction piece or operation that reports the
+     * rejected premise.
+     */
     producer: string;
 
     /**
-     * Producer's construction level (`construction-levels.md`), an ordinal
-     * rather than a physical measurement; ViewLoft reports level 2.
+     * Producer's construction-level ordinal. ViewLoft reports level 2 for
+     * rejected view construction premises.
      */
     level: number;
 
     /**
-     * Producer-defined premise category, such as stations, outline or solid
-     * surface, used to group the explanation.
+     * Producer-defined name of the rejected premise, such as stations, outline
+     * or solid surface.
      */
     contract: string;
 
     /**
-     * Human-readable failure explanation, including the relevant station or
-     * numerical values when available.
+     * Explanation of the failure in the producer's terms, with the offending
+     * station or numeric value when available.
      */
     detail: string;
   }
 
   /**
-   * Borrowed stations checked for finiteness and the constructor's minimum
-   * rise, mm.
+   * Borrowed physical station coordinates in millimetres. Supply finite
+   * coordinates and a positive minimum step. LoftContract.stations requires at
+   * least two entries and checks each arithmetic rise against that step. It
+   * returns the input array with a compile-time marker.
    */
   export type Stations = readonly number[] & {
     /**
@@ -52,8 +53,9 @@ export namespace IAutoMovieLoftContract {
   };
 
   /**
-   * Borrowed numbers checked against the caller's magnitude bound, finite when
-   * that bound is finite.
+   * Borrowed numeric array whose entry magnitudes satisfy the caller's bound.
+   * Supply a positive finite bound to require finite entries. The caller
+   * assigns the units and keeps the borrowed values unchanged after admission.
    */
   export type Jet = readonly number[] & {
     /**
@@ -63,7 +65,11 @@ export namespace IAutoMovieLoftContract {
     readonly contract: "jet";
   };
 
-  /** Borrowed finite points whose X/Z shoelace sum is nonzero, in mm. */
+  /**
+   * Borrowed closed ring in vertex order with world [x, y, z] coordinates in
+   * millimetres. Supply finite points. LoftContract.ring tests for a nonzero
+   * X/Z shoelace sum and returns the input array with a compile-time marker.
+   */
   export type Ring = readonly (readonly [number, number, number])[] & {
     /**
      * Type-only marker from AutoMovieEngineLoftContract.ring after finite coordinates

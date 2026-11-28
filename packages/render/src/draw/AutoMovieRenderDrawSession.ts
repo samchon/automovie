@@ -16,10 +16,12 @@ import type {
 import { formatInspectionCameraView } from "../scene/inspection/internal/formatInspectionCameraView";
 import { parseInspectionRequest } from "../scene/inspection/internal/parseInspectionRequest";
 import { AutoMovieRenderDrawGlobals } from "./AutoMovieRenderDrawGlobals";
+import type { IAutoMovieRenderDrawActivity } from "./IAutoMovieRenderDrawActivity";
 import type { IAutoMovieRenderDrawPage } from "./IAutoMovieRenderDrawPage";
 import type { IAutoMovieRenderDrawPageRequest } from "./IAutoMovieRenderDrawPageRequest";
 import type { IAutoMovieRenderDrawProps } from "./IAutoMovieRenderDrawProps";
 import { decodeDrawPixels } from "./internal/decodeDrawPixels";
+import { observeDrawActivity } from "./internal/observeDrawActivity";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw";
 import { stampDrawLegend } from "./internal/stampDrawLegend";
 
@@ -70,6 +72,8 @@ export class AutoMovieRenderDrawSession {
    */
   private readonly timeout: number;
 
+  private readonly observe: ((activity: IAutoMovieRenderDrawActivity) => void) | undefined;
+
   /** The subject the page created, as a capture plans against it. */
   public readonly subject: IAutoMovieCaptureSubject;
 
@@ -90,9 +94,11 @@ export class AutoMovieRenderDrawSession {
     timeout: number;
     description: IAutoMovieDrawDescription;
     backend: string;
+    observe: ((activity: IAutoMovieRenderDrawActivity) => void) | undefined;
   }) {
     this.page = props.page;
     this.timeout = props.timeout;
+    this.observe = props.observe;
     this.subject = props.description.subject;
     this.renderer = props.description.renderer;
     this.backend = `${props.backend}; ${props.description.renderer}`;
@@ -102,39 +108,34 @@ export class AutoMovieRenderDrawSession {
    * Inject the props, load the draw page, wait for its draw function and
    * describe its subject.
    *
-   * Navigation, draw-function readiness and subject description each get the
-   * session timeout. A rejected open leaves the page with the caller.
+   * Each bounded page operation gets the session timeout. When requested,
+   * report host requests and their successful completions. When the page
+   * stops responding, the last receipt identifies the pending host operation.
+   * A rejected open leaves page cleanup with the caller.
    */
-  public static async open(props: {
-    /** A fresh page, which the session owns once open resolves. */
-    page: IAutoMovieRenderDrawPage;
-
-    /** Address of the draw page. */
-    url: string;
-
-    /** What the page's draw function creates. */
-    props: IAutoMovieRenderDrawProps;
-
-    /**
-     * The host's description of how the browser draws, such as `swiftshader;
-     * Chromium 131.0.6778.33`.
-     */
-    backend: string;
-
-    /** Milliseconds any one page call may take. */
-    timeout: number;
-  }): Promise<AutoMovieRenderDrawSession> {
-    const { page, timeout } = props;
+  public static async open(
+    props: AutoMovieRenderDrawSession.IOpenProps,
+  ): Promise<AutoMovieRenderDrawSession> {
+    const { page, timeout, observe } = props;
     await page.addInitScript({
       content: `globalThis[${JSON.stringify(AutoMovieRenderDrawGlobals.props)}] = ${JSON.stringify(props.props)};`,
     });
-    await page.goto(props.url, { waitUntil: "load", timeout });
+    await observeDrawActivity(
+      observe,
+      { stage: "navigate", budgetMilliseconds: timeout },
+      () => page.goto(props.url, { waitUntil: "load", timeout }),
+    );
     try {
-      await page.waitForFunction(
-        (name: typeof AutoMovieRenderDrawGlobals.draw): boolean =>
-          globalThis[name] !== undefined,
-        AutoMovieRenderDrawGlobals.draw,
-        { timeout },
+      await observeDrawActivity(
+        observe,
+        { stage: "wait-for-draw", budgetMilliseconds: timeout },
+        () =>
+          page.waitForFunction(
+            (name: typeof AutoMovieRenderDrawGlobals.draw): boolean =>
+              globalThis[name] !== undefined,
+            AutoMovieRenderDrawGlobals.draw,
+            { timeout },
+          ),
       );
     } catch (error) {
       throw new Error(
@@ -142,22 +143,28 @@ export class AutoMovieRenderDrawSession {
         { cause: error },
       );
     }
-    const description: IAutoMovieDrawDescription = await bounded(
-      timeout,
-      `Describing the subject at ${props.url}`,
-      page.evaluate(
-        (
-          arg: IAutoMovieRenderDrawPageRequest.IDescribe,
-        ): Promise<IAutoMovieDrawDescription> =>
-          globalThis[arg.name]!.describe(),
-        { kind: "describe", name: AutoMovieRenderDrawGlobals.draw },
-      ),
+    const description: IAutoMovieDrawDescription = await observeDrawActivity(
+      observe,
+      { stage: "describe", budgetMilliseconds: timeout },
+      () =>
+        bounded(
+          timeout,
+          `Describing the subject at ${props.url}`,
+          page.evaluate(
+            (
+              arg: IAutoMovieRenderDrawPageRequest.IDescribe,
+            ): Promise<IAutoMovieDrawDescription> =>
+              globalThis[arg.name]!.describe(),
+            { kind: "describe", name: AutoMovieRenderDrawGlobals.draw },
+          ),
+        ),
     );
     return new AutoMovieRenderDrawSession({
       page,
       timeout,
       description,
       backend: props.backend,
+      observe,
     });
   }
 
@@ -169,14 +176,19 @@ export class AutoMovieRenderDrawSession {
    * timeout.
    */
   public async speak(track: IAutoMovieDialogueMouthTrack): Promise<void> {
-    await bounded(
-      this.timeout,
-      `Handing the dialogue mouths to subject "${this.subject.name}"`,
-      this.page.evaluate(
-        (arg: IAutoMovieRenderDrawPageRequest.ISpeak): Promise<void> =>
-          globalThis[arg.name]!.speak(arg.track),
-        { kind: "speak", name: AutoMovieRenderDrawGlobals.draw, track },
-      ),
+    await observeDrawActivity(
+      this.observe,
+      { stage: "speak", budgetMilliseconds: this.timeout },
+      () =>
+        bounded(
+          this.timeout,
+          `Handing the dialogue mouths to subject "${this.subject.name}"`,
+          this.page.evaluate(
+            (arg: IAutoMovieRenderDrawPageRequest.ISpeak): Promise<void> =>
+              globalThis[arg.name]!.speak(arg.track),
+            { kind: "speak", name: AutoMovieRenderDrawGlobals.draw, track },
+          ),
+        ),
     );
   }
 
@@ -190,16 +202,27 @@ export class AutoMovieRenderDrawSession {
     call: IAutoMovieDrawCall,
     what: string,
   ): Promise<IAutoMovieDrawnPicture> {
-    const result: IAutoMovieDrawResult = await bounded(
-      this.timeout,
-      what,
-      this.page.evaluate(
-        (arg: IAutoMovieRenderDrawPageRequest.IDraw): Promise<IAutoMovieDrawResult> =>
-          globalThis[arg.name]!.draw(arg.call),
-        { kind: "draw", name: AutoMovieRenderDrawGlobals.draw, call },
-      ),
+    return observeDrawActivity(
+      this.observe,
+      {
+        stage: "draw-pass",
+        seconds: call.seconds,
+        pass: call.request.shade,
+        budgetMilliseconds: this.timeout,
+      },
+      async (): Promise<IAutoMovieDrawnPicture> => {
+        const result: IAutoMovieDrawResult = await bounded(
+          this.timeout,
+          what,
+          this.page.evaluate(
+            (arg: IAutoMovieRenderDrawPageRequest.IDraw): Promise<IAutoMovieDrawResult> =>
+              globalThis[arg.name]!.draw(arg.call),
+            { kind: "draw", name: AutoMovieRenderDrawGlobals.draw, call },
+          ),
+        );
+        return { picture: decodeDrawPixels(result, call), result };
+      },
     );
-    return { picture: decodeDrawPixels(result, call), result };
   }
 
   /**
@@ -208,7 +231,8 @@ export class AutoMovieRenderDrawSession {
    * in the top-left corner by `stampDrawLegend`, the legend texts and
    * the inspection's labels for the run to stamp, the session's backend, the
    * resolved camera as JSON with the fixed view text that draws it again, and
-   * the paths each pattern resolved to.
+   * the paths each pattern resolved to. Source-backed trail segments keep the
+   * settled draw's exact played clocks and positions for capture.
    */
   public async drawing(
     cell: IAutoMovieCaptureCell,
@@ -229,6 +253,9 @@ export class AutoMovieRenderDrawSession {
       ...(result.diagnostics === undefined
         ? {}
         : { diagnostics: result.diagnostics }),
+      ...(result.motionTrails === undefined
+        ? {}
+        : { motionTrails: result.motionTrails }),
     };
   }
 
@@ -286,6 +313,29 @@ export class AutoMovieRenderDrawSession {
   }
 }
 
+export namespace AutoMovieRenderDrawSession {
+  /** The page and browser operations needed to open a draw session. */
+  export interface IOpenProps {
+    /** A fresh page. The caller retains it until `open` resolves. */
+    page: IAutoMovieRenderDrawPage;
+
+    /** Address of the page that installs the draw function. */
+    url: string;
+
+    /** Subject selection and data given to the page. */
+    props: IAutoMovieRenderDrawProps;
+
+    /** The host's selected backend and browser description. */
+    backend: string;
+
+    /** Per-call budget in milliseconds. */
+    timeout: number;
+
+    /** Receive requests and acknowledged completions during the session. */
+    observe?: (activity: IAutoMovieRenderDrawActivity) => void;
+  }
+}
+
 /*
  * Settle with `task`, or reject naming `what` once `timeout` milliseconds pass
  * first.
@@ -301,7 +351,7 @@ function bounded<T>(
         (): void =>
           reject(
             new Error(
-              `${what} did not finish within ${timeout / 1000} s; the subject never reported ready`,
+              `${what} did not finish within ${timeout / 1000} s; the browser did not acknowledge completion`,
             ),
           ),
         timeout,

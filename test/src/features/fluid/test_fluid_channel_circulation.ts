@@ -83,9 +83,7 @@ const courtyardChannel: () => IAutoMovieFluidDomain =
  *
  * @evidence contracts/development/testing.md#behavioral-verification Simulates the source/return channel at steps 40, 200 and 800, checks exact mirrored depths and mass balance at all three, then far-side rise, nonzero X/Z velocity, a dry central island cell and zero outflow at step 800. Other island cells and separate arm transport are not observed independently.
  * @evidence contracts/development/testing.md#independent-expectations Authored mirror geometry requires equal reflected depths and initial cell area determines conserved volume plus booked flows; these assertions observe only the selected CPU steps, not unbounded or cross-platform stability.
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps symmetric positive source/drain circulation and the solid central island, with strict mirror comparison and both velocity axes; asymmetric geometry, dry shoreline and open boundaries have separate entries.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous named unit owns the three absolute CPU simulations and in-memory field/ledger assertions; no incremental host, renderer or GPU state is tested.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: At step 800 the cell beside the far return has risen above 0.25 m, the return has booked positive removal and the island's central cell...).
+ * @evidence contracts/development/common.md#meaningful-documentation The fed channel reaches its far return with nonzero X and Z velocities while the island centre stays dry. Sampled mirrors and the closed volume ledger check the resulting flow.
  */
 export function test_fluid_channel_circulation(): void {
   const domain: ReturnType<typeof courtyardChannel> = courtyardChannel();

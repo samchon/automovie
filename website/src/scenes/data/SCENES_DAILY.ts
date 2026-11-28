@@ -479,7 +479,17 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
       person("uli", "m1", 0.02, 1.08, 180, [
         act("stand", { hold: 18.9, sway: 0 }),
-        act("shoulderPat", { hand: "left", target: at("val", "shoulderLeft") }),
+        // Val's right hand crosses the left shoulder area on its way down.
+        // Approach after it clears, on the upper part of the same shoulder.
+        act(
+          "shoulderPat",
+          {
+            hand: "left",
+            target: at("val", "shoulderLeft"),
+            site: { up: 0.015, out: -0.02 },
+          },
+          { sync: { of: "farewell-heart", event: "end", offset: 0.1 } },
+        ),
         act("comfort", { hand: "right", target: at("val", "shoulderRight") }),
       ]),
       person("val", "f2", 0, 0.6, 175, [
@@ -503,7 +513,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           partner: "tia",
           window: { from: 16.1, to: 16.2 },
         }),
-        act("handOnHeart"),
+        act("handOnHeart", {}, { anchor: "farewell-heart" }),
       ]),
     ],
   ),

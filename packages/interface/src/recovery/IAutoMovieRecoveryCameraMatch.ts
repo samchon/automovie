@@ -1,32 +1,38 @@
-/** One tentative unique mutual appearance correspondence in original pixels. */
+/**
+ * One ordered tentative appearance match with original pixel locations and the
+ * fit's geometric support flags.
+ */
 export interface IAutoMovieRecoveryCameraMatch {
-  /** Selected first-view feature index. */
+  /** Retained feature index in the ordered first image. */
   firstFeatureIndex: number;
 
-  /** Selected second-view feature index. */
+  /** Retained feature index in the ordered second image. */
   secondFeatureIndex: number;
 
-  /** First original pixel-centre coordinate [column,row]. */
+  /** Observed first-image pixel center [column, row] in the original chart. */
   firstPx: [number, number];
 
-  /** Second original pixel-centre coordinate [column,row]. */
+  /** Observed second-image pixel center [column, row] in the original chart. */
   secondPx: [number, number];
 
   /**
-   * Euclidean descriptor distance divided by its distinct second-neighbour
-   * distance.
+   * Forward Euclidean descriptor distance divided by the second distinct
+   * candidate's Euclidean distance.
    */
   descriptorDistanceRatio: number;
 
-  /** Squared Euclidean distance between normalized appearance descriptors. */
+  /** Squared Euclidean distance between the two normalized descriptors. */
   squaredDescriptorDistance: number;
 
   /**
-   * Whether the fitted final consensus meets the Sampson threshold, before the
-   * separate essential-projection consistency check.
+   * The tentative row belongs to the fitted epipolar consensus before its
+   * independent essential-projection consistency check.
    */
   epipolarInlier: boolean;
 
-  /** Whether the best competing map supports this final epipolar inlier. */
+  /**
+   * The best competing homography supports this row within the final epipolar
+   * population.
+   */
   homographyInlier: boolean;
 }

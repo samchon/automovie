@@ -1,13 +1,13 @@
 import type { IAutoMovieSubdivisionTopology } from "./IAutoMovieSubdivisionTopology";
 
 /**
- * One refinement level of a subdivision surface: its connectivity, vertex
- * positions, face-varying UVs and the cage parameters of every face corner.
+ * A level's control positions, connectivity and corner-aligned subdivision
+ * data.
  *
- * Parameters are per corner rather than per vertex because a vertex shared by
- * several cage faces has different local coordinates in each; the subdivider
- * reports the first corner's. `parameterCorners` is `-1` where the cage face is
- * a quad, as `IAutoMovieSubdivisionParameter.corner` is `null`.
+ * Each face corner retains its own cage chart address. Multiple corners of the
+ * same level vertex can have different addresses. A quad cage face uses the
+ * internal sub-face sentinel -1, which the public vertex parameter returns as
+ * null. UV value indices use the same corner order as the topology.
  */
 export interface IAutoMovieSubdivisionLevel {
   /** Connectivity and edge sharpness. */
@@ -19,7 +19,7 @@ export interface IAutoMovieSubdivisionLevel {
   /** Packed UV values, or `null` without UVs. */
   uvs: number[] | null;
 
-  /** UV value of every corner, or `null` without UVs. */
+  /** UV value ordinal of every face corner, or null without UVs. */
   cornerUvs: number[] | null;
 
   /** Whether this is the admitted cage rather than a refined level. */

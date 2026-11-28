@@ -42,6 +42,10 @@ const CARRIER: IAutoMovieRigidTransform = {
  * 5. A missing sample is unsupported. Invalid limits, rotation or a nonfinite
  *    frame origin leave the measurement unavailable and report the input
  *    field.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers support, moving and rolling contact, hand-relative grip and separately missing or invalid facts.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls measurePlacedContact with explicit world observations and maintained target frames, including each failed support or grip component.
+ * @evidence contracts/development/testing.md#independent-expectations Frame-relative offsets separate normal lift, tangential drift and negative penetration. Exact declared targets preserve resting, carried and rolling contact. A grip rotation compares to its declared in-hand target, and absent data differs from malformed input.
  */
 export const test_engine_validation_placed_contact = (): void => {
   const support: ISupportCheck = {

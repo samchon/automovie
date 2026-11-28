@@ -40,6 +40,10 @@ const G: number = 9.80665;
  *    holds its last place after it.
  * 4. Refused slides: a prop that moves by itself, one without both frictions, a
  *    push with a vertical part or none, and a negative force.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names an appended hinge track, authored travel and shape refusals, an XZ slide and its clamped reads, and invalid slide inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `hingeProp` and `slideProp` on typed object records. It reads the returned tracks and motion callbacks, checks the preserved track and W rotation component, then exercises malformed drive records.
+ * @evidence contracts/development/testing.md#independent-expectations Torque 2 divided by inertia 4 gives 0.5 rad/s², so one second turns 0.25 rad. The slide direction (3, 0, 4) normalizes to (0.6, 0, 0.8), and the displacement follows constant acceleration (60 - 0.3·10g)/10 over the authored one-second window.
  */
 export function test_motions_perform_prop_dynamics_drives(): void {
   // 1. A hinge.

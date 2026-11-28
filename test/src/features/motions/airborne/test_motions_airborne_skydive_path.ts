@@ -17,23 +17,21 @@ const ROUNDING: number = 1e-6;
 const TERMINAL: number = 53;
 
 /**
- * `skydivePath` is a parachute jump's hips path, phase by phase in closed form:
- * the freefall with quadratic drag toward terminal speed (`drop = vt^2 / g ln
- * cosh(g t / vt)`), the canopy's opening, its constant sink and forward flight
- * with held toggles turning it, and the flare to touchdown.
+ * Check canopy descent timing and the path through successive turns.
  *
- * Scenarios, an exit 3000 m above the ground facing +Z, deploying at 1000 m:
+ * Scenarios:
  *
- * 1. The deployment comes when the freefall has dropped the 2000 m, at `vt / g
- *    acosh(exp(2000 g / vt^2))`; the hips start at the exit and touch down on
- *    the ground, every phase's drop summing to the 3000 m, landing at 2 m/s
- *    along the heading the toggle turned it to, +X.
- * 2. Ten seconds into the canopy flight a 3 s left toggle starts, turning the
- *    heading 90 degrees by its end.
- * 3. A deployment above the exit, one too low for the canopy to open and slow
- *    before the flare, and overlapping toggles are refused.
- * 4. The first turn advances one 90-degree arc before moving straight east. A
- *    succeeding right turn starts from that heading and location.
+ * 1. Start 3000 m up and deploy at 1000 m. Check the drag-law deployment
+ *    time, ground touchdown and +X landing velocity of 2 m/s.
+ * 2. Apply a three-second left toggle ten seconds after opening. Read the
+ *    intermediate heading and the resulting quarter arc, then forward travel
+ *    and the next right arc.
+ * 3. Refuse a deployment above exit, insufficient canopy height and
+ *    overlapping toggles.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases give the altitude budget, toggle timing and turn geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification The path owner receives configured phases and its position, heading and landing vector are sampled in each selected phase.
+ * @evidence contracts/development/testing.md#independent-expectations Inverting the quadratic-drag drop gives the deployment time. Circular arc radius and prescribed forward speed give the horizontal endpoints.
  */
 export function test_motions_airborne_skydive_path(): void {
   const params: IAutoMovieMotionHumanSkydive.IParams = {

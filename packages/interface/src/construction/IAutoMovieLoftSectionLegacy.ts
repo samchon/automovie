@@ -4,14 +4,11 @@
  */
 export namespace IAutoMovieLoftSectionLegacy {
   /**
-   * Complete value or physical source2 basis data of one station.
-   *
-   * Each row contains order local-u controls followed by order local-v
-   * controls. prepare and extend allocate their result rows and reject
-   * incomplete/nonfinite data; endpoint adapters can borrow rows from an
-   * immutable source family. Consumers preserve rows while phase readers retain
-   * them. The readonly tuple fixes row count at the type boundary but does not
-   * freeze its number arrays.
+   * Prepared periodic spline at a fixed station. Every coefficient row has
+   * order local-u controls followed by order local-v controls. The value
+   * variant has one row; the jet variant adds the first and second physical
+   * station derivative rows. Preserve the arrays while readers retain them. The
+   * jet reader requires the jet variant.
    */
   export type IPrepared =
     | {

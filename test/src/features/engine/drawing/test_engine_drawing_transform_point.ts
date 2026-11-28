@@ -15,6 +15,10 @@ const ROUNDING: number = 1e-12;
  * 1. A translation by (1, 2, 3) moves the origin to (1, 2, 3).
  * 2. A quarter turn about Z (x to y, y to -x) with a translation of (0, 0, 5)
  *    sends (1, 0, 0) to (0, 1, 5).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies translation and a column-major quarter turn with an independent Z translation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.transformAutoMovieDrawingPoint with two explicit 4 by 4 matrices and checks the returned world triples.
+ * @evidence contracts/development/testing.md#independent-expectations Translation maps the origin to (1, 2, 3). The first column of the quarter turn maps unit +X to +Y, and adding five metres in Z gives (0, 1, 5).
  */
 export function test_engine_drawing_transform_point(): void {
   const translation: number[] = [

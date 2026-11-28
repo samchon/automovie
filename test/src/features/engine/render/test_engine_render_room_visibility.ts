@@ -40,8 +40,12 @@ const sealed: () => IAutoMovieBuiltEnvironment =
  * 2. With no opening and no connector, the roof deck is unreachable from the hall
  *    and is hidden, the hall and its containing site kept.
  * 3. A camera in the roof deck of the sealed atelier hides the hall instead.
- * 4. A camera outside every leaf hides nothing and says why, with no camera space
- *    and an exterior placement.
+ * 4. A camera outside every leaf keeps all spaces visible and returns an
+ *    exterior placement with an inconclusive result.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names connected and sealed interior placements and conservative exterior placement with its reason.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the room-visibility owner with authored atelier connectors or sealed rooms and fixed camera positions, then reads classifications and visibility sets.
+ * @evidence contracts/development/testing.md#independent-expectations A staged stair connects hall and roof deck when present. Removing sight lines separates the leaves while preserving their site. The exterior point belongs to neither leaf and leaves all three recorded spaces visible.
  */
 export function test_engine_render_room_visibility(): void {
   const connected: IAutoMovieRoomVisibility = AutoMovieEngineScene.autoMovieRoomVisibility({

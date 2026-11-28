@@ -16,6 +16,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 1. A stain formed before expiry remains on later seeks.
  * 2. Landing at or after expiry produces no later stain.
  * 3. Random read order preserves the complete lifecycle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains that stain retention begins only when the particle lands before expiry and is stable under random seeks.
+ * @evidence contracts/development/testing.md#behavioral-verification Materializes one ballistic cue for each of three fixed elevations, then samples early, after expiry and out of chronological order.
+ * @evidence contracts/development/testing.md#independent-expectations The independent free-fall time √(2h/9.81) puts landings before, at or after the 1 s lifetime. Only the first gives a persistent floor sample.
  */
 export function test_engine_physics_materialize_compiled_effects(): void {
   for (const height of [0.1, 9.81 / 2, 100]) {

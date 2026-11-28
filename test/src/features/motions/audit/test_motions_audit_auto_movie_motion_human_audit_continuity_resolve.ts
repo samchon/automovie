@@ -31,6 +31,10 @@ const FINEST: number = 2e-4;
  *    over the last interval, on the head, from an instant within the interval
  *    before the step.
  * 2. Without the step the path is continuous: zero at `none`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the head step's timed jump and the zero reading on a continuous path within the same sample interval.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditContinuity.resolve on a one-axis head reader with or without a step, using the same interval and five-millimetre limit.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.2 m discontinuity persists during five quarterings. The steady 1 m/s component adds at most the remaining interval's duration in metres, bounding the result on the correct side of its 1.03 s step.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_continuity_resolve(): void {
   const motion = (step: number): IAutoMovieMotionHumanAuditMotion => ({

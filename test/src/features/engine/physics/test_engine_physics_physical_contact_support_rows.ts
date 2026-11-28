@@ -27,6 +27,10 @@ import { nclose } from "../../internal/predicates";
  *    plane equality.
  * 3. Invalid endpoint or patch declarations refuse without mutating the borrowed
  *    profile, goals or poses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains separate XYZ, witness and whole-patch plane residuals, including nonpenetrating but unplanted geometry and invalid declarations.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds rows for touching, lowered and raised spherical patches with and without witnesses, then tries malformed endpoint and patch inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Original geometry gives zero at contact and a decimetre mismatch when lowered. A raised patch still owes the planted equality, and witness-free contact retains a surface equality.
  */
 export async function test_engine_physics_physical_contact_support_rows(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere(0.1);

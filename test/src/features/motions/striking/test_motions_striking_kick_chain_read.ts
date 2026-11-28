@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * Scenario: a round kick missing twice the residual is short, even jammed; one
  * on target folded a degree past its bound and tolerance is jammed; one at its
  * bound has reached.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains reached, short and jammed classification for a solved animated chain and the precedence of miss.
+ * @evidence contracts/development/testing.md#behavioral-verification Classifies a residual beyond tolerance with excess flexion, a reachable target with excess and an exact limit pose.
+ * @evidence contracts/development/testing.md#independent-expectations Twice the declared residual is short even with excess bend. A one-degree excess beyond tolerance jams, while equality at the bound is reached.
  */
 export function test_motions_striking_kick_chain_read(): void {
   const most: number = KickForm.FLEXION.round[1];

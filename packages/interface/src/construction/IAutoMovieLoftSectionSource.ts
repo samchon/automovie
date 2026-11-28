@@ -4,38 +4,57 @@ import type { IAutoMovieLoftViewSource } from "./IAutoMovieLoftViewSource";
 
 /** Data and callback contracts shared by the LoftSectionSource operations. */
 export namespace IAutoMovieLoftSectionSource {
-  /** Original scalar field and the compatibility rows published beside it. */
+  /**
+   * Original prepared view source and independent compatibility snapshots for
+   * its principal layers. Keep snapshots sorted by physical station. If a
+   * retained layer changes, update its binding through the owning producer
+   * before using the original section source again.
+   */
   export interface ISource {
-    /** A broken present discriminator never means source absence. */
+    /**
+     * Discriminator for original prepared view ownership. An invalid present
+     * source is rejected by the reader.
+     */
     kind: "view";
 
-    /** Original scalar functions and existing effective cap law. */
+    /**
+     * Prepared scalar view data, including the original domain and effective
+     * cap treatment.
+     */
     data: IAutoMovieLoftViewSource.ISource;
 
     /**
-     * Independent snapshots; a later coefficient rewrite must explicitly
-     * re-express ownership.
+     * Independent coefficient snapshots sorted by station. Preserve them and
+     * the corresponding layer data during source reuse.
      */
     rows: readonly IAutoMovieLoftSectionSourceBinding[];
   }
 
-  /** Actual endpoint family with an independent transformed-layer binding. */
+  /**
+   * Complete endpoint generating family already expressed in the receiving
+   * chart, with independent copies binding the actual family and transformed
+   * layer. Use SectionSource.bind to prepare the field and snapshot. Endpoint
+   * lookup rejects a changed record or changed bound layer.
+   */
   export interface IEndpoint {
-    /** Explicit boundary discriminator. */
+    /** Discriminator for a generating family bound to one actual layer endpoint. */
     kind: "endpoint";
 
     /**
-     * Actual complete endpoint generating family, already oriented into the
-     * receiver.
+     * Complete native or basis generating family in the receiver's station and
+     * phase chart.
      */
     field: IAutoMovieLoftSectionSourceFamily;
 
-    /** The changed layer's compatibility arrays and station. */
+    /**
+     * Snapshot of the changed layer's physical station and compatibility
+     * coefficient rows.
+     */
     binding: IAutoMovieLoftSectionSourceBinding;
 
     /**
-     * Independent plain field snapshot, preserving value copies and detecting
-     * stale edits.
+     * Independent copy of the admitted generating family used to detect changes
+     * to field.
      */
     snapshot: IAutoMovieLoftSectionSourceFamily;
   }

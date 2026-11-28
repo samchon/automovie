@@ -15,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
@@ -142,7 +141,8 @@ export namespace HumanLimbFit {
   }
 
   /*
-   * Fit a function Object() { [native code] }-owned continuous curve through current hinged correction.
+   * Fit a limb at one sample of a continuous curve. A nearby fit supplies the
+   * hinge path to continue.
    */
   export function continued(
     ...args: Parameters<typeof fit>
@@ -421,22 +421,8 @@ export namespace HumanLimbFit {
       fitted.seed?.vanished === true &&
       (limb === "leftArm" || limb === "rightArm")
     )
-      throw vanishedRefusal(limb);
+      throw new HumanLimbVanishedRefusal(limb);
     return fitted;
-  }
-
-  /*
-   * The refusal of a goal whose continued arm lost every swivel connected to
-   * its seed that takes the hand's asked turn.
-   */
-  function vanishedRefusal(limb: "leftArm" | "rightArm"): AutoMovieMotionHumanRefusal {
-    return new HumanLimbVanishedRefusal({
-      kind: "reach",
-      axis: "rotation",
-      value: limb,
-      reason: `the ${limb}'s hand turn leaves every swivel its continued elbow can reach: the arc of swivels where the wrist's range and the forearm's twist admit the turn vanished, and the next lies on another elbow path`,
-      fix: "ease the hand's asked turn or move its site so one elbow path keeps it, or plan the span so the elbow changes path between frames",
-    });
   }
 
   /*
@@ -470,8 +456,8 @@ export namespace HumanLimbFit {
   }
 
   /*
-   * Only the actual continuous-curve function Object() { [native code] } selects current hinged
-   * correction.
+   * Continue the seed from the preceding fit stage or the supplied seed. When
+   * neither is available, fit the point directly.
    */
   function correcting(
     workspace: ReturnType<typeof prepareHumanLimbFit>,

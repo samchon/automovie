@@ -123,6 +123,10 @@ namespace part_human_gaze_split {
  *   angles by the weight, writing the record in place.
  * - `human_gaze_split`: `HumanGaze.split` shares a gaze direction over the eyes,
  *   the head and the trunk:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gaze targets split between channels, and the joint blend follows its configured weight and phase.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the gaze split, timing, and blend operations on fixed target angles and shares.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit zero, quarter, and full shares distinguish any endpoint error from incorrect scaling. Fixed target angles determine the expected channel splits.
  */
 export async function test_motions_everyday_human_gaze(): Promise<void> {
   part_blend_gaze_joint.verify();

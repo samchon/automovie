@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Under the arclength, sagittal and polar rules, every case gives four phases,
  *    each corner at its quarter turn ((i + start) mod 4) pi / 2 within 1e-12
  *    periodically, and leaves every source coordinate unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names all three rules, the near-seam signed perturbation, scaled corner starts and unchanged source.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates physical phase assignment over each valid cyclic diamond rotation at three scales and checks every returned phase and input coordinate.
+ * @evidence contracts/development/testing.md#independent-expectations A symmetric diamond's corners occupy quarter turns. The perturbation is below the stated periodic tolerance and exercises closure from both sides.
  */
 export function test_engine_geometry_loft_parameter_phases(): void {
   for (const rule of ["arclength", "sagittal", "polar"] satisfies ("arclength" | "sagittal" | "polar")[])

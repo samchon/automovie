@@ -20,6 +20,10 @@ const RATE_ROUNDING: number = 4 * 10 * Number.EPSILON;
  *    0.6 seconds. The route can cross earlier; reaching 0.3 by 0.4 takes
  *    at least 3.25 units/s, below the limit of 10.
  * 2. An invalid goal returns null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines timed route admission with exact endpoints, collision avoidance and rate ceiling.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the connector between two typed configurations through a moving gate and tries an invalid goal.
+ * @evidence contracts/development/testing.md#independent-expectations Direct travel crosses the blocked 0.4–0.6 s window; a valid detour keeps each sampled edge clear and below the declared rate 10.
  */
 export function test_motions_posture_arm_connect(): void {
   const valid = (q: readonly number[]): boolean =>

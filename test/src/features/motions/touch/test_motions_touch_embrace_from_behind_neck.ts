@@ -10,19 +10,20 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `embraceFromBehindSolve.neck` adds a solved embrace's neck by a share: its
- * flexion, side bend and turn each shared between the neck and the head over
- * what they hold, and its protraction flexing the neck and extending the head
- * by as much; `degrees` turns radians into degrees.
+ * Check how a solved neck movement is applied across the neck and head.
  *
- * Scenarios, a solution of 12 degrees' flexion, 8 of side bend, 20 of turn and
- * 6 of protraction on a neck holding 3 degrees of flexion:
+ * Scenarios:
  *
- * 1. At share 0 the joints keep what they held.
- * 2. At share 0.5 the neck and head together add 6 of flexion (the protraction
- *    cancelling between them), 4 of side bend and 10 of turn, and the neck
- *    alone flexes 3 more than its share by the protraction.
- * 3. Pi radians are 180 degrees.
+ * 1. At zero share keep the existing 3-degree neck flexion and zero head
+ *    angles.
+ * 2. At half share add 6 degrees flexion, 4 side bend and 10 yaw jointly.
+ *    Protraction adds another 3 degrees to the neck while cancelling across
+ *    both joints.
+ * 3. Convert pi radians to 180 degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the existing pose, applied fraction and angular units.
+ * @evidence contracts/development/testing.md#behavioral-verification The test reads both affected joints and compares a matching half-share control with no protraction.
+ * @evidence contracts/development/testing.md#independent-expectations The expected changes are halves of the input angles, with equal and opposite protraction at the two joints.
  */
 export function test_motions_touch_embrace_from_behind_neck(): void {
   const posture: IAutoMovieMotionHumanPosture = {

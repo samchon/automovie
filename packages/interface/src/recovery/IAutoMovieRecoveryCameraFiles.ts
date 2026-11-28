@@ -4,30 +4,28 @@ import type {
 } from "..";
 
 /**
- * Fixed-byte P6 sRGB file acquisition for the calibrated camera-pair operation.
- * Paths resolve relative to this manifest. Decoding preserves every pixel and
- * applies no rotation, crop, resize, rectification or lens correction; prior
- * capture/decoding derivations belong to each explicit provenance record.
+ * Manifest for the Node `cameras estimate` command. Supply two ordered P6 sRGB
+ * captures, their corrected charts, and the resident pair controls.
  */
 export interface IAutoMovieRecoveryCameraFiles {
-  /** Version of the fixed-byte two-view camera manifest. */
+  /** File manifest schema for the calibrated camera pair. */
   schema: "automovie-recovery-camera-files-v1";
 
-  /**
-   * Explicit RGB8 sRGB P6 variation; other capture formats require a recorded
-   * unchanged-chart decoding step.
-   */
+  /** Fixed P6 sRGB RGB8 encoding accepted by the loader. */
   encoding: "ppm-srgb-rgb8-v1";
 
   /**
-   * Resident metadata, declared method and finite budgets; views are acquired
-   * from the files below.
+   * Resident scene metadata, pair policy and budget. The host fills in the
+   * decoded views.
    */
   capture: Omit<IAutoMovieRecoveryCameraPairInput, "views">;
 
-  /** Positive maximum scanned P6 header bytes per image. */
+  /** Positive per-image P6 header byte ceiling. */
   maxHeaderBytes: number;
 
-  /** Exactly two explicit views in the order defining the first-camera gauge. */
+  /**
+   * Exactly two ordered fixed captures. The first view is the seed reference
+   * camera.
+   */
   views: IAutoMovieRecoveryCameraFile[];
 }

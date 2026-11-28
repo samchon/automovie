@@ -16,6 +16,10 @@ import { createDialogueReceiptFixture } from "../../internal/createDialogueRecei
  *    ranges without phoneme chunks.
  * 2. A line whose speaker has no binding, or two bindings, or no speaker, is
  *    left out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Only uniquely bound dialogue drives an actor's frame-by-frame jaw, with viseme ranges supplied by phoneme data.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls mouth planning with a two-frame quiet/loud line and several missing or ambiguous actor bindings.
+ * @evidence contracts/development/testing.md#independent-expectations The named actor and expected frame range follow from the one binding. Silence gives zero jaw, the full-scale fixture opens it, and no phoneme chunks produce no ranges.
  */
 export function test_render_audio_plan_dialogue_mouths_lines(): void {
   const samples: Float32Array = new Float32Array(4000).fill(0);

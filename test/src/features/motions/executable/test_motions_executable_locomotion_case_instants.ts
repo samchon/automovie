@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Up to 0.3 s the grid is 0 and 0.2 s; the gait events land at 1.5 s and 2 s
  *    with side-letter captions; other cues are not drawn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines display scheduling of fifth-second ticks, first segment gait events and terminal time.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a walker with one timed segment, left heel strike, right toe-off and a non-gait cue, then reads selected instants.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 s segment starting at 1 puts quarter and half events at 1.5 and 2 s. A short horizon contains only ticks 0 and 0.2, and `ready` is absent.
  */
 export function test_motions_executable_locomotion_case_instants(): void {
   const events: IAutoMovieMotionEvent[] = [

@@ -167,9 +167,7 @@ const segments = (p: readonly number[], i: number, j: number): number => {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Solves cords through the engine's core and asserts the settled sag, the iteration independence, the least segment separation at every step, the capstan threshold and the observer's agreement with seeks.
  * @evidence contracts/development/testing.md#independent-expectations The catenary's and the discrete chain's closed forms, Richardson's extrapolation under the step-squared law of a fixed-sweep solve, XPBD's stated property, the capsule radius with the admitted travel bound, the capstan equation and absolute replay are independent of the solver; the 2 % is #3450's.
- * @evidence contracts/development/testing.md#distinguishing-cases Inextensible and elastic cords, a step and its half, 4 and 16 sweeps, a held and a sliding load ratio either side of the bound, and early and late steps.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test of the engine's CPU solver with in-memory domains; no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and the behaviour each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation A hung cord checks settled sag and sweep independence. A dropped coil checks segment contact, unequal masses test the capstan bound and the observer is compared with absolute seeks.
  */
 export function test_soft_cord_xpbd(): void {
   const complaints: string[] = [];

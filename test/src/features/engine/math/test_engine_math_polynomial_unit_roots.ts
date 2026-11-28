@@ -14,6 +14,10 @@ import { nclose } from "../../internal/predicates";
  *    outside).
  * 3. X^2 - x + 3/16 = (x - 1/4)(x - 3/4) has both roots, ascending.
  * 4. X^2 - x has the roots 0 and 1 at the ends.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers constant and zero polynomials, linear and quadratic roots, endpoint inclusion and out-of-interval filtering.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes ascending coefficient arrays directly to polynomialUnitRoots and compares the ordered result arrays.
+ * @evidence contracts/development/testing.md#independent-expectations Factoring gives 1/2 for the linear case, plus and minus 1/2 for x^2 - 1/4, 1/4 and 3/4 for the two-root case, and zero and one for x(x - 1). The interval excludes the negative and outlying roots.
  */
 export function test_engine_math_polynomial_unit_roots(): void {
   const near = (roots: number[], expected: number[]): boolean =>

@@ -1,16 +1,23 @@
-/** Data and callback contracts shared by the CubicOval64 operations. */
+/** The physical diameter result of measuring a cubic oval perimeter. */
 export namespace IAutoMovieCubicOval64 {
   /**
-   * Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the
-   * same Simpson perimeter. Both inputs and returned diameters are positive
-   * finite values in millimetres; an unrepresentable positive diameter throws
-   * RangeError before publication.
+   * Breadth and depth in millimetres for a cubic oval with supplied finite
+   * positive girth and aspect ratio.
+   *
+   * Supply positive finite girth and ratio with representable positive
+   * diameters. A computed diameter at or below zero or NaN is refused.
    */
   export type IAxesBySimpsonResult = {
-    /** Positive lateral support separation of the normalized cubic oval, mm. */
+    /**
+     * Lateral support separation in millimetres for the normalized-and-scaled
+     * cubic oval.
+     */
     breadthMm: number;
 
-    /** Positive anterior/posterior support separation of that same oval, mm. */
+    /**
+     * Anterior-to-posterior support separation in millimetres for the same
+     * cubic oval.
+     */
     depthMm: number;
   };
 }

@@ -47,14 +47,27 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 export function subdivideSurface(
   props: IAutoMovieSubdivideSurface.IProps,
 ): IAutoMovieSubdivisionSurface {
-  if (props.levels < 1 || props.levels > MAX_LEVELS)
+  if (
+    !Number.isSafeInteger(props.levels) ||
+    props.levels < 1 ||
+    props.levels > MAX_LEVELS
+  )
     throw new Error(
       `subdivision levels must be an integer from 1 to ${MAX_LEVELS}`,
     );
   let level: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
   for (let step: number = 0; step < props.levels; ++step)
     level = refineSubdivisionLevel(level);
-  return evaluateSubdivisionLevel(level);
+  const surface: IAutoMovieSubdivisionSurface = evaluateSubdivisionLevel(level);
+  for (const field of [
+    surface.positions,
+    surface.limitPositions,
+    surface.normals,
+    surface.uvs,
+  ])
+    if (field?.some((value: number): boolean => !Number.isFinite(value)))
+      throw new Error("Subdivision surface arithmetic must remain finite");
+  return surface;
 }
 
 /*

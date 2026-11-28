@@ -1,6 +1,7 @@
 import type {
   IAutoMovieAffordance,
   IAutoMovieAffordanceArticulation,
+  IAutoMovieModelPart,
 } from "@automovie/interface";
 
 import { affordanceFollowedTravel } from "./internal/affordanceFollowedTravel";
@@ -23,6 +24,53 @@ export namespace AutoMovieEngineAffordanceArticulation {
     "wheel",
     "pedal",
   ]);
+
+  /**
+   * Find the rigid model part that carries an articulated surface.
+   *
+   * The surface must name an articulation in its own model. Use its
+   * `materialPart` when provided, otherwise use the articulation's sole driven
+   * part. The selected part must be undeformed and driven by that
+   * articulation.
+   *
+   * @param surface The model-local surface that declares `rides`.
+   * @param affordances The model's affordances.
+   * @param parts The model's parts with their authored local transforms.
+   * @returns The single carrier, or undefined for a missing or ambiguous one.
+   */
+  export function surfaceCarrier(
+    surface: IAutoMovieAffordance,
+    affordances: readonly IAutoMovieAffordance[] | null | undefined,
+    parts: readonly IAutoMovieModelPart[] | undefined,
+  ): IAutoMovieModelPart | undefined {
+    if (surface.kind !== "surface" || surface.rides === undefined)
+      return undefined;
+    const joints: IAutoMovieAffordance[] = (affordances ?? []).filter(
+      (candidate: IAutoMovieAffordance): boolean =>
+        candidate.id === surface.rides,
+    );
+    const joint: IAutoMovieAffordance | undefined = joints[0];
+    if (joints.length !== 1 || joint === undefined || !KINDS.has(joint.kind))
+      return undefined;
+    const mounted: readonly string[] = joint.parts ?? [];
+    const chosen: string | undefined =
+      surface.materialPart ?? (mounted.length === 1 ? mounted[0] : undefined);
+    if (chosen === undefined || !mounted.includes(chosen)) return undefined;
+    const matches: IAutoMovieModelPart[] = (parts ?? []).filter(
+      (part: IAutoMovieModelPart): boolean => part.id === chosen,
+    );
+    const part: IAutoMovieModelPart | undefined = matches[0];
+    if (
+      matches.length !== 1 ||
+      part === undefined ||
+      part.attachedBone !== null ||
+      (part.geometry.type === "mesh" &&
+        (part.geometry.mesh.skin !== null ||
+          (part.geometry.mesh.targets?.length ?? 0) !== 0))
+    )
+      return undefined;
+    return part;
+  }
 
   /**
    * The independent articulation upstream of a coordinate, or null for an

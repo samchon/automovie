@@ -1,4 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail";
 import type { IAutoMovieCaptureCompleteRecord } from "./IAutoMovieCaptureCompleteRecord";
 import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime";
@@ -76,6 +77,12 @@ export namespace IAutoMovieCaptureRecord {
     readonly hash?: string;
     /** Digest of the stored file bytes, when it was recorded. */
     readonly fileSha256?: string;
+
+    /**
+     * Source-backed trail segments admitted from the retained still record,
+     * absent when the draw supplies no such evidence.
+     */
+    readonly motionTrails?: readonly IAutoMovieInspectionTrail[];
   }
 
   /** A planned cell that did not draw. */

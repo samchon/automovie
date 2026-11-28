@@ -14,7 +14,13 @@ import { vclose } from "../../internal/vclose";
 /** Covers the line projection's fixed quarter turn and metre-scale points. */
 const SPAN_ROUNDING: number = 128 * Number.EPSILON;
 
-/** A held run extends past its grips and aligns the hand's line axis. */
+/**
+ * A held run extends past its grips and aligns the hand's line axis.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines grip extensions, slack, carried hand orientation, cylinder centre and representable line limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads real span state and poses its cylinder and hand. Checks insufficient grip overhang, one maximum finite span and two finite-anchor cases with invalid total geometry.
+ * @evidence contracts/development/testing.md#independent-expectations The endpoints at Z -0.5 and 3.25 give length 3.75 and midpoint 1.375. Half of the maximum finite value at opposite signs gives the maximum representable distance.
+ */
 export function test_archetypes_core_held_span(): void {
   const hand: IAutoMovieAffordance = {
     id: "hand",

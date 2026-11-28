@@ -8,16 +8,27 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "./predicates";
 
-/** Execute the next ordered assertions of test_analysis_environment_context.
+/**
+ * Execute the next ordered assertions of test_analysis_environment_context.
  *
  * Scenarios:
- * 1. the parallel test reads the slope against the unit normal, not the authored length.
- * 2. a ray is obstructed when any one solid stops it.
- * 3. the reference ground decides which directions are sky.
- * 4. cosine-weighted directions stay unit length inside their own hemisphere.
  *
- * Positive rescaling of a half-space preserves its analytic inequality; the authored box planes determine ray obstruction, and the sign of the ground-up dot product determines the horizon. Sample directions must have unit norm within 1e-9 and positive normal projection. These invariants and deterministic replay do not establish cosine-distribution integration accuracy.
- * Unit/short plane normals share the same blocker; missing, present and empty unions distinguish obstruction. Up/down/grazing rays distinguish the horizon, while positive/negative/oblique normals and a singleton distinguish sampling orientation. Fractional/zero counts and zero normals must throw; other context schema cases belong to earlier parts.
+ * 1. The parallel test reads the slope against the unit normal, not the authored
+ *    length.
+ * 2. A ray is obstructed when any one solid stops it.
+ * 3. The reference ground decides which directions are sky.
+ * 4. Cosine-weighted directions stay unit length inside their own hemisphere.
+ *
+ * Positive rescaling of a half-space preserves its analytic inequality; the
+ * authored box planes determine ray obstruction, and the sign of the ground-up
+ * dot product determines the horizon. Sample directions must have unit norm
+ * within 1e-9 and positive normal projection. These invariants and
+ * deterministic replay do not establish cosine-distribution integration
+ * accuracy. Unit/short plane normals share the same blocker; missing, present
+ * and empty unions distinguish obstruction. Up/down/grazing rays distinguish
+ * the horizon, while positive/negative/oblique normals and a singleton
+ * distinguish sampling orientation. Fractional/zero counts and zero normals
+ * must throw; other context schema cases belong to earlier parts.
  */
 export function assertAnalysisEnvironmentContextPart3(
   context: IAutoMovieEnvironmentContext,
@@ -71,9 +82,18 @@ export function assertAnalysisEnvironmentContextPart3(
   TestValidator.equals(
     "the reference ground decides which directions are sky",
     {
-      up: AutoMovieEngineEnvironment.skyward({ x: 0, y: 1, z: 0 }, context.ground),
-      down: AutoMovieEngineEnvironment.skyward({ x: 0, y: -1, z: 0 }, context.ground),
-      grazing: AutoMovieEngineEnvironment.skyward({ x: 1, y: 0, z: 0 }, context.ground),
+      up: AutoMovieEngineEnvironment.skyward(
+        { x: 0, y: 1, z: 0 },
+        context.ground,
+      ),
+      down: AutoMovieEngineEnvironment.skyward(
+        { x: 0, y: -1, z: 0 },
+        context.ground,
+      ),
+      grazing: AutoMovieEngineEnvironment.skyward(
+        { x: 1, y: 0, z: 0 },
+        context.ground,
+      ),
     },
     { up: true, down: false, grazing: false },
   );
@@ -82,10 +102,11 @@ export function assertAnalysisEnvironmentContextPart3(
     normal: IAutoMovieVector3,
     count: number,
   ): boolean => {
-    const directions: IAutoMovieVector3[] = AutoMovieEngineEnvironment.hemisphereDirections({
-      normal,
-      count,
-    });
+    const directions: IAutoMovieVector3[] =
+      AutoMovieEngineEnvironment.hemisphereDirections({
+        normal,
+        count,
+      });
     return (
       directions.length === count &&
       directions.every(
@@ -98,6 +119,29 @@ export function assertAnalysisEnvironmentContextPart3(
       )
     );
   };
+  for (const value of [NaN, Infinity, Number.NEGATIVE_INFINITY])
+    TestValidator.predicate(
+      `nonfinite normal component ${value} is refused`,
+      throwsError(
+        (): IAutoMovieVector3[] =>
+          AutoMovieEngineEnvironment.hemisphereDirections({
+            normal: { x: value, y: 1, z: 0 },
+            count: 8,
+          }),
+        "finite, non-zero normal",
+      ),
+    );
+  TestValidator.equals(
+    "large finite components retain the direction of their unit-scale ray",
+    AutoMovieEngineEnvironment.hemisphereDirections({
+      normal: { x: Number.MAX_VALUE, y: Number.MAX_VALUE, z: 0 },
+      count: 8,
+    }),
+    AutoMovieEngineEnvironment.hemisphereDirections({
+      normal: { x: 1, y: 1, z: 0 },
+      count: 8,
+    }),
+  );
   TestValidator.equals(
     "cosine-weighted directions stay unit length inside their own hemisphere",
     namedFacts([
@@ -108,14 +152,16 @@ export function assertAnalysisEnvironmentContextPart3(
       [
         "deterministic",
         (): boolean => {
-          const first: IAutoMovieVector3[] = AutoMovieEngineEnvironment.hemisphereDirections({
-            normal: { x: 0, y: 1, z: 0 },
-            count: 8,
-          });
-          const second: IAutoMovieVector3[] = AutoMovieEngineEnvironment.hemisphereDirections({
-            normal: { x: 0, y: 1, z: 0 },
-            count: 8,
-          });
+          const first: IAutoMovieVector3[] =
+            AutoMovieEngineEnvironment.hemisphereDirections({
+              normal: { x: 0, y: 1, z: 0 },
+              count: 8,
+            });
+          const second: IAutoMovieVector3[] =
+            AutoMovieEngineEnvironment.hemisphereDirections({
+              normal: { x: 0, y: 1, z: 0 },
+              count: 8,
+            });
           return JSON.stringify(first) === JSON.stringify(second);
         },
       ],

@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  * 1. By default 4.8 s, joined at 0.5 s and parted at 4.3 s.
  * 2. Two cycles are 2.4 s.
  * 3. One second blends over a quarter: joined at 0.25 s, parted at 0.75 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines authored cycles, default duration and bounded entry and exit blending for the animation.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the timetable for defaults, two cycles and an explicit one-second clip.
+ * @evidence contracts/development/testing.md#independent-expectations Four 1.2 s cycles give 4.8 s with 0.5 s edge blends. In a one-second clip the quarter-duration bound gives join at 0.25 and part at 0.75.
  */
 export function test_motions_sport_chi_sau(): void {
   TestValidator.predicate(

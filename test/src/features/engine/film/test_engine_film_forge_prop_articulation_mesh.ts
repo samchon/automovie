@@ -65,6 +65,10 @@ function drives(index: number, part: string): IAutoMoviePropSpec {
  *    part rides one frame.
  * 4. Every joint leaving `mesh` null still forges, which is the contract every
  *    prop authored before the reference existed was written against.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify a prop-owned driven part, its lowered node identity, unknown and duplicate part claims, and legacy null part references.
+ * @evidence contracts/development/testing.md#behavioral-verification The test forges each joint/part combination, lowers the admitted scene to nodes and observes the real driven part on the placement child. It compares the addressed failure for unknown and duplicated ownership.
+ * @evidence contracts/development/testing.md#independent-expectations The model declares panel and no sash. A previously bound part cannot belong to a second joint. The authored placement and hinge IDs determine the target child, and an omitted mesh adds no part association.
  */
 export function test_engine_film_forge_prop_articulation_mesh(): void {
   const driven: IAutoMoviePropSpec = drives(1, "panel");

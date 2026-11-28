@@ -43,6 +43,10 @@ type Rates = Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovi
  *    the analytical path; empty and ancestor-complete root demand remain
  *    valid.
  * 5. Output edits affect neither the declarations nor a subsequent rate query.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers analytical bone rates in world and body frames, declined or empty demand and output ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAutoMovieBoneRates on an explicit three-link rig and declared root or joint derivatives, with forward positions read through native FK.
+ * @evidence contracts/development/testing.md#independent-expectations Differentiating planar offsets gives the common translation plus the distance-dependent spin term. The fixed Z90 basis maps a body X rate to world Y. A missing declaration or ancestor leaves an unknown derivative.
  */
 export function test_engine_kinematics_resolve_bone_rates(): void {
   const skeleton: IAutoMovieSkeleton = rig();

@@ -25,9 +25,7 @@ import { namedFacts } from "../internal/predicates";
  *    (not the output of any locale-sensitive comparator).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual code-unit comparator for all three outcomes, ASCII case distinction, distinct NFC/NFD spellings and a complete seven-name sort.
- * @evidence contracts/development/testing.md#independent-expectations Literal -1/0/1 outcomes and the hand-written filename order follow UTF-16 unit values; the precomposed and decomposed strings are constructed from distinct code units without a locale oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts less/greater/equal, uppercase/lowercase, Unicode-equivalent distinct encodings and mixed punctuation/name prefixes; arbitrary non-string runtime inputs are outside the typed comparator contract.
- * @evidence contracts/development/testing.md#execution-ownership Owns synchronous portable string inputs and invokes the real comparator through the runner; it changes no host locale, calls no collation service and asserts no production filename policy beyond this ordering law.
+ * @evidence contracts/development/testing.md#independent-expectations Literal -1/0/1 outcomes and the hand-written filename order follow UTF-16 unit values; the precomposed and decomposed strings are constructed from distinct code units without a locale oracle. Literal signs cover less, equal and greater, case, distinct Unicode encodings, and punctuation or name prefixes.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The three outcomes: a strictly-lesser string yields -1, a strictly-greater).
  */
 export function test_text_compare_code_units(): void {

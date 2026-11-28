@@ -18,6 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareJumpPosture } from "../../actions/internal/prepareJumpPosture";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
@@ -39,6 +40,8 @@ import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
+import { humanPreparationReads } from "./humanPreparationReads";
+import { prepareHumanSegment } from "./prepareHumanSegment";
 
 /*
  * One intent placed in the performance: its law found, its entry state read,
@@ -66,7 +69,21 @@ export namespace HumanPerformancePlace {
     entries: readonly IAutoMovieScheduleEntry[],
     where: IAutoMovieMotionHumanRefusal.IWhere,
     trial: boolean = false,
-  ) {
+  ): IAutoMovieIntentTiming {
+    return motionPrepared.branch(
+      (): IAutoMovieIntentTiming =>
+        placeIntent(self, intent, start, entries, where, trial),
+    );
+  }
+
+  function placeIntent(
+    self: IAutoMovieMotionHumanPerformanceState,
+    intent: IAutoMovieIntent,
+    start: number,
+    entries: readonly IAutoMovieScheduleEntry[],
+    where: IAutoMovieMotionHumanRefusal.IWhere,
+    trial: boolean,
+  ): IAutoMovieIntentTiming {
     const person: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, intent.subject);
     const name: AutoMovieMotionHumanActionKey = intent.capability;
@@ -334,7 +351,12 @@ export namespace HumanPerformancePlace {
         entry,
         start,
       ),
-      action: HumanPerformancePlaceAction(self, named),
+      action: HumanPerformancePlaceAction(
+        self,
+        named,
+        (subject: string): void =>
+          humanPreparationReads.retain(self, drafted, subject),
+      ),
     };
     // What the performer's next action on a prop demands of a grip this one
     // chooses (`HumanPerformanceAhead`); an overlay leaves the body's grips
@@ -392,6 +414,7 @@ export namespace HumanPerformancePlace {
       return timing;
     }
     self.placements++;
+    motionPrepared.invalidate();
 
     // An action aligned into its performer's previous one ends that one
     // where it starts, as the cut the cancel table just allowed.
@@ -447,6 +470,7 @@ export namespace HumanPerformancePlace {
               cut: start,
             },
     };
+    prepareHumanSegment.recordPlace(segment, where);
     HumanPerformanceContacts.hold(person, segment, false);
     person.segments.push(segment);
     if (intent.anchor !== undefined)

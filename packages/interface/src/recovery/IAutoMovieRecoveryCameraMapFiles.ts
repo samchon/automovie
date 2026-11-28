@@ -4,22 +4,30 @@ import type {
 } from "..";
 
 /**
- * Three fixed-byte sRGB P6 images for the Node calibrated-map command. Paths
- * are relative to the manifest; decoding preserves the supplied chart.
+ * File manifest for the Node `cameras map` command. It identifies three fixed
+ * P6 sRGB captures in source order. The host resolves each path from the
+ * manifest, verifies the encoded bytes, decodes the supplied chart, and calls
+ * resident map estimation.
  */
 export interface IAutoMovieRecoveryCameraMapFiles {
-  /** Versioned three-view map acquisition manifest. */
+  /** Version of the three-file map acquisition manifest. */
   schema: "automovie-recovery-camera-map-files-v1";
 
-  /** Exact sRGB RGB8 P6 variation, with no implicit camera correction. */
+  /** P6 binary sRGB RGB8 encoding accepted by the Node loader. */
   encoding: "ppm-srgb-rgb8-v1";
 
-  /** Closed resident metadata/policy/budgets; the host supplies views below. */
+  /**
+   * Exact resident metadata, seed and map policies, and budgets. The loader
+   * builds the resident views from `views`.
+   */
   capture: Omit<IAutoMovieRecoveryCameraMapInput, "views">;
 
-  /** Positive maximum P6 header bytes per image. */
+  /** Positive per-image bound on P6 header bytes consumed by the decoder. */
   maxHeaderBytes: number;
 
-  /** Exactly three source-order images; the first two define the seed. */
+  /**
+   * Exactly three fixed captures, in source order. Entries zero and one form
+   * the seed.
+   */
   views: IAutoMovieRecoveryCameraFile[];
 }

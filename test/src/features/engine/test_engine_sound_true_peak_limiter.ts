@@ -22,11 +22,9 @@ import { nclose } from "../internal/predicates";
  * 5. A second master of the same mix gives identical samples, and the mix itself
  *    is left unchanged.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the bed, the transient, the ceiling and the expected master behavior.
+ * @evidence contracts/development/common.md#meaningful-documentation The elevated transient exercises peak limiting while the integrated target and static gain hold away from it. The quieter twin, replay and input-mix identity check separate outcomes.
  * @evidence contracts/development/testing.md#behavioral-verification Masters engine mixes through `masterProductionSound` and reads the result's analysis and samples. A sample-peak limiter leaves the true peak over the ceiling, a whole-master scale moves the bed far from the transient, and a nondeterministic limiter changes the second run.
  * @evidence contracts/development/testing.md#independent-expectations The ceiling is the EBU R 128 default maximum of −1 dBTP less the 1 dB margin #4053 states; a 1 kHz sine of peak 10^(−23/20) reads −23 LUFS (EBU Tech 3341 test signal 1); a 2 ms burst moves the integrated loudness of 10 s by far less than the tolerance; the transient's level is checked on the mix before mastering.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a limited and an unlimited bed and compares a sample far from the transient; the meter's accuracy and dialogue levelling have their own tests.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_true_peak_limiter`; it starts no process.
  */
 export function test_engine_sound_true_peak_limiter(): void {
   const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;

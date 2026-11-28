@@ -475,6 +475,10 @@ function scenario_test_motions_lexicon_crutch_walk_course(): void {
 /**
  * The crutch laws' own logic: the sit kit and path, the stair flight, the held
  * leg's swept depth and timesteps, and the walk course, each scenario below.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines crutch sit and walk pose rules, stair profiles, held-leg sweep clearance and event sampling.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes the direct helpers for grip and tip placement, up/down stair moves, signed swept depth, timed hold and walk course.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.17 m riser makes the second tread 0.34 m high. The authored 1–2 s fold gives eleven tenth-second samples and retains later events at 2.4 and 2.65 s.
  */
 export function test_motions_lexicon_crutch(): void {
   scenario_test_motions_lexicon_crutch_sit_kit();

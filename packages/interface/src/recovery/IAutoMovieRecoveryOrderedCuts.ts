@@ -4,42 +4,37 @@ import type {
 } from "..";
 
 /**
- * Ordered source-section observations bound to one source and selection
- * identity. The physical frame and coordinateMm stations retain the registered
- * millimetre chart; section order and observation identities bind each raw
- * contour to its saved observation.
+ * Physical recuts of saved sections with raw point order, exact segment
+ * ownership and provenance.
  */
 export interface IAutoMovieRecoveryOrderedCuts {
-  /**
-   * Identity of the new metadata observation, without replacing the old curve
-   * collection.
-   */
+  /** Caller label for the ordered-cut collection. */
   name: string;
 
-  /**
-   * Caller-verified original native-byte identity; no hashing occurs in this
-   * record.
-   */
+  /** Caller-attested registered source identity for all ordered cuts. */
   sourceIdentity: string;
 
-  /** Caller-verified registration, selection and original-ordinal identity. */
+  /** Caller-attested original native face selection identity. */
   sourceSelectionIdentity: string;
 
   /**
-   * Actual zero-origin projection frame in registered mm, with directed unit
-   * axes.
+   * Registered origin and normalized cutting axes common to the selected saved
+   * planes.
    */
   frame: IAutoMovieRecoverySlabsInput["savedSections"][number]["frame"];
 
-  /** Same requested saved-plane order, including empty contour populations. */
+  /** Reobserved sections in the given saved request order. */
   sections: Array<{
-    /** Signed physical mm along frame.n. */
+    /**
+     * Signed physical coordinate where the saved section was recut, in
+     * millimetres.
+     */
     coordinateMm: number;
 
-    /** Caller-verified artifact containing this plane's original publications. */
+    /** Caller-attested identity of this saved section observation artifact. */
     observationIdentity: string;
 
-    /** Every raw contour, including failed or degenerate publications. */
+    /** Fresh raw contours in cutter traversal and original population order. */
     contours: IAutoMovieRecoveryOrderedContour[];
   }>;
 }

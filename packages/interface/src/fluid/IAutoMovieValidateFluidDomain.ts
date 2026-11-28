@@ -14,8 +14,8 @@ export namespace IAutoMovieValidateFluidDomain {
    * paths and authored values; inputs are not modified.
    *
    * The Courant comparison runs only when its five authored inputs are finite
-   * and positive. A computed value above one, including Infinity, is refused;
-   * derived NaN is missed by that comparison. Admission also does not bound
+   * and positive. A computed value above one, including Infinity, is refused at
+   * `solver.fixedStepSeconds`. Admission also does not bound
    * finite area, damping, clock, flow accumulation or spray-index products, and
    * later water depth may exceed referenceDepth. It does not certify every
    * derived solver/surface/spray result or perform general unknown-object shape

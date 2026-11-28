@@ -17,6 +17,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  * compression, preserves shaders and restores on seek. Empty/sparse RGB,
  * Float32 overflow and duplicate resource ownership refuse; representable HDR
  * multipliers remain legal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names sampled posed surface, shader preservation, restore and invalid or valid HDR inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates an appearance on a real native skinned mesh and reads replacement shader, geometry and material behavior through updates and restore. Repeats with malformed samples, duplicate ownership and legal HDR.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies source shader and mesh identities and a posed reference. Malformed sample channels, unrepresentable Float32 values and duplicate ownership refuse before leaving the source replaced. A representable HDR multiplier remains usable.
  */
 export function test_render_scene_create_surface_appearance(): void {
   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();

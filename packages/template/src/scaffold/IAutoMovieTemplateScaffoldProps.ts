@@ -1,12 +1,12 @@
-/** Inputs accepted by {@link AutoMovieTemplateScaffold.create}. */
+/** Choose the files and metadata for a new installation. */
 export interface IAutoMovieTemplateScaffoldProps {
   /**
-   * The installation created. `production` creates a single project,
-   * `workspace` creates a shared pnpm workspace, and `workspace-production`
-   * adds a project inside such a workspace.
+   * `production` supplies a standalone project. `workspace` supplies the root
+   * and shared catalogs. `workspace-production` supplies one child at
+   * `movies/<family>/<name>` that uses the root's skills and catalogs.
    */
   kind: "production" | "workspace" | "workspace-production";
 
-  /** The project's or workspace's name, written after trimming. */
+  /** Name substituted as text after the scaffold's name check trims it. */
   name: string;
 }

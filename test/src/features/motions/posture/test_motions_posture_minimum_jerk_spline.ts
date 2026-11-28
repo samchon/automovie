@@ -23,6 +23,10 @@ const ROUNDING: number = 1e-9;
  * 2. Three points on the whole movement's path: the middle's velocity 1.875 and
  *    acceleration 0, the ends at rest.
  * 3. `quintic` at the middle of a rest-to-rest interval from 0 to 1 is ½.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rest endpoints, treatment of a redundant via point and the normalized rest-to-rest midpoint.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves two- and three-point courses and queries the scalar quintic halfway.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 m path over 2 s has midpoint speed 1.875 and, by odd symmetry about the center, zero acceleration. The normalized midpoint is 1/2.
  */
 export function test_motions_posture_minimum_jerk_spline(): void {
   // 1. No interior point.

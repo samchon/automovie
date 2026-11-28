@@ -2,24 +2,26 @@ import type { IAutoMovieRecoveryCameraMapInput } from "./IAutoMovieRecoveryCamer
 import type { IAutoMovieRecoveryCameraSceneBudget } from "./IAutoMovieRecoveryCameraSceneBudget";
 
 /**
- * Fixed calibrated image set for one bounded incremental sparse component.
- * Views zero/one are the explicit seed. Later views are candidates selected by
- * existing-map support and stable IDs, without a supplied trajectory or poses.
- * Supplied corrected pinhole calibration and rigid geometry remain assertions.
+ * Fixed RGB8 views for building one incremental sparse component under supplied
+ * corrected pinhole calibration. Views zero and one define the seed. Keep the
+ * borrowed rasters unchanged until estimation returns.
  */
 export interface IAutoMovieRecoveryCameraSceneInput extends Omit<
   IAutoMovieRecoveryCameraMapInput,
   "schema" | "views" | "budget"
 > {
-  /** Versioned variable-view calibrated sparse-scene request. */
+  /** Resident schema for incremental camera-scene estimation. */
   schema: "automovie-recovery-camera-scene-input-v1";
 
   /**
-   * At least three unique fixed images; keep borrowed RGB bytes unchanged until
-   * return.
+   * At least three fixed calibrated views with unique IDs, up to the scene's
+   * view cap. The first two form the ordered seed.
    */
   views: IAutoMovieRecoveryCameraMapInput["views"];
 
-  /** Explicit per-fit, aggregate and retained scalar-slot limits. */
+  /**
+   * Limits for admitted images and per-fit work, plus cumulative registration
+   * work and simultaneous linear scalar slots.
+   */
   budget: IAutoMovieRecoveryCameraSceneBudget;
 }

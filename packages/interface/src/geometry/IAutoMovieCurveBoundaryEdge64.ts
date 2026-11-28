@@ -1,36 +1,26 @@
 /**
- * One named boundary publication from an owner region/node to a consumer
- * region/node. All keys are caller-defined; the engine gives them no anatomical
- * interpretation.
+ * Directed declaration authorizing one named boundary owner and its receiving
+ * region and node.
+ *
+ * Binding requires the context's exact published object and both declared
+ * receiving keys.
  */
 export interface IAutoMovieCurveBoundaryEdge64 {
   /**
-   * Stable declared boundary or node identity, not a selector for a body
-   * catalogue.
+   * Unique boundary identity inside the context, used to resolve publication
+   * and consumption.
    */
   id: string;
 
-  /**
-   * Caller-defined owner key; only this factory may publish the declared
-   * boundary.
-   */
+  /** Region key required when the owner publishes the boundary. */
   ownerRegion: string;
 
-  /**
-   * Caller-defined owner node key in the proper parent hierarchy; anatomy is
-   * defined by Human rather than engine.
-   */
+  /** Declared hierarchy node key needed on the publication call. */
   ownerBone: string;
 
-  /**
-   * Caller-defined dependent key; its construction receives the actual
-   * published value.
-   */
+  /** Region key required when the recipient binds the genuine publication. */
   consumerRegion: string;
 
-  /**
-   * Caller-defined receiving node key whose binding is authenticated by this
-   * edge.
-   */
+  /** Declared receiving hierarchy node key needed on the binding call. */
   consumerBone: string;
 }

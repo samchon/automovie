@@ -31,9 +31,7 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public flattening and text geometry and measures chord deviation and triangle area; it catches too few steps, a missing hole, a hole drawn as ink, flipped triangles and nondeterministic buffers.
  * @evidence contracts/development/testing.md#independent-expectations The step count and bound follow from the quadratic's constant second derivative, per #4098; the flattened-ring area is a shoelace sum independent of the triangulator, and the exact O area is the closed form of its arcs, 0.35 − 0.10 m².
- * @evidence contracts/development/testing.md#distinguishing-cases A curved segment, a glyph with a hole, a glyph with crossing contours and a two-glyph run. Layout is owned by test_engine_text_layout and extrusion by test_engine_raised_lettering.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test over a font written and decoded in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the geometry and the expected result.
+ * @evidence contracts/development/common.md#meaningful-documentation A quadratic curve sets flattening density, and the O hole subtracts area. Triangle orientation and front normals agree, crossings refuse and repeated geometry keeps the same buffers.
  */
 export function test_engine_glyph_geometry(): void {
   // 1. Flattening bound.

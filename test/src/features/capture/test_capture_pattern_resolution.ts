@@ -25,9 +25,7 @@ const PATHS: readonly string[] = [
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves requests parsed by the public grammar against a hand-made path list and reads roles, patterns, listed paths and counts; a resolver that listed every descendant, dropped an empty match, matched by another rule than the inspection's or reordered the roles fails.
  * @evidence contracts/development/testing.md#independent-expectations The matches follow the documented path grammar worked by hand: a pattern with `/` is anchored and takes its subtree, a bare name matches any name on the path; the repeated `hero/arm` counts once.
- * @evidence contracts/development/testing.md#distinguishing-cases Anchored and bare patterns, every role, a matched descendant mark, an empty match, no pattern, and the broadest pattern. Carrying the resolution into the record is owned by `test_capture_run_order`, and through the draw page by `test_draw_cell_call`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_pattern_resolution`; it resolves in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation A hand-authored object list checks anchored and bare patterns, all inspection roles, descendant counts, empty matches, and subtree collapse for the broad pattern.
  */
 export function test_capture_pattern_resolution(): void {
   const resolve: (

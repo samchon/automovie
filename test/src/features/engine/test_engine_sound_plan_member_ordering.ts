@@ -16,9 +16,7 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  *
  * @evidence contracts/development/testing.md#behavioral-verification Executes the actual planner after duplicating one event sample and after replacing the individual subject with a static two-member formation whose motion list is absent, observing retained event count and resolved aggregate member count.
  * @evidence contracts/development/testing.md#independent-expectations Two authored samples and the literal formation count of two determine independent integer expectations. Equal-key retention alone does not prove ordering among distinct keys or stable identity ordering of identical events, and aggregate resolution does not inspect actual slots or acoustic pressure.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves the equal-key duplicate and absent-formation-motion arrangements, exact counts and partial canonical carriers. It distinguishes dropping a duplicate or rejecting a valid static aggregate; moving groups and empty/unknown subjects have other units.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh mutable carriers and deletes only its own optional motion field; it opens no file, audio device, decoder, renderer, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two event samples with identical sort keys remain present.).
+ * @evidence contracts/development/common.md#meaningful-documentation Tied event records both survive planning. A static two-member formation retains its resolved aggregate outcome.
  */
 export function test_engine_sound_plan_member_ordering(): void {
   const {

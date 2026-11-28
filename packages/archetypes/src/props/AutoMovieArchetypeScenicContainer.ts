@@ -9,24 +9,21 @@ import type { AutoMovieArchetypePlankCoffer } from "./AutoMovieArchetypePlankCof
 import type { AutoMovieArchetypeScenicBasket } from "./AutoMovieArchetypeScenicBasket";
 import { createScenicContainer as implementation } from "./internal/createScenicContainer";
 
-/** Public scenic-container producer and its authoring vocabulary. */
+/**
+ * Replays the saved scenic container shapes and their supported placement sites.
+ */
 export namespace AutoMovieArchetypeScenicContainer {
   /**
-   * Replay a saved scenicContainer variant with the original dimensions,
-   * identifier and model choices.
+   * Build the scenic container selected by a saved recipe.
    *
-   * A saved cargo pod keeps its original single top surface. The named
-   * `AutoMovieArchetypeCargoPod.create` builds the same geometry and adds the
-   * bottom `mount` for stacking, so the saved selector keeps the surface-only
-   * construction.
-   *
-   * @param params The historic selector and optional fixed settings in the
-   *   original units.
-   * @param seed Draws the omitted settings. Omit it for the original seedless
-   *   defaults.
-   * @returns The original generated model and its local contacts.
-   * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting
-   *   is outside its admitted range.
+   * @param params Saved kind, optional scene ID and finite dimensions
+   *   admitted by that form's bands. The default ID is `scenicContainer`.
+   * @param seed Numeric seed for omitted values. Omission uses the
+   *   midpoint of each selected measurement band.
+   * @returns The named shape with its supported lid `top` or open floor
+   *   `inside`. The saved cargo pod exposes its cap `top`. The named
+   *   CargoPod factory also supplies a bottom mounting socket.
+   * @throws {AutoMovieArchetypeRefusal} If the kind or fixed value is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypeScenicContainer.IParams,
@@ -38,28 +35,28 @@ export namespace AutoMovieArchetypeScenicContainer {
     return implementation(params, seed);
   }
 
-  /** Each saved selector's named producer. */
+  /** The current named factory signatures associated with saved selectors. */
   export interface IProducers {
-    /** The named producer for the saved `coilBasket` selector. */
+    /** The basket producer used with `kind: "coilBasket"`. */
     coilBasket: typeof AutoMovieArchetypeScenicBasket.create;
-    /** The named producer for the saved `woodenFishBasket` selector. */
+    /** The basket producer used with `kind: "woodenFishBasket"`. */
     woodenFishBasket: typeof AutoMovieArchetypeScenicBasket.create;
-    /** The named producer for the saved `plankCoffer` selector. */
+    /** The closed plank coffer producer with an upward lid footprint. */
     plankCoffer: typeof AutoMovieArchetypePlankCoffer.create;
-    /** The named producer for the saved `moldedCrate` selector. */
+    /** The open ribbed crate producer with a supported inner floor. */
     moldedCrate: typeof AutoMovieArchetypeMoldedCrate.create;
-    /** The named producer for the saved `cargoPod` selector. */
+    /** The named cargo pod producer that includes the lower mount. */
     cargoPod: typeof AutoMovieArchetypeCargoPod.create;
   }
 
   /**
-   * The named producer for each saved selector, resolved on demand. A saved
-   * cargo pod keeps its surface-only contacts, so its entry names the producer
-   * the gallery opens.
+   * The named factory lookup used for authoring and gallery previews, including the mounted cargo pod.
    */
   export const PRODUCERS: Readonly<IProducers> = implementation.PRODUCERS;
 
-  /** The four historical scene forms and one fictional design. */
+  /**
+   * Saved selectors for two basket forms, a plank coffer, molded crate and fictional cargo pod.
+   */
   export type Kind =
     | "coilBasket"
     | "woodenFishBasket"
@@ -67,32 +64,35 @@ export namespace AutoMovieArchetypeScenicContainer {
     | "moldedCrate"
     | "cargoPod";
 
-  /** The kinds in order from ancient through fictional future. */
+  /** The five accepted saved selectors in gallery order. */
   export const KINDS: readonly Kind[] = implementation.KINDS;
 
-  /** The closed lid or the floor of an open container, respectively. */
+  /**
+   * Supported `top` on a lid or cap, or supported `inside` at the floor of an open form.
+   */
   export type Affordance = "top" | "inside";
 
   /**
-   * Overall width along X, depth along Z, height along Y in metres, and
-   * estimated prop mass in kilograms.
+   * Exterior width along X, depth along Z and height along Y in metres, and estimated mass in kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /** Units used by the dimension draw. */
+  /** Physical units shared by every scenic container recipe. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = implementation.UNITS;
 
-  /** A selected silhouette and optional fixed members of its dimension bands. */
+  /**
+   * Saved shape, optional scene ID and applicable finite dimensions in the shape's bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The selected silhouette. */
+    /** Selects the body shape, measurements and applicable support site. */
     kind: Kind;
-    /** The model id in the scene. Defaults to scenicContainer. */
+    /** Scene object ID, defaulting to `scenicContainer`. */
     id?: string;
   }
 
-  /** Illustrative sizing bands and their sources by kind. */
+  /** Illustrative sizing and mass ranges indexed by saved shape. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = implementation.BANDS;

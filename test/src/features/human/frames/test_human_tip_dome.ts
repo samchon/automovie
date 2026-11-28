@@ -19,9 +19,7 @@ import { nclose } from "../../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production solve on made reach functions and checks the solved station in the defining equation.
  * @evidence contracts/development/testing.md#independent-expectations The linear case's closed form is derived in the comment above and written out in the test; the defining equation is checked on the result itself.
- * @evidence contracts/development/testing.md#distinguishing-cases A constant and a tapering reach, three shares, a scaled part, the held and the free branch, three refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic on made functions; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States each scenario with its closed form.
+ * @evidence contracts/development/common.md#meaningful-documentation Constant and tapered reaches give closed-form start stations. A short domain clamps the dome start, and invalid share, pole or reach checks refuse.
  */
 export function test_human_tip_dome(): void {
   const failures: string[] = [];

@@ -92,9 +92,7 @@ const semantic: () => IAutoMovieBuiltEnvironment =
  *
  * @evidence contracts/development/testing.md#behavioral-verification Validates actual crossing, sleeve citation, radius/route fit, opening/boundary and waterproof-seal decisions; reads exact authored finding paths, selected counts, warnings and metre overshoots to catch dropped or duplicate diagnoses.
  * @evidence contracts/development/testing.md#independent-expectations Authored references and tanking membership define citation/seal obligations, while 0.025-0.01 metre radius and 0.5-0.1 metre face-offset differences pin overshoots independently. Typed fixtures do not independently prove continuous crossing geometry, exact circular corner fit or built waterproof performance.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers missing/unused/unknown/duplicate sleeves, narrow/adrift penetrations, missing/wrong openings and boundaries, sealed/untanked twins, off-face/oversized/off-void placements and absent face/profile/space volumes. Successful skipped checks are admission only; exact warning counts are separately asserted where owned.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit calls maintained portable Engine validation with the existing service fixture and local record mutations, owning all cases without a browser, renderer, process, native artifact or dynamic registration.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A run stripped of its sleeves is refused for the crossing it makes, and the).
+ * @evidence contracts/development/common.md#meaningful-documentation Exercises missing, unused, narrow and displaced sleeves, boundary and opening citations, and sealing through waterproofing. Checks declared face placement and the admission path when volume, face or profile data is absent.
  */
 export function test_service_penetration_seal(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();

@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenario: held 1 s in a neutral manner, ready at 0.8 s, the stroke at 1.1 s,
  * relaxed at 2.1 s, ending at 2.9 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines timing of the neutral baseball motion's preparation, stroke, authored hold and return.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the timetable with a one-second neutral hold and reads the four named phase times.
+ * @evidence contracts/development/testing.md#independent-expectations Summing 0.8 s preparation and 0.3 s stroke puts the action at 1.1 s. Hold and return end at 2.1 and 2.9 s.
  */
 export function test_motions_sport_baseball(): void {
   const clock: IAutoMovieMotionClock = AutoMovieMotionHumanBaseball.timetable(

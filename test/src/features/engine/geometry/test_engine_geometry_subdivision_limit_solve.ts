@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  *    control is the closed form within 1e-7; the targets stay unchanged.
  * 2. The identity stencil, and the same stencil with both controls held, return
  *    the targets exactly with zero error.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names capped iteration, returned-control residual, source preservation and identity or held controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual subdivision inverse on a stiff two-row stencil and identity controls, comparing its outputs and reported residual.
+ * @evidence contracts/development/testing.md#independent-expectations The target pairs lie on the 0.0005 eigenvector. Summing the geometric Richardson series of 2001 terms fixes the returned controls and residual independently.
  */
 export function test_engine_geometry_subdivision_limit_solve(): void {
   const stencil: IAutoMovieSubdivisionStencil = {

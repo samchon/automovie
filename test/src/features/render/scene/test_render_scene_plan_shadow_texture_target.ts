@@ -14,6 +14,10 @@ import * as THREE from "three";
  * 2. A variance blur target is one RG16F format with no depth texture.
  * 3. A point shadow is square with six faces: 512 under a 4096 limit, and the
  *    limit 256 when that is smaller than the map size.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The light cases describe the directional, variance blur and point target profiles and the texture-size limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that planned format, depth attachment, and face count follow shadow kind and that the point target clamps its square extent.
+ * @evidence contracts/development/testing.md#independent-expectations Uses expected 512-square and 256-square dimensions, the literal RGBA8 and RG16F formats, and one or six faces according to fixture light type.
  */
 export function test_render_scene_plan_shadow_texture_target(): void {
   const directional: THREE.LightShadow = new THREE.DirectionalLight().shadow;

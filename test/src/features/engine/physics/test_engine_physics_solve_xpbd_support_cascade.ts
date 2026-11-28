@@ -24,6 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  *    the edge x = 0.1, 0 and 10; four feet at (+-0.1, +-0.2) with the point at
  *    (0.05, 0.05) share 4.375, 3.125, 1.875 and 0.625, and with it on the edge
  *    x = 0.1, 5, 5, 0 and 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies spatial row contributions and target pressure splits for two and four planted feet.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds normal, tangential and irrelevant-body rows, then solves for interior and edge pressure targets on both contact patterns.
+ * @evidence contracts/development/testing.md#independent-expectations The lever arm gives the stated row moments. A 10 N·s command at x = 0.05 shares 2.5/7.5 between two feet, and the edge allocates 0/10.
  */
 export function test_engine_physics_solve_xpbd_support_cascade(): void {
   const failures: string[] = [];

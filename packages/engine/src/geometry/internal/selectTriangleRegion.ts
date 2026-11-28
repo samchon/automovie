@@ -27,16 +27,16 @@ export function selectTriangleRegion(
 ): number[] {
   const { indices, boundary }: typeof props = props;
   const invalidIndex: (index: number) => boolean = (index: number): boolean =>
-    index < 0;
+    !Number.isSafeInteger(index) || index < 0;
   if (
     indices.length % 3 !== 0 ||
     boundary.length < 3 ||
     new Set(boundary).size !== boundary.length ||
-    indices.some(invalidIndex) ||
-    boundary.some(invalidIndex)
+    indices.findIndex(invalidIndex) !== -1 ||
+    boundary.findIndex(invalidIndex) !== -1
   )
     throw new Error(
-      "A triangle region needs complete triangles and distinct nonnegative boundary vertices.",
+      "A triangle region needs complete triangles and distinct boundary vertices with nonnegative safe integer indices.",
     );
   const key: (a: number, b: number) => string = (
     a: number,

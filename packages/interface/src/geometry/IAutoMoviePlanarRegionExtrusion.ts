@@ -1,12 +1,18 @@
 import type { IAutoMoviePlanarRegion } from "./IAutoMoviePlanarRegion";
 
 /**
- * A planar region extruded symmetrically about its local XY plane.
+ * A planar region and thickness for a symmetric local-Z extrusion, including
+ * through-holes.
  *
- * The Engine's planar-region extruder admits the rings and passes each void
- * through the full depth. The caps lie at local Z = ±depth/2.
+ * Each hole extends through the entire thickness. The resulting mesh has
+ * separate cap and wall corners for sharp creases and metric texture
+ * coordinates.
  */
 export interface IAutoMoviePlanarRegionExtrusion extends IAutoMoviePlanarRegion {
-  /** Positive extrusion depth along local Z, in metres. */
+  /**
+   * Positive finite depth in metres along local Z. The caps are placed at the
+   * negative and positive half-depth. Supply a half-depth that remains nonzero
+   * when represented.
+   */
   depth: number;
 }

@@ -1,107 +1,78 @@
 import type { IAutoMovieRecoverySlabConnectivityGroup } from "./IAutoMovieRecoverySlabConnectivityGroup";
 
 /**
- * Derive closed-loop continuation and isolate source defects by clipped-slab
- * connectivity. Triangle and edge addresses are transient observation evidence
- * and never leave the result.
+ * Callable observation and preparation forms for connected source support
+ * between two cuts.
  */
 
 export namespace IAutoMovieRecoverySlabGraph {
   /**
-   * Derive closed-loop continuation and isolate source defects by clipped-slab
-   * connectivity. Triangle and edge addresses are transient observation
-   * evidence and never leave the result.
+   * Group supplied boundary loops by connected source incidence in one open
+   * scalar slab. Supply aligned input triangle IDs, canonical vertices, finite
+   * heights and increasing bounds. Keep unresolved groups when a support has no
+   * unique component.
    */
 
   export type Observe = (input: {
-    /**
-     * Oriented triangle vertex-index triples addressing the paired position
-     * array; indices are not control IDs.
-     */
+    /** Original source triangle vertex ordinals in input face order. */
     triangles: readonly [number, number, number][];
 
     /**
-     * One in-range canonical connectivity index per original vertex; this does
-     * not move source coordinates.
+     * Original-to-canonical vertex addresses used for clipped edge and vertex
+     * incidence.
      */
     canon: Int32Array;
 
     /**
-     * Finite scalar projections aligned with source vertices, in the same units
-     * as query levels.
+     * Finite source scalar heights in millimetres, aligned with the original
+     * vertices.
      */
     heights: readonly number[];
 
-    /**
-     * Lower physical sweep coordinate in registered millimetres; paired with
-     * the strictly greater afterMm.
-     */
+    /** Finite lower scalar bound in millimetres, strictly below afterMm. */
     beforeMm: number;
 
-    /**
-     * Upper physical sweep coordinate in registered millimetres; paired with
-     * the strictly smaller beforeMm.
-     */
+    /** Finite upper scalar bound in millimetres. */
     afterMm: number;
 
-    /**
-     * Original before-side boundary observations or their source-face support,
-     * retaining the supplied side order.
-     */
+    /** Original-face support sets for lower boundary loops, in caller order. */
     before: readonly ReadonlySet<number>[];
 
-    /**
-     * Original after-side boundary observations or their source-face support,
-     * retaining the supplied side order.
-     */
+    /** Original-face support sets for upper boundary loops, in caller order. */
     after: readonly ReadonlySet<number>[];
 
-    /**
-     * Original face supports of unsupported open, isolated or unrepresented
-     * source contours.
-     */
+    /** Original-face sets for unrepresented or defective source incidence. */
     defects: readonly ReadonlySet<number>[];
 
     /**
-     * Strictly increasing original face indices covering the operation's
-     * complete scalar overlap interval; omission, where allowed, scans all
-     * faces.
+     * Optional increasing original face addresses containing every face that
+     * crosses the open scalar interval. Omission scans all faces.
      */
     candidates?: readonly number[];
 
     /**
-     * Optional private face-support queries with independent ordinals; they
-     * cannot authorize a missing physical boundary.
+     * Optional private original-face support sets whose positions can be
+     * associated with groups.
      */
     probes?: readonly ReadonlySet<number>[];
   }) => IAutoMovieRecoverySlabConnectivityGroup[];
 
   /**
-   * Admit immutable source incidence and scalar heights once for multiple
-   * slabs. Queries supply complete original face IDs in strictly increasing
-   * order, including every face with maximum height above beforeMm and minimum
-   * height below afterMm. Omitting candidates observes every source face.
-   * Boundary supports retain original IDs. Optional private probes query those
-   * same components with a separate ordinal namespace; a probe never supplies a
-   * missing physical boundary or makes a hidden component supported.
+   * Prepare aligned source triangles, vertex aliases and finite scalar heights
+   * once for repeated open-slab queries. Keep those arrays unchanged and supply
+   * source face addresses for all query supports.
    */
 
   export type Prepare = (source: {
-    /**
-     * Oriented triangle vertex-index triples addressing the paired position
-     * array; indices are not control IDs.
-     */
+    /** Original source triangle vertex ordinals, kept unchanged for every query. */
     triangles: readonly [number, number, number][];
 
-    /**
-     * One in-range canonical connectivity index per original vertex; this does
-     * not move source coordinates.
-     */
+    /** Original-to-canonical vertex addresses held by the prepared source. */
     canon: Int32Array;
 
     /**
-     * Finite scalar projections aligned with source vertices, in the same units
-     * as query levels.
+     * Finite signed scalar positions in millimetres, aligned with the source
+     * vertices.
      */
     heights: readonly number[];
   }) => (

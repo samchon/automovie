@@ -5,7 +5,11 @@ import type { IAutoMovieHumanCompositionSchema } from "./IAutoMovieHumanComposit
 import type { IAutoMovieHumanHeadIdentitySchema } from "./IAutoMovieHumanHeadIdentitySchema";
 import type { IAutoMovieHumanPigmentationSchema } from "./IAutoMovieHumanPigmentationSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Detailed Human identity for typia validation. Supply body and head
+ * measurements, body composition and constitutive pigmentation. Nested fields
+ * retain their documented units and left and right measurements.
+ */
 export type IAutoMovieHumanIdentitySchema = IAutoMovieHumanIdentity & {
   /** Trunk, limbs and body landmarks. */
   body: IAutoMovieHumanBodyIdentitySchema;
@@ -13,7 +17,7 @@ export type IAutoMovieHumanIdentitySchema = IAutoMovieHumanIdentity & {
   /** Cranial vault and face frame. */
   head: IAutoMovieHumanHeadIdentitySchema;
 
-  /** Fat and lean mass, which decide surface relief and where volume sits. */
+  /** Whole-body fat, limb lean mass index and regional subcutaneous thickness. */
   composition: IAutoMovieHumanCompositionSchema;
 
   /** Skin and iris pigmentation. */

@@ -2,32 +2,29 @@ import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
 import type { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 
 /**
- * One named rigid member that {@link mergeMeshParts} places and
- * concatenates into an assembly.
- *
- * The merge refuses a blank or repeated `id` and a mesh whose index buffer is
- * malformed, then reports the member's index range under the same `id` as an
- * {@link IAutoMovieMeshGroup}. A placed member goes through
- * `transformMesh`, which refuses a skinned mesh, a non-unit rotation
- * and a scale that collapses an axis; an unplaced member is concatenated as
- * given.
+ * Rigid member input for procedural mesh assembly. Its ID is copied into the
+ * matching output range and its optional transform places the mesh in assembly
+ * coordinates.
  */
 export interface IAutoMovieMeshPart {
   /**
-   * Member identity, non-blank and unique inside one assembly; the merged
-   * mesh's material group for this member carries the same value.
+   * Unique member ID inside one assembly. The merge compares strings as
+   * supplied and preserves the original ID.
    */
   id: string;
 
   /**
-   * The member's unskinned geometry in its own local metre frame. It is read,
-   * never mutated.
+   * Borrowed unskinned geometry in its local metre frame. Merge reads the input
+   * buffers and builds new output buffers.
    */
   mesh: IAutoMovieMesh;
 
   /**
-   * Placement into the assembly frame. Omitted means the mesh is concatenated
-   * in its own frame without copying through a transform.
+   * Optional placement to assembly coordinates. Omission skips the placement
+   * step before concatenation.
+   *
+   * Scaling preserves the original texture coordinates. Their values continue
+   * to measure the unscaled geometry.
    */
   transform?: IAutoMovieMeshTransform;
 }

@@ -25,6 +25,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 2. Past: at chart angles (1.2, 1.1, 0.4), y 0.1 past its end, a zero request
  *    projects to the rate returning exactly the solver's measured excess over
  *    the substep, and to zero on the other axes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes chart limits from independent twist coordinates for combined shoulder rotation.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies actual chart rotations inside and beyond a bound to the solver measurement, velocity projection and own-target motor calculation.
+ * @evidence contracts/development/testing.md#independent-expectations At chart y = 0.9 the rate can reach the upper limit without crossing it. At y = 1.1 a zero request returns the measured 0.1 rad excess over the substep.
  */
 export function test_engine_physics_physical_joint_chart(): void {
   const order: IAutoMoviePhysicalJointAxis["axis"][] = ["z", "y", "x"];

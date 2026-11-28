@@ -25,9 +25,7 @@ import type { IAutoMovieHumanConicSection } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production tape, shift and solve on made sections and measures the solved section again through the production tape.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's perimeter is the Gauss-Kummer series, the bounds are the rhombus and the box of the extremes, and the solved tape is compared with the asked girth; none is read from the solve.
- * @evidence contracts/development/testing.md#distinguishing-cases A longer and a shorter girth, the identity, both refusals of range, two layouts (with and without medians), monotony either side of zero; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic on two made field vectors; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made sections and each scenario's closed form.
+ * @evidence contracts/development/common.md#meaningful-documentation Ellipse perimeter, increasing fullness, requested lengthening and shortening, unreachable girths and unchanged coordinates are evaluated against literal bounds.
  */
 export function test_human_native_girth_closure(): void {
   const failures: string[] = [];

@@ -35,6 +35,10 @@ const TOOL: IAutoMovieMotionHumanStrikingHeld.ITool = {
  *    same.
  * 3. Two frames turned 90 degrees apart about their grip stray by the tip's 0.8
  *    sqrt 2 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a virtual grip frame from target axis, projected edge and offset from the tip, and measures its extremity deviation.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads two explicit tool frames, compares the prepared hand reader and computes deviation after a quarter turn.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.3 m tip offset on an 0.8 m tool puts its hand 0.5 m back. A quarter turn about the fixed grip moves the tip by 0.8√2 m.
  */
 export function test_motions_striking_held(): void {
   const still = StrikingHeld.hand(

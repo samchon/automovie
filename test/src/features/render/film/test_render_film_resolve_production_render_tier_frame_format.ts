@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A proxy at scale 0.5 and step 2 is 960×540 at 24/2 = 12/1 fps with the crop
  *    kept.
  * 3. A proxy at scale 0.001 and step 1 floors to 2×2 at 24 fps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Keeps the final format and computes the proxy's even dimensions, minimum raster and reduced rate.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls frame-format resolution on 1920 × 1080 with crop and two proxy scales.
+ * @evidence contracts/development/testing.md#independent-expectations Half scale gives 960 × 540 and step two turns 24 fps into 12 fps. The tiny proxy reaches 2 × 2 while keeping the requested rate.
  */
 export function test_render_film_resolve_production_render_tier_frame_format(): void {
   const source: IAutoMovieProductionDesign["frameFormat"] = {

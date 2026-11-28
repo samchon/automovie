@@ -26,6 +26,10 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  * 3. The largest fitting source offset survives planning, and the mixed master has
  *    the authored stereo extent, audible bounded peaks and admitted event
  *    alignment.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name trimmed events, moving and fixed emitter families, source cue offsets, and a bounded three-second stereo master.
+ * @evidence contracts/development/testing.md#behavioral-verification The test derives the plan from the prepared film and inspects event placement, pan, gain and cue offsets. It renders the plan with one dialogue input and checks PCM size, peak and alignment.
+ * @evidence contracts/development/testing.md#independent-expectations The timeline supplies six retained events and the cue offset that fits the source. Authored subject positions decide the sign of pan and the formation changes position between its events. Exactly three seconds at 48 kHz yield 144,000 stereo sample frames.
  */
 export function test_engine_film_production_sound(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();

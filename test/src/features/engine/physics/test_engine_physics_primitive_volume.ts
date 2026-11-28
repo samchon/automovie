@@ -17,6 +17,10 @@ import { nclose } from "../../internal/predicates";
  * 3. Radius 2 gives sphere 4/3 pi 8, cylinder (h 3) 12 pi, cone (h 3) 4 pi,
  *    capsule (h 3) 12 pi + 32 pi / 3; a plane has no volume; a cone of height 4
  *    has its centroid at y = 1 and a sphere at the origin.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies solid volume and local centroid, covering scaled radii, the cone's off-center centroid and the zero-volume plane.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both primitive readers directly with boxes, spheres, cylinders, cones, capsules and a plane.
+ * @evidence contracts/development/testing.md#independent-expectations Closed forms from the supplied dimensions give box volume 24, radius-two sphere volume 32π/3, and cones' centroids at one quarter of their height.
  */
 export function test_engine_physics_primitive_volume(): void {
   const close = (a: number, b: number): boolean => nclose(a, b, 1e-12);

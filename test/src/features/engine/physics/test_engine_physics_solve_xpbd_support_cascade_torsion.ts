@@ -51,6 +51,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 7. A bound's room never goes below nothing: an impact the contact passes already
  *    gave past the bound is the floor's, not taken back through the other
  *    supports (Herzog et al. 2016, Section 5.3; unilateral contact).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains constrained sole yaw friction, landing allowance and heading servo saturation.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps a free 10 kg body under yaw with four and one sole, toggles requested moment and landing cap, and advances the heading servo.
+ * @evidence contracts/development/testing.md#independent-expectations The sole capacity is 0.8 × 0.15 × 98.1 = 11.77 N·m. Free and fully canceled yaw, bounded slip, quarter weight entry and the 2 s settling limit distinguish the cases.
  */
 export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
   const findings: string[] = [];

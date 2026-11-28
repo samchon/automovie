@@ -21,11 +21,9 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Each grouping with four genuine 1 kg parts still breaks at the authored
  *    1 J threshold, carries total mass 4 kg and has zero velocity at zero momentum.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Derives the binary64 overflow midpoint and distinguishes malformed external mass records from the valid authored positive controls.
- * @evidence contracts/development/testing.md#behavioral-verification Consumes real public AutoMovieArchetype.broken for both fragment groupings, checks the structured mass-admission axis and complete returned mass/velocity for controls; no arithmetic implementation is replaced.
- * @evidence contracts/development/testing.md#independent-expectations MAX_VALUE's adjacent spacing is 2^971, so three exact 2^969 contributions exceed its half-ULP overflow midpoint even though each isolated addition rounds away. Four unit masses sum exactly to 4 and zero momentum independently gives zero velocity.
- * @evidence contracts/development/testing.md#distinguishing-cases Per-piece and cross-fragment totals, false-finite positive overflow, one/four fragments, exact threshold and finite valid controls.
- * @evidence contracts/development/testing.md#execution-ownership One portable discovered in-memory unit owns its authored boxes and deliberately malformed producer record; it starts no compiler, process, renderer or host and changes no runtime implementation.
+ * @evidence contracts/development/common.md#meaningful-documentation Derives the positive binary64 overflow midpoint and describes the one-fragment, four-fragment and exact-threshold controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `broken` with actual colliders and deliberately malformed mass records. It checks overflow for both within-piece and across-fragment aggregation and verifies the total mass and final velocities of the valid controls.
+ * @evidence contracts/development/testing.md#independent-expectations `Number.MAX_VALUE` has adjacent spacing `2^971`. Three positive `2^969` terms exceed its half-ULP overflow midpoint although each isolated addition rounds to the original value. Four unit masses sum to 4 and zero momentum gives zero velocity.
  */
 export function test_archetype_fracture_mass_sum(): void {
   const findings: string[] = [];

@@ -33,9 +33,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production `at`, `place` and `height` on a made template and a made frame.
  * @evidence contracts/development/testing.md#independent-expectations Scaled centres and extents are hand products; the placed centre is the rotation's closed form in sines and cosines; the heights are the polynomial's values written out.
- * @evidence contracts/development/testing.md#distinguishing-cases Three classes under tissue, a skeleton change along and across with the third coordinate kept, two poses of the frame, centre, interior, edge and outside of the footprint, two refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made feature and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation The made feature checks local scaling and world placement, its height law and plateau, invalid footprint controls, and placement between two specified landmarks.
  */
 export function test_human_feature_template(): void {
   const failures: string[] = [];

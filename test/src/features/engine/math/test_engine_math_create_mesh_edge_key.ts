@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/predicates";
  *    direction distinct. Counts 0 and 1 prepare; MAX_SAFE_INTEGER prepares
  *    exact directed keys; its next count, and a negative count, are refused
  *    with "nonnegative safe vertex count".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers directed key uniqueness, the numeric-to-string boundary, and safe population admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares the encoder with concrete populations and reads directed pairs, including all 49 pairs for seven vertices. It exercises invalid preparation with the same factory.
+ * @evidence contracts/development/testing.md#independent-expectations Exact BigInt arithmetic establishes the largest safe numeric keys and shows a pair collision if larger integers were rounded to doubles. Delimited keys keep direction and adjacent integer endpoints distinct.
  */
 export function test_engine_math_create_mesh_edge_key(): void {
   const small = AutoMovieEngineMath.createMeshEdgeKey(10);

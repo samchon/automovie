@@ -19,6 +19,11 @@ const CAMERA_TOLERANCE: number = 1e-9;
  * 4. A subject's own view is read at the drawn second and takes no switch.
  * 5. A named view with nothing to frame, an unknown name and a picture of no
  *    size are refused.
+ * 6. A crop or zoom changes the exact key while preserving the lens summary.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe film-camera reuse, fixed lens placement, orthographic image scale, timed subject views and refusal controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that resolved camera and record retain the requested viewpoint and that missing bounds, unknown names, switches on subject views and zero raster size are refused.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the original film camera identity, literal view positions and `0.1 × 50 / 2 = 2.5` m for the orthographic half-height.
  */
 export function test_render_scene_resolve_inspection_view(): void {
   const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 2, 0.1, 100);
@@ -37,6 +42,24 @@ export function test_render_scene_resolve_inspection_view(): void {
       ...patch,
     });
   TestValidator.predicate("film", resolve("film").camera === film);
+  const crop: THREE.PerspectiveCamera = film.clone();
+  crop.setViewOffset(100, 50, 0, 0, 50, 50);
+  const zoom: THREE.PerspectiveCamera = film.clone();
+  zoom.zoom = 2;
+  zoom.updateProjectionMatrix();
+  const point: THREE.Vector3 = new THREE.Vector3(0.7 * 5 * Math.tan(20 * Math.PI / 180) * 2, 0, -5);
+  const keys: Set<string> = new Set();
+  for (const [camera, expected] of [[film, 0.7], [crop, 2.4], [zoom, 1.4]] as const) {
+    const { record } = resolve("film", { camera });
+    TestValidator.equals("lens summary remains descriptive", record.fovDeg, 40);
+    TestValidator.predicate("different applied projection", Math.abs(point.clone().project(camera).x - expected) < CAMERA_TOLERANCE);
+    const key: string | null = AutoMovieRenderInspectionCamera.projectionKey(record.projectionIdentity);
+    TestValidator.predicate("native projection key", key !== null);
+    keys.add(key!);
+  }
+  TestValidator.equals("three exact keys", keys.size, 3);
+  TestValidator.equals("legacy absent key", AutoMovieRenderInspectionCamera.projectionKey(undefined), null);
+  TestValidator.equals("fractional raster lacks exact pixel identity", resolve("film", { width: 100.5 }).record.projectionIdentity, undefined);
 
   const fixed = resolve("0,0,5:0,0,0");
   TestValidator.equals(

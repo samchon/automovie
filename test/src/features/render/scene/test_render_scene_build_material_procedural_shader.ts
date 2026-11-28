@@ -39,6 +39,10 @@ import { nclose } from "../../internal/nclose";
  * The compiled program's pixels are not observed here: a float-target capture
  * on a real GPU, under the visual-debugging skill, compares the shader's base
  * colour with the CPU samples.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names hook insertion, sampled UV transform and the distinct program-key families.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a physical material and invokes its shader compile hook. Reads the returned shader source, axis, color and surface uniforms and cache keys, then samples the Engine reference at 64 fixed UV points.
+ * @evidence contracts/development/testing.md#independent-expectations The surface's UV transform, repeat and offset independently define each sample coordinate. The reference surface supplies axes, colors and material constants. Seeds select surface values within one program family, while procedural kind and sampling space distinguish the expected keys.
  */
 export function test_render_scene_build_material_procedural_shader(): void {
   const piece: IAutoMovieProceduralSurface = {

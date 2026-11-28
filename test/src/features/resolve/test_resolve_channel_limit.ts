@@ -54,9 +54,7 @@ const limit: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls applyChannelLimit and observes projected components plus original-value diagnostics, catching lost null freedoms, wrong min/max direction, reordered crossings or accepted invalid intervals and widths.
  * @evidence contracts/development/testing.md#independent-expectations Interval projection gives max(0,-3)=0 and min(50,100)=50 while the unbounded 99 stays; authored limits determine diagnostic side/component/order and original values, independently of the result.
- * @evidence contracts/development/testing.md#distinguishing-cases Free, mixed and already-inside vectors accompany reversed bounds and extra bound components; coupled quaternion or anatomical constraints are outside this component-only seam.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_channel_limit entry synchronously executes the actual numerical helper and portable refusal cases; it starts no native renderer and changes no global implementation.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A both-sides-null limit clamps nothing and reports no violation: the value).
+ * @evidence contracts/development/common.md#meaningful-documentation Null bounds and an in-range sample preserve values. Mixed bounds clamp selected components, and inverted or over-width active bounds refuse.
  */
 export function test_resolve_channel_limit(): void {
   // 1. both sides null → untouched

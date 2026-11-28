@@ -169,6 +169,10 @@ const plan: (
  * 5. An audio cue joins its asset by path and must name exactly the asset's sample
  *    count; one sample short and a missing asset are both refused, as is a shot
  *    without a source digest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Plans content-addressed chunks at final and proxy tiers and checks effect and audio inputs against the current production.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the planner on prepared film, guides, captions, current and stale effects, and audio with exact or missing sample coverage.
+ * @evidence contracts/development/testing.md#independent-expectations A 48-frame edit gives ranges 0–20, 20–40 and 40–48. Half scale and step two independently imply 24 frames and an 8 × 8 raster. ID assertions cover uniqueness and repeatability.
  */
 export function test_render_film_plan_production_render_job(): void {
   const final: IAutoMovieProductionRenderJobPlan = plan();

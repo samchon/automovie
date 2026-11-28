@@ -6,88 +6,57 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "..";
 
-/**
- * Bind actual cut-emitting faces and published contour identities to clipped
- * source slabs. The same physical scalar chart drives source cells and PL
- * critical classification. All components and issues survive; only actual
- * segment/contact provenance supplies ports, never endpoint-star witnesses.
- * Copy the observed raw-node, alias and halfedge registries with their input
- * ordinal spaces so boundary words remain joinable without parsing IDs.
- * Measured critical brackets do not imply curves fitted at those bracket
- * planes, exact material phase transport or transverse jets.
- */
+/** Callable source observation of requested physical slabs between known cuts. */
 
 export namespace IAutoMovieRecoverySourceSlabsObservationOperation {
   /**
-   * Bind actual cut-emitting faces and published contour identities to clipped
-   * source slabs. The same physical scalar chart drives source cells and PL
-   * critical classification. All components and issues survive; only actual
-   * segment/contact provenance supplies ports, never endpoint-star witnesses.
-   * Copy the observed raw-node, alias and halfedge registries with their input
-   * ordinal spaces so boundary words remain joinable without parsing IDs.
-   * Measured critical brackets do not imply curves fitted at those bracket
-   * planes, exact material phase transport or transverse jets.
+   * Observe requested source slabs using prepared source incidence, finite
+   * physical heights and prior exact cut publications. Report clipped
+   * components, cut-port status and critical observations. Checkpoint and
+   * observation hooks run synchronously.
    */
 
   export type Operation = (input: {
     /**
-     * Source incidence or chart preparation shared by the operation; its
-     * borrowed arrays remain stable for the pass.
+     * Prepared original source mesh, canonical incidence and supporting face
+     * indices.
      */
     prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>;
 
-    /**
-     * Finite scalar projections aligned with source vertices, in the same units
-     * as query levels.
-     */
+    /** Finite original-vertex heights in registered millimetres. */
     heights: readonly number[];
 
-    /**
-     * Registered unit sweep axis; its direction fixes signed section
-     * coordinates.
-     */
+    /** Unit cutting normal defining the scalar coordinates. */
     axis: [number, number, number];
 
     /**
-     * Whether registration explicitly authorizes exact-coordinate alias
-     * grouping; no distance tolerance is used.
+     * Whether exact-coordinate aliases own the clipped region's incidence
+     * identities.
      */
     exactCoordinateAliases: boolean;
 
     /**
-     * Prepared immutable scalar face-interval index reused by all selected
-     * plane or slab queries.
+     * Scalar source index shared by the interval and its individual boundary
+     * cuts.
      */
     index: ReturnType<IAutoMovieRecoveryScalarIndex.Create>;
 
-    /**
-     * Admitted saved-section pair records or their counted population,
-     * preserving the caller's pair order.
-     */
+    /** Requested increasing millimetre bounds in caller pair order. */
     pairs: readonly IAutoMovieRecoverySlabPair[];
 
-    /**
-     * Complete saved-plane coordinates in registered millimetres, in
-     * publication order.
-     */
+    /** Physical stations available as observed cut addresses. */
     sectionCoordinatesMm: readonly number[];
 
     /**
-     * Complete original contour-publication lineage used to bind ports without
-     * inventing a fitted curve.
+     * Contour publications with original exact cut-emitting triangle addresses
+     * at each endpoint.
      */
     publications: readonly IAutoMovieRecoverySourceLineage[];
 
-    /**
-     * Synchronous cooperative cancellation/work checkpoint; a thrown exception
-     * aborts the current operation.
-     */
+    /** Optional synchronous check called before a slab is observed. */
     checkpoint?: () => void;
 
-    /**
-     * Synchronous observation callback; caller-owned work and retained copies
-     * are outside the numerical operation's resource bound.
-     */
+    /** Optional synchronous observer called with the completed slab record. */
     observe?: (record: IAutoMovieRecoverySlabObservation) => void;
   }) => IAutoMovieRecoverySlabObservation[];
 }

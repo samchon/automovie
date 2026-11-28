@@ -99,6 +99,10 @@ function prop(
  * 1. Admit both tips at the same height as the raised body and keep the
  *    load-bearing foot raised.
  * 2. Refuse a crutch whose tip hovers above that same floor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines support admission at the entering body's floor and the displayed prop pivot from staged or supplied origin.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans a raised walk with both tips touching, raises one tip and compares default and explicit pivot placement.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's raised floor fixes the sound foot's landing. A tip hovering above it refuses and the actual displayed rotation observes the authored pivot override.
  */
 export async function test_motions_lexicon_crutch_raised_support(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

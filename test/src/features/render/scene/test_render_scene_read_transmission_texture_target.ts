@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    half-float and authored requested sample counts remain.
  * 2. An absent viewport uses the supplied host; structural/camera viewport facts
  *    override it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe absent and present half-float capabilities, requested sample counts and explicit viewport precedence.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that target planning chooses byte or half-float color and retains requested samples, with supplied viewport dimensions overriding the fallback host.
+ * @evidence contracts/development/testing.md#independent-expectations Uses separately supplied capability flags and viewport dimensions to specify expected format, extent, and sample values.
  */
 export async function test_render_scene_read_transmission_texture_target(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

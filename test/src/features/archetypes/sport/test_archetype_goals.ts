@@ -18,11 +18,9 @@ const MM: number = 1e-3;
  * 3. Over 200 seeds a volleyball net's top lies exactly at FIVB's 2.43 m for men or 2.24 m for women, both drawn, and a net height an author fixes is refused on height, since it is the class's own figure; its posts 2.55 m high and 0.50 to 1.00 m outside side lines 9 m apart.
  * 4. A tennis net's cord runs from ITF's 1.07 m at the posts to 0.914 m at the centre, its posts' centres 0.914 m outside a 10.97 m doubles court.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a goal, ring or net off its rule's figures is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Every figure is the IFAB's, FIBA's, FIVB's or ITF's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases Four kinds with different contacts: an opening under a bar, a ring before a board, a long net top, a sagging cord.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the football opening, basketball rim and board, volleyball height classes and tennis cable geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures public goal, ring and net records. The volleyball cases distinguish both height classes and the fixed-height refusal, and the tennis cable is read at the centre and posts.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal IFAB, FIBA, FIVB and ITF measurements. The football mouth is measured between the posts and below the bar, and the basketball opening is measured at the ring's interior.
  */
 export function test_archetype_goals(): void {
   const findings: string[] = [];

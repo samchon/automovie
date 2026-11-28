@@ -13,6 +13,10 @@ import { throwsError, vclose } from "../../internal/predicates";
  * 1. Weights (½, ¼, ¼) on (0,0,1), (2,0,1), (0,2,1) give (0.5, 0.5, 1).
  * 2. Weights summing to zero or three, or with a negative entry, are refused.
  * 3. The largest finite coordinate with unit weight is seated exactly.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers a worked triangle seat, simplex admission and a seat at the largest finite coordinate.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls interpolateTrianglePoint with three typed XYZ points and explicit weights. It checks the seat coordinates and exercises zero-sum, excessive-sum and negative weights.
+ * @evidence contracts/development/testing.md#independent-expectations The weighted sum of the worked vertices is (0.5, 0.5, 1). A unit weight must retain that vertex, including when the coordinate is the largest finite double. The invalid weights lie outside the simplex.
  */
 export function test_engine_math_interpolate_triangle_point(): void {
   // 1. The worked seat.

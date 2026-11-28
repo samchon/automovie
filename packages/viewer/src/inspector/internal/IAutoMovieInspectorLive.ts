@@ -5,10 +5,10 @@ import type {
 } from "@automovie/render";
 import type * as THREE from "three";
 
-import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty";
 import type { AutoMovieViewerInspectorPlayhead } from "../AutoMovieViewerInspectorPlayhead";
-import type { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition";
 import type { IAutoMovieViewerInspectorSceneHost } from "../IAutoMovieViewerInspectorSceneHost";
+import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty";
+import type { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition";
 
 /*
  * What an inspector mount holds once its subject is ready: the subject and the
@@ -79,6 +79,9 @@ export interface IAutoMovieInspectorLive {
    * Whether a seek is pending, during which no other draw starts.
    */
   seeking: boolean;
+
+  /* Whether a change involving trails still needs a settled inspection. */
+  trailRequestPending: boolean;
 
   /*
    * The drawing error last reported, or null.

@@ -15,6 +15,12 @@ import { TestValidator } from "@nestia/e2e";
  *    accepts 90; the refusal texts read "[0, 90]" for -1 and "(0, 90]" for 91.
  * 3. An unbounded maximum accepts the finite value 1 under either upper endpoint
  *    policy.
+ * 4. Unbounded endpoints preserve the full finite scalar range. Infinities
+ *    and NaN produce one located diagnostic with the authored value.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers open and closed scalar bounds, interval text, finite values at machine extremes, and refusal of infinities and NaN under unbounded endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `validateRange` with explicit and default inclusivity. It checks rejection paths, diagnostic text, and preserved values, including each non-finite input when both bounds are infinite.
+ * @evidence contracts/development/testing.md#independent-expectations The finite endpoints distinguish open from closed. Values -1 and 91 lie outside [0, 90]. Zero and both signed MAX_VALUE values lie inside an unbounded finite domain, and neither infinity nor NaN belongs there.
  */
 export function test_engine_validation_range(): void {
   const camera = (value: number): IAutoMovieConstraintViolation[] => {
@@ -65,4 +71,41 @@ export function test_engine_validation_range(): void {
     );
     TestValidator.equals(`unbounded ${inclusiveMax}`, unbounded, []);
   }
+  for (const [inclusiveMin, inclusiveMax] of [
+    [true, true],
+    [false, false],
+  ] as const)
+    for (const [value, admitted] of [
+      [-Number.MAX_VALUE, true],
+      [0, true],
+      [Number.MAX_VALUE, true],
+      [-Infinity, false],
+      [Infinity, false],
+      [NaN, false],
+    ] as const) {
+      const findings: IAutoMovieConstraintViolation[] = [];
+      AutoMovieEngineValidation.validateRange(
+        value,
+        "$finite",
+        -Infinity,
+        Infinity,
+        "field",
+        findings,
+        inclusiveMin,
+        inclusiveMax,
+      );
+      const row: IAutoMovieConstraintViolation | undefined = findings[0];
+      TestValidator.predicate(
+        `finite range ${value} with inclusive endpoints ${inclusiveMin}`,
+        admitted
+          ? findings.length === 0
+          : findings.length === 1 &&
+            row?.kind === "range" &&
+            row.severity === "error" &&
+            row.path === "$finite" &&
+            row.expected ===
+              `field must be finite and ${inclusiveMin ? ">=" : ">"} -Infinity, but was ${value}` &&
+            Object.is(row.value, value),
+      );
+    }
 }

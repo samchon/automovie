@@ -26,6 +26,10 @@ import { hasViolation, nclose } from "../../internal/predicates";
  *    `$shots[1].duration`.
  * 4. A frame rate of 0 with no entries is refused with a range finding at
  *    `$input.fps` and a type finding at `$input.entries`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the source shots, trim and overlap for the successful cut and the indexed findings for malformed shots and edit plans.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls cutSequence on the authored shot records and observes timeline identity, shot order, rate and runtime. It submits duplicate identities, a zero-duration shot and an empty edit with a zero rate separately.
+ * @evidence contracts/development/testing.md#independent-expectations Three authored play lengths of 3, 2 and 3 seconds overlap for 0.5 seconds, giving 7.5 seconds in order. The duplicate and zero durations follow from the supplied records, and the empty zero-fps case owes one finding at each corresponding input field.
  */
 export function test_engine_film_cut_sequence(): void {
   const shot = (id: string, duration: number): IAutoMovieShot => ({

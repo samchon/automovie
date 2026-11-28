@@ -31,9 +31,12 @@ const ROUNDING: number = 1e-12;
  * 2. Against a 1.5 s copy whose left hand stands 0.1 m higher, the distance is 0.1
  *    on the left hand, first at 0 s, and the lengths differ by 0.5 s.
  * 3. Against its mirror image about x = 0.5, read with `mirror: 0.5`, it is 0;
- *    read without the mirror, every joint lies 1 m off in x (the hips at 1, the
- *    left hand at 1.2 against 0.2).
+ *    the ordinary comparison gives a maximum distance of 1 m.
  * 4. A second motion without a hand is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names self-comparison, a raised hand and shorter motion, lateral reflection, comparison without reflection and a missing joint.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditDifference.measure on paired synthetic posed-bone readers and checks distance, bone, first occurrence, duration difference and refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.1 m hand offset and 2 minus 1.5 s lengths determine two independent results. Reflection around x = 0.5 and a side swap restore the base; the ordinary comparison has a largest joint offset of 1 m.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_difference_measure(): void {
   const place = (

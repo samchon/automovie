@@ -12,11 +12,9 @@ import { nclose } from "../../internal/nclose";
  * 2. At equal height the mace ornament is round, the pike is narrower than the shuo, and the halberd extends to one side.
  * 3. The same authored outline reproduces its geometry and rejects a zero height.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Covers the common rest and grip conventions, distinctions in shape, reproducibility and admission.
- * @evidence contracts/development/testing.md#behavioral-verification Inspects the generated parts, collider extents and named grip via the public producer.
- * @evidence contracts/development/testing.md#independent-expectations Tests relative silhouettes and a caller-selected height without copying the producer's ratios.
- * @evidence contracts/development/testing.md#distinguishing-cases Equal-height props distinguish round, narrow, wide and asymmetric ornaments, with a zero-height refusal.
- * @evidence contracts/development/testing.md#execution-ownership The feature runner discovers the in-memory test through its exported function, with no external hosts.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the four stage-prop silhouettes, their floor and grip conventions, replay and invalid height.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public stage-prop models' actual collider extents and shaft grip records. Equal-height samples distinguish round, narrow and asymmetric ornaments, and a zero-height input must refuse.
+ * @evidence contracts/development/testing.md#independent-expectations Uses a caller-set overall height and relative silhouette inequalities from the stated prop designs. Roundness checks compare the ornament's two horizontal extents.
  */
 export function test_archetype_props_stage_weapon_silhouettes(): void {
   const height: number = 1.25;

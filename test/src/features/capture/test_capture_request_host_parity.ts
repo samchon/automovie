@@ -16,9 +16,7 @@ import { throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Parses `URLSearchParams` and `readCaptureArguments` output through the public reader and compares the requests; a host mapping that dropped, renamed or reinterpreted a key, or an argument reader that swallowed a dash value, fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected request members are the values this test writes, with units and defaults from the reader's documented table; equality of the two hosts' requests needs no oracle beyond the shared text.
- * @evidence contracts/development/testing.md#distinguishing-cases Every switch form, dash-leading values against option-like arguments, an empty `=` value, and both argument refusals. Unknown keys, malformed values and the round trip are owned by `test_capture_request_unknown_key`, `test_capture_request_malformed_value` and `test_capture_request_round_trip`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_request_host_parity`; it builds its text in memory and starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation URL and command-line mappings read the same full request, handle switch spellings and dash-leading values, and refuse positional or repeated options.
  */
 export function test_capture_request_host_parity(): void {
   // 1. A full request through both hosts.

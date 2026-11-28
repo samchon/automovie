@@ -14,10 +14,14 @@ import { standingPerformanceState } from "../../internal/fixtures/standingPerfor
  * Scenarios, on the standing fixture's first stand entered by an inertialized
  * cut at 2 s blending 0.5 s:
  *
- * 1. With nothing held or stopped and no transition, every second is observable.
+ * 1. The plain segment is observable at its two tested seconds.
  * 2. Within the blend (2.4 s) it is not; at its end (2.5 s) and after it is.
  * 3. A redirect blends no offset and is observable inside its blend.
  * 4. A held prop or a stopped weapon makes no second observable.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names observation decisions for a plain segment, an inertialized or redirected entry, and reads owned by holds or weapon stops.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the observation gate on standing segment variants with explicit transition duration, holds, and stops. It compares sentinel seconds inside, at the end, and after the inertialized entry.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.5 s blend beginning at 2 s owns 2.4 s, and releases the pose reader at 2.5 s. A redirect at the same interval is observable at 2.2 s. The plain case and the added hold and stop distinguish why direct bone observation succeeds or yields.
  */
 export async function test_motions_perform_observable_segment(): Promise<void> {
   const { state } = await standingPerformanceState();

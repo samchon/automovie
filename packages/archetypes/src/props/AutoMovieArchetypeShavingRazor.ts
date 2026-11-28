@@ -1,19 +1,23 @@
 import { type AutoMovieArchetype } from "../core";
 import { GroomingPropDraw } from "./internal/GroomingPropDraw";
 
-/** Creates a razor archetype with a grip and a cartridge face. */
+/**
+ * Constructs either Mach3-format razor with a handle grip and upward cartridge.
+ */
 export namespace AutoMovieArchetypeShavingRazor {
 
 /**
- * Shaving razor scene prop with a grip and a +Y cartridge face.
+ * Build a razor with the handle at Z zero and cartridge toward `+Z`.
  *
- * @param params The optional scene ID, manufacturer model, and handle diameter
- *   in metres.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * The handle grip is centred on the shaft. The cartridge's working
+ * surface points `+Y` and spans 0.04 by 0.015 metres.
+ *
+ * @param params Optional scene ID, a recorded model and a finite
+ *   handle diameter in metres.
+ * @param seed Numeric seed for omitted values. Omit it for the
+ *   Edwin Jagger model, 0.129 metres long and 0.087 kilograms.
+ * @returns A handle with `grip` and a flat cartridge with `face`.
+ * @throws {AutoMovieArchetypeRefusal} If the model or diameter is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeShavingRazor.IParams = {},
@@ -51,26 +55,24 @@ export function create(
 
   /* The contacts and dimensions of {@link AutoMovieArchetypeShavingRazor}. */
   /**
-   * The original producer parameters.
+   * Optional ID, finite handle diameter and a recorded Edwin Jagger or Gillette model.
    */
   export interface IParams {
-    /** The razor identifier, unique within its scene. */
+    /** Scene object ID, defaulting to `careItem`. */
     id?: string;
-    /** The handle diameter in metres when fixed by the author. */
+    /** Finite handle diameter in metres within the razor's width band. */
     width?: number;
-    /** An Edwin Jagger or Gillette Mach3 razor model; omitted for seeded selection. */
+    /**
+     * Selects `edwinJagger` or `gilletteMach3`. The first is the seedless default.
+     */
     model?: Extract<GroomingPropDraw.Model, "edwinJagger" | "gilletteMach3">;
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Power `grip` at the handle midpoint and upward cartridge `face`. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Overall Z length and handle diameter as `width`, in metres. Mass is in kilograms.
    */
   export type Dimension = "length" | "mass" | "width";
 }

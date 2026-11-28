@@ -34,6 +34,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  *
  * The bodies are built whole (`humanFixtureBody`): the reading places the
  * tangle model's probes and colliders on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the separated and coincident poses and the returned hip involvement, depths and time.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditTangle.across on displayed bones of two stored bodies, first separated by 2 m and then at common coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations The 2 m separation clears the stance widths. Coincident hip geometry has positive depth, and the single-pose call assigns every returned pair second 0.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_tangle_across(): Promise<void> {
   // Reads every segment's colliders and tangle probes (`body.tangle`), a whole-body read.

@@ -17,6 +17,10 @@ const TIME_ROUNDING: number = 2 * Number.EPSILON;
  * 1. A span already on frame 2 advances to frame 3.
  * 2. A span halfway between frames 2 and 3 advances to the same frame.
  * 3. An unbounded duration remains unbounded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the first admission frame strictly after the request and preserves unbounded duration.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries duration at exact frame 2, halfway to frame 3 and at infinity.
+ * @evidence contracts/development/testing.md#independent-expectations Both finite fixtures advance to frame 3 on the stated 30 Hz clock, including the exact frame boundary.
  */
 export function test_motions_posture_arm_pace(): void {
   TestValidator.predicate(

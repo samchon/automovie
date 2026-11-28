@@ -31,6 +31,10 @@ const ROUNDING: number = 1e-9;
  *
  * The body is built whole (`humanFixtureBody`): the reading places the body's
  * colliders on its displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a raised pose, two translated sinking poses and the same shallow pose over a higher bank.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditGround.floor on stored collider bones displaced by authored vertical translations, with world and elevated support floors.
+ * @evidence contracts/development/testing.md#independent-expectations A raised body clears the floor. A 0.1 m change in whole-body vertical translation changes every penetration equally, so the same collider still wins. Adding 0.3 m to the support height adds 0.3 m of depth.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_ground_floor(): Promise<void> {
   // Reads every collider of the body (`HumanColliders.placed`), a whole-body read.

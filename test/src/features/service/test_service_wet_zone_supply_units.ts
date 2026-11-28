@@ -25,11 +25,9 @@ import {
  * 2. Volumetric cold-water and other media retain their declared positive or zero demand.
  * 3. Ports outside the selected room, outgoing ports and nonplumbing systems remain unselected.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States which selected units refuse, which media remain supported and which adjacent inputs must remain unselected.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks wet-zone source lowering for positive and zero volumetric demand. Exercises independently incompatible system and port units and skips outgoing ports, other rooms and nonplumbing systems.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public lowerWetZoneDrainage and observes Error refusals, the derived source id/cell/rate and preservation of the authored source and input source count. It catches treating power, current, bandwidth or dimensionless demand as fluid volume.
  * @evidence contracts/development/testing.md#independent-expectations A fluid source measures cubic metres per second; the other four supported service units cannot be copied into that quantity. A node at half a metre on a one-metre single-cell grid belongs to cell zero, and lowering must preserve the authored demand without conversion. Zero tolerance checks copied values rather than a fluid simulation.
- * @evidence contracts/development/testing.md#distinguishing-cases Independently changes port and system units, includes equal incompatible units with medium other, positive/zero volumetric demand and three nonselected neighbors. Existing wet-zone drainage tests own drains, lattice failures, id collisions and full network admission.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit supplies an in-memory domain and uses existing service fixture factories; it invokes no solver, process, renderer or foreign override.
  */
 export function test_service_wet_zone_supply_units(): void {
   const domain: IAutoMovieFluidDomain = {

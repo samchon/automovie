@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An orthographic one adds its scale, `@ortho=0.1`.
  * 3. An up that is not the one +Y implies is written, `@up=1,0,0`, and so is the
  *    up of a camera looking straight down, which +Y cannot imply.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The three camera cases describe the default up vector, the orthographic scale, and the explicit up vectors needed to reproduce an inspection camera.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the fixed-view text retains the camera position, target, scale, and up vector required by the selected projection and direction.
+ * @evidence contracts/development/testing.md#independent-expectations Compares with literal view strings that name the positions, `@ortho=0.1`, and both explicit up vectors.
  */
 export function test_render_scene_format_inspection_camera_view(): void {
   const camera = (patch: {

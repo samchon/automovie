@@ -17,6 +17,10 @@ import { nclose } from "../../internal/nclose";
  *    and damping 27 / 8.
  * 4. A missing prediction supports no update and keeps the damping.
  * 5. A damping that is not positive is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the damping change for full, half, poor and absent agreement.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the update at authored ratios and one invalid damping.
+ * @evidence contracts/development/testing.md#independent-expectations For starting damping three, agreement one gives one, one half gives three, and one quarter gives 27/8.
  */
 export function test_recovery_internal_update_regularization(): void {
   const full: ReturnType<typeof AutoMovieRecoveryCameraMap.updateRegularization> =

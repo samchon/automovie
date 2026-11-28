@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  *    and a repeat "en-u-aaa-u-bbb" do not.
  * 8. Private use: "x-movie" and "en-US-x-movie-01" pass; "x" and "en-US-x" do not;
  *    "en-US-999999" is a variant and "en-US-abc" and "en-12" place no subtag.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Preserves authored language spelling and validates the major RFC 5646 subtag forms and malformed boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the parser on ordinary, grandfathered, extension and private-use tags, paired with malformed lengths, repeats and separators.
+ * @evidence contracts/development/testing.md#independent-expectations Expected spellings and lowercase keys are literal grammar examples. Adjacent length and multiplicity boundaries distinguish accepted forms from loose tokenization.
  */
 export function test_render_caption_parse_language(): void {
   TestValidator.equals(

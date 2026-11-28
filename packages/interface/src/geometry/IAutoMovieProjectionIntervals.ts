@@ -1,21 +1,22 @@
 /**
- * Outward-enclosed projections of represented points along a stored direction,
- * produced by `measureProjectionIntervals`.
+ * Outward projection enclosures along a stored direction relative to the
+ * supplied reference point.
  *
- * Interval i encloses point i's projection relative to the origin onto the
- * direction scaled so its largest absolute component is one, in metres of the
- * points' frame times that scaled direction's norm, which lies in [1, sqrt(3)].
- * `normUpper` is an upper enclosure of that norm, so dividing a gap between
- * intervals by it gives a Euclidean lower bound. A zero direction yields [0, 0]
- * for every point and a zero norm.
+ * All point and reference coordinates use the same metre frame. The default
+ * reference is the first input point. Dividing a proved positive projection gap
+ * by the norm enclosure gives a conservative Euclidean lower bound.
  */
 export interface IAutoMovieProjectionIntervals {
-  /** One owned [low, high] projection enclosure per input point, in input order. */
+  /**
+   * One owned [low, high] interval per input point, in input order and relative
+   * to the reference origin. A zero direction yields [0, 0] for every admitted
+   * point.
+   */
   intervals: [number, number][];
 
   /**
-   * Upper enclosure of the scaled direction's Euclidean norm; zero only for a
-   * zero direction.
+   * Upper enclosure of the scaled direction's Euclidean norm. A zero direction
+   * gives zero and supplies no positive separation proof.
    */
   normUpper: number;
 }

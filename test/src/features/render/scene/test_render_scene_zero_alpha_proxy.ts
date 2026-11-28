@@ -11,6 +11,10 @@ import { createModel, primitivePart } from "../../internal/fixtures";
  * Scenarios:
  * 1. A box with zero-opacity blend and no transmission is hidden.
  * 2. The same geometry with an opaque material is visible.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe identical box geometry with a zero-opacity blend or opaque material.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the transparent mesh retains its model part entry while visibility follows the assigned material case.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the expected visible flags for two fixture materials applied to the same authored box.
  */
 export function test_render_scene_zero_alpha_proxy(): void {
   const base: IAutoMovieModel = createModel(null);

@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Equal independent root and joint data preserve the entered key's identity.
  * 2. A changed anchor, angle or joint name returns the certified key. Equal counts
  *    of undefined joint entries cannot conceal different names.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A certified support key reuses the prior pose only when roots and named joint values match.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls support-posture admission with distinct but equal data and changes one root coordinate, angle or joint key in turn.
+ * @evidence contracts/development/testing.md#independent-expectations Object identity must follow full structural equality. Equal-sized records with different undefined joint keys expose count-only comparison.
  */
 export function test_motions_actions_admitted_support_posture(): void {
   const before: IAutoMovieMotionHumanPosture = {

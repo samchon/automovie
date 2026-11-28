@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Tracking is withdrawn at strength 0 (also with a zero explicit joint
  *    strength) and kept with a positive joint strength 1 or a body strength of
  *    1e-9.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the unrecoverable tick clock, immediate failed-landing exhaustion and strength-dependent tracking withdrawal.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances the balance and tracking state at 1, 1.24 and 1.25 s, resets via recovery, and checks failed landing and explicit strengths.
+ * @evidence contracts/development/testing.md#independent-expectations The declared 0.25 s loss duration exhausts at 1.25 s after onset at 1. Positive explicit joint and body strength retain effort, including a body strength of 1e-9.
  */
 export function test_engine_physics_balance_exhaustion(): void {
   const duration: number = 0.25;

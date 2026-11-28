@@ -36,6 +36,10 @@ const LANDING: number = 2e-3;
  * 3. A solved launch from (0, 1.6, 0) at 16 m/s onto (12, 1.2, 4), baked at 60
  *    fps, ends on the target.
  * 4. A zero duration or a zero frame rate is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the inclusive per-frame position and nose-aligned orientation contract, with launch-target and invalid-duration cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes a trajectory clip, samples its named node tracks and checks a separately solved launch at its terminal key.
+ * @evidence contracts/development/testing.md#independent-expectations At 30 fps over 1 s there are 31 keys. The analytic position at frame ticks and apex time 8/9.81 s fix translation and the level-to-downward orientation change.
  */
 export function test_engine_physics_projectile_trajectory(): void {
   const p: IAutoMovieProjectile = {

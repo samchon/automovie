@@ -43,6 +43,10 @@ const ROUNDING: number = 1e-9;
  * 4. After a diagonal step the left foot steps without crossing the right; a
  *    capture point behind the feet is stepped back to; a four-support body
  *    whose capture point is at its centre holds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes capture-point trigger, reach-limited placement, timed landing, side constraints and viability.
+ * @evidence contracts/development/testing.md#behavioral-verification Assesses biped points at inset margins and beyond reach, then checks same-side, backward and four-support placement.
+ * @evidence contracts/development/testing.md#independent-expectations A 5 mm excursion past the inset holds while 15 mm triggers. The exponential landing point and 0.5 m reach distinguish feasible, clamped and unviable cases.
  */
 export function test_engine_physics_physical_balance_assess(): void {
   const omega: number = Math.sqrt(S.G / S.HEIGHT);

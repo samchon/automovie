@@ -26,6 +26,10 @@ import { InspectionScene } from "../../internal/InspectionScene";
  *    when both are drawn.
  * 6. Every refusal leaves the scene's children and the quad's material as they
  *    were.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names collisions among drawn, reserved, measured and same-kind colors and the unchanged scene on refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Requests supplied and measured marks on a quad in several shades. Reads contextual errors and checks that the original scene child count and quad material survive the refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Joint and contact share a fixture color only in the collision control. Drawing joint alone is safe. The flag, clay and back-face reserved colors test the selected shade, and measured open edge red tests collisions with supplied kinds. Conflicting colors or labels within one named kind must refuse.
  */
 export function test_render_scene_apply_inspection_mark_color_law(): void {
   const panel: THREE.Mesh = InspectionScene.quad("panel");

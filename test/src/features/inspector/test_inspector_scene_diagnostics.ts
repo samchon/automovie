@@ -41,11 +41,9 @@ import { nclose } from "../internal/nclose";
  *    showing them again redraws the cube. A pending seek completed after
  *    disposal produces no observation or draw.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount with a real scene, asynchronous subject and recording frame host. Observes the provider inputs, the rendered scene and the public diagnostic report.
- * @evidence contracts/development/testing.md#independent-expectations The input seeks a 24 fps film at 0.125 s. The expected aspect comes from its 640 by 360 raster, the expected colour is red, and the playback span's clocks are the test's own 16 ms frame steps after 13/24 s.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts original and review visibility, delivery and named cameras, settled and pending placement, frame-exact and playback spans, shown and hidden witnesses, and live and disposed rendering.
- * @evidence contracts/development/testing.md#execution-ownership In-memory unit discovered as test_inspector_scene_diagnostics. No browser, timers or graphics context.
- * @evidence contracts/development/common.md#meaningful-documentation Seven numbered scenarios identify the observations and release cases pinned.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes when a placed frame is observed, how review controls change the picture, and what exact frames, playing samples, missing coverage and disposal do to incident reports.
+ * @evidence contracts/development/testing.md#behavioral-verification Mounts the public Viewer with a real scene and a recording frame host. Drives a held seek, review visibility, repeated frames, playhead jumps and disposal, checking provider inputs, rendered witnesses and reported episodes.
+ * @evidence contracts/development/testing.md#independent-expectations The film's 24 fps and 640 by 360 raster give frame three at 0.125 s and the delivery aspect. The fixture chooses the two reported pair identities and their ranks. Its 16 ms updates after 13/24 s determine the expected painted playback span.
  */
 export async function test_inspector_scene_diagnostics(): Promise<void> {
   const scene: THREE.Scene = new THREE.Scene();

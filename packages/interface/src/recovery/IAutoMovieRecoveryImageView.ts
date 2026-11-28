@@ -1,10 +1,14 @@
 import type { IAutoMovieRecoveryImageChart } from "./IAutoMovieRecoveryImageChart";
 
-/** Resident RGB pixels and their supplied chart for one fixed-object view. */
+/**
+ * A single calibrated resident RGB8 view of the fixed object. Pair the
+ * inherited chart with the exact current raster bytes, and keep both stable
+ * until observation returns.
+ */
 export interface IAutoMovieRecoveryImageView extends IAutoMovieRecoveryImageChart {
   /**
-   * Borrowed row-major unsigned sRGB bytes, exactly 3 * width * height without
-   * alpha; stable until synchronous observation returns.
+   * Row-major red, green and blue bytes, with exactly three bytes per pixel and
+   * no alpha. Borrowed until the synchronous call returns.
    */
   rgb8: Uint8Array;
 }

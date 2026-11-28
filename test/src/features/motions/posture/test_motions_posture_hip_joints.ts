@@ -35,6 +35,10 @@ const ROUNDING: number = 1e-12;
  *    degrees, they are the full pose's thigh origins.
  * 3. Moved by (1, 0, −2) and turned 90 degrees, each rest hip is the rest one
  *    turned and moved.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reduced hip placement from root and pelvis and its agreement with a full pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads rest and flexed pelvis hips and applies a known translation and yaw, comparing to full thigh origins.
+ * @evidence contracts/development/testing.md#independent-expectations Rest hips mirror across the midline. Explicit rigid translation and quarter-turn rotation give the transformed coordinates independent of the reduced reader.
  */
 export async function test_motions_posture_hip_joints(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

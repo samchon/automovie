@@ -19,6 +19,10 @@ const CLOTH_TOLERANCE: number = 0;
  * 2. The second frame uses the same mesh and retains the rigid node as the first
  *    child.
  * 3. After disposal only the rigid node remains and updates are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the in-place cloth route, preserved rigid sibling and refusal after disposal.
+ * @evidence contracts/development/testing.md#behavioral-verification Mounts a soft props projection next to a native rigid node and applies two typed cloth frames. Reads mesh identity, native positions and remaining children through update and dispose.
+ * @evidence contracts/development/testing.md#independent-expectations Each authored panel supplies its own expected position attribute. The first mesh remains the second frame's mesh, and the original rigid node stays first. Closing removes only the soft surface and prevents a subsequent update.
  */
 export function test_render_scene_build_scene_soft_route(): void {
   const root: THREE.Scene = new THREE.Scene();

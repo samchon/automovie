@@ -2,66 +2,58 @@ import type { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import type { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
 import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
-/** Shared pose frames and scale slots for volume compensation at joint stations. */
+/** Rest target and current pose inputs for joint scale compensation. */
 export namespace IAutoMoviePreserveSweepVolume {
   /**
-   * Compile the volume-settled joint-scale update of a sealed sweep rig.
+   * Rest surface, pose orientation and shared scale buffers for joint-scale
+   * volume settlement.
    *
-   * Section moments and the authored sweep's rest-volume target are computed
-   * once. Each pose updates the shared orientation first, then this writer
-   * settles the joint factor and writes every registered scale slot. The
-   * network's separate girth multipliers apply after that settlement, matching
-   * the rig's existing ordering; the target is the authored sweep's volume
-   * before girth correction.
+   * A shared joint multiplier is fitted to the original rest volume. Separate
+   * girth correction applies after that fit, so the final published scales may
+   * produce a different volume.
    */
   export type IProps = {
     /**
-     * Immutable authored rest sweep in model metres. Compilation integrates its
-     * unscaled section moments and scaled rest frames to establish a
-     * cubic-metre target before girth correction.
+     * Compiled authored rest surface in model metres. Section moments and rest
+     * frames supply the volume target before girth factors.
      */
     surface: IAutoMovieSweepSurface;
 
     /**
-     * Shared current-pose section orientation. The caller updates it before
-     * each returned writer invocation; its frames supply the posed flux
-     * integral. Retained throughout the writer's lifetime.
+     * Live section orientation queried for pose frames. Update it before
+     * invoking the returned writer.
      */
     orientation: IAutoMovieSweepOrientation;
 
     /**
-     * One flag per authored station: true marks a two-bone joint whose scale
-     * receives the common settlement factor. Read during compilation; the
-     * owning sweep rig calls this helper only when some joint is present.
+     * One boolean per authored station. True selects stations for the common
+     * settlement factor.
      */
     joints: readonly boolean[];
 
     /**
-     * Sealed normalized-u scale registrations in slot order, retained and read
-     * on every pose. Length and slot identities must remain unchanged after
-     * compilation.
+     * Sealed normalized spine coordinates ordered by output scale slot. Keep
+     * length and slot identities stable after compiling.
      */
     scaleU: readonly number[];
 
     /**
-     * Live positive dimensionless radial factors, one per scaleU slot, borrowed
-     * from the owning rig. Applied after volume settlement, so girth correction
-     * can change the final volume.
+     * Borrowed positive dimensionless post-settlement multiplier per scale
+     * slot. These factors can adjust the volume after settlement.
      */
     girth: Float64Array;
 
     /**
-     * Shared writable dimensionless scale output, one per scaleU slot. A pose
-     * stages and checks every positive finite product before publishing with
-     * set; failures leave this buffer unchanged.
+     * Caller-owned output array with one dimensionless scale per registered
+     * slot. It is updated only after all products pass positive finite
+     * admission.
      */
     scales: Float64Array;
 
     /**
-     * Synchronous serializer used only during compilation: write twelve scalars
-     * at scalar offset at, ordered origin XYZ then x, y and normal axes.
-     * Origins use model metres, axes are dimensionless; the destination is
-     * borrowed for the call and errors propagate.
+     * Synchronous serializer for the rest frames used to compile the target. It
+     * writes metre origin XYZ then three unit XYZ axes at the supplied scalar
+     * offset.
      */
     writeFrame: (
       frame: IAutoMovieSweepFrame,

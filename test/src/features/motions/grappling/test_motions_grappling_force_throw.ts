@@ -21,16 +21,17 @@ const QUARTER: IAutoMovieQuaternion = {
 };
 
 /**
- * `HumanForceThrow.site` places a force site on resolved bones: a bone's point
- * by that bone's world frame, a region by its bone-local surface point.
- *
- * The average man's abdomen region, and a bone point 0.1 m along x, are read on
- * bones placed at (1, 2, 3) turned a quarter about +Y.
+ * Check world placement of grapple force sites from displayed bones.
  *
  * Scenarios:
  *
- * 1. The bone's point lands at (1, 2, 3) plus its turned offset, (0, 0, -0.1).
- * 2. The abdomen lands at (1, 2, 3) plus its turned local point.
+ * 1. Place a bone-local point 0.1 m along X in a quarter-turned bone at (1,
+ *    2, 3). Its world displacement is 0.1 m along -Z.
+ * 2. Place the measured abdomen region through the same displayed frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the bone point and measured region along with their common transform.
+ * @evidence contracts/development/testing.md#behavioral-verification The force-site reader handles both direct bone offsets and a named region on a canonical body.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture reconstructs expected positions from the source coordinates and given rigid rotation.
  */
 export async function test_motions_grappling_force_throw(): Promise<void> {
   const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces = (

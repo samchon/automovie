@@ -22,6 +22,10 @@ import { nclose } from "../../internal/nclose";
  * 4. An owned positive X-moment accessor changes2→100 across observations. Each
  *    tensor must use its actual captured scalar for both its key and
  *    arithmetic: the first diagonalXX is2, the next100, and old rows stay2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies intrinsic tensor reuse, fresh parallel-axis inputs, nested row ownership and scalar getter admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares one operation-local reader and changes rotation, moment, mass, center, reference point and assembly membership between successive reads.
+ * @evidence contracts/development/testing.md#independent-expectations Literal translated tensors, a 90-degree axis exchange, and an accessor changing diagonal XX from 2 to 100 catch stale state, aliased rows and mismatched capture.
  */
 export function test_engine_physics_physical_inertia_tensor(): void {
   const part: IAutoMovieCombinePhysicalMassProperties.IPart = {

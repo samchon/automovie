@@ -144,6 +144,10 @@ function slide(): void {
  *    its reach or outside the action's time is refused.
  * 2. Of pins at 0, 10 and 30 degrees, only the last passes its tipping angle.
  * 3. A missing pin or one without a positive base radius is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines glide lead and trail, trailing toe bearing, and pinfall based on final center-of-mass tilt.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the slide helper with mirrored delivery sides and invalid glide windows, then reads a synthetic final solver cache containing three posed pins.
+ * @evidence contracts/development/testing.md#independent-expectations The drag lasts to 1 + 0.5/3 s. Base radius 0.05 m and center height 0.15 m give a tipping threshold atan(1/3), so only the 30° pin scores.
  */
 export function test_motions_sport_bowling(): void {
   slide();

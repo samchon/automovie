@@ -31,6 +31,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    within 1e-12, and the surface at every station and 64 phases stands the
  *    radius from the axis within the bound.
  * 2. At shoulder 0.6 some point departs from the circle past the bound.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names layer shoulders, the circular radius check and a noncircular positive shoulder control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the same view tube at the ellipse shoulder and at 0.6, then reads each layer and sampled surface radius.
+ * @evidence contracts/development/testing.md#independent-expectations Liming's conic for a square box with shoulder √2−1 is a circle of the box radius. The independent periodic spline limit bounds the read error.
  */
 export function test_engine_geometry_construction_top(): void {
   const r: number = 0.02;

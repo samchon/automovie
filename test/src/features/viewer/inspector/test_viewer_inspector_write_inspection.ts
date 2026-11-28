@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The absent inspection is `[]`.
  * 2. A depth shade is `[["shade","depth"]]`, and two equal inspections write the
  *    same text.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the empty and depth key encodings and the equality case.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds typed inspections from a literal key list and compares the formatted strings.
+ * @evidence contracts/development/testing.md#independent-expectations An empty key list produces an empty JSON array. A single shade-depth pair produces one literal two-item entry, and separately constructed equal inspections have the same entry.
  */
 export function test_viewer_inspector_write_inspection(): void {
   const request = (

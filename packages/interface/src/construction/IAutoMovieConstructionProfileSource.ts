@@ -3,18 +3,20 @@ import type { IAutoMovieConstructionProfile } from "./IAutoMovieConstructionProf
 import type { IAutoMovieViewAxis } from "./IAutoMovieViewAxis";
 
 /**
- * Actual original curve families in one owned physical plane, before lofting.
- *
- * Declaration station lengths use metres; original queries and plane axes use
- * kernel millimetres. Curve-clock units stay with their original owner. The
- * caller keeps declarations, functions and dependencies immutable while any
- * prepared reader remains alive; changed revisions require a new preparation.
+ * Invocation-owned local curve functions and their common section frame. The
+ * pure definition records station lengths in metres. The live frame and curve
+ * readers take physical station in kernel millimetres and keep each curve's own
+ * clock. Preserve dependencies while prepared readers use them.
  */
 export interface IAutoMovieConstructionProfileSource {
-  /** Complete pure source declaration; no final chain or mesh supplies it. */
+  /** Complete pure profile declaration for these live source functions. */
   definition: IAutoMovieConstructionProfile;
 
-  /** Actual axis and its same-station derivatives, keyed by definition.plane. */
+  /**
+   * Actual section frame owner keyed by definition.plane. Point and phase reads
+   * use its frame value; complete surface derivatives also need its
+   * physical-station jet.
+   */
   plane: {
     /**
      * Must equal definition.plane; Profile.create rejects a different owner
@@ -29,120 +31,119 @@ export interface IAutoMovieConstructionProfileSource {
     axis: IAutoMovieViewAxis.IAxis;
   };
 
-  /** Immutable actual local functions keyed by the declaration's source fields. */
+  /** Original curve functions indexed by the declared piece source keys. */
   curves: ReadonlyMap<string, IAutoMovieConstructionProfileSource.ICurve>;
 
-  /**
-   * Actual original region membership owners, needed only for declared trim
-   * keys.
-   */
+  /** Optional map of original membership functions for referenced trim keys. */
   regions?: ReadonlyMap<string, IAutoMovieConstructionProfileSource.IRegion>;
 }
 
 /** Original local curve and region capabilities used by profile preparation. */
 export namespace IAutoMovieConstructionProfileSource {
   /**
-   * Actual nonrectangular logical/material selection without fitting its
-   * boundary.
-   *
-   * The source map retains this owner for prepared contains queries. Its domain
-   * must cover the region's authored active domain after conversion to
-   * millimetres. Callback exceptions propagate; preparation checks coverage,
-   * not the geometric truth of membership or interval boundaries.
+   * Original membership field for a trimmed region. Its physical station domain
+   * in millimetres must cover the region's authored interval after conversion.
+   * Keep the callbacks unchanged while prepared readers use them.
    */
   export interface IRegion {
-    /** Actual physical station ownership, kernel millimetres. */
+    /**
+     * Supported physical station bounds of this membership owner, in kernel
+     * millimetres.
+     */
     domain: readonly [number, number];
 
     /**
-     * Membership of the same original field at its physical station and
-     * original curve clock.
+     * Test original region membership using station in kernel millimetres and
+     * the source curve's own clock. Callback exceptions propagate.
      */
     contains(station: number, clock: number): boolean;
 
     /**
-     * Exact retained intervals in the original curve-clock units at station
-     * millimetres. Absence or null leaves boundary extraction unavailable; an
-     * empty array means no retained interval. Consumers must treat returned
-     * arrays as borrowed readonly data. Profile preparation does not call this
-     * optional capability or validate its ordering.
+     * Read retained intervals in original curve-clock units at a
+     * kernel-millimetre station. Null or an absent method leaves interval
+     * extraction unavailable. An empty array means no retained intervals.
+     * Borrow the returned arrays for reading.
      */
     intervals?(station: number): readonly (readonly [number, number])[] | null;
   }
 
   /**
-   * Same original value and qualified phase derivatives at a fixed physical
-   * station.
+   * Original local point and phase derivatives at one fixed physical station.
+   * The curve's clock determines derivative units. A null second derivative
+   * leaves value and first derivative available.
    */
   export interface IPhase {
-    /** Actual local point, kernel millimetres. */
+    /** Actual local [u, v] point in kernel millimetres. */
     p: AutoMovieVector2Tuple;
 
-    /** First derivative per original curve-clock unit. */
+    /** First local derivative in millimetres per original curve-clock unit. */
     t: AutoMovieVector2Tuple;
 
     /**
-     * Second original-clock derivative; null explicitly leaves this order
-     * unavailable.
+     * Second local derivative in millimetres per squared original clock unit,
+     * or null when unavailable.
      */
     tt: AutoMovieVector2Tuple | null;
   }
 
-  /** Complete local physical-station/original-clock total-order-two reading. */
+  /**
+   * Complete local derivatives through total order two in physical station and
+   * original curve clock. The point uses chart millimetres and physical station
+   * uses kernel millimetres.
+   */
   export interface IJet {
-    /** Local point, millimetres. */
+    /** Local [u, v] point in millimetres. */
     p: AutoMovieVector2Tuple;
 
-    /** First derivative per physical station millimetre. */
+    /** First local partial in millimetres per millimetre of station. */
     s: AutoMovieVector2Tuple;
 
-    /** First derivative per original curve-clock unit. */
+    /** First local partial in millimetres per original clock unit. */
     t: AutoMovieVector2Tuple;
 
-    /** Second derivative per station millimetre squared. */
+    /** Second local partial in inverse millimetres of physical station. */
     ss: AutoMovieVector2Tuple;
 
-    /** Mixed derivative per station millimetre and original-clock unit. */
+    /**
+     * Mixed local partial, in inverse original-clock units after one station
+     * and one clock derivative.
+     */
     st: AutoMovieVector2Tuple;
 
-    /** Second derivative per original-clock unit squared. */
+    /** Second local partial in millimetres per squared original clock unit. */
     tt: AutoMovieVector2Tuple;
   }
 
   /**
-   * An immutable generating owner, not boundary Taylor coefficients or a fit.
-   *
-   * Prepared surfaces retain this curve and its dependencies by reference.
-   * Point, phase and jet query the same local function at station millimetres
-   * and its original clock. Keep all three and their domains unchanged while
-   * readers exist. Foreign callback/getter exceptions propagate.
+   * Live original local curve at station in kernel millimetres and its own
+   * clock. Preserve it and its declared domains while prepared readers retain
+   * it. Point, phase and complete derivatives follow the same underlying
+   * geometry.
    */
   export interface ICurve {
-    /** Actual physical station interval, kernel millimetres. */
+    /** Original physical station bounds in kernel millimetres. */
     domain: readonly [number, number];
 
-    /** Actual supported original-clock interval, in the original units. */
+    /** Supported original parameter interval in the curve's own units. */
     clock: readonly [number, number];
 
     /**
-     * Actual original-clock period when the same function and available
-     * derivatives support periodic aliases; absent leaves a bounded open
-     * chart.
+     * Original clock period when the same source supports periodic aliases.
+     * Omission leaves its original clock bounded.
      */
     period?: number;
 
     /**
-     * Actual local point in millimetres at physical station millimetres and
-     * original clock. It may remain available at a collapsed tip where jet is
-     * null. Readers validate finite pairs and build their own world vectors.
+     * Read the actual local point in millimetres at the requested physical
+     * millimetre station and original clock. A collapsed tip can still supply a
+     * point.
      */
     point(station: number, clock: number): AutoMovieVector2Tuple;
 
     /**
-     * Actual fixed-station phase reading at station millimetres and original
-     * clock. An absent method falls back to this owner's jet; an implemented
-     * method returning null is a refusal and does not fall back. A nonnull
-     * reading may still have tt=null. Readers do not mutate its arrays.
+     * Read local phase derivatives at the same station and clock. Omission uses
+     * jet. An implemented callback returning null refuses this read. A
+     * successful result can carry null second phase derivative.
      */
     phase?(
       station: number,
@@ -150,10 +151,9 @@ export namespace IAutoMovieConstructionProfileSource {
     ): IAutoMovieConstructionProfileSource.IPhase | null;
 
     /**
-     * Complete local total2 at station millimetres and original clock, or null
-     * where unavailable. A prepared surface jet request converts null into an
-     * admission exception and requires a complete plane jet too. Consumers read
-     * the returned arrays without mutation or long-term retention.
+     * Read all local partials in physical millimetre station and original curve
+     * clock. Null leaves complete derivatives unavailable. A surface jet
+     * additionally needs the frame's station derivatives.
      */
     jet(
       station: number,

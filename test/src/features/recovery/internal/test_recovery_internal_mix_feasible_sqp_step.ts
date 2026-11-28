@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  *    the step (2 - 2w) at the nominal 1/4, 3/2 > 1, so the row fails; the row's
  *    slope 2 - 2w meets its offset at w = 1/2, and the numerical weight is the
  *    least one just above it, whose step satisfies the row.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States nominal versus constraint-adjusted weight and descent qualification.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises one admitted nominal blend and one blend that must reach numerical support at the constraint boundary.
+ * @evidence contracts/development/testing.md#independent-expectations The second fixture's row value is 2−2w, so x<=1 requires w>=1/2. The nominal weight one quarter violates that bound.
  */
 export function test_recovery_internal_mix_feasible_sqp_step(): void {
   const objective: IAutoMovieSimplexAtom = {

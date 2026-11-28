@@ -9,7 +9,13 @@ import { strict as assert } from "node:assert";
 
 import { testAffordance } from "../../internal/fixtures/testAffordance";
 
-/** A zipper tab has two opposing sites, a brace and an independent slider. */
+/**
+ * A zipper tab has two opposing sites, a brace and an independent slider.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines distinct tab surfaces on one slider, an independent brace and inclusive slider travel bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves two opposing sites and one fixed brace around a moving tab, tries missing and duplicate surfaces and checks four travel points.
+ * @evidence contracts/development/testing.md#independent-expectations Both ends −0.02 and 0.18 are admitted. The adjacent −0.021 and 0.181 values refuse on the pouch with a stop reason.
+ */
 export function test_motions_handling_zip(): void {
   const origin = { x: 0, y: 0, z: 0 };
   const tab: IAutoMovieAffordance = {

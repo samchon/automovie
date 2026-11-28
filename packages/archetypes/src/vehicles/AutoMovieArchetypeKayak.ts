@@ -18,15 +18,18 @@ import { AutoMovieArchetypeKayakData } from "./internal/AutoMovieArchetypeKayakD
 /** The canonical producer and authoring contract for a kayak. */
 export namespace AutoMovieArchetypeKayak {
   /**
-   * A sit-inside kayak based on the published Pungo 120 envelope. The bow points
-   * along +Z and Y = 0 is the reference waterline. The cockpit has an opening, a
-   * low seat and separate tilted footbraces. The deck and floor share the same
-   * hull section family. Wall thickness and the installed seat and brace geometry
-   * are staging estimates.
+   * Build a sit-inside kayak with an open cockpit and fixed footbraces.
    *
-   * @param params Optional scene identity and fixed reference dimensions.
-   * @param seed Provenance seed. The reference dimensions are fixed.
-   * @returns One enclosed-deck hull with an open cockpit.
+   * The bow points along local `+Z` and the reference waterline is `Y = 0`.
+   * The `seat` faces the bow. `leftFoot` is on `+X` and `rightFoot` on `-X`,
+   * both tilted inside the cockpit. The dimensions follow the Pungo 120.
+   * Wall thickness, seat installation, and brace geometry are staging estimates.
+   *
+   * @param params Optional scene ID and explicit reference figures, in
+   *   metres or kilograms as listed in {@link UNITS}.
+   * @param seed Optional seed for the factory. The dimension bands are fixed.
+   * @returns The enclosed-deck hull, open cockpit, seat, and footbrace faces.
+   * @throws {AutoMovieArchetypeRefusal} For a value other than the fixed figure.
    */
   export function create(
     params: AutoMovieArchetypeKayak.IParams = {},
@@ -88,12 +91,18 @@ export namespace AutoMovieArchetypeKayak {
   }
 
   /* Fixed dimension sites and the three contact affordance names. */
-  /** The pan and paired footbrace faces. */
+  /**
+   * The forward-facing seat and the two footbrace faces inside the cockpit.
+   */
   export type Affordance = "seat" | Brace;
 
-  /** The two footbrace faces, one per foot. */
+  /**
+   * Foot contact faces. `leftFoot` is on local `+X` and `rightFoot` on `-X`.
+   */
   export type Brace = "leftFoot" | "rightFoot";
-  /** Overall and opening dimensions, and hull mass. */
+  /**
+   * Overall and cockpit dimensions in metres and bare hull mass in kilograms.
+   */
   export type Dimension =
     | "length"
     | "beam"
@@ -101,12 +110,18 @@ export namespace AutoMovieArchetypeKayak {
     | "cockpitLength"
     | "cockpitWidth"
     | "mass";
-  /** A scene identifier and explicit fixed reference figures. */
+  /**
+   * Optional scene ID and values equal to the fixed figures in {@link BANDS}.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Scene subject id. */
+    /**
+     * Scene subject ID. Defaults to `kayak`.
+     */
     id?: string;
   }
-  /** Units of the catalogue measures. */
+  /**
+   * Units of the fixed hull, cockpit and mass figures.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -117,7 +132,9 @@ export namespace AutoMovieArchetypeKayak {
     cockpitWidth: "m",
     mass: "kg",
   };
-  /** Published envelope, cockpit at the coaming and bare hull mass. */
+  /**
+   * Fixed Pungo 120 envelope, cockpit opening and bare hull mass.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(3.66, 3.66, AutoMovieArchetypeKayakData.SOURCE),
     beam: AutoMovieArchetypeBand.metres(0.74, 0.74, AutoMovieArchetypeKayakData.SOURCE),

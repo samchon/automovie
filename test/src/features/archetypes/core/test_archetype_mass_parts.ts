@@ -19,11 +19,9 @@ import { nclose } from "../../internal/nclose";
  * 5. The centre the parts' masses place, each at its box's centre, is `of`'s centre of mass, under each of the weightings above.
  * 6. No-solid part inventory is distinct from positive-mass body construction: of still refuses planes alone, and parts still refuses solid-bearing all-zero shares or an invalid total mass.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Shares real masses over primitive parts and compares finite-aware worked figures with of's centre. No-solid inventory must retain named zeros while a body without solids, zero solid weights and invalid total mass must still refuse; no numeric acceptance is relaxed.
- * @evidence contracts/development/testing.md#independent-expectations The masses are worked here from the boxes' volumes, densities and shares.
- * @evidence contracts/development/testing.md#distinguishing-cases Volume, density and share weightings, a plane beside boxes, planes alone, empty inventory, unsupported positive-mass body construction, zero solid shares and invalid total mass.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory parts, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists six scenarios, the zero-support inventory/body distinction and the unchanged finite-aware 1e-12 acceptance.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the part inventory's zero-mass entries from the positive-mass body requirement and states the six allocation and centre cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses `parts` and `of` on boxes, planes and authored share values. It checks complete part inventories, finite part masses, the resulting centre and refusals for invalid totals, zero solid shares and bodies without solids.
+ * @evidence contracts/development/testing.md#independent-expectations Two boxes of 1 and 2 cubic metres split 3 kg as 1 and 2 kg. Halving the second density makes equal masses. Authored shares 3 to 1 give 2.25 and 0.75 kg. Those allocations and the authored box centres give independent weighted centres.
  */
 export function test_archetype_mass_parts(): void {
   const findings: string[] = [];

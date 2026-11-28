@@ -19,9 +19,7 @@ type V3 = [number, number, number];
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanSkinCutLoop.shares` and reads the shares or the refusal. It catches a share off the first crossing, a crossing interpolated between columns, a ray that is given a share where the surface is out of reach, and a centre on the wrong side that is not refused.
  * @evidence contracts/development/testing.md#independent-expectations The shares follow from the distance of a plane point to a tilted line, written in the comment; the refusals from `1 / cos 0.6 > 1.05` and from a centre 25 mm from a 20 mm cylinder's axis. No value comes from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases Positive: the tilted cylinder. Control: the same comparison against a cylinder one hundredth wider must miss. Negative: the short reach and the outside centre. Curved skins, a phase chart with a period and a surface crossed twice a ray are not covered.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_skin_cut_loop`; pure arithmetic, no figure and no reference.
- * @evidence contracts/development/common.md#meaningful-documentation States the made skin and surface, the closed form and the four scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Analytic shares for a tilted cylinder are checked against a wider-radius control. Short reach and an outside centre each produce a separate refusal.
  */
 export function test_human_skin_cut_loop(): void {
   const failures: string[] = [];

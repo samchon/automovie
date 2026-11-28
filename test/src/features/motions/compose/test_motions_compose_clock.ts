@@ -181,6 +181,10 @@ function scenario_test_motions_compose_motion_clock_window(): void {
 /**
  * motionClock, the time law a channel reads: its sample keys, its time
  * law and its window, each scenario below.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names controlled key sampling, clip holds and loops, native and authored windows, reverse reads, derivative and a zero-width jump.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the motion clock over authored keys and queries native and caller-defined laws, prepared windows and envelopes at fixed seconds.
+ * @evidence contracts/development/testing.md#independent-expectations The triangular key ramp determines its elbow samples and loop period. At a quarter share the quintic gives 53/512, and its derivative is 30u²(1-u)² divided by the window length. Equal endpoints select the closed state at the shared second.
  */
 export function test_motions_compose_clock(): void {
   scenario_test_motions_compose_clock_sample_keys();

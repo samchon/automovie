@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. Without drag it moves uniformly, 3 m in 1.5 s at 2 m/s.
  * 3. A negative coefficient that would drive `1 + k v0 t` to zero within the coast
  *    is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines drag-limited immersed travel and endpoint hold at the coast's duration.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads positive, zero and invalid-negative drag fixtures at several times including after the coast ends.
+ * @evidence contracts/development/testing.md#independent-expectations Integrating the quadratic drag law gives 2 ln 2 m at 1 s and terminal 2 ln 4 m at 3 s. A zero coefficient gives linear travel and the invalid negative case cannot cross its singularity.
  */
 export function test_motions_sport_swim_immersed(): void {
   const coast: (seconds: number) => number = swimImmersedCoast(0.5, 2, 3);

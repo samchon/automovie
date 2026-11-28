@@ -67,12 +67,20 @@ function rejects(
 }
 
 /**
+ * Object motion admission validates addresses, clocks and channel authority.
+ *
+ * Scenarios:
+ *
  * 1. Check stage and lowered joint addresses, duplicates, performed and baked
  *    authority against independent registrations.
  * 2. Check clock and artifact validity. Legal neighbouring channels remain
  *    admissible.
  * 3. Compare symmetric turns to their analytic quaternion midpoint, a held step,
  *    an inclusive boundary and a later authority.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The numbered cases cover stage and lowered identities, duplicate and authority rules, clock admission, artifact validation and interpolation boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the authored-object-motion gate and samples adjacent admitted interpolation cases. It compares refused paths and track authority with explicit registrations and known channel boundaries.
+ * @evidence contracts/development/testing.md#independent-expectations The provided registered addresses and clock intervals determine legal targets and ownership. Equal opposite turns have an analytic quaternion midpoint. Declared step and later authority keys provide separately expected held and switched values.
  */
 export function test_engine_film_motion_object_admission(): void {
   const joint: string = "doorway/hinge";

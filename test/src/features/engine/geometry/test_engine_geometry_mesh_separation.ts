@@ -37,6 +37,10 @@ import { throwsError } from "../../internal/throwsError";
  *    missing a point, are refused ("attachment"); with a second triangle across
  *    the edge, a fan at the shared edge's midpoint supported by both is
  *    certified.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names proof margin, complete features, ownership, ordinal ties, spent work and support admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds resident queries with real triangles, submits points or segments or fans, changes source buffers and compares support-certified or refused receipts.
+ * @evidence contracts/development/testing.md#independent-expectations The parallel face is exactly 1 above the resident triangle. Touch and crossing have distance zero. The geometric support point is reconstructed from the written barycentrics.
  */
 export function test_engine_geometry_mesh_separation(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });

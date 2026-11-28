@@ -31,6 +31,10 @@ const DT: number = 1 / 960;
  *    demand above the cap (6 N m against 3) forecasts saturation, an actual
  *    speed at the commanded one does not.
  * 6. A joint at its twist limit is not driven further out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the implicit PD command and torque and twist bounds, including passive effort, target velocity and feed-forward.
+ * @evidence contracts/development/testing.md#behavioral-verification Commands direct motor state for a single axis, a compound and wrapped rotation, zero strength, a torque cap and an occupied limit.
+ * @evidence contracts/development/testing.md#independent-expectations Implicit speed is ke/(c + kdt). A 6 N·m demand exceeds the stated 3 N·m cap, and the geodesic rotation vector determines the compound error.
  */
 export function test_engine_physics_physical_joint_motor_command(): void {
   const joint: IAutoMoviePhysicalJoint = hinge();

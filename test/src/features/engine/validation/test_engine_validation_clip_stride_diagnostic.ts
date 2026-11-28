@@ -106,6 +106,10 @@ const S05_VALUES: number[] = Array.from({ length: 195 }, (): number => 0);
  * 5. The non-triplet `cubicspline` stride states the division it failed.
  * 6. The width fault, reachable only on a WHOLE stride, states the total the
  *    payload must hold beside the width it got.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers clip width and stride diagnostics, including the sampler's matching refusal and an unfixed morph dimension.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateClipArtifact and sampleClip with explicit channel payloads. It reads the diagnostic arithmetic and the recorded payload length.
+ * @evidence contracts/development/testing.md#independent-expectations Sixty-seven translation keys require 201 values at width three or 603 at cubic width nine. A morph width depends on its target, so the stated input counts alone cannot imply a per-key width.
  */
 export function test_engine_validation_clip_stride_diagnostic(): void {
   // 1. the reproduction, with every number the author needed.

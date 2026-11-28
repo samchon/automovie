@@ -17,6 +17,10 @@ import { throwsError } from "../../internal/throwsError";
  *    admitted as 40, 2 and 2 within 50.
  * 2. A turnout of 60 within 50, a negative one, a sixth position and three turns
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Ballet admission defaults to first position and refuses turnout and turns beyond the declared ranges.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls ballet admission with no overrides, a fractional position, and separate invalid turnout, position, and turn values.
+ * @evidence contracts/development/testing.md#independent-expectations The 35-degree default, rounded positions and one-or-two-turn limit determine the exact admitted and refused inputs independently of pose generation.
  */
 export function test_motions_exercise_ballet_step(): void {
   TestValidator.equals("the defaults", balletStep.admit({}, 90), {

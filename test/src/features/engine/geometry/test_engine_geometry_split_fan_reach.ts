@@ -21,6 +21,10 @@ import { ConstructionSplitFan as F } from "../../internal/construction/Construct
  *    1/40 of each band's span where a normal flips from its neighbour's, has
  *    folds at the whole ribbon length; with the ribbons kept at a quarter at
  *    each fork there are fewer than a quarter as many.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the common sampling population and reduction in normal flips at shortened forks.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the same headed fan at full and quarter reach and samples neighbouring surface normals on a fixed dense grid.
+ * @evidence contracts/development/testing.md#independent-expectations Keeping the angular and station sampling unchanged isolates the reach change. The quarter-of-baseline threshold distinguishes actual fold relief from an unchanged surface.
  */
 export function test_engine_geometry_split_fan_reach(): void {
   const folds = (r: IAutoMovieConstructionRealization.IRealization): number => {

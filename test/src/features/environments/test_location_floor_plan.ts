@@ -32,10 +32,8 @@ import { nclose } from "../internal/predicates";
  * 6. Open threshold support spans the wall depth while solid wall and a closed
  *    door leave gaps. A standard lever keeps both carried contacts.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Observes admitted boundary widths and incidence, final stage support coordinates, and normal composer refusals.
- * @evidence contracts/development/testing.md#independent-expectations The authored shared interval is [1,3] within [0,4], leaving 1 m on both sides. The deck and courtyard probes have explicitly authored elevations. The stair probe is midway over the sixth tread, whose rise is 6 times 0.17 m above the building's 3 m world origin. A 2 m normal run and 3 m sideways shift make the 1 m deck span sqrt(13)/2 m in the plane of the 1.4 m opening.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates partial seam, footprint hole, valid flat bridge, displaced landing, oversized deck, oblique approach and overlapping room cases.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous entry uses the public environment and height queries without a renderer or resource host.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a real environment in memory and reads admitted boundaries, support heights and refusals through the normal composer and height queries.
+ * @evidence contracts/development/testing.md#independent-expectations The shared interval [1,3] lies in [0,4], with a 1 m remainder on each side. Deck and courtyard probes use authored elevations. The sixth tread rises 6 times 0.17 m from the 3 m origin. A 2 m normal run and 3 m shift make the 1 m deck span sqrt(13)/2 m across a 1.4 m opening.
  * @evidence contracts/development/common.md#meaningful-documentation Enumerates the normalized plan and passage cases, expected dimensions, and each named refusal.
  */
 export function test_location_floor_plan(): void {

@@ -15,6 +15,10 @@ import { vclose } from "../../internal/vclose";
  *    kept.
  * 3. `chain(after, before)` of two such quarter turns sends (2, 0, 0) to (0, 0,
  *    0), the half turn about the pivot.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fixed pivot, preserved scale and composition order cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public turn, move and chain operations and reads the resulting transforms.
+ * @evidence contracts/development/testing.md#independent-expectations A unit offset about the positive Z axis exchanges the X and Y directions at a quarter turn. Two quarter turns reflect the point about its fixed pivot.
  */
 export function test_archetypes_core_frame_turn(): void {
   const motion: AutoMovieArchetypeFrame.IMotion = AutoMovieArchetypeFrame.turn(

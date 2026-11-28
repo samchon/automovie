@@ -21,16 +21,18 @@ const GRIP: IAutoMovieAffordance = {
 };
 
 /**
- * The struck ball read from its own `grip`, as `createBall` declares it: the
- * centre is the grip's point in the ball's frame at the film second, the radius
- * half its aperture.
+ * Check ball centre and radius from a declared grip at a requested film
+ * second.
  *
  * Scenarios:
  *
- * 1. A ball rolling along +Z at 2 m/s, turned a half turn about +X, read at 1.5 s
- *    has its centre 0.11 m below its frame at (0, -0.11, 3) and its radius 0.11
- *    m, read at that very second of that very subject.
- * 2. A ball without a grip is refused before its frame is read.
+ * 1. At 1.5 s a ball moving along +Z at 2 m/s and turning half a revolution
+ *    about X reads centre (0, -0.11, 3) m and radius 0.11 m.
+ * 2. A ball without a grip is refused before reading its frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the observed ball, aperture and film time and the missing geometry result.
+ * @evidence contracts/development/testing.md#behavioral-verification The ball reader receives the real prop affordance and an instrumented frame callback.
+ * @evidence contracts/development/testing.md#independent-expectations Half the aperture gives the radius. The half turn flips the grip's Y offset and speed times time gives Z.
  */
 export function test_motions_ballStrike_human_ball(): void {
   const asked: [string, number][] = [];

@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    the left at the start.
  * 2. The left bears from 0.3 s; the checking right leg bears up to its release and
  *    again from the end at 1 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains landing and release ordering in a virtual step with separate checking and bearing legs.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a step schedule at stated times, checks with each leg and samples support before release and after return.
+ * @evidence contracts/development/testing.md#independent-expectations The declared 0.6 s movement puts the bearing transition at 0.3 s. The alternate leg releases at 0.1 s and the returning foot bears again at 1 s.
  */
 export function test_motions_striking_defend_footwork(): void {
   const timing = { begin: 0.1, movement: 0.6 };

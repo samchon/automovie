@@ -32,6 +32,10 @@ type Edge = IAutoMovieMeasureFeatureEdges.IEdge;
  *    at 1000 fixed surface points its convex distance equals the plain box's
  *    within 1e-9, including (0.495, 0.5, -0.002) in a triangle touching the
  *    edge at one vertex only (0.005).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names welded sharp-edge classification across tessellations, rim edges, reach and reproducibility.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures independently generated coarse and gridded boxes and a cylinder, then compares distances on fixed faces and edge probes.
+ * @evidence contracts/development/testing.md#independent-expectations Box faces have twelve unit sharp edges and flat diagonals. The cylinder's 22.5-degree wall bends lie below 30 degrees. Its two rings supply 32 qualifying side-to-cap edges.
  */
 export function test_engine_geometry_feature_edges(): void {
   const close = (a: number, b: number, e: number): boolean => Math.abs(a - b) <= e;

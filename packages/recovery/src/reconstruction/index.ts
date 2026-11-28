@@ -1,3 +1,3 @@
-export * from "./AutoMovieRecoveryOpenContinuation";
-export * from "./AutoMovieRecoveryReconstruction";
-export * from "./AutoMovieRecoveryOpenRun";
+export { AutoMovieRecoveryOpenContinuation } from "./AutoMovieRecoveryOpenContinuation";
+export { AutoMovieRecoveryReconstruction } from "./AutoMovieRecoveryReconstruction";
+export { AutoMovieRecoveryOpenRun } from "./AutoMovieRecoveryOpenRun";

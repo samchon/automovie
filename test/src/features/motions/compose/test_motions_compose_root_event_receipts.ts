@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Two event names resolve to one quarter of the take and a third to three
  *    quarters.
  * 2. Only the explicitly requested optional contact appears on the plan.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names coexistence of two events at one instant and the explicit choice of a contact receipt.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes the same authored time source into plans with and without contact selection, then reads the event and contact outputs.
+ * @evidence contracts/development/testing.md#independent-expectations Two event seconds at the first quarter and one at the third determine shares 1/4, 1/4 and 3/4. The selected contact occurs at second 1, while an unselected contact remains absent.
  */
 export function test_motions_compose_root_event_receipts(): void {
   const clock: IAutoMovieMotionClock = motionClock(4, [

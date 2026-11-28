@@ -29,6 +29,10 @@ const contact = (
  *    socket 0.11 m up with its `+X` along the hat's `+Z` and `+Y` down.
  * 2. The spectacles are turned half about the vertical, their `+X` to world `-X`,
  *    held 2 cm up at the bridge, worn 16 mm up.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines placed hat and spectacles geometry, hold sites, rotations and wear sockets.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both wearable fixtures and reads their authoring placement and actual affordance transforms.
+ * @evidence contracts/development/testing.md#independent-expectations The hat uses the declared brim offset 0.13 m and wear height 0.11 m, while the glasses half-turn changes +X to −X and preserves its bridge and wear heights.
  */
 export function test_motions_executable_dress_case_wearable(): void {
   const hat: IAutoMovieMotionHumanProp = dressCaseWearable("hat", {

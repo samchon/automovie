@@ -8,6 +8,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Three values give their minimum and maximum.
  * 2. An empty sequence gives the identity bounds +Infinity and -Infinity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the extrema of a nonempty sequence and the signed infinity identities for an empty sequence.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.autoMovieDrawingRange directly with three unsorted numbers and an empty list.
+ * @evidence contracts/development/testing.md#independent-expectations Of 2, -1 and 5 the least is -1 and greatest is 5. The empty result starts the minimum at positive infinity and maximum at negative infinity.
  */
 export function test_engine_drawing_range(): void {
   TestValidator.equals(

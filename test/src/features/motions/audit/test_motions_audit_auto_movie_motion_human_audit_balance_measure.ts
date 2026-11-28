@@ -26,13 +26,16 @@ const LEAN: number = 0.5;
  *
  * 1. Judged and still, the centre stays over the feet: nothing is read.
  * 2. Judged, with every bone but the feet and toes carried 0.5 m forward, the
- *    centre lies ahead of the toes: more than nothing outside the hull, and
- *    less than the 0.5 m it was carried, from which the heel-to-ankle half of
- *    the hull's length at least is taken back.
+ *    measured excursion is positive and less than 0.5 m minus one quarter of
+ *    the foot length.
  * 3. The same pose in an action whose balance is not judged is not read.
  *
  * The body is built whole (`humanFixtureBody`): the reading places the body's
  * mass model and its soles on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a quiet pose, a 0.5 m lean and the balance-judgment switch over the same two-foot stance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditBalance.measure with authored standing windows and stationed or displaced body bones, then reads the measured excursion.
+ * @evidence contracts/development/testing.md#independent-expectations Quiet stance takes no overshoot. The displaced torso produces a positive excursion less than the translation minus one quarter of foot length. The same displaced bones return zero when the action turns judgment off.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_balance_measure(): Promise<void> {
   // Reads the whole-body centre of mass (`body.massModel`, every segment's mass) and the soles.

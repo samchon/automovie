@@ -1,1 +1,1 @@
-export * from "./AutoMovieRecoveryCompilation";
+export { AutoMovieRecoveryCompilation } from "./AutoMovieRecoveryCompilation";

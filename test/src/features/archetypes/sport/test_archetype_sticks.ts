@@ -17,11 +17,9 @@ const MM: number = 1e-3;
  * 3. A cricket bat is the MCC's 96.52 cm, its blade 10.8 cm wide and 6.7 cm deep, its handle 52% of its length.
  * 4. Each `grip` spans the shaft or handle above the striking end, and each `blade` faces `+Z` on the striking end.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a stick off its rule's limits or a contact off its part is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Every figure is the IIHF's, FIH's or MCC's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases A blade on the floor, a head under the shaft and a blade under a handle.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the ice hockey stick, field hockey stick and cricket bat dimensions, with shaft grip and striking frame locations.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each sporting shape over seeded samples and measures the actual colliders and affordances. It checks the field hockey ring gauge and the separate upper grip and forward blade contact.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated IIHF, FIH and MCC geometry. The ice hockey blade is 32 cm long and the field stick fits a 51 mm ring. The cricket handle spans 52 percent of the stated total length.
  */
 export function test_archetype_sticks(): void {
   const findings: string[] = [];

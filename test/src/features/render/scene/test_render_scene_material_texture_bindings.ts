@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A material with a base colour, a normal and an emissive texture lists
  *    those three, skipping absent and null slots.
  * 2. A material with no texture lists none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe a declared base, normal, and emissive texture with omitted slots, plus a texture-free material.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the reported bindings preserve slot order and skip absent and null values.
+ * @evidence contracts/development/testing.md#independent-expectations Compares against the three fixture textures in their declared slots and an empty expected list.
  */
 export function test_render_scene_material_texture_bindings(): void {
   const material = (patch: Partial<IAutoMovieMaterial>): IAutoMovieMaterial => ({

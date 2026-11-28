@@ -35,6 +35,10 @@ import { nclose } from "../../internal/predicates";
  * 3. `AutoMovieEngineLoftChain.point` and `AutoMovieEngineLoftPoint.point` equal the closed
  *    point, and `AutoMovieEngineLoftPoint.sampler` of a station at several phases
  *    gives the same points as `point`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names full second-order jets, knot brackets and consistent point/sampler routes.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the six derivative vectors and public samplers on a polynomial-radius chain at authored and interior stations.
+ * @evidence contracts/development/testing.md#independent-expectations Differentiating (r cos φ, y, r sin φ) with r = 3+y+y² gives the six expected vectors. The three stated layer stations separately determine the two brackets.
  */
 export function test_engine_geometry_loft_jet(): void {
   const chain: IAutoMovieLoftChain = Made.chain(

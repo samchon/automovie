@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/throwsError";
  *    published corner coordinate.
  * 3. Tiers of different networks, a face out of range, u = 1.5, t = -0.1 and a
  *    patch the cage lacks are refused by their own diagnostics.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names transfer through the shared surface coordinate, endpoint identity and unrelated or invalid cages.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples all four tiers and maps interior and corner points between every ordered pair, then submits malformed coordinates and mismatched networks.
+ * @evidence contracts/development/testing.md#independent-expectations A chart coordinate belongs to the same source surface across tiers, so mapping back must recover the original face coordinate. A mismatched network or out-of-domain value cannot establish that identity.
  */
 export function test_engine_geometry_surface_tiers(): void {
   const tiers: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];

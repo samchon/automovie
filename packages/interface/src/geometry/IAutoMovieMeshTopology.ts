@@ -1,47 +1,48 @@
 /**
- * What a mesh's triangle topology actually is, measured by
- * `inspectMeshTopology` rather than assumed.
- *
- * Corners are identified by position welded on the `AutoMovieEngineMeshWeldGrid` nanometre
- * grid, or, when the mesh declares physical vertices, by that physical identity
- * for edge incidence. This is a measurement, not a verdict:
- * `validateMeshTopology` judges the same surface and adds winding consistency
- * and an `expectClosed` declaration.
+ * Triangle census, edge incidence and signed volume from a mesh's stored
+ * buffers.
  */
 export interface IAutoMovieMeshTopology {
-  /** Triangle count, including degenerate ones. */
+  /**
+   * Count of source triangles in the admitted index run, including
+   * lattice-collapsed triangles.
+   */
   triangles: number;
 
   /**
-   * Triangles whose three welded corners are not three distinct grid points;
-   * they are excluded from every edge count.
+   * Count of triangles whose positions round onto fewer than three distinct
+   * lattice cells. Their edges are excluded.
    */
   degenerate: number;
 
-  /**
-   * Zero-based ordinals of the degenerate triangles, in ascending order. A
-   * count cannot establish whether a later conversion lost a different face
-   * while recovering an earlier redundant one; these identities preserve that
-   * correspondence without reconstructing the weld calculation in a consumer.
-   */
+  /** Ascending zero-based source triangle ordinals for lattice-collapsed faces. */
   degenerateTriangles: number[];
 
-  /** Edges of non-degenerate triangles used by exactly one triangle. */
+  /**
+   * Number of undirected welded edges used by exactly one noncollapsed
+   * triangle.
+   */
   boundaryEdges: number;
 
-  /** Edges of non-degenerate triangles used by three or more triangles. */
+  /**
+   * Number of undirected welded edges used more than twice by noncollapsed
+   * triangles.
+   */
   nonManifoldEdges: number;
 
   /**
-   * True when at least one edge exists and every edge is shared by exactly two
-   * triangles; winding consistency is not checked here.
+   * True when a nonempty welded edge set has exactly two uses per edge. This is
+   * the edge-incidence measure.
    */
   watertight: boolean;
 
   /**
-   * Signed enclosed volume in cubic metres by the divergence theorem over all
-   * triangles, positive for outward counter-clockwise winding; exact only for a
-   * closed, consistently wound surface.
+   * Signed sum of origin tetrahedron volumes from stored triangles, in cubic
+   * metres. A finite, closed, consistently wound surface gives the enclosed
+   * volume with its winding sign.
+   *
+   * Supply finite positions with representable tetrahedral products for a
+   * finite measurement.
    */
   volume: number;
 }

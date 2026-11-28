@@ -14,11 +14,9 @@ const MM: number = 1e-3;
  * 1. The tower rises 12 15/16 in from the counter on a 6 in base and a 4 5/8 in column, its head 6 7/16 in deep.
  * 2. Its two faucets are 5-1/2 in apart; each spout's tip is 42.15 mm under the head's middle and 44.03 mm out from its front, and each lever stud's top 97.64 mm over its spout's tip.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a tower off its maker's size or a spout or stud off its faucet's drawing is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are the makers' restated here; the head's middle is the tower's height less half the head's depth, worked here by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Both faucets.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the fixed tower extents and both faucet locations, spout undersides and lever stud tops.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the generated tower colliders and both sets of faucet contacts. Reading both sides distinguishes a shared correct vertical offset from a head or faucet placed to one side.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the manufacturer's tower and head dimensions, the literal 5.5 inch faucet separation and the measured spout and stud offsets. The head midpoint is its top minus half its depth.
  */
 export function test_archetype_beer_tap(): void {
   const findings: string[] = [];

@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  *    row between them stays dark, and a caption of three lines keeps its first
  *    two.
  * 5. A sheet asked for zero lines is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Wraps captions at words and long-word bounds, and paints the configured caption rows without erasing earlier glyphs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls caption width and line-count helpers, then stamps known content into a two-line sheet and refuses zero lines.
+ * @evidence contracts/development/testing.md#independent-expectations Nine-character width identifies wrap boundaries, and six pixels per extra line fixes strip heights. The checked white rows and dark gap distinguish correct paint from overwritten glyphs.
  */
 export function test_render_picture_raster_sheet_caption_wrap(): void {
   // 1. Wrapping at words, and breaking a long word.

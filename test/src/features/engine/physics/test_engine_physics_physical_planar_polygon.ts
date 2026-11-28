@@ -27,6 +27,10 @@ import { nclose } from "../../internal/nclose";
  * 7. The square's rows hold its centre and exclude (3, 0); a point's rows hold
  *    only it.
  * 8. A frame facing world +z has its left along world +x, and maps back.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies polygon orientation, centroid, containment, projection, intersection, safe shrink and world/local frame behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises typed rectangle, trapezoid, point and empty sets, including duplicate vertices and contact on a boundary.
+ * @evidence contracts/development/testing.md#independent-expectations Shoelace sign and areas, analytic centroid and hand-measured distances distinguish the operations. The square's distances are -1 at center and 2 outside, and its shrunk area is 1.
  */
 export function test_engine_physics_physical_planar_polygon(): void {
   const signed = (polygon: readonly Polygon.IPoint[]): number =>

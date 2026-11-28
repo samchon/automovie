@@ -34,7 +34,13 @@ export interface IAutoMovieSurfaceLocation {
    * On a sweep or transition patch, the sweep's name and the domain point, `u`
    * along the spine and `v` round it; otherwise null.
    */
-  sweep: {
+  sweep: IAutoMovieSurfaceLocation.ISweepAddress | null;
+}
+
+/** Additional chart address for a vertex that belongs to a sweep. */
+export namespace IAutoMovieSurfaceLocation {
+  /** One patch-derived address in a named sweep's parameter domain. */
+  export type ISweepAddress = {
     /** Network sweep key selected by the sweep or transition patch. */
     name: string;
 
@@ -50,5 +56,5 @@ export interface IAutoMovieSurfaceLocation {
      * correspondence, curve parameter for parameter correspondence.
      */
     v: number;
-  } | null;
+  };
 }

@@ -142,28 +142,18 @@ function latticeCell(
  * built on a malformed field is wrong in a way a reader can see instead of
  * poisoning every arithmetic downstream of it.
  */
-const heightfieldSample: (
-  rule: {
-    kind: "heightfield";
-    originX: number;
-    originZ: number;
-    spacingX: number;
-    spacingZ: number;
-    columns: number;
-    rows: number;
-    samples: number[];
-  },
+function heightfieldSample(
+  rule: IAutoMovieHeightRule.IHeightfield,
   column: number,
   row: number,
-) => number = (
-  rule: Extract<IAutoMovieHeightRule, { kind: "heightfield" }>,
-  column: number,
-  row: number,
-): number =>
-  rule.samples[
-    Math.min(Math.max(row, 0), rule.rows - 1) * rule.columns +
-      Math.min(Math.max(column, 0), rule.columns - 1)
-  ] ?? 0;
+): number {
+  return (
+    rule.samples[
+      Math.min(Math.max(row, 0), rule.rows - 1) * rule.columns +
+        Math.min(Math.max(column, 0), rule.columns - 1)
+    ] ?? 0
+  );
+}
 
 /*
  * Read an exact endpoint or interpolate two heights across a clamped fraction.

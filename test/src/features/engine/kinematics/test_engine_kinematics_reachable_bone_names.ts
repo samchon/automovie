@@ -43,6 +43,10 @@ const names: (skeleton: IAutoMovieSkeleton) => string[] = (
  * 3. A topology passed in is read instead of the skeleton, so a bone added
  *    afterwards is absent from that snapshot.
  * 4. A bone declared twice is refused by the topology index.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers reachability from roots, orphaned bones, a rootless cycle, topology snapshots and duplicate refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls reachableBoneNames with literal parent graphs and with an explicitly prepared topology before and after adding a bone.
+ * @evidence contracts/development/testing.md#independent-expectations Only links descending from a declared root are reachable. The orphan and rootless cycle lack such a path, the prepared snapshot lacks the later link, and declaring one name twice is invalid.
  */
 export function test_engine_kinematics_reachable_bone_names(): void {
   TestValidator.equals(

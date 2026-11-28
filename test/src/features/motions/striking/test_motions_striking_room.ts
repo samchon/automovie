@@ -38,6 +38,10 @@ const FEINT: StrikingRoom.IFeint = {
  * 2. A guard 0.3 m out leaves 0.52 of the feint's 0.8 m, more than the 0.6
  *    declared; 0.5 m out it leaves 0.4; a metre out none; a feint without a way
  *    out keeps its declared share.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes first virtual clearance among swept samples and available progress for a bounded animation path.
+ * @evidence contracts/development/testing.md#behavioral-verification Sweeps two authored-radius samples toward a wall, tries initial contact and no contact, and evaluates varying guard offsets.
+ * @evidence contracts/development/testing.md#independent-expectations The leading sample starts 0.2 m ahead with 0.05 m radius, so a wall at 1 m leaves 0.75 m. Offsets reduce available progress monotonically and a zero path retains the authored share.
  */
 export function test_motions_striking_room(): void {
   const samples: StrikingRoom.ISample[] = [

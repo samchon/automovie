@@ -36,9 +36,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds native families through Native.create and the constant target through the source law, and reads the produced outlines through the engine's outline reader and the family's own field reader.
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is the closed form of an ellipse scaled about a fixed point, c + k (f - c), with the quintic and its derivatives in expanded form; none is read from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases A centre on the section's own centre, a moving centre off it, the zero line, a unit ratio, both chart directions, both sides, extremes and touch offsets, knots and between knots, a bound junction and three refusals, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership Small made families and sources built inside the test; no person, reference body, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation States the ellipse, the law's closed forms, the worked numbers at 30 mm and the truncation bound.
+ * @evidence contracts/development/common.md#meaningful-documentation Scaling about a section centre or moving line is checked through value and derivative reads, exact identity cases, and refusals at unsupported poles or axes.
  */
 export function test_human_native_centred_scale(): void {
   const failures: string[] = [];

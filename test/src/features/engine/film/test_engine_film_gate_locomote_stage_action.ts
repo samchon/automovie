@@ -20,6 +20,10 @@ import { createSkeleton } from "../../internal/createSkeleton";
  *    accepted. A one-metre drop without horizontal travel is refused.
  * 2. A rigged bone destination is sampled at the action's start. A relative
  *    heading bypasses placement but still checks the actor's allowed gait.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish horizontal and vertical-only motion, sampled bone coordinates and a relative heading with gait validation.
+ * @evidence contracts/development/testing.md#behavioral-verification The test sends world points, a rigged bone and a relative heading to the real action gate. It checks boarding of admitted locomotion and observes when target sampling and failures occur.
+ * @evidence contracts/development/testing.md#independent-expectations The staged origin makes the unchanged ground point and one-metre horizontal move admissible, while a pure one-metre drop does not produce horizontal travel. A bone is read at the action's authored start. A relative heading has no required world point but still uses the actor's gait options.
  */
 export function test_engine_film_gate_locomote_stage_action(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

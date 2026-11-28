@@ -4,120 +4,99 @@ import type {
 } from "..";
 
 /**
- * Ordered raw plane-cut contour with exact source segment lineage. Point and
- * cumulative lengths are registered millimetres; edge fractions are
- * dimensionless and source triangle/edge ordinals address the original
- * observation input. Contour order includes open, closed and unsupported
- * publications.
+ * One reobserved contour in raw point order, with the saved publication and
+ * original face support.
  */
 export interface IAutoMovieRecoveryOrderedContour {
-  /** Raw ordinal before fitting or rejection, in this saved physical plane. */
+  /** Original zero-based ordinal of this raw contour at its saved station. */
   contourIndex: number;
 
-  /** Closure follows the exact cutter's graph walk, never an invented cap. */
+  /** Whether the raw cutter emitted a cycle. */
   closed: boolean;
 
-  /**
-   * Original closed/open/failed/degenerate publication, preserved independently
-   * of new traces.
-   */
+  /** Caller-attested saved publication that survived raw binding. */
   publication: IAutoMovieRecoverySourceLineage["publication"];
 
-  /**
-   * Broad original face support, including incident neighbors; not exact
-   * emitting membership.
-   */
+  /** Broad native face support from the observed point incidence. */
   sourceTriangleIds: number[];
 
-  /** Original faces that actually emitted this contour or isolated contact. */
+  /** Original native face IDs that actually emitted the raw contour. */
   exactSourceTriangleIds: number[];
 
   /**
-   * Ordered registered observations; p and each witness point are mm, t is
-   * dimensionless.
+   * Raw cut points in cutter order with their original edge addresses and
+   * interpolation parameters.
    */
   points: Array<{
-    /**
-     * Physical point selected by the existing canonical cutter, not a
-     * representative vertex interpolation.
-     */
+    /** Registered raw cut point in millimetres. */
     p: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * First canonical connectivity label of the cutter point's supporting edge
-     * or vertex.
-     */
+    /** First canonical source endpoint of the raw cut point. */
     a: number;
 
-    /** Second canonical connectivity label; a==b denotes an on-plane vertex. */
+    /** Second canonical source endpoint, equal to a for a source vertex hit. */
     b: number;
 
-    /**
-     * Cutter fraction oriented with canonical a/b; it is not a fitted curve
-     * phase.
-     */
+    /** Dimensionless fraction along the canonical address from a to b. */
     t: number;
 
-    /**
-     * Opt-in original edge aliases; omission means the trace cannot assert
-     * their original addresses.
-     */
+    /** Original edge occurrences retained for this possibly aliased cut point. */
     sourceEdges?: Array<{
-      /** First original input vertex of this emitted-edge witness. */
+      /** First original vertex address of this raw edge occurrence. */
       a: number;
 
-      /**
-       * Second original input vertex, distinct from any canonical
-       * representative.
-       */
+      /** Second original vertex address of this raw edge occurrence. */
       b: number;
 
-      /** Physical plane-crossing fraction in this original edge direction. */
+      /** Dimensionless fraction from the occurrence's original a endpoint to b. */
       t: number;
 
-      /**
-       * Original edge's registered physical witness in mm, retained even when
-       * aliases share connectivity.
-       */
+      /** Registered point in millimetres for this original edge occurrence. */
       pointMm: Readonly<AutoMovieVector3Tuple>;
     }>;
   }>;
 
   /**
-   * Chord phase at each raw point, starting at zero; closed closure has a
-   * separate final segment.
+   * Measured distance along consecutive raw points from the first point, in
+   * millimetres.
    */
   cumulativePolylineMm: number[];
 
   /**
-   * Full physical chord perimeter/length including a closed final edge; zero
-   * for an isolated contact.
+   * Measured contour length in millimetres, including the final seam for a
+   * closed contour.
    */
   totalPolylineMm: number;
 
   /**
-   * Directed emitted graph segments in point order, including all source faces
-   * for each contribution.
+   * Ordered raw segments with endpoint indices, chord positions and original
+   * emitting faces.
    */
   segments: Array<{
-    /** Cutter graph-edge identity, interpreted only within this input cut. */
+    /** Official cut segment identity used for its emitting face record. */
     id: string;
 
-    /** Index into points at the directed segment start. */
+    /** Original raw point index where this segment begins. */
     from: number;
 
-    /** Index into points at the end; zero on a genuine closing edge. */
+    /**
+     * Original raw point index where this segment ends. For the closing segment
+     * this is zero.
+     */
     to: number;
 
-    /** Start of this original polyline segment in physical chord mm. */
+    /** Cumulative raw polyline phase at the segment start in millimetres. */
     startMm: number;
 
-    /** End in physical chord mm, retaining actual final closure width. */
+    /**
+     * Cumulative raw polyline phase at the segment end in millimetres,
+     * including any closing seam.
+     */
     endMm: number;
 
     /**
-     * Complete native face ordinals emitting this directed contribution, not
-     * endpoint-star supersets.
+     * Original native triangle ordinals supplied by the caller map for the
+     * segment's actual emitting faces.
      */
     originalTriangleIds: number[];
   }>;

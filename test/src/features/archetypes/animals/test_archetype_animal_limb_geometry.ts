@@ -23,11 +23,9 @@ import { nclose } from "../../internal/nclose";
  *    state isolates source/output mutation and small admitted plane arithmetic
  *    preserves the caller's exact root and terminal X values.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines literal SI controls, independent folded bands, exact-root/goal semantics, branch/plane checks, strict geometric boundaries and snapshot ownership without anatomical ROM claims.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises the real prepare/range/solve owner, measuring all four returned lengths and endpoint coordinates. Tangencies, an actual bent source and independently calculated fold changes distinguish fixed-root geometry from a solver that translates the root, clamps reach, borrows species angles or returns a completed sample.
- * @evidence contracts/development/testing.md#independent-expectations The literal lower lengths sum to twelve; triangle inequality with upper length two gives [10,14]. Orthogonal lower pieces of three and nine give sqrt(90), while opposite collinear pieces give six and [4,8]. These expectations never call range to build a goal or derive an expected length. Two-ULP outside axis-aligned distances avoid an arbitrary biological reach margin; 1e-10 m observes returned rigid arithmetic.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts both elbow/stifle branches, inner/outer tangency, nearby outside and far overdrop, zero versus nonzero fold, straight versus bent actual sources, invalid source/goal planes and mutated source/output versus prepared replay. Actual body attachment and solid floor support are owned by the separate ride units.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous portable unit owns literal vectors, prepared readers and fresh results; it performs no compiler, renderer, process, wall-clock assertion or foreign-method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the authored segment lengths, fold geometry, tangent bounds, bent source and unsupported endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the public preparation, range and solution calls and measures all four segment lengths and endpoints. Tests include exact tangencies, adjacent outside distances, a bent fixture and a fixed root.
+ * @evidence contracts/development/testing.md#independent-expectations Literal lower lengths sum to twelve, so an upper length of two gives [10, 14]. Folding lengths three and nine gives `sqrt(90)` at 90 degrees and six when opposed. Distance observations use the given `1e-10` metre tolerance.
  */
 export function test_archetype_animal_limb_geometry(): void {
   const findings: string[] = [];

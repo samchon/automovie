@@ -14,11 +14,9 @@ import * as path from "node:path";
  * 2. A page of a production with neither gives `false` for both, as Vite reads "no configuration file" and "no public folder".
  * 3. The entry holds none of the characters that make Vite treat it as a glob, and resolved against the root it is the page's own `index.html`, even when the folder lies under `node_modules` and holds parentheses.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported planner with page records and asserts every member of the returned configuration.
- * @evidence contracts/development/testing.md#independent-expectations The expected members are Vite's documented option names and values; the glob characters are those Vite's `isDynamicPattern` reacts to (`*`, `?`, `[`, `]`, `{`, `}`, `(`, `)`, `!`, `@(`, `+(`), and the resolved path comes from Node's `path.resolve`, not from the planner.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a production with a configuration and a public folder against one with neither, and a plain folder against one under `node_modules` with parentheses in its name.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_cli_module_page_vite_config`; it starts no Vite and writes no file. Whether Vite pre-bundles from the entry belongs to a run of the command.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming its input and the behaviour it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the page root, retained Vite and public callbacks, disabled fallbacks, and literal entry under a dependency directory.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported Vite planner for fixtures with and without production configuration and for a page under `node_modules` with parentheses. Checks the planned fields and resolves the dependency entry to the actual page.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the explicit Vite option records, checks the entry against literal glob metacharacters, and computes the expected `index.html` path from the fixture root with Node's path resolver.
  */
 export function test_cli_module_page_vite_config(): void {
   // 1. A production with a configuration file and a public folder.

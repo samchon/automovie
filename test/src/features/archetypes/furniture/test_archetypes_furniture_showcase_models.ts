@@ -13,11 +13,15 @@ const INCH: number = 0.0254;
 const POUND: number = 0.45359237;
 
 /**
- * The two listed Full Vision cases carry their own width and mass together.
+ * The two Full Vision cases carry their own length and mass together.
  *
  * Scenarios:
  * 1. The 48-inch 170-pound and 70-inch 190-pound models use the specified size.
- * 2. Each model's service edge lies halfway along its depth on the case top.
+ * 2. The customer edge lies at half the body depth toward +Z on the case top.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both Full Vision case lengths and masses, solid size and the forward customer edge.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each named case, measures its actual body box and mass and compares the customer edge with the upper case boundary.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated 48 inch and 170 pound pairing and 70 inch and 190 pound pairing. A forward edge on the case top is half the body depth from its centre along +Z.
  */
 export function test_archetypes_furniture_showcase_models(): void {
   for (const [model, length, mass] of [

@@ -19,8 +19,17 @@ import { AutoMovieEngineLoftAdmissionError } from "./AutoMovieEngineLoftAdmissio
  */
 export namespace AutoMovieEngineConstructionProfilePhase {
   /**
-   * Borrow already admitted immutable originals; explicit null never falls back
-   * to total2.
+   * Build a named-piece phase reader from the already admitted sources. It
+   * accepts a physical millimetre station on the retained piece and a
+   * normalized coordinate in [0, 1]. A phase callback returning null refuses
+   * the read. An absent callback uses the complete local jet.
+   *
+   * @param source Original curve and plane-frame functions.
+   * @param definition The admitted profile declaration.
+   * @returns Reader of finite world value and phase derivatives. A null second
+   *   derivative keeps the value and first derivative available.
+   * @throws AutoMovieEngineLoftAdmissionError from a read with an unavailable
+   *   chart, malformed source operands or an unrepresentable world result.
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
@@ -46,10 +55,8 @@ export namespace AutoMovieEngineConstructionProfilePhase {
       const chart: Chart | undefined = charts.get(piece);
       if (
         chart === undefined ||
-        station < chart.domain[0] ||
-        station > chart.domain[1] ||
-        coordinate < 0 ||
-        coordinate > 1
+        !(station >= chart.domain[0] && station <= chart.domain[1]) ||
+        !(coordinate >= 0 && coordinate <= 1)
       )
         fail("Original phase query is outside its actual piece chart.");
       const original: IAutoMovieConstructionProfilePiece = chart!.piece;
@@ -68,8 +75,15 @@ export namespace AutoMovieEngineConstructionProfilePhase {
       if (local!.tt !== null) pair(local!.tt);
       const frame: IAutoMovieLoftSectionFrame = source.plane.axis.at(station);
       for (const value of [frame.origin, frame.u, frame.v])
-        if (value.length !== 3)
-          fail("Original phase query has incomplete plane data.");
+        if (
+          value.length !== 3 ||
+          !Number.isFinite(value[0]) ||
+          !Number.isFinite(value[1]) ||
+          !Number.isFinite(value[2])
+        )
+          fail(
+            "Original phase query needs three finite components per plane vector.",
+          );
 
       /*
        * At fixed station only the actual local curve differentiates in phase.
@@ -93,6 +107,12 @@ export namespace AutoMovieEngineConstructionProfilePhase {
         tt: local!.tt === null ? null : world(local!.tt, factor * factor),
       };
 
+      if (
+        !result.p.every(Number.isFinite) ||
+        !result.t.every(Number.isFinite) ||
+        (result.tt !== null && !result.tt.every(Number.isFinite))
+      )
+        fail("Original phase query has an unrepresentable world result.");
       return result;
     };
   }
@@ -120,8 +140,12 @@ type Chart = {
  * Every provided local derivative owns both components.
  */
 function pair(value: readonly number[]): void {
-  if (value.length !== 2)
-    fail("Original phase reading requires two local components.");
+  if (
+    value.length !== 2 ||
+    !Number.isFinite(value[0]) ||
+    !Number.isFinite(value[1])
+  )
+    fail("Original phase reading requires two finite local components.");
 }
 
 /*

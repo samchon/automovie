@@ -64,6 +64,10 @@ const failsAt: (
  * 4. Impact hardness and penetrability above one are rejected. Profile admission
  *    uses (0,1], a stricter lower bound than resolveImpact's [0,1] physical
  *    coefficient domain.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers profile admission from the direct and model gates, identity and trait uniqueness, and the mountable and destructible scalar ranges.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateProfileCapabilities and validateModel on the authored profile and mutates the specific names, kinds or numeric parameters being checked.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture sets known mountable and destructible limits with valid values. Blank or repeated identities violate uniqueness independently. Hardness and penetrability above one exceed the profile domain irrespective of other impact fields.
  */
 export function test_engine_validation_profile_capabilities(): void {
   const valid: IAutoMovieProfile = profile();

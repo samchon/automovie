@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Measurement failure after a qualified baseline retains its original error
  *    identity when a correction slot exists; two remaining slots never call the
  *    absent correction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names actual movement, model, timing and callback gates for curvature corrections.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses fixed trial allowances to observe the same-base prefix, then submits explicit row, cost, measurement and callback failures.
+ * @evidence contracts/development/testing.md#independent-expectations The y² exclusion row and prescribed candidate costs determine the expected rejection independently of the mixed/correction solver.
  */
 export function test_recovery_internal_refine_feasible_state_feasible_sqp_gates(): void {
   const initial: number[] = [2, 0];

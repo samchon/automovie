@@ -53,6 +53,9 @@ export function createChessBoard(
     direction: "normal",
     frame: AutoMovieArchetypeFrame.upright(v(0, BOARD.thickness, 0)),
     extent: null,
+    materialPart: "board",
+    width: side,
+    depth: side,
   });
   FILES.forEach((file: AutoMovieArchetypeChessBoard.File, i: number): void =>
     RANKS.forEach((rank: AutoMovieArchetypeChessBoard.Rank, j: number): void => {

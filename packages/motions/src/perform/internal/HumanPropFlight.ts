@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
@@ -16,6 +16,7 @@ import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefus
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropCatchHands } from "./HumanPropCatchHands";
 import { HumanPropFlightFrame } from "./HumanPropFlightFrame";
+import { HumanPropHandback } from "./HumanPropHandback";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
 import { launchPropProjectile } from "./launchPropProjectile";
@@ -144,7 +145,10 @@ export namespace HumanPropFlight {
             launches[index + 1]?.launch.touching,
           ),
         );
-      if (!self.resolving) admitCaptures(self, subject, out);
+      if (!self.resolving) {
+        admitCaptures(self, subject, out);
+        admitHandbacks(self, subject, out);
+      }
     } finally {
       self.flying.delete(subject);
     }
@@ -287,6 +291,98 @@ export namespace HumanPropFlight {
         value: subject,
         reason: `the final flight misses the staged interception at ${grip.from} s`,
         fix: "align the published launch and fit the receiving hand on an unobstructed path",
+      });
+    }
+  }
+
+  /*
+   * Verify opted-in palm handbacks after placement and collision resolution.
+   * Legacy launches use no tagged predecessor.
+   */
+  function admitHandbacks(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    flights: readonly IAutoMovieMotionHumanPropFlight.IFlight[],
+  ): void {
+    for (const [index, flight] of flights.entries()) {
+      const incoming = HumanPropHandback.predecessor(flight.published);
+      if (incoming === undefined) continue;
+
+      const before = flights[index - 1];
+      if (
+        before?.published !== incoming ||
+        !(before.launch < flight.launch) ||
+        before.supersededAt !== flight.launch
+      )
+        throw new AutoMovieMotionHumanRefusal({
+          kind: "reach",
+          performer: flight.source.subject,
+          act: flight.source.name,
+          axis: "ball",
+          value: subject,
+          reason:
+            "the anchored launch does not own the ball at the final palm touch",
+          fix: "anchor the immediate incoming ball launch",
+        });
+
+      const origin = HumanPropFlightFrame.sample(self, before, flight.launch);
+      const next = HumanPropFlightFrame.sample(self, flight, flight.launch);
+      const error = Math.hypot(
+        origin.position.x - next.position.x,
+        origin.position.y - next.position.y,
+        origin.position.z - next.position.z,
+      );
+      const turn = origin.rotation;
+      const other = next.rotation;
+      const aligned = Math.hypot(
+        turn.x - other.x,
+        turn.y - other.y,
+        turn.z - other.z,
+        turn.w - other.w,
+      );
+      const negated = Math.hypot(
+        turn.x + other.x,
+        turn.y + other.y,
+        turn.z + other.z,
+        turn.w + other.w,
+      );
+      if (!(error <= 1e-6 && Math.min(aligned, negated) <= 1e-6))
+        throw new AutoMovieMotionHumanRefusal({
+          kind: "reach",
+          performer: flight.source.subject,
+          act: flight.source.name,
+          axis: "ball",
+          value: subject,
+          reason: `the final flight changes the ball's frame at the palm touch (${error} m position error)`,
+          fix: "keep the ball at its displayed incoming frame",
+        });
+
+      const { sphere, touching } = flight.published;
+      if (
+        sphere !== undefined &&
+        touching !== undefined &&
+        touching.length > 0 &&
+        touching.every((side) =>
+          HumanPropCatchHands.touches(
+            self,
+            flight.source.subject,
+            side,
+            flight.launch,
+            origin,
+            sphere,
+          ),
+        )
+      )
+        continue;
+
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "reach",
+        performer: flight.source.subject,
+        act: flight.source.name,
+        axis: "ball",
+        value: subject,
+        reason: "the final fitted palm misses the ball at the touch",
+        fix: "bring the touching hand to the incoming sphere",
       });
     }
   }

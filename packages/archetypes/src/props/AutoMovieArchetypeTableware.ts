@@ -14,29 +14,25 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeTablewareData } from "./internal/AutoMovieArchetypeTablewareData";
 
-/** Constructs the tableware archetype from its recipe. */
+/**
+ * Constructs flat ceramic plates, platters and saucers with stacking and carrying contacts.
+ */
 export namespace AutoMovieArchetypeTableware {
 /**
- * A plate food is served on and eaten from: a round plate, from a side plate to
- * a dinner plate, an oblong serving platter, or a cup's saucer.
+ * Build a level ceramic plate, platter or saucer with its base at model Y zero.
  *
- * The plate lies flat on the origin, a slab of the drawn size and height; a
- * platter's long side runs along `X`. Its well and rim are not drawn, so its
- * face is level at its full height. `top` is that face, where food sits and
- * another plate stacks, a `stack-top` whose extent is the plate's outline;
- * `leftRim` and `rightRim` are the plate's edge at `+X` and `-X`, pinched
- * across its height between a thumb on the face and the fingers beneath;
- * `underside` is its base facing down, the whole plate's size, where two hands
- * carry it from below.
+ * Round forms use a 16-point stacking outline. A platter's rectangular
+ * outline has its long side along X. The model uses a level slab across
+ * the whole face, including the rim and centre.
  *
- * @param params The kind, the kind's model where it has read models, and any
- *   dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every
- *   dimension left free inside its band; absent, the first model and the middle
- *   of each band.
- * @returns The plate.
- * @throws {AutoMovieArchetypeRefusal} For a model the kind does not have, or a
- *   fixed dimension outside its band.
+ * @param params Shape, optional scene ID, applicable finite fixed values
+ *   and a model where the shape uses catalogue figures. The ID defaults
+ *   to `tableware`.
+ * @param seed Numeric seed for an omitted model or band value. Omit it
+ *   for the side plate, 27 cm serving platter or recorded saucer.
+ * @returns The slab with `top` at full height, rim pinches at opposite X
+ *   edges and a downward `underside` at its base.
+ * @throws {AutoMovieArchetypeRefusal} If the shape, model or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeTableware.IParams,
@@ -147,40 +143,28 @@ export function create(
   return builder.build(d.mass!);
 }
 
-  /**
-   * The kinds: a round plate, from a side plate to a dinner plate, an oblong
-   * serving platter and a cup's saucer.
-   */
+  /** Selects a round plate, rectangular serving platter or round saucer. */
   export type Kind = "plate" | "platter" | "saucer";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Admitted shapes in plate, platter and saucer gallery order. */
   export const KINDS: readonly Kind[] = ["plate", "platter", "saucer"];
 
-  /** The number of points of a round plate's stacking outline. */
+  /** Vertex count of the inscribed stacking outline for round forms. */
   export const OUTLINE: number = 16;
 
   /**
-   * The affordance ids:
-   *
-   * - `top`: the face, a `stack-top` the plate's size, where food sits and
-   *   another plate stacks.
-   * - `leftRim`, `rightRim`: the edge at `+X` and `-X`, pinched from above, `+X`
-   *   along the edge.
-   * - `underside`: the base, facing down, where two hands carry the plate.
+   * Names the upper stacking region, opposed X-side pinches and downward support.
+   * The `leftRim` is on `+X` and the `rightRim` is on `-X`, at half height.
    */
   export type Affordance = "top" | "leftRim" | "rightRim" | "underside";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `diameter`: a round plate's or a saucer's, across.
-   * - `length`, `width`: a platter's, along `X` and `Z`.
-   * - `height`: the face above the base.
-   * - `mass`: kilograms.
+   * Geometry in metres and mass in kilograms. Round forms use `diameter`.
+   * Platters use `length` along X and `width` along Z. `height` is top Y.
    */
   export type Dimension = "diameter" | "length" | "width" | "height" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Unit table shared by plate catalogue figures and the saucer bands. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -192,28 +176,27 @@ export function create(
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+   * Shape and optional scene ID, model and applicable finite fixed measurements.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which plate. */
+    /** Selects the body footprint and the applicable measurement table. */
     kind: Kind;
 
-    /** A round plate's or a platter's model; drawn from the seed when absent. */
+    /**
+     * Catalogue ID for a round plate or platter. A saucer uses its fixed bands.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `tableware` when absent. */
+    /** Scene object ID, defaulting to `tableware`. */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /** Correlated dimensions and mass of one round plate or platter model. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
-   * The models read: IKEA 365+'s side plate and plate, and its 27 by 15 cm
-   * serving plate (the 36 by 20 cm one is not built, since its page gives no
-   * height); Rosenthal's Joyn and Thomas's Sunny Day 27 cm plates; Thomas's
-   * Loft 34 cm and Rosenthal's Heritage Midas 33 cm platters.
+   * Round plates `sidePlate`, `dinnerPlate`, `joyn27` and `sunnyDay27`,
+   * and platters `serving27`, `loft34` and `midas33`.
    */
   export type Model =
     | "sidePlate"
@@ -225,26 +208,17 @@ export function create(
     | "midas33";
 
   /**
-   * Each kind's models whole, the default first. A round plate, diameter and
-   * height: the side plate 20 x 2 cm and the plate 27 x 3 cm
-   * (https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/,
-   * https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949). A platter,
-   * length, width and height: 27 x 15 x 3 cm
-   * (https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364).
+   * Whole round-plate and platter measurements. Each row keeps one
+   * model's dimensions with its recorded mass. The first entry by shape
+   * is the seedless default. IKEA masses use the recorded packed weights.
    *
-   * Their masses are provisional: the pages' packed weights, 0.41, 0.77 and
-   * 0.52 kg, which the plate alone is lighter than by an amount no page gives.
-   *
-   * The makers' plates and platters, with each article's own weight: Rosenthal
-   * Joyn Plate 27 cm flat, 27.00 cm across, 2.50 cm high, 710 g
-   * (https://www.rosenthal.de/en-gb/plate-27-cm-flat/44020-640202-10867.html);
-   * Thomas Sunny Day Plate 27 cm, 27.00 cm, 2.80 cm, 590 g
-   * (https://thomas-porzellan.de/de-at/speiseteller-27-cm/10850-800001-10227.html);
-   * Thomas Loft Platter 34 cm, 33.80 by 24.00 cm, 3.10 cm high, 965 g
-   * (https://thomas-porzellan.de/fr-fr/plat-34-cm/11900-800001-12734.html);
-   * Rosenthal Heritage Midas Platter 33 cm, 33.20 by 21.20 cm, 3.80 cm high,
-   * 780 g
-   * (https://www.rosenthal.de/en-gb/platter-33-cm/10480-408684-12733.html).
+   * @see https://www.ikea.com/gb/en/p/ikea-365-side-plate-white-90621364/
+   * @see https://www.ikea.com/gb/en/p/ikea-365-plate-white-70258949
+   * @see https://www.ikea.com/gb/en/p/ikea-365-serving-plate-white-70607364
+   * @see https://www.rosenthal.de/en-gb/plate-27-cm-flat/44020-640202-10867.html
+   * @see https://thomas-porzellan.de/de-at/speiseteller-27-cm/10850-800001-10227.html
+   * @see https://thomas-porzellan.de/fr-fr/plat-34-cm/11900-800001-12734.html
+   * @see https://www.rosenthal.de/en-gb/platter-33-cm/10480-408684-12733.html
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -262,7 +236,9 @@ export function create(
     },
   };
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * The saucer's 0.12 metre diameter, 0.014 metre height and 0.106 kilogram mass. Plate and platter use complete catalogue rows.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

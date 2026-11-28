@@ -81,6 +81,10 @@ const WAVE: IAutoMovieMotionHumanPosture = {
  *    fingers.
  * 6. A prepared merge copies its claims and retains their ownership across reverse
  *    input order, including a previously unobserved owned joint.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes unilateral and bilateral overlay ownership, cleared owned values, a single digit, and prepared reads after claim changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the direct and prepared channel merge owners on distinct base and overlay postures and checks field identities across a reversed sample order.
+ * @evidence contracts/development/testing.md#independent-expectations Authored references identify which source owns each joint or limb. The absent wave forearm clears that owned slot, while the base's planted foot, root and unclaimed arm keep their original values.
  */
 export function test_motions_compose_channel_merge(): void {
   // 1. A one-hand wave.

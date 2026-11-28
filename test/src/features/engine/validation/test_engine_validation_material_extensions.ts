@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. `isMaterialExtension` reads the identity's own segments: material,
  *    materials, texture and textures (case-folded) are material extensions;
  *    draco, lights and a mere substring (`immaterialism`) are not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the supported extension list, filtering and stable deduplication by extension name segments.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the material extension classifier and unsupported-extension collector on typed names, with repeated, unrelated and mixed-case examples.
+ * @evidence contracts/development/testing.md#independent-expectations The authored supported list contains four specified capabilities. Case-folded material and texture segments identify the domain, while a substring in another word does not. Repeats must yield one sorted entry.
  */
 export function test_engine_validation_material_extensions(): void {
   // 1.

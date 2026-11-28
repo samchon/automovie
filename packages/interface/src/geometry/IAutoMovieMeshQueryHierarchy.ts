@@ -1,16 +1,14 @@
 /**
- * A box hierarchy over resident entries, initially median-partitioned by
- * buildMeshQueryHierarchy and optionally given fresh entries/bounds by
- * refitMeshQueryHierarchy while preserving that partition. Signed and
- * separation queries, collectSpatialQueryCandidates and the human
- * nearest-centre envelope walk the same node representation.
+ * A median box hierarchy shared by nearest-feature and candidate queries.
  *
- * Every node carries the componentwise XYZ extrema of every entry below it, in
- * the entries' shared metre frame, so a node's box distance is a lower bound
- * for every descendant and a walker may skip a node its query cannot reach. A
- * leaf holds the entries themselves, by reference and in partition order; a
- * branch holds two disjoint halves. Callers tell the variants apart with
- * `"triangles" in node`.
+ * Each node encloses its descendant geometry in one XYZ metre frame. Box
+ * distance is a lower bound for its descendants. A leaf contains entries by
+ * reference and a branch contains the two median partitions. Test for the
+ * `triangles` property to distinguish a leaf.
+ *
+ * Building chooses the widest node axis, breaking width ties in XYZ order, then
+ * sorts by centre. Equal centres retain their order entering that split.
+ * Refitting creates new bounds and nodes with the same partition membership.
  */
 export type IAutoMovieMeshQueryHierarchy<
   T extends IAutoMovieMeshQueryHierarchy.IEntry,
@@ -41,13 +39,13 @@ export namespace IAutoMovieMeshQueryHierarchy {
    * input had no more than twelve.
    */
   export interface ILeaf<T extends IAutoMovieMeshQueryHierarchy.IEntry> {
-    /** Componentwise XYZ minimum over the held entries; Infinity when empty. */
+    /** XYZ minima over the entries, all positive infinity for an empty leaf. */
     low: number[];
 
-    /** Componentwise XYZ maximum over the held entries; -Infinity when empty. */
+    /** XYZ maxima over the entries, all negative infinity for an empty leaf. */
     high: number[];
 
-    /** Current entries by reference, in the original partition's leaf order. */
+    /** Current entries by reference, in the original leaf order after refit. */
     triangles: T[];
   }
 

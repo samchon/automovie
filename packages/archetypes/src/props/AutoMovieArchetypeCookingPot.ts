@@ -2,32 +2,39 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createCookingPot as createCookingPotImplementation } from "./internal/createCookingPot";
 import { type AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
-/** Public operations for Auto Movie Archetype Cooking Pot. */
+/** Constructs an open steel saucepan or stockpot with usable handles. */
 export namespace AutoMovieArchetypeCookingPot {
   /**
-   * A saucepan with a long handle or a stockpot with paired side handles.
+   * Build a floor-supported steel cooking vessel with an open top.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The saucepan's 0.18 metre grip extends along `+X`. Stockpot grips
+   * run along Z on opposite X sides and have two attachments to the
+   * walls. Both forms expose an upward rim and supported inner floor.
+   *
+   * @param params Required saucepan or stockpot kind, optional scene ID
+   *   and finite dimensions in its bands. The ID defaults to `vessel`.
+   * @param seed Numeric seed for omitted mass. Seedless masses are
+   *   1.1 kilograms for the saucepan and 2.4 for the stockpot.
+   * @returns The joined pot with its opening, supported inner floor and grips.
+   * @throws {AutoMovieArchetypeRefusal} If the kind or fixed value is inadmissible.
    */
   export function create(params: AutoMovieArchetypeCookingPot.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeCookingPot.Affordance, AutoMovieArchetypeCookingPot.Dimension> {
     return createCookingPotImplementation(params, seed);
   }
 
-  /** The `kind` choices this producer admits. */
+  /**
+   * Selects the single-handle saucepan or the stockpot with two attached handles.
+   */
   export type Kind = "saucepan" | "stockpot";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Outside vessel span and rim height in metres, and assembled size-specific mass in kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * Opening `rim` and floor `inside`, plus one `handle` or opposed `leftHandle` and `rightHandle`.
+   */
   export type Affordance =
     | "handle"
     | "inside"
@@ -35,14 +42,16 @@ export namespace AutoMovieArchetypeCookingPot {
     | "rightHandle"
     | "rim";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Required cooking-pot kind, optional scene ID and finite measurements in that form's bands.
+   */
   export interface IParams extends Pick<
     AutoMovieArchetypeVessel.IParams,
     "id" | "diameter" | "height" | "mass"
   > {
-    /** A single long handle or a two-handle cooking pot. */
+    /** Selects `saucepan` for a long handle or `stockpot` for side handles. */
     kind: Kind;
   }
 
-  /** Legacy selectors for this construction, in gallery order. */
+  /** The two cooking-pot shapes in saucepan then stockpot order. */
   export const KINDS: readonly IParams["kind"][] = ["saucepan", "stockpot"];}

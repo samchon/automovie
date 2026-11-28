@@ -18,6 +18,10 @@ type Point = [number, number];
  *    determinant 2 MAX_VALUE times a signed unit ordinate, whose differences
  *    overflow, reads that unit's sign.
  * 3. Each coordinate of a caller's point is read once.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names cancellation, scale extremes, axis and collinear cases, and the single-read guarantee.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public orientation owner with representative binary64 points and counted accessors, observing returned signs and read counts.
+ * @evidence contracts/development/testing.md#independent-expectations The determinant N times (N−2) minus (N−1) squared is exactly −1. Power-of-two rescaling preserves sign. Reversing or reflecting a nonzero determinant changes its sign.
  */
 export function test_engine_geometry_chart_orientation(): void {
   const sign = (label: string, a: Point, b: Point, c: Point, s: number): void =>

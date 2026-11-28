@@ -21,6 +21,10 @@ const METRIC_ROUNDING: number = 8192 * Number.EPSILON;
  * 2. Damping by one adds the original column norms squared to the diagonal. The
  *    leading block then has determinant 76 and the same covector has norm
  *    squared 116/19. A camera parallel to the point cannot gain rank.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States physical covector order, block couplings and damping.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures a fixed coupled metric with and without damping and probes a rank-deficient camera direction.
+ * @evidence contracts/development/testing.md#independent-expectations Inverting the leading block with rows (5, 2) and (2, 4) and remaining diagonal 16 and 64 gives squared inverse norm 12. The damped block gives 116/19.
  */
 export function test_recovery_internal_factor_map_metric(): void {
   const block: Parameters<typeof AutoMovieRecoveryCameraMap.factorMapMetric>[0][number] = {

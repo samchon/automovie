@@ -31,6 +31,10 @@ import { sweepManifold } from "../../internal/sweepManifold";
  *    controls within 1e-9, through one involution that carries every face to a
  *    face of opposite winding: points shared by strips of different spacing
  *    are where an order-dependent rule would break it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names manifold cage and ring rules, undeclared mouth, geometry-only reshape and mirrored incidence across tiers.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples bottle, holed and branched surface networks and checks actual edges, vertices, UV topology and reflected controls.
+ * @evidence contracts/development/testing.md#independent-expectations Each interior oriented edge must have its reverse and each single incidence must lie on a declared ring. Symmetric input requires a reflected involution that reverses face winding.
  */
 export function test_engine_geometry_sweep_network(): void {
   const tiers: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];

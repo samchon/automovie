@@ -28,6 +28,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. A push of 1.1 x absorb takes one step, at x = 0.1 + 0.01 exp(0.4 w0).
  * 4. A push of twice the step bound falls with no steps.
  * 5. Zero mass and an empty support are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers absorbed, one-step and falling outcomes, including both thresholds and invalid mass or support.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the balance-outcome owner with explicit body mass, support vertices, centre, impulses and reach parameters. The tests read bounds, momentum and landings.
+ * @evidence contracts/development/testing.md#independent-expectations The inverted pendulum gives x + v/w0 and exponential drift outside the base. The documented threshold formulas fix the branch boundaries. J divided by mass and the cross product with the half-metre lever independently fix the momentum.
  */
 export function test_engine_kinematics_balance_outcome(): void {
   const w0: number = Math.sqrt(AutoMovieEngineGravity.STANDARD);

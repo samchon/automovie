@@ -61,6 +61,29 @@ export function supportStep(props: supportStep.IProps): number {
       );
     },
   );
+  // When a foot climbs from the floor with both hands and the other knee
+  // already bearing on the raised surface, keep that fitted support pose as
+  // the starting preference. Rebuilding the previous stance's half-kneel can
+  // move the knee away from its placed target before the swing is solved.
+  const crossing: supportCourse.ICrossing | undefined =
+    crossings.length === 1 ? crossings[0] : undefined;
+  const floor: IAutoMovieVector3 | null =
+    crossing === undefined ? null : oldPlace(crossing.previous);
+  const ledge: IAutoMovieVector3 | null =
+    crossing === undefined ? null : place(crossing.contact);
+  const raisedFromTripod: boolean =
+    crossing?.contact.part.endsWith("Foot") === true &&
+    floor !== null &&
+    supportContact.onFloorTarget(floor) &&
+    ledge !== null &&
+    !supportContact.onFloorTarget(ledge) &&
+    kept.length === 3 &&
+    kept.every(
+      (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+        !supportContact.onFloorTarget(oldPlace(contact)),
+    ) &&
+    kept.filter(({ part }): boolean => part.endsWith("Hand")).length === 2 &&
+    kept.some(({ part }): boolean => part.endsWith("Knee"));
   const up = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     AutoMovieEngineVector3.add(point, { x: 0, y: crawl.LIFT, z: 0 });
   const steps: number = Math.max(
@@ -231,7 +254,9 @@ export function supportStep(props: supportStep.IProps): number {
         // Posture 3:193). Preferring a stance's own posture mid-swing swung
         // the trunk back toward the middle in the air (f-small's wall step,
         // 0.11 m of eye out and back within 0.1 s).
-        l === 0 ? props.preference(props.leaving, start, oldPlace) : start,
+        l === 0 && !raisedFromTripod
+          ? props.preference(props.leaving, start, oldPlace)
+          : start,
         start,
         kept,
         oldPlace,

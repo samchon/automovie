@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
  * 2. A deadline of 1.2 or exactly 1 multiplies by the compliance: 0.2.
  * 3. A deadline already passed (0.999) restores the full effort 0.8.
  * 4. A recovery fraction of 0.5 multiplies independently: 0.8 x 0.5 x 0.25.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines base and explicit joint effort with compliance through an inclusive softening deadline and independent recovery scale.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads effort at 1 s with an absent, future, equal and passed deadline and a separate recovery fraction.
+ * @evidence contracts/development/testing.md#independent-expectations Base 0.8 times compliance 0.25 yields 0.2 through the deadline. After 0.999 s it is restored, and independent recovery 0.5 multiplies both values.
  */
 export function test_engine_physics_joint_effort(): void {
   const base: Parameters<typeof AutoMovieEnginePhysics.physicalJointEffort>[0] = {

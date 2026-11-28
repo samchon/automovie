@@ -19,6 +19,10 @@ const STRAIGHT: IAutoMovieVector3 = { x: 0, y: 0.6, z: 0.8 };
  * Scenario: the hook drives (-0.8, 0, 0.6), the uppercut (0, 0.8, 0.6), the
  * backfist (0.8, 0, 0.6), the hammerfist (0, -0.8, 0.6), and the three straight
  * punches along (0, 0.6, 0.8).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes direct virtual contact vectors from shaped animated directions.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads three direct variants and four authored directional variants for a common target line.
+ * @evidence contracts/development/testing.md#independent-expectations The direct axis remains (0, 0.6, 0.8). Explicit orthogonal offsets of magnitude 0.8 and common z = 0.6 distinguish the four shaped cases.
  */
 export function test_motions_striking_punch_surface(): void {
   const d = (

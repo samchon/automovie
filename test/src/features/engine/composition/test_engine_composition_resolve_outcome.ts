@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A guard and a dodge together still decide by `dodged`, the first rule.
  * 3. A guard alone decides `blocked` by `guarded`.
  * 4. A lone reach falls to the default with no rule.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the single-match, overlap, second-rule and default outcome cases and whether a rule id accompanies each result.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes prepared intent lists and two predicate rules directly to CompositionOutcome.resolve and compares the returned pairs of outcome and rule.
+ * @evidence contracts/development/testing.md#independent-expectations Literal rule order places dodged before guarded when both hold. Single matches identify their own rules, and neither predicate holds on reach alone, leaving only the lands default.
  */
 export function test_engine_composition_resolve_outcome(): void {
   const act = (capability: string): IAutoMovieIntent => ({

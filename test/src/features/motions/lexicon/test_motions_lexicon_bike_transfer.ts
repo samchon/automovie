@@ -37,6 +37,10 @@ const STOPPED: IAutoMovieRigidTransform = {
  *    one lifted 2 cm is not on the floor.
  * 2. The stopped bicycle is still; one whose pedal has moved a millimetre, or
  *    whose pedal is missing, is not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ground sole qualification on either side of a line and the stationary-bike requirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls transfer checks for a wholly clear, straddling and lifted sole and a stopped, slightly moved or missing pedal.
+ * @evidence contracts/development/testing.md#independent-expectations The signed positions relative to z = 1 distinguish mount and dismount. A 2 cm lift fails ground contact and a measured 1 mm movement fails stillness.
  */
 export function test_motions_lexicon_bike_transfer(): void {
   const line: IAutoMovieMotionHumanBikeTransfer["line"] = {

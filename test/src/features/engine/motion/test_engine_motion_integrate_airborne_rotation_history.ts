@@ -114,6 +114,10 @@ const values: (
  *    a head moving as sin t reads one-sided as central within DELTA^2 relative
  *    (its momentum is a cosine, |L''| = |L|, and each read errs by under L''
  *    DELTA^2 / 4).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names endpoint and interior momentum stencils, continuity across stencil boundaries, composite ring inertia, cache clearing, and clipping to flight time.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the airborne history reader on typed synthetic bone poses and checks both the returned physics and renewed records after clearing the cache. The bounded and unbounded histories distinguish motion before take-off and after landing.
+ * @evidence contracts/development/testing.md#independent-expectations A unit mass at (0, 1, t³) and one at the origin give (1.5t², 0, 0) relative momentum. The second-order stencil budget accounts for truncation and floating-point rounding. Two opposite rings give principal moments (4, 4, 4) and (1, 0, 0) spin momentum by parallel axes.
  */
 export function test_engine_motion_integrate_airborne_rotation_history(): void {
   rings();

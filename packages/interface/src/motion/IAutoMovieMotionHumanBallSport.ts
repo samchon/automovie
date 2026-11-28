@@ -1,4 +1,5 @@
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+﻿import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieHumanSide } from "../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
 
 /**
@@ -81,6 +82,37 @@ export namespace IAutoMovieMotionHumanBallSport {
      * metres. Omitted to use the stroke's fitted default.
      */
     contactAt?: IAutoMovieVector3;
+  }
+
+  /**
+   * One downward basketball push over a ground walk or run. An absent incoming
+   * reference opens the ball's sole holding hand. An incoming reference places
+   * a palm on a ball rising from a preceding push.
+   */
+  export interface IDribblePush {
+    /** Subject id of the portable spherical court ball. */
+    ball: string;
+
+    /** The opening hand or the hand that meets the ball. Defaults to right. */
+    hand?: AutoMovieHumanSide;
+
+    /**
+     * Outgoing velocity in world metres per second. Each component is finite
+     * and y is negative.
+     */
+    velocity: IAutoMovieVector3;
+
+    /** A rising incoming flight. Omit to start from the holding hand. */
+    incoming?: IDribbleIncoming;
+  }
+
+  /** Placed time and ownership of a rising ball between pushes. */
+  export interface IDribbleIncoming {
+    /** Anchor of this performer's earlier push of the same ball. */
+    from: string;
+
+    /** Positive seconds from the anchored launch to the palm touch. */
+    seconds: number;
   }
 
   /** The supported legacy, court and volleyball phrases. */

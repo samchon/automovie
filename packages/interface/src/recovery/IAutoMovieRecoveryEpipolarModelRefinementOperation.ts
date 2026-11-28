@@ -6,18 +6,16 @@ import type {
 } from "..";
 
 /**
- * Refine a calibrated consensus candidate with at most three inlier refits.
- * Each fixed-subset optimizer must terminate, and the final inlier population
- * must stabilize within this declared refit budget. A changed subset never
- * inherits a previous local convergence claim.
+ * Callable local refinement and inlier stabilization for a calibrated epipolar
+ * model.
  */
 
 export namespace IAutoMovieRecoveryEpipolarModelRefinementOperation {
   /**
-   * Refine a calibrated consensus candidate with at most three inlier refits.
-   * Each fixed-subset optimizer must terminate, and the final inlier population
-   * must stabilize within this declared refit budget. A changed subset never
-   * inherits a previous local convergence claim.
+   * Refine the pose on the current fixed support and score signed Sampson
+   * residuals for all tentative pairs. Repeat at most three fixed-support fits
+   * when the index set changes. Complete only when the last fit converges and
+   * the reclassified support is unchanged.
    */
 
   export type Operation = (
@@ -30,33 +28,21 @@ export namespace IAutoMovieRecoveryEpipolarModelRefinementOperation {
     policy: IAutoMovieRecoveryCameraPairInput["policy"],
     budget: IAutoMovieRecoveryCameraPairInput["budget"],
   ) => {
-    /**
-     * Row-major 3 by 3 epipolar model in the declared image charts; homogeneous
-     * scale is arbitrary.
-     */
+    /** Current calibrated row-major pixel fundamental matrix. */
     matrix: number[];
 
-    /**
-     * Residual-gated original correspondence indices and their pixel quantiles
-     * for the current model.
-     */
+    /** Latest measured support ordinals and accepted pixel residual statistics. */
     score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>;
 
-    /**
-     * Pose-refinement attempts retained in execution order, including
-     * unsuccessful termination.
-     */
+    /** Completed fixed-subset optimizer reports in execution order. */
     fits: ReturnType<IAutoMovieRecoveryCameraPoseRefinementOperation.Operation>[];
 
-    /**
-     * True only when the stated numerical termination predicate was met; it
-     * does not certify scene geometry.
-     */
+    /** True when a converged fixed-subset fit leaves the same support indices. */
     converged: boolean;
 
     /**
-     * Explicit refinement failure category, or null when the requested
-     * refinement was admitted.
+     * Observed optimization, support or refit-cap refusal, or null after
+     * stabilization.
      */
     refusal:
       | "optimizer-termination"

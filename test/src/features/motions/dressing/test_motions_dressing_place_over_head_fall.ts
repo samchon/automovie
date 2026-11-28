@@ -13,9 +13,20 @@ const ANGLE_ROUNDING_DEGREES: number = 2e-12;
 const ARC_ROUNDING_METRES: number = 4 * Number.EPSILON;
 
 /**
- * The most restrictive hand limits the terminal angle at 10 mm of signed
- * separation. The nape stays fixed while the front travels its circular arc.
- * The carrier-only approach needs that separation between its key frames.
+ * Check over-head terminal angle and continuous approach clearance.
+ *
+ * Scenarios:
+ *
+ * 1. A constant 10 mm gap admits the full 60 degree fall. A varying gap caps
+ *    it at 35.5 degrees, and a constant 9 mm gap admits no angle.
+ * 2. Measure a quarter-circle arc around the worn axis and check the
+ *    zero-angle result.
+ * 3. Admit a safe sweep and a stationary threshold contact. Reject an 8 mm
+ *    interior gap even though the distant samples clear 10 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases give the angular boundary and identify the continuous gap missed by endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification The actual angle, arc and clearance routines receive explicit scalar distance functions and offsets.
+ * @evidence contracts/development/testing.md#independent-expectations The line `45.5 - degrees` in millimetres crosses 10 at 35.5 degrees. A 0.3 m radius gives the quarter arc `0.15 * pi`.
  */
 export function test_motions_dressing_place_over_head_fall(): void {
   assert.equal(

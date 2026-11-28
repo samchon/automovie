@@ -32,6 +32,10 @@ const SUBSTEPS: number = 32;
  *    swings it receives no sample.
  * 3. Wrench: every recorded support wrench asks and is allocated the weight up,
  *    with no residual.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the momentum and support-wrench receipts from a planted and swinging phase of authored push response.
+ * @evidence contracts/development/testing.md#behavioral-verification Records floor receipts and support wrench allocations every substep across the push and the following swing.
+ * @evidence contracts/development/testing.md#independent-expectations Constant center height requires total normal impulse m g/rate each step. Only planted feet carry it, and the requested and allocated weight agree with zero residual.
  */
 export function test_engine_physics_record_physical_span_contacts(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

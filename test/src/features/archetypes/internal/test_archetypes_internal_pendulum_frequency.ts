@@ -20,6 +20,10 @@ const FREQUENCY_TOLERANCE: number =
  *
  * 1. Mass 2, arm 0.5 and moment 0.1 give sqrt(2 g 0.5 / 0.1) = sqrt(10 g).
  * 2. A zero mass and an infinite physical factor are refused on their axes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the small-angle frequency fixture and zero or nonfinite input refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual pendulum reader through a positive finite case and structured refusals covering its input axes.
+ * @evidence contracts/development/testing.md#independent-expectations The small-angle relation is the square root of `m*g*a/I`. Mass 2, arm 0.5 and moment 0.1 give `sqrt(10*g)`.
  */
 export function test_archetypes_internal_pendulum_frequency(): void {
   TestValidator.predicate(

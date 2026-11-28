@@ -32,6 +32,10 @@ import { nclose } from "../../internal/nclose";
  * 2. Omitting the seed's twist takes the demand's Z share, a, from the same
  *    blocked prescription. The clinical read allows 64 binary64 rounding
  *    units in radians for the quaternion products and conversions.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers continued orientation of a blocked prescribed arm with a zero prior and with an omitted prior.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the prepared seeded chain fit with one blocked hinge setup and requests the two distinct continuation cases.
+ * @evidence contracts/development/testing.md#independent-expectations The fixed wrist and axial lower joint make the residual excess at zero bounded by a squared divided by 4 sin(b/2), below the specified band. Without a prior, the analytic Z rotation supplies the full axial share.
  */
 export function test_engine_kinematics_prescribed_twist_fallback(): void {
   const axes: IAutoMovieJointAxes = {

@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A placed spot refuses a negative range and a zero cone angle.
  * 4. A shadow map belongs only to an active casting light and requires positive
  *    size and a strictly ordered clip interval.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the separate geometry, intensity and shadow fields and the valid zero-intensity directional input.
+ * @evidence contracts/development/testing.md#behavioral-verification The test validates actual staged-light records with a source-addressed collector, then compares the complete ordered list of findings from the distinct spot, direction and shadow cases.
+ * @evidence contracts/development/testing.md#independent-expectations The valid direction is a unit vector and intensity zero is nonnegative. Negative intensity and a zero vector each fail their field. Spot range and angle and shadow map size and clip ordering follow their own distinct submitted violations.
  */
 export function test_engine_film_validate_light_placement(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

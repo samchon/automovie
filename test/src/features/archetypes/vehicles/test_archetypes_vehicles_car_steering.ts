@@ -8,7 +8,13 @@ import { nclose } from "../../internal/nclose";
 /** Allows trigonometric arithmetic and division by the measured turn. */
 const STEERING_ROUNDING: number = 64 * Number.EPSILON;
 
-/** The rear axle sets the steering angle even for an exceptionally gentle turn. */
+/**
+ * The rear axle sets the steering angle even for an exceptionally gentle turn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names signed turn, neutral steering and exceptionally gentle finite curvature cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual steering routine for both turn signs, zero and a curvature whose squared radius exceeds binary64. Compares the resolved steering ratio and small-angle scale.
+ * @evidence contracts/development/testing.md#independent-expectations The authored right triangle gives rear-axle radius four from centre radius `sqrt(20)` and half wheelbase two. A wheelbase equal to the rear radius gives a 45 degree road-wheel turn.
+ */
 export function test_archetypes_vehicles_car_steering(): void {
   const wheelbase: number = 4;
   const ratio: number = 12;

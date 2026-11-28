@@ -2,9 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliCapture, type IAutoMovieCliChromium } from "automovie";
 
 /**
- * The capture host launches Chromium with the switches of the asked backend and
- * describes the launch as a record names it, and the software backend is the
- * default the record states.
+ * The capture host plans Chromium switches for the selected backend and
+ * records the backend name with the launched browser's version.
  *
  * Scenarios:
  *
@@ -18,11 +17,9 @@ import { AutoMovieCliCapture, type IAutoMovieCliChromium } from "automovie";
  *    backend's switches, and the description joins the backend's name with the
  *    browser's version: `swiftshader; Chromium 151.0.7922.34`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the launch planner and the launcher with a recording Chromium and reads the switches it received and the description it returned; a swapped backend, a dropped switch, a non-headless launch or a description without the version fails.
- * @evidence contracts/development/testing.md#independent-expectations The software switches are the ones Chromium's SwiftShader documentation and the campaign issue #3292 name; the GPU switches select ANGLE's default backend as Remotion's GL options describe; the version is the double's.
- * @evidence contracts/development/testing.md#distinguishing-cases Both backends, an executable set, blank and absent. A missing browser is owned by `test_cli_capture_chromium_missing`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_capture_backends`; the browser is an in-memory double and none starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the software and GPU launch plans, the executable override and the description recorded after launch.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both backend planners and passes a recording Chromium to the launcher. Checks the configured executable, the blank fallback, the exact headless arguments received and the returned backend string.
+ * @evidence contracts/development/testing.md#independent-expectations Requires literal ANGLE vectors for SwiftShader and the default GPU backend. The fixture supplies the executable path and version used in the expected launch record.
  */
 export async function test_cli_capture_backends(): Promise<void> {
   // 1 and 2. Switches and names.

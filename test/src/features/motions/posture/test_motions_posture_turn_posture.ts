@@ -38,6 +38,10 @@ const QUARTER: IAutoMovieQuaternion = {
  *    kept.
  * 3. A planted world goal refuses the turn, and is kept where the rotation says it
  *    is planted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines whole-body rotation of root and world goals, local bone identity and planted-goal admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs unrotated and quarter-turn authored poses with world and bone-local goals and an ordinarily planted or explicitly preserved target.
+ * @evidence contracts/development/testing.md#independent-expectations A turn about (0, 1, 0) maps (1, 1, 0) to (0, 1, −1). Bone-local data stays equal and an incompatible world plant refuses.
  */
 export function test_motions_posture_turn_posture(): void {
   const world: IAutoMovieHumanLimbGoal = {

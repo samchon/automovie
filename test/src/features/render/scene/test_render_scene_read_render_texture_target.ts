@@ -14,6 +14,10 @@ import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
  * 2. Unsupported or disabled depth retains unknown/zero width respectively; cube
  *    faces remain six while array/volume/3D textures refuse ordinary 2D
  *    formats, followed by owned-wrapper disposal requests.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the caller-owned attachment layouts, extent and mip settings, depth types and dimensional families.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks actual color formats and samples, integer extents, explicit and generated mips, supported depth widths, cube faces, and refusal to claim ordinary 2D formats for other dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal 4 by 4, four-sample and two-attachment counts, explicit format labels and expected depth widths, and the cube's six faces as separate expectations.
  */
 export async function test_render_scene_read_render_texture_target(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

@@ -16,6 +16,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. Weights 0.5 and 0.25, no layer, and weight 1.5 refuse.
  * 4. The finite blend interval includes zero and one. An unordered weight and
  *    adjacent values outside the interval refuse before composition.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe cut, fade and dissolve weights and the rejected nonfinite or out-of-range values.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that composition chooses cut, fade or dissolve for valid weights and refuses unmatched sums or invalid ordered values.
+ * @evidence contracts/development/testing.md#independent-expectations Uses explicit one-layer weights 1 and 0.25 and complementary weights 0.75 and 0.25, together with invalid neighboring and unordered controls.
  */
 export function test_render_scene_resolve_film_beauty_composition(): void {
   const layer: (weight: number) => IAutoMovieFilmBeautyLayer = (

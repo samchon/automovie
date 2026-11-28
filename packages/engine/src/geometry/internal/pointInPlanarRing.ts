@@ -1,31 +1,36 @@
-import { IAutoMoviePlanarPoint } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
+
+import { orientSolidChart } from "../construction/internal/orientSolidChart";
 
 /*
  * Whether a point lies inside a closed ring by the even-odd rule, casting a ray
  * along +X.
  *
- * The answer is defined only for a point off the ring: both callers have
- * already refused ring contact, so the point they probe never lies on an edge.
- * The ring may be wound either way. Unlike the architecture graph's
- * `pointInPolygon`, a boundary point is not classified as inside.
- * Parameter point: Point to classify.
- * Parameter ring: Closed ring, the last corner joined back to the first.
- * Returns: True when the ray crosses the ring an odd number of times.
+ * Callers apply their boundary rules separately. The half-open row test counts
+ * a vertex once. For an upward straddle, positive orientation places the probe
+ * to the left of the edge's row crossing. A downward straddle reverses the
+ * sign. This avoids forming the potentially unrepresentable crossing.
  */
-export const pointInPlanarRing = (
+export function pointInPlanarRing(
   point: IAutoMoviePlanarPoint,
   ring: readonly IAutoMoviePlanarPoint[],
-): boolean => {
+): boolean {
   let inside: boolean = false;
+  const probe: AutoMovieVector2Tuple = [point.x, point.y];
   for (let index: number = 0; index < ring.length; ++index) {
     const from: IAutoMoviePlanarPoint = ring[index]!;
     const to: IAutoMoviePlanarPoint = ring[(index + 1) % ring.length]!;
-    if (
-      from.y > point.y !== to.y > point.y &&
-      point.x <
-        from.x + ((point.y - from.y) / (to.y - from.y)) * (to.x - from.x)
-    )
-      inside = !inside;
+    const upward: boolean = to.y > probe[1];
+    if (from.y > probe[1] === upward) continue;
+    const side: number = orientSolidChart(
+      [from.x, from.y],
+      [to.x, to.y],
+      probe,
+    );
+    if (upward ? side > 0 : side < 0) inside = !inside;
   }
   return inside;
-};
+}

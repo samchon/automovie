@@ -17,8 +17,8 @@ const REST: number = 1e-12;
 /**
  * `HumanPropOutcome.drag` reads the quadratic drag a prop's body declares with
  * its mass, and `rest` the point a flight comes to rest at a contact: a body
- * that embeds carried its depth on along its velocity, any other at the
- * contact.
+ * that embeds advances its depth along its velocity direction. Other bodies
+ * return the contact point in the tested cases.
  *
  * Scenarios:
  *
@@ -28,6 +28,10 @@ const REST: number = 1e-12;
  *    (1.03, 1, 0.04): its contact plus 0.05 / 5 of its velocity.
  * 3. At rest, it stays at the contact; a bouncing ball, or a prop with no body,
  *    rests at the contact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names declared or missing drag, normalized embedding along velocity, and stationary or non-embedding contact origins.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanPropOutcome.drag` and `rest` with typed props and explicit ground contact states. It compares the drag fields, checks the moving embedded position, and checks original point identity for each stationary or non-embedding case.
+ * @evidence contracts/development/testing.md#independent-expectations Velocity (3, 0, 4) has norm 5 m/s. At depth 0.05 m it adds (0.03, 0, 0.04) to contact (1, 1, 0), checked within 1e-12 m. The declared drag values are coefficient 0.47, area 0.01 m², and mass 0.4 kg.
  */
 export function test_motions_perform_prop_outcome_rest(): void {
   const frame = {

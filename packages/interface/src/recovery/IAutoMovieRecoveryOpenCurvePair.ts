@@ -1,14 +1,14 @@
-/** An admitted open-curve correspondence across two adjacent saved sections. */
+/** Qualified adjacent open-arc transport in saved report coordinates. */
 export interface IAutoMovieRecoveryOpenCurvePair {
-  /** Open-curve ordinal in the preceding section report. */
+  /** Saved open-curve ordinal on the earlier cut. */
   before: number;
 
-  /** Open-curve ordinal in the following section report. */
+  /** Saved open-curve ordinal on the later cut. */
   after: number;
 
   /**
-   * Whether the following curve must be reversed relative to its saved
-   * direction.
+   * Whether the later curve's endpoint order is reversed relative to the
+   * earlier curve.
    */
   reverseAfter: boolean;
 }

@@ -4,137 +4,131 @@ import type {
 } from "..";
 
 /**
- * Fit a selected private chart batch after one common boundary-network pass.
- * All chart families enter the same network before any coefficient solve, so
- * observed quarter cuts and maximal physical arcs can be reconciled across
- * selected slabs. Chart names retain the caller's private ownership metadata. A
- * failed global network falls back to explicitly unqualified independent
- * networks, preserving finite siblings without claiming shared-bank continuity.
- * Failed maps and fits remain local results and never supply a source mesh.
+ * A selected chart batch shares one boundary-network pass before fitting.
+ * Independent fallback networks can preserve fitted siblings when the shared
+ * network fails. Read each receipt's type and continuity qualification.
  */
-
 export namespace IAutoMovieRecoveryChartBatch {
   /**
-   * Fit a selected private chart batch after one common boundary-network pass.
-   * All chart families enter the same network before any coefficient solve, so
-   * observed quarter cuts and maximal physical arcs can be reconciled across
-   * selected slabs. Chart names retain the caller's private ownership metadata.
-   * A failed global network falls back to explicitly unqualified independent
-   * networks, preserving finite siblings without claiming shared-bank
-   * continuity. Failed maps and fits remain local results and never supply a
-   * source mesh.
+   * Lazily yields the local result for each selected chart. Keep the source
+   * arrays and the common boundary owner available until iteration ends.
    */
+  export type Operation = (input: IInput) => Generator<IResult, void, void>;
 
-  export type Operation = (input: {
-    /**
-     * Prepared or fitted source charts in deterministic observation order,
-     * including each independently retained feature piece.
-     */
+  /** The selected observations, shared boundary owner and fit policy. */
+  export interface IInput {
+    /** Source charts with millimetre positions and declared boundary ancestry. */
     charts: Parameters<IAutoMovieRecoveryChartBoundaryNetwork.Operation>[0]["charts"];
 
-    /**
-     * Shared boundary registry for this immutable observation pass; its
-     * lifetime ends when the caller releases the pass.
-     */
+    /** Shared boundary registry used during this observation pass. */
     owner: Parameters<IAutoMovieRecoveryChartBoundaryNetwork.Operation>[0]["owner"];
 
+    /** Fit policy applied to each chart after boundary registration. */
+    fit: IFitPolicy;
+  }
+
+  /** Discrepancy and work limits shared by the chart fits. */
+  export interface IFitPolicy {
+    /** Positive finite positional discrepancy, in millimetres. */
+    toleranceMm: number;
+
+    /** Positive integer limit on fitted boundary spans. */
+    maxSpans: number;
+
+    /** Turning-angle threshold for preserving a corner, in degrees. */
+    cornerDegrees: number;
+
+    /** Positive integer limit on chart patches. */
+    maxPatches: number;
+
+    /** Positive integer limit on numerical iterations. */
+    maxIterations: number;
+
+    /** Maximum retained area-quadrature rows per fit. Defaults to 250,000. */
+    maxObservationRows?: number;
+
     /**
-     * Explicit fitting and work-limit policy shared by all chart jobs in this
-     * batch.
+     * Maximum residual refinement rounds after the initial fit. Defaults to
+     * four.
      */
-    fit: {
-      /**
-       * Positive finite requested positional discrepancy in millimetres; it is
-       * not a continuous-surface certificate.
-       */
-      toleranceMm: number;
+    maxRefinements?: number;
 
-      /**
-       * Positive integer ceiling on fitted cubic spans; exhausting it refuses
-       * the affected fit.
-       */
-      maxSpans: number;
+    /**
+     * Nonnegative physical-gradient weight length in millimetres. Defaults to
+     * zero.
+     */
+    physicalGradientLengthMm?: number;
+  }
 
-      /**
-       * Declared turning-angle threshold in degrees for preserving an
-       * independent corner tangent.
-       */
-      cornerDegrees: number;
+  /** The boundary and fit stage reached by one selected chart. */
+  export type IResult = INetworkRefusal | IFitRefusal | IFitted;
 
-      /**
-       * Positive integer ceiling on emitted chart patches; the fitter reports
-       * unresolved refinement at the limit.
-       */
-      maxPatches: number;
+  /** Boundary evidence retained alongside each chart outcome. */
+  export interface IBoundaryEvidence {
+    /** Stable chart name supplied by the caller. */
+    name: string;
 
-      /**
-       * Explicit positive numerical iteration ceiling; exhaustion remains a
-       * reported termination, not convergence.
-       */
-      maxIterations: number;
+    /** Whether the shared boundary network succeeded for the selected batch. */
+    sharedBoundaryQualified: boolean;
 
-      /**
-       * Optional ceiling on retained area-quadrature observation rows; omission
-       * admits at most 250,000 rows per fit.
-       */
-      maxObservationRows?: number;
+    /**
+     * Largest measured displacement in the current boundary network, in
+     * millimetres.
+     */
+    networkMaximumPointChangeMm: number;
 
-      /**
-       * Optional ceiling on residual-driven refinement rounds; omission permits
-       * four rounds after the initial fit.
-       */
-      maxRefinements?: number;
+    /** Shared boundary diagnostics observed as the batch is consumed. */
+    diagnostics: string[];
+  }
 
-      /**
-       * Optional nonnegative millimetre exchange length multiplying physical
-       * derivatives; zero or omission disables that objective term.
-       */
-      physicalGradientLengthMm?: number;
-    };
-  }) => Generator<
-    {
-      /**
-       * Caller-assigned stable semantic identity retained in generated
-       * coefficient and observation records.
-       */
-      name: string;
+  /** The chart could not bind to a boundary network, even independently. */
+  export interface INetworkRefusal extends IBoundaryEvidence {
+    /** The boundary network never produced a chart. */
+    type: "boundary-network-refused";
 
-      /**
-       * Prepared or fitted chart record whose source correspondence and
-       * coefficient authority remain separately qualified.
-       */
-      chart:
-        | ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation>["charts"][number]
-        | null;
+    /** There is no registered chart. */
+    chart: null;
 
-      /**
-       * Numerical coefficient-fit result; retained diagnostics do not establish
-       * continuous source fidelity.
-       */
-      fit: ReturnType<IAutoMovieRecoveryChartSurface.Fit> | null;
+    /** Fitting did not start. */
+    fit: null;
 
-      /**
-       * Actual termination or qualification reason; null, where allowed, means
-       * no local failure was recorded.
-       */
-      reason: string | null;
+    /** Boundary admission failure. */
+    reason: string;
 
-      /**
-       * Whether all participating chart boundaries share the admitted
-       * coefficient authorities.
-       */
-      sharedBoundaryQualified: boolean;
+    /** The shared network failed. */
+    sharedBoundaryQualified: false;
 
-      /** Largest boundary-network observation displacement, in millimetres. */
-      networkMaximumPointChangeMm: number;
+    /** No displacement measurement was available for the failed chart. */
+    networkMaximumPointChangeMm: 0;
+  }
 
-      /**
-       * Observed admission failures and qualification limits in production
-       * order; an empty array adds no extra certificate.
-       */
-      diagnostics: string[];
-    },
-    void,
-    void
-  >;
+  /** The registered chart could not complete its local map or fit. */
+  export interface IFitRefusal extends IBoundaryEvidence {
+    /** The chart reached the local map and fit stage. */
+    type: "chart-fit-refused";
+
+    /** The boundary network's chart before local chord refinement. */
+    chart: ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation>["charts"][number];
+
+    /** No fit is available. */
+    fit: null;
+
+    /** Local chord-refinement, map or fit failure. */
+    reason: string;
+  }
+
+  /** The registered chart returned its computed fit. */
+  export interface IFitted extends IBoundaryEvidence {
+    /** Local chord refinement, mapping and fitting produced a receipt. */
+    type: "fitted";
+
+    /** The chart with refined boundary chords and physical vertex keys. */
+    chart: ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation>["charts"][number];
+
+    /** Read the fit's own qualification and the boundary receipt independently. */
+    fit: ReturnType<IAutoMovieRecoveryChartSurface.Fit>;
+
+    /** No local failure prevented this fit receipt. */
+    reason: null;
+  }
 }

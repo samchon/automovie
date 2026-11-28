@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. One reach 0.25 mirrors to its missing partner, (0.25, 0.25, 0, 0); none
  *    reached is all zero; a key never admitted binds null and adds no vertex.
  * 3. A failing binding escapes finalization, runs once and is not retried.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names finalization, per-side minima, missing or one-sided supports and callback failure lifetime.
+ * @evidence contracts/development/testing.md#behavioral-verification Admits the same sample reaches in different orders, binds writers and observes final vertices, missing callbacks and failed finalization.
+ * @evidence contracts/development/testing.md#independent-expectations Taking the minimum finite reach on each side gives the four written supports independent of admission order. An unadmitted key has no vertex and a missing opposite side follows the explicit mirror rule.
  */
 export function test_engine_geometry_surface_registry(): void {
   const sweep: IAutoMovieSweep = {

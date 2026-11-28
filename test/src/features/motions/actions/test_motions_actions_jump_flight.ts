@@ -42,15 +42,18 @@ const STILL: IAutoMovieMotionHumanPosture = {
  *
  * 1. A 1 m jump on the level with a 0.5 m apex: vy = √g, T = 2 vy / g, the launch
  *    1 / T along +X, landing at −vy.
- * 2. With no apex asked at hip height 0.9 onto a step 0.2 m up: apex 0.054 + 0.1
- *
- *    - 0.2; an apex of 0.1 under that climb is refused.
+ * 2. Without an authored apex, a 0.9 m hip height and a 0.2 m climb give an
+ *    apex of 0.054 + 0.1 + 0.2 m. An authored apex of 0.1 m is refused.
  * 3. No turns declare no flight members; a backward somersault is −1 turns, a left
  *    salto's frame a quarter turn about +Y.
  * 4. Handed a 60-degree turn about +X, the turning reads it once, at touchdown
  *    (1.2 s of a 2 s jump): through the absorption to 1.6 s the landing turns
  *    by inertializeOffset(60, 0, 0.4, t − 1.2), and before or after it the
  *    posture is unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Projectile flight covers the target and hands the airborne turn to touchdown absorption.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls flight and rotation preparation on level, raised, and infeasible landings, and reads the touchdown rotation through a fixed absorption window.
+ * @evidence contracts/development/testing.md#independent-expectations Gravity, apex and horizontal range give independent launch and landing values. The known touchdown quaternion and absorption endpoints distinguish a carried turn from a discontinuity.
  */
 export function test_motions_actions_jump_flight(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

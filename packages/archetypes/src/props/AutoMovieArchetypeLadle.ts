@@ -2,18 +2,23 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createLadle as createLadleImplementation } from "./internal/createLadle";
 
-/** Public operations for Auto Movie Archetype Ladle. */
+/**
+ * Constructs a steel ladle proxy with a pinch grip and a rounded bowl contact.
+ */
 export namespace AutoMovieArchetypeLadle {
   /**
-   * Ladle with a pinch grip and a bowl facing +Z.
+   * Build a ladle with its handle from Y zero and its bowl toward `+Y`.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * The simple rounded bowl supplies a working `face` toward `+Z`. The
+   * precision `grip` faces `-Z` near the bowl end of the shaft.
+   *
+   * @param params Optional scene ID and finite overall length, bowl diameter, grip diameter or mass
+   *   admitted by the bands. The ID defaults to `tool`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.32 metres overall, a
+   *   0.09 metre bowl and a 0.0095 metre grip diameter.
+   * @returns The ladle handle and its rounded bowl proxy with their contacts.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     HandToolDraw.IParams,
@@ -22,14 +27,10 @@ export namespace AutoMovieArchetypeLadle {
     return createLadleImplementation(params, seed);
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Precision handle `grip` and positive-Z bowl `face`. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Overall length along Y, bowl diameter and grip diameter in metres. Mass is in kilograms.
    */
   export type Dimension = "bowl" | "gripDiameter" | "length" | "mass";}

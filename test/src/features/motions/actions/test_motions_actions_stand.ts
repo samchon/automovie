@@ -31,6 +31,10 @@ const ROUNDING: number = 1e-9;
  *    toes are unflexed.
  * 4. Carried 1 m along +X by a support, the written legs' goals move 1 m along
  *    +X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Quiet stance rolls around each bearing socket until both soles are level and follows a moving support.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls standing-foot settling on the stored stock body, then applies an explicit one-metre support displacement.
+ * @evidence contracts/development/testing.md#independent-expectations The entry soles give independent floor height and bearing points. At the final share offsets vanish and a one-metre move carries both written ankles by that amount.
  */
 export async function test_motions_actions_stand(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -22,6 +22,10 @@ import { createSkeleton } from "../../internal/createSkeleton";
  * 2. Missing nodes and bones, incomplete groups, and relative directions never
  *    invoke the live lookup.
  * 3. A formation-only group requires a framing request and a staged formation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify live lookups with their shot clock, stage fallback and the incomplete target references that never reach a reader.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls positional target resolution with staged cameras, a moving bone and group forms, using observed reader calls and returned values to check both accepted and refused inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The staged records fix which subjects, joints and formations exist. The valid bone receives the requested shot second, while missing or incomplete references cannot yield a live lookup. The fixture enables a formation-only group only for the framing route.
  */
 export function test_engine_film_resolve_perform_shot_target(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

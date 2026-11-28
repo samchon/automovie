@@ -9,6 +9,7 @@ import type {
   IAutoMovieSwivelNear,
 } from "@automovie/interface";
 
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanPosture } from "../../posture/internal/HumanPosture";
 import { orderHumanLimbs } from "../../posture/internal/orderHumanLimbs";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -21,6 +22,58 @@ import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
  * pose evaluator retains clamp/transition order and named-seed assembly.
  */
 export namespace HumanSegmentPlant {
+  /*
+   * Preserve an articulated toe whose own socket is the active plant's contact.
+   * The contact is computed for the pre-offset toe angle. Inertia in that child
+   * would move the held socket even after the ankle's final refit. The heel and
+   * the ball of the foot ride the foot bone and need no child correction.
+   * Parameter body: The performer's fixed foot and toe geometry.
+   * Parameter limbs: The current contact goals with foot-local offsets.
+   * Parameter before: The pose before applying the entering joint offset.
+   * Parameter offset: The result of the entering offset at that second.
+   * Returns: The original offset pose or a copy with its bearing toes restored.
+   */
+  export function preserveBearingToes(
+    body: IAutoMovieMotionHumanBody,
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+    before: IAutoMoviePose,
+    offset: IAutoMoviePose,
+  ): IAutoMoviePose {
+    let joints: IAutoMoviePose["joints"] | undefined;
+    for (const side of ["left", "right"] as const) {
+      const bone = `${side}Toes` as const;
+      const socket =
+        body.surfaces.sockets[side === "left" ? "toeLeft" : "toeRight"];
+      const goal = limbs[`${side}Leg`];
+      if (
+        socket.bone !== bone ||
+        goal?.planted !== true ||
+        goal.contact === undefined
+      )
+        continue;
+      const authored = before.joints.find((joint) => joint.bone === bone);
+      if (authored === undefined) continue;
+      const toe = HumanFoot.offset(body, side, "toe", authored.flexion ?? 0);
+      const error = Math.hypot(
+        toe.x - goal.contact.x,
+        toe.y - goal.contact.y,
+        toe.z - goal.contact.z,
+      );
+      // Identify the same authored socket despite round-off in local placement.
+      if (!(error <= 1e-10)) continue;
+      const index = offset.joints.findIndex((joint) => joint.bone === bone);
+      if (index < 0) continue;
+      const shifted = offset.joints[index]!;
+      if (
+        shifted.flexion === authored.flexion &&
+        shifted.abduction === authored.abduction &&
+        shifted.twist === authored.twist
+      )
+        continue;
+      (joints ??= [...offset.joints])[index] = authored;
+    }
+    return joints === undefined ? offset : { ...offset, joints };
+  }
   /*
    * Whether a displayed pose's planted limbs already stand on their goals when
    * the final clamp returns: the evaluation fitted each planted goal itself

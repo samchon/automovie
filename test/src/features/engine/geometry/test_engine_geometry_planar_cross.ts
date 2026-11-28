@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Origin, (1, 0), (0, 1) turns counter-clockwise: 1; swapped: -1.
  * 2. A shifted origin (1, 1) with (3, 1), (1, 4): 2 x 3 = 6.
  * 3. Collinear (0, 0), (1, 1), (2, 2): 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names turn direction, shifted origin and exact collinearity.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public planar cross on counterclockwise, clockwise, shifted and collinear points.
+ * @evidence contracts/development/testing.md#independent-expectations The determinant of the unit axes is 1 and swapping them negates it. The shifted orthogonal differences are 2 and 3, giving 6. Parallel differences give 0.
  */
 export function test_engine_geometry_planar_cross(): void {
   // 1.

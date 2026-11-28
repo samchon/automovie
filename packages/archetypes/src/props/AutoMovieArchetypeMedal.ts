@@ -10,23 +10,22 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeMedalData } from "./internal/AutoMovieArchetypeMedalData";
 
-/** Constructs the medal archetype from its recipe. */
+/**
+ * Constructs a hanging ribbon medal with a ribbon pinch and rear disc socket.
+ */
 export namespace AutoMovieArchetypeMedal {
 /**
- * A ribbon medal: a disc on a neck ribbon, presented by the ribbon above the
- * disc and worn with the disc on the breastbone.
+ * Build a medal hanging along `-Y` from the ribbon top at the origin.
  *
- * It hangs from the origin, the ribbon's top, down `-Y`, the disc's face toward
- * `+Z`. `hold` is where fingers take the ribbon just above the disc, as a medal
- * is pinned; `wear` is the disc's back, facing `-Z`, the point laid on the
- * wearer's chest.
+ * The disc faces `+Z`. The `hold` pinches the ribbon 0.02 metres
+ * above the disc. The `wear` socket faces `-Z` from the disc back.
  *
- * @param params Any dimension the author fixes inside its band, and an optional
- *   scene id.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, the middle of each band.
- * @returns The medal.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Optional scene ID and finite ribbon length, disc
+ *   diameter or mass in their bands. The ID defaults to `medal`.
+ * @param seed Numeric seed for omitted values. Seedless dimensions
+ *   are a 0.45 metre ribbon and a 0.0775 metre disc diameter.
+ * @returns The ribbon and disc with the handling and wearing frames.
+ * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeMedal.IParams = {},
@@ -71,7 +70,7 @@ export function create(
     id: "hold",
     kind: "handle",
     frame: AutoMovieArchetypeFrame.facing(
-      AutoMovieEngineVector3.create(0, -d.ribbon - 0.02, thick / 2),
+      AutoMovieEngineVector3.create(0, 0.02 - d.ribbon, 0),
       AutoMovieEngineVector3.create(0, 0, 1),
       AutoMovieEngineVector3.create(0, 1, 0),
     ),
@@ -92,13 +91,15 @@ export function create(
   return builder.build(d.mass);
 }
 
-  /** The contacts: the ribbon's top a hand takes, and the disc's worn back. */
+  /** Pinch `hold` on the ribbon above the disc and rear disc `wear` socket. */
   export type Affordance = "hold" | "wear";
 
-  /** The dimensions the author may fix inside their bands. */
+  /**
+   * Ribbon length and disc diameter in metres, and assembled mass in kilograms.
+   */
   export type Dimension = "diameter" | "ribbon" | "mass";
 
-  /** Each dimension's unit. */
+  /** Units of the two metric dimensions and the whole medal's mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -107,13 +108,17 @@ export function create(
     mass: "kg",
   };
 
-  /** The dimensions fixed by the author, and an optional scene id. */
+  /**
+   * Optional scene ID and finite diameter, ribbon length or mass in their bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** A unique scene identifier, defaulting to the family name. */
+    /** Scene object ID, defaulting to `medal`. */
     id?: string;
   }
 
-  /** The sourced bands. */
+  /**
+   * Admitted ribbon lengths and disc sizes in metres and whole masses in kilograms.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     diameter: AutoMovieArchetypeBand.metres(0.07, 0.085, AutoMovieArchetypeMedalData.MEDAL),
     ribbon: AutoMovieArchetypeBand.metres(0.4, 0.5, AutoMovieArchetypeMedalData.RIBBON),

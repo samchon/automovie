@@ -18,6 +18,10 @@ import { throwsError, vclose } from "../../internal/predicates";
  * 2. With no `along` and out along +X, the hint is world +Z, so +X = +Z.
  * 3. A subnormal along component perpendicular to +Z still sets +X.
  * 4. Zero, parallel and antiparallel directions, or a nonfinite origin, refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the dominant normal, projected hint, default axis, subnormal direction and refusal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public facing operation and reads the returned origin and rotated axes. Exercises the default route and malformed frames directly.
+ * @evidence contracts/development/testing.md#independent-expectations A diagonal in the perpendicular plane has equal 1/sqrt(2) components. The cross product supplies the right-handed third axis. The default off the X axis, subnormal separation and represented parallel refusals distinguish normalization branches.
  */
 export function test_archetypes_core_frame_facing(): void {
   const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.facing(

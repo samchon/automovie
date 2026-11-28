@@ -13,11 +13,9 @@ import { TestValidator } from "@nestia/e2e";
  * 5. At each of the thirty whole turns each string half keeps its braced length within the string's radius (`createBow.STRING`), the tolerance the limbs' table is bisected to: the string does not stretch.
  * 6. Turning the crank back past rest or past its thirty turns is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Turns a real crossbow's crank and reads the posed string, nock and string halves with finite-safe comparisons; a string that does not follow, a wrong ratio, or halves that leave their tips is caught.
- * @evidence contracts/development/testing.md#independent-expectations The ratio is worked here from the book's 5½ in and thirty turns; the nock's place is read off the posed model.
- * @evidence contracts/development/testing.md#distinguishing-cases Rest, nine turns between and the full count, every whole turn for the string's length, the trigger and three refusals.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the scene model's paired control poses, moving centre and retained span endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Articulates the generated scenic mechanism and reads actual posed span ends and centre contacts. A stationary or detached span fails the measured pose.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal sourced pose ratio and the model's measured attachment positions. Each span end must coincide with the corresponding posed attachment.
  */
 export function test_archetype_weapon_crossbow_span(): void {
   const findings: string[] = [];

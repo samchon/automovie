@@ -30,6 +30,10 @@ const CLINICAL: IAutoMovieJointConstraint = {
  *    shifts.
  * 6. A 100 degree cap on wide axes, with the frame abduction +30, keeps the 100
  *    and shifts abduction -180..180 to [-210, 150].
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shifted and mirrored bounds, missing frame and axis behavior, and numeric, null and absent cone caps.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies the public rest-frame conversion to authored shoulder constraints and observes both built-in shoulder frame records and returned intervals.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting neutral 90 from [-30,180] yields [-120,90]. Applying sign -1 and sorting gives [-90,120]. A neutral 30 maps [-180,180] to [-210,150], while the separate 100-degree cap retains its value.
  */
 export function test_engine_rom_rest_relative_constraint(): void {
   // 1. sign +1

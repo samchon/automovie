@@ -8,6 +8,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. A bare 24 is 24/1, and 60/4 reduces by their divisor 4 to 15/1.
  * 2. A zero numerator is refused with the code the caller names.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines conversion to lowest rational terms and preservation of the caller's refusal code.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies a bare integer, a rational with common divisor and a zero numerator.
+ * @evidence contracts/development/testing.md#independent-expectations An integer has denominator one, and dividing 60/4 by four gives 15/1. Zero must fail with the provided code.
  */
 export function test_engine_effect_runtime_production_film_effect_frame_rate(): void {
   TestValidator.equals(

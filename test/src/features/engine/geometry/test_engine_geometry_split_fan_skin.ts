@@ -17,6 +17,10 @@ import { ConstructionSplitFan as F } from "../../internal/construction/Construct
  * 2. Every band's mesh has a row of its own vertices no farther from its loop,
  *    along its station, than the loop's columns stand apart on average, and
  *    short of a quarter of its span.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names free ends, mesh edge incidence and required row spacing near each band loop.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a meshed three-child fan, counts edge use and measures the actual bands' closest rows.
+ * @evidence contracts/development/testing.md#independent-expectations Only the four named open ends can have unmatched edges. Average adjacent loop spacing and a quarter of its span set independent upper bounds on the first row.
  */
 export function test_engine_geometry_split_fan_skin(): void {
   const n: number = F.COLUMNS;

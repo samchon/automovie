@@ -1,21 +1,17 @@
 import type { IAutoMovieRecoveryImageInput } from "..";
 
 /**
- * Admit the finite metric pixel chart and verify measured row/cell coordinates.
- * Adjacent occupied rows must form one eight-connected foreground component.
- * The relative binary64 bound covers arithmetic roundoff, not segmentation or
- * camera uncertainty. A chart whose frame offset overwhelms pixel increments
- * refuses instead of publishing aliased stations as calibrated measurements.
+ * Admission and row checks for a supplied horizontal orthographic pixel chart.
+ * The row checker accepts adjacent rows in either scan direction. The measured
+ * observation view owns its published increasing Y order.
  */
 
 export namespace IAutoMovieRecoveryImageChartAssertOperation {
   /**
-   * Admit the finite metric pixel chart and verify measured row/cell
-   * coordinates. Adjacent occupied rows must form one eight-connected
-   * foreground component. The relative binary64 bound covers arithmetic
-   * roundoff, not segmentation or camera uncertainty. A chart whose frame
-   * offset overwhelms pixel increments refuses instead of publishing aliased
-   * stations as calibrated measurements.
+   * Admit the camera and its representable physical image bounds. Supply the
+   * current positive integer raster dimensions and calibrated camera. The
+   * returned checker maps measured millimetre rows to unclipped pixel-cell
+   * addresses.
    */
 
   export type Operation = (
@@ -25,41 +21,40 @@ export namespace IAutoMovieRecoveryImageChartAssertOperation {
     >,
   ) => {
     /**
-     * Validates finite ordered physical image-support bounds and increasing
-     * station order; omission of previous admits the first row independently.
+     * Check one measured row and, when supplied, its previously admitted
+     * neighbor in the same chart. A neighboring pair must be one raster row
+     * apart, with horizontal overlap or diagonal contact. Either scan direction
+     * is accepted. Omit the neighbor to check the row independently.
      */
     assertRow: (
       row: {
         /**
-         * Vertical observation station in the declared registered millimetre
-         * chart.
+         * Physical Y of the occupied pixel-row center, in millimetres.
          */
         yMm: number;
         /**
-         * Lower physical support or componentwise enclosure bound, in the
-         * declared registered millimetre frame.
+         * Lower occupied pixel-cell edge along image U, in millimetres.
          */
         lowerMm: number;
         /**
-         * Upper physical support or componentwise enclosure bound, in the
-         * declared registered millimetre frame.
+         * Upper occupied pixel-cell edge along image U, in millimetres.
+         * Greater than lowerMm.
          */
         upperMm: number;
       },
       previous?: {
         /**
-         * Vertical observation station in the declared registered millimetre
-         * chart.
+         * Physical Y of the neighboring admitted row, in millimetres.
          */
         yMm: number;
         /**
-         * Lower physical support or componentwise enclosure bound, in the
-         * declared registered millimetre frame.
+         * Lower occupied pixel-cell edge in the previously admitted row, in
+         * millimetres.
          */
         lowerMm: number;
         /**
-         * Upper physical support or componentwise enclosure bound, in the
-         * declared registered millimetre frame.
+         * Upper occupied pixel-cell edge in the previously admitted row, in
+         * millimetres.
          */
         upperMm: number;
       },

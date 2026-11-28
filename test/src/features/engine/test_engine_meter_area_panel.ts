@@ -26,9 +26,7 @@ import { aimedLight } from "../internal/aimedLight";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported meter with an area light and compares its total with closed forms and an independent area quadrature; a missing clip, a wrong winding sign or a two-sided panel changes the value well beyond the tolerance.
  * @evidence contracts/development/testing.md#independent-expectations The square case is the issue's closed form for a centred square; the straddling case integrates the radiometric definition of irradiance from a Lambertian emitter over a 400 × 200 midpoint grid, which shares no code with the polygon formula; 0.5 % bounds that grid's discretisation error.
- * @evidence contracts/development/testing.md#distinguishing-cases A fully visible panel, a back-facing panel and a panel partly below the horizon. Punctual lights belong to test_engine_meter_illuminance.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name; no GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios with geometry and expected lux.
+ * @evidence contracts/development/common.md#meaningful-documentation A front-facing square panel supplies a hand-computed illuminance witness. The back face reads zero, and a tilted panel exercises integration across the plane.
  */
 export function test_engine_meter_area_panel(): void {
   const point: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

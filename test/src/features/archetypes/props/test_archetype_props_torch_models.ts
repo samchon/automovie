@@ -16,11 +16,9 @@ const MAGLITE: string = "Maglite 2-Cell and 3-Cell D LED";
  * 3. For each model, the `lens` is the top of the head with `+Y` up the torch, the beam's axis, and the `grip` runs along the barrel below the head.
  * 4. A length fixed by the author, one of a model's own figures, is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each model by name and the torch for 200 seeds, and measures colliders, masses, grip widths and the lens and grip frames; a torch between two models, a seed that never picks one, a beam off the head or across the torch, or a fixed figure accepted in silence is caught.
- * @evidence contracts/development/testing.md#independent-expectations The lengths, barrels, heads and masses are Maglite's specification pages; a flashlight's beam leaves its head along its length.
- * @evidence contracts/development/testing.md#distinguishing-cases The shorter and the longer model; the head against the barrel; a given model against a fixed figure.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies both flashlight catalogue models, their lens and grip locations, and the fixed model-figure refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures named and seeded models' colliders, weights and frames. The sweep must reach both complete catalogue models. A fixed length conflicts with the catalogue selection.
+ * @evidence contracts/development/testing.md#independent-expectations Uses Maglite's 254 and 313 mm lengths, 674 and 856 g masses, 39.67 mm barrel diameter and 57 mm head diameter. The lens beam follows the head's longitudinal axis.
  */
 export function test_archetype_props_torch_models(): void {
   const findings: string[] = archetypeBandSweep([

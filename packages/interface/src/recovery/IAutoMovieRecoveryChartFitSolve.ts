@@ -6,15 +6,14 @@ import type {
 } from "..";
 import type { IAutoMovieRecoveryChartFit as IAutoMovieRecoveryChartFit_2 } from "./IAutoMovieRecoveryChartFit";
 
-/**
- * Solve the normalized box problem and reconstruct the original coefficient
- * registry.
- */
+/** Callable solution and millimetre control reconstruction for a prepared fit. */
 
 export namespace IAutoMovieRecoveryChartFitSolve {
   /**
-   * Solve the normalized box problem and reconstruct the original coefficient
-   * registry.
+   * Solve the assembled sparse box system in its normalized coordinates,
+   * preserving any independently supplied feasible starting values. Reconstruct
+   * fixed, free and dependent controls in the original registry, and measure
+   * dependent enclosure violations.
    */
 
   export type Operation = (
@@ -22,45 +21,36 @@ export namespace IAutoMovieRecoveryChartFitSolve {
     prepared: ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation>,
     system: ReturnType<IAutoMovieRecoveryChartFitSystem.Operation>,
   ) => {
-    /** Lower componentwise control bound in the normalized solver chart. */
+    /** Lower componentwise bounds in normalized independent-control coordinates. */
     lo: [number, number, number];
 
-    /** Upper componentwise control bound in the normalized solver chart. */
+    /** Upper componentwise bounds in normalized independent-control coordinates. */
     hi: [number, number, number];
 
     /**
-     * Numerical box-solver output retained with its actual termination and
-     * objective diagnostics.
+     * Complete sparse box solve result before physical coefficient
+     * reconstruction.
      */
     solved: ReturnType<IAutoMovieRecoveryChartBoxSolve.Operation>;
 
-    /**
-     * Owned normalized solution storage ordered by independent-control slot and
-     * Cartesian coordinate.
-     */
+    /** Best feasible normalized three-axis values in independent-slot order. */
     x: Float64Array;
 
-    /**
-     * Actual numerical iterations attempted, including iterations without an
-     * accepted update.
-     */
+    /** Number of projected proposals reported by the box solver. */
     iterations: number;
 
     /**
-     * Infinity norm of the normalized projected-gradient mapping used for
-     * termination.
+     * Original normalized projected-gradient infinity norm at the returned
+     * values.
      */
     projectedGradient: number;
 
-    /**
-     * Shared coefficient registry or its declared population, addressed by
-     * patch control IDs.
-     */
+    /** Reconstructed millimetre controls in original registry order. */
     controls: Readonly<AutoMovieVector3Tuple>[];
 
     /**
-     * Largest excursion of an affine dependent control outside the original
-     * millimetre box; zero means none observed.
+     * Largest dependent-control excursion outside the original physical
+     * enclosure, in millimetres.
      */
     dependentEnclosureViolationMm: number;
   };

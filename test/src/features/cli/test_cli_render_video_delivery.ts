@@ -32,11 +32,9 @@ import { CliRenderDeliveryFixture } from "../internal/CliRenderDeliveryFixture";
  *    `unsupported-video-profile.color`, its report records the field with its
  *    expected and observed values, and the previous conforming film stays.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the receipt, timing and release behavior verified by each case.
- * @evidence contracts/development/testing.md#behavioral-verification Uses normal CLI operations with Render's real composer and validators, with a fake draw session and FFmpeg process boundary, and a real MP4 movie box for the audio timing.
- * @evidence contracts/development/testing.md#independent-expectations Four 250-tick frames put the first black frame at 0.25 seconds. Each published digest is Node's SHA-256 of the bytes the fixture encoder wrote. A 48 kHz track skipping 24,000 priming samples and editing to 1000 ms presents 48,000 of 72,000 decoded samples, leaving 24,000 of padding; a 750 ms edit presents 36,000, a quarter second short. The conforming header carries the profile the types declare: a 4 fps clock in a movie and track timescale of 4, the 2 by 2 raster, the unity matrix and `nclx` 1, 13, 1, full range; limited range is the one changed field of the refused file.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, codec padding against a short container, missing audio, an encoder failure, a report installation failure and a limited-range colour box. Every probe field is owned by test_cli_delivery_video_probe, the audio profile by test_render_delivery_audio_profile and the lip-sync publication gate by test_cli_render_video_lip_sync.
- * @evidence contracts/development/testing.md#execution-ownership Owns its isolated temporary directory and calls no FFmpeg, browser or device.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes video and audio approval, blocked and failed receipts, exclusive output ownership, and rollback of a failed installation.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the CLI render with the real composer and validation over fixture draw and encoder boundaries. Reads output bytes, reports and reservations across approved, refused, interrupted, competing and failed installation cases.
+ * @evidence contracts/development/testing.md#independent-expectations Uses 250-tick video frames, independently hashed file bytes, and literal 48 kHz MP4 edit and sample counts for actual audio duration. The false color-range case differs from the accepted header in its range field.
  */
 export async function test_cli_render_video_delivery(): Promise<void> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "automovie-delivery-"));

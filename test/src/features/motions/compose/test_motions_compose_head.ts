@@ -273,6 +273,10 @@ function scenario_test_motions_compose_head_tilt_pulse(): void {
 /**
  * AutoMovieMotionHumanHead, the head channels a law composes: each one's own
  * scenario below (nod, oscillate, shake, tilt and tilt pulse).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names nod, oscillation, shake, tilt and tilt pulse, with neutral samples and preservation of supporting posture.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each head primitive on an authored clock and samples asymmetric held joints and a separate carrier pose, reading neck and head axes and root.
+ * @evidence contracts/development/testing.md#independent-expectations Signed excursions are added to the explicitly held axes using each primitive's declared share. The other axes and root stay at their input values. Sustained roll sums to -20 degrees and returns to zero added roll at both ends.
  */
 export function test_motions_compose_head(): void {
   scenario_test_motions_compose_head_nod();

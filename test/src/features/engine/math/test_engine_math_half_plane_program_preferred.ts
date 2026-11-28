@@ -13,6 +13,10 @@ import { nclose } from "../../internal/predicates";
  *
  * 1. Preferred (0.25, 0.5) inside the unit disc is returned unchanged.
  * 2. Preferred (3, 4) outside projects to (0.6, 0.8).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers preservation of an interior preference and the radial projection of an exterior preference onto a unit disc.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls solveHalfPlaneProgram with an empty constraint array, unit radius and two explicit preferred points. Both results must be feasible.
+ * @evidence contracts/development/testing.md#independent-expectations An interior point minimizes displacement at itself. The norm of (3, 4) is five, so its nearest point on a unit disc is (0.6, 0.8). The comparisons use the fixed helper tolerance.
  */
 export function test_engine_math_half_plane_program_preferred(): void {
   const interior: IAutoMovieSolveHalfPlaneProgram.IResult =

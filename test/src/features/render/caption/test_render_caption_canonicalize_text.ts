@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. "a\r\nb\rc" reads "a\nb\nc".
  * 2. "a\u0000b\u007fc" reads "a b c"; "a\tb" is kept.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Canonicalizes carriage-return line breaks and prohibited controls while preserving tabs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls text normalization with mixed CRLF and CR, two prohibited controls, and an ordinary tab.
+ * @evidence contracts/development/testing.md#independent-expectations The exact LF output and one space per prohibited character identify normalization without deleting controls or tabs.
  */
 export function test_render_caption_canonicalize_text(): void {
   TestValidator.equals(

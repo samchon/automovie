@@ -32,6 +32,10 @@ const SIGNIFICANT: number = 1e-3;
  * 4. Released: during a hip strategy about x, the hip turns back a pelvis's roll
  *    but leaves its pitch, and asks its own spin along x (design-4017-edge,
  *    E2).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reference roles for posture, world pelvis and latched foot, including deliberate hip-strategy release.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives stance motor targets for different knee states, a pitched pelvis, a leaning shank and a released hip axis.
+ * @evidence contracts/development/testing.md#independent-expectations Declared posture fixes knee rotation independently of its actual angle. The hip's torque opposes the 0.3 rad pelvis pitch, while the latched foot preserves its world rotation.
  */
 export function test_engine_physics_physical_stance_joint_target(): void {
   const findings: string[] = [];

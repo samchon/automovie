@@ -51,6 +51,7 @@ export * from "./AutoMovieMotionHumanStageFight";
 export * from "./AutoMovieMotionHumanStance";
 export * from "./AutoMovieMotionHumanStrike";
 export * from "./AutoMovieMotionHumanSupport";
+export * from "./AutoMovieMotionHumanSharedCarry";
 export * from "./AutoMovieMotionHumanSwim";
 export * from "./AutoMovieMotionHumanSwing";
 export * from "./AutoMovieMotionHumanThrowCatch";

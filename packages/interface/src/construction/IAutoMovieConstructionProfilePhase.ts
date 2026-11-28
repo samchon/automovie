@@ -4,22 +4,24 @@
  */
 export namespace IAutoMovieConstructionProfilePhase {
   /**
-   * Actual world value and phase derivatives at one fixed physical station.
-   *
-   * ProfilePhase maps original local derivatives through the station's plane
-   * and scales them by the signed piece-clock span and its square. Each query
-   * returns fresh mutable vectors after checking their finite components.
+   * World point and phase derivatives at one fixed physical station. Phase uses
+   * the piece's normalized coordinate, including its traversal direction. The
+   * second derivative may be absent independently of the point and first
+   * derivative.
    */
   export interface IReading {
-    /** World point, kernel millimetres. */
+    /** World position [x, y, z] in kernel millimetres. */
     p: [number, number, number];
 
-    /** First derivative per normalized piece coordinate. */
+    /**
+     * First world derivative in millimetres per normalized piece-coordinate
+     * unit.
+     */
     t: [number, number, number];
 
     /**
-     * Second derivative in millimetres per squared normalized piece coordinate,
-     * or null where the owner supplies no phase2.
+     * Second world derivative in millimetres per squared piece-coordinate unit,
+     * or null when no second phase derivative was supplied.
      */
     tt: [number, number, number] | null;
   }

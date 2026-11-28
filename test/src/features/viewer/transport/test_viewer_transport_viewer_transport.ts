@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. An interval [1, 2] seeks to 1; playing from 2 restarts at 1.
  * 6. A freeze pauses and its release resumes play; an unsupported speed is
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines review playback from wall seconds to whole frames, seeking, interval restart and scoped pause/release.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances a manual wall clock through play speeds, end pause, seek, range update and freeze/release, and submits invalid inputs.
+ * @evidence contracts/development/testing.md#independent-expectations At 10 fps, half of 1.5 s is 0.75 s and its latest whole frame is 0.7 s. Boundary selection, pause state and subsequent restart are observable independently.
  */
 export async function test_viewer_transport_viewer_transport(): Promise<void> {
   TestValidator.error(

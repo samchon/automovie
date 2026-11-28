@@ -38,6 +38,10 @@ const ROUNDING: number = 1e-12;
  * 3. A 40-degree bow at weights 0.5 and 2 pitches 20 and 40 degrees, the hips
  *    still, claiming the root and the trunk.
  * 4. A peak of zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the hip pivot, heading-relative setback, clamped bow weights and refusal of a zero peak.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanLean.tip and bow on an already translated and turned stored body, then reads clinical pitch, hip location and channel claims.
+ * @evidence contracts/development/testing.md#independent-expectations A 30-degree tip preserves the pivot. At heading 90 the authored 0.05 m setback subtracts from X. A 40-degree peak multiplied by clamped shares 0.5 and 1 yields 20 and 40 degrees.
  */
 export async function test_motions_compose_lean_bow(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -1,17 +1,22 @@
-/** Owned calibrated pixels, positive depth and complete local derivatives. */
+/**
+ * Calibrated projection and first derivatives of one finite point in front of
+ * the supplied camera. The derivative rows follow pixel X and Y in the same
+ * supplied chart.
+ */
 export interface IAutoMovieRecoveryMapProjection {
-  /** Calibrated two-coordinate pixel in the supplied intrinsic chart. */
+  /** Owned pixel X and Y in the supplied intrinsic chart. */
   pixel: [number, number];
 
-  /** Strictly positive finite camera-frame Z coordinate. */
+  /** Finite positive camera-frame Z in the reconstruction's length units. */
   depth: number;
 
   /**
-   * Two owned rows ordered as three left-rotation then three translation
-   * columns.
+   * Two pixel-coordinate derivative rows. Columns are three infinitesimal
+   * left-rotation components in radians for R, then three additive camera-frame
+   * translation components.
    */
   cameraJacobian: number[][];
 
-  /** Two owned rows of three world-point derivative columns. */
+  /** Two pixel-coordinate derivative rows with world-point X, Y and Z columns. */
   pointJacobian: number[][];
 }

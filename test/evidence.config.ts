@@ -1,7 +1,6 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
 const helpers: string[] = [
-  "src/features/internal/jointRotationOracle.ts",
   "src/features/internal/motionHumanFrame.ts",
   "src/features/internal/motionHumanLaw.ts",
   "src/features/internal/motionHumanLawCovering.ts",

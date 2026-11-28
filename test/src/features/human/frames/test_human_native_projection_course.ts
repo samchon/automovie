@@ -41,9 +41,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public course and the real engine FullSource on tiny complete originals. Each case collects its refusal or all numeric findings before one verdict; no whole person, loft, mesh or saved reference is built.
  * @evidence contracts/development/testing.md#independent-expectations A uniform scale x -> c + lambda (x - c) of the material station on a straight constant-frame axis gives origin speed*(c + lambda (s - c)), first jet speed*lambda and zero second jet. Under the root parameter q, ds/dq = 2 sqrt(T - s) and d2s/dq2 = -2. A positive axial affine map multiplies every discrete turn of the side profile by lambda > 0, so the sign pattern and its count of changes are those of the original. None of these uses the implementation's arithmetic; readings use a 1e-10 absolute or 1e-9 relative allowance for binary64 rounding.
- * @evidence contracts/development/testing.md#distinguishing-cases Contraction, expansion, exact identity, a non-rail origin, nonunit speed, a cap, outside-domain and unavailable or malformed counterparts. The previous two-transition speed law fails scenario 2: its varying slope adds profile inflections.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit discovered as human_native_projection_course; it starts no process or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation States physical versus material units, the four scenarios, the closed affine expectations, literal identity and the tolerances.
+ * @evidence contracts/development/common.md#meaningful-documentation The reported course uses physical and material station units consistently across affine ratios, endpoint jets, no-op controls and unsupported input.
  */
 export function test_human_native_projection_course(): void {
   const failures: string[] = [];

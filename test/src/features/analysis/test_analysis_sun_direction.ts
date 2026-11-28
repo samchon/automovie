@@ -28,9 +28,7 @@ import { vclose } from "../internal/vclose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported function with explicit frames and asserts world vectors, length, the angle from up and the parallel refusal; a swapped east sign, an unprojected north or a degree/radian slip fails these vectors.
  * @evidence contracts/development/testing.md#independent-expectations Expected vectors are spherical coordinates in the stated right-handed frame, worked by hand (cos 30 = 0.8660); the zenith identity follows from the definition of zenith as the angle from up.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers the cardinal bearings, a raised sun, an unnormalized and tilted north and up, the parallel degeneracy of both signs and a composed solver output. The solver's angles belong to test_analysis_sun_position.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name; no host, file or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with their frames and expected vectors or refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks cardinal and elevated azimuths in a declared world frame, projected north under tilted or nonunit inputs, both parallel refusals and the angle between a solved direction and ground up.
  */
 export function test_analysis_sun_direction(): void {
   const site: Pick<IAutoMovieEnvironmentContext, "north" | "ground"> = {

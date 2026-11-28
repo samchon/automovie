@@ -29,6 +29,10 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  * 2. It passes through every knot (nearest of 401 shares refined by 60
  *    golden-section steps, within 1e-6 mm), and every point lies in y = 0
  *    within 1e-9 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names endpoint positions and tangents, authored knot reach and the common seam plane.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates the actual seam from a realized host and samples positions, endpoint directions and nearest profile knots.
+ * @evidence contracts/development/testing.md#independent-expectations The known ring gives A and B. Differentiating its radius law gives the outward station direction. The listed knots and y = 0 constrain the entire seam.
  */
 export function test_engine_geometry_split_seam_curve(): void {
   const real: IAutoMovieConstructionRealization.IRealization = S.realize(

@@ -7,8 +7,12 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Pcf and pcfSoft are pcf.
- * 2. Vsm is vsm.
+ * 1. `pcf` and `pcfSoft` both map to `pcf`.
+ * 2. `vsm` stays `vsm`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the shared pcf result and retained vsm result for all three declared inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls RenderShadow.normalizeAutoMovieShadowFilter with each supported filter literal.
+ * @evidence contracts/development/testing.md#independent-expectations The supported mapping is pcf and pcfSoft to pcf, and vsm to itself. These three literal expected values exercise every branch.
  */
 export function test_engine_render_normalize_shadow_filter(): void {
   TestValidator.equals(

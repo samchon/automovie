@@ -21,6 +21,10 @@ import {
  * 2. Null/missing materials and primitive geometry retain their appropriate
  *    fallback variants, then actual local geometry/material owners are
  *    disposed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exact color data, separate material variants, primitive fallback and resource retirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a mixed scene model and reads each native part's attribute and material. Checks sharing within each variant and disposes owned resources.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied RGB rows and base color are literal expectations. Parts with and without RGB data need different vertexColors flags even when they share a base material declaration. Null, missing and primitive inputs exercise their distinct fallback routes.
  */
 export function test_render_scene_build_model_vertex_colour(): void {
   const colored: import("@automovie/interface").IAutoMovieMesh =

@@ -6,19 +6,24 @@ import type { IAutoMovieRecoveryChartMap } from "@automovie/interface";
  */
 export namespace AutoMovieRecoveryChartMap {
   /**
-   * Solve a positive-weight Dirichlet graph Laplacian with diagonal PCG.
-   * Anchoring every connected component makes the free matrix positive
-   * definite. The caller still establishes disk topology and a compatible
-   * boundary map; positive computed triangle areas are checked rather than
-   * assumed from that premise.
+   * Parameterize an admitted chart with a positive graph Laplacian and fixed
+   * unit-square UV coordinates. Supply an anchor for every connected component,
+   * a positive finite residual tolerance and a positive safe-integer iteration
+   * cap per axis. Invalid incidence, anchors or budgets throw. A valid run that
+   * exhausts its cap can return unqualified coordinates with its measured
+   * residual and original triangle diagnostics.
    */
   export function parameterize(
     input: IAutoMovieRecoveryChartMap.Input,
   ): IAutoMovieRecoveryChartMap.Result {
     if (
+      !Number.isSafeInteger(input.vertices) ||
       input.vertices < 3 ||
+      input.vertices > 0x7fffffff ||
       !input.triangles.length ||
+      !Number.isFinite(input.tolerance) ||
       !(input.tolerance > 0) ||
+      !Number.isSafeInteger(input.maxIterations) ||
       input.maxIterations < 1
     )
       throw new Error(
@@ -29,14 +34,21 @@ export namespace AutoMovieRecoveryChartMap {
       (): Set<number> => new Set(),
     );
     for (const triangle of input.triangles) {
-      if (triangle.length !== 3 || new Set(triangle).size !== 3)
+      if (triangle?.length !== 3 || new Set(triangle).size !== 3)
         throw new Error(
           "Private chart triangles need three distinct addresses",
         );
       for (let k: number = 0; k < 3; k++) {
         const a: number = triangle[k]!,
           b: number = triangle[(k + 1) % 3]!;
-        if (a < 0 || a >= input.vertices || b < 0 || b >= input.vertices)
+        if (
+          !Number.isSafeInteger(a) ||
+          a < 0 ||
+          a >= input.vertices ||
+          !Number.isSafeInteger(b) ||
+          b < 0 ||
+          b >= input.vertices
+        )
           throw new Error("Private chart triangle addresses are invalid");
         adjacency[a]!.add(b);
         adjacency[b]!.add(a);
@@ -45,10 +57,17 @@ export namespace AutoMovieRecoveryChartMap {
     const fixed: Map<number, [number, number]> = new Map();
     for (const value of input.fixed) {
       if (
+        !value ||
+        !Number.isSafeInteger(value.vertex) ||
         value.vertex < 0 ||
         value.vertex >= input.vertices ||
         fixed.has(value.vertex) ||
-        ![value.u, value.v].every((x: number): boolean => x >= 0 && x <= 1)
+        !Number.isFinite(value.u) ||
+        value.u < 0 ||
+        value.u > 1 ||
+        !Number.isFinite(value.v) ||
+        value.v < 0 ||
+        value.v > 1
       )
         throw new Error("Unique finite fixed chart coordinates are required");
       fixed.set(value.vertex, [value.u, value.v]);

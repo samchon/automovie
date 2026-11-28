@@ -1,25 +1,30 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
- * The angle about an axis through a contact's footprint as a join curve's
- * parameter: the curve's point at angle `t` lies in the half plane through the
- * axis at that angle from the reference.
- *
- * Engine admission: `normal` not zero and `reference` not along it.
+ * Parameterize an intersection trace by angle about the supplied contact axis.
+ * The centre is in construction-frame metres. Project the reference into the
+ * plane perpendicular to the normal to define zero radians. Supply a nonzero
+ * normal and a reference with a nonzero projection.
  */
 export interface IAutoMovieConstructionAngleParameter {
-  /** Discriminator. */
+  /** Select the angle parameter of a construction trace. */
   type: "angle";
 
-  /** The footprint's centre, metres in the construction's frame. */
+  /**
+   * Axis origin in construction-frame metres, usually the centre of the contact
+   * footprint.
+   */
   centre: IAutoMovieVector3;
 
   /**
-   * The axis's direction, the host's outward normal at the centre; any length
-   * but zero.
+   * Dimensionless axis direction in the construction frame. Use a nonzero
+   * vector; the trace normalizes it before reading angles.
    */
   normal: IAutoMovieVector3;
 
-  /** The direction of angle 0; its part along `normal` is removed. */
+  /**
+   * Dimensionless direction that becomes angle zero after removing its
+   * component along the axis. Supply a nonzero projection.
+   */
   reference: IAutoMovieVector3;
 }

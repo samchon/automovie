@@ -67,6 +67,10 @@ const SEQUENCE: IAutoMovieSequence = {
  *    instants shows: frame 9 (2.25 s) A, frame 11 (2.75 s) B, frame 21 (5.25 s)
  *    B and frame 22 (5.5 s) A.
  * 7. No layers is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify fade and dissolve layer weights, incoming tie ownership, matching caption frames and empty-layer refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification The test evaluates actual playback layers and calls the shown-layer selector at chosen transition instants. It checks the caption sidecar's shot identity on corresponding frames.
+ * @evidence contracts/development/testing.md#independent-expectations At 2.25 seconds a fade only draws outgoing A at weight 0.5 and at 2.75 seconds it only draws incoming B. At 5.25 seconds B wins the dissolve by weight and at 5.5 incoming A wins the tie. Multiplying these times by four gives the exact sidecar frames.
  */
 export function test_engine_film_playback_shown_layer(): void {
   const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(

@@ -22,6 +22,10 @@ const ROUNDING: number = 1e-9;
  * 2. Pitch 30 alone tips forward to (0, −½, √3/2).
  * 3. Headings (30, 20, −15), (−120, −45, 60) and (179, 10, 5) read back their own
  *    angles.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines normalized yaw, pitch and roll composition and their inverse on the current body frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds isolated yaw and pitch plus three compound rotations, then uses the heading readback.
+ * @evidence contracts/development/testing.md#independent-expectations A 90° yaw maps forward to +X. Pitch 30° gives (0, −1/2, √3/2), and authored angle triples set the inverse references.
  */
 export function test_motions_posture_heading(): void {
   // 1. A yaw.

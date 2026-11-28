@@ -21,6 +21,10 @@ import { throwsError } from "../../internal/predicates";
  * 2. A third motion repeating the id "first" is refused naming `motion "first" is
  *    duplicated`, the repeat's location `props.motions[2].id` and the first at
  *    `props.motions[0].id`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the two admitted motion IDs and the denied duplicate with both source positions.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls resolveBeatSnapshot at the start with two distinct motion records. It appends one duplicate and compares the addressed refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The titles first and second are distinct literal keys. Adding another first at index two conflicts with the first declaration at index zero, which determines both expected addresses.
  */
 export function test_engine_film_beat_snapshot(): void {
   const first: IAutoMovieMotion = {

@@ -3,106 +3,98 @@ import type { IAutoMoviePlanarHermiteKnot } from "./IAutoMoviePlanarHermiteKnot"
 import type { IAutoMovieScalarHermiteKnot } from "./IAutoMovieScalarHermiteKnot";
 
 /**
- * Mesh slicing and Hermite reduction records used to author construction
- * profiles.
- *
- * Sections use the supplied mesh frame in millimetres; scalar runs keep their
- * supplied station and value units, and loop tangents differentiate chord
- * length. Mesh indexing, finite samples and orthonormal frames are caller
- * premises; outline flags broken cuts, reducers check minimum sample counts,
- * and profileCurve checks station order and loop size.
+ * Public result records for mesh sections and Hermite reduction. Sections use
+ * supplied frame coordinates in millimetres, scalar runs keep the supplied
+ * station and value units, and loop tangents differentiate chord length. Supply
+ * finite samples, valid mesh indexing and orthonormal section frames.
  */
 export namespace IAutoMovieMeshExtract {
-  /** One extreme point of a section along an in-plane direction. */
+  /**
+   * One directional support crossing of a section. Its point uses the input
+   * millimetre frame and its reach is a signed projection from the station
+   * centre.
+   */
   export interface IExtreme {
     /**
-     * Extreme crossing in the input mesh's frame, in millimetres; several
-     * extreme directions may share the same returned point tuple.
+     * The selected crossing in the input millimetre frame. Several directions
+     * can reference the same returned tuple.
      */
     point: AutoMovieVector3Tuple;
 
-    /** Its reach along the direction from the station's axis point, millimetres. */
+    /**
+     * Signed millimetres from the station centre along the specified unit
+     * direction.
+     */
     reach: number;
   }
 
   /**
-   * Greedily reduced value-and-slope knots that hold a dense run within the
-   * tolerance. Every sample starts as a knot with its central-difference slope;
-   * knots are then removed one at a time, always the one whose removal deviates
-   * least, while that deviation stays within the tolerance. On each removal the
-   * two neighbouring knots' slopes are refitted by least squares to the dense
-   * samples of the three spans they shape (knot removal with a least-squares
-   * approximation, Lyche and Morken, Knot removal for parametric B-spline
-   * curves and surfaces, CAGD 4, 1987), so facet noise in the samples does not
-   * enter the slopes, and the deviation is the largest over those spans'
-   * samples. Knot values stay the samples' own.
+   * The retained knots and measured scalar error after greedy reduction of
+   * dense finite samples.
    *
-   * Never removed: the ends, the pinned indices, and the prominent features: a
-   * local extremum whose topographic prominence exceeds twice the tolerance
-   * (its slope is held at zero, so the curve's extremum is the sample's), and
-   * an inflection (sign change of the divided second difference) between two
-   * bends whose sagittas exceed twice the tolerance after the weaker wiggles
-   * merge away. Twice the tolerance is the noise threshold because a curve
-   * through the middle of a bump that high stays within the tolerance of both
-   * its top and its foot without a knot of its own.
+   * The dense run starts with one knot per included sample and
+   * central-difference slopes. At each removal the least-deviation candidate
+   * within tolerance is discarded. The two adjacent slopes are refitted by
+   * least squares against the affected dense samples, while knot values stay on
+   * the samples.
    *
-   * The reducer borrows its inputs and returns mutable copies. Increasing
-   * finite stations, finite values and a meaningful nonnegative tolerance
-   * remain caller premises; only the retained sample count is checked. Greedy
-   * removal does not prove a globally minimal knot count.
+   * Endpoints and pinned sample indices survive. The reducer also protects
+   * extrema with prominence over twice the tolerance and inflections between
+   * bends with sagittas above that threshold after weaker bends merge.
+   * Protected extrema have slope zero. Supply increasing finite stations,
+   * finite values and a finite nonnegative tolerance. The reducer checks that
+   * at least two samples remain after exclusions.
    */
   export type IReduceResult = {
     /**
-     * New mutable knots in retained input order, with at least both endpoints;
-     * index still addresses the original dense array including excluded
-     * samples.
+     * Owns copied retained knots in input order, including both endpoints. Each
+     * knot index still addresses the original input.
      */
     knots: IAutoMovieScalarHermiteKnot[];
 
     /**
-     * Largest absolute scalar residual at retained dense stations, in the input
-     * value unit; excluded samples and between-sample extrema are not
-     * measured.
+     * Largest absolute residual at the retained dense sample stations, in their
+     * value unit. Excluded samples and between-station extrema are outside this
+     * measurement.
      */
     error: number;
   };
 
   /**
-   * The loop variant for top silhouettes and section loops: the dense closed
-   * loop is parameterised by cumulative chord length, every point starts as a
-   * knot with its periodic central-difference tangent, and knots are removed as
-   * in `AutoMovieEngineMeshExtract.reduce`, the deviation being the Euclidean
-   * distance of a dense point from its span and both tangent components
-   * refitted. Never removed: the extremes along both axes (their axis component
-   * of tangent held at zero, so the curve's extreme is the sample's), the
-   * pinned indices and the prominent inflections (sign changes of the turn
-   * between bends whose sagittas exceed twice the tolerance after the weaker
-   * facet wiggles merge away); at least four knots remain.
+   * Periodic Hermite knots, their closed chord parameter period and sampled
+   * planar residual.
    *
-   * The result owns its knot records and point/tangent tuples. Finite
-   * coordinates, nonzero consecutive retained chords and a meaningful
-   * nonnegative tolerance are caller premises; only the minimum retained sample
-   * count is checked.
+   * Each dense sample starts with a periodic central-difference tangent. Greedy
+   * removal refits both tangent components and measures Euclidean residual at
+   * dense chord parameters. Axis extrema and pinned samples survive along with
+   * inflections separating bends whose sagittas pass twice the tolerance after
+   * weaker bends merge. At an axis extremum the tangent component along that
+   * axis stays zero.
+   *
+   * Supply finite points, a finite nonnegative tolerance and nonzero chords
+   * between successive included points. The reducer checks that at least four
+   * samples remain after exclusions.
    */
   export type IReduceLoopResult = {
     /**
-     * New mutable periodic Hermite knots in input loop order, at least four;
-     * point and tangent tuples are copied and the closing point is not
-     * repeated.
+     * Owns points and tangent tuples in loop order, with at least four knots
+     * and no repeated closing point.
      */
     knots: IAutoMoviePlanarHermiteKnot[];
 
     /**
-     * Sum of the retained dense loop's chord lengths including closure, in its
-     * coordinate unit; this is the Hermite period, not fitted-curve arc
-     * length.
+     * Chord period of the retained dense loop, including the closing chord, in
+     * the input coordinate unit.
      */
     length: number;
 
     /**
      * Largest Euclidean residual at retained dense chord parameters, in the
-     * coordinate unit; this is neither a closest-point distance nor a
-     * continuous Hausdorff certificate.
+     * input coordinate unit.
+     *
+     * This residual measures the reconstructed curve at recorded chord
+     * parameters. A continuous or closest-distance bound requires a different
+     * measurement.
      */
     error: number;
   };

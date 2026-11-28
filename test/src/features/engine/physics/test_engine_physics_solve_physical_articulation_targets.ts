@@ -19,6 +19,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 1. A quarter-millimetre hinge endpoint reaches its admissible target within 0.1
  *    mm.
  * 2. The original goals, fixed pivot and locked rotation axes remain unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains convergence at a small physical scale and preservation of authored goals, fixed anchor and locked axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits a hinge with a quarter-millimetre endpoint and checks both the resulting residual and original goal data.
+ * @evidence contracts/development/testing.md#independent-expectations The independently reachable target has a 0.1 mm tolerance. A solver stopping merely because each improvement is small leaves an observable residual above that threshold.
  */
 export function test_engine_physics_solve_physical_articulation_targets(): void {
   const segment: IAutoMoviePhysicalSegment =

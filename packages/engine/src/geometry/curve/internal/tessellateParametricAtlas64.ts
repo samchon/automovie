@@ -7,6 +7,7 @@ import type {
 
 import { AutoMovieEngineCanonicalBoundary64 as Q } from "../../AutoMovieEngineCanonicalBoundary64";
 import { AutoMovieEngineCurveMath64 as M } from "../../AutoMovieEngineCurveMath64";
+import { assertFiniteCurveVector } from "./assertFiniteCurveVector";
 
 /*
  * Sample finite parametric charts with declared boundary incidence. Fields and
@@ -31,6 +32,7 @@ export function tessellateParametricAtlas64(
   props: IAutoMovieTessellateParametricAtlas64.IProps,
 ): IAutoMovieTessellateParametricAtlas64.IResult {
   if (
+    typeof props.domain !== "string" ||
     !props.domain.trim() ||
     !Number.isSafeInteger(props.maxVertices) ||
     props.maxVertices <= 0 ||
@@ -41,66 +43,105 @@ export function tessellateParametricAtlas64(
     );
   type Patch = (typeof props.patches)[number];
   type Phase = IAutoMovieCanonicalBoundaryPhase64;
+  type PhaseRequest = { phase: Phase; owners: Set<string> };
   type UV = [number, number];
   type BoundarySample = { key: string; point: AutoMovieVector3Tuple };
-  const requests: Map<string, Map<string, Phase>> = new Map();
-  const originalLocals: Map<
-    Patch["edges"][number],
-    Map<string, number>
-  > = new Map();
   const names: Set<string> = new Set();
   for (const patch of props.patches) {
     if (
+      !patch ||
+      typeof patch.id !== "string" ||
       !patch.id.trim() ||
       names.has(patch.id) ||
       patch.edges.length !== 4 ||
+      typeof patch.evaluate !== "function" ||
       ![patch.stepsU, patch.stepsV].every(
-        (n: number): boolean => n >= 1 && n <= 128,
+        (n: number): boolean => Number.isSafeInteger(n) && n >= 1 && n <= 128,
       )
     )
       throw new Error(
-        `${patch.id}: four edges and bounded lattice counts required`,
+        "Unique named charts need four edges and integer lattice counts in [1,128]",
       );
     names.add(patch.id);
-    patch.edges.forEach((edge: Patch["edges"][number], side: number): void => {
-      const phases: Map<string, Phase> =
-        requests.get(edge.authority) ?? new Map();
-      requests.set(edge.authority, phases);
-      const steps: number = side % 2 === 0 ? patch.stepsU : patch.stepsV;
+    for (const edge of patch.edges)
       if (
+        !edge ||
+        typeof edge.authority !== "string" ||
         !edge.authority.trim() ||
+        !Number.isFinite(edge.start) ||
+        edge.start < 0 ||
+        edge.start > 1 ||
+        !Number.isFinite(edge.end) ||
+        edge.end < 0 ||
+        edge.end > 1 ||
         edge.start === edge.end ||
-        (edge.parameterize === undefined) !== (edge.localize === undefined)
+        typeof edge.sample !== "function" ||
+        ((edge.parameterize !== undefined || edge.localize !== undefined) &&
+          (typeof edge.parameterize !== "function" ||
+            typeof edge.localize !== "function"))
       )
         throw new Error(
           `${patch.id}: finite directed restrictions and paired parameter maps required`,
         );
-      const locals: Map<string, number> = originalLocals.get(edge) ?? new Map();
-      originalLocals.set(edge, locals);
-      let previous: number | undefined;
-      for (let index: number = 0; index <= steps; ++index) {
-        const local: number = index / steps;
-        const phase: Phase =
-          edge.parameterize === undefined
-            ? Q.phase(edge.start, edge.end, local)
-            : edge.parameterize(local);
-        if (
-          !phase.key.trim() ||
-          phase.value < Math.min(edge.start, edge.end) ||
-          phase.value > Math.max(edge.start, edge.end) ||
-          (index === 0 && phase.value !== edge.start) ||
-          (index === steps && phase.value !== edge.end) ||
-          (previous !== undefined &&
-            (phase.value - previous) * (edge.end - edge.start) <= 0)
-        )
-          throw new Error(
-            `${patch.id}: nonlinear boundary map violates its directed restriction`,
-          );
-        previous = phase.value;
-        locals.set(phase.key, local);
-        phases.set(phase.key, phase);
-      }
-    });
+  }
+  const requests: Map<string, Map<string, PhaseRequest>> = new Map();
+  const originalLocals: Map<
+    Patch["edges"][number],
+    Map<string, number>
+  > = new Map();
+  const rejected: Map<string, string[]> = new Map();
+  for (const patch of props.patches) {
+    try {
+      const authored = patch.edges.map((edge, side) => {
+        const steps: number = side % 2 === 0 ? patch.stepsU : patch.stepsV;
+        if (edge.parameterize === undefined)
+          return Array.from({ length: steps + 1 }, (_, index) => {
+            const local: number = index / steps;
+            return { local, phase: Q.phase(edge.start, edge.end, local) };
+          });
+        const first: Phase = Q.phase(0, 1, edge.start);
+        const last: Phase = Q.phase(0, 1, edge.end);
+        const direction: number = edge.end > edge.start ? 1 : -1;
+        const parameterize = edge.parameterize;
+        let previous: Phase | undefined;
+        return Array.from({ length: steps + 1 }, (_, index) => {
+          const local: number = index / steps;
+          const phase: Phase = parameterize.call(edge, local);
+          const afterFirst: number = direction * Q.compare(phase, first);
+          const beforeLast: number = direction * Q.compare(last, phase);
+          if (
+            afterFirst < 0 ||
+            beforeLast < 0 ||
+            (index === 0 && afterFirst !== 0) ||
+            (index === steps && beforeLast !== 0) ||
+            (previous !== undefined &&
+              direction * Q.compare(phase, previous) <= 0)
+          )
+            throw new Error(
+              "Nonlinear boundary map violates its directed restriction",
+            );
+          previous = phase;
+          return { local, phase };
+        });
+      });
+      patch.edges.forEach((edge, side) => {
+        const phases =
+          requests.get(edge.authority) ?? new Map<string, PhaseRequest>();
+        const locals = originalLocals.get(edge) ?? new Map<string, number>();
+        for (const { local, phase } of authored[side]!) {
+          locals.set(phase.key, local);
+          const owners = phases.get(phase.key)?.owners ?? new Set<string>();
+          owners.add(patch.id);
+          phases.set(phase.key, { phase, owners });
+        }
+        originalLocals.set(edge, locals);
+        requests.set(edge.authority, phases);
+      });
+    } catch (error) {
+      rejected.set(patch.id, [
+        error instanceof Error ? error.message : String(error),
+      ]);
+    }
   }
   const mesh: IAutoMovieMesh = {
     positions: [],
@@ -135,21 +176,24 @@ export function tessellateParametricAtlas64(
   const retainedPatches: string[] = [];
   const schedules: Map<string, Phase[]> = new Map(
     [...requests].map(
-      ([id, values]: [string, Map<string, Phase>]): [string, Phase[]] => [
+      ([id, values]: [string, Map<string, PhaseRequest>]): [
+        string,
+        Phase[],
+      ] => [
         id,
-        [...values.values()].sort(Q.compare),
+        Array.from(values.values(), ({ phase }) => phase).sort(Q.compare),
       ],
     ),
   );
   const canonical: Map<string, AutoMovieVector3Tuple> = new Map();
   const conflicts: Set<string> = new Set();
   const incidents: Map<string, Set<string>> = new Map();
-  const rejected: Map<string, string[]> = new Map();
   const plans: Map<
     string,
     { t: number; phase: Phase; sample: BoundarySample }[][]
   > = new Map();
   for (const patch of props.patches) {
+    if (rejected.has(patch.id)) continue;
     try {
       const sides: { t: number; phase: Phase; sample: BoundarySample }[][] =
         patch.edges.map(
@@ -171,24 +215,11 @@ export function tessellateParametricAtlas64(
                 (
                   phase: Phase,
                 ): { t: number; phase: Phase; sample: BoundarySample } => {
-                  const sample: BoundarySample = edge.sample(phase);
-                  if (!sample.key.trim())
-                    throw new Error("Nonfinite or unnamed canonical point");
-                  const previous: AutoMovieVector3Tuple | undefined =
-                    canonical.get(sample.key);
-                  if (previous === undefined)
-                    canonical.set(sample.key, M.clone(sample.point));
-                  else if (
-                    previous.some(
-                      (value: number, axis: number): boolean =>
-                        value !== sample.point[axis],
-                    )
-                  )
-                    conflicts.add(sample.key);
-                  const owners: Set<string> =
-                    incidents.get(sample.key) ?? new Set();
-                  owners.add(patch.id);
-                  incidents.set(sample.key, owners);
+                  const { key, point }: BoundarySample = edge.sample(phase);
+                  if (typeof key !== "string" || !key.trim())
+                    throw new Error("A named canonical point is required");
+                  assertFiniteCurveVector(point);
+                  const sample: BoundarySample = { key, point: M.clone(point) };
                   const own: number | undefined = originalLocals
                     .get(edge)!
                     .get(phase.key);
@@ -197,7 +228,7 @@ export function tessellateParametricAtlas64(
                     (edge.localize === undefined
                       ? Q.local(edge.start, edge.end, phase)
                       : edge.localize(phase));
-                  if (t < 0 || t > 1)
+                  if (!Number.isFinite(t) || t < 0 || t > 1)
                     throw new Error(
                       "Boundary inverse leaves its local restriction",
                     );
@@ -222,6 +253,31 @@ export function tessellateParametricAtlas64(
       ]);
     }
   }
+  for (const patch of props.patches) {
+    const sides = plans.get(patch.id);
+    if (sides === undefined) continue;
+    if (rejected.size !== 0)
+      for (let i: number = 0; i < sides.length; i++) {
+        const byKey = requests.get(patch.edges[i]!.authority)!;
+        sides[i] = sides[i]!.filter(({ phase }) => {
+          for (const owner of byKey.get(phase.key)!.owners)
+            if (!rejected.has(owner)) return true;
+          return false;
+        });
+      }
+    for (const side of sides)
+      for (const { sample } of side) {
+        const previous: AutoMovieVector3Tuple | undefined = canonical.get(
+          sample.key,
+        );
+        if (previous === undefined) canonical.set(sample.key, sample.point);
+        else if (previous.some((value, axis) => value !== sample.point[axis]))
+          conflicts.add(sample.key);
+        const owners: Set<string> = incidents.get(sample.key) ?? new Set();
+        owners.add(patch.id);
+        incidents.set(sample.key, owners);
+      }
+  }
   for (const key of conflicts)
     for (const id of incidents.get(key) ?? []) {
       const messages: string[] = rejected.get(id) ?? [];
@@ -235,6 +291,9 @@ export function tessellateParametricAtlas64(
       diagnostics.push(`${patch.id}: ${rejection.join("; ")}`);
       continue;
     }
+    const checkpoint = { ...counts };
+    const physicalStart: number = mesh.physicalVertices!.sources.length;
+    const addedPhysical: string[] = [];
     try {
       const sides: { t: number; phase: Phase; sample: BoundarySample }[][] =
         plans.get(patch.id)!;
@@ -335,6 +394,8 @@ export function tessellateParametricAtlas64(
           aa[2] * bb[0] - aa[0] * bb[2],
           aa[0] * bb[1] - aa[1] * bb[0],
         );
+        if (!Number.isFinite(area))
+          throw new Error("Parametric triangle area must remain finite");
         if (area === 0) ++counts.zeroAreaTriangles;
         else {
           mesh.indices!.push(...ids);
@@ -358,6 +419,11 @@ export function tessellateParametricAtlas64(
         const previous: number | undefined = local.get(localKey);
         if (previous !== undefined) return previous;
         const jet: ReturnType<Patch["evaluate"]> = patch.evaluate(u, v);
+        assertFiniteCurveVector(jet.point);
+        assertFiniteCurveVector(jet.du);
+        assertFiniteCurveVector(jet.dv);
+        if (jet.normalLimit !== undefined)
+          assertFiniteCurveVector(jet.normalLimit);
         let point: AutoMovieVector3Tuple = jet.point;
         let key: string = `${patch.id}:interior:${localKey}`;
         const side: number =
@@ -387,6 +453,7 @@ export function tessellateParametricAtlas64(
           point: M.clone(point),
         };
         if (held === undefined) {
+          addedPhysical.push(key);
           physical.set(key, source);
           mesh.physicalVertices!.sources.push({
             domain: props.domain,
@@ -434,6 +501,14 @@ export function tessellateParametricAtlas64(
         return id;
       }
     } catch (error) {
+      for (const key of addedPhysical) physical.delete(key);
+      mesh.positions.length = checkpoint.vertices * 3;
+      mesh.normals!.length = checkpoint.vertices * 3;
+      mesh.uvs!.length = checkpoint.vertices * 2;
+      mesh.indices!.length = checkpoint.triangles * 3;
+      mesh.physicalVertices!.vertices.length = checkpoint.vertices;
+      mesh.physicalVertices!.sources.length = physicalStart;
+      Object.assign(counts, checkpoint);
       ++counts.omittedPatches;
       diagnostics.push(
         `${patch.id}: ${error instanceof Error ? error.message : String(error)}`,

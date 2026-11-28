@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionLabel } from "@automovie/interface";
-import type { IAutoMovieRenderInspectionHandle } from "@automovie/render";
+import { AutoMovieRenderPicture, type IAutoMovieRenderInspectionHandle } from "@automovie/render";
 import type * as THREE from "three";
 
 import type { IAutoMovieViewerInspectorScene } from "../IAutoMovieViewerInspectorScene";
@@ -39,6 +39,8 @@ export function placeInspectorLabels(props: {
 }): IAutoMovieViewerInspectorScene.ILabels {
   const { width, height } = props.raster;
   const { shown } = props;
+  if (!(shown.width > 0 && shown.height > 0))
+    return { labels: [], lineHeight: 0, dropped: 0 };
   const scale: number = Math.max(1, Math.ceil(height / shown.height));
   const placed: ReturnType<IAutoMovieRenderInspectionHandle["labels"]> =
     props.inspection.labels(props.camera, width, height, scale);
@@ -46,15 +48,20 @@ export function placeInspectorLabels(props: {
     labels: placed.labels.map(
       (
         label: IAutoMovieInspectionLabel,
-      ): IAutoMovieViewerInspectorScene.ILabels["labels"][number] => ({
-        path: label.path,
-        text: label.text,
-        left: (label.x * shown.width) / width,
-        top: (label.y * shown.height) / height,
-      }),
+      ): IAutoMovieViewerInspectorScene.ILabels["labels"][number] => {
+        const box = AutoMovieRenderPicture.labelBox(props.raster, label.text, scale, label);
+        return {
+          path: label.path,
+          text: label.text,
+          left: (box.left * shown.width) / width,
+          top: (box.top * shown.height) / height,
+          width: (box.width * shown.width) / width,
+        };
+      },
     ),
     // The stamp's box is nine font pixels high.
-    lineHeight: (9 * scale * shown.height) / height,
+    lineHeight: (Math.min(height, 9 * scale) * shown.height) / height,
     dropped: placed.dropped.length,
+    droppedPaths: placed.dropped.map(({ path }) => path),
   };
 }

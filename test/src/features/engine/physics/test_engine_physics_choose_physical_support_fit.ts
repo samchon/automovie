@@ -30,6 +30,10 @@ type Candidate = {
  *    not jump. Red: always taking the authored-seed fit jumps by 0.2 rad.
  * 3. Equal continuity keeps the first (authored-seed) candidate; with no
  *    admissible fit the smaller residual wins.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains precedence among fit residual, continuity to the completed reference and stable order for equal candidates.
+ * @evidence contracts/development/testing.md#behavioral-verification Selects between authored and warm seed results across feasible, infeasible and equal-continuity cases.
+ * @evidence contracts/development/testing.md#independent-expectations The 1 mm tolerance excludes a 94 mm residual. For admitted results, 0.01 rad beats 0.2 rad from the reference. Equal continuity keeps the first and lower residual wins when both fail.
  */
 export function test_engine_physics_choose_physical_support_fit(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

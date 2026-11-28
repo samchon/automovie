@@ -40,7 +40,7 @@ export function constructionProfileSurface(
       : curve.period === undefined
         ? undefined
         : curve.period / (piece.clock[1] - piece.clock[0]);
-  if (period !== undefined && !(period > 0))
+  if (period !== undefined && (!(period > 0) || !Number.isFinite(period)))
     fail("Original profile period is not representable in this piece clock.");
   const factor: number = piece.direction * (piece.clock[1] - piece.clock[0]);
   const clock: (station: number, phase: number) => number = (
@@ -54,7 +54,11 @@ export function constructionProfileSurface(
         ? period === undefined && (phase < 0 || phase > 1)
         : curve.period === undefined &&
           (value < curve.clock[0] || value > curve.clock[1]);
-    if (station < domain[0] || station > domain[1] || outside)
+    if (
+      !(station >= domain[0] && station <= domain[1]) ||
+      !Number.isFinite(value) ||
+      outside
+    )
       fail(`Original piece ${piece.id} query is outside its actual chart.`);
     return value;
   };
@@ -75,6 +79,10 @@ export function constructionProfileSurface(
         (k: number): number =>
           frame.origin[k]! + local[0] * frame.u[k]! + local[1] * frame.v[k]!,
       ) as [number, number, number];
+      if (!point.every(Number.isFinite))
+        fail(
+          `Original piece ${piece.id} point is not representable in world millimetres.`,
+        );
       return point;
     },
     jet: (station: number, phase: number): IAutoMovieSolidSurface.IJet => {
@@ -129,7 +137,11 @@ export function constructionProfileSurface(
  * Every supplied local value or derivative has two genuine finite components.
  */
 function pair(value: readonly number[]): void {
-  if (value.length !== 2)
+  if (
+    value.length !== 2 ||
+    !Number.isFinite(value[0]) ||
+    !Number.isFinite(value[1])
+  )
     fail("Original profile requires two finite local components.");
 }
 
@@ -142,7 +154,10 @@ function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   for (const key of ["origin", "u", "v"] as const) {
     if (frame[key].length !== 3)
       fail("Original profile has incomplete or nonfinite plane data.");
-    row.push(...frame[key]);
+    const [x, y, z] = frame[key];
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
+      fail("Original profile has incomplete or nonfinite plane data.");
+    row.push(x, y, z);
   }
   return row;
 }

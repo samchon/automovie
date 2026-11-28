@@ -30,6 +30,10 @@ import { throwsError, vclose } from "../../internal/predicates";
  *    read by the next call (origin y 7, forward x -4: x = -x, y = (0, -0.8,
  *    0.6)) without changing an earlier result.
  * 6. A nonfinite coordinate in the origin, forward or normal is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the normal-priority basis, signed and subnormal directions, owned vectors and refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Constructs frames from scaled and reversed inputs and compares their axes, isolation after edits and nonfinite or dependent directions.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied normal normalizes to (0,0.6,0.8). Subtracting its forward component leaves +x. The normal cross +x gives (0,0.8,−0.6).
  */
 export function test_engine_geometry_normalize_surface_frame(): void {
   const origin: IAutoMovieVector3 = { x: 3, y: -2, z: 5 };

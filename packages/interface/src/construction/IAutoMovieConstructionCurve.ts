@@ -1,48 +1,42 @@
 /**
- * One construction curve of a lofted chain, sampled as a polyline in metres by
- * `sampleConstructionCurves`, so an inspection can draw the lines a
- * form was built from over its skin.
- *
- * A `section` is the closed ring of the surface at one principal layer station.
- * A `guide` is the open rail the surface follows along its stations at one
- * quarter phase. The `axis` is the open line through the centroids of the
- * sampled rings. All three are readings of the realized surface, not of the
- * authored tree.
+ * Inspection polyline sampled from a realized loft chain in construction-frame
+ * metres. Sections close around a principal station. Guides follow the four
+ * quarter phases along the chain. The axis joins the sampled ring centroids.
  */
 export interface IAutoMovieConstructionCurve {
   /**
-   * Unique within one sampling: `<part>/section/<layer ordinal>`,
-   * `<part>/guide/<quarter 0..3>`, `<part>/axis`.
+   * Sampling-local identifier formed as part/section/layer ordinal,
+   * part/guide/quarter index or part/axis.
    */
   id: string;
 
-  /** Which construction line this is. */
+  /** Select a section ring, quarter guide or sampled centroid axis. */
   kind: IAutoMovieConstructionCurve.Kind;
 
-  /** Name of the lofted chain, which is its construction node's name. */
+  /** Name of the realized chain that supplies the geometry. */
   part: string;
 
-  /** Whether the last point joins the first. */
+  /**
+   * Whether drawing should join the last sample to the first. Section rings are
+   * closed.
+   */
   closed: boolean;
 
-  /** Flat xyz in metres, without a repeated closing point. */
+  /**
+   * Flat sequence of world XYZ samples in construction-frame metres. Draw a
+   * closed ring without repeating its first point.
+   */
   points: number[];
 
-  /**
-   * True when the realization reported a diagnostic on this part, or a sample
-   * was not finite and was left out.
-   */
+  /** Whether the named chain had a realization diagnostic during sampling. */
   flagged: boolean;
 }
 
 /** Data and callback contracts shared by the ConstructionCurve operations. */
 export namespace IAutoMovieConstructionCurve {
   /**
-   * The construction lines `sampleConstructionCurves` tells apart.
-   *
-   * `section` is a closed ring at one principal layer station, `guide` an open
-   * rail along the stations at one of the four quarter phases, and `axis` the
-   * open line through the centroids of the sampled rings.
+   * Inspection curve category. Section closes one layer's ring, guide follows
+   * one cardinal phase through stations, and axis follows ring centroids.
    */
   export type Kind = "section" | "guide" | "axis";
 }

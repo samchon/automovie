@@ -39,6 +39,10 @@ function same(
  *    bone: point 2 lies 0.5 along +Z from point 1.
  * 3. A single bone for three points, a bone of no length, and four points with
  *    three edges that leave one unreached give no shape.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reconstruction from authored bone lengths and contact offsets with centroid alignment and connectedness.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a shape from three reference points, substitutes a contact offset, and tries disconnected and zero-length edges.
+ * @evidence contracts/development/testing.md#independent-expectations Authored bone lengths produce (2, 0, 0) and (2, 3, 0) from the seeded origin and centroid remains (2/3, 1/3, 0). A contact adds exactly 0.5 along +Z.
  */
 export function test_motions_posture_interaction_mesh_shape(): void {
   const reference: Float64Array = new Float64Array([0, 0, 0, 1, 0, 0, 1, 1, 0]);

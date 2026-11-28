@@ -44,6 +44,10 @@ const REACH: number = 5e-4;
  *    the torque their aligned axes give and the trunk's inertia about them, and
  *    none against a lateral one; one stance hip has one either way; a trunk
  *    leaning toward the push has that much less angle left.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies remaining hip-strategy reach, transient step triggers and directional moment capacity.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares the reach law against a 1 kHz flywheel, varies excursion and progress for step decisions, and tests one and two stance hips.
+ * @evidence contracts/development/testing.md#independent-expectations The analytic Human reach is about 2 cm, so 0.9 of it returns and 1.1 diverges. Aligned hip axes can resist a forward push and lack the tested lateral capacity.
  */
 export function test_engine_physics_physical_stance_hip(): void {
   const failures: string[] = [];

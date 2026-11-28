@@ -18,7 +18,10 @@ export namespace IAutoMovieCurveGrid64 {
      */
     topologyDomain: string;
 
-    /** Finite increasing coordinates in one consistent physical or angular chart. */
+    /**
+     * Finite increasing coordinates in one consistent physical or angular
+     * chart.
+     */
     stations: readonly number[];
 
     /**
@@ -37,8 +40,8 @@ export namespace IAutoMovieCurveGrid64 {
     resolutionMm: number;
 
     /**
-     * Finite normalized course parameters included in sampling and published
-     * as actual isocurves.
+     * Finite normalized course parameters included in sampling and published as
+     * actual isocurves.
      */
     guides: readonly number[];
 
@@ -70,48 +73,10 @@ export namespace IAutoMovieCurveGrid64 {
     mesh: IAutoMovieMesh;
 
     /** Actual surface courses and isocurves, in metres. */
-    construction: {
-      /**
-       * All published construction positions are metres after the kernel's
-       * single millimetre conversion.
-       */
-      units: "m";
-      /**
-       * Actual saved courses followed by requested evaluated guide isocurves;
-       * these lines use the same generating field as the mesh.
-       */
-      lines: {
-        /**
-         * Saved course name or producer-generated guide identity derived from
-         * the construction name and normalized course parameter.
-         */
-        id: string;
-        /**
-         * Whether this line closes in the station direction; requested guides
-         * close only when a station period was supplied.
-         */
-        closed: boolean;
-        /**
-         * Caller-owned Cartesian positions in metres, in the line's sampled
-         * parameter order.
-         */
-        points: [number, number, number][];
-      }[];
-    };
+    construction: IConstruction;
 
     /** Ordered actual mesh course and station sample parameters. */
-    parameters: {
-      /**
-       * Increasing normalized course sample coordinates, including original
-       * span boundaries and explicitly requested guides.
-       */
-      course: number[];
-      /**
-       * Actual station sample coordinates in the same physical or angular unit
-       * as input.stations.
-       */
-      station: number[];
-    };
+    parameters: IParameterSamples;
 
     /**
      * Boundary positions in metres and analytic partials per normalized course
@@ -120,68 +85,120 @@ export namespace IAutoMovieCurveGrid64 {
      */
     boundaries: Record<
       "courseStart" | "courseEnd" | "stationFirst" | "stationLast",
-      {
-        /**
-         * Copied boundary positions in metres, aligned with the corresponding
-         * boundary's sampled course or station sequence.
-         */
-        positions: [number, number, number][];
-        /**
-         * Analytic Cartesian partial derivatives in metres per normalized
-         * course unit; aligned with positions and not normalized tangent
-         * directions.
-         */
-        coursePartials: [number, number, number][];
-        /**
-         * Analytic Cartesian partial derivatives in metres per declared station
-         * unit; aligned with positions.
-         */
-        stationPartials: [number, number, number][];
-      }
+      IBoundarySamples
     >;
 
     /** Complexity and degeneracy observations, not acceptance criteria. */
-    counts: {
-      /** Number of supplied generating cubic courses. */
-      courses: number;
-      /** Sum of original cubic span counts across all input courses. */
-      inputSpans: number;
-      /**
-       * Number of intervals in the union of all normalized course span
-       * boundaries.
-       */
-      commonSpans: number;
-      /**
-       * Number of common course spans whose tensor station family was actually
-       * constructed during ordered sampling.
-       */
-      evaluatedSpans: number;
-      /**
-       * Actual generated mesh vertex count, including boundary vertices without
-       * a retained incident triangle.
-       */
-      vertices: number;
-      /** Actual retained triangle count in the output index buffer. */
-      triangles: number;
-      /**
-       * Proposed faces omitted when their generated cross-product magnitude was
-       * zero or nonfinite.
-       */
-      omittedZeroAreaTriangles: number;
-      /**
-       * Generated vertices with zero or nonfinite accumulated normals, retained
-       * with zero normal.
-       */
-      unresolvedVertexNormals: number;
-      /** Subset of unresolved normals with no incident emitted triangle. */
-      isolatedVertices: number;
-      /** Subset of unresolved normals whose accumulated length is nonfinite. */
-      nonfiniteNormalSums: number;
-      /**
-       * Smallest retained triangle area in square millimetres; remains
-       * Number.MAX_VALUE if no triangle was retained.
-       */
-      minimumTriangleAreaMm2: number;
-    };
+    counts: ICounts;
   }
+
+  /** Publish the source courses and evaluated guide lines in metres. */
+  export type IConstruction = {
+    /**
+     * All published construction positions are metres after the kernel's single
+     * millimetre conversion.
+     */
+    units: "m";
+    /**
+     * Actual saved courses followed by requested evaluated guide isocurves;
+     * these lines use the same generating field as the mesh.
+     */
+    lines: IConstructionLine[];
+  };
+
+  /** An ordered course or guide from the same field as the mesh. */
+  export type IConstructionLine = {
+    /**
+     * Saved course name or producer-generated guide identity derived from the
+     * construction name and normalized course parameter.
+     */
+    id: string;
+    /**
+     * Whether this line closes in the station direction; requested guides close
+     * only when a station period was supplied.
+     */
+    closed: boolean;
+    /**
+     * Caller-owned Cartesian positions in metres, in the line's sampled
+     * parameter order.
+     */
+    points: [number, number, number][];
+  };
+
+  /** The course and station coordinates used by the grid evaluator. */
+  export type IParameterSamples = {
+    /**
+     * Increasing normalized course sample coordinates, including original span
+     * boundaries and explicitly requested guides.
+     */
+    course: number[];
+    /**
+     * Actual station sample coordinates in the same physical or angular unit as
+     * input.stations.
+     */
+    station: number[];
+  };
+
+  /** Copied boundary positions and their analytic partial derivatives. */
+  export type IBoundarySamples = {
+    /**
+     * Copied boundary positions in metres, aligned with the corresponding
+     * boundary's sampled course or station sequence.
+     */
+    positions: [number, number, number][];
+    /**
+     * Analytic Cartesian partial derivatives in metres per normalized course
+     * unit; aligned with positions and not normalized tangent directions.
+     */
+    coursePartials: [number, number, number][];
+    /**
+     * Analytic Cartesian partial derivatives in metres per declared station
+     * unit; aligned with positions.
+     */
+    stationPartials: [number, number, number][];
+  };
+
+  /** Work counts and numerical qualifications of the generated grid. */
+  export type ICounts = {
+    /** Number of supplied generating cubic courses. */
+    courses: number;
+    /** Sum of original cubic span counts across all input courses. */
+    inputSpans: number;
+    /**
+     * Number of intervals in the union of all normalized course span
+     * boundaries.
+     */
+    commonSpans: number;
+    /**
+     * Number of common course spans whose tensor station family was actually
+     * constructed during ordered sampling.
+     */
+    evaluatedSpans: number;
+    /**
+     * Actual generated mesh vertex count, including boundary vertices without a
+     * retained incident triangle.
+     */
+    vertices: number;
+    /** Actual retained triangle count in the output index buffer. */
+    triangles: number;
+    /**
+     * Proposed faces omitted when their generated cross-product magnitude was
+     * zero or nonfinite.
+     */
+    omittedZeroAreaTriangles: number;
+    /**
+     * Generated vertices with zero or nonfinite accumulated normals, retained
+     * with zero normal.
+     */
+    unresolvedVertexNormals: number;
+    /** Subset of unresolved normals with no incident emitted triangle. */
+    isolatedVertices: number;
+    /** Subset of unresolved normals whose accumulated length is nonfinite. */
+    nonfiniteNormalSums: number;
+    /**
+     * Smallest retained triangle area in square millimetres; remains
+     * Number.MAX_VALUE if no triangle was retained.
+     */
+    minimumTriangleAreaMm2: number;
+  };
 }

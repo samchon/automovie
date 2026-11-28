@@ -22,11 +22,9 @@ const CONTACTS: Readonly<{
  * 3. Each has a `grip`, a `trigger`, a `muzzle` and a `sight`, and a long gun a `foreEnd` and a `butt`; each publishes a muzzle velocity and a lock time.
  * 4. For three seeds, every flintlock, the musket's and the pistol's, has a `cock`, its thumb piece the `spur` (a handle riding the cock), a `frizzen` and a `pan`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each kind for 200 seeds and reads its dimensions against its recorded bands and its contacts by id; a value outside its band, an unmarked lock time or a missing contact is caught.
- * @evidence contracts/development/testing.md#independent-expectations The contact ids are the firearm laws' (`HumanWeaponFirearm`), written here; the bands are read from the archetype's own provenance, so the check is that the draw honours what it records.
- * @evidence contracts/development/testing.md#distinguishing-cases Five kinds over two producers, each across its models and bands.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the era sweep, recorded dimension bounds, provisional metadata and required animation contact IDs.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each public scenic variant for the seeded samples and checks actual dimensions against its provenance plus the expected local animation contacts.
+ * @evidence contracts/development/testing.md#independent-expectations The required IDs are literal fixtures from the motion contact vocabulary. The dimension assertions check agreement with returned provenance and the provisional label.
  */
 export function test_archetype_weapon_firearm_eras_bands(): void {
   const findings: string[] = [];

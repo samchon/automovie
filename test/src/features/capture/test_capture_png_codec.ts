@@ -79,9 +79,7 @@ function png(
  *
  * @evidence contracts/development/testing.md#behavioral-verification Encodes and decodes through the public functions and compares pixels; a codec that dropped a row, mishandled a filter, scaled a sub-byte sample wrongly or accepted a corrupt chunk fails.
  * @evidence contracts/development/testing.md#independent-expectations Files for scenarios 2 to 4 are built here with Node's zlib from rows filtered by hand per the PNG specification, and scenario 1's file is inflated with Node's zlib, so neither side relies on the code under test.
- * @evidence contracts/development/testing.md#distinguishing-cases Every row filter, sub-byte, 8-bit and 16-bit depths, palette and grey forms, one IDAT against two, and each refusal against a valid file. Hashes of decoded stills are owned by `test_capture_still_hash`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_png_codec`; it builds every file in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Authored images cover RGB encoding, row filter decoding, split image chunks, palette and grey variants, high-byte extraction, and malformed input refusals.
  */
 export async function test_capture_png_codec(): Promise<void> {
   const rgba: (image: IAutoMovieRasterImage) => number[] = (

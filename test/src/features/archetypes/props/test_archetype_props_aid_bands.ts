@@ -23,11 +23,9 @@ const DRIVE: string = "Drive Medical offset cane and walker 10210-1";
  * 3. A walker's two grips are on its two side rails, the frame's width less one tube apart.
  * 4. For three seeds, an infusion stand rests on its castors on the floor, its `hook` at its top, and its centre of mass lies below the outer tube's middle, as a base of 8.9 kg under 3.1 kg of tubes puts it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces umbrellas and aids for 200 seeds and measures colliders, grip widths, frames and masses; a band other than the citation's, a seed that does not vary it, a canopy on a closed umbrella, grips off the rails, a stand off the floor, a hook off its top or a stand balanced high is caught.
- * @evidence contracts/development/testing.md#independent-expectations BLUNT's comparison table, Drive Medical's product sheets and Provita's catalogue give the sizes and weights; a grip on a rail lies at that rail's centre line by the handle convention.
- * @evidence contracts/development/testing.md#distinguishing-cases Open against closed; the three aids; the walker's depth and the cane's weight are search-only and left to the producer's provisional marks.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies both umbrella poses, cane and walker handle frames, and the infusion stand's hook, floor contact and balance.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures built colliders, frames and masses over a seed sweep. Open and closed umbrella cases check canopy presence, the walker grips sit on opposite rails, and the stand's casters and hook lie at opposite vertical bounds.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated BLUNT, Drive Medical and Provita size and weight ranges. A grip follows each rail's centreline. A stand with an 8.9 kg base and 3.1 kg of tubing balances below the outer tube midpoint.
  */
 export function test_archetype_props_aid_bands(): void {
   const row = (

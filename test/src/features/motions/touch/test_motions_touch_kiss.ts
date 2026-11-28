@@ -32,32 +32,21 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * The `kiss` law's own logic, each piece without the arm planner:
- *
- * - Contact admits a mouth placement within 5 mm of the named region. A role
- *   in a hand meeting names the back of one hand.
- * - `kissClock` adds the contact events to a phrase: `contact` at its `ready` and
- *   `part` at its `relax`, keeping its length.
- * - `kissPitch` is the bow that swings the mouth on its circle about the hip
- *   around the body's left toward a point: the signed angle in that plane,
- *   positive forward.
- * - `kissProjection` aims the hip-to-mouth vector at a skin point by a roll, then
- *   a pitch, each the inverse sine of the goal's component over the radius it
- *   turns on, less the angle the mouth already makes; none beyond it.
+ * Check kiss contact admission, phrase cues and body-plane aiming.
  *
  * Scenarios:
  *
- * 1. Contact at the tolerance edge passes. A greater miss and a hand role
- *    assigned to a cheek refuse on `region`.
- * 2. Clock: a phrase preparing 0.4 s, holding 1 s and retracting 0.4 s makes
- *    contact at 0.4 s and parts at 1.4 s, over 1.8 s.
- * 3. Pitch, the mouth 0.8 m above the hip: facing +Z a point 30 degrees forward is
- *    a 30 degree bow and one 20 behind -20; facing +X the point 30 degrees
- *    toward +X is 30, whatever its offset along the axis.
- * 4. Projection, an upright entry facing +Z, the hip at (0, 1, 0): the mouth aimed
- *    at itself needs no turn; 20 degrees further forward on its circle a 20
- *    degree pitch; a mouth above aimed 15 degrees toward -X a 15 degree roll; a
- *    point 1 m aside none.
+ * 1. Admit the 5 mm contact limit. Refuse a larger gap and assigning a hand
+ *    role to a cheek. Map the named hand regions to their sides.
+ * 2. A phrase with 0.4 s approach, 1 s hold and 0.4 s return sets contact at
+ *    0.4 s and parting at 1.4 s.
+ * 3. Check front and rear pitch, changed heading and axis offset. Project
+ *    unchanged, pitched and rolled targets, and reject an unreachable lateral
+ *    point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify where the tolerance, timed contact and projected angles are measured.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture exercises the contact gate, side selection, phrase clock and separate planar geometry routines.
+ * @evidence contracts/development/testing.md#independent-expectations Literal cue sums and constructed circular targets give the expected contact times and signed angles.
  */
 export function test_motions_touch_kiss(): void {
   // 1. Contact and roles.

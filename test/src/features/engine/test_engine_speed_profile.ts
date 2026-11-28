@@ -15,9 +15,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Lays profiles and samples them; a wrong peak, a stretch that misses its mark, a speed change faster than the rates, a jump, a mover that moves before its start or during a hold, a `when` that does not invert `at`, or an impossible profile laid anyway is caught.
  * @evidence contracts/development/testing.md#independent-expectations Constant-acceleration kinematics worked here: v = v0 + a t, s = v0 t + a t squared over 2, and v squared = v0 squared + 2 a s; the peak of a rest-to-rest stretch where accelerating and braking distances sum to its length.
- * @evidence contracts/development/testing.md#distinguishing-cases Distance and seconds stretches, capped and peaking stretches, a flying start, a hold at rest, before, at and after the profile, and one throw per rule; the course built on it belongs to the `test_archetype_ride_course` tests.
- * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Distance and timed stretches exercise acceleration, cruise, braking and rest. Dense timing, endpoint behavior, reachable speed and malformed stretch constraints exercise its bounds.
  */
 export function test_engine_speed_profile(): void {
   const findings: string[] = [];

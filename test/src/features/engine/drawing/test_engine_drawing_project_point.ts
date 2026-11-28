@@ -22,6 +22,10 @@ const FRAME: IAutoMovieDrawingFrame = {
  * Scenarios:
  *
  * 1. A point 3 right and 2 up of the origin is at page (3, 2), whatever its depth.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the frame-relative right and up offsets when the point has a nonzero depth.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.projectAutoMovieDrawingPoint with a displaced frame and a point with nonzero depth, then checks both page coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting origin (1, 1, 0) from point (4, 3, 7) yields offset (3, 2, 7). Its X and Y components fix the page coordinate (3, 2).
  */
 export function test_engine_drawing_project_point(): void {
   const page: { x: number; y: number } =

@@ -144,6 +144,10 @@ const lightOf: (lights: IAutoMovieLight[], id: string) => IAutoMovieLight = (
  *    absent.
  * 4. Replace production ids in place, retain practical identity and append the
  *    untouched moon.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the story-clock transition, rate change, optional pass-through and ordered replacement or addition of light identities.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves inherited lighting for prepared production pins, checks direction and intensity along the actual blend, and compares output object order and identity for omitted and merged inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The original and replacement staged data deliberately differ, so the authored production keys determine endpoint and midpoint light values. The selected pin maps the story interval into two shot seconds. The declared repeated IDs identify replacements while the moon has no prior slot.
  */
 export function test_engine_film_production_lighting(): void {
   const staged: IAutoMovieLight[] = [practical, stagedDaylight];

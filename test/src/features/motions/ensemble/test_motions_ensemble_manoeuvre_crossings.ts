@@ -11,18 +11,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `manoeuvreCrossings` refuses a manoeuvre whose members' ways cross: each
- * member read on its way at its speed from its delay, every 1/24 s, against
- * every other, closer than their summed shoulder half breadths and closer than
- * they stand at either end.
+ * Check whether two timed manoeuvre paths cross within shoulder clearance.
  *
- * Scenarios, two members 0.25 m each in half breadth, walking at 1 m/s:
+ * Scenarios:
  *
- * 1. Side by side lanes 1 m apart are admitted.
- * 2. Swapping places along one line meets in the middle and is refused on
- *    `squad.manoeuvre`, naming both.
- * 3. Ways crossing at right angles through one point are refused when both start
- *    together, and admitted when the second waits 3 s for the first to pass.
+ * 1. Admit parallel lanes one metre apart for two members with 0.25 m half
+ *    breadth. Refuse two members swapping places on one line and name them.
+ * 2. Refuse simultaneous perpendicular crossings. Admit the same paths with a
+ *    three-second delay on the second member.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify breadth, speed, path topology, delay and refusal axis.
+ * @evidence contracts/development/testing.md#behavioral-verification The crossing owner receives both member paths and the equality check records the refusal fields.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture positions make the unsafe encounters coincide in space and time. The time delay separates the otherwise identical crossing.
  */
 export function test_motions_ensemble_manoeuvre_crossings(): void {
   const ensemble: manoeuvreCrossings.IEnsemble = {

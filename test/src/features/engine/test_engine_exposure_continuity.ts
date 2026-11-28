@@ -20,9 +20,7 @@ import { throwsError } from "../internal/throwsError";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported checker on ordered cuts and compares the full finding list; comparing with the previous cut of the film rather than of the group, reporting a decided change, or skipping the duplicate check fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected finding is the issue's worked example: 0.2 and 2.0 stop steps are under the default third of a stop or decided, and 0.8 is over it.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a decided change, an interleaved group, the tolerance boundary and a duplicate index. Metering belongs to test_engine_meter_illuminance.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with their EV100 values and expected findings.
+ * @evidence contracts/development/common.md#meaningful-documentation Grouped cuts expose the reported exposure jumps. Interleaved groups, exact tolerance and duplicate cut indices exercise ordering and refusal.
  */
 export function test_engine_exposure_continuity(): void {
   const kitchen: string = "INT. KITCHEN - NIGHT";

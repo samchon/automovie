@@ -19,9 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the drawn-in cutter through the public `AutoMovieHumanF1.CUTTERS[].cut`, the family the figure cuts with, on a made section and on the stored one.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the parallel curve's own properties (an extreme stays on its normal and stays the extreme) and the rim's stated width, none read from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases The made section's 0.2 mm lead is under the rim's 1.5 mm: drawn toward the extremes' mean its front extreme falls 0.25 mm behind its lateral neighbour and both coordinates move, which the checks report.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit over one stored family's numbers, reached by `--include human_f1_nostril_rim`; it builds no person, surface or reference.
- * @evidence contracts/development/common.md#meaningful-documentation States the geometric identity, the two scenarios and the made defect's size.
+ * @evidence contracts/development/common.md#meaningful-documentation The synthetic and stored sections preserve extreme direction and ordering as their rims move inward. The synthetic section provides a close-neighbour case and two full-width controls.
  */
 export function test_human_f1_nostril_rim(): void {
   const cutter = AutoMovieHumanF1.CUTTERS.find((candidate): boolean => candidate.family.name === "nostril");

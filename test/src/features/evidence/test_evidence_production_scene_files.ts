@@ -26,8 +26,6 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs public selector output through actual native source capture and Markdown extraction, observing selected sources and H2 units.
  * @evidence contracts/development/testing.md#independent-expectations The document layout puts each scene in its own file inside a film folder, a short's `<film>/` or long work's `NNN-part/NNN-episode/`, so each authored scene file contributes its one H2 and a file directly under the screenplay folder contributes none; the pilot requests only 001-bout.
- * @evidence contracts/development/testing.md#distinguishing-cases A short film folder, a long episode folder and a stray top-level file distinguish complete-work selection, and a pilot distinguishes its named part from other folders.
- * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A short's two scene files in its film folder and a plain settings file each contribute their actual H2, while a screenplay file outside a film folder is not a scene.).
  */
 export async function test_evidence_production_scene_files(): Promise<void> {

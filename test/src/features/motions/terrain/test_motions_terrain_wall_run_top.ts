@@ -118,6 +118,10 @@ const ROUNDING: number = 8 * Number.EPSILON * 3;
  * 1. The 0.55 m step plus a 1.25 m shoulder and 0.75 m arm reaches 2.55 m, or 4.55
  *    m in world coordinates when the floor stands at 2 m.
  * 2. A top at 4.6 m is refused with the 2.55 m local bound and its 0.05 m miss.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines maximum geometric reach from a wall step relative to the staged floor and its refusal details.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the wall-run top admission with a translated stage and compares a reachable and slightly higher target.
+ * @evidence contracts/development/testing.md#independent-expectations Summing step, shoulder and arm gives 2.55 m local and 4.55 m world. A target at 4.6 m reports the local bound and 0.05 m excess.
  */
 export async function test_motions_terrain_wall_run_top(): Promise<void> {
   const measure: planWallRun.IReachMeasure = {

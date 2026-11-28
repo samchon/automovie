@@ -58,9 +58,7 @@ const scene: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls sceneToNodes with model/prop registries and observes accepted placement/articulation lowering plus refusal of contradictory or missing registry joins.
  * @evidence contracts/development/testing.md#independent-expectations Authored placement.model identifies exactly one source registry, so a duplicate resolution contradicts ownership and an unresolved required reference cannot supply a subtree; expected names come from the existing door fixture.
- * @evidence contracts/development/testing.md#distinguishing-cases Existing model/prop, missing and contradictory registry neighbors separate valid lowering from silent registry preference; articulation world transforms and profiles belong to lowering/frame cases.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_scene_prop_guards entry synchronously invokes actual portable lowering with the canonical existing door provider, without importing another test entry or starting a host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A mixed scene resolves: the door through `props`, the actor through `models`).
+ * @evidence contracts/development/common.md#meaningful-documentation A mixed prop and model scene resolves both registries. Overlapping IDs and missing references refuse, while omitting both registries preserves placements-only lowering.
  */
 export function test_resolve_scene_prop_guards(): void {
   const door: IAutoMoviePropSpec = createDoorPropSpec();

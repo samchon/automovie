@@ -20,6 +20,10 @@ import { assertContourLoftBoundaryCore } from "../../internal/assertContourLoftB
  *    open continuations, isolated terminals closing a two-cone surface, a
  *    regular merge's interior slit aligned with its generating phases, and the
  *    collinear cubic [0, 10, 0, 10] split at 1/4 keeping its endpoint 4.375.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Separates shared phase geometry, admission failures and terminal or slit completion by named assertion suite.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes the boundary core, admission and completion assertions on the actual contour loft and checks emitted topology and scoped diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations A rectangular prism's split restrictions preserve its lateral area. Shared boundary points need the same index with opposite traversal. Cubic subdivision at one quarter independently gives 4.375.
  */
 export function test_engine_geometry_contour_loft_boundaries(): void {
   const context: ReturnType<typeof assertContourLoftBoundaryCore> =

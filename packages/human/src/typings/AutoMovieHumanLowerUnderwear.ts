@@ -1,14 +1,19 @@
 import type { AutoMovieHumanLowerUnderwear as AutoMovieHumanLowerUnderwearContract } from "@automovie/interface";
 
-/** Closed lower underwear choices; serialized values are unchanged. */
+/**
+ * Lower garment labels for the underwear record.
+ *
+ * Set `bottom` explicitly. The same record supplies `top` and the garment
+ * color.
+ */
 export namespace AutoMovieHumanLowerUnderwear {
-  /** No lower undergarment requested. */
+  /** Request no lower garment. */
   export const None: "none" = "none" satisfies
     AutoMovieHumanLowerUnderwearContract;
-  /** Brief-style lower covering requested. */
+  /** Request a brief-style lower garment. */
   export const Briefs: "briefs" = "briefs" satisfies
     AutoMovieHumanLowerUnderwearContract;
-  /** Boxer-brief lower covering requested, including upper-thigh coverage. */
+  /** Request a boxer-brief lower garment. */
   export const BoxerBriefs: "boxerBriefs" = "boxerBriefs" satisfies
     AutoMovieHumanLowerUnderwearContract;
 }

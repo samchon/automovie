@@ -1,5 +1,8 @@
 import type { IAutoMovieRecoveryScalarProfilesFittingOperation } from "@automovie/interface";
 
+import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
+import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
+
 /*
  * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
  * Unpivoted Householder QR acts on the original design and all right-hand
@@ -14,23 +17,39 @@ export function fitRecoveryScalarProfiles(
   spans: Parameters<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation>[1],
   minimumRankRatio: Parameters<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation>[2],
 ): ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> {
+  if (
+    !isRecoveryPositiveSafeInteger(spans) ||
+    !isRecoveryUnitInterval(minimumRankRatio)
+  )
+    throw new Error(
+      "invalid-fit-policy: positive safe-integer spans and a rank ratio in (0, 1) required",
+    );
   const fields: number = samples[0]?.values.length ?? 0;
   if (
     !fields ||
     samples.some(
       (sample: (typeof samples)[number]): boolean =>
-        sample.values.length !== fields,
+        sample.values.length !== fields ||
+        !sample.values.every(Number.isFinite),
     )
   )
     throw new Error("Complete finite scalar profile rows required");
   const count: number = spans + 3;
-  if (samples.length < count || spans < 1)
+  if (samples.length < count)
     throw new Error(
       "insufficient-fit-support: more physical rows than spline coefficients required",
     );
   const lower: number = samples[0].yMm;
-  const length: number = samples.at(-1)!.yMm - lower;
-  if (!(length > 0))
+  const upper: number = samples.at(-1)!.yMm;
+  const length: number = upper - lower;
+  if (
+    !Number.isFinite(length) ||
+    !(length > 0) ||
+    samples.some(
+      (sample: (typeof samples)[number]): boolean =>
+        !(sample.yMm >= lower && sample.yMm <= upper),
+    )
+  )
     throw new Error(
       "invalid-fit-chart: a finite physical station interval is required",
     );
@@ -140,6 +159,8 @@ export function fitRecoveryScalarProfiles(
       for (let column: number = row + 1; column < count; column++)
         value -= matrix[column][row] * coefficients[column];
       coefficients[row] = value / matrix[row][row];
+      if (!Number.isFinite(coefficients[row]))
+        throw new Error("nonfinite-fit: unresolved scalar profile coefficient");
     }
     profiles.push(coefficients);
   }
@@ -186,12 +207,17 @@ export function fitRecoveryScalarProfiles(
           ? previous.profiles[field][3]
           : value(profile, start, false) * 0.001;
         const b: number = value(profile, end, false) * 0.001;
-        return [
+        const coefficients: [number, number, number, number] = [
           a,
           a + (value(profile, start, true) * (end - start)) / 3000,
           b - (value(profile, end, true) * (end - start)) / 3000,
           b,
         ];
+        if (!coefficients.every(Number.isFinite))
+          throw new Error(
+            "nonfinite-fit: unresolved scalar Bernstein controls",
+          );
+        return coefficients;
       },
     );
     result.push({

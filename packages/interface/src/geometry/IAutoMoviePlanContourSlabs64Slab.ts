@@ -1,9 +1,8 @@
 import type { IAutoMoviePlanContourSlabs64Group } from "./IAutoMoviePlanContourSlabs64Group";
 
 /**
- * Owned group list for one pair of adjacent retained cuts, produced in
- * increasing upper-cut order. No slab is produced when fewer than two cuts are
- * retained.
+ * Planned incidence for one adjacent pair of retained cuts. Slabs appear in
+ * increasing upper-cut order. Fewer than two cuts produce an empty plan.
  */
 export interface IAutoMoviePlanContourSlabs64Slab {
   /**
@@ -13,8 +12,8 @@ export interface IAutoMoviePlanContourSlabs64Slab {
   k: number;
 
   /**
-   * Newly allocated incidence groups, including local omissions and possibly an
-   * empty list when both sides have no work.
+   * Newly allocated incidence groups, including local omissions. A slab without
+   * work on either side can retain an empty group array.
    */
   groups: IAutoMoviePlanContourSlabs64Group[];
 }

@@ -21,8 +21,6 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/development/testing.md#behavioral-verification Creates the public configuration and reads the claims and refusals the actual project files produce.
  * @evidence contracts/development/testing.md#independent-expectations The documented production paths identify the three inputs. Only the existing catalog markers and an explicit selection start catalog validation.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks a nested ordinary film, three missing inputs, empty placeholders, a completed selection and an explicit disablement. The native coverage graph is exercised by test_evidence_package.
- * @evidence contracts/development/testing.md#execution-ownership Uses an isolated temporary production in process and releases it in finally.
  * @evidence contracts/development/common.md#meaningful-documentation Names the paths and distinct stage rules the test exercises.
  */
 export function test_evidence_film_catalog_layout(): void {

@@ -24,6 +24,10 @@ import { nclose } from "../../internal/nclose";
  * 1. The held wrist goal is removed and retains the distinct bent elbow.
  * 2. Immediately before release the joints approach the unforced endpoint.
  * 3. Digits interpolate to the unforced hand on the same two-knot clock.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the bent held elbow, the authored arm at release and the finger values at the held, interior and final samples.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a prepared arm joint course across its release and checks the wrist-goal field, elbow flexion and index flexion.
+ * @evidence contracts/development/testing.md#independent-expectations The authored release supplies 25 degrees of elbow flexion. The finger endpoints of 10 and 30 degrees give 20 at the symmetric midpoint, while the held elbow exceeds 60 degrees.
  */
 export async function test_motions_compose_arm_release(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

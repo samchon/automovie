@@ -25,6 +25,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    by symmetry their midpoint (0.15, 0.1); chicken 0 and 1 are the feet's
  *    centroids and 0.25 halfway to the middle.
  * 6. A foot of one point puts the exit pivot on it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes entry and exit pivot offsets, mirrored feet, projected safe-support limits and the final pivot share.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes pivot locations for two rectangular feet, varies how the final position is allocated and includes a point support.
+ * @evidence contracts/development/testing.md#independent-expectations One-third of the 0.3 m step caps at 0.08 m. The authored offsets give (0, -0.005) and (0.08, 0.025), and symmetry gives the midfeet (0.15, 0.1).
  */
 export function test_engine_physics_physical_icp_planner_cmps(): void {
   const cmps = AutoMovieEnginePhysicalIcpPlannerCmps;

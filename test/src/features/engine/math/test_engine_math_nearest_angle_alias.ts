@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    170.
  * 4. With a null range, 359 becomes -1, one degree from zero. An already admitted
  *    signed-zero endpoint keeps the original angle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers in-range aliases, nearest-range fallbacks, lower ties, the null range and preservation of admitted signed zero.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes degree values and literal intervals to nearestAngleAlias. A signed-zero case compares identity with Object.is.
+ * @evidence contracts/development/testing.md#independent-expectations Adding or subtracting 360 preserves an angle. The written distances to [10, 20] put -160 nearer than 200, and -165 and 195 are an equal-distance tie. Null uses the distance to zero.
  */
 export function test_engine_math_nearest_angle_alias(): void {
   TestValidator.equals(

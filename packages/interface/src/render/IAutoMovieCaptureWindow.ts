@@ -17,8 +17,8 @@ export interface IAutoMovieCaptureWindow {
   seconds: number;
 
   /**
-   * Index of the frame nearest the instant, which may lie outside the subject
-   * when the instant is at its end.
+   * Native index nearest the instant, clamped to the final encoded frame at
+   * the subject's terminal bound.
    */
   frame: number;
 

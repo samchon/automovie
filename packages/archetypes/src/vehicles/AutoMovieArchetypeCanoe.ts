@@ -5,17 +5,19 @@ import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 /** Public operations for Auto Movie Archetype Canoe. */
 export namespace AutoMovieArchetypeCanoe {
   /**
-   * Tandem canoe.
+   * Build a tandem canoe with two fixed seats facing the bow.
    *
-   * The bow points along +Z at the waterline. Both thwarts face forward for
-   * paddlers and the hull is drawn from its selected layup.
+   * The bow points along local `+Z` and the reference waterline is `Y = 0`.
+   * `thwart0` is the bow seat and `thwart1` is the stern seat. The selected
+   * hull and layup determine the catalogue dimensions and mass. The seats
+   * share the selected height above the hull bottom.
    *
-   * @param params The scene identity and this hull's accepted dimensions and
-   *   catalogue choices.
-   * @param seed Uses the original named draw session to resolve omitted settings.
-   * @returns The digital model and its authored contact frames.
-   * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
-   *   cannot use.
+   * @param params Optional subject ID, seat height in metres, hull and layup.
+   * @param seed Chooses omitted catalogue entries and draws omitted dimensions.
+   *   Omit it to use the first available entries and band midpoints.
+   * @returns The canoe with fixed seats, floor, gunwale and end contacts.
+   * @throws {AutoMovieArchetypeRefusal} For an unknown catalogue choice, a layup
+   *   absent from that hull, or a fixed seat height outside its band.
    */
   export function create(params?: AutoMovieArchetypeCanoe.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeCanoe.Affordance, AutoMovieArchetypeCanoe.Dimension> {
     return createCanoeImplementation(params, seed);
@@ -29,24 +31,30 @@ export namespace AutoMovieArchetypeCanoe {
     | "minnesotaII";
 
   /**
-   * The boat construction's dimension set, which the rowing ride reads. This
-   * producer records beam, depth, endHeight, length, mass, seatHeight.
+   * Shared boat dimension keys. The canoe records beam, depth, end height,
+   * length, and seat height in metres, and mass in kilograms.
    */
   export type Dimension = AutoMovieArchetypeBoat.Dimension;
 
   /**
-   * The AutoMovieArchetypeBoat contact set its shared construction types. This
-   * producer builds bow, floor, gunwale, stern, thwart0, thwart1.
+   * Shared boat contact identifiers. The canoe supplies `bow`, `stern`,
+   * `floor`, `gunwale`, `thwart0`, and `thwart1`.
    */
   export type Affordance = AutoMovieArchetypeBoat.Affordance;
 
-  /** The model identity, dimensions and this form's catalogue choices. */
+  /**
+   * Canoe catalogue choices, scene ID, and optional seat height in metres.
+   */
   export interface IParams extends Pick<
     AutoMovieArchetypeBoat.IParams,
     "id" | "seatHeight"
   > {
-    /** A model from this form's catalogue. */
+    /**
+     * Catalogue hull. Defaults to the first hull when no seed is given.
+     */
     model?: Model;
-    /** One of the selected hull model's documented layups. */
+    /**
+     * Layup available on the selected hull, defaulting to its first when unseeded.
+     */
     layup?: AutoMovieArchetypeBoat.Layup;
   }}

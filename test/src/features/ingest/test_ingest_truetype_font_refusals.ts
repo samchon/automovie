@@ -1,5 +1,6 @@
 import { AutoMovieIngestFont } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
+import assert from "node:assert/strict";
 
 import { throwsError } from "../internal/predicates";
 import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
@@ -18,13 +19,13 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  * 4. A `loca` offset one byte past the end of `glyf` refuses as past the glyf
  *    table.
  * 5. A composite glyph citing itself refuses as containing itself.
- * 6. The unaltered font decodes, so each refusal comes from its one change.
+ * 6. Shorten a table or subtable extent while retaining its bytes to detect reads
+ *    beyond the declared boundary.
+ * 7. The unaltered font decodes, so each refusal comes from its one change.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Feeds altered font bytes to the public decoder and asserts the thrown diagnostic's distinguishing words; it catches a decoder that reads past the bytes, accepts an unsupported container or loops on a cyclic composite.
- * @evidence contracts/development/testing.md#independent-expectations ISO/IEC 14496-22 fixes the sfnt version tags, the required tables of a TrueType font and the loca offsets' bound by the glyf length; each case violates exactly one of them.
- * @evidence contracts/development/testing.md#distinguishing-cases Each refusal is one change from an admitted font, and the unchanged font is decoded as the adjacent positive case. Decoded content is owned by test_ingest_truetype_font.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test of the ingest decoder over in-memory bytes.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the altered input and the diagnostic it expects.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds the original and altered in-memory fonts to the public decoder and checks refusals by format, table or glyph.
+ * @evidence contracts/development/testing.md#independent-expectations OpenType specifies the sfnt tags, required tables and declared byte spans. Each negative case modifies just one fact of the unchanged positive font. A shortened table keeps its original bytes, so only checking the total file would miss the defect.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the malformed inputs and the independent edited and unedited cases in seven scenarios.
  */
 export function test_ingest_truetype_font_refusals(): void {
   const tagged: (tag: string) => Uint8Array = (tag: string): Uint8Array => {
@@ -66,6 +67,34 @@ export function test_ingest_truetype_font_refusals(): void {
       "lies outside the",
     ),
   );
+  for (const [table, length] of [
+    ["hmtx", 0],
+    ["cmap", 12],
+    ["name", 6],
+  ] as const) {
+    const bytes: Uint8Array = syntheticTrueTypeFont();
+    const view: DataView = new DataView(bytes.buffer);
+    view.setUint32(recordOf(view, table) + 12, length);
+    assert.throws(
+      () => AutoMovieIngestFont.decode(bytes),
+      new RegExp(table, "u"),
+    );
+  }
+  for (const format of [4, 12] as const) {
+    const bytes: Uint8Array = syntheticTrueTypeFont({ cmapFormat: format });
+    const view: DataView = new DataView(bytes.buffer);
+    const cmap: number = view.getUint32(recordOf(view, "cmap") + 8);
+    const subtable: number = cmap + view.getUint32(cmap + 8);
+    if (format === 4) view.setUint16(subtable + 2, 14);
+    else view.setUint32(subtable + 4, 16);
+    assert.throws(() => AutoMovieIngestFont.decode(bytes), /cmap format/);
+  }
+  const shortKern: Uint8Array = syntheticTrueTypeFont();
+  const kernView: DataView = new DataView(shortKern.buffer);
+  const kern: number = kernView.getUint32(recordOf(kernView, "kern") + 8);
+  kernView.setUint16(kern + 4 + 2, 6);
+  assert.throws(() => AutoMovieIngestFont.decode(shortKern), /kern format/);
+
   TestValidator.predicate(
     "a loca offset one byte past glyf refuses",
     throwsError(
@@ -90,4 +119,18 @@ export function test_ingest_truetype_font_refusals(): void {
     "the unaltered font decodes",
     !throwsError((): unknown => AutoMovieIngestFont.decode(whole)),
   );
+}
+
+function recordOf(font: DataView, tag: string): number {
+  for (let index: number = 0; index < font.getUint16(4); ++index) {
+    const record: number = 12 + index * 16;
+    const name: string = String.fromCharCode(
+      font.getUint8(record),
+      font.getUint8(record + 1),
+      font.getUint8(record + 2),
+      font.getUint8(record + 3),
+    );
+    if (name === tag) return record;
+  }
+  throw new Error(`Missing synthetic font table "${tag}".`);
 }

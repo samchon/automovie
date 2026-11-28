@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Reverse the roll while inclining the torso forward from a nonzero angle.
  * 2. The origin, yaw and supporting leg channels retain their original ownership.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names signed pitch and roll increments on a nonzero posture and the trunk-only channel claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and writes the torso tilt on explicit root and angle records and compares the returned pitch, roll, yaw and root.
+ * @evidence contracts/development/testing.md#independent-expectations Componentwise addition gives the specified pitch 16 and roll -5. The original 90-degree heading and point (2, 1, -3) remain part of the output.
  */
 export function test_motions_compose_lean_tilt(): void {
   const entry: IAutoMovieMotionHumanPosture = {

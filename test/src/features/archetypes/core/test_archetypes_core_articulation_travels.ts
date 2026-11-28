@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. A record of two travels becomes a map of the two, in the record's order.
  * 2. An entry that is undefined is left out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes defined ordered travels from an omitted value and an explicit zero.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public travel map directly from two in-memory state records.
+ * @evidence contracts/development/testing.md#independent-expectations Literal signed and zero values keep their named entries. Undefined contributes no map entry.
  */
 export function test_archetypes_core_articulation_travels(): void {
   TestValidator.equals(

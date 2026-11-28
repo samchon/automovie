@@ -55,6 +55,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    = +0.0105) is refused with the loop's turn.
  * 9. Reading the arc against the host's station 0 instead does not agree, so the
  *    check of scenario 2 is not vacuous.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes split-loop geometry, station jets, aliased seam identities, free-end topology and refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the host and two children, samples band ends and seam rulings, and checks the actual cycles, edge incidence and three rejected input classes.
+ * @evidence contracts/development/testing.md#independent-expectations The host and child radius laws determine their rails at 30 mm. The chord is linear with zero second derivative. Shared chord corners coincide by identity and a closed interior edge has two incident triangles.
  */
 export function test_engine_geometry_construction_split(): void {
   type V3 = [number, number, number];

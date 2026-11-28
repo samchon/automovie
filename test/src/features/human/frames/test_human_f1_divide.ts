@@ -24,9 +24,7 @@ import { AutoMovieHumanF1Divide as D } from "@automovie/human";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Divide.create` and `outside` and reads which parts keep made points. It catches a far part that claims skin beyond its region, a near part that gives skin up outside it, a row plane with the wrong sign, and any point with two owners or none.
  * @evidence contracts/development/testing.md#independent-expectations Each point's owner is read off the made planes, balls and tubes by hand in the text above.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside a region on either side, outside it on the far side, in the tube past the ball, a point on a far side that belongs to another joint, the row's three owners, and a lattice.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_f1_divide`; made numbers only.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six numbered scenarios with their inputs.
+ * @evidence contracts/development/common.md#meaningful-documentation Points inside and beyond the arm region, at thumb and finger boundaries, and on the surrounding lattice each have an explicitly assigned skin owner.
  */
 export function test_human_f1_divide(): void {
   const failures: string[] = [];

@@ -80,6 +80,10 @@ const sync: (
  * 5. An unmeasurable operand — no pin, no realization, an overflowed story time —
  *    refuses the claim and names which operand it was, and an empty claim is
  *    refused because it addresses no event.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios separate shot-local mapping from simultaneous story time, inclusive tolerance, named distant operands and unmeasurable claims.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the public time and interval projections and evaluates sync claims over prepared realizations and clock pins, then compares verdicts, event addresses and gap diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations An origin and explicit multiplier map each authored local instant and interval by affine arithmetic. Pins chosen to meet create zero gap, and separated pins give a fixed gap compared to an inclusive tolerance. Each missing pin, realization or invalid arithmetic case lacks a specific independently required operand.
  */
 export function test_engine_film_story_clock(): void {
   const defaultTime: number = AutoMovieEngineFilm.autoMovieStoryTime({ originSeconds: 10 }, 4);

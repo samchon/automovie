@@ -15,9 +15,7 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real sound planner with derived-room and providerless adopted-response profiles, observing the derived discriminant and absent optional provider on the adopted branch.
  * @evidence contracts/development/testing.md#independent-expectations Authored profile literals determine the expected discriminants and undefined provider independently of planner output. The partial existing planning carriers and declared digest do not certify complete production admission, response bytes or acoustic execution.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves both declared variants, including the adopted branch with no provider and empty room mappings; the branch guard distinguishes an incorrect variant from an actually omitted provider. Other tests own profile copying and consumed PCM.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh planner inputs/results through the existing fixture, with no asset read, decoder, native solver/audio device, renderer, browser or GPU and no foreign-method replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The derived-room profile retains its selected kind.).
+ * @evidence contracts/development/common.md#meaningful-documentation A derived room retains its selected kind. An adopted response with no provider retains adoption and omits the optional citation.
  */
 export function test_engine_sound_plan_acoustic_profile_variants(): void {
   const {

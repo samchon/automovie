@@ -102,8 +102,6 @@ function refusal(task: () => unknown): AutoMovieArchetypeRefusal | undefined {
  * @evidence contracts/development/common.md#meaningful-documentation Describes the planar footprints, clearance threshold, route refusals and the obstacle's local and world frames.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `conflicts`, `admit` and `obstacle` directly. The cases detect summed margins, wrong refusal routes, unordered conflicts, missing corners and a frozen obstacle.
  * @evidence contracts/development/testing.md#independent-expectations Two quarter-metre radii and the greater half-metre margin require one metre between centres, giving the crossing interval from 1 to 3 seconds. Offsetting the four rectangle edges by a quarter metre gives each signed corner. At one metre per second from X = -2 m, the obstacle reaches X = 1 m at 3 s and X = -1 m at 1 s. Forty halvings bound the timing error and 32 machine epsilons allow rounding in the bounded coordinate operations.
- * @evidence contracts/development/testing.md#distinguishing-cases The crossing and tangent distinguish strict clearance. Moving and fixed counterparts choose different refusal routes, and reverse input order tests conflict sorting. A steering polygon has no separate radius. Walker yield and lane recovery belong to `test_engine_steer_crowd_moving_obstacle`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit discovered as `test_archetypes_core_passage`. Analytic plan readers supply the clock and placement for the passage operations.
  */
 export function test_archetypes_core_passage(): void {
   const disc: AutoMovieArchetypePassage.IFootprint = {

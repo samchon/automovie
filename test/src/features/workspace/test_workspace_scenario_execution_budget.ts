@@ -14,9 +14,7 @@ import { assessScenarioExecution } from "../../scenarioExecution";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls scenario assessment and observes parsed milliseconds, printed labels, duration-independent acceptance and retained input/error identity; any elapsed-time cutoff or swallowed assertion cause fails.
  * @evidence contracts/development/testing.md#independent-expectations Literal UTC instants and authored 0/499/500/501-ms, minute/day and full Date-range differences fix durations independently; every valid pair must preserve the assertion outcome without using assessment output as its oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Crosses former boundaries and long valid durations with success/assertion-failure twins, input nonmutation, the full Date range and equivalent timezone offsets; malformed/reversed clocks belong to the timing unit and scheduler accuracy is not measured here.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous test_workspace_scenario_execution_budget entry owns direct runner-policy assessment of resident records; it starts no scenario executor, process or wall-clock wait and does not claim measured runtime performance.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Zero and the former 499/500/501-ms boundaries preserve assertion outcomes.).
+ * @evidence contracts/development/common.md#meaningful-documentation Valid clocks report duration independently of assertion outcome, including the old short cutoff, long spans, the full Date interval and equivalent timezone offsets.
  */
 export function test_workspace_scenario_execution_budget(): void {
   const failure: Error = new Error("the assertion failed");

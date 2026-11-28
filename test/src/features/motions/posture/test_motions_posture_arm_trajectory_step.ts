@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The free knot moves to the projected point. Raising coordinate 3 by 30
  *    degrees from zero caps it at its 20-degree box bound. Coordinate 2 stays
  *    fixed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines which arm coordinates may move in a numerical step and which fixed or held knots retain identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies a nonzero step to a two-arm trajectory with pinned ends, a committed one-arm hold and a free knot.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's fixed positions and coordinate lock give unchanged values, while a 30° requested move clamps to the free coordinate's 20° bound.
  */
 export function test_motions_posture_arm_trajectory_step(): void {
   const zero: number[] = [0, 0, 0, 0];

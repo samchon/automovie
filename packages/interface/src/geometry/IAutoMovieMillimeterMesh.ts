@@ -1,11 +1,20 @@
 /**
- * A triangle mesh in millimetres: flat xyz positions, three indices per
- * triangle.
+ * Packed triangle positions and index triples borrowed by the mesh section
+ * readers. Use one millimetre coordinate frame. Supply finite coordinates and
+ * in-range whole vertex ordinals; the section reader assumes the buffer
+ * layout.
  */
 export interface IAutoMovieMillimeterMesh {
-  /** Flat positions, three numbers per vertex, millimetres. */
+  /**
+   * Borrowed packed XYZ in the input frame, three finite millimetre values per
+   * vertex. Reading a section leaves this buffer intact.
+   */
   positions: ArrayLike<number>;
 
-  /** Flat triangle indices, three per triangle. */
+  /**
+   * Borrowed zero-based vertex ordinals, three in triangle winding order per
+   * face. The section reader computes the number of complete triples from this
+   * length.
+   */
   indices: ArrayLike<number>;
 }

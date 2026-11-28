@@ -21,6 +21,10 @@ const MOTION_ROUNDING: number = 16 * Number.EPSILON;
  *    Both recover over 4 to 6 s, but the support step remains.
  * 3. A reversed turn clock can recover before the separate step clock has
  *    reached the step's end. An absent drive remains zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines independent virtual step, pelvis translation and rotation clocks through recovery.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the carriage before preparation, twice during separate tracks and after return, including reverse turn and zero drive.
+ * @evidence contracts/development/testing.md#independent-expectations Direct evaluation of the quintic gives 53/512 at quarter progress and 1/2 at midpoint. Completed recovery keeps the step offset.
  */
 export function test_motions_striking_kick_carriage(): void {
   const timing = { prep: 1, chamber: 2, impact: 4, duration: 6 };

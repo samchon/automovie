@@ -16,6 +16,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Dense scalar, vector, cubic, quaternion and morph tracks sample; incomplete
  *    track payloads fail at their field.
  * 2. Clip duration admission is stricter than sampling a zero-span key.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers shared clip layout admission, readable scalar, vector and quaternion forms and the zero-duration boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the artifact validator and sampler on literal tracks, checking the offending field and the sampled or refused result.
+ * @evidence contracts/development/testing.md#independent-expectations Each track type has a known number of values per key, and cubic keys supply three such vectors. An incomplete payload cannot state the sample. A zero-time key can be read without creating an admitted duration.
  */
 export function test_engine_validation_motion_track_shape(): void {
   const channel: IAutoMovieTrack["channel"] = {

@@ -71,6 +71,10 @@ const bones: (
  *    6, -4), the angular momentum read from the displayed bones (the shape
  *    turned by the integrated orientation) equals the take-off momentum within
  *    1e-3 relative at 20 instants.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers centre, tensor, interval and pose-based momentum, including a numerical integration read-back and zero interval.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the momentum readers on an explicit ring pair and on sampled displayed numerical bones from a variable-shape flight fixture.
+ * @evidence contracts/development/testing.md#independent-expectations Two rings supply angular momentum of one kg m squared/s. The intrinsic and parallel-axis terms sum to four times the identity. The flight read-back uses the imposed take-off momentum as its tolerance reference.
  */
 export function test_engine_kinematics_resolve_momentum(): void {
   const before: AutoMovieEngineKinematics.IPosedBody = AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(

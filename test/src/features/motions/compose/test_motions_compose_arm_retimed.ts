@@ -31,6 +31,10 @@ function state(times: number[]): IAutoMovieMotionHumanArmTrajectory.IState {
  *    5.5, 7, the values kept.
  * 2. Onto a span whose hold has no length, the knots inside the hold fall on one
  *    second and the carry is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes phrase-relative knot timing, carried state and penalty, and refusal when a hold collapses distinct knots.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes a prepared knot solution and two new spans to motionHumanArmRetimed. Reads knot values, state identity, penalty and refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Each old midpoint stays at the midpoint of its new span, producing 2, 3.5 and 5.5 s between the literal endpoint seconds. A zero-length hold maps distinct knots to one time, which invalidates strict order.
  */
 export function test_motions_compose_arm_retimed(): void {
   const earlier: IAutoMovieMotionHumanArmPlanned.IWarm = {

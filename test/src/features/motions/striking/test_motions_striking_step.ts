@@ -44,6 +44,10 @@ function match(
  * 2. At a cut with the right foot bearing, the left lands at half of the
  *    opening beat before the right lifts. The left has no initial plant. The
  *    right leads the second beat, so its opening and regular swings differ.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines stationary intervals complementary to virtual swings and preservation of an airborne foot entering at a cut.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds two regular steps and a cut branch with a bearing right foot and a still-airborne left foot.
+ * @evidence contracts/development/testing.md#independent-expectations Regular swing windows fix their exact complements. At the cut the left has no initial plant and lands at the half beat before the right begins.
  */
 export function test_motions_striking_step(): void {
   const fresh: step.IPlants = step.supportWindows("left", 2);

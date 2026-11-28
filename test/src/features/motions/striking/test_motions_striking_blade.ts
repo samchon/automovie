@@ -26,6 +26,10 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  *
  * Scenario: turned 20 degrees, the chest holds 5 plus its share of 20 and the
  * spine the rest; turned none, the posture is the same object.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains additive trunk rotation across chest and spine and zero-turn identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Turns an authored virtual posture by 20 degrees and zero using the same chest share.
+ * @evidence contracts/development/testing.md#independent-expectations The chest keeps its existing 5 degrees plus its stated share, the spine receives the complement, and zero turn returns the original object.
  */
 export function test_motions_striking_blade(): void {
   const turned = StrikingBlade.turned(POSTURE, 20);

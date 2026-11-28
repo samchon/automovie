@@ -29,6 +29,10 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
  * 3. The carrier-only projection agrees with the complete posed contact.
  *    Reading a second pose and editing its returned frames cannot change the
  *    source or a repeated grounded pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names four scaled equid clocks, contact and carrier geometry, projected and complete poses and independent samples.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public timing and phase entries and solves the four authored tacks. Checks real limb goals, attachment frames, the carrier-only route and repeated reads after modifying previous results.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the timing rows and limb order recorded in the fixture. Square-root height scaling sets the time axis, and separately measured solid endpoints and carried frame transforms provide geometric checks.
  */
 export function test_archetypes_animals_equid_attachment_clock(): void {
   const cases: readonly ICase[] = [

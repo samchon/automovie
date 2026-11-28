@@ -5,6 +5,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLabel,
   IAutoMovieInspectionLegendEntry,
+  IAutoMovieInspectionTrail,
 } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -84,6 +85,11 @@ export function readDrawResult(props: {
   diagnostics: IAutoMovieInspectionDiagnostics | undefined;
 
   /*
+   * The source-backed trails sampled for this placed picture, if any.
+   */
+  motionTrails: readonly IAutoMovieInspectionTrail[] | undefined;
+
+  /*
    * The mouths read for the drawn second, if the subject speaks.
    */
   mouths: IAutoMovieDrawnMouth[] | undefined;
@@ -131,6 +137,9 @@ export function readDrawResult(props: {
     ...(props.diagnostics === undefined
       ? {}
       : { diagnostics: props.diagnostics }),
+    ...(props.motionTrails === undefined
+      ? {}
+      : { motionTrails: props.motionTrails }),
 
     // The mask pass chose its palette from the scene's attachment, which the
     // host cannot see, so the page reports what it painted with.

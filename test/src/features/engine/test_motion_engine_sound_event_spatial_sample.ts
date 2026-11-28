@@ -18,9 +18,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual planner, mutates the borrowed selected-profile inputs after planning, then samples authored emitter and camera translation tracks at the compiled event time to observe receipt/profile snapshots and moving source/listener geometry.
  * @evidence contracts/development/testing.md#independent-expectations Original assumption/room-response strings are literal snapshot oracles. Linear endpoints at .2 seconds independently imply emitter x6, listener x1 and distance5; speed100 and fps10 round the .5-frame delay to arrival3. Numeric record comparison retains former exactness with zero tolerance.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves post-plan mutations of both nested profile fields and simultaneous emitter/listener motion against the existing static carrier. It observes these copied fields, not arbitrary deep immutability, adopted response bytes, physical propagation accuracy or complete production admission.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh partial planning carriers, motion clips and resulting plans through the existing fixture; no filesystem, decoder/audio device, native solver, renderer, browser or GPU is used and no foreign method is replaced.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Planning captures independent propagation assumptions and adopted room mappings before callers mutate their inputs.).
+ * @evidence contracts/development/common.md#meaningful-documentation The plan retains adopted acoustics and propagation assumptions. A resolved emitter and listener at the authored event time give the independent spacing witness.
  */
 export function test_motion_engine_sound_event_spatial_sample(): void {
   const {

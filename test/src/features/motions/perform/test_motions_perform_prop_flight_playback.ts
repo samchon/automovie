@@ -37,6 +37,10 @@ const QUARTER: IAutoMovieQuaternion = { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQR
  * 3. An approach spanning two launches or ending before its own earlier
  *    sample cannot report both frames. Equal requested seconds share one frame.
  * 4. Ground contact takes ownership of the display at its exact time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names launch and grip ownership boundaries, physical center versus displayed origin, approach clock restrictions and exact contact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the prepared prop flight's active, approach and frame readers on two typed launches and the specified grip cutoff. It observes returned flight identities, explicit positions, shared frame identity and the contact frame.
+ * @evidence contracts/development/testing.md#independent-expectations At speed 2 m/s the first flight advances 0.5 and 1 m by 1.25 and 1.5 s. Its rotated local offset puts display Z at 0.25 m. The second launch wins at 2 s, the approach needs both timestamps on one flight in order, and the contact frame wins exactly at 3 s.
  */
 export async function test_motions_perform_prop_flight_playback(): Promise<void> {
   const { state } = await standingPerformanceState();

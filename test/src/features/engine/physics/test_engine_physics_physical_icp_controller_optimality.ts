@@ -31,6 +31,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    weights set: several rows bind.
  * 2. A plan at rest, the centre of pressure driven into a rectangle corner.
  * 3. Scenario 1 just after `initialize`, which drops the bounds (l.385).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the exact constrained feedback minimum for diagonal motion, a quiet corner and freshly initialized limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves prepared inputs with previous feedback, magnitude and rate constraints, then repeats after initializing the controller.
+ * @evidence contracts/development/testing.md#independent-expectations The reference derives cost and inequality rows from published definitions, enumerates up to four active rows and checks the minimum within 1e-9 m.
  */
 export function test_engine_physics_physical_icp_controller_optimality(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

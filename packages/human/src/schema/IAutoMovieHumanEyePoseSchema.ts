@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanEyePose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanEyePose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * One eye's gaze offsets from anatomical neutral, in degrees. Positive
+ * vertical gaze looks up. Positive horizontal gaze looks toward the person's
+ * left.
+ */
 export type IAutoMovieHumanEyePoseSchema = IAutoMovieHumanEyePose & {
   /** Vertical gaze: positive up, negative down, 30 each way. */
   vertical?: number & tags.Minimum<-30> & tags.Maximum<30>;

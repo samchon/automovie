@@ -4,7 +4,11 @@ import type { IAutoMovieHumanLipExpressionSchema } from "./IAutoMovieHumanLipExp
 import type { IAutoMovieHumanTongueExpressionSchema } from "./IAutoMovieHumanTongueExpressionSchema";
 import type { IAutoMovieHumanVisemeWeightsSchema } from "./IAutoMovieHumanVisemeWeightsSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanMouthExpression. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Optional named lip actions, tongue controls and viseme weights for a typia
+ * validator or schema. The clinical jaw channels belong to the pose. Select
+ * the mouth fields supported by the receiving operation.
+ */
 export type IAutoMovieHumanMouthExpressionSchema =
   IAutoMovieHumanMouthExpression & {
     /** Lip action units. */
@@ -13,6 +17,6 @@ export type IAutoMovieHumanMouthExpressionSchema =
     /** Tongue position. */
     tongue?: IAutoMovieHumanTongueExpressionSchema;
 
-    /** Viseme blend weights, an alternative speech description. */
+    /** Weights by viseme for consumers that accept them. */
     visemes?: IAutoMovieHumanVisemeWeightsSchema;
   };

@@ -1,6 +1,11 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieMotionHumanChannel,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -153,21 +158,32 @@ export namespace AquaticScull {
           events.push({ name: `${name}${cycle + 1}`, share });
       }
     events.push({ name: "relax", share: 1 });
+    const contactsAt = (
+      seconds: number,
+      { drive, lift }: IStroke,
+    ): AquaticProp.IContacts =>
+      AquaticProp.at(
+        prop,
+        start + seconds,
+        Object.fromEntries(
+          parts.map(([id, value]) => [id, value(drive, lift)]),
+        ),
+      );
+    const handleAt = (live: AquaticProp.IContacts, title: "Left" | "Right") =>
+      live.require(`${station}${title}Handle`, "handle").world;
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       contacts,
       drives,
       events,
-      posture(seconds: number): IAutoMovieMotionHumanPosture {
+      posture(
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+      ): IAutoMovieMotionHumanPosture {
         const t: number = Math.max(0, Math.min(duration, seconds));
-        const { drive, lift } = stroke(t / PERIOD + offset);
-        const live: AquaticProp.IContacts = AquaticProp.at(
-          prop,
-          start + t,
-          Object.fromEntries(
-            parts.map(([id, value]) => [id, value(drive, lift)]),
-          ),
-        );
+        const phase: IStroke = stroke(t / PERIOD + offset);
+        const { drive, lift }: IStroke = phase;
+        const live: AquaticProp.IContacts = contactsAt(t, phase);
         const seat: AquaticProp.IContact = live.require(seatName, "seat");
         const lean: number = 29 - 42 * drive + 4 * lift;
         const shape: IAutoMovieMotionHumanPosture = AquaticPosture.key(
@@ -194,21 +210,24 @@ export namespace AquaticScull {
         };
         posture.root = seated.root(body, seatPoint(seat), posture);
         for (const [side, title] of SIDES) {
-          const foot = stretcher(
-            context,
-            side,
-            live.require(`${station}${title}Foot`, "surface").world,
-          );
-          posture.limbs[`${side}Leg`] = {
-            ...AutoMovieMotionHumanLeg.goal(body, posture, side, foot, false),
-            contact: foot.contact,
-          };
-          posture.limbs[`${side}Arm`] = AquaticProp.hold(
-            body,
-            posture,
-            side,
-            live.require(`${station}${title}Handle`, "handle").world,
-          );
+          if (channels === undefined || channels.includes(`${side}Leg`)) {
+            const foot = stretcher(
+              context,
+              side,
+              live.require(`${station}${title}Foot`, "surface").world,
+            );
+            posture.limbs[`${side}Leg`] = {
+              ...AutoMovieMotionHumanLeg.goal(body, posture, side, foot, false),
+              contact: foot.contact,
+            };
+          }
+          if (channels === undefined || channels.includes(`${side}Arm`))
+            posture.limbs[`${side}Arm`] = AquaticProp.hold(
+              body,
+              posture,
+              side,
+              handleAt(live, title),
+            );
         }
         return posture;
       },
@@ -221,10 +240,16 @@ export namespace AquaticScull {
     // handles swept: the hold fitted instant by instant on the branch and
     // swivel the instant before chose, clear of the body, at the strokes'
     // own pace (the handles' fastest speed, precisionStrokePeak).
-    const fastest: number = Math.max(
-      precisionStrokePeak(goals.posture, "leftArm", duration),
-      precisionStrokePeak(goals.posture, "rightArm", duration),
-    );
+    const fastest: number = precisionStrokePeak.paired(duration, (seconds) => {
+      const live: AquaticProp.IContacts = contactsAt(
+        seconds,
+        stroke(seconds / PERIOD + offset),
+      );
+      return [
+        AquaticProp.wrist(body, "left", handleAt(live, "Left")).point,
+        AquaticProp.wrist(body, "right", handleAt(live, "Right")).point,
+      ];
+    });
     const pace = (): number => fastest;
     return courseArmGoal({
       context,
@@ -290,10 +315,11 @@ function stretcher(
   side: AutoMovieHumanSide,
   plate: AquaticProp.IContact["world"],
 ): IStretcherGoal {
-  const rotation: IAutoMovieTransform["rotation"] = AutoMovieEngineQuaternion.multiply(
-    plate.rotation,
-    AutoMovieEngineQuaternion.fromAxisAngle(UP, 90),
-  );
+  const rotation: IAutoMovieTransform["rotation"] =
+    AutoMovieEngineQuaternion.multiply(
+      plate.rotation,
+      AutoMovieEngineQuaternion.fromAxisAngle(UP, 90),
+    );
   const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
   return {
     rotation,
@@ -341,7 +367,10 @@ function admitRail(
         body.rest.get(`${side}UpperLeg`)!,
       ),
     );
-    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(hip, foot.ankle);
+    const from: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
+      hip,
+      foot.ankle,
+    );
     const squared: number = AutoMovieEngineVector3.dot(from, from);
     const [near, far] = sitPlace.band(body, side);
     if (squared < near ** 2 || squared >= far ** 2)

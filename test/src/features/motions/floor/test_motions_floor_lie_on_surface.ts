@@ -106,16 +106,18 @@ namespace part_lie_on_surface_site {
 }
 
 /**
- * `lieOnSurface`'s unit contract: its site and fits.
+ * Check a lying surface's dimensions and the selected bed affordances.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `lie_on_surface_fits`: `lieOnSurfaceFits` refuses a lying surface shorter
- *   than the body and its margin, or narrower than its shoulders, both upper
- *   arms' radii and a margin either side.
- * - `lie_on_surface_site`: `lieOnSurfaceSite` finds a bed's affordance by id and
- *   kind, refusing a missing seat on `edge` and a missing surface on
- *   `surface`.
+ * 1. A 2 by 1.4 m bed fits the fixture. A 1.7 m bed fails on length and a 0.5
+ *    m width fails on width.
+ * 2. Read the seat and surface from their matching names and kinds. An absent
+ *    seat and a wrong-kind surface report their separate axes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify bed size, clearance axes and named affordance cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture covers each clearance dimension and both site kinds with typed refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Fixture stature plus margin requires 1.8 m of depth. Shoulder span, two arm radii and two margins require 0.56 m of width.
  */
 export async function test_motions_floor_lie_on_surface(): Promise<void> {
   part_lie_on_surface_fits.verify();

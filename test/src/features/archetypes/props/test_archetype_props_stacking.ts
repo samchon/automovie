@@ -56,11 +56,9 @@ function seated(
  * 3. Each food, a loaf in its two halves, an apple and a drumstick, on a platter's `top`: each rests on it, neither entering nor floating.
  * 4. The negative case: a plate set a millimetre lower than the `top` it should stand on enters the plate beneath, and the measure reports it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces plates and food, seats each on the `stack-top` beneath and measures every pair of colliders with the engine's signed distance; a `top` below or above the face, a foot that sinks into the plate beneath, or a stacked thing that floats is caught.
- * @evidence contracts/development/testing.md#independent-expectations The 1e-6 m is #3501's acceptance for stacked plates; seating a thing's origin on a `stack-top` is the support convention of `AutoMovieAffordanceKind`; the distances are the engine's exact convex distance, not the archetypes'.
- * @evidence contracts/development/testing.md#distinguishing-cases Every plate kind and each food on the face; a plate a millimetre low is the overlap the measure must see; the sizes belong to the band tests.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the five-level plate and platter stacks, each food on a platter, and the deliberately lowered overlapping plate.
+ * @evidence contracts/development/testing.md#behavioral-verification Places each generated origin on the underlying `stack-top` frame and measures signed collider distances. All pairs are checked for clearance, adjacent supports for contact, and a plate lowered by one millimetre for overlap.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the explicit `1e-6` metre stack tolerance. A resting support pair has zero signed separation. A plate lowered below its support must have negative separation.
  */
 export function test_archetype_props_stacking(): void {
   const findings: string[] = [];

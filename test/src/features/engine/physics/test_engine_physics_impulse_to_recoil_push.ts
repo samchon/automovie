@@ -12,6 +12,10 @@ import { throwsError } from "../../internal/predicates";
  * 1. The impulse (3, 4, 0) has magnitude 5, so gain 2 gives flexion 10.
  * 2. A zero gain gives 0 and a negative gain is refused.
  * 3. A negative gain is refused with the message "gain must be >= 0".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines flexion from impulse magnitude and gain, including the zero case and rejection of a negative gain.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls impulseToRecoilPush directly with a fixed impulse and positive, zero and negative gains.
+ * @evidence contracts/development/testing.md#independent-expectations The 3–4–5 triangle gives magnitude 5 and flexion 10 at gain 2. Zero returns zero and the refused gain names its required nonnegative range.
  */
 export function test_engine_physics_impulse_to_recoil_push(): void {
   TestValidator.equals("push", AutoMovieEnginePhysics.impulseToRecoilPush({ x: 3, y: 4, z: 0 }, 2), {

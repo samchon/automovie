@@ -1,20 +1,20 @@
 import type { AutoMovieHumanPopulation as AutoMovieHumanPopulationContract } from "@automovie/interface";
 
 /**
- * Reference population associated with the requested survey statistics.
+ * Reference population labels for authored build traits.
  *
- * Craniofacial and body proportions differ between populations in ways stature does not predict. The cephalic index derived from published means is about 77 in US adults of European ancestry (3D Facial Norms, Weinberg et al. 2016, Cleft Palate Craniofac J 53(6):e185-e197) and about 85 in Chinese workers (Du et al. 2008, Ann Occup Hyg 52(8):773-782); across 1,470 adults from Europe, the Middle East, Asia and of African origin, the nose and orbits varied most while mouth width, forehead height and ear height were nearly identical (Farkas et al. 2005, J Craniofac Surg 16(4):615-646, abstract).
- *
- * The choice names a body of published survey data, not the person's identity or detailed measurements. It supplies no automatic dimensions or pigmentation.
+ * The traits record supplies a requested survey population alongside sex, age,
+ * stature and build offsets. It also keeps skin tone independent of
+ * population.
  */
 export namespace AutoMovieHumanPopulation {
-  /** European ancestry, as in the US 3D Facial Norms and the White subsample of US surveys. */
+  /** Label the requested European reference population. */
   export const European: "european" = "european" satisfies
     AutoMovieHumanPopulationContract;
-  /** East Asian ancestry, as in Chinese and Korean national surveys. */
+  /** Label the requested East Asian reference population. */
   export const EastAsian: "eastAsian" = "eastAsian" satisfies
     AutoMovieHumanPopulationContract;
-  /** Sub-Saharan African ancestry, as in Kenyan, Nigerian and South African surveys. */
+  /** Label the requested African reference population. */
   export const African: "african" = "african" satisfies
     AutoMovieHumanPopulationContract;
 }

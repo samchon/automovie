@@ -49,6 +49,10 @@ const GRIP = { x: 0, y: -0.02, z: 0.05 };
  *    -0.02, 0.75), without limits.
  * 3. As the prop `sword`, it is planted with limits at (0, -0.02, 0.75) and (0,
  *    -0.02, 0.85).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes virtual wrist and contact offsets, and separate point and tip constraints for a named prop.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds goals from a bare tool and from the same rigged prop, varying the offset behind its tip.
+ * @evidence contracts/development/testing.md#independent-expectations An 0.8 m axis less 0.3 m gives 0.5 m. Authored offsets fix wrist (0, 1.02, 0.45) and separate prop point and tip z = 0.75 and 0.85.
  */
 export function test_motions_striking_held_goal(): void {
   TestValidator.predicate(

@@ -45,11 +45,9 @@ const CUT: IAutoMoviePlaybackTimeline = {
  *    differs from the kept film's, so its cut no longer describes the film
  *    beside it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the CLI render with render's real drawn-video composer and validators over a fake draw session and FFmpeg boundary, then reads the installed report and film; a dropped or invented cut, a cut without the audited digest, or a blocked attempt that replaced the film fails.
- * @evidence contracts/development/testing.md#independent-expectations Frames sit at 0, 0.25, 0.5 and 0.75 s, so the entry starting at 0.6 s is live from frame 3; digests are Node's SHA-256 of the bytes the fixture encoder wrote. The conforming and limited-range headers differ only in the colour range the profile check reads.
- * @evidence contracts/development/testing.md#distinguishing-cases A subject with and without a cut, and a published against a blocked attempt; range edge cases are owned by `test_draw_drawn_video_cut` and the profile checks by `test_cli_render_video_delivery`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_render_video_cut`; it owns an isolated temporary directory and runs no FFmpeg, browser or device.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes cut presence, live frame intervals and the digest that ties a report to a particular published file.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the CLI render over draw and encoder fixtures with and without a cut. Reads the film and report and checks that a limited-range attempt records its own blocked result while preserving the earlier video.
+ * @evidence contracts/development/testing.md#independent-expectations At 4 fps, the four frame starts put a 0.6-second cut between frames 2 and 3, giving `[0,3)` and `[3,4)`. Computes each digest from the matching file bytes and uses a header with only the color range changed for the blocked case.
  */
 export async function test_cli_render_video_cut(): Promise<void> {
   const root: string = await fs.mkdtemp(

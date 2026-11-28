@@ -36,11 +36,9 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * 4. Unknown named anchors, cyclic placements and conflicting model identities
  *    refuse with source diagnostics.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the forward contact, repeated model, rotated support, stable seed and refusal scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks forward anchor resolution, reuse of one model and a turned support patch with a hole. Exercises stable seed keys and refusals for conflicting IDs, cycles and missing anchors.
  * @evidence contracts/development/testing.md#behavioral-verification Observes real createEnvironment and environmentModel records, canonical height queries on the merged stage space, and ordinary thrown errors through the supplied authoring API.
  * @evidence contracts/development/testing.md#independent-expectations A quarter turn maps +X to -Z and +Z to +X. The literal transformed points, analytic plane height and local-hole centre supply oracles independently of the constructor. Literal scoped ids establish stage and prop joins.
- * @evidence contracts/development/testing.md#distinguishing-cases Reuse of one definition differs from a conflicting id, an ordinary forward anchor differs from a placement cycle and unknown anchor, and an exposed plane point differs from a hole. An added sibling does not alter seed keys.
- * @evidence contracts/development/testing.md#execution-ownership One portable CPU scenario uses the package entry and canonical engine functions. Browser capture and active shot compilation belong to the campaign's production scenarios.
  */
 export function test_environment_composition(): void {
   const base: IAutoMovieModel = createModel(null);

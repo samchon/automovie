@@ -2,6 +2,7 @@ import type { IAutoMovieSemanticMask } from "./IAutoMovieSemanticMask";
 import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
 import type { IAutoMovieInspectionCamera } from "./IAutoMovieInspectionCamera";
 import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail";
 import type { IAutoMovieInspectionLegendEntry } from "./IAutoMovieInspectionLegendEntry";
 import type { IAutoMovieRasterLabel } from "./IAutoMovieRasterLabel";
 import type { IAutoMovieDrawnMouth } from "./IAutoMovieDrawnMouth";
@@ -53,6 +54,12 @@ export interface IAutoMovieDrawResult {
    * subject.
    */
   diagnostics?: IAutoMovieInspectionDiagnostics;
+
+  /**
+   * Bounded segments sampled for the drawn trail selection, with source-backed
+   * motion evidence and the exact played clock. Absent without such evidence.
+   */
+  readonly motionTrails?: readonly IAutoMovieInspectionTrail[];
 
   /**
    * For the `mask` shade only: the semantic palette attached to the scene,

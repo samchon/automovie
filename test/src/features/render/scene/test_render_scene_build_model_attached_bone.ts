@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/predicates";
  * 2. Negative twin: the same part attached to an existing bone rides that bone
  *    (parented under it, not the group).
  * 3. `attachedBone: null` still parents the part to the model group.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names missing-bone refusal and both valid native parents.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes typed model parts to the buildModel owner with a missing named bone, an existing named bone and no attachment. Reads the diagnostic and resulting parent identity.
+ * @evidence contracts/development/testing.md#independent-expectations The absent rightHand name and part ID belong in the refusal. A real named bone must parent the part directly, while an explicit null attachment retains the model-group parent.
  */
 export function test_render_scene_build_model_attached_bone(): void {
   const sword: (

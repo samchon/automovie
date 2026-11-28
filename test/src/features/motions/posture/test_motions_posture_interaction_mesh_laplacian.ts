@@ -23,6 +23,10 @@ const ROUNDING: number = 1e-15;
  * 2. With the bone 1–0 the row of 0 keeps only 2, at −1, and the row of 1, whose
  *    one neighbour is 0, is empty.
  * 3. Two neighbours on the point and one away: −½, −½ and 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines normalized inverse-distance rows, excluded bone edges and coincident-neighbor weighting.
+ * @evidence contracts/development/testing.md#behavioral-verification Assembles three-point meshes with unequal distances, an excluded edge and two coincident neighbors.
+ * @evidence contracts/development/testing.md#independent-expectations Weights 1 and 1/2 normalize to 2/3 and 1/3. A single allowed neighbor receives all weight and coincident neighbors share half each.
  */
 export function test_motions_posture_interaction_mesh_laplacian(): void {
   const points: IAutoMovieVector3[] = [

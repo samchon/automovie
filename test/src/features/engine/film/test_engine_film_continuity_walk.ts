@@ -107,6 +107,10 @@ const beatProps: (
  *    warns at that cut's opening translation path, keyed by beat index.
  * 4. A nonsensical tolerance is a range error that short-circuits before any
  *    snapshot is compared.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish no-cut films from resumed and one-metre-drift cuts and name the early invalid-tolerance check.
+ * @evidence contracts/development/testing.md#behavioral-verification The test passes authored beat arrays through validateFilmContinuity and inspects warnings and paths. It varies only the next beat's starting position and supplies a separate invalid tolerance case.
+ * @evidence contracts/development/testing.md#independent-expectations An empty or single-beat sequence has no adjacent pair. The fixture ends its first walk at x = 1, so a second beat staged at x = 1 resumes and one staged at x = 0 drifts by one metre at the next translation path.
  */
 export function test_engine_film_continuity_walk(): void {
   TestValidator.equals(

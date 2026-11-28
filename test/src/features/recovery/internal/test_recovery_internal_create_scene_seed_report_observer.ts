@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  *    report.
  * 4. Insufficient setup or first-pair work creates no target field or fictitious
  *    completed report.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States visit charging, exact-cap transfers and preservation of the last completed report on refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs setup and multiple observer phases, including exact and insufficient limits, and compares frozen reports and retained work.
+ * @evidence contracts/development/testing.md#independent-expectations The declared phase schedule needs 32 setup visits and 64 per before/after pair. The test holds independent report identities through all calls.
  */
 export function test_recovery_internal_create_scene_seed_report_observer(): void {
   const budget: IAutoMovieRecoveryCameraSceneBudget = {

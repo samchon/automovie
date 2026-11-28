@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. "cue-1" is admitted.
  * 2. "", "a\nb", "a\rb" and "a-->b" are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Admits ordinary cue identifiers and refuses empty text, line breaks and arrow separators.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the identifier predicate on a known valid name and four independently prohibited inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The exact booleans distinguish CR, LF, an empty identifier and the reserved arrow.
  */
 export function test_render_caption_is_web_vtt_identifier(): void {
   TestValidator.predicate("cue-1", AutoMovieRenderCaption.isWebVttIdentifier("cue-1"));

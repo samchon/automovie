@@ -33,6 +33,10 @@ import { nclose } from "../../internal/nclose";
  * 5. A two-variable quadratic has a cheaper qualified full mixture with a larger
  *    tangent gradient than baseline, limiting cost protection to its actual
  *    objective ordering.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names actual cost gates, trial order, exact increments and limits across full, half and corrected candidates.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs authored scalar and two-coordinate quadratics with varied retractions, refusals, tie cases and trial caps.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture computes known costs for each candidate and derives corrected-half as 0.5p+0.25delta. Trial prefixes are chosen before comparing execution.
  */
 export function test_recovery_internal_select_feasible_trial(): void {
   const marker: Error = new Error("actual-candidate-core");

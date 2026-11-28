@@ -1,11 +1,16 @@
 import type { AutoMovieHumanUpperUnderwear as AutoMovieHumanUpperUnderwearContract } from "@automovie/interface";
 
-/** Closed upper underwear choices; serialized values are unchanged. */
+/**
+ * Upper garment labels for the underwear record.
+ *
+ * Set `top` explicitly. The same record supplies `bottom` and the garment
+ * color.
+ */
 export namespace AutoMovieHumanUpperUnderwear {
-  /** No upper undergarment requested. */
+  /** Request no upper garment. */
   export const None: "none" = "none" satisfies
     AutoMovieHumanUpperUnderwearContract;
-  /** Bra covering requested; sizing and material are separate appearance concerns. */
+  /** Request a bra as the upper garment. */
   export const Bra: "bra" = "bra" satisfies
     AutoMovieHumanUpperUnderwearContract;
 }

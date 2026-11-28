@@ -23,11 +23,14 @@ const subject: () => IAutoMovieRenderSubject = (): IAutoMovieRenderSubject => ({
  * Scenarios, on the tower scene of five nodes:
  *
  * 1. The mask is of protocol `automovie.semantic-mask.v2` on a black background.
- * 2. It has one entry for each of the five nodes, in ascending id order, each in a
- *    colour of its own.
+ * 2. The mask has five entries in ascending id order and five distinct colours.
  * 3. The same subject gives the same digest; a scene of six nodes gives a mask of
  *    six entries and another digest.
  * 4. Two nodes of one id are two claimants of one semantic id and are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the protocol and black background, ordered distinct entries, count and digest changes, and duplicate identity refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the Engine semantic-mask owner with typed tower subjects and reads the generated records and digest, then submits a repeated node id.
+ * @evidence contracts/development/testing.md#independent-expectations Five authored nodes and one added node determine the expected cardinalities. Entry order and color uniqueness are checked directly. Reusing the same id creates two ownership claims and must produce the indicated refusal.
  */
 export function test_engine_render_derive_semantic_mask(): void {
   const mask: IAutoMovieSemanticMask = AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask(subject());

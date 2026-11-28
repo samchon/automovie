@@ -52,9 +52,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicPose.share`, `course`, `halves`, `map`, `twist` and `repose` and reads the results through the engine's `prepare`, `runs` and `jointed` axis.
  * @evidence contracts/development/testing.md#independent-expectations The engine's own set-back and stations, a bone rotated rigidly about its joint, and a chart turned by a known angle about a straight course are derived apart from the law's formulas.
- * @evidence contracts/development/testing.md#distinguishing-cases A bend opened and a bend closed, a straight course with a pure twist, the untwisted course, and f1's reference and neutral poses.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made courses and f1's placing tables, reached by `--include human_conic_pose`; it lofts nothing and reads no reference body.
- * @evidence contracts/development/common.md#meaningful-documentation Numbers each scenario with its made course, its expectation and its tolerance.
+ * @evidence contracts/development/common.md#meaningful-documentation Setback and station maps, a rigidly carried point, chart twists, reference pose and distal twist locality each have a geometric check.
  */
 export function test_human_conic_pose(): void {
   type V3 = [number, number, number];

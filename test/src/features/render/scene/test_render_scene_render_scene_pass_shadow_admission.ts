@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
  * 2. Directional, spot and non-shadow light populations retain supported VSM.
  * 3. Scene-owned and inherited host VSM refuse before changing host state;
  *    structural guides bypass shadows and restore the original policy.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe point, directional, spot, non-shadow, and structural-guide scenes under distinct shadow policies.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that enabled casting point VSM refuses before drawing or changing policy, that supported neighbors draw, and that structural guides restore host state.
+ * @evidence contracts/development/testing.md#independent-expectations Compares explicit policy/light combinations and callback counters under refused and admitted paths, with the renderer's starting policy as the restoration reference.
  */
 export function test_render_scene_render_scene_pass_shadow_admission(): void {
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene(),

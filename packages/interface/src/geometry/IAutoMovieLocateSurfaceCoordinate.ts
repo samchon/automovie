@@ -1,35 +1,27 @@
 import type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 
-/** A network chart address and the sampled tier in which to locate it. */
+/** Tier cage and network chart inputs for incident-face lookup. */
 export namespace IAutoMovieLocateSurfaceCoordinate {
   /**
-   * Find the cage face and local coordinates of a surface coordinate on one
-   * sampled tier.
+   * Sampled cage layout and a patch coordinate to resolve to an incident face
+   * and quad-local coordinates.
    *
-   * A patch's grid is even in `(s, t)`, so the face holding a coordinate is
-   * column `floor(s * columns)` and row `floor(t * rows)`, the last column or
-   * row taking `s` or `t` equal to 1, and the local coordinates are the
-   * fractional parts. On a patch whose faces are no grid, a transition band,
-   * the face is the first whose bilinear map of its corner coordinates reaches
-   * the coordinate, inverted by Newton's method, and the local coordinates are
-   * that map's parameters. They follow `IAutoMovieSubdivisionParameter`'s quad
-   * convention: `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward
-   * corner 3 along `t`, so the result addresses `subdivideSurface`'s
-   * output of this cage directly.
+   * The chosen face uses the subdivision quad convention: u advances from
+   * corner 0 toward 1 and v advances from corner 0 toward 3. A regular grid's
+   * terminal row or column owns its upper edge. Transition inversion is
+   * numerical and depends on valid bilinear charts.
    */
   export type IProps = {
     /**
-     * Borrowed sampled tier whose patch grids and face-corner charts define the
-     * lookup. Cage geometry is not projected or read; callers must preserve the
-     * chart topology.
+     * Sampled tier with valid patch grids and quad corner charts. Supply
+     * nondegenerate transition charts that give a reliable bilinear inverse.
      */
     cage: IAutoMovieSurfaceCage;
 
     /**
-     * Patch index plus dimensionless s/t in [0,1]. The locator rejects a
-     * missing patch or out-of-range coordinates; a non-grid patch throws if no
-     * face accepts the inverted bilinear coordinates.
+     * Existing patch ordinal with finite s and t in [0, 1]. Grid endpoints at
+     * one use the last face in that dimension.
      */
     coordinate: IAutoMovieSurfaceCoordinate;
   };

@@ -1,7 +1,8 @@
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
- * The four ordered support directions and their corresponding source-quarter
- * records.
+ * Four ordered values in the ViewPart quarter layout. Guide quantities use +u,
+ * +v, −u, −v. Arc quantities use the quarter beginning at each corresponding
+ * guide.
  */
 export type IAutoMovieQuarters<T> = IAutoMovieViewPart.IQuarters<T>;

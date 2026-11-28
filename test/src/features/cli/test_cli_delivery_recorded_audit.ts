@@ -23,11 +23,9 @@ type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
  * 6. A thirteenth encoded frame is a timing mismatch, and a video-only delivery cannot satisfy required sound.
  * 7. The reference decode reads the encoder's picture input and frame rate, and a lost reference leaves encoded black unclassified and blocking.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names each recorded delivery, what encoding did to it and the outcome the audit must reach.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the exported delivery decode and reference decode on real FFmpeg logs supplied through the process owner, then the exported audit, and asserts outcomes, blocking flags, exact native bounds and verdicts.
- * @evidence contracts/development/testing.md#independent-expectations Expected bounds come from how each fixture was made: frame n of a 10 fps film starts at n x 1024 ticks of the MP4's 1/10240 clock and at tick n of the image sequence's 1/10 clock, and each defect's first and last frame is the one the encode injected. The rule that drawn intervals pass only when approval is waived and encoded ones always block is #3824's classification by authored fades, holds and silence.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a clean encode, encode-introduced black and freeze, drawn fade and hold under waived, required and allowed approval, a frame-count mismatch, missing required sound and a lost reference. In-memory boundary and audio cases are owned by test_render_delivery_content_audit, and log parsing edge cases by test_cli_delivery_decode.
- * @evidence contracts/development/testing.md#execution-ownership A unit test: the logs were recorded once from real FFmpeg and are replayed in memory through the process owner; no process, file or device is used.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the clean encode, encoded black and freeze, authored fade and hold, missing sound, frame mismatch and lost-reference cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs delivery decode, reference decode and audit through a fixture process that returns recorded FFmpeg logs. Asserts each observation's source, epoch, blocking status and verdict, including the lost-reference path.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the known injected frame spans on a 10 fps clock, with 1024 MP4 ticks per frame and one image-sequence tick per frame. Explicit author approval and sound intent identify which fixture cases pass.
  */
 export async function test_cli_delivery_recorded_audit(): Promise<void> {
   const expected = { frameCount: 12, frameRate: [10, 1] } as const;

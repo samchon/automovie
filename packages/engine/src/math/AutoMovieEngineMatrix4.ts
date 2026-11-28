@@ -21,24 +21,18 @@ import { AutoMovieEngineMath } from "./AutoMovieEngineMath";
  * returns a new value.
  */
 export namespace AutoMovieEngineMatrix4 {
-  /** A new identity matrix. */
+  /** Create a column-major four-by-four identity matrix. */
   export const identity: () => number[] = (): number[] => [
     1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
   ];
 
   /**
-   * The matrix `T · R · S` of a translation, rotation and scale, so a point is
-   * scaled, then rotated, then translated.
+   * Build a column-major affine matrix that scales, rotates and then translates
+   * a point.
    *
-   * The arithmetic is the same as `three.js` `AutoMovieEngineMatrix4.compose`, so engine and
-   * viewer agree bit for bit. The rotation must be a unit quaternion; any other
-   * length scales and skews the basis instead of rotating it. A zero scale
-   * component yields a zero basis column, which `decompose` accepts.
-   *
-   * @param t Translation, in parent units.
-   * @param r Unit rotation quaternion.
-   * @param s Per-axis scale factor.
-   * @returns A new column-major matrix.
+   * Supply a unit rotation quaternion. Scale is per source axis, and a zero
+   * factor collapses its basis column. Translation is in the destination
+   * frame.
    */
   export const compose: (
     t: IAutoMovieVector3,
@@ -82,11 +76,10 @@ export namespace AutoMovieEngineMatrix4 {
   };
 
   /**
-   * The matrix product `a · b`, which applies `b` first and then `a`.
+   * Multiply two column-major four-by-four matrices into a fresh matrix.
    *
-   * @param a Outer (later) transform, column-major.
-   * @param b Inner (earlier) transform, column-major.
-   * @returns A new column-major matrix; neither input is changed.
+   * For transforms, the right-hand matrix acts first. Provide complete
+   * matrices. Scalar products and sums retain binary64 rounding and range.
    */
   export const multiply: (a: number[], b: number[]) => number[] = (
     a: number[],
@@ -104,11 +97,10 @@ export namespace AutoMovieEngineMatrix4 {
   };
 
   /**
-   * The translation column of a matrix, which for a world matrix is the world
-   * position of its local origin.
+   * Read a column-major affine matrix's translation into a fresh vector.
    *
-   * @param m Column-major matrix.
-   * @returns A new vector of elements 12, 13 and 14.
+   * For a world matrix, this is the world position of the matrix's local
+   * origin.
    */
   export const position: (m: number[]) => IAutoMovieVector3 = (
     m: number[],
@@ -119,17 +111,11 @@ export namespace AutoMovieEngineMatrix4 {
   });
 
   /**
-   * The image of a point under an affine matrix, `m · (p, 1)`, with the fourth
-   * row ignored.
+   * Map a point through a column-major affine transform.
    *
-   * Every matrix this namespace builds is affine, so the ignored row is always
-   * `(0, 0, 0, 1)` and no perspective divide is needed. A direction is not a
-   * point: it must not take the translation column, so transform it with the
-   * rotation and scale instead.
-   *
-   * @param m Column-major affine matrix, element `m[col * 4 + row]`.
-   * @param p Point in the matrix's source space.
-   * @returns A fresh point in the target space.
+   * Apply its three basis columns and translation. Supply a point in the source
+   * frame and an affine matrix. The result is a fresh point in the destination
+   * frame.
    */
   export const transformPoint: (
     m: number[],
@@ -144,28 +130,17 @@ export namespace AutoMovieEngineMatrix4 {
   });
 
   /**
-   * Splits an affine matrix into the translation, rotation and scale that
-   * {@link compose} would rebuild it from.
+   * Read translation, rotation and nonnegative scale from a column-major affine
+   * matrix.
    *
-   * The world driver pass reads a node's world position and orientation this
-   * way, recomputes it for an aim, parent or IK driver, and composes it back.
-   * Scale is the length of each basis column and is never negative, since
-   * validators admit only positive scale and the engine never mirrors. A matrix
-   * with a mirrored or sheared basis, such as a child rotated under a
-   * non-uniformly scaled parent, has no exact decomposition; its rotation is
-   * then an approximation that need not be unit length.
+   * Scale is the length of each basis column. For an ordinary unsheared
+   * nonmirrored basis, composing these fields recovers the transform to
+   * rounding. A collapsed basis is completed from its surviving directions,
+   * with identity rotation when all axes collapse.
    *
-   * A collapsed axis, whose basis column has length exactly zero, carries no
-   * direction, so its rotation axis is completed from the others: one missing
-   * axis is the right-handed cross product of the remaining two, and with only
-   * one axis left the other two follow the shortest-arc rotation that carries
-   * that axis's canonical direction onto it. A fully collapsed matrix has the
-   * identity rotation. For a finite unsheared matrix, composing the result
-   * again reproduces every nonzero column to rounding, and the rotation is a
-   * finite unit quaternion.
-   *
-   * @param m Column-major affine matrix.
-   * @returns New position, rotation and scale; `m` is unchanged.
+   * Sheared or mirrored inputs give an approximate rotation. Subnormal columns
+   * can amplify their stored directional error and skew the recovered
+   * rotation.
    */
   export const decompose: (
     m: number[],
@@ -255,7 +230,10 @@ export namespace AutoMovieEngineMatrix4 {
       const missing: number = 3 - present[0]! - present[1]!;
       const next: IAutoMovieVector3 = columns[(missing + 1) % 3]!;
       const after: IAutoMovieVector3 = columns[(missing + 2) % 3]!;
-      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(next, after);
+      const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(
+        next,
+        after,
+      );
       // Parallel survivors span one direction only, like a single survivor.
       if (AutoMovieEngineVector3.length(normal) === 0)
         return alignedBasis((missing + 1) % 3, next);
@@ -281,10 +259,15 @@ export namespace AutoMovieEngineMatrix4 {
     axis: number,
     direction: IAutoMovieVector3,
   ): IAutoMovieVector3[] => {
-    const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(AXES[axis]!, direction);
+    const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
+      AXES[axis]!,
+      direction,
+    );
     return AXES.map(
       (canonical: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
-        at === axis ? direction : AutoMovieEngineQuaternion.rotateVector(turn, canonical),
+        at === axis
+          ? direction
+          : AutoMovieEngineQuaternion.rotateVector(turn, canonical),
     );
   };
 }

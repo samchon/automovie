@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Called twice, a restore runs once.
  * 2. A failing restore runs once and both calls throw its error.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe repeated restore calls after both success and a thrown cause.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the restore executes exactly once and subsequent calls preserve the same failure identity.
+ * @evidence contracts/development/testing.md#independent-expectations Compares effect counts and the two observed throws with the independently created failure object.
  */
 export function test_render_scene_restore_render_mode_once(): void {
   let runs: number = 0;

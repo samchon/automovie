@@ -16,24 +16,23 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeLadderData } from "./internal/AutoMovieArchetypeLadderData";
 
-/** Constructs the ladder archetype from its recipe. */
+/** Creates upright or leaning ladders with numbered rung and rail grips. */
 export namespace AutoMovieArchetypeLadder {
 /**
- * A ladder: fixed upright to a wall, or leaning against one.
+ * Creates an aluminium ladder with the feet at floor height and rung grips
+ * facing the climber's approach from `+Z`.
  *
- * The ladder's foot is on the floor at the origin and it is climbed facing
- * `-Z`, toward the wall. A fixed ladder is upright; a leaning one tilts back
- * toward the wall at the pitch its bands give, its foot a quarter of its length
- * out. Each rung is a `bar` named `rung1` upward, and each side rail a `bar`
- * along the ladder.
+ * A `fixed` ladder rises vertically. A `leaning` ladder rises toward `-Z`
+ * at 75.522? from the floor. Numbered rungs start one spacing above the feet,
+ * and the two rails extend one spacing beyond the final rung.
  *
- * @param params The kind, the number of rungs and any dimension the author
- *   fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The ladder.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
- *   or a number of rungs that is not a whole number from 2 to 30.
+ * @param params Required kind, optional count, ID and fixed dimensions.
+ *   Omitting the count gives ten rungs.
+ * @param seed Draws omitted dimensions within the chosen kind. Without a seed
+ *   each takes its band midpoint.
+ * @returns The ladder with body mass equal to `mass` times `rungs`.
+ * @throws {AutoMovieArchetypeRefusal} If the kind is unknown, the rung count
+ *   is not an integer from 2 to 30, or a fixed dimension is invalid.
  */
 export function create(
   params: AutoMovieArchetypeLadder.IParams,
@@ -156,37 +155,31 @@ export function create(
   return builder.build(d.mass * rungs);
 }
 
-  /** The kinds of ladder. */
+  /** `fixed` selects vertical rails. `leaning` tilts the rails toward `-Z`. */
   export type Kind = "fixed" | "leaning";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Accepted ladder kinds in the order `fixed`, `leaning`. */
   export const KINDS: readonly Kind[] = ["fixed", "leaning"];
 
-  /**
-   * The most rungs a ladder may have. An estimate, not read at a source: a
-   * bound on the model's size, not a regulation's.
-   */
+  /** Maximum number of rungs per ladder, 30. The minimum is 2. */
   export const RUNGS: number = 30;
 
   /**
-   * The affordance ids:
+   * Names round power-grip contacts for climbing.
    *
-   * - `rung1` to `rung<rungs>`: each rung from the bottom up, a bar across the
-   *   ladder.
-   * - `leftRail`, `rightRail`: the side rails on `+X` and `-X`, each a bar along
-   *   the ladder.
+   * `rung1` through `rung<rungs>` run across the ladder along `+X` and each
+   * targets its own drawn cylinder. `leftRail` at `+X` and `rightRail` at
+   * `-X` run uphill along their rail axes.
    */
   export type Affordance = `rung${number}` | "leftRail" | "rightRail";
 
   /**
-   * The free dimensions, metres unless stated:
+   * Measurements of rung spacing, grips, pitch and weight.
    *
-   * - `spacing`: from one rung to the next along the ladder; the first rung is
-   *   one spacing from the foot.
-   * - `width`: the clear width of a rung between the rails.
-   * - `rungDiameter`: a rung's and a rail's round section.
-   * - `pitch`: the ladder's angle from the floor, degrees.
-   * - `mass`: kilograms per rung.
+   * `spacing` is rung separation along the ladder, `width` the clear distance
+   * between the rails, and `rungDiameter` the diameter shared by rungs and
+   * rails, all in metres. `pitch` is in degrees above horizontal and `mass` is
+   * kilograms per rung.
    */
   export type Dimension =
     | "spacing"
@@ -195,7 +188,9 @@ export function create(
     | "pitch"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /**
+   * Metres for rung lengths, degrees for `pitch`, and kilograms per rung for `mass`.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -207,21 +202,29 @@ export function create(
   };
 
   /**
-   * The parameters: the kind, the count, and any free dimension fixed to a
-   * value inside its band.
+   * Selects the ladder kind and optionally fixes rung count, ID and dimensions.
+   *
+   * Use the chosen kind's `BANDS` for fixed settings. The kind sets the pitch
+   * through a band with equal endpoints.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which ladder. */
+    /** Required choice of upright `fixed` or tilted `leaning` geometry. */
     kind: Kind;
 
-    /** How many rungs, 2 to 30; 10 when absent. */
+    /** Integer rung count from 2 through 30. Defaults to 10. */
     rungs?: number;
 
-    /** The model's id, unique in a scene; `ladder` when absent. */
+    /** Scene-unique model ID. Defaults to `ladder`. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * Inclusive bands for each ladder kind.
+   *
+   * Both use 0.25?0.36 m spacing and 0.025?0.035 m diameter. `fixed` takes
+   * 0.41?0.50 m width, 90? pitch and 1.5?3 kg per rung. `leaning` takes
+   * 0.29?0.41 m width, arccos(0.25) in degrees and 0.8?1.5 kg per rung.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {

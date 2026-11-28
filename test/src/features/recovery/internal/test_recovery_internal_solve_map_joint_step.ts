@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  *    full-design solve in every coordinate.
  * 2. An unobserved camera direction or undersized original-design budget refuses
  *    before damping can manufacture rank.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the seventeen camera coordinates, complete-design comparison and rank and budget refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs physical block elimination with zero and positive damping, then submits an unobservable column and insufficient storage.
+ * @evidence contracts/development/testing.md#independent-expectations The independently assembled full dense design supplies expected increments for both damping values. Its omitted camera direction cannot gain rank.
  */
 export function test_recovery_internal_solve_map_joint_step(): void {
   const budget: ReturnType<

@@ -41,8 +41,8 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * frame one metre along its `+X`, turned a quarter more:
  *
  * 1. `compose` lays the offset along the parent's turned `+X`, world `-Z`, at (1,
- *    2, 2), and turns the child a half: the parent's turn first, then the local.
- *    Red: a sum without the parent's turn lands at (2, 2, 3).
+ *    2, 2), and adds the child's quarter turn to the parent's quarter turn
+ *    about the same axis.
  * 2. `relative` of the composed frame returns the local frame, and of the parent
  *    itself the identity at the origin: it subtracts the parent's place before
  *    undoing its turn.
@@ -51,6 +51,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * 4. A local frame with an offset and no turn under a parent with no turn adds
  *    the offset.
  * 5. `bone` keeps a bone's world place and turn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names composition, relative frame, solved parent including a rotated offset, unturned translation, and world bone frames.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanPropFrame` with typed local and world transforms, then compares coordinates and quaternion rotations up to sign. A direct bone read provides a separate case.
+ * @evidence contracts/development/testing.md#independent-expectations A +Y quarter turn maps local +X to world -Z, so parent (1, 2, 3) and unit offset compose to (1, 2, 2). Two same-axis quarters give a half turn. Rotating (0.5, -1, 2) gives (2, -1, -0.5), which is subtracted to obtain the second solved parent.
  */
 export function test_motions_perform_prop_frame(): void {
   const parent: IAutoMovieRigidTransform = {

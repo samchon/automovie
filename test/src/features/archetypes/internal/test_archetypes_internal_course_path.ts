@@ -10,7 +10,13 @@ import { vclose } from "../../internal/vclose";
 /** Projection, square root and trigonometry at this fixture's metre scale. */
 const PATH_ROUNDING: number = 128 * Number.EPSILON;
 
-/** A graded leg uses path distance and a reverse turn uses travel direction. */
+/**
+ * A graded leg uses path distance and a reverse turn uses travel direction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes a graded leg, reverse turn, scaled projection and distinct finite station boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Lays and samples actual course rows over ordinary, very steep, large and subnormal inputs. Both total overflow and a next station that rounds to the previous station must refuse on `legs[1]`.
+ * @evidence contracts/development/testing.md#independent-expectations A 3-4-5 grade takes five metres, and a quarter circle of radius two takes pi metres. Similar triangles give the intermediate projections and retain the authored signs even when intermediate products leave binary64.
+ */
 export function test_archetypes_internal_course_path(): void {
   const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 1, z: 2, heading: 90 },

@@ -27,11 +27,9 @@ type Constraints = Record<
  * 4. Missing limbs, nonfinite coordinates/floor, invalid radii and derived
  *    overflow refuse; input bytes and fresh returned intervals remain owned.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines literal SI geometry, one shared above-foot root, body-floor admission, exact tangencies, large finite representation, malformed-input attribution and independent records.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual exported four-limb intersection on independent constraints, including one conflicting hind limb and actual floor incompatibility; a per-limb root, projected goal or always-refusing operation fails the positive cases.
- * @evidence contracts/development/testing.md#independent-expectations Pythagorean triples give sqrt(25-9)=4 and offset -1, hence [-1,3]; the inner circle gives sqrt(16-9)-1. Intersecting [-1,3] and [1,5] yields [1,3]. The 6-8-10 triangle scaled by 1e307 has finite height 8e307 even though direct squared radii overflow. Expected values do not come from range/solve outputs.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers floor-active versus limb-active lower bounds, shared versus incompatible limb roots, inner/outer geometry, exact/near-outside horizontal tangency, huge finite arithmetic, malformed partial maps and input/result mutation; the neighboring limb units own actual point solving and oriented terminal constraints.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous portable unit owns literal maps and all assertions, with no compiler, process, renderer, timing assertion or foreign-method patch.
+ * @evidence contracts/development/common.md#meaningful-documentation States the shared root-height intervals, floor restriction, lateral tangency and invalid inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public four-limb intersection on authored constraints. Separate cases exercise an incompatible hind limb, a floor bound and malformed data. The asserted shared interval catches independent roots.
+ * @evidence contracts/development/testing.md#independent-expectations A horizontal offset of three at outer radius five gives vertical reach four by Pythagoras. The initial attachment offset then gives [-1, 3], and intersecting [1, 5] narrows it to [1, 3]. A scaled 6-8-10 triangle also has finite height.
  */
 export function test_archetype_animal_limb_root_range(): void {
   const findings: string[] = [];

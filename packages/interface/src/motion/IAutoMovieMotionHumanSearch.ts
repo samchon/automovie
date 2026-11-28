@@ -1,24 +1,11 @@
 import type { AutoMovieHumanSide } from "../human/AutoMovieHumanSide";
 
-/**
- * Searching a bag composed from shipped actions: the hand reaches through the
- * bag's opening and rummages over its floor (`touch`, rubbing with the
- * fingertips on its `inside` surface), then takes the item it finds by its grip
- * and lifts it out through the opening (`pickUp`), as high as the bag is deep.
- * A bag a hand reaches into is open at the top, as `createBag`'s tote is. The
- * rummaging strokes are the namespace constant `RUMMAGE` of
- * `AutoMovieMotionHumanSearch` (provisional).
- *
- * The method is a helper over a chain: it takes the chain first and returns it
- * with the actions appended, as the runtime namespace takes it.
- *
- * @template Chain The chain the method takes and returns.
- */
-
-
-/** The parameter types of the Search methods. */
+/** Inputs for a search of an open bag. */
 export namespace IAutoMovieMotionHumanSearch {
-  /** The parameters of `searchBag`. */
+  /** A search that finds its named item, or one with an authored miss. */
+  export type BagSearch = ISearchBag | INoFind;
+
+  /** Search the bag and extract the named item. */
   export interface ISearchBag {
     /** The open bag's subject. */
     bag: string;
@@ -30,12 +17,18 @@ export namespace IAutoMovieMotionHumanSearch {
     handle: string;
 
     /**
-     * The bag's opening height above its floor, metres: the take lifts the item
-     * that far, so an item lying on the floor comes out above the opening.
+     * Height from the bag's floor to its opening in metres, used as lift
+     * distance.
      */
     depth: number;
 
-    /** The searching hand; the right when absent. */
+    /** The reaching hand, right by default. */
     hand?: AutoMovieHumanSide;
+  }
+
+  /** Search the bag without taking an item. */
+  export interface INoFind extends Pick<ISearchBag, "bag" | "hand"> {
+    /** The author selects a completed search with no pickup. */
+    type: "no-find";
   }
 }

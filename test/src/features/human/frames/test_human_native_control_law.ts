@@ -29,9 +29,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises actual complete original-control, course and scalar-source owners; detects root bone carry and natural interpolation leakage rather than comparing metadata.
  * @evidence contracts/development/testing.md#independent-expectations Affine ellipse arithmetic and a fixed skin datum give literal controls/root positions; the protected source is the separately admitted original cubic, whose finite derivatives come from the native evaluator.
- * @evidence contracts/development/testing.md#distinguishing-cases Identity and changed controls, endpoints/interior, changed source span and invalid-domain counterparts are collected in one round.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous made controls, source knots and axis readers only; no person, reference, loft, realization or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists eight scenarios and distinguishes physical derivatives from normalized authored jets.
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios check literal identity, affine controls, carried root and protected intervals, root parameter transport, skin attachment and invalid junctions.
  */
 export function test_human_native_control_law(): void {
   const failures: string[] = [];

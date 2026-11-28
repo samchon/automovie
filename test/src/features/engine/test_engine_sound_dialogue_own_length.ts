@@ -34,11 +34,9 @@ import { nclose, throwsError } from "../internal/predicates";
  * 6. A phoneme chunk spanning samples 24 000 to 48 000 of the worked line maps to
  *    frames 24 to 48.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the worked line, its span, its placement, pitch, caption, ducking and chunk mappings.
+ * @evidence contracts/development/common.md#meaningful-documentation Resampling determines the mixed line span and preserves the tested pitch. Caption overrun, duck release and a timed phoneme use that span in separate consumers.
  * @evidence contracts/development/testing.md#behavioral-verification Runs ingest's decoder, engine's span rule, planner, mixer and chunk mapping. A mixer that stretches the line to a caption window changes its length and its zero-crossing count, so it fails.
  * @evidence contracts/development/testing.md#independent-expectations Values follow the worked case: 1 s per 24 frames, 2000 samples per frame, 440 Hz giving 880 crossings per second; ratios against one gain keep them independent of the master's level.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a refused and an admitted caption, a spoken and an unspoken caption, the ducked inside and the restored outside of a release; ducking details belong to `test_film_production_sound_score_ducking`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_dialogue_own_length`; it starts no process.
  */
 export function test_engine_sound_dialogue_own_length(): void {
   const decode: (samples: Float32Array) => Float32Array = (

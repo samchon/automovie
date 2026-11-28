@@ -2,18 +2,21 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type WornPropDraw } from "./internal/WornPropDraw";
 import { createHat as createHatImplementation } from "./internal/createHat";
 
-/** Public operations for Auto Movie Archetype Hat. */
+/** Constructs a circular-brim hat with a crown socket. */
 export namespace AutoMovieArchetypeHat {
   /**
-   * Hat with a brim pinch and a crown socket.
+   * Build a hat standing on a circular brim with its crown toward `+Y`.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * The `hold` pinches the brim near its right edge at `-X`. The `wear`
+   * socket faces down from the inner crown.
+   *
+   * @param params Optional ID and finite brim and crown diameters, height or mass
+   *   admitted by the bands. The default ID is `wearable`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   a 0.32738 metre brim
+   *   diameter, 0.17181 metre crown diameter and 0.104775 metre height.
+   * @returns The brim and crown with their grasp and wearing frames.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     WornPropDraw.IParams,
@@ -22,14 +25,10 @@ export namespace AutoMovieArchetypeHat {
     return createHatImplementation(params, seed);
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Right-side brim `hold` and downward crown `wear` socket. */
   export type Affordance = "hold" | "wear";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Brim diameter as width, crown diameter as depth and height in metres. Mass is in kilograms.
    */
   export type Dimension = "depth" | "height" | "mass" | "width";}

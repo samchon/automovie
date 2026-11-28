@@ -1,5 +1,6 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
-import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
+
+import { AutoMovieEnginePlanarArea } from "../AutoMovieEnginePlanarArea";
 
 /*
  * Integrate a strongest-site equal-radius compact radial field over a convex
@@ -27,36 +28,61 @@ export function integrateRadialField(
   props: IAutoMovieIntegrateRadialField.IProps,
 ): IAutoMovieIntegrateRadialField.IOutput {
   if (
+    !Number.isFinite(props.radius) ||
     props.radius <= 0 ||
     props.sites.length > 512
   )
     throw new Error(
       "Radial footprint needs a positive radius and at most 512 sites",
     );
+  if (props.power !== 2 && props.power !== 3)
+    throw new Error("Radial footprint power must be 2 or 3");
   const radiusSquared: number = props.radius * props.radius;
   // A finite radius can underflow or overflow its square.
-  if (radiusSquared === 0 || overflowsBinary64(radiusSquared))
+  if (radiusSquared === 0 || !Number.isFinite(radiusSquared))
     throw new Error(
       "Radial support radius exceeds the squared-coordinate range",
     );
-  const polygon: Point[] = props.polygon.map(
-    (p: readonly [number, number]): Point => [...p],
-  );
-  const signed: number = area(polygon);
-  if (overflowsBinary64(signed))
+  const polygon: Point[] = [];
+  for (const point of props.polygon) {
+    if (
+      !Array.isArray(point) ||
+      point.length !== 2 ||
+      !Number.isFinite(point[0]) ||
+      !Number.isFinite(point[1])
+    )
+      throw new Error("Radial footprint needs finite planar points");
+    polygon.push([point[0], point[1]]);
+  }
+  const sites: IAutoMovieIntegrateRadialField.ISite[] = [];
+  for (const site of props.sites) {
+    if (
+      site === undefined ||
+      site === null ||
+      !Number.isFinite(site.x) ||
+      !Number.isFinite(site.y) ||
+      !Number.isFinite(site.z)
+    )
+      throw new Error("Radial footprint needs finite site centres");
+    // A sphere that does not reach the plane contributes no positive field
+    // and cannot take a point from the support of a sphere that does.
+    if (Math.abs(site.z) < props.radius) sites.push(site);
+  }
+  const signed: number = AutoMovieEnginePlanarArea.measureTuples(polygon);
+  if (!Number.isFinite(signed))
     throw new Error("Radial footprint area exceeds finite arithmetic");
   if (signed < 0) polygon.reverse();
   const extent: number = Math.abs(signed);
-  if (extent === 0 || polygon.length < 3 || props.sites.length === 0)
+  if (extent === 0 || sites.length === 0)
     return { integral: 0, gradient: [0, 0], area: extent };
   let integral: number = 0;
   const gradient: Point = [0, 0];
-  for (let i: number = 0; i < props.sites.length; ++i) {
-    const site: Site = props.sites[i]!;
+  for (let i: number = 0; i < sites.length; ++i) {
+    const site: IAutoMovieIntegrateRadialField.ISite = sites[i]!;
     let cell: Point[] = polygon;
-    for (let j: number = 0; j < props.sites.length && cell.length >= 3; ++j) {
+    for (let j: number = 0; j < sites.length && cell.length >= 3; ++j) {
       if (i === j) continue;
-      const other: Site = props.sites[j]!;
+      const other: IAutoMovieIntegrateRadialField.ISite = sites[j]!;
       const normal: Point = [2 * (other.x - site.x), 2 * (other.y - site.y)];
       const constant: number =
         other.x * other.x +
@@ -65,7 +91,11 @@ export function integrateRadialField(
         site.x * site.x -
         site.y * site.y -
         site.z * site.z;
-      if ([...normal, constant].some(overflowsBinary64))
+      if (
+        !Number.isFinite(normal[0]) ||
+        !Number.isFinite(normal[1]) ||
+        !Number.isFinite(constant)
+      )
         throw new Error("Radial site partition exceeds finite arithmetic");
       if (normal[0] === 0 && normal[1] === 0 && constant === 0) {
         if (j < i) cell = [];
@@ -73,17 +103,20 @@ export function integrateRadialField(
       }
       cell = clip(cell, normal, constant);
     }
-    const result: IAutoMovieIntegrateRadialField.IOutput = integrate(
+    const result: IRadialIntegral = integrate(
       cell,
       site,
-      props.radius,
+      radiusSquared,
       props.power,
     );
     integral += result.integral;
     gradient[0] += result.gradient[0];
     gradient[1] += result.gradient[1];
   }
-  if ([integral, ...gradient].some(overflowsBinary64))
+  if (
+    !Number.isFinite(integral) ||
+    gradient.some((value: number): boolean => !Number.isFinite(value))
+  )
     throw new Error("Radial footprint integration exceeded finite arithmetic");
   return {
     integral: Math.max(0, Math.min(extent, integral)),
@@ -96,26 +129,16 @@ export function integrateRadialField(
  * Coordinates on the supplied orthonormal plane, in the caller's common unit.
  */
 type Point = [number, number];
-/*
- * Sphere centre relative to the supplied plane, in the same coordinate unit.
- */
-type Site = { x: number; y: number; z: number };
+type IRadialIntegral = Pick<
+  IAutoMovieIntegrateRadialField.IOutput,
+  "integral" | "gradient"
+>;
 
 /*
  * Signed twice-area of two planar vectors.
  */
 function cross(a: Point, b: Point): number {
   return a[0] * b[1] - a[1] * b[0];
-}
-
-/*
- * Signed polygon area; input convexity is the caller's clipped-texel premise.
- */
-function area(polygon: Point[]): number {
-  let sum: number = 0;
-  for (let i: number = 0; i < polygon.length; ++i)
-    sum += cross(polygon[i]!, polygon[(i + 1) % polygon.length]!);
-  return sum / 2;
 }
 
 /*
@@ -128,10 +151,21 @@ function clip(polygon: Point[], normal: Point, constant: number): Point[] {
     const b: Point = polygon[(i + 1) % polygon.length]!;
     const da: number = normal[0] * a[0] + normal[1] * a[1] - constant;
     const db: number = normal[0] * b[0] + normal[1] * b[1] - constant;
+    if (!Number.isFinite(da) || !Number.isFinite(db))
+      throw new Error("Radial site clipping exceeds finite arithmetic");
     if (da <= 0) result.push(a);
     if ((da < 0 && db > 0) || (db < 0 && da > 0)) {
-      const t: number = da / (da - db);
-      result.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
+      // Scaling opposite signed distances first keeps their sum representable.
+      const scale: number = Math.max(Math.abs(da), Math.abs(db));
+      const left: number = Math.abs(da) / scale;
+      const t: number = left / (left + Math.abs(db) / scale);
+      const point: Point = [
+        (1 - t) * a[0] + t * b[0],
+        (1 - t) * a[1] + t * b[1],
+      ];
+      if (!Number.isFinite(point[0]) || !Number.isFinite(point[1]))
+        throw new Error("Radial site clipping exceeds finite arithmetic");
+      result.push(point);
     }
   }
   return result;
@@ -174,17 +208,12 @@ function flux(s: number, q0: number, radius2: number, power: 2 | 3): number {
  */
 function integrate(
   polygon: Point[],
-  site: Site,
-  radius: number,
+  site: IAutoMovieIntegrateRadialField.ISite,
+  radius2: number,
   power: 2 | 3,
-): IAutoMovieIntegrateRadialField.IOutput {
-  const radius2: number = radius * radius;
+): IRadialIntegral {
   const q0: number = 1 - (site.z * site.z) / radius2;
-  const result: IAutoMovieIntegrateRadialField.IOutput = {
-    integral: 0,
-    gradient: [0, 0],
-    area: Math.abs(area(polygon)),
-  };
+  const result: IRadialIntegral = { integral: 0, gradient: [0, 0] };
   if (q0 <= 0 || polygon.length < 3) return result;
   const support2: number = radius2 * q0;
   const exterior: number = (radius2 * q0 ** (power + 1)) / (2 * (power + 1));
@@ -197,11 +226,22 @@ function integrate(
     if (aa === 0) continue;
     const bb: number = 2 * (a[0] * edge[0] + a[1] * edge[1]);
     const cc: number = a[0] * a[0] + a[1] * a[1] - support2;
-    const discriminant: number = bb * bb - 4 * aa * cc;
+    const scale: number = Math.max(aa, Math.abs(bb), Math.abs(cc));
+    if (!Number.isFinite(scale))
+      throw new Error("Radial support intersection exceeds finite arithmetic");
+    // Coefficients have squared coordinate units. Dividing all three by one
+    // scale preserves the edge roots without squaring that unit scale again.
+    const scaledA: number = aa / scale;
+    const scaledB: number = bb / scale;
+    const scaledC: number = cc / scale;
+    const discriminant: number = scaledB * scaledB - 4 * scaledA * scaledC;
     const cuts: number[] = [0, 1];
     if (discriminant > 0) {
       const root: number = Math.sqrt(discriminant);
-      for (const t of [(-bb - root) / (2 * aa), (-bb + root) / (2 * aa)])
+      for (const t of [
+        (-scaledB - root) / (2 * scaledA),
+        (-scaledB + root) / (2 * scaledA),
+      ])
         if (t > 0 && t < 1) cuts.push(t);
     }
     cuts.sort((a: number, b: number): number => a - b);
@@ -210,7 +250,10 @@ function integrate(
     for (let k: number = 0; k + 1 < cuts.length; ++k) {
       const lo: number = cuts[k]!;
       const hi: number = cuts[k + 1]!;
-      if (square((lo + hi) / 2) <= support2) {
+      const middleSquare: number = square((lo + hi) / 2);
+      if (!Number.isFinite(middleSquare))
+        throw new Error("Radial support distance exceeds finite arithmetic");
+      if (middleSquare <= support2) {
         result.integral +=
           cross(a, edge) *
           gauss(
@@ -228,12 +271,11 @@ function integrate(
       } else {
         const first: Point = [a[0] + lo * edge[0], a[1] + lo * edge[1]];
         const last: Point = [a[0] + hi * edge[0], a[1] + hi * edge[1]];
-        result.integral +=
-          exterior *
-          Math.atan2(
-            cross(first, last),
-            first[0] * last[0] + first[1] * last[1],
-          );
+        const numerator: number = cross(first, last);
+        const denominator: number = first[0] * last[0] + first[1] * last[1];
+        if (!Number.isFinite(numerator) || !Number.isFinite(denominator))
+          throw new Error("Radial exterior flux exceeds finite arithmetic");
+        result.integral += exterior * Math.atan2(numerator, denominator);
       }
     }
   }

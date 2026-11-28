@@ -176,6 +176,10 @@ const silhouette: (
  *    the frame do not; a large silhouette radius merges the spread pair; an
  *    actor inside the near plane is a framing note, not a silhouette merge.
  * 9. Precomputed film-grammar diagnostics enter this same visual-note backlog.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify advisory framing, contact and silhouette cases, omitted or invalid metadata and integrated grammar feedback.
+ * @evidence contracts/development/testing.md#behavioral-verification The test invokes the real visual-read reviewer for prepared moving and static views, contact variants and paired actor silhouettes. It compares note counts, tier, relevant subjects and integrated grammar guidance.
+ * @evidence contracts/development/testing.md#independent-expectations The centered subject lies five metres along the camera's forward ray, whereas the explicit outside and behind positions fail their different bounds. Fixture contact points and radii distinguish a real overlap and a miss. Co-projected silhouettes merge while separate visible subjects stay distinct.
  */
 export function test_engine_film_review_visual_read(): void {
   TestValidator.equals(

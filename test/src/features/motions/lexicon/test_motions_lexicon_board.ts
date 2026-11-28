@@ -16,6 +16,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Running level with the seat, a take-off 1 m behind and 1 m below it boards.
  * 2. A take-off 3 m away, 2 m below the seat, or slipping 2 m/s against it, is
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines relative takeoff pace and horizontal and vertical admission bounds for a seated animation transition.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls boarding admission on a reachable pose and targets varying distance, height and relative speed separately.
+ * @evidence contracts/development/testing.md#independent-expectations The goal 1 m ahead and 1 m above fits the stated bounds. At 3 m across, 2 m up or 2 m/s relative, the respective bound is exceeded.
  */
 export function test_motions_lexicon_board(): void {
   const at = (x: number, y: number): { root: IAutoMovieVector3 } => ({

@@ -96,6 +96,10 @@ const SEQUENCE: IAutoMovieSequence = {
  * 7. Emit a contiguous seam once and retain the shot-final event.
  * 8. Retain a hit exactly at a mid-shot cut-away.
  * 9. Emit a replayed hit at each noncontiguous flashback play.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify starts, trim-local offsets, live and outgoing blend clocks, unavailable times, malformed edits and event ownership at replay and seams.
+ * @evidence contracts/development/testing.md#behavioral-verification The test lays out and samples the authored edit and projects several event layouts through the same owner. It compares result identities, exact schedule boundaries, local-time values and bounded admission failures.
+ * @evidence contracts/development/testing.md#independent-expectations The authored sequence has 7.5 seconds of output. Its second shot starts at film second 3 with a 0.5-second trim, so film second 3.2 reads source 0.7. Half-open bounds exclude the film end and assign a contiguous seam event once without losing a cut-away or replay.
  */
 export function test_engine_film_playback_resolver(): void {
   const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(

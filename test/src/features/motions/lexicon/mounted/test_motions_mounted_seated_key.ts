@@ -36,7 +36,13 @@ import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 
-/** Fit the stored rider on the actual connected saddle and both stock irons. */
+/**
+ * Fit the stored rider on the actual connected saddle and both stock irons.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes actual seated pelvis support, bilateral plate support and room for each articulated collider against the mount.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves the stored rider on the real tack, poses its body and queries pelvis manifold, toe basis and every body-obstacle shape pair.
+ * @evidence contracts/development/testing.md#independent-expectations Physical deck contact witnesses and authored plate half-extents independently bound support. The forefoot stays on foot skin and signed body clearances meet the tolerance.
+ */
 export async function test_motions_mounted_seated_key(): Promise<void> {
   const body = await humanFixtureBody("m-average");
   const horse = AutoMovieArchetypeHorse.create(

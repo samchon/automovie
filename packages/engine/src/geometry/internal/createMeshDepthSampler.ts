@@ -4,7 +4,6 @@ import type {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /*
  * Index a resident mesh for repeated axis-aligned depth queries.
@@ -36,6 +35,9 @@ export function createMeshDepthSampler(
     axis
   ];
   const indices: number[] = triangleIndicesOf(mesh, "Depth sampling");
+  for (const value of mesh.positions)
+    if (!Number.isFinite(value))
+      throw new Error("Depth sampling needs finite mesh positions.");
   const triangles: IProjectedTriangle[] = [];
   let minU: number = Infinity;
   let minV: number = Infinity;
@@ -57,9 +59,9 @@ export function createMeshDepthSampler(
     const second: number = (b[1]! - a[1]!) * (c[0]! - a[0]!);
     const area: number = first - second;
     if (
-      overflowsBinary64(first) ||
-      overflowsBinary64(second) ||
-      overflowsBinary64(area)
+      !Number.isFinite(first) ||
+      !Number.isFinite(second) ||
+      !Number.isFinite(area)
     )
       throw new Error("Projected triangle arithmetic must remain finite.");
     if (area === 0) continue;
@@ -71,7 +73,7 @@ export function createMeshDepthSampler(
   }
   if (
     triangles.length !== 0 &&
-    (overflowsBinary64(maxU - minU) || overflowsBinary64(maxV - minV))
+    (!Number.isFinite(maxU - minU) || !Number.isFinite(maxV - minV))
   )
     throw new Error("Projected mesh extent must remain finite.");
   const resolution: number = 32;
@@ -107,7 +109,9 @@ export function createMeshDepthSampler(
   return (
     u: number,
     v: number,
-  ): { minimum: number; maximum: number } | null => {
+  ): IAutoMovieCreateMeshDepthSampler.IDepthRange | null => {
+    if (!Number.isFinite(u) || !Number.isFinite(v))
+      throw new Error("Depth query coordinates must be finite.");
     if (u < minU || u > maxU || v < minV || v > maxV) return null;
     let minimum: number = Infinity;
     let maximum: number = -Infinity;
@@ -118,14 +122,21 @@ export function createMeshDepthSampler(
         ((u - a[0]!) * (c[1]! - a[1]!) - (v - a[1]!) * (c[0]! - a[0]!)) / area;
       const gamma: number =
         ((b[0]! - a[0]!) * (v - a[1]!) - (b[1]! - a[1]!) * (u - a[0]!)) / area;
-      if (beta < -1e-10 || gamma < -1e-10 || beta + gamma > 1 + 1e-10) continue;
+      const sum: number = beta + gamma;
+      if (
+        !Number.isFinite(beta) ||
+        !Number.isFinite(gamma) ||
+        !Number.isFinite(sum)
+      )
+        throw new Error("Projected depth interpolation must remain finite.");
+      if (beta < -1e-10 || gamma < -1e-10 || sum > 1 + 1e-10) continue;
       const terms: readonly number[] = [
         a[2]! * (1 - beta - gamma),
         b[2]! * beta,
         c[2]! * gamma,
       ];
       const depth: number = terms[0]! + terms[1]! + terms[2]!;
-      if (terms.some(overflowsBinary64) || overflowsBinary64(depth))
+      if (!Number.isFinite(depth))
         throw new Error("Interpolated surface depth must remain finite.");
       minimum = Math.min(minimum, depth);
       maximum = Math.max(maximum, depth);

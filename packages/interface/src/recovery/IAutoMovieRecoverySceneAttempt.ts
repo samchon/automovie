@@ -3,20 +3,24 @@ import type {
   IAutoMovieRecoveryMapResection,
 } from "..";
 
-/** One candidate transaction against an immutable accepted component revision. */
+/**
+ * Ledger entry for one charged registration transaction against an accepted
+ * scene revision. The entry retains the stage diagnostics and proposed
+ * populations after success or refusal.
+ */
 export interface IAutoMovieRecoverySceneAttempt {
-  /** Source-order image being registered. */
+  /** Original source index of the camera this transaction tries to register. */
   viewIndex: number;
 
-  /** Accepted component revision used before this transaction. */
+  /** Accepted component revision at the start of the attempt. */
   revision: number;
 
-  /** Distinct existing 3D-track/target-feature correspondences. */
+  /** Existing landmark and target-feature pairs offered to resection. */
   candidates: number;
 
   /**
-   * Acceptance requires resection, growth, joint convergence and every final
-   * gate.
+   * Final transaction disposition. Acceptance includes resection, detached
+   * growth, joint convergence and every final qualification.
    */
   outcome:
     | "accepted"
@@ -24,24 +28,27 @@ export interface IAutoMovieRecoverySceneAttempt {
     | "joint-refused"
     | "budget-exhausted";
 
-  /** Stage-specific complete reasons; no reason implies success by itself. */
+  /** Available stage-specific reasons retained for the attempt. */
   reasons: string[];
 
-  /** Completed resection diagnostics; null if the stage did not finish. */
+  /** Completed resection report, or null if that stage did not return. */
   resection: IAutoMovieRecoveryMapResection | null;
 
   /**
-   * Last completed joint pass, possibly before a later growth pass failed; its
-   * own population remains authoritative. Null if no pass completed.
+   * Last completed joint fit report, or null before any completion. Its own
+   * population can precede the last proposed counts.
    */
   joint: IAutoMovieRecoveryMapJointFit | null;
 
   /**
-   * Proposed point population after new registered-view triangulation; null
-   * before growth.
+   * Point count of the most recent detached proposal announced for fitting, or
+   * null before a proposal is reported.
    */
   proposedLandmarks: number | null;
 
-  /** Proposed retained observations; null before growth. */
+  /**
+   * Measurement count of the most recent detached proposal announced for
+   * fitting, or null before a proposal is reported.
+   */
   proposedObservations: number | null;
 }

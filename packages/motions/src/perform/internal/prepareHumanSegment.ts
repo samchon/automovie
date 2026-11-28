@@ -1,10 +1,12 @@
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPlayback,
+  IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -13,6 +15,11 @@ import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentAnchors } from "./readHumanSegmentAnchors";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
+
+const locations = new WeakMap<
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanRefusal.IWhere
+>();
 
 /*
  * Solve the knots and curves one placed action's display evaluates
@@ -37,13 +44,24 @@ export function prepareHumanSegment(
     prepareHumanSegmentPose(body);
   const playback = segment.plan.playback;
   if (playback?.source.preparePlaced !== undefined) delete playback.placed;
+  const where = locations.get(segment);
+  const swivels = (): IAutoMovieMotionHumanSegment.ISwivels =>
+    readHumanSegmentLeaf.swivels(segment.plan, body, segment.context.entry.pose);
+  const standing =
+    person.layers.length === 0 &&
+    person.overlays.length === 0 &&
+    person.holds.length === 0 &&
+    person.stops.size === 0 &&
+    HumanPreparedPlayback.isGroundedStand(segment.plan, body)
+      ? emptyLimbCourse()
+      : undefined;
   const record: IAutoMovieMotionHumanSegment.IPrepared = {
-    legs: readHumanSegmentLegs.chain(segment.plan, body),
-    swivels: readHumanSegmentLeaf.swivels(
-      segment.plan,
-      body,
-      segment.context.entry.pose,
-    ),
+    legs: standing ?? readHumanSegmentLegs.chain(segment.plan, body),
+    swivels:
+      standing ??
+      (where === undefined
+        ? swivels()
+        : AutoMovieMotionHumanRefusal.located(where, swivels)),
     anchors: [],
     stops: new Map(),
   };
@@ -97,9 +115,30 @@ export function prepareHumanSegment(
 }
 
 /*
+ * A placed ground stand has no arm or free-leg goal to continue. Its actual
+ * planted feet still use the display's plant fits.
+ */
+function emptyLimbCourse(): IAutoMovieMotionHumanSegment.IPrepared["legs"] {
+  const seeds: ReturnType<IAutoMovieMotionHumanSegment.IPrepared["legs"]> =
+    new Map();
+  return () => seeds;
+}
+
+/*
  * Companion of prepareHumanSegment.
  */
 export namespace prepareHumanSegment {
+  /*
+   * Retain the placed action's site for its arm fit, which runs after the
+   * posture reader has returned the goal and can fail during a partner read.
+   */
+  export function recordPlace(
+    segment: IAutoMovieMotionHumanSegment,
+    where: IAutoMovieMotionHumanRefusal.IWhere,
+  ): void {
+    locations.set(segment, where);
+  }
+
   /*
    * What `ridden` reads of a person: their holds' and overlays' spans.
    */

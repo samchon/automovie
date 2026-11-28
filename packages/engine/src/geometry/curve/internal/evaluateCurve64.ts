@@ -25,27 +25,11 @@ export function evaluateCurve64(
   curve: IAutoMovieCurvePrimitive64,
   parameter: number,
 ): IAutoMovieEvaluateCurve64.IResult {
+  if (!Number.isFinite(parameter) || parameter < 0)
+    throw new Error("A finite nonnegative curve parameter is required");
   assertCurve64(curve);
-  if (parameter < 0)
-    throw new Error("A nonnegative curve parameter is required");
   if (curve.type === "analyticOval") {
-    if (curve.phaseUnit !== "turn" || parameter > 1)
-      throw new Error("An analytic oval uses one turn");
-    if (curve.radiusU <= 0 || curve.radiusV <= 0 || curve.closed !== true)
-      throw new Error("Invalid analytic oval");
-    const dot: (
-      a: Readonly<AutoMovieVector3Tuple>,
-      b: Readonly<AutoMovieVector3Tuple>,
-    ) => number = (
-      a: Readonly<AutoMovieVector3Tuple>,
-      b: Readonly<AutoMovieVector3Tuple>,
-    ): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    if (
-      Math.abs(dot(curve.u, curve.u) - 1) > 64 * Number.EPSILON ||
-      Math.abs(dot(curve.v, curve.v) - 1) > 64 * Number.EPSILON ||
-      Math.abs(dot(curve.u, curve.v)) > 64 * Number.EPSILON
-    )
-      throw new Error("Orthonormal oval axes required");
+    if (parameter > 1) throw new Error("An analytic oval uses one turn");
     const angle: number = 2 * Math.PI * parameter;
     const cos: number = Math.cos(angle);
     const sin: number = Math.sin(angle);
@@ -57,15 +41,18 @@ export function evaluateCurve64(
       2 *
       Math.PI *
       (-curve.radiusU * sin * curve.u[k] + curve.radiusV * cos * curve.v[k]);
-    return {
-      point: [at(0), at(1), at(2)],
-      tangentPerParameter: [turn(0), turn(1), turn(2)],
-    };
+    const point: AutoMovieVector3Tuple = [at(0), at(1), at(2)];
+    const tangent: AutoMovieVector3Tuple = [turn(0), turn(1), turn(2)];
+    if (!point.every(Number.isFinite) || !tangent.every(Number.isFinite))
+      throw new Error("Analytic oval point and tangent must remain finite");
+    return { point, tangentPerParameter: tangent };
   }
   const pieces: readonly IAutoMovieBernsteinCurvePiece64[] =
     curve.type === "cubicBezier"
       ? curve.spans.map(
-          (s: AutoMovieCubicBezierControls3): IAutoMovieBernsteinCurvePiece64 => ({
+          (
+            s: AutoMovieCubicBezierControls3,
+          ): IAutoMovieBernsteinCurvePiece64 => ({
             primitive: "polynomialBezier",
             degree: 3,
             controls: s,
@@ -98,13 +85,17 @@ export function evaluateCurve64(
   const width: number = curve.phaseIntervals[index]!;
   const t: number =
     parameter === total ? 1 : (parameter - cumulative[index]!) / width;
-  const evaluated: IAutoMovieEvaluateBernstein64.IResult =
-    evaluateBernstein64(pieces[index]!, t);
+  const evaluated: IAutoMovieEvaluateBernstein64.IResult = evaluateBernstein64(
+    pieces[index]!,
+    t,
+  );
   const tangent: AutoMovieVector3Tuple = [
     evaluated.derivative[0] / width,
     evaluated.derivative[1] / width,
     evaluated.derivative[2] / width,
   ];
+  if (!tangent.every(Number.isFinite))
+    throw new Error("Curve tangent per parameter must remain finite");
   for (const k of [0, 1, 2] as const)
     if (evaluated.derivative[k] !== 0 && tangent[k] === 0)
       throw new Error("Unresolved physical parameter derivative underflow");

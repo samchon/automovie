@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanShoulderPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanShoulderPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Glenohumeral flexion, abduction and rotation, in degrees from neutral. The
+ * positive directions are forward elevation, sideways elevation and external
+ * rotation.
+ */
 export type IAutoMovieHumanShoulderPoseSchema = IAutoMovieHumanShoulderPose & {
   /** Forward elevation 170.4 (measured), extension 60 (AAOS). */
   flexion?: number & tags.Minimum<-60> & tags.Maximum<170.4>;

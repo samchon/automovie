@@ -29,6 +29,10 @@ import { TestValidator } from "@nestia/e2e";
  *    and 2 pi, the phase and the jet's p, t and tt match the oracle and each
  *    other within 1e-8 at both endpoints, for the chain and a structured clone
  *    of it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names bound circle sources, multiple piece partitions, endpoint jets and structured-copy preservation.
+ * @evidence contracts/development/testing.md#behavioral-verification Binds native sections to two layer endpoints and reads phase and both angular derivatives over the original and copied chains.
+ * @evidence contracts/development/testing.md#independent-expectations Ray-circle intersection gives radius a + sqrt(4−cx²−cy²+a²) for the stated projection a. Differentiating it twice yields reference angular jets independent of curve partition.
  */
 export function test_engine_geometry_loft_captured_phase(): void {
   const constant = (value: number): IAutoMovieViewSectionField.IStationJet => [

@@ -93,6 +93,17 @@ export function parseCapturePlanRequest(
   const sampling: IAutoMovieCaptureSampling = given.has("at")
     ? { kind: "at", seconds: seconds("at", read("at")!, true) }
     : even(read);
+  const cue: string | null = read("cue");
+  const entry: number | null = whole("entry", read("entry"), 0);
+  if (cue === null && entry !== null)
+    throw new Error("Capture entry requires cue");
+  if (cue !== null) {
+    if (cue.trim().length === 0) refuse("cue", cue, "an exact source event id");
+    if (["at", "from", "to", "rate", "events"].some((key: string): boolean => given.has(key)))
+      throw new Error("Capture cue excludes at, from, to, rate and events");
+    if (entry !== null && !Number.isSafeInteger(entry))
+      refuse("entry", String(entry), "a nonnegative safe integer");
+  }
 
   // Views, each checked by the view grammar.
   const views: string[] =
@@ -155,6 +166,7 @@ export function parseCapturePlanRequest(
     sampling,
     events:
       read("events") === null ? [] : seconds("events", read("events")!, false),
+    ...(cue === null ? {} : { cue: { id: cue, ...(entry === null ? {} : { entry }) } }),
     window: whole("window", read("window"), 0) ?? WINDOW,
     threshold: bounded("threshold", read("threshold"), 0, 100) ?? THRESHOLD,
     views,

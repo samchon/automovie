@@ -13,29 +13,47 @@ import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 
 /** Typed clinical controls derived from the public pose and the canonical joint/channel table. */
 export namespace AutoMovieHumanRigControls {
-  /** Admit a drawing/asset string at the explicit canonical Human-joint boundary. */
+  /**
+   * Admit an exact canonical Human joint name from a string. Returns the input
+   * spelling as the joint name. Throws for an unregistered value.
+   */
   export function joint(value: string): AutoMovieHumanJointName {
     if (!isJoint(value))
       throw new Error(`Unknown canonical Human joint: ${value}`);
     return value;
   }
-  /** Check exact canonical Human joint identity without preparing a body. */
+  /**
+   * Check whether a string names a registered Human joint. Use this type guard
+   * when an unknown value should return false.
+   */
   export function isJoint(value: string): value is AutoMovieHumanJointName {
     return JOINTS.has(value);
   }
-  /** Admit an angular channel from untyped input; jaw millimetres remain a distinct API. */
+  /**
+   * Admit an exact Human angular pose path from a string. Returns the path in
+   * clinical degrees. Use millimetreBounds for the separate jaw distances.
+   * Throws for an unregistered angular path.
+   */
   export function channel(value: string): AutoMovieHumanPoseDegreeChannel {
     if (!isChannel(value))
       throw new Error(`Unknown Human degree channel: ${value}`);
     return value;
   }
-  /** Check exact registered angular pose paths; no spelling aliases or invented knobs. */
+  /**
+   * Check whether a string names a registered angular Human pose path. The
+   * type guard returns false for a jaw distance path or an unknown spelling.
+   */
   export function isChannel(
     value: string,
   ): value is AutoMovieHumanPoseDegreeChannel {
     return ANGLES.has(value);
   }
-  /** Read the canonical degree interval; an optional current pose applies FK's flexion-dependent tibial interval. */
+  /**
+   * Read the limits of a registered angular control, in degrees. For knee
+   * rotation, a supplied pose scales both endpoints by the same-side flexion
+   * divided by 90 and bounded to [0, 1]. Without a pose, returns the nominal
+   * interval. Throws for an unknown angular path.
+   */
   export function bounds(
     path: AutoMovieHumanPoseDegreeChannel,
     pose?: IAutoMovieHumanPose,
@@ -61,7 +79,10 @@ export namespace AutoMovieHumanRigControls {
         : 1;
     return { minimum: row.minimum * scale, maximum: row.maximum * scale };
   }
-  /** Read canonical jaw millimetre bounds without admitting a jaw path as degrees. */
+  /**
+   * Read the inclusive millimetre limits for a registered jaw travel path.
+   * Throws for a path outside the jaw distance catalogue.
+   */
   export function millimetreBounds(
     path: AutoMovieHumanPoseMillimetreChannel,
   ): IAutoMovieHumanRigControls.IMillimetreBoundsResult {
@@ -70,17 +91,11 @@ export namespace AutoMovieHumanRigControls {
     return { minimum: row.minimum, maximum: row.maximum };
   }
   /**
-   * Read one canonical scalar after the supplied evaluation's clamp receipt. Angular paths retain degrees and jaw paths retain millimetres. Omitted controls mean clinical neutral, zero. A matching applied value overrides the request without recomputing any clinical bound. The caller supplies the exact pose and clamps from the same evaluation; this reader verifies receipt consistency, not its provenance or physical admission.
-   *
-   * Unknown paths, malformed/nonfinite scalars, duplicate receipt paths and receipt requests unequal to this pose throw without changing inputs.
-   *
-   * @evidence contracts/common.md#principled-implementation The existing canonical compiled scalar reader supplies each requested degree or millimetre value, including omitted neutral zero. Every clamp must address a canonical path, match that pose's request and report a finite changed applied scalar; the selected applied value takes precedence without a second bound calculation.
-   * @evidence contracts/common.md#clear-and-simple-design One typed getter reuses the existing channel catalogue and scalar traversal. It returns a scalar rather than introducing a pose, rate or motion schema, and the caller owns evaluation provenance and time differencing.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No joint or consumer has a substituted value. Neutral zero belongs only to omitted canonical controls; malformed input or inconsistent receipts throw, and the getter neither invents a clamp nor certifies a supplied receipt's origin.
-   * @evidence contracts/common.md#meaningful-documentation States canonical degree/millimetre units, omitted neutral semantics, applied precedence, same-evaluation premise, receipt validation and lack of physical/provenance certification or mutation.
-   * @evidence contracts/performance.md#efficient-algorithms Reads one selected fixed-depth path and scans C clamp rows once, reading their canonical fixed-depth paths to verify the pose association; time and temporary path-identity storage are O(C).
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The existing body-independent channel catalogue and compiled paths are reused, but current pose and receipt verdicts are not cached across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The local seen-path set is released on return and only a number escapes; no pose, receipt, evaluator or external resource is retained.
+   * Read the applied value of one Human pose control in clinical degrees or
+   * jaw millimetres. Supply the original pose and clamp records from the same
+   * evaluation. An omitted control reads as zero. Validates every clamp record
+   * and throws for an unknown path, malformed value, duplicate path or a
+   * receipt inconsistent with the pose.
    */
   export function readApplied(
     pose: IAutoMovieHumanPose,
@@ -114,10 +129,11 @@ export namespace AutoMovieHumanRigControls {
     return value;
   }
   /**
-   * Select a small canonical anatomical chain. Arm includes girdle through
-   * forearm; leg includes hip, knee rotation, ankle and hind/midfoot. Digits
-   * have separate bounded chains. Returns owned paths and validates unknown
-   * JavaScript requests rather than silently selecting a default side.
+   * Select the ordered angular paths of a named anatomical chain. Use the
+   * person's own side for a sided chain. An arm stops at the forearm. A leg
+   * includes hip, knee, ankle, hindfoot and midfoot. Fingers and toes have
+   * individual chains. Returns a fresh list and throws for unknown, empty or
+   * oversized selections.
    */
   export function chain(
     selection: IAutoMovieHumanAnatomicalChain,
@@ -179,13 +195,10 @@ export namespace AutoMovieHumanRigControls {
     return result;
   }
   /**
-   * Interpolate every canonical clinical scalar into an independent pose.
-   * Missing controls mean clinical neutral (zero). Angular channels interpolate
-   * their stated degrees, including rotation without a shortest-arc wrap; jaw
-   * channels interpolate millimetres. This carries articulation only: world
-   * placement, support, collision and FK remain the consumer's responsibility.
-   * Finite values and a closed-unit weight are required. Canonical channel
-   * bounds are still applied by the public evaluator, not silently enlarged.
+   * Linearly blend two poses over a finite weight in [0, 1]. Omitted controls
+   * contribute zero. Angular values interpolate their stated degrees and jaw
+   * travel interpolates millimetres. Returns a fresh pose. Throws for an
+   * invalid weight or a malformed or nonfinite input control.
    */
   export function blend(
     from: IAutoMovieHumanPose,

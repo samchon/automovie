@@ -8,28 +8,25 @@ import type {
   IAutoMovieRecoverySupportFitPolicy,
 } from "@automovie/interface";
 
-import {
-  fitRecoveryImageLoft as fitImageLoftOperation,
-} from "./internal/fitRecoveryImageLoft";
-import {
-  fitRecoveryImageSupportLoft as fitSupportLoftOperation,
-} from "./internal/fitRecoveryImageSupportLoft";
+import { fitRecoveryImageLoft as fitImageLoftOperation } from "./internal/fitRecoveryImageLoft";
+import { fitRecoveryImageSupportLoft as fitSupportLoftOperation } from "./internal/fitRecoveryImageSupportLoft";
 
-/** Fit image observations into the package's supported Recovery loft families. */
+/** Fits measured image supports to saved lateral loft recipes. */
 export namespace AutoMovieRecoveryFitting {
   /**
-   * Infer aligned elliptical sections from calibrated horizontal silhouette
-   * supports. At each common physical Y, midpoint = cos(a) centreX + sin(a)
-   * centreZ and halfWidth squared = cos(a) squared radiusX squared + sin(a)
-   * squared radiusZ squared. These are support-function constraints; matching the
-   * left or right contour across views as a material point would be incorrect.
-   * Three distinct squared support directions permit an overdetermined family
-   * check. Passed checks remain conditional on the stated ellipse prior and
-   * supplied rigid camera calibration. Different row charts use piecewise linear
-   * interpolation only within their common measured interval. No endpoint
-   * extrapolation, inferred cap or unseen concavity is generated. Increasing
-   * uniform cubic spline spaces are tried in order until every compared support
-   * meets the pixel budget or maxSpans is exhausted.
+   * Fits the centres and radii of aligned elliptical sections from measured
+   * silhouette supports.
+   *
+   * Supply at least three calibrated views with separated squared support
+   * directions and a common measured height interval. The policy supplies
+   * finite positive pixel tolerance, rank thresholds in (0, 1), and positive
+   * safe-integer view, row and span limits. The first qualifying cubic spline
+   * is saved in metres.
+   *
+   * A successful fit is partial. It infers an open lateral surface within the
+   * measured interval under the ellipse prior. Caps and interior remain
+   * unobserved. Admission or exhausted fitting returns a refusal. A
+   * cancellation request or callback failure has its own terminal status.
    */
   export function fitImageLoft(
     observation: IAutoMovieRecoveryImageObservation,
@@ -40,13 +37,18 @@ export namespace AutoMovieRecoveryFitting {
   }
 
   /**
-   * Fit compact continuous support profiles from supplied-camera image envelopes.
-   * Every view supplies two oriented inequalities, not a corresponding material
-   * contour. Increasing common cubic spaces are tried in order. Both offset fits
-   * and the implied polygon's supports must meet every common-domain observation;
-   * engine admission qualifies feasible active-boundary changes before transfer.
-   * The finite-view section hull cannot identify hidden concavity or interior.
-   * Segmentation/calibration uncertainty prevents a certified true enclosure.
+   * Fits continuous convex support profiles from calibrated image envelopes.
+   *
+   * Each view contributes two oriented supports across the common measured
+   * height interval. The policy supplies view, row and span budgets, a finite
+   * positive pixel tolerance and a spline-rank threshold in (0, 1). The
+   * accepted spline and its induced polygon satisfy the observed supports.
+   * Engine generation controls qualify the resulting boundary changes.
+   *
+   * Success returns a partial saved loft in metres. Hidden concavity, caps and
+   * interior remain unresolved, and enclosure depends on segmentation and
+   * camera calibration. Invalid or exhausted fits refuse with diagnostics.
+   * Cancellation and callback failure preserve their own terminal statuses.
    */
   export function fitSupportLoft(
     observation: IAutoMovieRecoveryImageObservation,

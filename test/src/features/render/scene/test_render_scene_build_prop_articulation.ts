@@ -25,6 +25,10 @@ const PLACEMENT_TOLERANCE: number = 0;
  * 2. A turn of the mounted joint moves its part from the preserved position.
  *    Restoring after a frame restores the parent and child transforms.
  * 3. A built model missing the claimed native part refuses by part id.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the reversed parent declaration order, preserved bind frame, joint rotation, reset and missing part result.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the articulation through the public SceneLayout method, inspects its actual attached graph, changes the parent quaternion and calls restore. A model with an empty parts map exercises the owner's refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The authored model offset and staged translation give world origin (12, 3, 2). Replacing the initial half turn with identity rotates the part around the staged joint to (10, 3, -6). The independently specified local hinge translation and unit scale must return on restore.
  */
 export function test_render_scene_build_prop_articulation(): void {
   const identity: IAutoMovieTransform = {

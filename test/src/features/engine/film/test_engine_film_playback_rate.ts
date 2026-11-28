@@ -26,6 +26,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 3. A repeated event follows each play.
  * 4. Default playback retains the legacy record. Invalid rates, nonrepresentable
  *    output spans and overlaps longer than the retimed entry are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give both rates, per-shot clocks in the dissolve, repeated event timing, legacy compatibility and refused numeric inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test cuts and resolves the same source twice at different rates. It reads runtime, render frames, local shot and blend clocks and events, then exercises default and malformed rate cases.
+ * @evidence contracts/development/testing.md#independent-expectations The two-second source takes one output second at 2x and four at 0.5x. A half-second overlap leaves 4.5 seconds and 18 frames at four fps. The same source event must be projected once for each play using its own rate.
  */
 export function test_engine_film_playback_rate(): void {
   const handoff: IAutoMovieInteractionEvent = {

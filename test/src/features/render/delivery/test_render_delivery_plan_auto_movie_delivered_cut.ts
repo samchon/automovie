@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *    frame.
  * 2. An entry passed over before any frame reaches it gets the empty range.
  * 3. A timeline with no entry is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Maps each cut entry to its delivered frame interval, including a boundary on an exact frame and an entry with no sample.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls delivered-cut planning on a four-frame clock, a skipped entry, and an empty timeline.
+ * @evidence contracts/development/testing.md#independent-expectations Time one maps to frame two on the half-second grid. The two explicit half-open ranges and the skipped empty range pin frame ownership.
  */
 export function test_render_delivery_plan_auto_movie_delivered_cut(): void {
   const entry = (

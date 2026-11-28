@@ -29,6 +29,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A hand on the branch 1 m out, sharing 70 g / 4 = 171.6 N, is refused on
  *    `branch` where the branch bears 100 N times its half length over the
  *    reach, 100 N, and admitted where it bears 1000.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines grouping of authored hold changes, their event labels and admission under branch load.
+ * @evidence contracts/development/testing.md#behavioral-verification Expands a four-contact route through taking, foot move and release, and repeats one branch reach with two strength fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations The exact contact counts are 4, 5, 5 and 4. A quarter of 70g is about 171.6 N, above the first branch's 100 N capacity and below the stronger one.
  */
 export function test_motions_climbing_tree_climb_route_expand(): void {
   const hold: (

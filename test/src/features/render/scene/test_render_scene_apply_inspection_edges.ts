@@ -26,6 +26,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    sides.
  * 6. While and after edges are drawn, no material's `wireframe` flag changes, and
  *    `restore` leaves the scene with its own children.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names surface modes, part selection, measured edge and open-edge counts, indexing parity and material preservation.
+ * @evidence contracts/development/testing.md#behavioral-verification Requests edge marks on typed in-memory cubes and a quad. Reads drawn segment endpoints, colors, selected paths, masks, legend and wireframe flags. Compares indexed geometry with its expanded form.
+ * @evidence contracts/development/testing.md#independent-expectations A triangulated cube has 12 outer edges and six face diagonals. One split quad has five distinct sides and four boundary edges. The distant cube lies outside the selected cube's coordinates. Matching geometry supplies the same endpoint set regardless of indexing or visible faces.
  */
 export function test_render_scene_apply_inspection_edges(): void {
   const EDGE: number = 0x2b3a67;

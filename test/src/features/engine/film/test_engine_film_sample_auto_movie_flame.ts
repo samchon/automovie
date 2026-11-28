@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A small flame's sampled vertical envelope is exactly [0, height]. Its
  *    meridian area is positive and its seeded mesh is identical after a seek.
  * 3. A 1900 kelvin source has ordered red, green and blue channels.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the selected Heskestad inputs and rounding bound, the seeded mesh envelope and seek behavior, and warm spectral ordering.
+ * @evidence contracts/development/testing.md#behavioral-verification The test evaluates the height and puffing calculations, samples the actual flame region and visits other times before repeating the same sample. It checks area, bounds, deterministic geometry and the source color.
+ * @evidence contracts/development/testing.md#independent-expectations The independent Heskestad formula gives 0.43 metres at 32 kW and -0.275 at 1 kW for the half-metre bed. One-quarter metre gives 3 Hz by the documented power law. A 1900 K source has red above green above blue.
  */
 export function test_engine_film_sample_auto_movie_flame(): void {
   const correlationRoundoff: number = 8 * Number.EPSILON;

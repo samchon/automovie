@@ -146,17 +146,29 @@ export namespace IAutoMovieInspectionDiagnostics {
     readonly unit: string;
   }
 
-  /** One checked, intentionally excluded, deferred or unsupported obligation. */
-  export type ICoverage = {
+  /** Producer identity, addressed scope and policy of one coverage obligation. */
+  export interface ICoverageObligation {
     /** Stable name of the checker that owns the obligation. */
     readonly check: string;
 
     /** Checker-owned identity of the inspected item or pair. */
     readonly key: string;
 
+    /**
+     * Canonical paths the producer explicitly addressed for this obligation.
+     * Absent when only a layer, a group or a source-wide check is known.
+     */
+    readonly paths?: readonly string[];
+
+    /** Whether a collision check read a placed pose or motion between poses. */
+    readonly basis?: "static" | "swept";
+
     /** Whether delivery requires resolution of this obligation. */
     readonly required: boolean;
-  } & (
+  }
+
+  /** One checked, intentionally excluded, deferred or unsupported obligation. */
+  export type ICoverage = ICoverageObligation & (
     | { readonly status: "checked" }
     | {
         readonly status: "deferred" | "unsupported" | "excluded";

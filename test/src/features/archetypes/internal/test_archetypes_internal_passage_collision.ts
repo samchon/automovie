@@ -27,6 +27,10 @@ const MINIMUM_METRES: number = MINIMUM_SECONDS ** 2 + Number.EPSILON;
  *    although all three observations are outside the margin.
  * 3. Clearance (t − 1)² with a 9/16 margin groups three violating observations
  *    into one conflict from 1/4 to 7/4. A zero margin admits an exact tangent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the reversed hull order, outside corner, hidden clearance minimum and exact tangent.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads real hull separation and calls the interval search with analytic in-memory clearance curves.
+ * @evidence contracts/development/testing.md#independent-expectations Orthogonal unit differences yield square-root-of-two clearance. The stated quadratic functions cross their margins at the listed times and distinguish an exact tangent.
  */
 export function test_archetypes_internal_passage_collision(): void {
   const square: IAutoMovieVector3[] = [

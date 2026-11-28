@@ -33,6 +33,10 @@ import { vclose } from "../../../internal/vclose";
  * 1. The landing goal takes the final stance's fixed ball position.
  * 2. Mid-stance retains that contact while the foot is turning.
  * 3. The full leg reconstructs the contact with the prepared knee branch.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the dismount foot's fixed ball contact as its pose transfers from touchdown to standing.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the prepared floor goal for a requested shifted ankle, samples intermediate turn and reconstructs the full limb using its branch.
+ * @evidence contracts/development/testing.md#independent-expectations The final stance defines the independently fixed ball point. It remains within 1 mm after reconstruction while touchdown and standing foot rotations differ.
  */
 export async function test_motions_mounted_dismount_floor(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

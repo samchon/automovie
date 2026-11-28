@@ -6,6 +6,7 @@ import type {
   IAutoMovieRecoveryImageFeaturesExtractionOperation,
 } from "@automovie/interface";
 
+import { countRecoveryImageDescriptorComparisons } from "./countRecoveryImageDescriptorComparisons";
 import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
@@ -29,9 +30,13 @@ export function observeRecoveryCameraSet(
   checkpoint("image-features", views.length, views.length);
   let descriptorComparisons: number = 0;
   for (let first: number = 0; first < views.length; first++)
-    for (let second: number = first + 1; second < views.length; second++)
+    for (let second: number = first + 1; second < views.length; second++) {
+      const firstCount: number = features[first]!.points.length,
+        secondCount: number = features[second]!.points.length;
       descriptorComparisons +=
-        2 * features[first]!.points.length * features[second]!.points.length;
+        countRecoveryImageDescriptorComparisons(firstCount, secondCount) +
+        countRecoveryImageDescriptorComparisons(secondCount, firstCount);
+    }
   const pairCount: number = (views.length * (views.length - 1)) / 2;
   if (descriptorComparisons > maximumComparisons)
     throw new Error("camera-map: aggregate descriptor pair budget exhausted");

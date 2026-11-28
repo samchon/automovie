@@ -22,6 +22,10 @@ import { nclose } from "../../internal/nclose";
  *    camera dollied 1 m toward the mark, with a forward of length 3, resolves 2
  *    m; a mark 0.5 m to the side does not change the depth.
  * 4. A mark behind the camera resolves null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name intent boundaries, aperture and target prerequisites, projected depth and a behind-camera refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves actual lens settings at sampled times for paired intents and focuses. It varies prior time, missing options, camera position, direction length and an off-axis target.
+ * @evidence contracts/development/testing.md#independent-expectations Intent starts at zero and two seconds select the authored f/2.8 and f/4 respectively. A normalized forward dot product gives depth, so one metre of forward camera motion reduces a three-metre depth to two and a side offset leaves that depth unchanged.
  */
 export function test_engine_film_camera_lens_resolve(): void {
   const intent: (

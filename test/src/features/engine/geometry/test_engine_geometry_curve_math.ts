@@ -31,6 +31,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 6. `angular` of four equal points over equal widths has zero handles; `spans`
  *    with zero handles over four points at x = 0, 1, 2, 3 gives [p, p, next,
  *    next], the last span wrapping to the first.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes vector ownership, Hermite conversion, widths and derivatives, spline splits and closing spans.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises each vector and cubic owner with a straight four-control net and with invalid width or control counts.
+ * @evidence contracts/development/testing.md#independent-expectations The net represents x = 3t. Its derivative scales inversely with chart width, and its half split and width partition follow directly from this line.
  */
 export function test_engine_geometry_curve_math(): void {
   const p = (x: number, y: number, z: number): AutoMovieVector3Tuple => [

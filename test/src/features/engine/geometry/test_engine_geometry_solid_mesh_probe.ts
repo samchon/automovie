@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    unit in the last place above the first edge (no double lies between them),
  *    no probe beside the first edge is admitted: the probe still stands inside
  *    the square, and not between the first edge and the sliver.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names an interior square probe and the nearly blocked first edge, including the alternative-edge requirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the actual face-probe owner with and without the one-ULP sliver and checks the resulting point against the square.
+ * @evidence contracts/development/testing.md#independent-expectations No binary64 ordinate lies between 1 and its next value. The first corridor cannot hold a representable interior sample, but other square edges still can.
  */
 export function test_engine_geometry_solid_mesh_probe(): void {
   const square: [number, number][] = [

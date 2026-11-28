@@ -24,6 +24,10 @@ import { throwsError } from "../../internal/throwsError";
  *    reader the grammar composes.
  * 4. The boundary values `from=0`, `window=0`, `tolerance=255`, `smallest` equal
  *    to `longest` and `margin=0` are read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines capture grammar admission for individual keys, composed inspection flags and conflicting requests.
+ * @evidence contracts/development/testing.md#behavioral-verification Parses malformed numbers, enum/name/view/text inputs and duplicate intent pairs, then passes the explicitly inclusive boundaries.
+ * @evidence contracts/development/testing.md#independent-expectations Authored thresholds accept 0 and 255 where specified, while one over tolerance refuses. Independent invalid fixtures require the offending values and shared intent keys.
  */
 export function test_render_capture_parse_capture_plan_request(): void {
   const refuses: (text: string, fragments: string[]) => boolean = (

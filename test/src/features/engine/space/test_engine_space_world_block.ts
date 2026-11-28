@@ -16,11 +16,9 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  *    bottom beyond contact precision refuses.
  * 4. A decimal base remains admissible when rounding moves it only one ulp.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the grounded box, linked material, model and node placement, exact bounds and each refusal.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the builder directly and observes the primitive dimensions, linked material and node, translated center, all six bounds and separate refusals. Wrong size, center, binding or acceptance of an unrepresentable span fails.
- * @evidence contracts/development/testing.md#independent-expectations A 3 by 4 by 5 box above (8,1,8) has center (8,3,8) and corners (6.5,1,5.5) and (9.5,5,10.5). Those integer and half-metre values are exact binary numbers. IEEE double spacing at 2^54 eliminates the authored one-metre width.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers valid unequal dimensions, zero width, NaN translation, positive width whose two corners round together and malformed color.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous test owns resident inputs and reads the builder's returned model, node and bounds records.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the placed model and bounds for ordinary, coarse-coordinate, and decimal bases, plus invalid geometry and color.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieEngineWorld.block` with authored records and reads its box size, model and material links, node center, and world bounds. Each invalid size, offset, or color is checked separately against its diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations A 3 by 4 by 5 m box with base (8, 1, 8) has center (8, 3, 8) and corners (6.5, 1, 5.5) and (9.5, 5, 10.5). Binary64 rounding at 2^53 puts the center of the 6 m box at base plus 4 and its top at base plus 8. At 2^54 the 1 m width cannot separate its edges. The 0.3 m base shifts by one unit in its last place when reconstructed from the represented center 0.4.
  */
 export function test_engine_space_world_block(): void {
   const input: IAutoMovieWorldBlock.IInput = {

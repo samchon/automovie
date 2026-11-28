@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. The smooth ring's limit is (16 C + 4 sum E + sum D) / 36 = (0, 0, 4/9) within
  *    1e-12, and its tangents span the xy plane: their unit cross product is (0,
  *    0, +-1) within 1e-9.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the regular one-ring step, persistent crease, decaying sharpness and eigenbasis limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps actual smooth and creased one-rings, then computes the limit point and tangent frame for the regular ring.
+ * @evidence contracts/development/testing.md#independent-expectations The stated Catmull-Clark averages give the diagonal, edge and centre points. The smooth valence-four limit gives centre z = 4/9, and symmetry leaves an XY tangent plane.
  */
 export function test_engine_geometry_subdivision_ring(): void {
   const ring = (sharpness: number[]): IAutoMovieSubdivisionRing => ({

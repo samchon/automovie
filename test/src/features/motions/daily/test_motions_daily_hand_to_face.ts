@@ -1,4 +1,5 @@
-import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHandToFaceRows, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 import {
   HumanTrunk
 } from "../../../../../packages/motions/src/everyday/internal/HumanTrunk";
@@ -20,6 +21,10 @@ import {
 import {
   wipeTears
 } from "../../../../../packages/motions/src/daily/internal/wipeTears";
+import { AutoMovieMotionHumanTouchEffector } from "../../../../../packages/motions/src/compose/internal/AutoMovieMotionHumanTouchEffector";
+import { handToFacePhone } from "../../../../../packages/motions/src/daily/internal/handToFacePhone";
+import { HumanColliders } from "../../../../../packages/motions/src/posture/internal/HumanColliders";
+import { HumanHand } from "../../../../../packages/motions/src/posture/internal/HumanHand";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -195,20 +200,55 @@ namespace part_rows {
   }
 }
 
+async function checkPhoneSupport(): Promise<void> {
+  const row = handToFaceRows.ROWS.phone;
+  for (const name of ["m-average", "f-small"] as const) {
+    const body = await humanFixtureBody(name);
+    for (const side of ["left", "right"] as const) {
+      const joints: IAutoMovieJointPose[] = Object.entries(HumanHand.shape(side, row.effector.shape)).map(
+        ([bone, angles]): IAutoMovieJointPose => ({ bone: bone as AutoMovieHumanoidBone, flexion: angles![0], abduction: angles![1], twist: angles![2] }),
+      );
+      const requested: Set<AutoMovieHumanoidBone> = new Set(joints.map((joint) => joint.bone));
+      requested.add(side === "left" ? "leftHand" : "rightHand");
+      const bones = poseBones(body, { skeleton: body.skeleton.id, root: null, joints }, undefined, requested);
+      const ends: number[] = HumanColliders.placed(body, bones).flatMap((part) =>
+        part.shapes.map((shape) => AutoMovieEnginePhysics.physicalShapeBounds(part.pose, shape).min.y),
+      );
+      const tool = handToFacePhone(body, side, row.effector);
+      const point: IAutoMovieVector3 = AutoMovieMotionHumanTouchEffector.point(body, bones, side, tool);
+      const stated: number = body.measure.hand * row.effector.tool!.palm!;
+      TestValidator.predicate(
+        name + " " + side + " implied phone stands beyond the actual palm-side skin",
+        nclose(Math.min(...ends) - point.y, stated, 1e-9),
+      );
+      TestValidator.predicate(
+        name + " " + side + " implied handset uses the same laid hand directions",
+        tool.shape === row.effector.shape && tool.facing === row.effector.facing && tool.along === row.effector.along,
+      );
+    }
+  }
+}
+
 /**
- * `handToFace`'s unit contract: its regions, sheet, mirroring and drinkables.
+ * Check face-region and held-sheet target placement and preset dispatch.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `rows`: the cover face and wipe tears rows ride hand to face.
- * - `hand_to_face_region`: `handToFaceRegion` reads where a hand-to-face task
- *   aims a hand:
- * - `hand_to_face_sheet`: `handToFaceSheet` places a held sheet where the holding
- *   hand, its upper arm hanging and its forearm swung up about the elbow, meets
- *   the reading distance from the eyes (`READING`, 0.362 m, Bababekova et al.
+ * 1. Level the mouth normal while preserving its point. When the preset has
+ *    no region, use the held-sheet target.
+ * 2. Place the sheet at reading distance in the right shoulder plane facing
+ *    the eyes, and check the minimum head flexion.
+ * 3. Identify the cover-face and wipe-tears rows by their own names and
+ *    shared family.
+ * 4. Place the unheld phone beyond the posed hand's palm-side support on both hands.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the displayed surface, anatomical frame, two typed presets and implied phone support.
+ * @evidence contracts/development/testing.md#behavioral-verification The region and sheet readers use a posed canonical body, and the preset check inspects the registered rows. The phone case poses both hands for the two stored bodies and reads the actual effector point from their resolved bones.
+ * @evidence contracts/development/testing.md#independent-expectations The face normal is reconstructed by horizontal projection. The measured eyes and shoulder supply distance, plane and facing expectations. The world-axis collider bounds of the posed hand give the phone's support plane independently of the support mapping used by the law.
  */
 export async function test_motions_daily_hand_to_face(): Promise<void> {
   await part_hand_to_face_region.verify();
   await part_hand_to_face_sheet.verify();
   part_rows.verify();
+  await checkPhoneSupport();
 }

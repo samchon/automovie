@@ -31,8 +31,15 @@ import { AutoMovieEngineLoftAdmissionError } from "./AutoMovieEngineLoftAdmissio
  */
 export namespace AutoMovieEngineConstructionProfile {
   /**
-   * Prepare immutable original owners; malformed domains/references throw
-   * before publication.
+   * Prepare the original curves and regions on their retained station and clock
+   * intervals. The result copies the declaration and borrows the live source
+   * functions. The physical millimetre span and original clock intervals must
+   * be finite and increasing. Guide clocks must lie on their named pieces.
+   *
+   * @param source Pure profile declaration and the original function owners.
+   * @returns Prepared atlas, charts and profile readers.
+   * @throws AutoMovieEngineLoftAdmissionError for malformed domains, guide
+   *   clocks or unavailable source references.
    */
   export function create(
     source: IAutoMovieConstructionProfileSource,
@@ -42,7 +49,7 @@ export namespace AutoMovieEngineConstructionProfile {
     );
     if (
       !definition.name ||
-      !interval(definition.domain) ||
+      !interval([1000 * definition.domain[0], 1000 * definition.domain[1]]) ||
       definition.plane !== source.plane.id ||
       !definition.revisions.source ||
       !definition.revisions.constraints ||
@@ -127,8 +134,10 @@ export namespace AutoMovieEngineConstructionProfile {
         !guide.id ||
         guideIds.has(guide.id) ||
         record === undefined ||
-        guide.clock < record.piece.clock[0] ||
-        guide.clock > record.piece.clock[1]
+        !(
+          guide.clock >= record.piece.clock[0] &&
+          guide.clock <= record.piece.clock[1]
+        )
       )
         fail(`Original guide ${guide.id} has no valid piece/clock address.`);
       guideIds.add(guide.id);
@@ -196,6 +205,7 @@ export namespace AutoMovieEngineConstructionProfile {
           current !== undefined &&
           u >= current.surface.domain![0] &&
           u <= current.surface.domain![1] &&
+          Number.isFinite(v) &&
           (current.surface.period !== undefined || (v >= 0 && v <= 1))
         );
       },
@@ -208,8 +218,10 @@ export namespace AutoMovieEngineConstructionProfile {
         if (
           current === undefined ||
           current.surface.period !== undefined ||
-          u < current.surface.domain![0] ||
-          u > current.surface.domain![1] ||
+          !(
+            u >= current.surface.domain![0] && u <= current.surface.domain![1]
+          ) ||
+          !Number.isFinite(v) ||
           (v >= 0 && v <= 1)
         )
           return null;
@@ -231,8 +243,10 @@ export namespace AutoMovieEngineConstructionProfile {
       phase: AutoMovieEngineConstructionProfilePhase.create(source, definition),
       section: (station: number): readonly string[] => {
         if (
-          station < 1000 * definition.domain[0] ||
-          station > 1000 * definition.domain[1]
+          !(
+            station >= 1000 * definition.domain[0] &&
+            station <= 1000 * definition.domain[1]
+          )
         )
           fail("Original section query is outside its retained domain.");
         const active: string[] = [];
@@ -273,8 +287,7 @@ export namespace AutoMovieEngineConstructionProfile {
         const domain: readonly [number, number] =
           region!.domain ?? definition.domain;
         if (
-          coordinate < 0 ||
-          coordinate > 1 ||
+          !(coordinate >= 0 && coordinate <= 1) ||
           !regionPieces.get(regionId)!.has(pieceId) ||
           !atlas.kept(record!.index, station, coordinate) ||
           station < 1000 * domain[0] ||
@@ -333,7 +346,8 @@ interface Piece {
  * clocks.
  */
 function interval(value: readonly [number, number]): boolean {
-  return value[1] > value[0];
+  const width: number = value[1] - value[0];
+  return width > 0 && Number.isFinite(width);
 }
 
 /*

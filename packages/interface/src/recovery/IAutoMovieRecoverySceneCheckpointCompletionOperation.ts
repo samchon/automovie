@@ -14,24 +14,18 @@ import type {
 } from "..";
 
 /**
- * Complete a detached scene transaction through growth and full joint geometry.
- * After each fit, newly admissible points/measurements cause another fit. Only
- * strict finite population growth repeats; every fit and linear action is
- * charged. Failure leaves committing or retaining the old checkpoint to caller.
- * An optional observer receives owned complete compact states before and after
- * each joint fit. Observer errors propagate, and ordinary calls retain no
- * trace.
+ * Callable detached scene-checkpoint completion, with optional snapshots around
+ * each numerical fit.
  */
 
 export namespace IAutoMovieRecoverySceneCheckpointCompletionOperation {
   /**
-   * Complete a detached scene transaction through growth and full joint
-   * geometry. After each fit, newly admissible points/measurements cause
-   * another fit. Only strict finite population growth repeats; every fit and
-   * linear action is charged. Failure leaves committing or retaining the old
-   * checkpoint to caller. An optional observer receives owned complete compact
-   * states before and after each joint fit. Observer errors propagate, and
-   * ordinary calls retain no trace.
+   * With the original seed poses active, grow candidate support and refine
+   * compact poses and points in the common gauge. Repeat a fit only after a
+   * qualified population gains points or observations. Charge the shared work
+   * ledger before fitted work. The optional proposal callback receives counts
+   * and the available fit report, and the optional trace receives owned before-
+   * and after-fit states.
    */
 
   export type Operation = (

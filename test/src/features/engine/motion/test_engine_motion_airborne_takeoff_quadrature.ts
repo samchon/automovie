@@ -18,14 +18,17 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A budget of zero over the general measure: the integral is within 4 ulps of
- *    sin 1 (sixteen machine epsilons times its size) and the integrand is read
- *    at most 4 * 1024 + 1 times. Before the test, no estimate met a zero budget
- *    and every panel was split toward machine width.
+ * 1. With a zero general budget, the error is within sixteen machine epsilons
+ *    times sin 1 and the integrand runs at most 4 * 1024 + 1 times. This cap
+ *    detects refinement toward machine-width panels.
  * 2. The same over a separable measure, whose aggregate's own summation roundoff
  *    is charged to the budget: the same bounds.
  * 3. A budget the arithmetic meets, 1e-10: the integral is within it of sin 1 and
  *    read fewer times than at the zero budget.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes general and separable zero-budget refinement, a positive error budget, and limits on integrand reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the take-off quadrature with a counted cosine callback and records both the integral and read count. The general positive-budget run must be cheaper than the general zero-budget run.
+ * @evidence contracts/development/testing.md#independent-expectations The integral of cosine on [0, 1] is sin(1). Both zero-budget values must be within 16 machine epsilons times sin(1) and finish in at most 4,097 reads, a cap derived from the Simpson error's fifth-power dependence on panel width. The positive-budget error must be at most 1e-10.
  */
 export function test_engine_motion_airborne_takeoff_quadrature(): void {
   const BOUND: number = 4 * 1024 + 1;

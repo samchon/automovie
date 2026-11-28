@@ -5,39 +5,45 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * by sex, height and mass at the stated adult age.
  */
 export namespace AutoMovieHumanJointStrength {
-  /*
-   * The adult age the canonical profile represents, years, stated rather than
-   * measured.
+  /**
+   * Adult reference age in years for the stock torque regressions. The model fixes this age at 40 across performers.
    */
   export const AGE: number = 40;
 
-  /*
-   * The person the strength is evaluated for.
+  /**
+   * Inputs to the adult stock joint-strength model. The profile uses the person's
+   * sex to select the regression coefficients and supplies stature in metres and
+   * mass in kilograms. Use the same body's mass for segment distribution and
+   * strength when building a profile.
    */
   export interface IPerson {
-    /*
-     * True for a man.
+    /**
+     * Selects the male regression when true and the female regression when false.
+     * The hip torque measurements that scale with mass share their coefficient
+     * across both branches.
      */
     male: boolean;
-    /*
-     * Stature, metres.
+    /**
+     * Stature in metres for the torque regressions that use height.
      */
     height: number;
-    /*
-     * Body mass, kilograms.
+    /**
+     * Body mass in kilograms for the regression terms and the per-kilogram hip
+     * torque values.
      */
     mass: number;
   }
 
-  /*
-   * A clinical channel's peak torques toward its clinical maximum and minimum,
-   * N m: Harbo et al.'s regressions, McNabb et al.'s per-kilogram means for
-   * the hip's abduction, adduction and rotations, or undefined where neither
-   * measured the motions.
-   * Parameter person: The person.
-   * Parameter bone: The bone the joint moves.
-   * Parameter channel: The clinical channel.
-   * Returns: The two peak torques, or undefined.
+  /**
+   * Read the measured strength model for one clinical joint channel. Both
+   * directions return torque magnitudes in newton-metres. Sided bones share the
+   * same coefficient rows for their anatomical segment.
+   *
+   * @param person Sex branch, stature in metres and body mass in kilograms.
+   * @param bone The humanoid bone that the joint moves.
+   * @param channel The clinical flexion, abduction or twist channel.
+   * @returns Peak magnitudes toward the clinical maximum and minimum, or
+   *   undefined when the sources offer no model for this bone and channel.
    */
   export function of(
     person: IPerson,

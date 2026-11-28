@@ -6,30 +6,33 @@
  */
 export namespace IAutoMovieConstructionPortField {
   /**
-   * A periodic scalar on a clock: its value with two derivatives, the bounds
-   * its controls set on every value, and the bounds of its first derivative.
+   * Periodic scalar field with derivatives in clock radians, whole-turn value
+   * and slope bounds and local value-range bounds. The field's role determines
+   * its output units. Constant fields use the same interface.
    */
   export interface IField {
-    /** The value and its first and second derivatives in the clock, radians. */
+    /**
+     * Value, first derivative and second derivative at a port clock in radians,
+     * in that order.
+     */
     at: (psi: number) => [number, number, number];
 
     /**
-     * Bounds enclosing every value: the extreme controls, since each value is a
-     * convex combination of them.
+     * Lower and upper value bounds across the complete clock cycle, derived
+     * from the periodic cubic's extreme controls.
      */
     bounds: [number, number];
 
     /**
-     * Bounds enclosing every first derivative, per span the extremes of its
-     * quadratic.
+     * Lower and upper first-derivative bounds per radian across all spans, from
+     * the span quadratics.
      */
     slopes: [number, number];
 
     /**
-     * Bounds enclosing every value over a clock interval: the extreme controls
-     * of the spans the interval meets, so an admission can hold a reading
-     * inside a domain where it is read instead of by the whole loop's
-     * extremes.
+     * Value bounds over the included clock spans between from and to, in
+     * radians. The reader uses the local control extrema or the complete
+     * controls when the interval covers the loop.
      */
     range: (from: number, to: number) => [number, number];
   }

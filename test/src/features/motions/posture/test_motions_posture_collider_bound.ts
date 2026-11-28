@@ -36,6 +36,10 @@ const BASE: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
  * 3. A box of half extents (0.1, 0.2, 0.2): radius 0.3, the half diagonal.
  * 4. The corner tetrahedron of edge 0.2: centre (0.05, 0.05, 0.05), radius to its
  *    farthest vertex √0.0275.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a conservative bounding sphere in the collider's own frame by shape kind.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the bounding helper on sphere, capsule, box and tetrahedron inputs with fixed dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Capsule radius is 0.05 + 0.2 = 0.25 m, box half-diagonal is 0.3 m, and direct tetrahedron centroid/distance give radius √0.0275.
  */
 export function test_motions_posture_collider_bound(): void {
   const sphere: IAutoMovieMotionHumanColliders.IBall = HumanColliders.bound({

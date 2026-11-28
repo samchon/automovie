@@ -24,11 +24,9 @@ import path from "node:path";
  *    a mark whose observed clock excludes the selected time. A still decision
  *    covers only one verified frame.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the review file command's implementation with ordinary files and producer-shaped reports, checks receipts and refusals, and exercises the same parser the CLI uses. The installed delivery fixture owns actual browser, encoder and file capture.
- * @evidence contracts/development/testing.md#independent-expectations Uses a 24000/1001 presentation and its integral 1001 native ticks per frame. Authored occurrence bounds, changed bytes and explicit retake times decide the expected result.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts actual and requested time, repeated and ambiguous cuts, current and stale publications, timing and cut gaps, and a scoped named decision against an unsupported flag.
- * @evidence contracts/development/testing.md#execution-ownership A portable filesystem test discovered as test_cli_review_delivery. Each fixture lives in its own temporary folder and starts no external decoder.
- * @evidence contracts/development/common.md#meaningful-documentation Specifies the five outcomes, why timestamp projection is exact and the fixture's host boundary.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the exact decoded clock, repeated cut occurrence, scoped retake, stale publication and unresolved timing cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the file review command and receipt parser on temporary movie and producer-shaped reports. Checks scoped decisions and retakes, exact time and occurrence, unchanged history and refusals for invalid or stale evidence.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the authored 24,000/1001 grid with 1001 native ticks per frame and explicit occurrence intervals. Known file-byte substitutions and literal retake points drive independent stale and boundary expectations.
  */
 export async function test_cli_review_delivery(): Promise<void> {
   const root: string = await fs.mkdtemp(

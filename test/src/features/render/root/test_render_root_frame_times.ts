@@ -11,6 +11,10 @@ import { nclose } from "../../internal/predicates";
  * 1. Two seconds at 30 fps: 60 frames at 0, 1/30, …, 59/30.
  * 2. A fractional frame count rounds before the grid is sampled.
  * 3. A zero or nonfinite rate or duration samples nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Samples encoded frame starts, rounds a fractional count, and returns no samples for invalid rates or durations.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the scrub grid reader at whole and fractional counts, zero boundaries, and infinite inputs.
+ * @evidence contracts/development/testing.md#independent-expectations At 30 fps for two seconds the 60 samples run from 0 to 59/30. The quarter-second fractional case keeps exactly two samples.
  */
 export function test_render_root_frame_times(): void {
   const times: number[] = AutoMovieRenderScrub.frameTimes(30, 2);

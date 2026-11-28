@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    triangles (0, 1, 2) and (3, 2, 1) then share all three edges, each edge
  *    key lists both faces, and each vertex lists both faces.
  * 2. Without aliases the canon is the identity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exact coincidence, edge and vertex membership, and optional identity mode.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds incidence for two triangles sharing geometric vertices, then disables canonical aliases.
+ * @evidence contracts/development/testing.md#independent-expectations The duplicate fourth position maps to vertex zero. Every canonical edge in (0, 1, 2) then has both original face indices.
  */
 export function test_recovery_internal_prepare_mesh_incidence(): void {
   const vertices: [number, number, number][] = [

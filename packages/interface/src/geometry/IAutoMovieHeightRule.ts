@@ -1,80 +1,83 @@
 /**
- * How high the ground is, as a rule rather than a mesh.
+ * Evaluate ground height in metres at a world XZ point.
  *
- * Production terrain (IAutoMovieWorldSurface.height) and scene patches
- * (IAutoMovieSurface.height) share this rule and the engine's surfaceHeightAt
- * evaluator. Their authored records and footprint membership still determine
- * which surface a crowd member or performer queries.
- *
- * Every kind uses stored numbers through surfaceHeightAt. It ignores footprint
- * membership, which the containing surface owns. Engine scene validation checks
- * finite fields, positive lattice pitch, at least two lines per axis and exact
- * sample count; the production world gate is retired. Finite inputs alone do
- * not prevent overflow in coordinate conversion, differences or interpolation.
+ * World terrain and scene surfaces share this rule. Use the containing surface
+ * to check footprint membership and walkability before a bounded query.
  */
-export type IAutoMovieHeightRule =
-  | {
-      /** Flat surface. */
-      kind: "constant";
+export type IAutoMovieHeightRule = IHeightRuleFields<
+  | IAutoMovieHeightRule.IConstant
+  | IAutoMovieHeightRule.IPlane
+  | IAutoMovieHeightRule.IHeightfield
+>;
 
-      /** Finite surface height in meters. */
-      value: number;
-    }
-  | {
-      /** Planar slope: `originHeight + slopeX * x + slopeZ * z`. */
-      kind: "plane";
+// Preserve assignment of each public variant to an unknown-valued dictionary.
+type IHeightRuleFields<Rule> = { [Key in keyof Rule]: Rule[Key] };
 
-      /** Finite plane height at the world origin, in meters. */
-      originHeight: number;
+/** The variants selected by the height rule's `kind` field. */
+export namespace IAutoMovieHeightRule {
+  /** Return the same world Y value at every point. */
+  export interface IConstant {
+    /** Selects constant evaluation. */
+    kind: "constant";
 
-      /** Finite height in meters gained per positive X meter. */
-      slopeX: number;
+    /** Finite world Y in metres. */
+    value: number;
+  }
 
-      /** Finite height in meters gained per positive Z meter. */
-      slopeZ: number;
-    }
-  | {
-      /**
-       * Sampled relief: a regular XZ grid of heights over the surface.
-       *
-       * Constant and plane rules cannot represent varying relief, while this
-       * spelling stores columns * rows height values without a mesh.
-       *
-       * The grid is a sampling lattice whose containing surface separately
-       * declares its footprint. Queries outside the lattice clamp to its edge
-       * rather than extrapolating; the authored lattice must cover the
-       * footprint to avoid edge clamping within that surface.
-       *
-       * Between samples the mathematical rule is bilinear over four surrounding
-       * values, continuous across cell boundaries and reproducing lattice
-       * samples. Height interpolation returns selected endpoints exactly and
-       * uses a weighted sum if a finite pair's difference overflows. Converting
-       * world coordinates to lattice coordinates still uses binary64.
-       * Generators bake their values into this array.
-       */
-      kind: "heightfield";
+  /**
+   * Evaluate `originHeight + slopeX * x + slopeZ * z` in world coordinates. Use
+   * a query range where the products and sum are representable in binary64.
+   */
+  export interface IPlane {
+    /** Selects planar evaluation. */
+    kind: "plane";
 
-      /** Finite world X of sample column zero, in meters. */
-      originX: number;
+    /** Finite world Y at X = 0 and Z = 0, in metres. */
+    originHeight: number;
 
-      /** Finite world Z of sample row zero, in meters. */
-      originZ: number;
+    /** Finite rise in metres per metre of positive X travel. */
+    slopeX: number;
 
-      /** Finite column pitch along +X in meters, strictly above zero. */
-      spacingX: number;
+    /** Finite rise in metres per metre of positive Z travel. */
+    slopeZ: number;
+  }
 
-      /** Finite row pitch along +Z in meters, strictly above zero. */
-      spacingZ: number;
+  /**
+   * Read stored heights on a regular world XZ lattice.
+   *
+   * The reader returns stored heights at lattice knots and bilinearly
+   * interpolates between them. Queries beyond the lattice clamp to its edge.
+   * Cover the intended footprint with the lattice to avoid clamping inside it.
+   * Choose an origin and spacing that give distinct finite knot coordinates in
+   * binary64. Engine world heightfield construction checks these conditions
+   * when baking a callback into the stored samples.
+   */
+  export interface IHeightfield {
+    /** Selects sampled height evaluation. */
+    kind: "heightfield";
 
-      /** Sample columns along +X; an integer of at least two. */
-      columns: number;
+    /** Finite world X of column zero, in metres. */
+    originX: number;
 
-      /** Sample rows along +Z; an integer of at least two. */
-      rows: number;
+    /** Finite world Z of row zero, in metres. */
+    originZ: number;
 
-      /**
-       * Finite sample heights in metres, row-major at row * columns + column,
-       * with exactly columns * rows entries.
-       */
-      samples: number[];
-    };
+    /** Finite spacing along positive X in metres, greater than zero. */
+    spacingX: number;
+
+    /** Finite spacing along positive Z in metres, greater than zero. */
+    spacingZ: number;
+
+    /** Number of columns along positive X, a safe integer of at least two. */
+    columns: number;
+
+    /** Number of rows along positive Z, a safe integer of at least two. */
+    rows: number;
+
+    /**
+     * Finite world Y samples in metres, with exactly `columns * rows` entries.
+     * The sample at column X and row Z is `samples[Z * columns + X]`.
+     */
+    samples: number[];
+  }
+}

@@ -25,11 +25,9 @@ import type {
  * 4. Original interpolation controls and feature height/shift nets remain the same objects.
  * 5. Failed factories and one invalid scalar remain named, while other original readings survive without physical2.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual new source/view boundaries with one small made source, never a person constructor, renderer, reference file or realization.
- * @evidence contracts/development/testing.md#independent-expectations Literal source origin10/s/2mm and extreme2mm plus touch0.25mm give the independently expected world guide12/s/2.25mm; required front/left/top and distinct unit labels come from the inspection contract.
- * @evidence contracts/development/testing.md#distinguishing-cases The valid asymmetric source accompanies a duplicate-station scalar, a throwing factory, unavailable axis2 and malformed source-only selections in one accumulated round.
- * @evidence contracts/development/testing.md#execution-ownership Exercises source definitions and CLI/view selection only, with no whole person, filesystem, source solver or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Five numbered scenarios distinguish original controls, evaluated points, physical2 and successful raw/skin capture.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the source observation, view selection and CLI admission owners on typed source definitions, including a duplicate-station outline and a throwing factory. It checks observed points, unit labels and original record identities.
+ * @evidence contracts/development/testing.md#independent-expectations The source origin is (10, s, 2) mm. The 2 mm extreme and 0.25 mm touch offset give (12, s, 2.25) mm for the world guide. Front, left and top and the mm, rad and share labels are independently fixed by the inspection contract.
+ * @evidence contracts/development/common.md#meaningful-documentation Original source controls, asymmetric guide coordinates and unit labels are checked alongside view selection, missing scalar evidence and independent factory failures.
  */
 export function test_human_capture_originals(): void {
   const failures: string[] = [];

@@ -11,23 +11,20 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeFingerRingData } from "./internal/AutoMovieArchetypeFingerRingData";
 
-/** Constructs the finger ring archetype from its recipe. */
+/** Constructs a plain finger ring with an axial socket and top pinch. */
 export namespace AutoMovieArchetypeFingerRing {
 /**
- * A finger ring: a plain band slipped along a finger to its base (#4015).
+ * Build a plain ring centred in the model XY plane.
  *
- * The band lies in the `XY` plane around the origin, its hole's axis along
- * `+Z`. `wear` is the hole's centre, its frame's `+Y` along that axis (the
- * model's `+Z`), the way the ring travels along a finger toward the hand, so
- * seating it on a finger lays the axis along the finger; `hold` is the band's
- * top, facing out, where a thumb and a fingertip pinch it.
+ * The `wear` socket faces along the hole toward `+Z`. The `hold` pinches
+ * the band at its upper side with an aperture equal to wire diameter.
  *
- * @param params Any dimension the author fixes inside its band, and an optional
- *   scene id.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, the middle of each band.
- * @returns The ring.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Optional scene ID and finite inner circumference,
+ *   wire diameter and mass. The ID defaults to `fingerRing`.
+ * @param seed Numeric seed for omitted values. The seedless nominal
+ *   inner circumference is 0.0605 metres, with 0.002 metre wire.
+ * @returns The segmented band with its finger socket and top grip.
+ * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeFingerRing.IParams = {},
@@ -90,15 +87,16 @@ export function create(
 }
 
   /**
-   * The contacts: the hole's centre a finger passes through, and the band's top
-   * a pinch takes.
+   * Axial finger `wear` socket at the hole centre and top `hold` at the band.
    */
   export type Affordance = "wear" | "hold";
 
-  /** The dimensions the author may fix inside their bands. */
+  /**
+   * Nominal inner circumference and wire diameter in metres, and mass in kilograms.
+   */
   export type Dimension = "circumference" | "wire" | "mass";
 
-  /** Each dimension's unit. */
+  /** Units for the circumference, wire diameter and whole ring mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -107,13 +105,17 @@ export function create(
     mass: "kg",
   };
 
-  /** The dimensions fixed by the author, and an optional scene id. */
+  /**
+   * Optional scene ID and finite nominal inner circumference, wire diameter and mass within their bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** A unique scene identifier, defaulting to the family name. */
+    /** Scene object ID, defaulting to `fingerRing`. */
     id?: string;
   }
 
-  /** The sourced bands. */
+  /**
+   * The source bands for inner circumference, wire diameter and gold-band mass.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     circumference: AutoMovieArchetypeBand.metres(0.049, 0.072, AutoMovieArchetypeFingerRingData.SIZE),
     wire: AutoMovieArchetypeBand.metres(0.0015, 0.0025, AutoMovieArchetypeFingerRingData.WIRE),

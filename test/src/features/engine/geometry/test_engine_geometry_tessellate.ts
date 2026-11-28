@@ -24,6 +24,10 @@ import { nclose } from "../../internal/predicates";
  *    and every index inside the vertex range.
  * 4. `tessellateToMesh` of a unit box has 72 position floats, 36 indices and a
  *    null skin.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names fixed box and sphere lattices, indexed primitive coverage and the mesh adapter.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public geometry owner for all six primitive kinds and checks emitted positions, normals, index membership and adapter fields.
+ * @evidence contracts/development/testing.md#independent-expectations Six separately shaded quad faces give 24 vertices and 36 indices. Sphere positions must lie at radius 0.5 and its normals must be unit vectors.
  */
 export function test_engine_geometry_tessellate(): void {
   const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({

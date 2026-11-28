@@ -2,24 +2,43 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** Data and callback contracts shared by the LoftCapSource operations. */
 export namespace IAutoMovieLoftCapSource {
-  /** Immutable source capability for one actual retained closed end. */
+  /**
+   * Original closed end retained from a loft's prepared view source. Retention
+   * binds the pole, nearest principal row, scalar source and actual axis before
+   * readers reuse the record. Keep the original source, retained data and the
+   * corresponding layer unchanged while the cap remains attached.
+   */
   export interface ISource {
-    /** Original closed station in mm. */
+    /** Closed endpoint of the original scalar domain, in station millimetres. */
     station: number;
 
-    /** Unchanged nearest principal row, in mm. */
+    /** Station of the nearest principal layer on this end, in millimetres. */
     adjacent: number;
 
-    /** Actual original axis; value-only axes remain value-only. */
+    /**
+     * Actual view axis used at cap stations. Its value callback supports
+     * position reads. Its optional jet callback supplies physical-station
+     * derivatives when available.
+     */
     axis: IAutoMovieViewPart["axis"];
 
-    /** Independent original world pole value. */
+    /**
+     * Independent [x, y, z] copy of the original closed pole, in world
+     * millimetres.
+     */
     point: [number, number, number];
 
-    /** Exact numeric boundary snapshot; changed producers must re-express it. */
+    /**
+     * JSON snapshot of the adjacent layer's station, coefficient, frame, lift
+     * and section-source binding data. Retain the cap again after changing the
+     * bound layer.
+     */
     boundary: string;
 
-    /** Exact plain scalar snapshot, independent of its retained source record. */
+    /**
+     * JSON snapshot of the prepared scalar view source used to establish
+     * original cap ownership.
+     */
     scalar: string;
   }
 }

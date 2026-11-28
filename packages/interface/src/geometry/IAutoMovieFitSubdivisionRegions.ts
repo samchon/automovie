@@ -5,9 +5,9 @@ import type { IAutoMovieSubdivisionLevel } from "./IAutoMovieSubdivisionLevel";
  * Disjoint source-face fits composed on the joined subdivision domain.
  *
  * Source face and vertex identities survive local crop solves; positions retain
- * cage-local metres and indexed UVs refine globally. The producer checks levels
- * 2 through 6, nonempty disjoint regions and constraint membership; caller
- * checks still cover measurements, intersections and poses.
+ * cage-local metres and indexed UVs refine globally. The fitter admits whole
+ * levels from 2 through 6 and checks each supplied region and its constraints.
+ * The caller still checks measurements, intersections and poses.
  */
 export namespace IAutoMovieFitSubdivisionRegions {
   /**
@@ -38,40 +38,15 @@ export namespace IAutoMovieFitSubdivisionRegions {
     /** Joined original controls and indexed face-varying UV topology, metres. */
     cage: IAutoMovieSubdivisionCage;
 
-    /** Render refinements relative to the source cage, integer 2–6; omitted, 2. */
+    /** Whole refinement levels from 2 through 6, inclusive. Defaults to 2. */
     levels?: number;
 
     /**
-     * Borrowed nonempty disjoint source-face regions; an empty region list
-     * simply returns the uniformly refined original cage with zero fitting
+     * Borrowed source-face regions. Each region is nonempty and disjoint. An
+     * empty list returns a uniformly refined original cage and zero fitting
      * residual.
      */
-    regions: ReadonlyArray<{
-      /**
-       * Source face identities permitted to change; regions may share only
-       * boundaries.
-       */
-      faces: ReadonlySet<number>;
-
-      /**
-       * Initial local-metre generating samples by source vertex; omitted keys
-       * use original cage positions. These samples define the frozen fitting
-       * metric, not hard equality targets.
-       */
-      samples: ReadonlyMap<number, readonly [number, number, number]>;
-
-      /**
-       * Independent finite local-metre hard limit targets by source vertex;
-       * omitted keys impose no limit equation.
-       */
-      limitTargets: ReadonlyMap<number, readonly [number, number, number]>;
-
-      /**
-       * Source control vertices pinned to original positions; the producer
-       * additionally anchors the support collar and shared region boundaries.
-       */
-      anchors: ReadonlySet<number>;
-    }>;
+    regions: ReadonlyArray<IRegion>;
   };
 
   /**
@@ -93,5 +68,33 @@ export namespace IAutoMovieFitSubdivisionRegions {
      * pose validation.
      */
     maximumEqualityError: number;
+  };
+
+  /** Source faces and their borrowed constraints for one local fit. */
+  export type IRegion = {
+    /**
+     * Source face identities permitted to change; regions may share only
+     * boundaries.
+     */
+    faces: ReadonlySet<number>;
+
+    /**
+     * Initial local-metre generating samples by source vertex; omitted keys use
+     * original cage positions. These samples define the frozen fitting metric,
+     * not hard equality targets.
+     */
+    samples: ReadonlyMap<number, readonly [number, number, number]>;
+
+    /**
+     * Independent finite local-metre hard limit targets by source vertex;
+     * omitted keys impose no limit equation.
+     */
+    limitTargets: ReadonlyMap<number, readonly [number, number, number]>;
+
+    /**
+     * Source control vertices pinned to original positions; the producer
+     * additionally anchors the support collar and shared region boundaries.
+     */
+    anchors: ReadonlySet<number>;
   };
 }

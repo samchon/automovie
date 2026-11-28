@@ -134,16 +134,21 @@ namespace part_lie_down_roll_side {
 }
 
 /**
- * `lieDown`'s unit contract: its phases, roll side, blend, floor seat and arm
- * room.
+ * Check the route blend, phase clock and roll side for lowering to the floor.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `lie_down_blend`: `lieDownBlend` prepares one linear joint blend from each
- *   route key to the next (`prepareHumanShapeBlend`):
- * - `lie_down_phases`: `lieDownPhases` lays the lie's clock out:
- * - `lie_down_roll_side`: `lieDownRollSide` names the side a lateral lie rolls
- *   onto, and none for a position that does not roll.
+ * 1. Three hip keys at 0, 40 and 100 degrees produce two blends. The first
+ *    quarter is 10 degrees and the second blend has the specified endpoints.
+ * 2. A seat-to-elbows-to-supine route gives `getDown` , `seatContact` ,
+ *    `elbowsDown` , `supine` and the two-second `settled` hold. A one-key
+ *    prone route has its own arrival and 0.5 s hold.
+ * 3. The left and right lateral destinations select their respective roll
+ *    sides. The prone and supine destinations have no lateral roll.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the route's blend, phase order and lateral destinations.
+ * @evidence contracts/development/testing.md#behavioral-verification The test separates blended articulation, the phase timetable and the destination's side choice.
+ * @evidence contracts/development/testing.md#independent-expectations The expected interpolation follows the authored angles, and the expected phases and sides are listed directly from the fixture routes.
  */
 export async function test_motions_floor_lie_down(): Promise<void> {
   part_lie_down_blend.verify();

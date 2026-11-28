@@ -15,19 +15,18 @@ import { AutoMovieArchetypeMattress } from "./AutoMovieArchetypeMattress";
 import { AutoMovieArchetypePlatformBed } from "./AutoMovieArchetypePlatformBed";
 import type { IArchetypeDispatch } from "../core/internal/IArchetypeDispatch";
 
-/** Constructs the bed archetype from its recipe. */
+/** Replays saved bed variants through the named furniture producers. */
 export namespace AutoMovieArchetypeBed {
 /**
- * Replay a saved bed variant with the original dimensions, identifier and model
- * choices.
+ * Replay a stored platform bed, loose mattress, care bed, crib or bunk.
  *
- * @param params The historic selector and optional fixed settings in the
- *   original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless
- *   defaults.
- * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
- *   outside its admitted range.
+ * @param params Saved kind, scene ID and applicable fixed dimensions.
+ *   Only a loose mattress accepts `size`. The ID defaults to `bed`.
+ * @param seed Numeric seed for free dimensions and the loose mattress
+ *   size. Omit it for band midpoints and a single loose mattress.
+ * @returns Geometry and the selected variant's local contact frames.
+ * @throws {AutoMovieArchetypeRefusal} If the kind, size or a fixed
+ *   dimension is inadmissible for the selected construction.
  */
 export function create(
   params: AutoMovieArchetypeBed.IParams,
@@ -63,31 +62,33 @@ export function create(
   return variants[kind].build(params, seed);
 }
 
-  /** Each saved selector's named producer. */
+  /** Resolves each saved bed kind to the named factory that builds it. */
   export interface IProducers {
-    /** The named producer for the saved `single` selector. */
+    /** Platform bed factory accepting the `single` settings. */
     single: typeof AutoMovieArchetypePlatformBed.create;
 
-    /** The named producer for the saved `double` selector. */
+    /** Platform bed factory accepting the `double` settings. */
     double: typeof AutoMovieArchetypePlatformBed.create;
 
-    /** The named producer for the saved `mattress` selector. */
+    /** Floor mattress factory with an optional catalogue size. */
     mattress: typeof AutoMovieArchetypeMattress.create;
 
-    /** The named producer for the saved `hospital` selector. */
+    /** Hospital bed factory with a patient surface and side bars. */
     hospital: typeof AutoMovieArchetypeHospitalBed.create;
 
-    /** The named producer for the saved `gurney` selector. */
+    /** Caster stretcher factory with a patient surface and side seats. */
     gurney: typeof AutoMovieArchetypeGurney.create;
 
-    /** The named producer for the saved `crib` selector. */
+    /** Crib factory with an enclosed mattress and side grasp bars. */
     crib: typeof AutoMovieArchetypeCrib.create;
 
-    /** The named producer for the saved `bunk` selector. */
+    /** Bunk bed factory with two mattress levels and a guard bar. */
     bunk: typeof AutoMovieArchetypeBunkBed.create;
   }
 
-  /** Resolve the exact named producer for a saved selector on demand. */
+  /**
+   * Named factory functions by saved kind. Call the selected factory with its own options.
+   */
   export const PRODUCERS: Readonly<IProducers> = {
     get single(): typeof AutoMovieArchetypePlatformBed.create {
       return AutoMovieArchetypePlatformBed.create;
@@ -112,7 +113,9 @@ export function create(
     },
   };
 
-  /** The kinds of bed. */
+  /**
+   * Saved choices for raised platform beds, loose mattress, hospital bed, gurney, crib or bunk.
+   */
   export type Kind =
     | "single"
     | "double"
@@ -122,7 +125,7 @@ export function create(
     | "crib"
     | "bunk";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Saved kind values accepted by `create`. */
   export const KINDS: readonly Kind[] = [
     "single",
     "double",
@@ -134,16 +137,13 @@ export function create(
   ];
 
   /**
-   * The affordance ids:
+   * The contacts available across saved bed kinds.
    *
-   * - `surface`: the lying surface, its `depth` the bed's length with the head at
-   *   `v = 0`; a bunk's lower bed.
-   * - `leftSide`, `rightSide`: the long edges on `+X` and `-X` as seats facing
-   *   out, as wide as the bed is long; a crib has none.
-   * - `leftRail`, `rightRail`: a hospital bed's siderails or a crib's top rails,
-   *   bars on `+X` and `-X`.
-   * - `upper`: a bunk's upper lying surface; `guard`: its continuous guardrail, a
-   *   bar.
+   * `surface` is the mattress top, with the head at local `-Z`. In a bunk
+   * it is the lower mattress. `leftSide` and `rightSide` frame its long
+   * edges on `+X` and `-X`. A crib has no side seats. Hospital beds and
+   * cribs expose `leftRail` and `rightRail` at their side bars. A bunk
+   * adds the `upper` mattress surface and the continuous `-X` `guard`.
    */
   export type Affordance =
     | "surface"
@@ -155,21 +155,16 @@ export function create(
     | "guard";
 
   /**
-   * The free dimensions, metres unless stated:
+   * The saved bed dimensions use metres, except `mass` in kilograms.
    *
-   * - `width`: across the lying surface.
-   * - `length`: the lying surface from head to foot.
-   * - `height`: the lying surface above the floor; a crib's rail tops; a bunk's
-   *   overall height; a mattress on the floor has none.
-   * - `thickness`: the mattress.
-   * - `overallLength`, `overallWidth`: a hospital bed's, a stretcher's or a
-   *   bunk's frame.
-   * - `litter`: a hospital bed's or a stretcher's litter top above the floor.
-   * - `rail`: a hospital bed's siderail top above its mattress; a crib's rail top
-   *   above its mattress support at its lowest.
-   * - `gap`, `clearance`: a bunk's distance between its two beds and the free
-   *   height under its lower one, where each mattress rests.
-   * - `mass`: kilograms.
+   * `width` and `length` describe the mattress. `thickness` is mattress
+   * depth in Y. Platform `height` is the mattress top. Crib `height` is
+   * the top of the frame and bunk `height` is its overall height.
+   * `overallLength` and `overallWidth` describe applicable outer frames.
+   * `litter` is the support height below a care bed's mattress. `rail`
+   * is measured from the mattress top on a hospital bed and from the
+   * mattress support on a crib. `gap` separates bunk mattress supports
+   * and `clearance` gives the lower mattress support height.
    */
   export type Dimension =
     | "width"
@@ -184,7 +179,7 @@ export function create(
     | "clearance"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for bed geometry and kilograms for empty model mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -201,28 +196,28 @@ export function create(
     mass: "kg",
   };
 
-  /** The UK sizes a loose mattress is made in. */
+  /** UK single or double catalogue size for a loose mattress. */
   export type Mattress = "single" | "double";
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+   * Saved bed kind, optional loose-mattress catalogue size and applicable band dimensions.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which bed. */
+    /** Selects the named construction and its applicable dimensions. */
     kind: Kind;
 
     /**
-     * A loose mattress's UK size; drawn from the seed when absent. Other beds
-     * have none.
+     * Loose-mattress catalogue size. Defaults to `single` when no value or seed is supplied.
      */
     size?: Mattress;
 
-    /** The model's id, unique in a scene; `bed` when absent. */
+    /** Scene object ID. Defaults to `bed`. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * Band dimensions by saved kind. The loose-mattress catalogue owns its width and length.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = BED_BANDS;

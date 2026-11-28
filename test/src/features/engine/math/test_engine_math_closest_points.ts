@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    (1,0,0) and (2,0,0) are the witnesses and the distance is the gap 1.
  * 2. A segment (0,0,0)-(1,0,0) and one (0,0,0)-(0,0,1) sharing an endpoint touch:
  *    distance 0 and both witnesses coincide.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers both closest-point witnesses for a separated pair and a touching pair of bounded segments.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls closestPointsBetweenSegments on typed XYZ endpoints and checks the reported separation and witnesses.
+ * @evidence contracts/development/testing.md#independent-expectations For disjoint collinear segments the facing endpoints are x = 1 and 2. They are one unit apart. The perpendicular pair shares the origin and has zero separation.
  */
 export function test_engine_math_closest_points(): void {
   const gap: IAutoMovieClosestSegmentPoints = AutoMovieEngineMath.closestPointsBetweenSegments(

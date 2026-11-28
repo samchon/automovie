@@ -20,6 +20,10 @@ import { resealFilmEffect } from "../../internal/resealFilmEffect";
  * 2. Refuse missing, extra, empty or reordered entries.
  * 3. Refuse digest-valid field retargeting, malformed runtime version and
  *    inconsistent timeline clock.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name accepted current and unchanged resealed data and separately missing, reordered, retargeted or invalid persisted entries.
+ * @evidence contracts/development/testing.md#behavioral-verification The test verifies controlled variations of a real effect population against the timeline, using both valid reseals and data whose digest was recomputed after a semantic change.
+ * @evidence contracts/development/testing.md#independent-expectations The timeline's declared cue sequence sets the exact population and order, including an empty track. Rehashing changed field content can preserve digest consistency but cannot make it equal the current authored cue and clock.
  */
 export function test_engine_film_effect_population_verification(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

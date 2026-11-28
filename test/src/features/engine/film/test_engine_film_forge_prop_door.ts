@@ -70,6 +70,10 @@ function basisX(m: number[]): [number, number, number] {
  * 2. An over-limit 150° swing clamps to the 110° endpoint within `1e-6`, the
  *    hinge's world X basis lands at `(cos110°, 0, −sin110°)`, with the
  *    violations tagged by the forged profile's id.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the authored spec-to-resolver boundary, the admitted hinge angle, the applied limit and the addressed profile warning.
+ * @evidence contracts/development/testing.md#behavioral-verification The test forges the data-authored door and supplies its articulation directly to resolveFrame for both in-range and excess angles. It reads the resulting mirror-node basis and constraints.
+ * @evidence contracts/development/testing.md#independent-expectations The declared upper bound is 110 degrees. Its world X basis components are cos(110 degrees), zero and negative sin(110 degrees). The 90-degree input stays within range and the 150-degree input must resolve to the declared endpoint.
  */
 export function test_engine_film_forge_prop_door(): void {
   const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(createDoorPropSpec());

@@ -16,11 +16,9 @@ import { nclose } from "../../internal/nclose";
  * 2. The two are mirrored: their `x` sum to zero within a micrometre, and
  *    their heights and depths agree.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds the sled through its public producer and reads its declared handles; a handle named for one hand on the other hand's side, which crosses the pusher's arms, fails with the seed and the places.
- * @evidence contracts/development/testing.md#independent-expectations The side is the frame's convention stated here, the pusher's left at `+X` facing `+Z`, not read from the producer.
- * @evidence contracts/development/testing.md#distinguishing-cases Both handles, the middle of the bands and seeds that draw other spacings.
- * @evidence contracts/development/testing.md#execution-ownership Builds 21 sleds in memory; it runs locally and wherever CI runs the archetype tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the frame's convention and the 2 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the pusher's local directions and the mirroring requirements for both handles.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the public sled and reads both grip contact frames for each seed. Each grip must lie on the named side and remain level and mirrored with its partner.
+ * @evidence contracts/development/testing.md#independent-expectations A pusher facing model +Z has left on +X. Mirrored handles have opposing X and equal Y and Z to within the stated micrometre tolerance.
  */
 export function test_archetype_sled_handles(): void {
   const complaints: string[] = [];

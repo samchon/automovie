@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  * 2. A model-only callback is retained, while a narrow callback can avoid it.
  * 3. The Human prop adapter retains the projected selected travel.
  * 4. Independent timed car seats avoid the wheel material quadrature.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names selected seat and rotating material frames, shuffled reads, callback ownership and the independent timed-seat route.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses public vehicle ride and motion prop adapters. Compares selected frames with full posed geometry, checks projected travel and counts the use of model-only and narrow callbacks.
+ * @evidence contracts/development/testing.md#independent-expectations Composing the measured local material frame with the sampled placement gives the world frame. The authored callbacks provide explicit invocation counts and the timed seat fixture supplies its independent rigid reference.
  */
 export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const course = {

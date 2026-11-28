@@ -29,6 +29,10 @@ const NEUTRAL: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * pose; a rigid model uses its declared rest geometry.
  * A named world site uses the same posed payload when no explicit world point
  * owns it, including a site that the payload removes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names carrier time, external geometry precedence, absent colliders, driven and rigid fallbacks, and world site ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the snapshot and site owners with literal carrier, posed model and articulation callbacks, recording which reader runs and at what seconds. It checks geometry, removes the external site's payload, and tests the explicit world point without a model read.
+ * @evidence contracts/development/testing.md#independent-expectations At 2 s the carrier X is 18 and the posed seat offset is 1/4, so its named world X is 18.25. The collider is another 1/4 m away. At 3 s the model omits its collider. An explicit world site at X = 32 + t returns 35 at 3 s.
  */
 export function test_motions_perform_prop_snapshot(): void {
   const modelReads: number[] = [];

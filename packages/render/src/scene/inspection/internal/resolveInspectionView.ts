@@ -73,7 +73,7 @@ export function resolveInspectionView(
   if (view.type === "film")
     return {
       camera: props.camera,
-      record: record(props.text, props.camera, props.height),
+      record: record(props.text, props.camera, props),
     };
 
   // A fixed camera and a subject's view are a position and a target.
@@ -115,7 +115,7 @@ export function resolveInspectionView(
       aim(camera, placed.position, placed.target, up);
       return {
         camera,
-        record: record(props.text, camera, props.height, placed.target),
+        record: record(props.text, camera, props, placed.target),
       };
     }
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
@@ -127,7 +127,7 @@ export function resolveInspectionView(
     aim(camera, placed.position, placed.target, up);
     return {
       camera,
-      record: record(props.text, camera, props.height, placed.target),
+      record: record(props.text, camera, props, placed.target),
     };
   }
 
@@ -167,7 +167,7 @@ export function resolveInspectionView(
     aim(camera, pose.position, pose.target, up);
     return {
       camera,
-      record: record(props.text, camera, props.height, pose.target),
+      record: record(props.text, camera, props, pose.target),
     };
   }
 
@@ -223,7 +223,7 @@ export function resolveInspectionView(
   camera.updateProjectionMatrix();
   return {
     camera,
-    record: record(props.text, camera, props.height, {
+    record: record(props.text, camera, props, {
       x: centre.x,
       y: centre.y,
       z: centre.z,
@@ -274,7 +274,7 @@ function aim(
 function record(
   text: string,
   camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
-  height: number,
+  raster: Pick<AutoMovieRenderInspectionCamera.IResolveViewProps, "width" | "height">,
   target?: IAutoMovieVector3,
 ): IAutoMovieInspectionCamera {
   camera.updateMatrixWorld(true);
@@ -287,6 +287,8 @@ function record(
     .transformDirection(camera.matrixWorld)
     .normalize();
   const orthographic: boolean = AutoMovieRenderThreeKind.isOrthographicCamera(camera);
+  const projectionIdentity: IAutoMovieInspectionCamera.IProjectionIdentity | undefined =
+    observedProjection(camera, raster);
   return {
     view: text,
     projection: orthographic ? "orthographic" : "perspective",
@@ -295,9 +297,32 @@ function record(
     up: { x: up.x, y: up.y, z: up.z },
     fovDeg: AutoMovieRenderThreeKind.isPerspectiveCamera(camera) ? camera.fov : null,
     metresPerPixel: AutoMovieRenderThreeKind.isOrthographicCamera(camera)
-      ? (camera.top - camera.bottom) / height
+      ? (camera.top - camera.bottom) / raster.height
       : null,
     near: camera.near,
     far: camera.far,
+    ...(projectionIdentity === undefined ? {} : { projectionIdentity }),
+  };
+}
+
+/* Use the applied camera matrices so window offsets and zoom survive the summary. */
+function observedProjection(
+  camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
+  { width, height }: Pick<AutoMovieRenderInspectionCamera.IResolveViewProps, "width" | "height">,
+): IAutoMovieInspectionCamera.IProjectionIdentity | undefined {
+  if (![width, height].every((size: number): boolean => Number.isSafeInteger(size) && size > 0))
+    return undefined;
+  const matrices: readonly THREE.Matrix4[] = [camera.matrixWorldInverse, camera.projectionMatrix];
+  for (const matrix of matrices) {
+    const determinant: number = matrix.determinant();
+    if (!matrix.elements.every(Number.isFinite) || !Number.isFinite(determinant) || determinant === 0)
+      return undefined;
+  }
+  return {
+    width,
+    height,
+    worldToView: [...camera.matrixWorldInverse.elements],
+    viewToClip: [...camera.projectionMatrix.elements],
+    layers: camera.layers.mask,
   };
 }

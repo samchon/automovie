@@ -25,6 +25,10 @@ import { makePose } from "../../internal/makePose";
  *    indexed author path. A rigged elbow set 10 degrees beyond its 150 degree
  *    bound is refused beneath the compiled motion's node id.
  * 2. The same motion on a node with no rig adds no rig validation findings.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the masked channel report, the nominal rig limit and the corresponding unrigged case.
+ * @evidence contracts/development/testing.md#behavioral-verification The test invokes the compiled-motion validation gate on prepared channel and rig facts, comparing diagnostic paths and scope with and without the rig.
+ * @evidence contracts/development/testing.md#independent-expectations The authored elbow is 160 degrees against a declared 150-degree limit. The skipped component, expression and root channels belong to the same author region. Removing the rig removes the specific constraint source but preserves the other scope.
  */
 export function test_engine_film_gate_compiled_motions(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

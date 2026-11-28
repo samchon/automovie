@@ -1,35 +1,38 @@
 import type { IAutoMovieRecoveryCameraCalibration } from "./IAutoMovieRecoveryCameraCalibration";
 
-/** Borrowed fixed RGB8 pixels and their source/calibration identity. */
+/**
+ * One borrowed row-major sRGB RGB8 raster with source identity, provenance and
+ * its supplied corrected pinhole chart. Keep the bytes unchanged until
+ * synchronous estimation returns.
+ */
 export interface IAutoMovieRecoveryCameraView {
-  /** Unique image/camera identity. */
+  /** Nonblank source identity, unique within the request. */
   id: string;
 
   /**
-   * Caller-asserted lowercase SHA-256 of fixed source bytes; decoding/capture
-   * derivations belong to pixelProvenance. File hosts verify acquired inputs.
+   * Caller-asserted lowercase SHA-256 of the encoded source bytes. File hosts
+   * verify the digest before decoding.
    */
   sourceSha256: string;
 
   /**
-   * Explicit decoding, orientation, crop and correction history of this exact
-   * chart.
+   * Nonblank source description of decoding, orientation, cropping and
+   * correction for the resident chart.
    */
   pixelProvenance: string;
 
-  /** Positive integer width of the calibrated resident chart. */
+  /** Positive safe integer pixel width of the corrected chart. */
   width: number;
 
-  /** Positive integer height of the calibrated resident chart. */
+  /** Positive safe integer pixel height of the corrected chart. */
   height: number;
 
-  /**
-   * Exactly 3_width_height row-major unsigned sRGB bytes; caller keeps these
-   * unchanged, including from other workers, until the synchronous operation
-   * returns.
-   */
+  /** Borrowed row-major unsigned sRGB bytes with exactly three bytes per pixel. */
   rgb8: Uint8Array;
 
-  /** Caller-supplied lens calibration in this exact pixel-centre chart. */
+  /**
+   * Supplied corrected pinhole calibration in the same resident pixel-center
+   * chart.
+   */
   camera: IAutoMovieRecoveryCameraCalibration;
 }

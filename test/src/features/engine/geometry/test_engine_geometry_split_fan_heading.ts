@@ -23,6 +23,10 @@ import { ConstructionSplitFan as F } from "../../internal/construction/Construct
  * 3. With child `f.0` hung 4 mm aside (y = 0.004), its band's loop and rail
  *    points, each about its own centroid and read in the rail's plane, turn by
  *    less than 3 degrees on average.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names arclength correspondence, the headed seam plane and the displaced child turning check.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the fan with headed and displaced configurations, then measures seam positions and the loop-to-rail turn.
+ * @evidence contracts/development/testing.md#independent-expectations The prescribed heading and chord determine normal (−0.8,0,−0.6). Points leave the simpler x = 8 plane, and the selected closest arclength match limits average twist.
  */
 export function test_engine_geometry_split_fan_heading(): void {
   const n: number = F.COLUMNS;

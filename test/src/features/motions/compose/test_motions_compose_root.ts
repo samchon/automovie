@@ -401,6 +401,10 @@ function scenario_test_motions_compose_root_travel(): void {
 /**
  * AutoMovieMotionHumanRoot, the root channels a law composes: each one's own
  * scenario below (excursion, face, place, scale, shift and travel).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names six root primitives, their windows, headings, unit-scale endpoints and the remaining carried posture fields.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds authored excursion, face, place, scale, shift and travel primitives, then samples their root and heading values over explicit clocks or at fixed weights.
+ * @evidence contracts/development/testing.md#independent-expectations The quarter-metre excursion follows the prescribed weights, and a 90-degree heading maps local +Z to world +X. Scaling the offset by one quarter gives point (0.1, -0.2, 0.5) and yaw 15. Explicit samples of shift and travel provide world-position expectations.
  */
 export function test_motions_compose_root(): void {
   scenario_test_motions_compose_root_excursion();

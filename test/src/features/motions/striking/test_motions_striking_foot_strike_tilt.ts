@@ -27,6 +27,10 @@ import { vclose } from "../../internal/vclose";
  * 2. A hip over the ankle with the knee hinted ahead keeps the hint; hinted to the
  *    side, a quarter twist, it is turned back to the twist limit `L`: at `(0.3
  *    sin L, 0.5, 0.3 cos L)`, or kept when the quarter lies within it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes a pose's hip elevation limit and knee hint twist bound for straight ahead and vertical goals.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the posed leg excess and clamps a side hint against the catalog joint range, with an aligned hint as a control.
+ * @evidence contracts/development/testing.md#independent-expectations The horizontal straight leg elevates 90 degrees, so excess is 90° minus 0.9 times the declared range. Turning the hint to limit L yields the stated sine/cosine coordinates.
  */
 export function test_motions_striking_foot_strike_tilt(): void {
   const hip: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

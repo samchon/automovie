@@ -17,9 +17,7 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Simulates the original fountain source/return at the selected horizon and observes booked source, positive return and volume conservation, catching forgotten or invented ledger mass.
  * @evidence contracts/development/testing.md#independent-expectations The authored flow rate times fixed-step elapsed time determines source volume and initial area/depth determines the water total; conservation includes the observed return booking rather than inventing an exact hydraulic drain total.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains the original live source and lower return sill with their shared basin; source/drain activity windows, raised sill and over-eager one-cell exhaustion are separate entries.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns its absolute CPU solve and ledger assertions through the existing fountain records, with no real-time host or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The original 6 x 6 basin is simulated at absolute step 400.).
+ * @evidence contracts/development/common.md#meaningful-documentation At step 400 the basin's source booking equals its fixed rate times elapsed time. The active return removes water and the resulting volume balances both bookings.
  */
 export function test_fluid_source_drain_ledger(): void {
   const steps: number = 400;

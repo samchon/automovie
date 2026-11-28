@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/throwsError";
  *    ring needs at least three points".
  * 4. A clockwise square translated by 1e12 m on both axes still reverses and
  *    encloses one square metre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States ring winding, source mapping, ownership, enclosed area and short-ring refusal for planar triangulation.
+ * @evidence contracts/development/testing.md#behavioral-verification Triangulates clockwise, outer-and-hole and translated fixtures. Reads their canonical points, source indices and area, then supplies a short labeled boundary.
+ * @evidence contracts/development/testing.md#independent-expectations The input square needs reversal by its signed winding. The outer 4 by 4 square minus the unit hole yields area 15. Translation preserves the signed area and required order.
  */
 export function test_engine_geometry_canonical_region(): void {
   const ring = (...xy: number[]): IAutoMovieProfilePoint[] =>

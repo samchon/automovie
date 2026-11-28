@@ -1,15 +1,11 @@
 /**
- * An observed closed loop whose source preimage is followed toward increasing
- * section coordinates. This identifies a geometric source component, not an
- * anatomical label or a permission to cap it.
+ * Address of a closed source loop chosen for terminal observation toward
+ * increasing physical coordinates.
  */
 export interface IAutoMovieRecoveryTerminalSeed {
-  /**
-   * A plane explicitly present in coordinatesMm, in signed physical
-   * millimetres.
-   */
+  /** Original requested signed section coordinate in millimetres. */
   coordinateMm: number;
 
-  /** Zero-based closed-loop ordinal in that plane's actual source observation. */
+  /** Zero-based position of the selected closed loop at that station. */
   loopIndex: number;
 }

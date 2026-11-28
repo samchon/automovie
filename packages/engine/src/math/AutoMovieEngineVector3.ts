@@ -13,10 +13,10 @@ import type {
  */
 export namespace AutoMovieEngineVector3 {
   /**
-   * Check whether every coordinate is a finite binary64 number.
+   * Check whether all three coordinates are finite numbers.
    *
-   * @param value The position or direction to check.
-   * @returns True when all three coordinates are finite, including zero.
+   * Zero and signed zero pass. A coordinate that is NaN or either infinity
+   * makes the result false.
    */
   export function isFinite(value: Readonly<IAutoMovieVector3>): boolean {
     return (
@@ -26,7 +26,12 @@ export namespace AutoMovieEngineVector3 {
     );
   }
 
-  /** A new vector from its components, each zero when omitted. */
+  /**
+   * Create a mutable Cartesian vector from its X, Y and Z components.
+   *
+   * Each omitted component defaults to zero. Supplied numbers are stored
+   * directly, and the result is a fresh record.
+   */
   export const create: (
     x?: number,
     y?: number,
@@ -41,7 +46,12 @@ export namespace AutoMovieEngineVector3 {
     z,
   });
 
-  /** The component-wise sum `a + b`. */
+  /**
+   * Add two Cartesian vectors component by component.
+   *
+   * Use the same coordinate frame and units for both operands. The operation
+   * returns a fresh vector with ordinary binary64 addition.
+   */
   export const add: (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -54,7 +64,12 @@ export namespace AutoMovieEngineVector3 {
     z: a.z + b.z,
   });
 
-  /** The component-wise difference `a - b`, the vector from `b` to `a`. */
+  /**
+   * Return the displacement from the second vector to the first.
+   *
+   * Subtract corresponding coordinates in the same frame and unit. The
+   * operation returns a fresh vector.
+   */
   export const subtract: (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -63,7 +78,12 @@ export namespace AutoMovieEngineVector3 {
     b: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 
-  /** Every component of `a` multiplied by the scalar `s`. */
+  /**
+   * Multiply each Cartesian coordinate by the supplied scalar.
+   *
+   * The result is a fresh vector. Each multiplication follows ordinary binary64
+   * rounding and overflow.
+   */
   export const scale: (a: IAutoMovieVector3, s: number) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
     s: number,
@@ -74,14 +94,11 @@ export namespace AutoMovieEngineVector3 {
   });
 
   /**
-   * Return a fresh point a + b*s, with scale(b,s) evaluated before adding a.
-   * All three products precede the X/Y/Z additions, preserving the original
-   * add(a,scale(b,s)) input-read and rounding order without its offset record.
+   * Return a fresh point formed by adding a scaled direction to a base point.
    *
-   * @param a Base point in the caller's coordinate frame.
-   * @param b Direction or offset in the same frame.
-   * @param s Scalar giving b compatible offset units; ray callers use metres.
-   * @returns A fresh point with the original signed-zero/nonfinite arithmetic.
+   * Use compatible frames and offset units. Products are evaluated before the
+   * coordinate sums, with the same binary64 behavior as separately scaling the
+   * direction and adding it.
    */
   export function addScaled(
     a: IAutoMovieVector3,
@@ -94,15 +111,22 @@ export namespace AutoMovieEngineVector3 {
     return { x: a.x + offsetX, y: a.y + offsetY, z: a.z + offsetZ };
   }
 
-  /** The dot product `a · b`, which is `|a| |b| cos θ`. */
+  /**
+   * Return the dot product of two vectors in the same Cartesian frame.
+   *
+   * Multiply corresponding coordinates and add the three products. For unit
+   * vectors the mathematical result is the cosine of their angle.
+   */
   export const dot: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): number => a.x * b.x + a.y * b.y + a.z * b.z;
 
   /**
-   * The right-handed cross product `a × b`, perpendicular to both with length
-   * `|a| |b| sin θ`, so `cross(X, Y)` is `Z`.
+   * Return the right-handed cross product of two Cartesian vectors.
+   *
+   * The first cross the second establishes orientation, so X cross Y gives
+   * positive Z. The result is a fresh vector.
    */
   export const cross: (
     a: IAutoMovieVector3,
@@ -117,15 +141,12 @@ export namespace AutoMovieEngineVector3 {
   });
 
   /**
-   * Write `(a - origin) × (b - origin)` into a caller-owned target. The two
-   * differences and right-handed cross product retain subtract/cross
-   * arithmetic, including nonfinite values and signed zeros. Every source is
-   * read before any write, so target may alias origin, a or b.
+   * Write the right-handed cross product of two edges sharing an origin into a
+   * caller-owned vector.
    *
-   * @param target Mutable output; its previous components are not read.
-   * @param origin Common edge origin in the same frame and unit as a and b.
-   * @param a First edge endpoint, read before the second endpoint.
-   * @param b Second edge endpoint; reversing endpoints reverses orientation.
+   * Read both endpoint differences before writing. The target can alias the
+   * origin or either endpoint. Edge order determines orientation, and all
+   * operands share a coordinate frame.
    */
   export const crossDifferenceInto = (
     target: IAutoMovieVector3,
@@ -148,14 +169,11 @@ export namespace AutoMovieEngineVector3 {
   };
 
   /**
-   * The Euclidean length of `a`.
+   * Measure the Euclidean length of a Cartesian vector in its coordinate unit.
    *
-   * Components whose squares stay in the normal binary64 range use
-   * `Math.sqrt(dot(a, a))`, so the result equals that expression exactly. When
-   * the largest component is below `2^-511` or above `2^511`, squaring would
-   * underflow or overflow, and `Math.hypot` measures it instead, so any
-   * representable length is returned. A non-finite component gives a non-finite
-   * length.
+   * Ordinary magnitudes use the square root of the dot product with itself.
+   * Extreme finite values use a scaled norm to preserve a representable length.
+   * The mathematical length itself can exceed the finite numeric range.
    */
   export const length: (a: IAutoMovieVector3) => number = (
     a: IAutoMovieVector3,
@@ -165,14 +183,12 @@ export namespace AutoMovieEngineVector3 {
       : Math.hypot(a.x, a.y, a.z);
 
   /**
-   * Euclidean distance between two points in the same frame and unit. It equals
-   * length(subtract(a, b)) with the same ordinary arithmetic, extreme-magnitude
-   * branch and nonfinite propagation, without a vector.
+   * Measure Euclidean distance between two positions in the same frame and
+   * unit.
    *
-   * @param a The first point, read before b on each X/Y/Z subtraction.
-   * @param b The second point in the same frame and unit.
-   * @returns Their scalar separation in that unit, including the original
-   *   nonfinite result.
+   * Use the same component subtraction and norm as measuring their
+   * displacement. Large component differences or a true length outside the
+   * finite range can produce a nonfinite result.
    */
   export function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     const x: number = a.x - b.x;
@@ -188,13 +204,13 @@ export namespace AutoMovieEngineVector3 {
   }
 
   /**
-   * A unit-length vector in the direction of `a`, or the zero vector when `a`
-   * has length zero.
+   * Return a unit vector in the same direction, or a fresh zero vector for a
+   * zero input.
    *
-   * A vector whose largest component is below `2^-511` or above `2^511` is
-   * first divided by that component, so even subnormal components or a length
-   * that would overflow keep their direction. A non-finite component gives a
-   * non-finite result.
+   * For an extreme finite magnitude, divide coordinates by the largest absolute
+   * component before measuring the norm. This retains direction when the
+   * original norm is subnormal or too large to represent. Callers admit finite
+   * coordinates where their model requires them.
    */
   export const normalize: (a: IAutoMovieVector3) => IAutoMovieVector3 = (
     a: IAutoMovieVector3,
@@ -209,11 +225,10 @@ export namespace AutoMovieEngineVector3 {
   };
 
   /**
-   * Normalize a Cartesian tuple with the same magnitude handling as
-   * {@link normalize}. The caller owns admission of nonfinite coordinates.
+   * Normalize a Cartesian tuple in X, Y, Z order.
    *
-   * @param value The direction, read in X/Y/Z order.
-   * @returns A fresh unit tuple, or a zero tuple for a zero input.
+   * Return a fresh unit tuple or a fresh zero tuple for a zero input. The
+   * vector normalizer supplies the same scaling for extreme finite components.
    */
   export function normalizeTuple(
     value: Readonly<AutoMovieVector3Tuple>,
@@ -227,9 +242,12 @@ export namespace AutoMovieEngineVector3 {
   }
 
   /**
-   * The component-wise linear interpolation `a + (b - a) · t`, giving `a` at `t
-   * = 0` and `b`, up to rounding, at `t = 1`; a `t` outside `[0, 1]`
-   * extrapolates.
+   * Evaluate component-wise linear interpolation between two vectors.
+   *
+   * For each coordinate the operation adds the start to the endpoint difference
+   * multiplied by the parameter. Values outside the closed unit interval
+   * extrapolate. Ordinary binary64 operations apply, including overflow in the
+   * difference.
    */
   export const lerp: (
     a: IAutoMovieVector3,
@@ -246,12 +264,13 @@ export namespace AutoMovieEngineVector3 {
   });
 
   /**
-   * Snapshot a fixed segment and read fresh points on its affine line. The
-   * endpoints must use the same frame and units. Construction reads each
-   * component in lerp's original a, b, a order and copies its origin and
-   * completed difference; later endpoint edits are not observed. Each t is
-   * evaluated as origin + difference * t, without clipping or endpoint
-   * shortcuts, so extrapolation and nonfinite arithmetic remain available.
+   * Snapshot a vector segment and return a function that evaluates its affine
+   * line.
+   *
+   * Use one Cartesian frame and unit for both endpoints. The evaluator retains
+   * the initial origin and coordinate differences. Later edits to the endpoint
+   * records are invisible. Each call returns a fresh vector and allows
+   * extrapolation.
    */
   export function prepareLerp(
     from: IAutoMovieVector3,

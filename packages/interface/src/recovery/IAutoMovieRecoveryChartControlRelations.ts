@@ -1,131 +1,82 @@
 /**
- * Eliminate acyclic affine control relations without changing their
- * coefficients. Original control IDs remain the independent term addresses;
- * they are never replaced by compact solver slots. Fixed positions and returned
- * constants are millimetres. Relations may have signed weights or sums other
- * than one. Equal terms combine, exact zero sums disappear, and fixed terms
- * fold into the constant. No epsilon deletion, weight normalization or
- * convexity repair occurs. maxTerms bounds each intermediate flattened
- * provenance map, including fixed sources, and every final independent
- * expression. maxDepth counts relation edges; fixed and independent controls
- * have depth zero. Cycles are rejected even when a declared dependency has zero
- * weight or later cancels. Weight diagnostics describe flattened fixed and
- * independent source weights before fixed-position folding. They do not certify
- * a dependent enclosure. Invalid identities, conflicts, budget exhaustion or
- * nonfinite arithmetic throw without mutating input or returning a partial
- * relation system.
+ * Callable reduction of a coefficient registry with fixed and affine-dependent
+ * controls.
  */
 
 export namespace IAutoMovieRecoveryChartControlRelations {
   /**
-   * Eliminate acyclic affine control relations without changing their
-   * coefficients. Original control IDs remain the independent term addresses;
-   * they are never replaced by compact solver slots. Fixed positions and
-   * returned constants are millimetres. Relations may have signed weights or
-   * sums other than one. Equal terms combine, exact zero sums disappear, and
-   * fixed terms fold into the constant. No epsilon deletion, weight
-   * normalization or convexity repair occurs. maxTerms bounds each intermediate
-   * flattened provenance map, including fixed sources, and every final
-   * independent expression. maxDepth counts relation edges; fixed and
-   * independent controls have depth zero. Cycles are rejected even when a
-   * declared dependency has zero weight or later cancels. Weight diagnostics
-   * describe flattened fixed and independent source weights before
-   * fixed-position folding. They do not certify a dependent enclosure. Invalid
-   * identities, conflicts, budget exhaustion or nonfinite arithmetic throw
-   * without mutating input or returning a partial relation system.
+   * Expand acyclic signed identities into fixed millimetre constants and
+   * independent-control weights in the original registry order. Supply finite
+   * fixed positions and signed weights, a positive safe term cap and a
+   * nonnegative safe depth cap. Invalid addresses, cycles, conflicting
+   * definitions and nonrepresentable composition raise an error.
    */
 
   export type Operation = (input: {
-    /** Nonnegative native-array control count, at most 2^32-1 original IDs. */
+    /** Total slots in the original control registry. */
     controls: number;
 
-    /** Each listed control has exactly this finite millimetre position. */
+    /** Fixed original control IDs and registered positions. */
     fixed: readonly {
-      /**
-       * Zero-based ordinal in this record's owning cell, component or control
-       * registry; it is not a source coordinate.
-       */
+      /** Original slot occupied by this fixed control. */
       id: number;
-      /**
-       * Physical position in the registered millimetre frame; no coordinate
-       * matching or source repair is implied.
-       */
+      /** Fixed [X, Y, Z] position in registered millimetres. */
       pointMm: readonly [number, number, number];
     }[];
 
-    /** Dependent controls and their finite weighted original-ID expressions. */
+    /** Dependent original control IDs and their signed identity terms. */
     relations: readonly {
-      /**
-       * Zero-based ordinal in this record's owning cell, component or control
-       * registry; it is not a source coordinate.
-       */
+      /** Original control slot defined by this affine expression. */
       id: number;
 
-      /**
-       * Sparse affine contributions in original control IDs; duplicate IDs and
-       * signed weights retain the owning operation's declared combination
-       * rule.
-       */
+      /** Signed contributions from original controls, expanded recursively. */
       terms: readonly {
-        /**
-         * Zero-based ordinal in this record's owning cell, component or control
-         * registry; it is not a source coordinate.
-         */
+        /** Original control id supplying this contribution. */
         id: number;
-        /**
-         * Dimensionless signed affine coefficient; neither positivity nor
-         * convexity is inferred.
-         */
+        /** Finite signed coefficient multiplying that original control. */
         weight: number;
       }[];
     }[];
 
-    /** Positive safe cap on intermediate provenance and final independent terms. */
+    /** Maximum retained sparse terms during coefficient expansion. */
     maxTerms: number;
 
-    /** Nonnegative safe cap on the relation-edge dependency depth. */
+    /** Maximum acyclic dependency depth; zero permits no dependent relations. */
     maxDepth: number;
   }) => {
-    /** Unowned original IDs, in ascending order; these are the free variables. */
+    /**
+     * Original IDs left free after eliminating fixed and dependent controls, in
+     * registry order.
+     */
     independent: number[];
 
-    /** One sparse millimetre expression per original control, in input ID order. */
+    /** One reduced affine expression per original control id. */
     expressions: {
-      /**
-       * Fixed affine control contribution in the same physical millimetre chart
-       * as the dependent coefficient.
-       */
+      /** Physical millimetre constant after folding fixed sources. */
       constant: [number, number, number];
 
-      /**
-       * Sparse affine contributions in original control IDs; duplicate IDs and
-       * signed weights retain the owning operation's declared combination
-       * rule.
-       */
+      /** Signed terms in independent original control IDs. */
       terms: {
-        /**
-         * Zero-based ordinal in this record's owning cell, component or control
-         * registry; it is not a source coordinate.
-         */
+        /** Independent original control id of this reduced term. */
         id: number;
-        /**
-         * Dimensionless signed affine coefficient; neither positivity nor
-         * convexity is inferred.
-         */
+        /** Combined signed coefficient of that independent control. */
         weight: number;
       }[];
     }[];
 
-    /** Largest final independent term count, excluding folded fixed sources. */
+    /** Largest final independent-term population of one expression. */
     maximumTerms: number;
 
-    /** Largest declared relation-edge depth, including zero-weight dependencies. */
+    /** Deepest dependency chain observed during expansion. */
     maximumDepth: number;
 
-    /** Least retained flattened source weight; zero for an empty expression. */
+    /** Smallest signed original-source weight retained after flattening. */
     minimumWeight: number;
 
-    /** Largest absolute deviation of pre-folding source weight sum from one. */
+    /**
+     * Largest absolute deviation of a flattened expression's weight sum from
+     * one.
+     */
     maximumWeightSumError: number;
   };
 }

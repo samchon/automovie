@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. No estimate charges 64 and copies nothing.
  * 2. Rows [1, 3] with multipliers [0.5, 0] charge 192 and copy equal but new.
  * 3. Rows out of order, a negative multiplier and a changed width are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States copy ownership, work accounting and admissible sparse rows.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the copy routine with no estimate, a two-row estimate and malformed ordering, width or signs.
+ * @evidence contracts/development/testing.md#independent-expectations One fixed charge of 64 plus two per-row charges predicts 192. The authored row ordinates and multipliers give the exact copy oracle.
  */
 export function test_recovery_internal_copy_untilted_estimate(): void {
   const charged: number[] = [];

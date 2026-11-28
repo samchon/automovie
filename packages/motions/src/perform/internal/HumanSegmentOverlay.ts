@@ -149,22 +149,15 @@ export namespace HumanSegmentOverlay {
         overlay: IAutoMovieMotionHumanSegment.IOverlay,
       ): IAutoMovieMotionHumanPosture => postureAt(overlay),
     );
-    const weights: number[] = live.map(
-      (overlay: IAutoMovieMotionHumanSegment.IOverlay): number =>
-        // An overlay handing its channels on to the act after it in its
-        // chain keeps them to its end (`handsOn`), so the act after it
-        // enters from where it ended and blends in from it, not from the
-        // carrier.
+    const fades = live.map((overlay) => ({
+      entry: AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(
-          AutoMovieEngineMotionSampling.minimumJerkShare(
-            Math.min(
-              1,
-              Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
-            ),
-          ),
-          HumanSegmentOverlayRun.released(person, overlay, seconds),
+          1,
+          Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
         ),
-    );
+      ),
+      release: HumanSegmentOverlayRun.released(person, overlay, seconds),
+    }));
     const ordinals: number[] = live.map(
       (overlay: IAutoMovieMotionHumanSegment.IOverlay): number =>
         person.overlays.indexOf(overlay),
@@ -306,7 +299,8 @@ export namespace HumanSegmentOverlay {
         under,
         postures[k]!,
       );
-      const weight: number = weights[k]!;
+      const { entry: coming, release } = fades[k]!;
+      const weight: number = Math.min(coming, release.weight);
 
       // The prefix names exactly the included overlays, in their original
       // first-index order; each leaf keeps its previous fit names.
@@ -371,22 +365,18 @@ export namespace HumanSegmentOverlay {
       // owns its entry curve. It still releases to the carrier at the overlay end.
       const entered: IAutoMovieMotionHumanActionPlan["enteredChannels"] =
         overlay.plan.enteredChannels;
-      const release: number =
-        entered === undefined
-          ? weight
-          : HumanSegmentOverlayRun.released(person, overlay, seconds);
+      const handoff =
+        coming < 1 ? HumanSegmentOverlayRun.handedIn(person, overlay) : undefined;
+      const joinedRelease: number =
+        handoff === undefined
+          ? release.weight
+          : HumanSegmentOverlayRun.releaseHandoff(overlay, seconds, release.weight);
       // A hand that holds a prop on past the overlay's end hands its arm and
       // fingers on whole at the end to what carries the hold next (the
       // carrier's carry of it, `HumanSegmentCarry`), captured where the
       // overlay leaves them: they come in with the overlay but are not
       // released to the carrier's own arm over the fade, which would carry
       // the held prop away and back.
-      const coming: number = AutoMovieEngineMotionSampling.minimumJerkShare(
-        Math.min(
-          1,
-          Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
-        ),
-      );
       // Whether each hand of this overlay holds a prop on past its end
       // (`HumanSegmentOverlayRun.holdsOn`), read once for the overlay.
       const holding: Record<AutoMovieHumanSide, boolean> = {
@@ -407,22 +397,38 @@ export namespace HumanSegmentOverlay {
           : bone.startsWith("right")
             ? "right"
             : undefined;
-        const share: number =
+        const contactHand: boolean =
           ((side === "left" && contacts.leftArm !== undefined) ||
             (side === "right" && contacts.rightArm !== undefined)) &&
-          channel.endsWith("Hand")
-            ? 1
-            : side !== undefined &&
-                (channel.endsWith("Arm") || channel.endsWith("Hand")) &&
-                holding[side]
-              ? coming
-              : entered?.includes(channel)
-                ? release
-                : weight;
+          channel.endsWith("Hand");
+        const heldHand: boolean =
+          side !== undefined &&
+          (channel.endsWith("Arm") || channel.endsWith("Hand")) &&
+          holding[side];
+        const ownsEntry: boolean = entered?.includes(channel) === true;
+        const shared: IAutoMovieJointPose | undefined =
+          contactHand || ownsEntry ? undefined : handoff?.get(bone);
+        const retained: boolean =
+          release.retained !== undefined &&
+          motionHumanChannel.covers(release.retained, bone);
+        const leaving: number = retained ? 1 : release.weight;
+        const share: number = contactHand
+          ? 1
+          : heldHand
+            ? coming
+            : ownsEntry
+              ? leaving
+              : Math.min(coming, leaving);
+        const mix = blender!;
         const [flexion, abduction, twist]: readonly [number, number, number] =
-          blender === undefined
-            ? blendHumanJoint(body, bone, from, to, share)
-            : blender(bone, from, to, share);
+          shared === undefined
+            ? mix(bone, from, to, share)
+            : mix(
+                bone,
+                from,
+                mix(bone, angles(shared), to, coming),
+                heldHand || retained ? 1 : joinedRelease,
+              );
         pose.joints.push({ bone, flexion, abduction, twist });
       }
       return { pose, contacts };

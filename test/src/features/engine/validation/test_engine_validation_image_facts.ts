@@ -167,6 +167,10 @@ const hdr: (props: {
  * 3. Every truncation, wrong signature, wrong chunk, wrong start code, missing
  *    blank line and non-standard scanline orientation reports "not an image"
  *    rather than a guessed size.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers supported image headers, JPEG marker traversal, and refusal of malformed or truncated bytes.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes authored Uint8Array containers directly to readAutoMovieImageFacts, including fill bytes, restart indicators and invalid format-specific fields.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture writes known widths and heights into each container's designated bytes or resolution line. Those literals establish the expected media and dimensions. Malformed marker, signature and orientation variants are listed as rejected inputs.
  */
 export function test_engine_validation_image_facts(): void {
   TestValidator.equals(

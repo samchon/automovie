@@ -31,6 +31,10 @@ const ROUNDING: number = 1e-12;
  * 2. A share past half the width is refused on `from`, equal shares on `swipe
  *    distance`, and a glass on a prop that is not fixed, a scaled glass and an
  *    unknown screen on `screen`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A fixed screen maps slide fractions to transformed contact points and rejects incompatible screen, distance, or scale inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the screen owner on a typed tablet turned 90 degrees and varied endpoint and prop inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Applying the explicit +Y quarter turn to the 0.2 m local width yields the known endpoints and axes. Fractions outside half the glass independently exercise refusal.
  */
 export async function test_motions_everyday_swipe_touchscreen(): Promise<void> {
   const glass: IAutoMovieAffordance = {

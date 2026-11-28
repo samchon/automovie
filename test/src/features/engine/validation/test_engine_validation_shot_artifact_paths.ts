@@ -191,6 +191,10 @@ interface IShotCase {
  *    own value type, and repeated clip ids.
  * 6. Dense empty motions, event/intent/coverage rows and a complete three-instant
  *    clearance plan remain accepted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers reference and timing diagnostics for a shot, with valid dense empty, metadata and clearance controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateShotArtifact with explicit shot/scene relations, events, selected cameras, light clips and valid or invalid registries.
+ * @evidence contracts/development/testing.md#independent-expectations The scene and registry literals state which nodes, cameras, motions and lights exist and which interval is owned. Unstaged references, duplicate names and times outside that interval each have a separately written path.
  */
 export function test_engine_validation_shot_artifact_paths(): void {
   TestValidator.predicate(

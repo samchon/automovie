@@ -1,5 +1,20 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFlight, IAutoMovieMotionHumanFlightTurns, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieResolveCenterOfMass } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionAirborneRotation,
+  AutoMovieEngineMotionTrajectory,
+  AutoMovieEngineQuaternion,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
+  IAutoMovieMotionHumanFlightTurns,
+  IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
+  IAutoMovieResolveCenterOfMass,
+} from "@automovie/interface";
 
 import { jumpAirborne } from "../../actions/internal/jumpAirborne";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
@@ -77,8 +92,11 @@ export namespace HumanPerformanceFlight {
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     people: Iterable<IAutoMovieMotionHumanSegment.IPerson>,
-    observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
-  ): void {
+    observation?: ReturnType<
+      typeof AutoMovieEngineMotionAirborneRotation.observe
+    >,
+  ): Set<string> {
+    const changed: Set<string> = new Set();
     for (const person of people) {
       let prepared: AutoMovieEngineKinematics.IPreparedMassModel | undefined;
       let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
@@ -101,7 +119,10 @@ export namespace HumanPerformanceFlight {
               prepared ??= AutoMovieEngineKinematics.prepareAutoMovieMassModel(
                 person.performer.body.massModel,
               );
-              requested ??= AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(prepared);
+              requested ??=
+                AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(
+                  prepared,
+                );
               readBones ??= poseBones.prepare(person.performer.body, requested);
               flyPerformanceFlight(
                 self,
@@ -113,6 +134,7 @@ export namespace HumanPerformanceFlight {
                 observation,
               );
             }
+            changed.add(person.performer.subject);
           } catch (error) {
             if (!(error instanceof AutoMovieMotionHumanRefusal)) throw error;
             throw error.locate({
@@ -127,9 +149,11 @@ export namespace HumanPerformanceFlight {
           }
         }
       } finally {
-        if (prepared !== undefined) AutoMovieEngineKinematics.releaseAutoMovieMassModel(prepared);
+        if (prepared !== undefined)
+          AutoMovieEngineKinematics.releaseAutoMovieMassModel(prepared);
       }
     }
+    return changed;
   }
 
   /*
@@ -214,11 +238,10 @@ function samples(
   to: number,
   read: (seconds: number) => IPlayback["table"][number],
 ): IPlayback {
-  if (
-    !(to > from)
-  )
+  if (!(to > from))
     throw new Error("Flight playback needs a positive finite interval");
-  const step: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
+  const step: number =
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
   const knots: number = Math.ceil((to - from) / step) + 1;
   const times: number[] = Array.from(
     { length: knots },

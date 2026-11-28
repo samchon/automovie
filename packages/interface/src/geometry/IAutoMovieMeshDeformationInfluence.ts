@@ -1,21 +1,22 @@
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * A caller-owned differential mask sample at one resident mesh vertex, passed
- * to the operation `createMeshDeformer` returns.
+ * Borrowed differential mask sample at one original mesh vertex.
  *
- * Samples follow the mesh's vertex order, one per vertex. For displacement `d`
- * the masked map is `p + weight * d` and its Jacobian gains `outer(d,
- * gradient)`, so the deformer uses both the mask and its local derivative
- * before checking the composed surface's orientation; a weight alone cannot
- * describe the resulting normal transport. Admission checks the sample count,
- * finite values and bounded weights, while the caller owns the sampled field's
- * provenance and interpolation between vertices.
+ * Supply one sample for every original vertex in position-buffer order. The
+ * supplied gradient describes the same mask as the weight. The caller owns mask
+ * behavior between sampled vertices.
  */
 export interface IAutoMovieMeshDeformationInfluence {
-  /** Dimensionless mask in [0, 1]; zero retains the resident position. */
+  /**
+   * Finite dimensionless mask in [0, 1]. A zero weight retains the original
+   * position, while the gradient can still affect local normal transport.
+   */
   weight: number;
 
-  /** Spatial derivative of the mask in inverse metres in the mesh's local frame. */
+  /**
+   * Finite spatial derivative of the mask in inverse metres in the mesh frame.
+   * Its outer product with displacement affects the Jacobian.
+   */
   gradient: IAutoMovieVector3;
 }

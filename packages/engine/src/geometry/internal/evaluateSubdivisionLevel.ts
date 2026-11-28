@@ -13,12 +13,18 @@ import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
  * This boundary lets a refined fitting domain emit its existing LOD instead of
  * multiplying render triangles merely because fitting added controls. Original
  * source-face parameters and indexed face-varying UV identities are copied from
- * the level unchanged. The level must come from cage admission or the
- * maintained refiner; this function performs no admission or repair.
+ * the level unchanged. The quad level comes from cage admission or the
+ * maintained refiner.
  */
 export function evaluateSubdivisionLevel(
   level: IAutoMovieSubdivisionLevel,
 ): IAutoMovieSubdivisionSurface {
+  const offsets: readonly number[] = level.topology.faceOffsets;
+  for (let f: number = 0; f + 1 < offsets.length; ++f)
+    if (offsets[f + 1]! - offsets[f]! !== 4)
+      throw new Error(
+        "Subdivision evaluation requires a quad generating level",
+      );
   const limit: IAutoMovieLimitSubdivisionLevel.IResult =
     limitSubdivisionLevel(level);
   const parameters: IAutoMovieSubdivisionParameter[] =

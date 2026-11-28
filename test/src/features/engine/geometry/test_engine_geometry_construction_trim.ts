@@ -30,6 +30,10 @@ type V3 = [number, number, number];
  * 1. No diagnostic; the loop at each knot evaluates on the cylinder to the
  *    landmark's foot within the limit.
  * 2. The feet shifted 1 mm along the cylinder miss the loop.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names trim-loop landmarks, their radial feet and the shifted negative control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a cylinder trim and evaluates the returned chart loop's knots on the surface against the independently constructed landmark feet.
+ * @evidence contracts/development/testing.md#independent-expectations At the chosen knot phases the circular spline lies on its source circle and has a radial normal. The foot is radius times the phase unit vector at the landmark's own station.
  */
 export function test_engine_geometry_construction_trim(): void {
   const r: number = 0.02;

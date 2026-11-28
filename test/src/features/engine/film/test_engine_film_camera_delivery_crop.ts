@@ -62,6 +62,10 @@ const verticalSegment: (
  * 4. A bottom-half crop respects top-origin vertical edges and their negatives.
  * 5. Boxes and zero-radius spheres share the off-axis crop boundary.
  * 6. Five nonfinite, out-of-range, empty, or reversed crops throw.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios cover the whole-gate default, detached crop edges, remapped coordinates, adjacent frustum boundaries and refused crop definitions.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves crops and projects points, boxes and spheres through public camera methods. It checks full and cropped twins, both horizontal edges, top-origin vertical behavior and illegal windows.
+ * @evidence contracts/development/testing.md#independent-expectations The normalized right half includes both declared horizontal edges and excludes the neighboring positions beyond them. Remapping its interval to output NDC follows an affine map. A zero-radius sphere and degenerate box at the same authored location share the crop boundary.
  */
 export function test_engine_film_camera_delivery_crop(): void {
   const whole: ReturnType<typeof AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop> =

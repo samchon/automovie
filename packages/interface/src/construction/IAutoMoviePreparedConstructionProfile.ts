@@ -6,48 +6,49 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 /** Source-backed profile queries retained after declaration admission. */
 export namespace IAutoMoviePreparedConstructionProfile {
   /**
-   * Original section/atlas readers with source identity and no final mesh
-   * claim.
-   *
-   * Treat the definition, maps, surface records and original dependencies as
-   * immutable while any reader exists. The declaration was cloned but its
-   * functions were not; mutating exposed records is not an invalidation API.
+   * Original profile definition and its retained atlas, source charts and
+   * readers. Preserve the exposed declaration, maps, atlas and underlying
+   * functions while those readers use them. Preparation owns a copy of the
+   * declaration and borrows the live geometry inputs.
    */
   export interface IPrepared {
-    /** Detached pure declaration; edits require another preparation. */
+    /**
+     * Detached copy of the admitted pure declaration. Prepare a new source
+     * after changing one of its dependencies.
+     */
     definition: IAutoMovieConstructionProfile;
 
     /**
-     * Piece charts in declared loop/piece order; kept checks finite retained
-     * coordinates and across maps an open piece side to the adjacent piece
-     * endpoint after checking endpoint agreement.
+     * Retained piece charts in loop and piece order. Boundary traversal maps an
+     * open chart side to the appropriate neighboring piece after checking its
+     * actual shared endpoint. Nonfinite chart coordinates have no retained
+     * membership or neighbor.
      */
     atlas: IAutoMovieSolidAtlas;
 
-    /** Piece id to the same actual atlas surface identity. */
+    /** Piece ID to the same retained surface stored at that piece's atlas index. */
     surfaces: ReadonlyMap<string, IAutoMovieSolidSurface>;
 
     /**
-     * Piece-keyed wrappers over the same original functions with their full
-     * original station domains and supported clock neighborhoods, before
-     * retained restrictions.
+     * Piece-keyed surface wrappers over the original functions and their full
+     * supported station intervals before retained clipping.
      */
     originals: ReadonlyMap<string, IAutoMovieSolidSurface>;
 
     /**
-     * Fresh list of active loop IDs in declaration order at station
-     * millimetres, after checking actual adjacent piece endpoints. Throws for a
-     * nonfinite or out-of-family station, no active loop, or an endpoint
-     * mismatch. Callback exceptions propagate; an empty successful result is
-     * never returned.
+     * Read the active loop IDs in declaration order at a finite physical
+     * millimetre station. The reader checks each adjacent endpoint pair there.
+     * A nonfinite or outside station, unavailable loop or failed endpoint
+     * comparison throws.
      */
     section(station: number): readonly string[];
 
     /**
-     * Fresh world phase reading at a named piece, station millimetres and
-     * normalized coordinate in [0,1]. Rejects an unknown piece, out-of-domain
-     * query or missing first phase derivative. Second phase may be null
-     * independently of complete physical2; original callback throws propagate.
+     * Read world value and phase derivatives for the named piece at a finite
+     * physical millimetre station and normalized coordinate in [0, 1]. Failure
+     * to resolve the chart or its first phase derivative throws, as do
+     * nonfinite operands or world results. Second phase derivative can be
+     * null.
      */
     phase(
       piece: string,
@@ -56,11 +57,10 @@ export namespace IAutoMoviePreparedConstructionProfile {
     ): IAutoMovieConstructionProfilePhase.IReading;
 
     /**
-     * Region membership at piece coordinate [0,1] and station millimetres.
-     * Unknown region/piece IDs throw. A known address outside its piece,
-     * retained chart or region domain returns false; without a trim owner it
-     * returns true there. Otherwise it calls the original trim predicate with
-     * the converted original clock and propagates its exceptions.
+     * Check a region and piece at a finite millimetre station and normalized
+     * piece coordinate in [0, 1]. Unknown IDs throw. A known chart outside the
+     * region or with a nonfinite coordinate returns false. A resolved trim
+     * receives the original clock.
      */
     contains(
       region: string,

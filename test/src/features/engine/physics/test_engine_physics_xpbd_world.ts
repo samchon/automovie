@@ -41,6 +41,10 @@ const STATIC: number = 1e-4;
  *   joint with a swing-twist limit stays inside its cone.
  * - Two runs of the same scene give identical snapshot bytes, and a run restored
  *   from a mid-run snapshot ends bit for bit where the uninterrupted run ends.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes closed-form checks for compliant contact, slope friction, rebound, angular limits and deterministic restore.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps native cube, slope, dropped ball and articulated fixtures, then compares repeat and resumed world bytes.
+ * @evidence contracts/development/testing.md#independent-expectations Settling penetration is contact allowance plus g/ω², sliding acceleration is g(sin 30° − μ cos 30°), and restitution 0.5 yields one quarter of the drop height.
  */
 export async function test_engine_physics_xpbd_world(): Promise<void> {
   const findings: string[] = [];

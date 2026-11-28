@@ -16,11 +16,9 @@ const MM: number = 1e-3;
  * 2. Over 200 seeds a strap is exactly one of HAPPICH's six, its loop foot 625 or 673 mm below the rail with its own clamping piece's mass, 100, 125 or 150 g and 110, 135 or 160 g, each drawn.
  * 3. A cell front has 7/8 in bars at 4 in centres to 8 ft, each a `bar` contact as long as the grille, as many as fit inside the cell's width and centred on it: 7 across the reference's 2 ft 4 in door (Illinois 720.160) and 24 across an 8 ft cell; a width too narrow for two bars is refused on `width`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds and tries a refused width; a hold or a grille off its sources, or a strap's length paired with another strap's mass, is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are the rule's, the bus specification's, HAPPICH's and the detention maker's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases An upright pole, a hanging strap and a barred front; the reference and a wider cell, and a refused width.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the pole and overhead rail diameter, six strap options, grille span and bar spacing, and the width refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures public colliders and named contacts throughout the seed sweep. The hanging strap's drop and mass must match one whole catalogue entry. The grille cases compare different widths and a too-narrow refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the cited rule and bus specification for rail dimensions, HAPPICH's six paired sizes and weights, and the stated 4 inch grille centres. Seven bars fit the reference door and 24 fit an 8 foot cell.
  */
 export function test_archetype_handhold_cell_front(): void {
   const findings: string[] = [];

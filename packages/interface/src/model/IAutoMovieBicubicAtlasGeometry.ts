@@ -26,8 +26,8 @@ export interface IAutoMovieBicubicAtlasGeometry {
   topologyDomain: string;
 
   /**
-   * Finite Bernstein positions in model metres; these are coefficients, not
-   * interpolation samples.
+   * Bernstein coefficient positions in model metres. Supply finite values whose
+   * conversion to millimetres is also finite.
    */
   controls: IAutoMovieVector3[];
 
@@ -35,31 +35,71 @@ export interface IAutoMovieBicubicAtlasGeometry {
    * Unique patch IDs and sixteen coefficient indices, u varying fastest within
    * each v row.
    */
-  patches: {
-    /** Unique nonempty patch identity within this atlas. */
-    id: string;
-
-    /** Sixteen indices into controls, with u varying fastest in each v row. */
-    controlIds: number[];
-  }[];
+  patches: IAutoMovieBicubicAtlasGeometry.IPatch[];
 
   /**
    * Source-free cubic position owners; each interval uses this complete
    * canonical net.
    */
-  boundaryAuthorities?: {
-    /** Unique nonempty identity of the complete canonical cubic. */
-    id: string;
-
-    /** Four ordered indices into controls defining that cubic's Bernstein net. */
-    controlIds: [number, number, number, number];
-  }[];
+  boundaryAuthorities?: IAutoMovieBicubicAtlasGeometry.IBoundaryAuthority[];
 
   /**
    * Explicit edge construction from an oriented canonical interval; normal fans
    * remain independent.
    */
-  boundaryBindings?: {
+  boundaryBindings?: IAutoMovieBicubicAtlasGeometry.IBoundaryBinding[];
+
+  /**
+   * Positive field-to-triangle approximation request in metres. Supply a finite
+   * value whose conversion to millimetres is finite.
+   */
+  tolerance: number;
+
+  /** Positive safe integer adaptive-cell budget shared by all patches. */
+  maxCells: number;
+
+  /**
+   * At cell exhaustion, retain each finite current leaf with an unqualified
+   * approximation estimate, or omit it. Omitted means the existing strict
+   * policy.
+   */
+  cellBudgetPolicy?: "retain-coarse" | "omit-unresolved";
+
+  /**
+   * Safe integer emitted-vertex budget of at least three. Exhaustion preserves
+   * earlier complete chunks.
+   */
+  maxVertices: number;
+
+  /**
+   * Optional observation-fit status. An invalid measured residual produces a
+   * diagnostic while structurally valid patches remain displayable.
+   */
+  sourceFit?: IAutoMovieBicubicAtlasGeometry.ISourceFit;
+}
+
+/** Authored atlas patch, boundary and source qualification values. */
+export namespace IAutoMovieBicubicAtlasGeometry {
+  /** One authored bicubic patch and its original control ordinals. */
+  export type IPatch = {
+    /** Unique nonempty patch identity within this atlas. */
+    id: string;
+
+    /** Sixteen safe control ordinals, with U varying fastest in each V row. */
+    controlIds: number[];
+  };
+
+  /** One named complete cubic with four ordered control ordinals. */
+  export type IBoundaryAuthority = {
+    /** Unique nonempty identity of the complete canonical cubic. */
+    id: string;
+
+    /** Four ordered safe control ordinals defining the complete cubic net. */
+    controlIds: [number, number, number, number];
+  };
+
+  /** One authored patch-side restriction on a complete cubic. */
+  export type IBoundaryBinding = {
     /** Existing patch identity whose side is constructed. */
     patch: string;
 
@@ -80,43 +120,18 @@ export interface IAutoMovieBicubicAtlasGeometry {
      * fan.
      */
     normalFan: string;
-  }[];
+  };
 
-  /**
-   * Positive analytic-field-to-PL approximation request in metres; not
-   * source-surface error.
-   */
-  tolerance: number;
-
-  /** Positive total retained adaptive-cell work budget for this atlas. */
-  maxCells: number;
-
-  /**
-   * At cell exhaustion, retain each finite current leaf with an unqualified
-   * approximation estimate, or omit it. Omitted means the existing strict
-   * policy.
-   */
-  cellBudgetPolicy?: "retain-coarse" | "omit-unresolved";
-
-  /**
-   * Positive emitted-vertex budget; exhaustion preserves only complete earlier
-   * chunks.
-   */
-  maxVertices: number;
-
-  /**
-   * Optional observation-fit status; it never controls finite geometry display
-   * or realization completeness.
-   */
-  sourceFit?: {
+  /** Independent producer qualification of the earlier source fit. */
+  export type ISourceFit = {
     /**
      * True means only the producer's declared sample and numerical checks
      * passed.
      */
     qualified: boolean;
     /**
-     * Largest declared observation residual in metres; null when no residual
-     * was measured.
+     * Largest finite observation residual in metres, or null if none was
+     * measured.
      */
     maximumResidual: number | null;
     /**

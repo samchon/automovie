@@ -16,6 +16,10 @@ import { softPanel } from "../../internal/softFixtures";
  *    bytes; with 2 iterations over 1000 steps the gathers are 2·26·2·1000 =
  *    104000.
  * 2. A 2 × 2 panel has no bend constraint.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Uses AutoMovieEngineSoftBody.softBodyBudget on 3-by-3 and 2-by-2 authored panels and checks the first panel's topology and report counts plus the second panel's absence of bend edges.
+ * @evidence contracts/development/testing.md#independent-expectations A 3-by-3 grid has nine particles, six horizontal plus six vertical structural edges, eight quad diagonals, six bend edges and eight triangles. Two XYZ arrays occupy 432 bytes. Two ends per 26 constraints across two sweeps and 1,000 steps give 104,000 gathers.
+ * @evidence contracts/development/common.md#meaningful-documentation The larger panel exercises structural, shear and bend counts, mesh size, state bytes and the zero-contact budget. A 2-by-2 grid exercises a lattice too narrow for bends.
  */
 export function test_engine_soft_body_budget(): void {
   const budget: IAutoMovieSoftBodyBudget = AutoMovieEngineSoftBody.softBodyBudget(

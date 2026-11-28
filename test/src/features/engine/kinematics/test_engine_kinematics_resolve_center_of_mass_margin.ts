@@ -27,6 +27,10 @@ const ROUNDING: number = 1e-12;
  * 4. Two support points are a segment, no area: a point on it is no margin and a
  *    point beside it is outside by its distance.
  * 5. No support point is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers signed support margins in XZ, zero on the boundary, degenerate support and empty-input refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAutoMovieCenterOfMassMargin on an unordered square with extra heights and an interior support point, then on a segment and an empty support.
+ * @evidence contracts/development/testing.md#independent-expectations The square centre is half a metre from its nearest edge. One point is a quarter metre outside and an exact edge point has zero margin. A segment has no interior area.
  */
 export function test_engine_kinematics_resolve_center_of_mass_margin(): void {
   const square: IAutoMovieVector3[] = [

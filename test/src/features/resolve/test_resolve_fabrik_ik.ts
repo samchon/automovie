@@ -64,9 +64,7 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies real FABRIK world drivers and checks tip residuals, full-influence segment lengths, unreachable extension, influence blending and deterministic replay.
  * @evidence contracts/development/testing.md#independent-expectations Authored unit offsets fix total reach and unreachable extension lies on the goal ray at cumulative lengths; half-influence compares the rest tip with this solver's full result and is a blending oracle, not an independent full-solve oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Reachable/unreachable targets, straight/four-node chains, coincident-joint fallback, full/half influence and exact replay cover these solver examples; zero influence, analytic poles and malformed iteration budgets are not asserted here.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_fabrik_ik entry runs synchronous CPU numerical scene-node chains through direct source calls; these conventional lengths establish no anatomical reach envelope or GPU appearance.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A reachable goal converges (the tip lands within 1e-3 of the goal) and both).
+ * @evidence contracts/development/common.md#meaningful-documentation Reachable, unreachable, longer and coincident-joint cases exercise the solver's distinct geometry. Repeat and half-influence results pin replay and blending.
  */
 export function test_resolve_fabrik_ik(): void {
   // 1. reachable goal, exact lengths

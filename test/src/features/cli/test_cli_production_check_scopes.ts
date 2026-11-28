@@ -25,12 +25,15 @@ import * as path from "node:path";
  *    check.
  * 6. Two runs of one check overlap. The passing run finishes last and leaves the
  *    first failure separate from its current result.
+ * 7. Duplicate targets run once. Delivery checks recognize replacement bytes
+ *    during the same report instead of trusting the first file read.
+ * 8. Missing, reversed or nonfinite bounds and a blank unit each produce a failed
+ *    receipt without executing the measurement callback. Status retains the
+ *    failure, and changing a malformed criterion invalidates its receipt.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the scope, criterion, evidence and required-stage distinctions exercised.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the shared installed command evaluator, observes selected execution and reads its scoped output and receipts.
- * @evidence contracts/development/testing.md#independent-expectations The fixture writes literal lengths and bounds, with expected outcomes derived from those values and declared required IDs.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, a damaged receipt and its recreated replacement, successful and blocked stages, and isolated and multi-target selection.
- * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit owns an isolated temporary directory and spawns no process or browser.
+ * @evidence contracts/development/common.md#meaningful-documentation Names selection, result currentness, malformed criteria, required-stage rules, overlapping receipts and the replacement-byte control.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieCliProduction.runCheck with typed definitions over an isolated fixture. Reads selected callback calls, gate results and receipt bytes. The same callback records attempted execution for valid and malformed criteria. A pair of controlled promises fixes the completion order for concurrent measurements.
+ * @evidence contracts/development/testing.md#independent-expectations Literal lengths 1 and 3 lie below and above the bound of 2. Missing, reversed and nonfinite bounds and a blank unit independently require failed receipts with no measured value. Explicit required IDs define which disabled or missing rows block the stage. Distinct input bytes and a biased stored status expose stale or misread results. The chosen completion order leaves the first failure history beside the current pass, and a replaced movie changes only the subsequent publication verdict.
  */
 export async function test_cli_production_check_scopes(): Promise<void> {
   const root: string = await fs.mkdtemp(
@@ -42,7 +45,7 @@ export async function test_cli_production_check_scopes(): Promise<void> {
     const seen: string[] = [];
     const measurement = (
       name: string,
-      minimum: number,
+      minimum?: number,
     ): IAutoMovieProductionCheck.IMeasurement => ({
       id: "gap",
       kind: "measure",
@@ -50,7 +53,7 @@ export async function test_cli_production_check_scopes(): Promise<void> {
       scope: name,
       inputs: [`${name}.json`],
       unit: "m",
-      minimum,
+      ...(minimum === undefined ? {} : { minimum }),
       measure: async (directory: string): Promise<number> => {
         seen.push(name);
         return Number(
@@ -215,6 +218,39 @@ export async function test_cli_production_check_scopes(): Promise<void> {
       true,
     );
     const count: number = seen.length;
+    const invalidCriteria: IAutoMovieProductionCheck.IMeasurement[] = [
+      { ...measurement("chair"), id: "missing-bounds" },
+      { ...chair, id: "reversed-bounds", minimum: 3, maximum: 2 },
+      { ...chair, id: "nan-bound", minimum: Number.NaN },
+      { ...chair, id: "infinite-upper", maximum: Number.POSITIVE_INFINITY },
+      { ...chair, id: "infinite-lower", minimum: Number.NEGATIVE_INFINITY },
+      { ...chair, id: "blank-unit", unit: " " },
+    ];
+    const invalid: IAutoMovieProductionCheck.IReport = await run(
+      invalidCriteria,
+      true,
+    );
+    assert.equal(seen.length, count);
+    assert.deepEqual(
+      invalid.items.map(({ id, state }) => [id, state]),
+      invalidCriteria.map(({ id }) => [id, "failed"]),
+    );
+    for (const item of invalid.items) {
+      assert.match(item.message, /ordered finite bounds/u);
+      assert.ok(item.evidence);
+      assert.doesNotMatch(
+        await fs.readFile(path.resolve(root, item.evidence), "utf8"),
+        /"measurement":/u,
+      );
+    }
+    assert.deepEqual((await run(invalidCriteria, false)).items, invalid.items);
+    assert.equal(
+      (await run([{ ...invalidCriteria[0]!, minimum: 1 }], false)).items[0]
+        ?.state,
+      "stale",
+    );
+    assert.equal(seen.length, count);
+
     await assert.rejects(
       run([chair], true, ["chair"], ["gap", "misspelled"]),
       /No selected verification check named misspelled/u,

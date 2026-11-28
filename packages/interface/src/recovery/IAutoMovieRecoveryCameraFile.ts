@@ -1,28 +1,25 @@
 import type { IAutoMovieRecoveryCameraCalibration } from "..";
 
-/** One fixed-byte camera image declared by the Node acquisition manifest. */
+/**
+ * Fixed encoded image entry for the file-backed calibrated camera commands. It
+ * binds the path and byte hash to the supplied pixel chart.
+ */
 export interface IAutoMovieRecoveryCameraFile {
-  /** Unique resident acquisition identity. */
+  /** Nonblank capture identity, unique within the resident camera request. */
   id: string;
 
-  /**
-   * Image path relative to its manifest, or an explicitly supplied absolute
-   * path.
-   */
+  /** Encoded image path resolved from the manifest directory. */
   path: string;
 
-  /** Lowercase SHA-256 of the exact acquired P6 bytes. */
+  /** Expected lowercase SHA-256 of the encoded image bytes. */
   sha256: string;
 
   /**
-   * Declared capture/decoding history, including original hashes of a lossless
-   * derivative.
+   * Declared decode, orientation, crop and correction history for this pixel
+   * chart.
    */
   pixelProvenance: string;
 
-  /**
-   * Corrected pinhole intrinsics in this exact unchanged integer-pixel-centre
-   * chart.
-   */
+  /** Supplied corrected pinhole calibration for the decoded chart. */
   camera: IAutoMovieRecoveryCameraCalibration;
 }

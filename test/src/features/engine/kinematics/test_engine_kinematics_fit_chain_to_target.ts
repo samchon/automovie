@@ -51,6 +51,10 @@ const TWINS: Readonly<
  *    right arm's clinical angles.
  * 4. With the right wrist's twist zero moved 15 degrees by its rest frame, the
  *    hand still reaches a demand turned 12 degrees about the forearm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers wrist rotation demands, the distal twist share, mirror symmetry and a changed wrist rest frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls fitChainToTarget on a resolved stock arm with world targets and three demand axes, then resolves returned poses for orientation comparisons.
+ * @evidence contracts/development/testing.md#independent-expectations The demand is turned 12 degrees about known axes. Only the parallel component consumes full forearm twist. Mirroring the geometry and demand fixes the corresponding clinical angles, and a rest-frame offset must preserve the imposed world demand.
  */
 export async function test_engine_kinematics_fit_chain_to_target(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

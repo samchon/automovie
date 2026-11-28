@@ -3,15 +3,13 @@ import type { IAutoMovieRecoveryEventRegionCells } from "./IAutoMovieRecoveryEve
 import type { IAutoMovieRecoveryEventRegionSource } from "./IAutoMovieRecoveryEventRegionSource";
 import type { IAutoMovieRecoveryEventRegionTopology } from "./IAutoMovieRecoveryEventRegionTopology";
 
-/**
- * Attach contact and port ownership evidence after component topology is
- * complete.
- */
+/** Callable finalization of named source port ownership in one clipped query. */
 
 export namespace IAutoMovieRecoveryEventRegionPorts {
   /**
-   * Attach contact and port ownership evidence after component topology is
-   * complete.
+   * Attach each named port to retained source cells, connected components and
+   * eligible boundary occurrences. Record contact, ambiguous and missing
+   * ownership and any overlapping port claims.
    */
 
   export type Operation = (

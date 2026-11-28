@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A nonzero trailing tangent gives beta 3 and alpha 0. The other endpoint
  *    constraint sets the same one-half scale on the trailing knot.
  * 3. The same span held keeps its tangents.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines leading, trailing and held-span tangent cases for a unit Hermite chord.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual limiter for nonzero tangents at either endpoint and the held control. Checks returned vectors, including unchanged zero components.
+ * @evidence contracts/development/testing.md#independent-expectations A chord of one and a tangent of three give one endpoint constraint of 1/2 and the other of one. The retained nonzero tangent is therefore 1.5.
  */
 export function test_archetypes_internal_limit_monotone_tangents(): void {
   const points: IAutoMovieVector3[] = [

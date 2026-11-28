@@ -10,6 +10,7 @@ import type {
   IAutoMovieCaptureTime,
   IAutoMovieInspectionRequest,
   IAutoMovieInspectionView,
+  IAutoMoviePlaybackEvent,
 } from "@automovie/interface";
 
 import { expandInspectionSweep } from "../../scene/inspection/internal/expandInspectionSweep";
@@ -17,6 +18,7 @@ import { matchInspectionPath } from "../../scene/inspection/internal/matchInspec
 import { parseInspectionView } from "../../scene/inspection/internal/parseInspectionView";
 import { planCaptureFrames } from "./planCaptureFrames";
 import { planCaptureLayout } from "./planCaptureLayout";
+import { resolveCaptureCue } from "./resolveCaptureCue";
 
 /*
  * Plan a capture as data before anything is drawn: check the request against
@@ -88,16 +90,23 @@ export function planCapture(
       : sweep(request, subject);
 
   // Times, then every cell.
+  const playedCue: Readonly<IAutoMoviePlaybackEvent> | undefined =
+    request.cue === undefined ? undefined : resolveCaptureCue(subject, request.cue);
   const frames: ReturnType<typeof planCaptureFrames> =
     planCaptureFrames({
       durationSeconds: subject.durationSeconds,
       fps: subject.fps,
-      sampling: request.sampling,
-      events: request.events,
+      sampling: playedCue === undefined ? request.sampling : { kind: "at", seconds: [] },
+      events: playedCue === undefined ? request.events : [playedCue.globalTime],
       cuts: props.cuts,
       window: request.window,
     });
   const { times, windows } = frames;
+  if (playedCue !== undefined && !times.some((time: IAutoMovieCaptureTime): boolean => time.seconds === playedCue.globalTime)) {
+    // The neighboring native frame never stands in for an exact played pose.
+    times.push({ seconds: playedCue.globalTime, frame: null });
+    times.sort((left: IAutoMovieCaptureTime, right: IAutoMovieCaptureTime): number => left.seconds - right.seconds);
+  }
   const cells: IAutoMovieCaptureCell[] = [];
   const names: Map<string, string> = new Map();
 
@@ -114,8 +123,10 @@ export function planCapture(
     for (const time of times)
       for (const view of request.views)
         for (const pass of request.passes) {
+          const atCue: boolean = playedCue !== undefined && playedCue.globalTime === time.seconds;
           const name: string = [
             `t${time.seconds.toFixed(3).padStart(7, "0")}`,
+            ...(atCue && time.frame === null ? ["pose"] : []),
             slug(view),
             pass,
             ...(selection.kind === "whole"
@@ -130,7 +141,7 @@ export function planCapture(
             );
           names.set(key, name);
           const label: string | null =
-            labels.get(time.seconds.toFixed(3)) ?? null;
+            atCue ? playedCue!.id : labels.get(time.seconds.toFixed(3)) ?? null;
           cells.push({
             index: cells.length,
             name,
@@ -157,6 +168,7 @@ export function planCapture(
     request,
     times,
     windows,
+    ...(playedCue === undefined ? {} : { playedCue }),
     cells,
     layout: planCaptureLayout({
       width: subject.width,

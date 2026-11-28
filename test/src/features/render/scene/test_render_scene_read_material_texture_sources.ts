@@ -21,6 +21,10 @@ import type * as ThreeTypes from "three";
  *    independent Source stays separate despite equal upload keys.
  * 3. Removed use retains context facts; explicit host-supplied release rows prune
  *    the wrapper rather than claiming an automatic native disposal observer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe shared and independent sources, changed upload keys, repeated wrapper observation and explicit release.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that matching wrappers share accounting, altered upload state or independent source splits it, and explicit release prunes only the owner reported by the host.
+ * @evidence contracts/development/testing.md#independent-expectations Compares against the independently sized 64-byte source and explicit expected owner and allocation lists as keys change and release rows arrive.
  */
 export async function test_render_scene_read_material_texture_sources(): Promise<void> {
   const THREE: typeof ThreeTypes = await import("three");

@@ -5,10 +5,8 @@ import type {
 } from "..";
 
 /**
- * A named collection of fixed physical cuts through one registered mesh.
- * Coordinates are signed distances along the normalized axis from the
- * registered origin; the caller establishes their feature meaning. Every mesh
- * component intersecting each plane remains admitted.
+ * Registered source and explicit physical station requests for fixed-section
+ * Recovery.
  */
 export interface IAutoMovieRecoverySectionsInput extends Pick<
   IAutoMovieRecoveryInput,
@@ -22,36 +20,30 @@ export interface IAutoMovieRecoverySectionsInput extends Pick<
   | "sourceOrientationSign"
   | "cornerDegrees"
 > {
-  /** Stable collection name prefixed to every resulting contour curve. */
+  /** Name used for the collection and its saved contours. */
   name: string;
 
   /**
-   * Nonempty finite distinct signed millimetre coordinates; input order is
-   * retained. Optional terminal observations append their source-observed event
-   * and bracket planes.
+   * Distinct finite signed plane coordinates in millimetres, in the order to
+   * observe.
    */
   coordinatesMm: readonly number[];
 
   /**
-   * Optional existing closed loops to follow toward increasing coordinates;
-   * omitted preserves exactly the requested plane collection. Source-observed
-   * critical planes and brackets are appended while retaining all intersecting
-   * source components.
+   * Optional original requested coordinate and closed loop addresses for
+   * terminal tracing.
    */
   terminalSeeds?: readonly IAutoMovieRecoveryTerminalSeed[];
 
   /**
-   * Optional finite source-slab observations. Both increasing bounds must occur
-   * in coordinatesMm; all source components remain present and exact
-   * port/critical evidence is delivered through onSourceSlab. Omitted preserves
-   * ordinary curve-only observation.
+   * Optional finite ordered station pairs selecting separate source-slab
+   * observations.
    */
   slabPairs?: readonly IAutoMovieRecoverySlabPair[];
 
   /**
-   * Retain exact cutter-emitted source faces for lineage even without a slab
-   * pair. These acquisition-only copies do not enter returned curve
-   * coefficients. Omitted preserves ordinary lineage retention.
+   * Whether to include actual cut-emitting triangle IDs in supplied lineage
+   * callbacks.
    */
   includeExactSourceLineage?: boolean;
 }

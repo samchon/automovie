@@ -11,6 +11,10 @@ import * as THREE from "three";
  * 1. Repeated explicit completion of the same frame emits meaningful signals.
  * 2. Ordinary idle, eager and changed completions preserve producer authority.
  * 3. Unsubscribed or unavailable event ports perform no delivery.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Emits every explicit completed redraw while ordinary frame classifications and event-port availability control publication.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the completed-frame publisher with observed native event ports for explicit, idle, eager, meaningful and unavailable cases.
+ * @evidence contracts/development/testing.md#independent-expectations Fixed frame, scene and camera identities plus event counts distinguish repeated explicit publication from ordinary classification. No available subscriber gives no delivery.
  */
 export function test_viewer_root_publish_completed_frame(): void {
   const frame: AutoMovieViewerDisplay.ICompletedFrame = {

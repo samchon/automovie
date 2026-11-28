@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  *    N s touch satisfies it.
  * 5. The expectation as forbidden reports the matching contact, while a contact on
  *    another region (`a.foot`) does not match it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names reversed contacts, the closed time window, the minimum impulse, wildcard regions and forbidden matches.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes authored outcome expectations and measured contact records to CompositionOutcome.audit and compares its findings, including their details.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.5 s endpoint belongs to the window and 0.6 s does not. The greater weak impulse is 0.5 N s, below 1 N s. The wildcard admits a foot contact with zero impulse, while only the matching hand pair produces a forbidden finding.
  */
 export function test_engine_composition_audit_outcome(): void {
   const expectation: IAutoMovieAuditOutcome.IExpectation = {

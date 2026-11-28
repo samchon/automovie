@@ -16,13 +16,27 @@ export class TrueTypeByteReader {
    * Big-endian view over the borrowed bytes.
    */
   private readonly view: DataView;
+  private readonly name: string;
 
   /*
    * Borrow the font bytes for the life of one decode.
    */
-  public constructor(bytes: Uint8Array) {
+  public constructor(bytes: Uint8Array, name: string = "font") {
     this.bytes = bytes;
     this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    this.name = name;
+  }
+
+  /*
+   * Borrows a declared child extent. Slicing before parsing confines offsets
+   * relative to that child, including a subtable's own relative offsets.
+   */
+  public slice(offset: number, size: number, what: string): TrueTypeByteReader {
+    this.require(offset, size, what);
+    return new TrueTypeByteReader(
+      this.bytes.subarray(offset, offset + size),
+      what,
+    );
   }
 
   /*
@@ -38,7 +52,7 @@ export class TrueTypeByteReader {
       offset + size > this.bytes.byteLength
     )
       throw new Error(
-        `TrueType ${what} at byte ${offset} with length ${size} lies outside the ${this.bytes.byteLength} font bytes`,
+        `TrueType ${what} at byte ${offset} with length ${size} lies outside the ${this.bytes.byteLength} ${this.name} bytes`,
       );
   }
 

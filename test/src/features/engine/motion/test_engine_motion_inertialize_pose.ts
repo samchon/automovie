@@ -46,6 +46,10 @@ type Blend = (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
  * 4. A root 0.01 m off closing at 24 m/s stops at the target within its clamped
  *    decay, and passes through it when asked to, by the quintic over the whole
  *    decay.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the knee's carry from the cut, moving target once settled, zero initial angle offset, and the root's clamp and pass-through variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates synthetic pose and rate records, builds `inertializePose` continuations, and reads their knee articulation and root position during and after transition.
+ * @evidence contracts/development/testing.md#independent-expectations A 30-degree zero-rate knee offset leaves 3/16 of its size halfway through, above a 10-degree target at 15.625 degrees. The root continuation starts 0.2 m away at 1.5 m/s. A scalar Bollo quintic supplies comparisons for the root's carried offset and allowed crossing.
  */
 export function test_engine_motion_inertialize_pose(): void {
   const pose: (flexion: number, x: number) => IAutoMoviePose = (

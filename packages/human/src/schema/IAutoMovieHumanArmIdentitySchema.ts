@@ -3,7 +3,11 @@ import type { tags } from "typia";
 
 import type { IAutoMovieHumanBodyAnatomySchema } from "./IAutoMovieHumanBodyAnatomySchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanArmIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Measurements and joint mobility for one arm, for typia validation. Lengths,
+ * girths and dorsal hand fat thickness use millimetres. Carrying and mobility
+ * angles use degrees.
+ */
 export type IAutoMovieHumanArmIdentitySchema = IAutoMovieHumanArmIdentity & {
   /**
    * Acromion-radiale length: the acromion to the upper palpable edge of the radial head, millimetres. It is markedly shorter with the arm abducted, because the acromion moves toward the radiale, so it is taken hanging.

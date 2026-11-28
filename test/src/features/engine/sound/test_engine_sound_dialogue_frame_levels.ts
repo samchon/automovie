@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Two frames give two levels: 0 for the silent frame and 0.1 within 1e-6 for
  *    the sine.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines frame-local RMS for a line stored on a film sample and frame clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the frame levels of a 24 fps line with one silent frame and one prepared sinusoid at 48 kHz.
+ * @evidence contracts/development/testing.md#independent-expectations Two frames contain 2000 samples each. Fifty complete periods at amplitude 0.1√2 give RMS 0.1 and silence gives zero.
  */
 export function test_engine_sound_dialogue_frame_levels(): void {
   const samples: Float32Array = Float32Array.from(

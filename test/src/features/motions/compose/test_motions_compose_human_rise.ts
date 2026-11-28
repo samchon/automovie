@@ -38,6 +38,10 @@ const ROUNDING: number = 1e-9;
  * 2. The lift is the mean of the ankles' travel, up by several centimetres.
  * 3. A leg row at a second writes its toes at the heel's angle and a planted goal
  *    at the raised ankle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the pivoted toes, ankle lift and the planted leg row, including its toe angle and foot heading.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanRise foot, lift and rows using the stored feet and sampled postures, then reads world sockets, ankle shifts and written leg fields.
+ * @evidence contracts/development/testing.md#independent-expectations Rotation about the toes fixes their world point and raises the heel without changing heading. The root lift is the arithmetic mean of both measured ankle displacements. The sampled row must claim the right leg and set ten degrees on its toes.
  */
 export async function test_motions_compose_human_rise(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

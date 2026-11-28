@@ -414,6 +414,8 @@ export function hingedArmArticulation(
   // A continued fit refines its seed on the seed's branch alone.
   if (props.near !== undefined) {
     const near: IAutoMovieSwivelNear = props.near;
+    if (!Number.isFinite(near.tolerance) || near.tolerance <= 0)
+      throw new Error("A continued fit needs a positive finite tolerance");
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IBranch = { ...found[branch]!, branch };
     const posed: ReturnType<typeof AutoMovieEngineHingedArmSwivel.pose> = pose(stop.theta);

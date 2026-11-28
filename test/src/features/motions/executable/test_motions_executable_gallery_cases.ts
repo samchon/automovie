@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The left fist sets its fourteen finger and thumb joints, each finger's
  *    proximal 85 degrees and the thumb's distal 50, and nothing of the right
  *    hand.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines zero-default gallery joint maps and the gallery fist on the requested side.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the pose builder with a three-bone map and explicit elbow override, then opens the left-fist joint map.
+ * @evidence contracts/development/testing.md#independent-expectations The elbow values remain 90° flexion and 10° twist and other bones keep ordered zeros. The 14-joint fist contains the stated finger levels and omits right-hand joints.
  */
 export function test_motions_executable_gallery_cases(): void {
   const pose: IAutoMoviePose = galleryCaseZero(

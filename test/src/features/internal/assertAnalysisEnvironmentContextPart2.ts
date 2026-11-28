@@ -1,4 +1,7 @@
-import { AutoMovieEngineAnalysis, AutoMovieEngineEnvironment } from "@automovie/engine";
+import {
+  AutoMovieEngineAnalysis,
+  AutoMovieEngineEnvironment,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
@@ -9,16 +12,26 @@ import { TestValidator } from "@nestia/e2e";
 import { boxSolid } from "./analysisFixtures";
 import { hasViolation, namedFacts, throwsError } from "./predicates";
 
-/** Execute the next ordered assertions of test_analysis_environment_context.
+/**
+ * Execute the next ordered assertions of test_analysis_environment_context.
  *
  * Scenarios:
- * 1. a sun under the horizon may not declare a beam, and the same sun without one may.
- * 2. no context id may collide with a building-owned id.
- * 3. an occluder that bounds nothing is refused, and the assertion form throws.
- * 4. the slab test answers hand geometry on every side of the interval.
  *
- * A positive sun-up dot product permits a beam and a nonpositive one does not; independently authored reserved ids define ownership collisions. Unit-box inequalities determine inside/ahead/behind, parallel, tangent and finite-distance ray outcomes. Plane-field checks establish numeric admission, not nonempty bounded closure of every arbitrary plane set.
- * Below-horizon beam/no beam and above-horizon beam separate the horizon rule. Context/instant/occluder collisions, too few planes and zero normals contrast with the valid box; ray starts and distance boundaries separate clipping decisions. Part3 owns scaled normals and sampling.
+ * 1. A sun under the horizon may not declare a beam, and the same sun without one
+ *    may.
+ * 2. No context id may collide with a building-owned id.
+ * 3. An occluder that bounds nothing is refused, and the assertion form throws.
+ * 4. The slab test answers hand geometry on every side of the interval.
+ *
+ * A positive sun-up dot product permits a beam and a nonpositive one does not;
+ * independently authored reserved ids define ownership collisions. Unit-box
+ * inequalities determine inside/ahead/behind, parallel, tangent and
+ * finite-distance ray outcomes. Plane-field checks establish numeric admission,
+ * not nonempty bounded closure of every arbitrary plane set. Below-horizon
+ * beam/no beam and above-horizon beam separate the horizon rule.
+ * Context/instant/occluder collisions, too few planes and zero normals contrast
+ * with the valid box; ray starts and distance boundaries separate clipping
+ * decisions. Part3 owns scaled normals and sampling.
  */
 export function assertAnalysisEnvironmentContextPart2(
   context: IAutoMovieEnvironmentContext,
@@ -47,7 +60,8 @@ export function assertAnalysisEnvironmentContextPart2(
       ),
       // The night instant already declares a sun below the horizon and no beam;
       // it is the negative twin of the case above and must stay clean.
-      darkBelow: AutoMovieEngineEnvironment.validateContext({ context }).success,
+      darkBelow: AutoMovieEngineEnvironment.validateContext({ context })
+        .success,
       // A zero ground direction must report itself rather than produce a second
       // complaint about the beam that reads it.
       unusableGround: hasViolation(
@@ -61,6 +75,24 @@ export function assertAnalysisEnvironmentContextPart2(
     },
     { beamBelow: true, darkBelow: true, unusableGround: false },
   );
+
+  for (const value of [NaN, Infinity, Number.NEGATIVE_INFINITY])
+    for (const [index, field] of [
+      [1, "time"],
+      [2, "directNormalIlluminance"],
+      [2, "diffuseHorizontalIlluminance"],
+    ] as const) {
+      const invalid: ReturnType<
+        typeof AutoMovieEngineEnvironment.validateContext
+      > = broken({ instants: instantOf(index, { [field]: value }) });
+      TestValidator.equals(
+        `only the nonfinite ${field} is reported for ${value}`,
+        invalid.success
+          ? []
+          : invalid.violations.map(({ path, kind }) => ({ path, kind })),
+        [{ path: `$input.instants[${index}].${field}`, kind: "range" }],
+      );
+    }
 
   TestValidator.equals(
     "no context id may collide with a building-owned id",
@@ -165,7 +197,10 @@ export function assertAnalysisEnvironmentContextPart2(
       [
         "assertion accepts the declared mass",
         (): true => {
-          AutoMovieEngineAnalysis.assertAnalysisSolids([neighbour], "shading solid");
+          AutoMovieEngineAnalysis.assertAnalysisSolids(
+            [neighbour],
+            "shading solid",
+          );
           return true;
         },
       ],

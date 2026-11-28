@@ -19,6 +19,10 @@ import { createSkeleton } from "../../internal/createSkeleton";
  * 2. A missing bone, an unstaged parent and a self attachment are refused.
  * 3. A valid job follows earlier refusals and retains its source index and
  *    original bone-local offset.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name quaternion admission, parent and bone requirements and preservation of the admitted action source and offset.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the stage-action gate for each malformed attachment and a later valid job, then reads both the addressed refusals and the queued job fields.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture stages specific child and parent identities and a known bone. Their presence and distinctness determine admission independently. A nonunit quaternion violates the offset representation, and the valid case must retain its original bone-local values.
  */
 export function test_engine_film_gate_attach_stage_action(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

@@ -21,6 +21,10 @@ import { InspectionScene } from "../../internal/InspectionScene";
  * 4. Marks handed to `update` replace the drawn ones and rewrite `selected` and
  *    `legend` in place, and an anchor no scene object has is refused naming the
  *    mark and the anchor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names anchor translation and rotation, world-space marks, replacement and missing-anchor refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Draws a marked segment against a real named scene object. Moves the anchor, calls update and reads drawn segments, selected paths and legend. Also draws a world-space segment and attempts a missing anchor.
+ * @evidence contracts/development/testing.md#independent-expectations The anchor translates the unit Y segment to X 3. Moving it to Y 2 and rotating it one quarter about Z turns the segment toward −X when updated. The world mark retains its authored coordinates under a shifted scene root. The missing anchor must be identified with its mark.
  */
 export function test_render_scene_apply_inspection_mark_anchor(): void {
   // 1. Drawn in the anchor's frame.

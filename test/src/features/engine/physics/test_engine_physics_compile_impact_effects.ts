@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * A three-dimensional spray keeps its declared visible opacity, lands as
  * enlarged persistent stains and rejects malformed transport.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes a 3D spray at early time and retained floor stains at late time, with invalid gravity and stain scale refused.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles two typed solver-receipt recipes differing in stain retention, samples each at 1.2 s and 20 s, and submits two malformed transports.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture requires at least 0.1 m height spread, its constant opacity, and late stains at y = 0.002 scaled by 2.3. The other recipe yields an empty late sample.
  */
 export function test_engine_physics_compile_impact_effects(): void {
   const receipt: IAutoMovieContactReceipt = {

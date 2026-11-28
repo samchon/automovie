@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
  *    identity.
  * 2. A half turn about x with twist axis y has no defined twist: `twist` is null
  *    and the result keeps the whole rotation as swing with an identity twist.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers a pure twist and the undefined twist of a perpendicular half turn.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls decomposeSwingTwist and swingTwistComponent with explicit rotations and a Y twist axis.
+ * @evidence contracts/development/testing.md#independent-expectations Rotation around Y leaves no swing. A half turn about X has zero projection and zero scalar in the Y twist quaternion, so the split keeps the original swing and uses an identity fallback.
  */
 export function test_engine_math_swing_twist(): void {
   const h: number = Math.SQRT1_2;

@@ -25,9 +25,13 @@ const ROUNDING: number = 1e-12;
  *    `local` takes it back.
  * 2. `forward` is (sin yaw, 0, cos yaw): at 90, +X.
  * 3. `heading` reads a turn's yaw back: `turn(30)` reads 30.
- * 4. A prepared frame converts as `point` does, and about another origin when`n *
+ * 4. A prepared frame converts as point does and accepts a different origin when
  *    given one: local (0, 0, 2) about (0, 0, 1) at a quarter turn is (2, 0,
  *    1).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines forward and inverse performer-floor transforms from degrees of yaw and world origin.
+ * @evidence contracts/development/testing.md#behavioral-verification Tests local-to-world and inverse reads, derives heading from a rotation and compares a prepared transform at two origins.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn sends +Z to +X and +X to −Z. Applying that rotation and translation to (0.3, 0.1, 0.5) gives (1.5, 0.1, 1.7).
  */
 export function test_motions_posture_frame(): void {
   const frame: IAutoMovieMotionHumanFrame = {

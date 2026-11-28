@@ -2,9 +2,10 @@
  * Owned nearest-feature reading from one compiled oriented surface, returned by
  * the query `createSignedMeshQuery` compiles.
  *
- * Vectors use the mesh-local metre frame. The query owns its compiled snapshot;
- * changing these returned vectors cannot alter later readings. A boundary
- * feature on an open sheet has no qualified interior-side classification.
+ * The returned point and pseudonormal are caller-owned in the mesh-local frame.
+ * Their orientation gives a local signed reading. On an open sheet, use the
+ * boundary flag to identify rim readings excluded from the sheet's
+ * interior-side interpretation.
  */
 export interface IAutoMovieSignedMeshQueryHit {
   /** Nearest surface point, XYZ in mesh-local metres, owned by the caller. */
@@ -22,9 +23,9 @@ export interface IAutoMovieSignedMeshQueryHit {
   distance: number;
 
   /**
-   * `distance` signed by the side of `normal` the query point lies on: positive
-   * on the oriented exterior, negative inside, and zero when the point is on
-   * the feature's tangent plane through `point`.
+   * Separation signed by the dot product of the pseudonormal with the query
+   * offset from the nearest point. The sign is zero on the pseudonormal plane.
+   * Interpreting negative as inside requires a qualified outward closed mesh.
    */
   signedDistance: number;
 
@@ -42,9 +43,8 @@ export interface IAutoMovieSignedMeshQueryHit {
   feature: "face" | "edge" | "vertex";
 
   /**
-   * True when the nearest support is an open sheet's rim edge or rim vertex,
-   * whose reported side is not a side of the sheet's interior; always false for
-   * a closed surface.
+   * True for an open sheet's rim edge or rim vertex. Use the sign only on the
+   * admitted sheet interior. A closed surface reports false.
    */
   boundary: boolean;
 }

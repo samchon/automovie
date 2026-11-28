@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  * 2. Heading 90 about (1, 0, 1), the start (0, 0, -0.1) lies at (0.9, 0, 1).
  * 3. An upper arm of 0.3 and a forearm of 0.25 reach sqrt(0.09 + 0.0625 + 0.15 cos
  *    30) / 0.55 of the arm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the circular palm trajectory, local-to-world placement and elbow-dependent arm reach.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a three-cycle patch, rotates its frame and calls the reach helper with fixed arm segments.
+ * @evidence contracts/development/testing.md#independent-expectations Quarter-cycle geometry puts the first turn at (0.1, 0, 0), with start and finish equal. Segment lengths and cos 30° independently determine the reach ratio.
  */
 export function test_motions_tasks_wipe(): void {
   TestValidator.predicate(

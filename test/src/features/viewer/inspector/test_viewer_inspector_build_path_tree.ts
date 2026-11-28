@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Hero is not drawn and patterns "hero/**"; hero/torso is drawn, patterns
  *    "hero/torso" and holds arm; "" has no pattern.
  * 3. An empty list gives an empty tree.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names tree order, selected paths, intermediate nodes and empty input.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the tree from a supplied path list and compares the entire nested result, then repeats with no paths.
+ * @evidence contracts/development/testing.md#independent-expectations The slash-delimited hero, torso and arm spell their own ancestry. The fixed expected tree contains a distinct prop root and preserves the empty input.
  */
 export function test_viewer_inspector_build_path_tree(): void {
   const node: (

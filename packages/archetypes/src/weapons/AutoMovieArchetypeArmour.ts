@@ -6,9 +6,10 @@ import type {
 
 import "../core/index";
 
-import {
-  ArchetypeDraw,
-} from "../core/internal/ArchetypeDraw";
+import type { AutoMovieArchetype } from "../core/AutoMovieArchetype";
+import type { AutoMovieArchetypeDrawSession } from "../core/AutoMovieArchetypeDrawSession";
+import type { IAutoMovieArchetypeBand } from "../core/IAutoMovieArchetypeBand";
+import { ArchetypeDraw } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
 import { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
 import { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";
@@ -18,18 +19,9 @@ import { AutoMovieArchetypeCostumeVambrace } from "./AutoMovieArchetypeCostumeVa
 import { armourBone } from "./internal/armourBone";
 import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
 import { AutoMovieArchetypeArmourData } from "./internal/AutoMovieArchetypeArmourData";
-
-
-/**
- * Constructs the armour archetype from its recipe.
- *
- * Companion types, bands, records and the bone rule of
- * {@link AutoMovieArchetypeArmour.create}.
- *
- * Costume-piece selection and the binding consumed by a scene.
- */
+/** Creates catalogue armour pieces and binds separate pieces to a wearer. */
 export namespace AutoMovieArchetypeArmour {
-  /** The kinds of piece. */
+  /** Selects the shell, catalogue and body measurements for one piece. */
   export type Kind =
     | "openHelmet"
     | "closedHelmet"
@@ -64,7 +56,7 @@ export namespace AutoMovieArchetypeArmour {
     | "pad"
     | "mass";
 
-  /** The read pieces, by their Metropolitan Museum object ids. */
+  /** Identifies a catalogue piece by its Metropolitan Museum object ID. */
   export type Model =
     | "met26453"
     | "met25388"
@@ -86,27 +78,24 @@ export namespace AutoMovieArchetypeArmour {
     | "met22970"
     | "met22276";
 
-  /**
-   * The parameters: the kind, the read piece, the body to fit, and any free
-   * dimension fixed to a value inside its band.
-   */
+  /** Selects a piece, its optional fit, and fixed dimensions for its profile. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which piece. */
+    /** The silhouette and body segment to cover. */
     kind: Kind;
 
-    /** Which read piece; picked from the seed when absent. */
+    /** A catalogue record for this kind. The first record is the unseeded default. */
     model?: Model;
 
     /**
-     * The body to fit, metres: required fields are finite and positive,
-     * shoulders above waist for a cuirass. Unused fields may be omitted; absent
-     * measure retains the literal museum envelope. Mail's inner body boundary
-     * is exact; its equivalent wall lies outside it. A gauntlet's forearm
-     * radius fits its cuff, not an unmeasured palm.
+     * Measurements in metres used by the selected profile. Leave this unset
+     * for the catalogue envelope. Supply finite positive values for the
+     * measurements the profile reads. A cuirass needs shoulders above waist.
+     * Mail adds its equivalent wall outside the fitted torso. A gauntlet
+     * uses the forearm radius for its cuff.
      */
     measure?: Partial<IAutoMovieBodyMeasure>;
 
-    /** The model's id, unique in a scene; `armour` when absent. */
+    /** Scene model ID. Defaults to `armour`. */
     id?: string;
   }
 
@@ -121,22 +110,19 @@ export namespace AutoMovieArchetypeArmour {
     | "leftLowerLeg"
     | "rightLowerLeg";
 
-  /** The shared measured costume model, retaining its wear socket. */
-  export type IAssemblyModel = import("../core/index").AutoMovieArchetype<
-    AutoMovieArchetypeArmour.Affordance,
-    AutoMovieArchetypeArmour.Dimension
-  >;
+  /** An armour model whose `wear` socket aligns it to the covered segment. */
+  export type IAssemblyModel = AutoMovieArchetype<Affordance, Dimension>;
 
   /**
-   * The wearer's T-pose rest joints in canonical world metres, bones and
-   * measure.
+   * The wearer's canonical T-pose rest positions in world metres, its bone
+   * hierarchy and the measurements needed by the selected pieces.
    */
   export type IAssemblyWearer = Pick<
     IAutoMovieMotionHumanBody,
     "rest" | "bones" | "measure"
   >;
 
-  /** A selection of separate models and their wearer. */
+  /** Scene identity, body and costume pieces to bind without merging models. */
   export interface IAssemblyParams {
     /** The performer's scene identity. */
     subject: string;
@@ -148,7 +134,7 @@ export namespace AutoMovieArchetypeArmour {
     pieces: Readonly<Partial<Record<IAssemblySlot, IAssemblyModel>>>;
   }
 
-  /** One source model and its initial bone binding. */
+  /** A source model and its bone-relative placement for scene composition. */
   export interface IAssemblyPiece {
     /** The original source model with its existing id and geometry. */
     model: IAssemblyModel;
@@ -158,8 +144,7 @@ export namespace AutoMovieArchetypeArmour {
   }
 
   /**
-   * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
-   * cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
+   * Creates a catalogue or fitted armour piece with a single `wear` socket.
    *
    * Closed wall cells leave face, neck, arm, hem and limb cavities open. Museum
    * H/W/D and total mass remain the selected record's; fitted body boundaries
@@ -191,10 +176,7 @@ export namespace AutoMovieArchetypeArmour {
   export function create(
     params: AutoMovieArchetypeArmour.IParams,
     seed?: number,
-  ): import("../core/index").AutoMovieArchetype<
-    AutoMovieArchetypeArmour.Affordance,
-    AutoMovieArchetypeArmour.Dimension
-  > {
+  ): AutoMovieArchetype<Affordance, Dimension> {
     const kind: AutoMovieArchetypeArmour.Kind = ArchetypeDraw.choice(
       "armour",
       "kind",
@@ -209,10 +191,7 @@ export namespace AutoMovieArchetypeArmour {
         (
           params: AutoMovieArchetypeArmour.IParams,
           seed?: number,
-        ) => import("../core/index").AutoMovieArchetype<
-          AutoMovieArchetypeArmour.Affordance,
-          AutoMovieArchetypeArmour.Dimension
-        >
+        ) => AutoMovieArchetype<Affordance, Dimension>
       >
     > = {
       openHelmet: (p, s) =>
@@ -326,7 +305,7 @@ export namespace AutoMovieArchetypeArmour {
   }
 
   /**
-   * Bind separate digital costume pieces to one performer's named bones.
+   * Binds separate costume models to one performer's canonical bones.
    *
    * Each piece remains its own model. Its `wear` socket, the centre of the body
    * part it covers, is placed on that part's centre on the wearer's T-pose rest
@@ -346,9 +325,9 @@ export namespace AutoMovieArchetypeArmour {
    * @param params The performer id and body, and up to one distinct costume
    *   model per slot.
    * @returns The models and their initial worn bindings for the scene.
-   * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
-   *   missing piece, a body without the slot's joints or a trunk piece without
-   *   its height.
+   * @throws {AutoMovieArchetypeRefusal} For an empty subject or selection, an
+   *   incompatible slot, a repeated scene ID, missing rest data, or absent
+   *   trunk height.
    */
   export function assembleCostumeArmour(
     params: AutoMovieArchetypeArmour.IAssemblyParams,
@@ -356,7 +335,7 @@ export namespace AutoMovieArchetypeArmour {
     return assembleCostumeArmourImplementation(params);
   }
 
-  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  /** Resolves the kind-specific public factory when its key is read. */
   export const PRODUCERS = {
     get openHelmet(): typeof AutoMovieArchetypeCostumeHelmet.create {
       return AutoMovieArchetypeCostumeHelmet.create;
@@ -384,7 +363,7 @@ export namespace AutoMovieArchetypeArmour {
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Lists the kind IDs accepted by `create`, for runtime selection. */
   export const KINDS: readonly Kind[] = [
     "openHelmet",
     "closedHelmet",
@@ -396,9 +375,9 @@ export namespace AutoMovieArchetypeArmour {
     "greave",
   ];
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Uses metres for lengths and kilograms for mass in bands and records. */
   export const UNITS: Readonly<
-    Record<Dimension, import("../core/index").AutoMovieArchetypeDrawSession.Unit>
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     height: "m",
     width: "m",
@@ -506,7 +485,7 @@ export namespace AutoMovieArchetypeArmour {
    * provisional for them, and a helmet's padding.
    */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, import("../core/index").IAutoMovieArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     openHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },
     closedHelmet: { thickness: AutoMovieArchetypeArmourData.thickness, pad: AutoMovieArchetypeArmourData.pad },
@@ -518,6 +497,6 @@ export namespace AutoMovieArchetypeArmour {
     greave: { thickness: { ...AutoMovieArchetypeArmourData.thickness, provisional: true } },
   };
 
-  /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
+  /** Chooses the covered bone by kind, using the left side for omitted limb sides. */
   export const bone: typeof armourBone = armourBone;
 }

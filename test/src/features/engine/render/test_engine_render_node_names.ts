@@ -8,6 +8,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Flame and surface graphic join node and child by a slash.
  * 2. Fluid, planting and soft body prefix one id.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the five node name families and the slash-separated modifier for two-part owners.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls every exercised RenderNode name builder with literal owner ids and compares the complete strings.
+ * @evidence contracts/development/testing.md#independent-expectations The specified kind prefixes, separators and ids give literal outputs such as flame:torch/cue1 and water:lake. Checking each complete string distinguishes the one-owner and two-owner formats.
  */
 export function test_engine_render_node_names(): void {
   TestValidator.equals(

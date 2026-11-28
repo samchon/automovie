@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. "final..." becomes "final"; "", "." and ".." become "render"; "a/../b" stays
  *    one component, "a_.._b".
  * 3. "con" and "NUL.mp4" become "_con" and "_NUL.mp4"; "console" is kept.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Sanitizes a render name into one path component and protects reserved Windows names.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the sanitizer on separators, trailing dots, empty components, and reserved and ordinary names.
+ * @evidence contracts/development/testing.md#independent-expectations Literal safe stems confirm that nested-looking text remains one component, empty stems choose render, and CON and NUL are prefixed.
  */
 export function test_render_root_render_path_stem(): void {
   TestValidator.equals(

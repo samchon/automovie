@@ -31,9 +31,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the meter and the daylight study on one declared site and compares totals and unmetered entries; adding the instant's beam would give 80000, and adding the sky would give 60000.
  * @evidence contracts/development/testing.md#independent-expectations 40000 is the cosine law at 30 degrees elevation; 20000 is the declared DHI an unobstructed upward plane sees whole, and the study's own metric is an independent run of the shared sky term through the study's request path.
- * @evidence contracts/development/testing.md#distinguishing-cases With and without the staged sun; punctual and area terms belong to test_engine_meter_illuminance and test_engine_meter_area_panel.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name; no GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios with the declared instant and expected lux.
+ * @evidence contracts/development/common.md#meaningful-documentation Direct and diffuse daylight produce separate meter outputs at the authored solar angle. Removing the light yields zero measured lux while retaining the reported sky term.
  */
 export function test_engine_meter_daylight(): void {
   const elevation: number = (30 * Math.PI) / 180;

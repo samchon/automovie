@@ -21,6 +21,10 @@ import { nclose } from "../../internal/nclose";
  * 2. With the right rear, a right horizontal elbow turns 50 degrees, a left one
  *    -40; with the left rear the right one turns 40; a headbutt at a target 270
  *    degrees round turns -90.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the animation envelope and signed trunk-turn convention for authored close-strike variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples drive before, at and after the shown instant, varying envelope and side labels, then queries trunk turn.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.4 s in and out clock gives half, full and half drive at 0.2, 0.4 and 0.6 s. The wrapped 270-degree fixture takes the short -90-degree path.
  */
 export function test_motions_striking_close_strike(): void {
   TestValidator.predicate(

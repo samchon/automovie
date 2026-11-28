@@ -33,6 +33,10 @@ const ROUNDING: number = 1e-12;
  *    has its abduction and twist negated.
  * 3. A pose mirrored twice is the pose.
  * 4. The left arm and the right side swap.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines median-plane reflection of points, rotations and clinical pose ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Mirrors one goal and pose, repeats reflection and swaps bone and limb identifiers.
+ * @evidence contracts/development/testing.md#independent-expectations Lateral coordinates and yaw change sign. Sided joint records exchange names without angle changes, and applying the same reflection twice recovers the pose.
  */
 export function test_motions_posture_limb_mirror(): void {
   // 1. A goal.

@@ -69,6 +69,7 @@ export function observePlacedSceneImplementation(
       check,
       key: rule.key,
       required: rule.required,
+      ...(rule.paths === undefined ? {} : { paths: rule.paths }),
     };
     const evidence: ICoverage | undefined = receivedCoverage(rule, check, time);
     if (evidence !== undefined) coverage.push(evidence);
@@ -122,6 +123,7 @@ type IIdentity = {
   readonly check: string;
   readonly key: string;
   readonly required: boolean;
+  readonly paths?: readonly string[];
 };
 
 /*
@@ -178,6 +180,7 @@ function receivedCoverage(
     check: RECEIVED_CHECK,
     key: `${check}:${rule.key}`,
     required: false,
+    ...(rule.paths === undefined ? {} : { paths: rule.paths }),
   };
   return touch.status === "unobservable"
     ? { ...identity, status: "unsupported", reason: touch.reason }

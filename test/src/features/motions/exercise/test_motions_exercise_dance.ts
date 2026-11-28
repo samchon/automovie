@@ -126,6 +126,10 @@ function scenario_test_motions_exercise_dance_groove_envelope(): void {
 /**
  * The dance law's own logic: the foot course and the groove envelope, each
  * scenario below.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Dance feet wait for their swing, lift between footprints, and settle on the beat. Groove enters and leaves on its envelope.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the foot course and groove readers with fixed footprints, beat times, and an explicit lift.
+ * @evidence contracts/development/testing.md#independent-expectations The fixed swing midpoint gives a halfway footprint and positive lift, and the unchanged points before swing and after the beat distinguish contact from flight.
  */
 export function test_motions_exercise_dance(): void {
   scenario_test_motions_exercise_dance_foot_course();

@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A joint whose child has no pose is skipped.
  * 4. A rotation of the thigh about its own origin carries the knee: the shank left
  *    behind is not admissible, the one moved with it is.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes geometry admission before handoff, including missing child poses and transformed parent anchors.
+ * @evidence contracts/development/testing.md#behavioral-verification Tests a two-link knee with matching or separated anchors and rotates its parent while either carrying the child or leaving it behind.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 mm gap fails the 1 mm limit and passes 3 mm. Rotating about the thigh origin moves its offset knee and requires the actual shank origin to follow.
  */
 export function test_engine_physics_physical_span_pose_handoff(): void {
   const knee: IAutoMoviePhysicalJoint = {

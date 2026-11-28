@@ -44,6 +44,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    swinging hip's torque, the hip's whole (Yin, Loken and van de Panne 2007,
  *    Section 3.2): on one sole the offset is served on the centre of pressure
  *    within the sole's room and through the pivot beyond it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains capture-first pressure allocation, remaining trunk and convergence capacity, and bounded hip torque in stance.
+ * @evidence contracts/development/testing.md#behavioral-verification Allocates for authored capture points across the inset edge, varied trunk offsets and hip capacities, and a single support.
+ * @evidence contracts/development/testing.md#independent-expectations Closed-form pressure law and support edge give p = 0.38 and u = 0.33 for ξ = 0.29. Two hips retain 140 N·m after contact load, limiting offset to 140/600 m.
  */
 export function test_engine_physics_physical_stance_allocation(): void {
   const failures: string[] = [];

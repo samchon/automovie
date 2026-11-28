@@ -17,11 +17,19 @@ import { IDENTITY_TRANSFORM, createSkeleton } from "../../internal/fixtures";
 import { performMarkerMotion } from "../../internal/performMarkerMotion";
 
 /**
+ * Attachment history switches to the incoming rig on its authored clock.
+ *
+ * Scenarios:
+ *
  * 1. Hand off a marker from a stationary rig to a moving one; determine its final
  *    position and velocity from the later interval.
  * 2. Compare persistent binding and the active history of a rider just before,
  *    exactly at and just after its own start.
  * 3. Submit malformed attachment calls to the public action admission path.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The numbered cases identify follower history before and after a handoff, placement authority at the exact start and malformed attachment input.
+ * @evidence contracts/development/testing.md#behavioral-verification The test evaluates and samples a marker attached to consecutive rigs, observing beat-end position and velocity. It compares the incoming rider history at adjacent times and checks invalid stage-action admissions.
+ * @evidence contracts/development/testing.md#independent-expectations The first rig is stationary and the second has independently prepared movement, so only the later interval determines the final active trajectory. The rider's known start is the boundary between persistent and active mounted inputs.
  */
 export function test_engine_film_motion_follow_handoff(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();

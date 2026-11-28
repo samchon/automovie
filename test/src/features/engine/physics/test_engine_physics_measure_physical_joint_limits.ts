@@ -22,6 +22,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 3. Two independent sole patches pitched up and four pitched down land at their
  *    actual box surfaces.
  * 4. An unreachable endpoint retains a large residual and the root-drop budget.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes coordinated native fitting of joint limits, separated anchors and sole height, including observable infeasibility.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits articulated trees and pitched sole patches under multiple constraints and checks actual floor contacts and the unreachable case.
+ * @evidence contracts/development/testing.md#independent-expectations Fixed pitch, box surfaces and locked axes provide independent expectations. The unreachable endpoint retains a large residual while staying inside the root-drop budget.
  */
 export function test_engine_physics_measure_physical_joint_limits(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

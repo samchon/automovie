@@ -4,7 +4,13 @@ import {
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
-/** A draw stays inside its band when the midpoint or width overflows. */
+/**
+ * A draw stays inside its band when the midpoint or width overflows.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States exact equal endpoints, a finite midpoint with overflowing sum and a seeded interval with overflowing width.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls an actual draw session for all three bands. The seeded control measures its unit-interval share before testing the wider band with the same seed and dimension.
+ * @evidence contracts/development/testing.md#independent-expectations The equal-end result is its endpoint and averaging scales the individual same-sign terms by 1/2. For a unit share `u`, a symmetric band maps it to `(2*u-1)` times its positive endpoint.
+ */
 export function test_archetypes_core_draw_interpolation(): void {
   const draw = (minimum: number, maximum: number, seed?: number): number =>
     new AutoMovieArchetypeDrawSession<"length">(

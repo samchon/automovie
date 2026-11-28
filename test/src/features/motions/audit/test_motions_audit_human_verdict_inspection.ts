@@ -26,11 +26,9 @@ import { TestValidator } from "@nestia/e2e";
  *    bounds and checked coverage for the other seven.
  * 7. A finding naming a performer not given is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Maps hand-built reports through the public mapper and reads the shared finding and coverage types the reducer takes.
- * @evidence contracts/development/testing.md#independent-expectations The expected identity, units and counts follow from the issue's rules and each audit owner's stated unit, not from the mapper's output.
- * @evidence contracts/development/testing.md#distinguishing-cases A single reading, a pair, a bound read in two spans, a schedule's faults, a clean report and a performer the floor does not carry.
- * @evidence contracts/development/testing.md#execution-ownership Builds its reports by hand, so it prepares no body and runs anywhere.
- * @evidence contracts/development/common.md#meaningful-documentation States the 6 scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names single and paired measurements, worst-span aggregation, timing faults, clean and swimmer coverage, and an unknown performer refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Maps prepared audit verdict records through the inspection mapper and checks exact identities, paths, numeric measurements, units and coverage.
+ * @evidence contracts/development/testing.md#independent-expectations From the authored slip derive 0.02 m at 1.25 s against 0.005 m. The larger skate of 0.5 m/s wins at 3 s and three timing faults give rank 3. Two performers contribute 32 checked bound rows and their pair adds one. A swimmer retains seven checks.
  */
 export function test_motions_audit_human_verdict_inspection(): void {
   const performers: IAutoMovieMotionHumanVerdicts.IPerformer[] = [

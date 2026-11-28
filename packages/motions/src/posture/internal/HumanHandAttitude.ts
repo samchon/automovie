@@ -60,6 +60,8 @@ export namespace HumanHandAttitude {
    * during this synchronous solve.
    * Parameter projection: Genuine unchanged-body operation projection, borrowed
    * only by actual canonical reads.
+   * Parameter preserveForearm: Keep a planned forearm's admitted twist. The
+   * wrist may still take the part of the requested turn within its own range.
    * Returns: The posture with that arm's joints set and its goal removed.
    */
   export function held(
@@ -69,6 +71,7 @@ export namespace HumanHandAttitude {
     rotation: IAutoMovieQuaternion,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    preserveForearm: boolean = false,
   ): IAutoMovieMotionHumanPosture {
     const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
     const lower: AutoMovieHumanoidBone = `${side}LowerArm`;
@@ -143,6 +146,7 @@ export namespace HumanHandAttitude {
       poseBones(body, pose, resolution(), requested).get(lower)!.worldRotation,
       rotation,
     );
+    if (preserveForearm) return written(forearm, first);
 
     // What the wrist leaves of the turn about the forearm's length.
     const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(

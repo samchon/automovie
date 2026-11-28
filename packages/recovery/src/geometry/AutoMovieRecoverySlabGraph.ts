@@ -9,9 +9,9 @@ import type {
  */
 export namespace AutoMovieRecoverySlabGraph {
   /**
-   * Derive closed-loop continuation and isolate source defects by clipped-slab
-   * connectivity. Triangle and edge addresses are transient observation
-   * evidence and never leave the result.
+   * Observe which supplied boundary loops share a component in one open scalar
+   * slab. The result groups original boundary ordinals and records unsupported
+   * source incidence or defects. Malformed source or query data throws.
    */
   export function observe(
     input: Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
@@ -20,13 +20,15 @@ export namespace AutoMovieRecoverySlabGraph {
   }
 
   /**
-   * Admit immutable source incidence and scalar heights once for multiple
-   * slabs. Queries supply complete original face IDs in strictly increasing
-   * order, including every face with maximum height above beforeMm and minimum
-   * height below afterMm. Omitting candidates observes every source face.
-   * Boundary supports retain original IDs. Optional private probes query those
-   * same components with a separate ordinal namespace; a probe never supplies a
-   * missing physical boundary or makes a hidden component supported.
+   * Prepare one source of finite millimetre heights and integer face incidence
+   * for repeated open slabs. Keep the source arrays unchanged while querying.
+   * By default a query scans every face. An explicit candidate list must
+   * contain every face with maximum height above the lower bound and minimum
+   * height below the upper bound, in increasing original face order. Boundary
+   * supports and optional private probes use original face IDs.
+   *
+   * @throws If the chart is malformed, the bounds are nonfinite or unordered,
+   *   or a supplied candidate or support cannot address its source face.
    */
   export function prepare(
     source: Parameters<IAutoMovieRecoverySlabGraph.Prepare>[0],
@@ -34,27 +36,40 @@ export namespace AutoMovieRecoverySlabGraph {
     const count: number = source.triangles.length;
     if (source.canon.length !== source.heights.length)
       throw new Error("A finite aligned scalar chart is required");
-    for (const triangle of source.triangles)
-      if (
-        triangle.length !== 3 ||
-        triangle.some(
-          (i: number): boolean =>
-            i < 0 ||
-            i >= source.heights.length ||
-            source.canon[i]! < 0 ||
-            source.canon[i]! >= source.heights.length,
+    for (const height of source.heights)
+      if (!Number.isFinite(height))
+        throw new Error("A finite aligned scalar chart is required");
+    const incidenceError: string =
+      "Slab triangle addresses do not align with the scalar chart";
+    for (const triangle of source.triangles) {
+      if (triangle?.length !== 3) throw new Error(incidenceError);
+      for (const address of triangle) {
+        if (
+          !Number.isSafeInteger(address) ||
+          address < 0 ||
+          address >= source.heights.length
         )
-      )
-        throw new Error(
-          "Slab triangle addresses do not align with the scalar chart",
-        );
+          throw new Error(incidenceError);
+        const canonical: number = source.canon[address]!;
+        if (
+          !Number.isSafeInteger(canonical) ||
+          canonical < 0 ||
+          canonical >= source.heights.length
+        )
+          throw new Error(incidenceError);
+      }
+    }
     return (
       input: Omit<
         Parameters<IAutoMovieRecoverySlabGraph.Observe>[0],
         "triangles" | "canon" | "heights"
       >,
     ): IAutoMovieRecoverySlabConnectivityGroup[] => {
-      if (!(input.beforeMm < input.afterMm))
+      if (
+        !Number.isFinite(input.beforeMm) ||
+        !Number.isFinite(input.afterMm) ||
+        !(input.beforeMm < input.afterMm)
+      )
         throw new Error("Finite increasing slab bounds are required");
       const capacity: number = input.candidates?.length ?? count;
       const parent: Int32Array = new Int32Array(capacity).fill(-1);
@@ -89,7 +104,7 @@ export namespace AutoMovieRecoverySlabGraph {
       for (let ti: number = 0; ti < capacity; ti++) {
         const face: number =
           input.candidates === undefined ? ti : input.candidates[ti]!;
-        if (face <= previous || face >= count)
+        if (!Number.isSafeInteger(face) || face <= previous || face >= count)
           throw new Error(
             "Slab candidates must be increasing original face addresses",
           );
@@ -144,7 +159,11 @@ export namespace AutoMovieRecoverySlabGraph {
       ): Set<number> => {
         const result: Set<number> = new Set();
         for (const triangle of support) {
-          if (triangle < 0 || triangle >= count)
+          if (
+            !Number.isSafeInteger(triangle) ||
+            triangle < 0 ||
+            triangle >= count
+          )
             throw new Error(
               "Slab boundary support contains an invalid source face",
             );

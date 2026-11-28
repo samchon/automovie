@@ -6,11 +6,17 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * The `kuzushi` law's tip (`kuzushi.tipped`): a minimum-jerk tip over 0.5 s,
- * held, and a minimum-jerk return over 0.5 s.
+ * Check tip, hold and return progress for a one-second kuzushi hold.
  *
- * Scenario: held 1 s, half tipped at 0.25 s, fully at 0.5 s and through 1.5 s,
- * half back at 1.75 s, upright at 2 s and after.
+ * Scenarios:
+ *
+ * 1. At 0, 0.25 and 0.5 s read upright, half tipped and fully tipped. Stay
+ *    fully tipped through 1.5 s.
+ * 2. At 1.75 s read half returned. At 2 and 5 s read upright.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases name the two transitions, held interval and clamped end.
+ * @evidence contracts/development/testing.md#behavioral-verification The tip reader is evaluated at fixed film-local phase boundaries and midpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The half-second ramps and one-second hold fix the boundaries, and symmetric minimum jerk gives each midpoint.
  */
 export function test_motions_grappling_kuzushi(): void {
   TestValidator.predicate(

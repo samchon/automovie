@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  * Scenario: over a 4 s overlay with 0.5 s transitions the grip runs from 1/8 to
  * 7/8 of it; the fingers are open at the ends, half closed a quarter second in
  * and fully closed at the middle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines grip contact window and closure weights for acquisition, hold and release of a mounted prop.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a four-second overlay at both endpoints, during acquisition and at midpoint with 0.5 s transitions.
+ * @evidence contracts/development/testing.md#independent-expectations Dividing transition time by total gives window bounds 1/8 and 7/8. Minimum-jerk symmetry gives half closure at 0.25 s and full closure by the middle.
  */
 export function test_motions_lexicon_ride_grip_timing(): void {
   const timing: humanRideGripTiming.ITiming = humanRideGripTiming(0.5, 4);

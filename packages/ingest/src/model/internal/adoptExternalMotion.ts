@@ -17,9 +17,9 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import { composeLocalTransform } from "../../internal/composeLocalTransform";
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
 import { compareCodeUnits } from "./compareCodeUnits";
-import { composeLocalTransform } from "../../internal/composeLocalTransform";
 
 /*
  * Select one inspected take and validate the author's native or retarget
@@ -87,6 +87,13 @@ export function adoptExternalMotion(
   if (decision.mode !== "native" && decision.mode !== "retarget")
     throw new Error(
       `Unsupported external motion adoption mode "${String((decision as { mode: unknown }).mode)}".`,
+    );
+  if (
+    decision.mode === "native" &&
+    (decision.target !== undefined || decision.translationScale !== undefined)
+  )
+    throw new Error(
+      "A native external motion decision cannot set target or translationScale.",
     );
   const selected: IAutoMovieClip | undefined = motion.takes.find(
     (take: IAutoMovieClip): boolean => take.id === decision.take,
@@ -310,7 +317,10 @@ function validateRetargetDecision(
   IAutoMovieExternalMotionRetargetHandoff,
   "target" | "translationScale"
 > {
-  if (decision.target.trim().length === 0)
+  if (
+    typeof decision.target !== "string" ||
+    decision.target.trim().length === 0
+  )
     throw new Error("External motion target identity must be non-blank.");
   if (
     Number.isFinite(decision.translationScale) === false ||

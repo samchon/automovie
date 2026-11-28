@@ -33,6 +33,10 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
  * 6. Twenty-four independent joints declare 72 axes but admit 48 or 64 active
  *    coordinates; 65 active coordinates refuse while 25 floor and 276 self-pair
  *    rows stay below their separate budget.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the independently enforced relationship, geometry row and active-coordinate budgets including motion on sparse axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits typed relationships to the real fitter with default and explicit caps, exercises the geometry row boundary and adds point bounds to 64 active collider chains.
+ * @evidence contracts/development/testing.md#independent-expectations Counted fixtures distinguish 16/17 relationships, 256/257 absolute cap, 1024/1025 rows and 64/65 active coordinates. An inactive relationship consumes no coordinate.
  */
 export async function test_engine_physics_physical_binding_budget(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();

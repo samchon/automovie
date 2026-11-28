@@ -20,6 +20,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    each shot.
  * 2. A frame rate of 0 is refused with a message naming "sequence fps", "> 0" and
  *    "0".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the two-shot schedule, native sample count, restarted local times and nonpositive-rate refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls playbackFrameSamples for a hard-cut two-shot sequence and reads every returned sample, then retries with a zero frame rate.
+ * @evidence contracts/development/testing.md#independent-expectations Each one-second shot at four fps contributes exactly four frames at 0, 0.25, 0.5 and 0.75 local seconds. The hard cut starts the second shot at zero. Eight frames and four occurrences of each identity follow from those authored durations.
  */
 export function test_engine_film_playback_frames(): void {
   const shot = (id: string, duration: number): IAutoMovieShot => ({

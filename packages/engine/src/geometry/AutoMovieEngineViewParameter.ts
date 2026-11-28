@@ -7,30 +7,37 @@ import { AutoMovieEngineConstructionRelativeTolerance } from "./AutoMovieEngineC
  * world-coordinate curves.
  */
 export namespace AutoMovieEngineViewParameter {
-  /** Admit and copy parameter endpoints already converted to kernel millimetres. */
+  /**
+   * Copy a root or angle map with finite endpoints in kernel millimetres. An
+   * angle map also requires a positive representable span. Undefined keeps the
+   * station identity, and an invalid map returns its diagnostic.
+   */
   export function prepare(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
   ): IAutoMovieConstructionOutlineParameter | undefined | string {
     if (parameter === undefined) return undefined;
     if (parameter.type === "root")
-      return parameter.end === "bottom" || parameter.end === "top"
+      return Number.isFinite(parameter.pole) &&
+        (parameter.end === "bottom" || parameter.end === "top")
         ? { ...parameter }
         : "root parameter needs a finite endpoint and its bottom/top side";
-    return parameter.top > parameter.bottom
+    return parameter.top > parameter.bottom &&
+      Number.isFinite(parameter.top - parameter.bottom)
       ? { ...parameter }
       : "angle parameter needs finite increasing endpoints and a finite span";
   }
 
   /**
    * Map a station; a station outside the domain by at most
-   * {@link AutoMovieEngineConstructionRelativeTolerance} of its span (of the root
-   * coordinate magnitude for a root map) reads as its endpoint, and nonfinite
-   * or farther requests return NaN.
+   * {@link AutoMovieEngineConstructionRelativeTolerance} of its span (of the
+   * root coordinate magnitude for a root map) reads as its endpoint, and
+   * nonfinite or farther requests return NaN.
    */
   export function at(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): number {
+    if (!Number.isFinite(station)) return NaN;
     if (parameter === undefined) return station;
     const extent: number =
       parameter.type === "root"
@@ -68,6 +75,7 @@ export namespace AutoMovieEngineViewParameter {
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): boolean {
+    if (!Number.isFinite(station)) return false;
     if (parameter === undefined) return true;
     const extent: number =
       parameter.type === "root"

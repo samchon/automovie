@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  *    1 and the points become (±1, ±1); the transform is [1,0,−1, 0,1,−1,
  *    0,0,1].
  * 2. Coincident points and no point refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the centroid and mean-distance target, with coincident and empty refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Normalizes an explicit four-corner chart and submits both degenerate point sets.
+ * @evidence contracts/development/testing.md#independent-expectations The (0, 0) to (2, 2) square has centroid (1, 1) and mean radius sqrt(2), so the expected transform is pure translation.
  */
 export function test_recovery_internal_normalize_image_points(): void {
   const result: ReturnType<typeof AutoMovieRecoveryCameraGeometry.normalizeImagePoints> =

@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A proxy at scale 0.5 and step 2 is returned as a copy.
  * 3. A final that is not 1 and 1, a proxy that is not cheaper, a scale above 1,
  *    a scale of 0 and a step of 17 are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defaults to final and admits copied proxy settings only within resolution and frame-step bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls tier normalization on no input, a valid proxy and independent invalid final or proxy controls.
+ * @evidence contracts/development/testing.md#independent-expectations The exact final settings and proxy values distinguish defaults from aliasing. Each invalid fixture has a specific scale, step or tier violation.
  */
 export function test_render_film_normalize_render_tier(): void {
   TestValidator.equals("default", normalizeRenderTier(undefined), {

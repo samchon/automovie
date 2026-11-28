@@ -53,8 +53,12 @@ const area: (
  *
  * 1. A unit square gives 2 triangles of total area 1, in either winding.
  * 2. A concave L of 6 corners gives 4 triangles of total area 3.
- * 3. A triangle gives itself.
- * 4. Fewer than 3 corners is refused.
+ * 3. Three corners give one triangle.
+ * 4. Two corners are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the triangle counts of a convex polygon in both windings, a concave polygon and a single triangle, plus the two-corner refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.triangulateAutoMoviePolygon on authored outlines and independently recomputes triangle area from their returned corner indices.
+ * @evidence contracts/development/testing.md#independent-expectations The unit square has area 1 and the L contains three unit cells. Their four and six corners require two and four triangles respectively. The three-corner input yields one and the two-corner input is refused.
  */
 export function test_engine_drawing_triangulate_polygon(): void {
   const square: Array<[number, number, number]> =

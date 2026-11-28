@@ -25,6 +25,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * 3. Flexion H.max + 1 puts H.max on the head and 1 on the neck, neck first.
  * 4. Flexion H.max + N.max + 7 fills the neck and leaves H.max + 7 on the head.
  * 5. The prepared reader equals the direct split.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers no-rig gaze, head-only aim, ordered neck spill, excess residual and prepared equivalence.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls gazeChainJoints and its prepared reader with a stock rig, its named neck/head ranges and selected flexion demands.
+ * @evidence contracts/development/testing.md#independent-expectations Half the head bound stays on the head. One degree beyond it requires one neck degree. Filling both bounds leaves a residual seven degrees which stays on the head.
  */
 export async function test_engine_kinematics_gaze_chain_joints(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

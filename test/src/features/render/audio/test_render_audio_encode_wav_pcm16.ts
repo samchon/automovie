@@ -24,6 +24,10 @@ import { nclose } from "../../internal/predicates";
  *    2000 samples; the sample after the cue's last frame is silent.
  * 4. The encoded WAV has the canonical header and decodes through the public
  *    decoder to the stereo mean within one quantization step.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Mixes cue trims at exact samples and round-trips the master through PCM16 WAV.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the mixer with aligned cues, gain and fade, then encodes and decodes the resulting short stereo buffer.
+ * @evidence contracts/development/testing.md#independent-expectations At 24 fps each frame spans 2000 samples. Frame two thus starts at sample 4000, summed gain is 1.5, and the known WAV fields and one-step quantization bound pin the round trip.
  */
 export function test_render_audio_encode_wav_pcm16(): void {
   // A source whose samples name their own index, so a trim is visible.

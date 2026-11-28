@@ -1,10 +1,7 @@
 /**
- * An owned ray intersection in the snapshotted mesh's local metre frame,
- * returned by {@link IAutoMovieMeshRayCaster.nearestHit}.
- *
- * Triangle identity is the original index-triplet ordinal, before the caster's
- * hierarchy sorts its triangles; it identifies the face hit without certifying
- * which side the ray came from or that the origin is inside a volume.
+ * One owned ray intersection returned by the mesh caster's nearestHit query.
+ * Travel uses the snapshotted mesh's local metre frame. The face ordinal
+ * addresses the original triangle before hierarchy ordering.
  */
 export interface IAutoMovieMeshRayHit {
   /**

@@ -21,9 +21,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. The hand itself, inside the arm chain, keeps the arm's ring around it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanJointCentres.derive` on a small made calibration and reads the radius it reports per joint; the old rules returned the 60 mm neck seat for the chest and the 2 mm cap for a distal phalanx.
- * @evidence contracts/development/testing.md#independent-expectations A circle's perimeter over 2π is its radius, so a trunk section built at 150 mm must read 150 mm within the 96-gon chord shortfall (r (1 - sin(π/96)/(π/96)) < 0.03 mm); the finger girth is the documented 0.03-of-stature circumference; the hand sits on a 40 mm arm ring.
- * @evidence contracts/development/testing.md#distinguishing-cases The chest reads a station between equal 150 mm layers, so any interpolation gives 150 mm, while the 60 mm seat lies one segment-half above; a phalanx near the cap and one near the palm both change under the old rule, and the hand inside the arm must not change.
- * @evidence contracts/development/testing.md#execution-ownership A pure unit over in-memory chains: no Human is generated, calibrated or lofted, and it runs well under one second.
+ * @evidence contracts/development/testing.md#independent-expectations A circle's perimeter over 2π is its radius, so a trunk section built at 150 mm must read 150 mm within the 96-gon chord shortfall (r (1 - sin(π/96)/(π/96)) < 0.03 mm); the finger girth is the documented 0.03-of-stature circumference; the hand sits on a 40 mm arm ring. Equal chest layers keep the interpolated radius at 150 mm and separate it from the 60 mm neck seat. The two phalanges include both cap and palm geometries.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios with their inputs and the behaviour each pins.
  */
 export function test_human_joint_girth(): void {

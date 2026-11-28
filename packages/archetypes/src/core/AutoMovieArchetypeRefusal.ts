@@ -1,50 +1,37 @@
 /**
- * A request an archetype refuses, as a value its author can act on: which
- * archetype, which axis of the request is at fault, the value given, what would
- * have been accepted, and what to change.
+ * Reports why an archetype could not accept a requested value or contact.
  *
- * The author is a production's coding agent, which reads no picture before it
- * composes, so the refusal is its only feedback. The same facts are fields, so
- * a program reads them without parsing the message, and they carry the names of
- * the motion vocabulary's refusal (`kind`, `axis`, `value`, `feasible`,
- * `reason`, `fix`) so one handler reads both.
- *
- * A refusal depends on the request alone, never on the seed: a seed only draws
- * inside bands that are accepted.
+ * Read `archetype`, `kind`, `axis`, `value`, `feasible`, `reason` and `fix`
+ * when handling the error. The message presents these facts for an author.
  */
 export class AutoMovieArchetypeRefusal extends Error {
-  /** The class of refusal. */
+  /** Category of the failed request. */
   public readonly kind: AutoMovieArchetypeRefusal.Kind;
 
-  /** The archetype that refused, by its producer's name, such as `chair`. */
+  /** Producer name reported by the operation that refused the request. */
   public readonly archetype: string;
 
-  /**
-   * The axis at fault: a parameter's or dimension's name, or `affordance`,
-   * `articulation`, `site`.
-   */
+  /** Parameter, dimension or contact axis that failed admission. */
   public readonly axis: string;
 
-  /** The value given on that axis, as the author wrote it. */
+  /** Value received by the refusing operation. */
   public readonly value: unknown;
 
   /**
-   * What the axis accepts here: a range, the alternatives, or null when neither
-   * applies.
+   * Accepted numeric range or alternatives. Null indicates no set was supplied.
    */
   public readonly feasible: AutoMovieArchetypeRefusal.Feasible | null;
 
-  /** Why it is refused, with the numbers. */
+  /** Explanation of the failed admission condition. */
   public readonly reason: string;
 
-  /** One sentence naming what to change. */
+  /** A change that lets the author recover or choose another request. */
   public readonly fix: string;
 
   /**
-   * A refusal.
+   * Create a refusal with structured fields and a readable message.
    *
-   * @param props Its facts; the message is composed from them as `archetype
-   *   axis: reason; feasible: ...; fix: ...`.
+   * @param props Facts supplied by the operation that refused the request.
    */
   public constructor(props: AutoMovieArchetypeRefusal.IProps) {
     const feasible: AutoMovieArchetypeRefusal.Feasible | null =
@@ -67,11 +54,11 @@ export class AutoMovieArchetypeRefusal extends Error {
   }
 
   /**
-   * A feasible set as text: `0.38 to 0.56 m`, or the alternatives listed,
-   * `none` for an empty list.
+   * Format a feasible range or alternatives for an author.
    *
-   * @param feasible The set.
-   * @returns The text.
+   * @param feasible Range with optional bounds or list of accepted values.
+   * @returns Text such as `0.38 to 0.56 m`, `at least 1`, a list of names,
+   *   `any` for an unbounded range or `none` for an empty list.
    */
   public static describe(feasible: AutoMovieArchetypeRefusal.Feasible): string {
     if (feasible.kind === "alternatives")
@@ -85,73 +72,69 @@ export class AutoMovieArchetypeRefusal extends Error {
   }
 }
 
-/** Companion types of {@link AutoMovieArchetypeRefusal}. */
+/** Categories and recovery information for structured archetype refusals. */
 export namespace AutoMovieArchetypeRefusal {
   /**
-   * The classes of refusal, each repaired at a different place:
+   * Operation that refused the request.
    *
-   * - `parameter`: a parameter or a fixed dimension outside what the producer
-   *   accepts; change the value.
-   * - `affordance`: an affordance id the archetype does not declare; name one
-   *   that exists.
-   * - `articulation`: a travel outside an articulation's range, or an id that is
-   *   no articulation; change the travel or the id.
-   * - `site`: a site coordinate outside the affordance's extent; keep it inside 0
-   *   to 1.
+   * `parameter` covers inputs and dimensions. `affordance` covers contact
+   * lookup. `articulation` covers a moving contact or requested travel.
+   * `site` covers a requested position on an affordance.
    */
   export type Kind = "parameter" | "affordance" | "articulation" | "site";
 
-  /** What an axis accepts: a numeric range or a list of alternatives. */
+  /** Accepted values for the reported axis, as an inclusive range or a list. */
   export type Feasible = IRange | IAlternatives;
 
-  /** A numeric range, both ends included; an open end is null. */
+  /** Inclusive numeric range. Null denotes a side without a bound. */
   export interface IRange {
-    /** The discriminator. */
+    /** Identifies numeric-range recovery information. */
     kind: "range";
 
-    /** The least accepted value, or null when unbounded below. */
+    /** Inclusive lower bound, or null when the lower side is unbounded. */
     minimum: number | null;
 
-    /** The greatest accepted value, or null when unbounded above. */
+    /** Inclusive upper bound, or null when the upper side is unbounded. */
     maximum: number | null;
 
-    /** The unit of both ends (`m`, `kg`, `degrees`), or empty for a pure number. */
+    /**
+     * Label for the supplied bounds. Use the empty string for a unitless value.
+     */
     unit: string;
   }
 
-  /** The values that would have been accepted, as the author writes them. */
+  /** Available authored choices represented as labels. */
   export interface IAlternatives {
-    /** The discriminator. */
+    /** Identifies enumerated recovery information. */
     kind: "alternatives";
 
-    /** The accepted values. */
+    /**
+     * Choices as the author would enter them. An empty array gives no alternatives.
+     */
     values: readonly string[];
   }
 
-  /** The facts of a refusal. */
+  /** Facts supplied by the operation that defines an archetype refusal. */
   export interface IProps {
-    /** The class. */
+    /** Category of failed operation. */
     kind: Kind;
 
-    /** The archetype that refuses, by its producer's name. */
+    /** Producer name for the refused request. */
     archetype: string;
 
-    /** The axis at fault. */
+    /** Name of the input or contact axis that failed admission. */
     axis: string;
 
-    /** The value given. */
+    /** Received value, including malformed data. */
     value: unknown;
 
-    /**
-     * What the axis accepts; null or absent when neither a range nor
-     * alternatives apply.
-     */
+    /** Optional accepted range or alternatives. */
     feasible?: Feasible | null;
 
-    /** Why it is refused, with the numbers. */
+    /** Condition that the request failed. */
     reason: string;
 
-    /** One sentence naming what to change. */
+    /** Change the author can make to resolve the refusal. */
     fix: string;
   }
 }

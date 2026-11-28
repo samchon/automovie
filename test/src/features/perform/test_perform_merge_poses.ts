@@ -38,8 +38,6 @@ const flexionOf: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs actual mergePoses on disjoint, colliding and rooted input lists and observes populations, selected flexions/root X, skeleton id and empty-input refusal. Concatenating collisions, averaging joints or clearing a root with null contradicts these assertions.
  * @evidence contracts/development/testing.md#independent-expectations Literal counts, skeleton-1 and selected 20/30/50/5/9 values follow ordered last-writer composition; nclose retains its original tolerance and the empty error text is literal. Inputs share a skeleton id, so the skeleton assertion does not distinguish first versus later skeleton selection; other joint axes and root rotation/scale are not compared.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves disjoint versus repeated bones, rooted/null-root versus two-root pairs and empty input, with every original value and order. Blend weighting, skeleton mismatch admission and object aliasing are outside this unit.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry owns every merge and assertion, including the throwsError callback. Fixture callbacks only allocate records; no dynamic registration, viewer or native host is involved.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Disjoint leg 20/arm 30 produce two joints, keep root X 5 through a later null root and retain skeleton-1.).
  */
 export function test_perform_merge_poses(): void {

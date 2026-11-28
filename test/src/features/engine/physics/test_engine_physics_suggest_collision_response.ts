@@ -18,6 +18,10 @@ import { createSkeleton } from "../../internal/fixtures";
  * 2. The push flexion is |impulse| x gain = 10.
  * 3. With the chain `head`, the flinch deflects `head` by 10 degrees.
  * 4. Without a chain the recoil is null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines collision response composition through normal impulse, converted recoil and optional bounded bone flinch.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the response on two equal bodies with and without a struck head chain under the same material and gain.
+ * @evidence contracts/development/testing.md#independent-expectations Closing speed 1 divided by combined inverse mass 1 gives impulse (1, 0, 0). Gain 10 gives a 10-degree push and head flinch, and no chain yields null recoil.
  */
 export function test_engine_physics_suggest_collision_response(): void {
   const bodyAt = (mass: number, vx: number): IAutoMovieImpactBodyState => ({

@@ -23,6 +23,10 @@ import { vclose } from "../../internal/vclose";
  * 1. To Hermite: the ends are p(0) and p(2) and the derivatives p′(0), p′(2).
  * 2. Back to Bernstein: the original four controls.
  * 3. A zero phase width and a missing width refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the explicit cubic, its phase width, the basis transfer and refused widths.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts one Bernstein span to Hermite and back and invokes conversion with missing and zero widths.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic values and derivatives of (s², s³, 2s) at s=0 and s=2 fix both endpoints and tangent vectors.
  */
 export function test_recovery_curves_convert_curve(): void {
   const bezier: IAutoMovieCubicBezierCurve64 = {

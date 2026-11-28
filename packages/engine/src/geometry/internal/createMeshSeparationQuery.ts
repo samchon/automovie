@@ -12,7 +12,6 @@ import type {
 } from "@automovie/interface";
 
 import { interpolateTrianglePoint } from "../../math/internal/interpolateTrianglePoint";
-import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { boundConvexSeparation } from "./boundConvexSeparation";
 import { boundProjectionSeparation } from "./boundProjectionSeparation";
 import { boundTriangleAttachmentContact } from "./boundTriangleAttachmentContact";
@@ -57,8 +56,8 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * that combined proof and not positive separation. Without metadata a fan
  * touching its root is simply unproved.
  *
- * Compilation throws on an unknown representation, a malformed or empty index
- * buffer, a non-finite position, or a Float32 rounding that overflows. Every
+ * Compilation throws for a malformed or empty index buffer, a nonfinite
+ * position or an unrepresentable Float32 coordinate. Every
  * visited box, with its up to three axis projections, spends one budget unit,
  * and every tested support, triangle, normal triple, projection axis and edge
  * pair spends one more before its work. Exhaustion and malformed input throw by
@@ -80,6 +79,11 @@ export function createMeshSeparationQuery(
     throw new Error(
       "Mesh separation requires a nonempty finite resident surface.",
     );
+  for (const value of mesh.positions)
+    if (!Number.isFinite(value))
+      throw new Error(
+        "Mesh separation needs finite represented resident vertices.",
+      );
   const represent = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     representation === "float32"
       ? { x: Math.fround(p.x), y: Math.fround(p.y), z: Math.fround(p.z) }
@@ -96,11 +100,7 @@ export function createMeshSeparationQuery(
       });
     const vertices: IAutoMovieVector3[] = reference.map(represent);
     // Float32 rounding of a finite binary64 coordinate can overflow.
-    if (
-      vertices.some((p: IAutoMovieVector3): boolean =>
-        [p.x, p.y, p.z].some(overflowsBinary64),
-      )
-    )
+    if (representation === "float32" && !vertices.every(finiteVertex))
       throw new Error(
         "Mesh separation needs finite represented resident vertices.",
       );
@@ -148,7 +148,8 @@ export function createMeshSeparationQuery(
       options === undefined ||
       options === null ||
       clearance === undefined ||
-      !(clearance >= 0)
+      !Number.isFinite(clearance) ||
+      clearance < 0
     )
       throw new Error(
         "Mesh separation needs a nonnegative finite requested clearance.",
@@ -156,6 +157,7 @@ export function createMeshSeparationQuery(
     if (
       options.budget === undefined ||
       options.budget === null ||
+      !Number.isSafeInteger(options.budget.remaining) ||
       options.budget.remaining < 0
     )
       throw new Error(
@@ -354,4 +356,8 @@ const UNIT_AXES: readonly IAutoMovieVector3[] = [
  * Whether a run slot holds a vector with three finite coordinates.
  */
 const finiteVertex = (p: IAutoMovieVector3 | undefined | null): boolean =>
-  p !== undefined && p !== null;
+  p !== undefined &&
+  p !== null &&
+  Number.isFinite(p.x) &&
+  Number.isFinite(p.y) &&
+  Number.isFinite(p.z);

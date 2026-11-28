@@ -1,67 +1,96 @@
 import type { IAutoMovieRegisteredPlanarCurvePiece } from "./IAutoMovieRegisteredPlanarCurvePiece";
 
-/** Planar coefficient-reduction experiment, independent of source meshes. */
+/**
+ * Choices and sampled coverage receipts for bounded planar coefficient
+ * reduction.
+ */
 
 export namespace IAutoMovieCompactCurveApproximation {
-  /** Error and finite work controls for a fixed-degree or storage-selected fit. */
+  /**
+   * Sampled error tolerance, candidate degree and bounded subdivision work for
+   * planar curve reduction.
+   *
+   * The fitter subdivides within mandatory smooth chart boundaries. Source
+   * observation knots increase sampling coverage inside those charts.
+   */
   export interface IOptions {
-    /** Maximum admitted held-out correspondence discrepancy, millimetres. */
+    /**
+     * Positive finite threshold in millimetres for admitted held-out
+     * source-to-fit correspondence.
+     */
     toleranceMm: number;
 
-    /** Mixed admits one conic and polynomial degrees three through five. */
+    /**
+     * Fix polynomial degree at three, four or five, or compare those choices
+     * with bitangent conics using mixed.
+     */
     degree: 3 | 4 | 5 | "mixed";
 
-    /** Maximum accepted plus unresolved leaf pieces. */
+    /** Positive safe-integer budget for accepted pieces and unresolved leaves. */
     maximumPieces: number;
 
-    /** Maximum binary subdivision depth per initial chart. */
+    /**
+     * Positive safe-integer limit through 52 on binary subdivision depth in an
+     * initial smooth chart.
+     */
     maximumDepth: number;
 
-    /** Maximum source evaluate/derivative invocations, including conic fitting. */
+    /**
+     * Positive safe-integer budget for source position and derivative
+     * invocations, including nested conic fitting.
+     */
     maximumQueries: number;
   }
 
-  /** Admitted coefficients, omitted-domain status and explicit evidence scope. */
+  /**
+   * Sample-qualified reduction receipt with coverage status, accepted pieces
+   * and measured work and error.
+   *
+   * A finite observation grid can miss continuous error or topology changes.
+   * Read status together with diagnostic messages and the fixed certification
+   * marker.
+   */
   export interface IResult {
     /**
-     * Whether sampled fitting covered the entire requested domain, only part,
-     * or none.
+     * Sampled coverage state. Complete covers the requested chart domain,
+     * partial retains some covering pieces, and refused transfers no pieces.
      */
     status: "complete" | "partial" | "refused";
 
     /**
-     * Ordered admitted coefficient records; omitted domains have no fabricated
-     * piece.
+     * Admitted registered pieces in increasing source order. Omitted intervals
+     * have no fabricated replacement.
      */
     pieces: readonly IAutoMovieRegisteredPlanarCurvePiece[];
 
     /**
-     * Maximum sampled discrepancy across retained pieces, millimetres; zero
-     * when empty.
+     * Largest measured sample discrepancy over retained pieces in millimetres.
+     * An empty result reports zero.
      */
     maximumSampleErrorMm: number;
 
     /**
-     * Numeric coefficient/chart count under storedScalars' planar seam-sharing
-     * convention.
+     * Scalar storage measure with two coordinates per control and three
+     * metadata scalars per piece. Exactly shared adjacent endpoints count
+     * once.
      */
     storedScalars: number;
 
     /**
-     * Actual source position and derivative callback invocations, including
-     * nested conic fitting.
+     * Actual number of position and derivative callback invocations. Cached
+     * position reads avoid a repeat charge.
      */
     queries: number;
 
     /**
-     * Representation limitations, numerical admission failures and
-     * omitted-domain reasons.
+     * Ordered messages describing sampled scope, input refusals and reasons for
+     * unprocessed geometry.
      */
     diagnostics: readonly string[];
 
     /**
-     * Always false: finite fitting/held-out observations are not continuous
-     * error certificates.
+     * Fixed false marker for the sampled qualification. Continuous error needs
+     * its own certificate.
      */
     certified: false;
   }

@@ -49,6 +49,10 @@ const reference: (
  * 3. Validation reads the detail binding as a linear data map, refusing an sRGB
  *    one, and refuses a negative detail scale while admitting a nonnegative
  *    one.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names detail texture fallback, UV and scale retention, cache-key order and texture validation.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual Three.js materials with combined, subsurface and detail-only inputs. Inspects their maps, uniforms, registered keys and source validation without compiling a shader.
+ * @evidence contracts/development/testing.md#independent-expectations The normal texture remains installed when both are provided, and detail alone becomes the native normal map at its supplied scale. Combining profiles preserves their registration order. The linear semantic role and nonnegative scales determine the admitted inputs.
  */
 export function test_render_scene_build_material_detail_normal(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;

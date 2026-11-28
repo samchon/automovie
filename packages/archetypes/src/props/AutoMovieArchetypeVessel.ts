@@ -14,19 +14,18 @@ import { AutoMovieArchetypeCookingPot } from "./AutoMovieArchetypeCookingPot";
 import { AutoMovieArchetypeVase } from "./AutoMovieArchetypeVase";
 import { AutoMovieArchetypeVesselData } from "./internal/AutoMovieArchetypeVesselData";
 
-/** Constructs the vessel archetype from its recipe. */
+/** Replays saved bowls, ashtrays, cooking pots and vases. */
 export namespace AutoMovieArchetypeVessel {
 /**
- * Replay a saved vessel variant with the original dimensions, identifier and
- * model choices.
+ * Build the named vessel selected by a saved recipe.
  *
- * @param params The historic selector and optional fixed settings in the
- *   original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless
- *   defaults.
- * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
- *   outside its admitted range.
+ * @param params Saved kind, optional scene ID and applicable finite
+ *   measurements. The model field selects only a bowl or ashtray.
+ * @param seed Numeric seed for omitted band values or catalogue choice.
+ *   Omit it for the original first models and band defaults.
+ * @returns The named vessel with its supported inside floor, opening
+ *   rim and kind-specific grips. The default ID is `vessel`.
+ * @throws {AutoMovieArchetypeRefusal} If the kind, compatible model or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeVessel.IParams,
@@ -60,25 +59,25 @@ export function create(
   return variants[kind](params, seed);
 }
 
-  /** Each saved selector's named producer. */
+  /** The existing named factory signatures for each saved vessel selector. */
   export interface IProducers {
-    /** The named producer for the saved `bowl` selector. */
+    /** The ceramic bowl catalogue constructor. */
     bowl: typeof AutoMovieArchetypeBowl.create;
 
-    /** The named producer for the saved `ashtray` selector. */
+    /** The glass ashtray catalogue constructor. */
     ashtray: typeof AutoMovieArchetypeAshtray.create;
 
-    /** The named producer for the saved `saucepan` selector. */
+    /** The cooking-pot factory used with `kind: "saucepan"`. */
     saucepan: typeof AutoMovieArchetypeCookingPot.create;
 
-    /** The named producer for the saved `stockpot` selector. */
+    /** The cooking-pot factory used with `kind: "stockpot"`. */
     stockpot: typeof AutoMovieArchetypeCookingPot.create;
 
-    /** The named producer for the saved `vase` selector. */
+    /** The upright glass vase constructor. */
     vase: typeof AutoMovieArchetypeVase.create;
   }
 
-  /** Resolve the exact named producer for a saved selector on demand. */
+  /** Look up the named authoring factory for each admitted saved selector. */
   export const PRODUCERS: Readonly<IProducers> = {
     get bowl(): typeof AutoMovieArchetypeBowl.create {
       return AutoMovieArchetypeBowl.create;
@@ -97,10 +96,10 @@ export function create(
     },
   };
 
-  /** The kinds. */
+  /** Saved selectors for a bowl, ashtray, saucepan, stockpot or vase. */
   export type Kind = "bowl" | "ashtray" | "saucepan" | "stockpot" | "vase";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** The five admitted selectors in gallery order. */
   export const KINDS: readonly Kind[] = [
     "bowl",
     "ashtray",
@@ -109,19 +108,16 @@ export function create(
     "vase",
   ];
 
-  /** The wall's and the floor's thickness, metres: an estimate. */
+  /** Estimated wall and floor thickness, 0.005 metres. */
   export const WALL: number = 0.005;
 
-  /** A handle's diameter, metres: an estimate. */
+  /** Authored diameter of the cooking-pot handle rods, 0.025 metres. */
   export const GRIP: number = 0.025;
 
-  /**
-   * A saucepan handle's length, metres: the IKEA saucepan's 35 cm with its
-   * handle less its 17 cm across.
-   */
+  /** The saucepan handle's 0.18 metre exposed length beyond the body. */
   export const HANDLE: number = 0.18;
 
-  /** Each kind's flat colour, sRGB. */
+  /** Fixed sRGB body colours indexed by the saved vessel kind. */
   export const COLORS: Readonly<Record<Kind, string>> = {
     bowl: "#f2efe8",
     ashtray: "#8fa3ad",
@@ -131,14 +127,9 @@ export function create(
   };
 
   /**
-   * The affordance ids:
-   *
-   * - `rim`: the rim's top, facing up.
-   * - `inside`: the floor inside, facing up.
-   * - `body`: a bowl or an ashtray held from beneath; a vase round its middle.
-   * - `handle`: a saucepan's long handle along `+X`.
-   * - `leftHandle`, `rightHandle`: a stockpot's two side handles at `+X` and
-   *   `-X`.
+   * The `rim` opening and physically supported `inside` floor. Bowls,
+   * ashtrays and vases add `body`. A saucepan uses `handle`, and a
+   * stockpot uses `leftHandle` at `+X` and `rightHandle` at `-X`.
    */
   export type Affordance =
     | "rim"
@@ -149,15 +140,11 @@ export function create(
     | "rightHandle";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `diameter`: across the rim.
-   * - `height`: the rim's top above the base.
-   * - `mass`: kilograms.
+   * Outside rim span and rim height in metres. Empty model mass uses kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Common units for the five vessel shapes' band or catalogue values. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -167,27 +154,27 @@ export function create(
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+   * Saved selector, scene ID, applicable finite dimensions and optional bowl or ashtray model.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which vessel. */
+    /**
+     * Selects the body, material, admissible measurements and grip arrangement.
+     */
     kind: Kind;
 
-    /** A bowl's or an ashtray's model; drawn from the seed when absent. */
+    /**
+     * Catalogue selector for the bowl or ashtray. Other saved kinds disregard this legacy field.
+     */
     model?: Model;
 
-    /** The model's id, unique in a scene; `vessel` when absent. */
+    /** Scene object ID, defaulting to `vessel`. */
     id?: string;
   }
 
-  /** A model's read figures, by dimension. */
+  /** Correlated outside size, rim height and mass of one bowl or ashtray. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /**
-   * The models read: IKEA 365+'s bowl and Thomas's Sunny Day bowl 18 cm and
-   * cereal bowl; Nachtmann's Cigar Cuba and Harris's glass ashtrays.
-   */
+  /** The recorded IDs for three bowls and two glass ashtrays. */
   export type Model =
     | "ikea365"
     | "sunnyDay18"
@@ -196,20 +183,14 @@ export function create(
     | "harris";
 
   /**
-   * Each kind's models whole, the default first. The bowls: IKEA 365+ bowl,
-   * rounded sides, 16 cm across and 7 cm high, 0.44 kg packed, a provisional
-   * mass the bowl alone is lighter than by an unread amount
-   * (https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/);
-   * Thomas Sunny Day bowl 18 cm, 16.60 cm across, 7.90 cm high, 477 g
-   * (https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html);
-   * Thomas Sunny Day cereal bowl, 12.20 cm across, 8.00 cm high, 300 g
-   * (https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html).
+   * Complete bowl and ashtray sizes and masses by model, first row
+   * used without a seed. The IKEA 365+ mass is a provisional packed weight.
    *
-   * The ashtrays: 10 cm across, 3 cm high and 258 g
-   * (https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053)
-   * and 16.8 cm across, 3.5 cm high and 1.7 kg
-   * (https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992),
-   * retailer listings.
+   * @see https://www.ikea.com/gb/en/p/ikea-365-bowl-rounded-sides-white-20278351/
+   * @see https://www.thomas-porzellan.de/en-de/bowl-18-cm/10850-408547-13388.html
+   * @see https://www.thomas-porzellan.de/en-de/cereal-bowl/10850-408530-15456.html
+   * @see https://www.galaxus.de/en/s14/product/nachtmann-cigar-cuba-ashtrays-10169053
+   * @see https://www.centrepointstores.com/sa/en/buy-harris-glass-ashtray/p/163634992
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -226,8 +207,7 @@ export function create(
   };
 
   /**
-   * The band of each free dimension, by kind; a bowl's and an ashtray's are its
-   * model's.
+   * Admitted dimensions for cooking pots and vases. Bowls and ashtrays use complete catalogue rows.
    */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>

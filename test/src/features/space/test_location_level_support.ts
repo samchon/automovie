@@ -235,11 +235,9 @@ function compileSupport(
  * 3. A nonwalkable patch and entering before the threshold opens report distinct admission failures.
  * 4. A gait plants during its first cycle and loses support in its second cycle when the assigned floor is three metres below the feet.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the floor heights, exact handoff and carrier interval, and both failure boundaries.
+ * @evidence contracts/development/common.md#meaningful-documentation Exercises level-scoped ground on overlapping floors, a timed threshold, a resumed plant and a suspended beat. Checks admission refusals for blocked or premature passage and a gait that loses support on its later cycle.
  * @evidence contracts/development/testing.md#behavioral-verification Runs normal staging, real gait synthesis and performance through defineShot/compileDefinedShot. Checks actual motion keys, root heights, continuity plants, and typed diagnostics. Global topmost selection cannot satisfy the lower actor's height.
  * @evidence contracts/development/testing.md#independent-expectations The two constant floors are three metres apart, the moving endpoints are authored, and the lower seam is 0.13 m; no height query supplies the expected values. The rig is a synthetic leg for a portable support oracle rather than a claim about human stair biomechanics.
- * @evidence contracts/development/testing.md#distinguishing-cases Exact intervals, overlapping levels, eligible crossing, resumed pin, suspended interval, unavailable reference, uncovered path and wrong-height gait windows share geometry and gait inputs. Existing relief cases own legacy unscoped behavior.
- * @evidence contracts/development/testing.md#execution-ownership An in-memory normal-shot fixture runs under the native test selector without a renderer, host replacement or file resources.
  */
 export function test_location_level_support(): void {
   const crossing: readonly IAutoMovieStageSupportWindow[] = [

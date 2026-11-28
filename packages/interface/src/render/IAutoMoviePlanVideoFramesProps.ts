@@ -14,4 +14,10 @@ export interface IAutoMoviePlanVideoFramesProps {
 
   /** Folder the stills are written into. */
   directory: string;
+
+  /** Absolute input stream index. Omitted selects the first video stream. */
+  streamIndex?: number;
+
+  /** Preserve source PTS and write the selected frame timing to the FFmpeg log. */
+  presentation?: boolean;
 }

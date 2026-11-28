@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanLumbarPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanLumbarPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Lumbar flexion, side bend and axial rotation in degrees from anatomical
+ * neutral. Positive flexion bends forward. Positive side bend and rotation
+ * move toward the person's left.
+ */
 export type IAutoMovieHumanLumbarPoseSchema = IAutoMovieHumanLumbarPose & {
   /** Forward bend 50, backward bend 15. */
   flexion?: number & tags.Minimum<-15> & tags.Maximum<50>;

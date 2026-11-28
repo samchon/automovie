@@ -35,9 +35,7 @@ type RadiusKnot = readonly [number, number, number, number];
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls public Root.calibrate/prepare/resolve through real FullSource conic descriptors, with no substituted reader, surface callback, person or mesh. All independent scenarios collect failures before one verdict.
  * @evidence contracts/development/testing.md#independent-expectations For the focused column F=(R(q)-1/2)^2 and rho=1/16. The declared cubic has R'=(40/177)(q-21/20)(q-2), R(1)=5/8 and R(4)=13/8, giving first secant trial 89/80 for the literal [1,4] bracket and exactly one regular root in (2,3). Circle total2 and explicit normalized Hermite jets give the source oracle; no observed Human columns supply expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers literal identity, a regular nonmonotone bracket, a negative trial separated from its positive final root, and singular/reversed already-solved final controls. This proves a trial-sign counterexample, not existence or continuation of a root in the six Human refusal cases, full-band validity or a general first-crossing policy.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU source unit discovered as human_native_root_trial_direction. The supervisor owns its combined RED run after the existing test watch; this file starts no process and realizes no geometry.
- * @evidence contracts/development/common.md#meaningful-documentation States all four scenarios, the independent rational construction, mm/radian and physical2 units, aggregate verdict and the explicit limit on actual Human branch conclusions.
+ * @evidence contracts/development/common.md#meaningful-documentation The focused cubic places a regular root outside the first trial's direction. Independent circle values and derivative-sign refusals distinguish trial order from source admission.
  */
 export function test_human_native_root_trial_direction(): void {
   const failures: string[] = [];

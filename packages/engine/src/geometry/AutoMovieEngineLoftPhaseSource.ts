@@ -26,17 +26,17 @@ export namespace AutoMovieEngineLoftPhaseSource {
     coordinates: readonly number[],
     curves: readonly IAutoMovieViewConic.ICurve[],
   ): IAutoMovieLoftPhaseSource.ISource | string {
-    const n: number = coordinates.length;
+    const knots: number[] = [...coordinates];
+    const n: number = knots.length;
     if (
       n < 2 ||
       curves.length !== n ||
-      !coordinates.every(
-        (value: number, i: number): boolean =>
-          // A width past the largest double would overflow its difference.
-          i === 0 ||
-          (value > coordinates[i - 1]! &&
-            value <= Number.MAX_VALUE + coordinates[i - 1]!),
-      )
+      !knots.every((value: number, i: number): boolean => {
+        if (!Number.isFinite(value)) return false;
+        if (i === 0) return true;
+        const width: number = value - knots[i - 1]!;
+        return width > 0 && Number.isFinite(width);
+      })
     )
       return "native phase source needs matching curves and at least two increasing coordinates of representable width";
     for (const curve of curves) {
@@ -45,34 +45,35 @@ export namespace AutoMovieEngineLoftPhaseSource {
       if (
         !curve.quarters.every(
           (quarter: IAutoMovieViewConic.IQuarter): boolean =>
-            quarter.extents.every((value: number): boolean => value > 0) &&
+            quarter.extents.length === 2 &&
+            quarter.extents[0] > 0 &&
+            Number.isFinite(quarter.extents[0]) &&
+            quarter.extents[1] > 0 &&
+            Number.isFinite(quarter.extents[1]) &&
             quarter.shoulder > 0 &&
             quarter.shoulder < 1,
         )
       )
         return "native phase source has malformed quarter data";
     }
-    const identity: number[][] = coordinates.map(
+    const identity: number[][] = knots.map(
       (_: number, i: number): number[] =>
         Array.from({ length: n }, (_unused: unknown, j: number): number =>
           i === j ? 1 : 0,
         ),
     );
     const curvatures: number[][] = AutoMovieEngineSeamStation.curvatures(
-      coordinates,
+      knots,
       identity,
     );
     const slopes: number[][] = AutoMovieEngineSeamStation.slopes(
-      coordinates,
+      knots,
       identity,
       curvatures,
     );
-    return {
-      coordinates: [...coordinates],
-      curves: [...curves],
-      slopes,
-      curvatures,
-    };
+    if (!slopes.every(finiteWeights) || !curvatures.every(finiteWeights))
+      return "native phase source has no finite cardinal station derivatives";
+    return { coordinates: knots, curves: [...curves], slopes, curvatures };
   }
 
   /** Prepare weights at q, optionally reexpressed by [dq/ds, d2q/ds2]. */
@@ -83,7 +84,15 @@ export namespace AutoMovieEngineLoftPhaseSource {
   ): IAutoMovieLoftPhaseSource.IStation {
     const t: readonly number[] = source.coordinates;
     const n: number = t.length;
-    if (n < 2 || source.curves.length !== n || q < t[0]! || q > t[n - 1]!)
+    if (
+      n < 2 ||
+      source.curves.length !== n ||
+      !Number.isFinite(q) ||
+      q < t[0]! ||
+      q > t[n - 1]! ||
+      (change !== undefined &&
+        (!Number.isFinite(change[0]) || !Number.isFinite(change[1])))
+    )
       throw new Error(
         "native phase station has no finite in-domain coordinate 2-jet",
       );
@@ -135,6 +144,8 @@ export namespace AutoMovieEngineLoftPhaseSource {
                 value * change[0] * change[0] + raw[1]![k]! * change[1],
             ),
           ];
+    if (!weights.every(finiteWeights))
+      throw new Error("native phase station has no finite interpolation weights");
     return { source, weights };
   }
 
@@ -183,6 +194,13 @@ export namespace AutoMovieEngineLoftPhaseSource {
     }
     return rows;
   }
+}
+
+/*
+ * Station weights belong to the chosen coordinate and must be representable.
+ */
+function finiteWeights(row: readonly number[]): boolean {
+  return row.every(Number.isFinite);
 }
 
 /*

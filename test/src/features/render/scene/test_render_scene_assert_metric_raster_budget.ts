@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/throwsError";
  *
  * These small rectangles have exactly representable pixel counts. The guard
  * decides allocation before the host reads or allocates a native buffer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exact-budget success and refusal of a smaller budget, zero dimensions and unordered numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the metric raster admission guard with tiny numeric raster and budget fixtures before any native buffer is needed.
+ * @evidence contracts/development/testing.md#independent-expectations The literal areas are 1 and 6 pixels. Budget 6 includes the 2 by 3 boundary, and budget 5 excludes it. A zero side or an unordered operand cannot satisfy the valid positive area rule.
  */
 export function test_render_scene_assert_metric_raster_budget(): void {
   doesNotThrow((): void => assertMetricRasterBudget(1, 1, 1));

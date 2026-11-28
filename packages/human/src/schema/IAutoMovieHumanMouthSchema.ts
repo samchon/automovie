@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanMouth } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanMouth. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Closed-mouth measurements for typia validation, in millimetres. Supply the
+ * distance between the mouth corners and the upper and lower vermilion heights
+ * measured from the closed lip seam.
+ */
 export type IAutoMovieHumanMouthSchema = IAutoMovieHumanMouth & {
   /** Cheilion to cheilion. */
   width: number & tags.Minimum<15> & tags.Maximum<90>;

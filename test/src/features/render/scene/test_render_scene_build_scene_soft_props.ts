@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
  * 2. A collapsed frame hides the same mesh; seeking back restores its tube.
  * 3. An omitted cord detaches. Rejected radii or particles leave the prior tube
  *    mounted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names valid unequal cord segments, collapse and seek recovery, invalid updates and omission.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the soft props layer on a Three.js scene and submits typed cord states. Inspect the mounted mesh and its ring positions through visible, collapsed, restored and omitted frames. Refuses malformed inputs through the same layer.
+ * @evidence contracts/development/testing.md#independent-expectations The three particle coordinates determine ring centers, and the declared radius determines each ring extent. A collapsed frame hides the existing mesh. Invalid radii or particle tuples leave the earlier visible instance intact, and omission detaches it.
  */
 export function test_render_scene_build_scene_soft_props(): void {
   const centres: readonly THREE.Vector3[] = [

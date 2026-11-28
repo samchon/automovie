@@ -55,14 +55,17 @@ const CIRCLING: number = 1e-3;
  * 2. A hand that steps 0.1 m at 1.01 s jumps 0.1 m, within the step's last
  *    interval of a tenth of a millimetre, in the grid interval from 1 s.
  * 3. A hand that spikes 0.05 m at exactly 1 s goes out by `0.05 + d` and back by
- *    `0.05 - d`, `d = 0.5 / 24` the steady frame's travel: a reversal of `0.05
- *
- *    - D` at 1 s, read on the grid's own frames since it is as fine as a reversal's.
+ *    `0.05 - d`, with `d = 0.5 / 24` the steady frame's travel. The reversal is
+ *    `0.05 - d` at 1 s.
  * 4. A hand circling 1 m out at two turns a second (12.6 m/s) displaced 20 mm for
  *    one frame from 1.01 s jumps 20 mm, within what the turn adds over the last
  *    interval; the fast turn alone is not chased and jumps nothing.
  * 5. A hand swaying 0.3 m at 1 Hz departs from the quadratic predictor by its
  *    fourth derivative, `0.3 (2 pi)^4 / 24^4`, under the 5 mm limit: no jump.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes steady and hips-relative travel, a persistent step, a single-frame reversal, a displaced fast turn and a smooth sway.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditContinuity.measure with analytic displayed-bone readers whose hand and hips can move independently, then reads speed, jump and reversal.
+ * @evidence contracts/development/testing.md#independent-expectations Taking the same 0.5 m/s slope from the hand and hips gives zero relative travel. Opposed displacements around the one-frame spike have shorter magnitude SPIKE minus SPEED/24. The step checks bound the extra continuous travel on the final subdivision.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_continuity_measure(): void {
   const place = (

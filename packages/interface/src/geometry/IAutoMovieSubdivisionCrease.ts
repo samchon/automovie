@@ -1,13 +1,10 @@
 /**
- * One semi-sharp or sharp cage edge of a subdivision surface.
+ * Authored sharpness on one undirected edge of a subdivision cage.
  *
- * Sharpness follows DeRose, Kass and Truong (1998): an edge of sharpness `s`
- * uses the sharp crease rules for the first `floor(s)` refinement steps, a
- * blend weighted by the fractional part for the next step, and the smooth rules
- * afterwards, so the crease rounds into a fillet whose width shrinks as `s`
- * grows, without extra edge loops. `10` is infinitely sharp, OpenSubdiv's
- * convention, and stays sharp at every level and in the limit. A boundary edge
- * is always infinitely sharp, so declaring one has no effect.
+ * Interior edges below sharpness 10 lose one unit per refinement. A remaining
+ * fraction blends the edge's sharp and smooth rules. A value of 10 is
+ * permanently sharp. Every boundary edge uses permanent sharpness regardless of
+ * an explicit value.
  */
 export interface IAutoMovieSubdivisionCrease {
   /** Index of one end vertex of the cage edge. */

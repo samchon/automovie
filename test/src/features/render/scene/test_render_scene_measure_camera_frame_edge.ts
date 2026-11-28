@@ -13,6 +13,10 @@ import * as THREE from "three";
  * 2. The cube moved to x = 10, wholly beyond the right edge, crosses the right
  *    side only; the cube at x = 5, straddling it, does too.
  * 3. A subject refused by the mesh listing has no measurable bounds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The camera scenario defines a square 90 degree lens, its 5 m placement, the subject offsets, and an unsupported control.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the centered cube is inside, the offset cubes cross the right edge only, and an unsupported scene has no measurable bounds.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the 5 m half-width at the cube center from the 45 degree half-angle to distinguish the centered, straddling, and outside cube locations.
  */
 export function test_render_scene_measure_camera_frame_edge(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(90, 1, 0.1, 100);

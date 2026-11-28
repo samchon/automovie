@@ -29,6 +29,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. With no collider the curl flexes every joint, the gap positive.
  * 4. A 0.2 m sphere on the finger's base keeps the chain where it is, the gap not
  *    positive; a zero step is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers reaching, free curl, contact-limited curl and malformed joint or rate controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves a real stock digit fixture, then calls the fitting and curl operations directly. It compares the target residual and probes a collider at the finger base.
+ * @evidence contracts/development/testing.md#independent-expectations Forward posing a stated bent digit supplies a reachable world target independently of the inverse solve. Without a collider the joints can curl, while the enclosing sphere yields no positive clearance at the initial pose.
  */
 export async function test_engine_kinematics_digit_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

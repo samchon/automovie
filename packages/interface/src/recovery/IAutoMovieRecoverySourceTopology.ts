@@ -1,37 +1,44 @@
-/**
- * Topology census of an observed edge-connected source-cell component. Counts
- * are dimensionless; Euler characteristic, orientability and genus remain null
- * where incidence does not qualify them. Input orientation consistency is
- * separate from mathematical orientability.
- */
+/** Combinatorial measures and qualification for one clipped source component. */
 export interface IAutoMovieRecoverySourceTopology {
-  /** Vertex population in the component's observed incidence graph. */
+  /** Number of distinct node incidence identities in the clipped component. */
   vertices: number;
 
-  /** Distinct edge-incidence population used in Euler accounting. */
+  /** Number of distinct clipped edge incidence keys in the component. */
   edges: number;
 
-  /** Two-dimensional source-cell population used in Euler accounting. */
+  /** Number of two-dimensional clipped source cells in the component. */
   faces: number;
 
-  /** Euler characteristic V-E+F, or null when topology cannot be qualified. */
+  /**
+   * Euler characteristic V minus E plus F for simple cells, or null when
+   * undefined.
+   */
   euler: number | null;
 
-  /**
-   * Whether local incidence meets the observer's manifold checks; no embedding
-   * claim follows.
-   */
+  /** Whether clipped incidence has qualified manifold edge and vertex links. */
   manifold: boolean;
 
-  /** Whether face parity admits coherent orientation, or null when unqualified. */
+  /**
+   * Orientability under required face flips, or null when manifold incidence
+   * does not qualify.
+   */
   orientable: boolean | null;
 
-  /** Whether supplied face directions already agree across adjacency. */
+  /**
+   * Whether neighboring input faces already use opposite directions along their
+   * shared edges.
+   */
   inputOrientationConsistent: boolean;
 
-  /** Number of closed boundary cycles in the observed relative sheet. */
+  /**
+   * Number of simple boundary cycles recovered by directed occurrence
+   * traversal.
+   */
   boundaryCycles: number;
 
-  /** Genus of a qualified connected orientable sheet, otherwise null. */
+  /**
+   * Nonnegative orientable genus derived from Euler and complete cycle
+   * evidence, or null.
+   */
   genus: number | null;
 }

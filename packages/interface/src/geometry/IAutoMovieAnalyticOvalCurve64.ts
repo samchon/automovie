@@ -1,8 +1,9 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * An analytic ellipse center in millimetres, two orthonormal direction axes and
- * positive millimetre semiaxes; one turn is the complete parameter domain.
+ * Analytic ellipse in a millimetre frame. One turn traces the closed curve from
+ * the positive U endpoint through the positive V endpoint. The declared axes
+ * are orthonormal and the finite semiaxes are strictly positive.
  */
 export interface IAutoMovieAnalyticOvalCurve64 {
   /**
@@ -11,16 +12,10 @@ export interface IAutoMovieAnalyticOvalCurve64 {
    */
   type: "analyticOval";
 
-  /**
-   * Stable semantic course identifier carried into actual inspection and source
-   * attribution.
-   */
+  /** Nonblank curve identity used for source attribution and inspection. */
   name: string;
 
-  /**
-   * Declared closure topology; this flag alone is not a periodicity, regularity
-   * or nonintersection proof.
-   */
+  /** Required closed topology of the analytic oval. */
   closed: true;
 
   /**
@@ -30,8 +25,8 @@ export interface IAutoMovieAnalyticOvalCurve64 {
   unit: "mm";
 
   /**
-   * Unit of the independent curve parameter; interval widths and reported
-   * derivatives use this same chart.
+   * A turn is the independent parameter unit. Derivatives use millimetres per
+   * turn.
    */
   phaseUnit: "turn";
 

@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    radii even after the authored envelope is mutated.
  * 2. A zero body size and negative parent-rig size report together. An absent
  *    parent stays absent and the same valid body still lowers.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name detached sphere geometry, separate body and parent radius failures and the absent parent option.
+ * @evidence contracts/development/testing.md#behavioral-verification The test lowers the actual camera envelope, mutates the authored sphere values, then compares the detached output and paired invalid-radius paths.
+ * @evidence contracts/development/testing.md#independent-expectations The expected centers and radii are copied from fixed input numbers. Zero or negative radius independently violates positive sphere geometry, and omitting a parent leaves no parent sphere to lower.
  */
 export function test_engine_film_camera_clearance_envelope(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

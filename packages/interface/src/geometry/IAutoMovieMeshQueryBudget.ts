@@ -1,18 +1,15 @@
 /**
- * A caller-owned, mutable count of geometry work a bounded query may still
- * spend.
+ * Caller-owned remaining geometry work, shared across separation measurements
+ * and refinements.
  *
- * `createMeshSeparationQuery` spends one unit per visited box and per
- * tested triangle, normal triple, projection axis or edge pair before doing
- * that work, and throws by name when the count is exhausted or is not a
- * nonnegative safe integer. The same object may be shared across many queries
- * and refinement steps. The caller owns the spent count and must not reset it
- * mid-refinement, so a whole fit stays under one bound.
+ * The counted work includes attachment seats, support caps, hierarchy boxes,
+ * resident triangles, normal triples, projection axes and edge pairs. Keep the
+ * same counter through a bounded refinement.
  */
 export interface IAutoMovieMeshQueryBudget {
   /**
-   * Units of work left, a nonnegative safe integer decremented in place before
-   * each unit is performed.
+   * Nonnegative safe integer of remaining work. Each successful spend
+   * decrements it in place before the associated geometry operation.
    */
   remaining: number;
 }

@@ -13,6 +13,10 @@ import { nclose } from "../../internal/nclose";
  * Scenario: with a 0.9 m hip and a 0.6 m arm, a shoulder at 1.45 m punching at
  * 1.2 m dips 0.05 m; at 0.6 m it would dip 0.35 m but is capped at 0.135 m; at
  * 1.4 m it does not dip.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the animated shoulder dip, threshold and cap from posed rig dimensions.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads virtual dip at three target heights with fixed shoulder, arm and hip dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations The authored formula gives 0.05 m at 1.2 m, clamps to 0.135 m at 0.6 m and returns zero at 1.4 m.
  */
 export function test_motions_striking_punch_contact(): void {
   const m = { hipHeight: 0.9, upperArm: 0.32, forearm: 0.28 };

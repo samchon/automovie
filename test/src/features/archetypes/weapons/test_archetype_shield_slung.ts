@@ -13,11 +13,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 2. Its `+Y` points along `-Z`, toward the wearer, away from the face, and its `+X` across the shield, square to it.
  * 3. The shield with the contact passes `validateModel`, and its face, boss, rim and grip are kept.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds real shields and reads the slung frame against the shields' own collider extent and axes; a frame inside the board, in front of the grip bar, or facing the wrong way is caught.
- * @evidence contracts/development/testing.md#independent-expectations The rearmost face is measured here from the produced colliders' extent, not read from the producer's constants; the directions follow from the shield's documented axes, its face toward `+Z`.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bucklers and a round shield of three drawn sizes.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the slung contact behind the board and its outward orientation in the shield's local coordinates.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual shield models and compares the exposed slung frame to the rear collider boundary and grip. Checks position and frame direction for different shapes.
+ * @evidence contracts/development/testing.md#independent-expectations The measured rear collider face bounds the contact position. The documented forward model axis gives the reference direction for the board and the reversed slung frame.
  */
 export function test_archetype_shield_slung(): void {
   const findings: string[] = [];

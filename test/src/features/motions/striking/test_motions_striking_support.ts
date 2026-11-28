@@ -13,6 +13,10 @@ import { vclose } from "../../internal/vclose";
  * Scenario: a hand at (1, 0, 0) turned 90 degrees about +Y carries the axis +Z
  * to +X and the edge +Y to +Y, their cross to +Z, so an offset (0.1, 0.2, 0.3)
  * grips at (1.1, 0.2, 0.3).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies a support hand's offset in the held prop's rotated basis.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes the grip for a prop with a known axis and edge and a hand rotated 90 degrees about y.
+ * @evidence contracts/development/testing.md#independent-expectations The turned basis maps the three offset coordinates onto world x, y and z as stated, giving (1.1, 0.2, 0.3) after translation.
  */
 export function test_motions_striking_support(): void {
   TestValidator.predicate(

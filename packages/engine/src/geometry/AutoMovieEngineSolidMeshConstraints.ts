@@ -3,6 +3,7 @@ import type {
   IAutoMovieSolidMeshConstraints,
 } from "@automovie/interface";
 
+import { isOnSolidChartSegment } from "./construction/internal/isOnSolidChartSegment";
 import { orientSolidChart } from "./construction/internal/orientSolidChart";
 
 /**
@@ -51,7 +52,7 @@ export namespace AutoMovieEngineSolidMeshConstraints {
           point[0],
           point[1] + lift * (period ?? 0),
         ];
-        if (on(a, b, lifted)) return true;
+        if (isOnSolidChartSegment(a, b, lifted)) return true;
       }
     }
     return false;
@@ -152,7 +153,7 @@ export namespace AutoMovieEngineSolidMeshConstraints {
             point[0],
             point[1] + turn * (period ?? 0),
           ];
-          if (on(a, b, lifted)) cuts.push({ id, turn, point: lifted });
+          if (isOnSolidChartSegment(a, b, lifted)) cuts.push({ id, turn, point: lifted });
         }
       }
       const axis: 0 | 1 =
@@ -269,23 +270,6 @@ interface Cut {
   point: Readonly<AutoMovieVector2Tuple>;
 }
 
-/*
- * Exact represented-point membership on a closed straight segment; no identity
- * is inferred from it.
- */
-function on(
-  a: Readonly<AutoMovieVector2Tuple>,
-  b: Readonly<AutoMovieVector2Tuple>,
-  point: Readonly<AutoMovieVector2Tuple>,
-): boolean {
-  return (
-    point[0] >= Math.min(a[0], b[0]) &&
-    point[0] <= Math.max(a[0], b[0]) &&
-    point[1] >= Math.min(a[1], b[1]) &&
-    point[1] <= Math.max(a[1], b[1]) &&
-    orientSolidChart(a, b, point) === 0
-  );
-}
 
 /*
  * Three neighbouring images cover a primitive of at most one period; the

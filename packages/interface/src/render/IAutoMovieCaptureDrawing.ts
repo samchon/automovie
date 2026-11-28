@@ -1,4 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "./IAutoMovieInspectionDiagnostics";
+import type { IAutoMovieInspectionTrail } from "./IAutoMovieInspectionTrail";
 import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage";
 import type { IAutoMovieRasterLabel } from "./IAutoMovieRasterLabel";
 import type { IAutoMovieCaptureResolution } from "./IAutoMovieCaptureResolution";
@@ -56,4 +57,10 @@ export interface IAutoMovieCaptureDrawing {
    * supplies them.
    */
   diagnostics?: IAutoMovieInspectionDiagnostics;
+
+  /**
+   * Source-backed trail segments sampled for this drawing, when selected and
+   * supplied. Capture retains their exact clocks and spatial units.
+   */
+  readonly motionTrails?: readonly IAutoMovieInspectionTrail[];
 }

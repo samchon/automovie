@@ -7,27 +7,23 @@ import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieA
 import { dogModelDimensions } from "./dog/dogModelDimensions";
 import { measureDogNeckLength } from "./dog/measureDogNeckLength";
 
-/** Public operations for Auto Movie Archetype Dog. */
+/** Creates Husky stock bodies from Pet, Show and Sled cohort measurements. */
 export namespace AutoMovieArchetypeDog {
   /**
-   * A coarse Husky prototype from one published Pet, Show or Sled cohort mean.
+   * Creates a coarse Husky rig from one complete morphometric cohort.
    *
-   * The coarse surface proportions follow measured cohort means. Skeletal
-   * controls are authored from those measurements. The author supplies mass
-   * because that morphometric table reports no weights; it is the whole model's
-   * mass, including any authored collar/lead. Segment density is uniform and paw
-   * friction/restitution remain unknown. The optional collar is a finite annular
-   * fitting whose dimensions the author supplies; its straight lead offers one
-   * real rein contact. Without a named cohort its width must fit every selectable
-   * neck, so acceptance never depends on the seed. Naming a cohort admits that
-   * cohort's own neck length. No saddle exists.
+   * Pet, Show and Sled supply distinct body proportions. Tack is optional.
+   * A collar surrounds the neck and adds one straight lead with a grasp.
+   * An omitted cohort limits collar width to the shortest selectable neck.
+   * A named cohort admits that cohort's own width limit.
    *
-   * @param params Required positive mass in kilograms, optional cohort, tempo and
-   *   authored collar.
-   * @param seed Picks one whole cohort and the tempo; absent, Pet and mean tempo.
-   * @returns The dog, including its parts and optional lead affordance.
-   * @throws {AutoMovieArchetypeRefusal} For invalid mass, cohort, tempo or collar
-   *   dimensions.
+   * @param params Required whole-model mass, plus optional ID, cohort, tempo
+   *   and collar dimensions.
+   * @param seed Draws an omitted cohort and tempo. Omit the seed for Pet and
+   *   zero tempo displacement.
+   * @returns The dog body with its authored mass and optional `lead` contact.
+   * @throws {AutoMovieArchetypeRefusal} If a cohort, tempo, size or collar
+   *   setting falls outside its admitted choices.
    */
   export function create(params: AutoMovieArchetypeDog.IParams, seed?: number): AutoMovieArchetype<
   AutoMovieArchetypeDog.Affordance,
@@ -36,35 +32,49 @@ export namespace AutoMovieArchetypeDog {
     return createDogImplementation(params, seed);
   }
 
-  /** A lead is a rein contact, never a rider's seat. */
+  /** Available contact `lead`, a rein grasp on the shaft of the fitted lead. */
   export type Affordance = "lead";
 
-  /** Authored dimensions, all metres, of the collar and straight lead. */
+  /** Dimensions in metres of the optional collar and straight lead. */
   export interface ICollar extends AutoMovieArchetypeQuadrupedLead.IParams {}
 
-  /** The author supplies total model mass; absent tack means a bare dog. */
+  /**
+   * Sets the required mass and optional provenance, timing and tack.
+   *
+   * Choose a named cohort to fit that neck. Omit the collar to build a bare
+   * dog.
+   */
   export interface IParams {
-    /** Optional instance id. */
+    /** Scene-unique model ID. Defaults to `dog`. */
     id?: string;
-    /** Positive finite kilograms, including any drawn tack. */
+    /** Finite positive whole-model kilograms, including tack when fitted. */
     mass: number;
-    /** One whole morphometric cohort; selected from seed when absent. */
+    /**
+     * Morphometric cohort. An omitted cohort is drawn, with Pet as the
+     * seedless default.
+     */
     cohort?: DogCohort;
-    /** Stride-time displacement in standard deviations, from -1 to 1. */
+    /**
+     * Stride-time displacement from the nominal clock, in standard deviations
+     * from −1 to 1.
+     */
     tempo?: number;
-    /** Explicit collar/lead dimensions; no maker or physiological claim. */
+    /** Authored neck fitting and straight lead. Omit it for a bare dog. */
     collar?: ICollar;
   }
 
   /**
-   * An explicitly authored 22 kg specimen for the gallery's reference view.
-   * This mass is a presentation choice; the morphometric cohort table supplies
-   * no mass. Callers still provide mass to createDog, and the seed still
-   * selects a whole cohort.
+   * A 22 kg authoring preset for the gallery's specimen.
+   *
+   * Pass that mass explicitly to `create`. The cohort measurement table
+   * supplies separate heights and girths.
    */
   export const REFERENCE: Readonly<Pick<IParams, "mass">> = { mass: 22 };
 
-  /** The shared dimensions and their physical units. */
+  /**
+   * Metres for withers height and girth, kilograms for mass, no unit for
+   * tempo.
+   */
   export const UNITS: Readonly<
     Record<
       AutoMovieArchetypeQuadrupedBody.Dimension,
@@ -77,7 +87,12 @@ export namespace AutoMovieArchetypeDog {
     tempo: "",
   };
 
-  /** Whole height/girth pairs from Huson et al. 2025 Table 1, metres. */
+  /**
+   * Preserves each cohort's measured withers-height and girth pair in metres.
+   *
+   * The draw takes both measurements from one row. Pet first supplies the
+   * seedless pair 0.5692 m and 0.6723 m.
+   */
   export const MODELS: Readonly<
     Record<
       DogCohort,
@@ -92,8 +107,10 @@ export namespace AutoMovieArchetypeDog {
   };
 
   /**
-   * The existing one-standard-deviation authoring range, applied to Light et
-   * al. 2010's canine pooled stride-time SD of 0.13 s.
+   * Inclusive authored range from −1 to 1 stride-time standard deviations.
+   *
+   * The seedless midpoint is zero. The provenance retains the pooled
+   * canine stride-time standard deviation of 0.13 s.
    */
   export const TEMPO: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "",
@@ -103,8 +120,10 @@ export namespace AutoMovieArchetypeDog {
   );
 
   /**
-   * Constructed neck lengths, metres; the narrowest limits a collar when any
-   * cohort may be drawn.
+   * Distances from neck to poll on the three generated neutral rigs, in metres.
+   *
+   * A named cohort uses its own clearance. An unrestricted cohort draw uses
+   * the shortest of these measured rig lengths.
    */
   export const NECK_LENGTHS: Readonly<Record<DogCohort, number>> = {
     pet: measureDogNeckLength("pet", MODELS.pet),
@@ -112,7 +131,7 @@ export namespace AutoMovieArchetypeDog {
     sled: measureDogNeckLength("sled", MODELS.sled),
   };
 
-  /** Every authored collar length checked before geometry is made. */
+  /** Admission checks `width`, `thickness`, `leadLength` and `leadRadius`. */
   export const COLLAR_DIMENSIONS: readonly (keyof ICollar)[] = [
     "width",
     "thickness",
@@ -121,13 +140,14 @@ export namespace AutoMovieArchetypeDog {
   ];
 
   /**
-   * Admit a positive authored physical dimension, with no numerical repair.
+   * Admits a finite positive dimension against an optional upper limit.
    *
-   * @param axis The authored parameter named in a refusal.
-   * @param value The given value in the stated unit.
-   * @param unit Its physical unit.
-   * @param maximum Optional inclusive geometric limit, in the same unit.
-   * @throws {AutoMovieArchetypeRefusal} For nonfinite or nonpositive values.
+   * @param axis Authoring field shown in a refusal.
+   * @param value Dimension to admit, in `unit`.
+   * @param unit Display unit for the admitted interval.
+   * @param maximum Inclusive upper bound when supplied.
+   * @throws {AutoMovieArchetypeRefusal} If the input is nonfinite, nonpositive or
+   *   exceeds the supplied maximum.
    */
   export function positive(
     axis: string,
@@ -135,7 +155,10 @@ export namespace AutoMovieArchetypeDog {
     unit: string,
     maximum?: number,
   ): void {
-    if (!(value > 0 && (maximum === undefined || value <= maximum)))
+    if (
+      !Number.isFinite(value) ||
+      !(value > 0 && (maximum === undefined || value <= maximum))
+    )
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "dog",
@@ -148,13 +171,13 @@ export namespace AutoMovieArchetypeDog {
   }
 
   /**
-   * Lay one collar within the neck and put the rein frame on its lead.
+   * Fits a collar and its `lead` contact to a dog's neutral neck.
    *
-   * @param builder The model under construction.
-   * @param rig Its rest landmarks.
-   * @param tack The admitted positive authored lengths, metres.
-   * @throws {AutoMovieArchetypeRefusal} When the collar is longer than the
-   *   neck.
+   * @param builder Dog under construction.
+   * @param rig Neutral neck endpoints and radius.
+   * @param tack Authored collar and lead lengths, in metres.
+   * @throws {AutoMovieArchetypeRefusal} If an authored length is invalid or
+   *   the collar exceeds the available neck length.
    */
   export function collar(
     builder: AutoMovieArchetypeBuilder<

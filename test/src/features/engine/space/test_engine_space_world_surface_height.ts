@@ -14,13 +14,12 @@ import { nclose } from "../../internal/predicates";
  * 3. Ground selection retains declaration order, edges, corners and absence.
  * 4. A rounded sample position reads its own height, and the intervals on either
  *    side interpolate over their represented widths.
- * 5. Cancellation at a large offset must not select the cell beyond a knot.
+ * 5. Cancellation at a large offset can misidentify a cell. Opposite finite
+ *    extreme samples still interpolate to zero at their center.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the sampling, incomplete-corner and ground-selection contracts for resident surfaces.
- * @evidence contracts/development/testing.md#behavioral-verification Reads authored constant, plane and lattice rules through the world API, then checks ordered support, edge admission and null absence.
- * @evidence contracts/development/testing.md#independent-expectations The authored (-4,-6) origin, 10 m grid pitch and literal samples 0/1/4/10 give center 3.75 at (1,-1), edge means 0.5 and 2, and distinct corners. Only stored knots, half-cell fractions and clamped ends are read, so the expected heights are exactly representable.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers all four stored corners, both blend axes, each off-lattice direction, missing samples and overlapping, edge-only or absent ground.
- * @evidence contracts/development/testing.md#execution-ownership Uses typed surface records without calling any producer, materializer or external host.
+ * @evidence contracts/development/common.md#meaningful-documentation Names constant, planar, and lattice reads, clamping, missing samples, precision cases, and first-containing ground selection.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes typed resident surface records to `surfaceHeight`, `groundSurface`, and `groundHeight`. The queries exercise corners, off-grid clamping, a missing sample, large magnitudes, swapped ground order, a footprint edge and corner, and empty or absent ground.
+ * @evidence contracts/development/testing.md#independent-expectations The (-4, -6) grid with 10 m pitches and samples 0, 1, 4, and 10 has center 3.75 and edge means 0.5 and 2. Opposite finite extremes cancel at the midpoint. The represented knot offsets around 2^53 yield exact values 18, 6, 11, and 40. At X -11/8 the local cell fraction rounds to 1 - 2^-53, yielding 2^53 - 1.
  */
 export function test_engine_space_world_surface_height(): void {
   const flat: IAutoMovieWorldSurface = {

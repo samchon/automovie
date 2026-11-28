@@ -192,18 +192,19 @@ namespace part_crawl_under {
 }
 
 /**
- * `crawl`'s unit contract: its course, timing, feet, frame, prints and passage
- * under.
+ * Check ground-crawl plants, lowering time and palm placement below the
+ * shoulders.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `crawl_course`: `crawlCourse` carries each limb from print to print over its
- *   swing on the minimum-jerk share of the swing's time (Flash and Hogan 1985),
- *   lifted on the parabola `4 h p (1 - p)`, and holds it on its print between
- *   swings.
- * - `crawl_down_timing`: `crawlDownTiming` times the keys of a way down to the
- *   floor by how far the limbs travel between them:
- * - `crawl_under`: `crawlUnder` lays a palm on the floor under its shoulder:
+ * 1. Follow 0.3 m hand strides through holds, swing midpoints, a quarter
+ *    swing, touchdown and the terminal plant. The knee midpoint rises 0.02 m.
+ * 2. With lowering keys at x = 0, 0.1 and 0.3 m, report 0, 0.8 and 2.4 s.
+ * 3. Set mirrored palms at floor height, x = +/-0.17 m and z = 0.09 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the swing, lowering and shoulder-relative placement cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixtures exercise the crawl's course, lowering timing and mirrored palm projection.
+ * @evidence contracts/development/testing.md#independent-expectations Expected points use the independent minimum-jerk polynomial and parabola, distance ratios between the lowering keys, and shoulder minus wrist offset.
  */
 export async function test_motions_floor_crawl(): Promise<void> {
   part_crawl_course.verify();

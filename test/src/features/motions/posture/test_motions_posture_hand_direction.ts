@@ -27,6 +27,10 @@ const ROUNDING: number = 1e-15;
  *    for the right hand: (−1, 0, 1)/√2.
  * 4. The refusals.
  * 5. Prepared axes use the current yaw and each read returns its own vector.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines named, interpolated and explicit unit directions in the current hand and yaw frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Tests both acting sides, exact yaw and mixed axes, submits invalid vectors and mutates one prepared result.
+ * @evidence contracts/development/testing.md#independent-expectations Quarter turns fix signs of world axes and diagonal combinations normalize by √2. Opposite axes and zero vectors cannot define a unit direction.
  */
 export function test_motions_posture_hand_direction(): void {
   const r: number = Math.SQRT1_2;

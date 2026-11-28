@@ -1,3 +1,3 @@
-export * from "./AutoMovieRecoveryCurveConversion";
-export * from "./AutoMovieRecoveryCompactApproximation";
-export * from "./AutoMovieRecoveryConicApproximation";
+export { AutoMovieRecoveryCurveConversion } from "./AutoMovieRecoveryCurveConversion";
+export { AutoMovieRecoveryCompactApproximation } from "./AutoMovieRecoveryCompactApproximation";
+export { AutoMovieRecoveryConicApproximation } from "./AutoMovieRecoveryConicApproximation";

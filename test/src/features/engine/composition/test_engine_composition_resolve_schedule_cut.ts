@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Cut at its `chamber` event (share 0.3), the kick ends at 0.6 s and the entry
  *    records the event's name.
  * 3. Metamorphic: moving the cut later moves the next start later by the share
- *    times the duration, and the contact (1.0 s) survives only a cut after it.
+ *    times the duration. The contact (1.0 s) survives a cut at or after it.
  * 4. A cut at an unknown event throws a message listing the action's events; a
  *    share outside [0, 1] throws; exact legacy inputs normalize, while mixed or
  *    incorrectly tagged inputs are rejected.
@@ -39,6 +39,10 @@ import { TestValidator } from "@nestia/e2e";
  * 9. A saved proximity cut is tagged for the timing, cut, alignment, outcome
  *    and state laws. Repeated references share the same normalized intent,
  *    preserving synced resume and interruption.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fixed, event, anchored and proximity cuts, exact legacy variant admission, contact retention, and same-subject and cross-subject resume.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves small typed sequences and parallel compositions with prepared timing and proximity laws. Reads start and end times, cut and interruption fields, refusal details and recorded normalized intent identities.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 s kick maps cut share to twice its value and retains its 1 s contact from share 0.5. The 0.5 s advance starts the guard's replacement at 0.5 s, so its one-second span resumes at 1.5 s for the same subject and 2 s otherwise. A saved quarter-share cut gives two successive 0.25 s step spans.
  */
 export function test_engine_composition_resolve_schedule_cut(): void {
   const laws: IAutoMovieScheduleLaws = {

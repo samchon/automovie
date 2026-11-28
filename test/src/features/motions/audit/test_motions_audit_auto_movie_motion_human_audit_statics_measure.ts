@@ -28,6 +28,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  *
  * The body is built whole (`humanFixtureBody`): the reading places the body's
  * mass model and its soles on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names equal loading, left-only loading and omitted load declarations in a held stance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditStatics.measure with identical stored body poses and three authored load allocations, then reads distance and its support labels.
+ * @evidence contracts/development/testing.md#independent-expectations Two half-weight patches include the central mass projection, giving zero. Putting all load on the left restricts feasible support to the left sole, producing positive distance below hip half-width. Missing loads leave no reading.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_statics_measure(): Promise<void> {
   // Reads the whole-body centre of mass (`body.massModel`, every segment's mass) and the soles.

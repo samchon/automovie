@@ -7,7 +7,11 @@ import type { tags } from "typia";
 import type { IAutoMovieHumanEarSchema } from "./IAutoMovieHumanEarSchema";
 import type { IAutoMovieHumanFaceSchema } from "./IAutoMovieHumanFaceSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanHeadIdentity. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Detailed head measurements for typia validation. Supply vault dimensions,
+ * face and paired ears. Lengths and signed landmark offsets use millimetres.
+ * The cephalic index is maximum breadth divided by length, times 100.
+ */
 export type IAutoMovieHumanHeadIdentitySchema = IAutoMovieHumanHeadIdentity & {
   /**
    * Head length: glabella to opisthocranion, the longest midline length of the vault, millimetres.

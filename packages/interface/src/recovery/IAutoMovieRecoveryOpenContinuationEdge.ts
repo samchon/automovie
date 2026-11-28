@@ -1,21 +1,16 @@
 import type { IAutoMovieRecoveryOpenArcAddress } from "..";
 
-/**
- * Admitted directed continuation between open arcs of adjacent saved sections.
- * before/after retain saved arc addresses, reverse is the explicit endpoint
- * orientation witness, and pairOrdinal addresses the original interval pair
- * list even when analytic ownership excludes other pairs.
- */
+/** Prepared directional link between two saved adjacent open curves. */
 export type IAutoMovieRecoveryOpenContinuationEdge = {
-  /** Saved arc address in the earlier of the two adjacent sections. */
+  /** Saved open curve at the earlier endpoint. */
   before: IAutoMovieRecoveryOpenArcAddress;
 
-  /** Saved arc address in the later adjacent section. */
+  /** Saved open curve at the later endpoint. */
   after: IAutoMovieRecoveryOpenArcAddress;
 
-  /** Whether the matched continuation reverses the after-curve's saved order. */
+  /** Whether the later curve must reverse its saved direction for this link. */
   reverse: boolean;
 
-  /** Original pair ordinal within the earlier section's continuation interval. */
+  /** Source pair position within its saved interval. */
   pairOrdinal: number;
 };

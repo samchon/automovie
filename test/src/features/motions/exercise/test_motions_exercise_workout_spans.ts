@@ -47,6 +47,10 @@ const PROPS: workoutSpans.IProps = {
  *    down1 0.2, the same again, release 0.6 and relax 0.5; up1 and up2 are
  *    held, and raise1 leaves `down` for `up` on the same side.
  * 2. Staying, the release is dropped and the settle keeps the last key.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Workout phases preserve the route's durations and held keys. Ending at the last key omits the recovery release.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls phase construction on two repetitions of a prepared route, with ordinary recovery and with a retained last key.
+ * @evidence contracts/development/testing.md#independent-expectations Summing each authored duration determines the ordered phase boundaries and reused hold length. The stay branch drops only release and keeps the final key through settle.
  */
 export function test_motions_exercise_workout_spans(): void {
   const planned: workoutSpans.IPlanned = workoutSpans(PROPS);

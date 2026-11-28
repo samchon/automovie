@@ -78,6 +78,10 @@ function body(shared: boolean): IAutoMovieSolidBody.IBody {
  * 3. Separated ends without a shared seam refuse the crossing.
  * 4. A chart point at u=8 plus 2^-38 has enough chart-scaled rounding slack to
  *    snap exactly to the seam's u=8, despite exceeding the unscaled slack.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names touching and separated seam cases, shared-chart placement and scaled snapping.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual rail across several distinct chart arrangements and reads admitted crossing coordinates or a refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The authored chord is zero at the shared seam, while the opposite edge is 2 mm away. The flat chart has zero sagitta. The perturbation is within the scaled rounding allowance.
  */
 export function test_engine_geometry_solid_clip_crossing(): void {
   type Join = Parameters<typeof AutoMovieEngineSolidClip.rail>[1];

@@ -25,32 +25,21 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * `HumanSurfaceBoard`'s helpers stage a ride on a board's own frame.
+ * Check how a foot boards a finite deck in the board's own frame.
  *
- * - `deck` admits a board whose `deck` surface is bounded and horizontal in its
- *   own frame, reads its frame on the action's clock, names its sites, and
- *   refuses a plant off its top by more than `GAP` or outside its extent.
- * - `world` and `local` carry a point into and out of the board's frame.
- * - `ankle` sets a sole goal: the ankle the sole's offset, turned, behind the
- *   sole point.
- * - `heading` is a rotation's yaw from +Z; `ease` the minimum-jerk share between
- *   two shares, held outside them; `plant` a support window.
+ * Scenarios:
  *
- * The body is built whole (`humanFixtureBody`) for `ankle`'s sole offset.
+ * 1. Read the named deck and tail at film second 6 for a one-second local
+ *    read of an action starting at 5. Admit its centre and refuse off-plane,
+ *    off-deck, missing and tilted material on `on` .
+ * 2. Round-trip a local point through the rotated board, then reconstruct the
+ *    requested sole point from the ankle goal and the turned sole offset.
+ * 3. Read 90 degrees of heading, the endpoint and midpoint ease values, and
+ *    the authored plant window.
  *
- * Scenarios, a board at (2, 0.1, 0) turned a quarter about +Y, its deck 0.08 m
- * up, 0.2 m wide and 0.8 m long, with a `tail` site, on an action starting at 5
- * s:
- *
- * 1. The deck's frame at 1 s is read at 6 s; it takes the deck's centre and extent
- *    and the tail's place.
- * 2. A plant at the deck's centre passes; one 0.02 m above it, or 0.5 m along it,
- *    and a missing site, are refused on `on`; so is a deck tilted 30 degrees,
- *    or none.
- * 3. A point carried out and back is itself; the board's local +Z is world +X.
- * 4. An ankle plus the turned sole offset is the sole point; a quarter turn's
- *    heading is 90; the ease is 0, 0.5 and 1 before, halfway and after; a plant
- *    is its window.
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the timed board, admitted deck, sole goal and plant window.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixtures check frame timing, deck admission and the displayed sole and contact window.
+ * @evidence contracts/development/testing.md#independent-expectations The named clock addition, 90-degree axis change, inverse sole offset and symmetry at half ease determine the expected readings.
  */
 export async function test_motions_carrier_human_surface_board(): Promise<void> {
   const quarter: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(

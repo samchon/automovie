@@ -34,6 +34,10 @@ const IDENTITY: IAutoMovieRigidTransform = {
  * 2. A tipped box clears a distant patch despite penetration elsewhere.
  * 3. A resting circle and a broad sole retain finite material witnesses.
  * 4. Concave boundaries preserve cutouts and neighbouring plane names.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the narrow patch, tipped box, resting circle, broad sole and concave support boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual solid clearance against finite in-memory supports. Checks penetration at the missed-sample patch, clearance at a distant patch and preserving cutouts and distinct named supports.
+ * @evidence contracts/development/testing.md#independent-expectations Uses authored planes and extents with analytic sphere or box distances. The broad sole's expected penetration is 0.05 metres, and the disconnected lobe fixture touches without penetration.
  */
 export function test_archetypes_animals_quadruped_finite_contact(): void {
   const sphere: IAutoMoviePhysicalShape = {

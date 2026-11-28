@@ -43,6 +43,10 @@ import { throwsError } from "../../internal/predicates";
  *    must be integers and the interior tolerance finite.
  * 10. Lifting the target above the subject in a refit clears the crossing while the
  *     original query keeps reporting the same witness.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names piercing versus touch, coplanar and complete modes, input failures and independent refit results.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries made triangles and prepared/refitted source buffers, measuring witness flags, ordinal/count, tolerance transitions and malformed input.
+ * @evidence contracts/development/testing.md#independent-expectations A penetrating edge must meet the interior of the known unit right triangle. The moved and near-edge cases straddle that boundary. Lifting the refit clears the original crossing.
  */
 export function test_engine_geometry_mesh_crossings(): void {
   const mesh = (

@@ -21,11 +21,9 @@ import { nclose } from "../internal/predicates";
  * 5. A 200 ms signal is measured as one block over its whole length, and digital
  *    silence reads null loudness and null true peak.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the reference signals, their expected readings and tolerances.
+ * @evidence contracts/development/common.md#meaningful-documentation A calibrated sine sets the loudness witness and a phase-offset sine distinguishes sample and true peaks. Mono/stereo, chunk splits, a short block and silence exercise the meter.
  * @evidence contracts/development/testing.md#behavioral-verification Pushes synthetic PCM into the meter and asserts its readings. A meter without K-weighting, with channel weights other than one, or with sample peak in place of true peak misses one of the readings.
  * @evidence contracts/development/testing.md#independent-expectations Expectations come from EBU Tech 3341 (test signal 1 and the true-peak tolerance), from BS.1770-5's unit channel weights (10 log10 2 = 3.01 dB), and from the closed-form sample peak of a quarter-rate sine at phase π/4, sin(π/4) = −3.01 dBFS; a 1 kHz sine's K-weighted loudness equals its per-channel level by the filter's design.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers stereo and mono, a signal shorter than one gating block, silence, and split chunks; dialogue levelling and the limiter have their own tests.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_loudness_meter`; it starts no process.
  */
 export function test_engine_sound_loudness_meter(): void {
   const rate: number = 48_000;

@@ -18,6 +18,10 @@ import { nclose } from "../../internal/predicates";
  *    (2,2,1) is 3.
  * 3. A point above the face (0.5,0.5,1) is 1 and one on it (0.5,0.5,0) is 0. The
  *    query and the oracle agree on each.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names all seven closest-feature regions and the independently measured squared distances.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the actual open triangle at points assigned to each Voronoi region and compares their distances to the oracle.
+ * @evidence contracts/development/testing.md#independent-expectations For the unit offsets around vertices, two planar squares and one vertical square sum to 3. The written edge and interior projections give the remaining values.
  */
 export function test_engine_geometry_signed_mesh_triangle(): void {
   const a: number[] = [0, 0, 0];

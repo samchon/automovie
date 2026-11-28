@@ -22,8 +22,15 @@ export function assertRecoverySceneLinearRetention(
     64;
   if (
     cameras < 2 ||
-    ![cameras, observations, landmarks, transientEntries, slots].every(
-      (value: number): boolean => value >= 0,
+    ![
+      cameras,
+      observations,
+      landmarks,
+      transientEntries,
+      slots,
+      budget.maxResidentLinearEntries,
+    ].every(
+      (value: number): boolean => Number.isSafeInteger(value) && value >= 0,
     ) ||
     slots > budget.maxResidentLinearEntries
   ) {

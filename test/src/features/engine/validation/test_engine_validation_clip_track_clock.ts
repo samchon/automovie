@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    a wrong value width reports its length.
  * 3. A missing clock and payload report both empty arrays. A zero duration leaves
  *    the upper bound to its caller and keeps the lower bound.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers inclusive clock bounds, ordering errors, empty inputs and value shape diagnostics in their reported order.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls clipTrackShapeFaults on literal times and values, including a zero enclosing duration.
+ * @evidence contracts/development/testing.md#independent-expectations Keys at the two endpoints satisfy the interval. Repeated and descending keys violate strict ordering. Empty arrays are individually missing, and value count follows track width independently of temporal faults.
  */
 export function test_engine_validation_clip_track_clock(): void {
   const track: IAutoMovieClipTrackShapeFaults.ITrack = {

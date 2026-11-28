@@ -1,62 +1,40 @@
-/**
- * Stream one position row and its optional two physical-gradient rows. Signed
- * derivative Bernstein weights are linear observations of coefficients, not
- * additional point positions. Physical operators already contain the leaf
- * parameter scales and the declared millimetre exchange length. No derivative
- * target is restricted to the position enclosure. Row mass is measured in the
- * same arithmetic so a solver can translate position coordinates without
- * subtracting its origin from an unscaled derivative target.
- */
+/** Callable stream of a position row and optional physical tangent rows. */
 
 export namespace IAutoMovieRecoveryChartFitRows {
   /**
-   * Stream one position row and its optional two physical-gradient rows. Signed
-   * derivative Bernstein weights are linear observations of coefficients, not
-   * additional point positions. Physical operators already contain the leaf
-   * parameter scales and the declared millimetre exchange length. No derivative
-   * target is restricted to the position enclosure. Row mass is measured in the
-   * same arithmetic so a solver can translate position coordinates without
-   * subtracting its origin from an unscaled derivative target.
+   * Evaluate sixteen bicubic basis weights at the supplied local [u, v]. Yield
+   * the position row and, when present, two signed derivative rows from the
+   * physical tangent operators. Return the computed row mass so normalized
+   * assembly can handle positions and derivatives consistently. Invalid
+   * observations or unrepresentable derivative rows throw when requested.
    */
 
   export type Operation = (sample: {
-    /** Normalized u coordinate in the declared local patch or unit source chart. */
+    /** Local normalized U parameter of this observation. */
     u: number;
 
-    /** Normalized v coordinate in the declared local patch or unit source chart. */
+    /** Local normalized V parameter of this observation. */
     v: number;
 
-    /**
-     * Physical position in the registered millimetre frame; no coordinate
-     * matching or source repair is implied.
-     */
+    /** Observed physical position in registered millimetres. */
     pointMm: readonly [number, number, number];
 
     /**
-     * Optional physical directional-derivative observation; absence contributes
-     * only the position row.
+     * Optional two-direction physical tangent observation from the source
+     * triangle.
      */
     physicalJet?: {
-      /**
-       * Declared physical projection or tangent directions in the owning
-       * observation chart.
-       */
+      /** Two signed chart derivative operators with their millimetre targets. */
       directions: readonly {
-        /**
-         * Coefficient of the local u derivative in the declared physical
-         * directional operator.
-         */
+        /** U derivative contribution in the scaled local tangent operator. */
         du: number;
 
-        /**
-         * Coefficient of the local v derivative in the declared physical
-         * directional operator.
-         */
+        /** V derivative contribution in the scaled local tangent operator. */
         dv: number;
 
         /**
-         * Observed target in the operation's millimetre exchange scale;
-         * derivative rows retain their physical directional meaning.
+         * Observed directional derivative target in the declared millimetre
+         * exchange scale.
          */
         targetMm: readonly [number, number, number];
       }[];

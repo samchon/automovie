@@ -14,6 +14,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Two conga repeats are eight beats; one line is eight, varying 0.02 s.
  * 2. 1.5 repeats round to two, 16 line beats; a negative variation, or repeats
  *    rounding to none, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Conga and line phrases count beats by their own repeat lengths, with explicit rounding and variation admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the repeat counter for named rhythms, fractional counts, and invalid counts or variation.
+ * @evidence contracts/development/testing.md#independent-expectations Four or eight beats per repeat determine the expected totals. Rounding 1.5 repeats yields two while a count rounding to zero is refused.
  */
 export function test_motions_exercise_group_dance(): void {
   TestValidator.equals(

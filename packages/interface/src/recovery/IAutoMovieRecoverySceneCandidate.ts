@@ -1,10 +1,16 @@
 import type { IAutoMovieRecoveryMapObservation } from "..";
 
-/** Distinct existing landmark and one target-image measurement. */
+/**
+ * One existing checkpoint landmark paired with a target-view measurement from
+ * the same linked track.
+ */
 export interface IAutoMovieRecoverySceneCandidate {
-  /** Index in the accepted landmark array for this revision. */
+  /** Index into the accepted landmark array for the current checkpoint revision. */
   landmark: number;
 
-  /** Fixed target measurement from the same global component. */
+  /**
+   * Target camera source index, feature index, and observed two-coordinate
+   * pixel in the linked track.
+   */
   observation: IAutoMovieRecoveryMapObservation;
 }

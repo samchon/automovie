@@ -10,6 +10,11 @@ const SAMPLES: Readonly<Record<string, readonly [string, string][]>> = {
   rate: [["rate", "10"]],
   at: [["at", "0.5,1"]],
   events: [["events", "2"]],
+  cue: [["cue", "seat.contact"]],
+  entry: [
+    ["cue", "seat.contact"],
+    ["entry", "1"],
+  ],
   window: [["window", "5"]],
   threshold: [["threshold", "25"]],
   views: [["views", "front;top@ortho"]],
@@ -50,14 +55,12 @@ const SAMPLES: Readonly<Record<string, readonly [string, string][]>> = {
  * Scenarios:
  *
  * 1. The key list is the capture's own keys followed by `AutoMovieRenderInspectionKeys`, each once, and this test has a sample for exactly those keys.
- * 2. For every key, its sample read through `URLSearchParams` and through `readCaptureArguments` gives equal requests.
+ * 2. For every key, its sample read through `URLSearchParams` and through `AutoMovieRenderCapture.readArguments` gives equal requests.
  * 3. For every key, the request with the key differs from the request with only the keys it needs, so the key is not ignored by either host.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads each key through both host mappings into the public reader and compares the requests; a key that one mapping dropped, or that the reader ignored, fails scenario 2 or 3.
- * @evidence contracts/development/testing.md#independent-expectations Each sample is written by hand from the reader's documented table to differ from that key's absent value; the key set is checked against the samples, so a key added to the grammar without a sample fails until this test covers it.
- * @evidence contracts/development/testing.md#distinguishing-cases Every key, each against the same request without it; keys that need another (`margin`, `tolerance`) are checked with that key present on both sides. Values each key refuses are owned by `test_capture_request_malformed_value`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_request_keys`; it builds its text in memory and starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/testing.md#independent-expectations The hand-written samples define which keys require another option and how they differ from their absent values. For example, entry 1 requires the seat.contact cue, and deleting only entry leaves the cue itself in the request.
+ * @evidence contracts/development/common.md#meaningful-documentation The sample table covers each declared capture and inspection key once. Both host forms must give the same request, and a sample must change the request from its absent form.
  */
 export function test_capture_request_keys(): void {
   // 1. The key list.

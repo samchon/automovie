@@ -24,6 +24,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    (xi - cmp) points against the error.
  * 3. A 0.5 m error, past the hull: the centre of pressure saturates on the hull
  *    shrunk by the 2 mm safe distance (`ICPControllerQPSolver` l.643-669).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies quiet ICP control, correction toward a small error and saturation inside the safe support hull.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes capture-point control for 3, 4, 6 and 8 planted contacts at rest and with 0.02 m and 0.5 m errors.
+ * @evidence contracts/development/testing.md#independent-expectations Quiet feedback is zero. The LIPM rate ω(ξ − CMP) must oppose the small error, while 0.5 m error places pressure on the hull contracted by 2 mm.
  */
 export function test_engine_physics_physical_support_span_contacts_balance(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

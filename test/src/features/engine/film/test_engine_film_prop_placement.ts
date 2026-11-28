@@ -23,6 +23,10 @@ import {
  * 2. Reversing props and set pieces preserves forward-reference admission.
  * 3. A placementless legacy sculpture needs no building environment.
  * 4. Empty prop, set and environment registries remain valid.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the furnished-room support and building relations, forward-reference order, placementless legacy prop and empty registries.
+ * @evidence contracts/development/testing.md#behavioral-verification The test validates the full prepared room and its reordered props and set pieces, then independently validates an unplaced legacy object and empty inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture authors a support and environment for every dependent placement. Reordering declarations does not change their IDs or authored physical relations. The legacy sculpture declares no placement requirement and the empty case has no dependent entries.
  */
 export function test_engine_film_prop_placement(): void {
   const scenario: {

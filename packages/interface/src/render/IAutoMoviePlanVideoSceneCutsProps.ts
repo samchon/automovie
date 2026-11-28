@@ -13,4 +13,7 @@ export interface IAutoMoviePlanVideoSceneCutsProps {
 
   /** Score from 0 to 100 at which a frame starts a new scene. */
   threshold: number;
+
+  /** Absolute input stream index. Omitted selects the first video stream. */
+  streamIndex?: number;
 }

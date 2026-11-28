@@ -59,6 +59,10 @@ function landsOn(
  *    fires up and falls past at `(20 + sqrt(disc)) / g = 4.9082 s`; 4 m below
  *    at speed 6 the direct drop hits at `(sqrt(36 + 2 g 4) - 6) / g = 0.4791
  *    s`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents direct and high fixed-speed arcs, vertical special cases, zero gravity and unreachable targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves level, elevated, below and vertical launch fixtures and checks the resulting positions by reading their flights.
+ * @evidence contracts/development/testing.md#independent-expectations Vertical time roots from v² ± 2gh distinguish rising, falling and straight-down hits. The speed-limited apex and unchanged no-gravity sightline define admission.
  */
 export function test_engine_physics_solve_ballistic_launch(): void {
   // 1. A general target.

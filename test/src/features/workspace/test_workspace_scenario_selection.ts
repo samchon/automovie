@@ -22,10 +22,8 @@ import {
  *    partition it, one slice keeps it all, and every malformed shard refuses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls argv parsing, basename selection and discovery-filter preparation, observing accumulated terms, exact selected names, refusal before discovery and preserved discovery failure identity; silently widening a narrow request, admitting a discovery callback for execution or admitting later names fails.
- * @evidence contracts/development/testing.md#independent-expectations Literal argument groups and three authored basenames define expected accumulation and substring intersections; callback facts independently record discovery admission, and an explicit Error fixes failure identity without filesystem or parser-derived expected lists.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers default/repeated/equals groups, blank/valueless/unknown/positional refusals, include/exclude matches and empty intersections, fixed execution membership, empty discovery and discovery failure, and a valid, partitioning, single and malformed shard; real DynamicExecutor filesystem import behavior is not exercised.
- * @evidence contracts/development/testing.md#execution-ownership The async test_workspace_scenario_selection entry owns every awaited preparation call and supplied discovery callback over resident names, with no module import, filesystem traversal, executor process or foreign-method replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty argv, repeated groups, multiple terms, and equals forms preserve the).
+ * @evidence contracts/development/testing.md#independent-expectations Literal argv, fixture basenames and the caller-supplied default set determine each substring result and refusal. The shard of [a, b, c, d, e] assigns a, c and e to slice zero and b and d to slice one. Authored callbacks independently report discovery and a preserved Error identity.
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios cover argv forms and refusals, substring and default-candidate selection, frozen execution admission after discovery and deterministic shard partitioning.
  */
 export async function test_workspace_scenario_selection(): Promise<void> {
   TestValidator.equals("default request", parseScenarioSelection([]), {

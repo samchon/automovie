@@ -102,6 +102,10 @@ const entry = (
  *    downed rule, one after it does not.
  * 6. A fighter fallen near neutral A sends the other to neutral B (5.05.B.2), and
  *    the ten-count started at 3 s says ten at 13 s (5.05.B).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual ring placement, corner and boundary queries, scripted rule verdicts and reset cues.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a transformed ring and malformed ropes, evaluates corners in two orientations and submits declared motion and reset cases to the rule helpers.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn maps the corner's (2.5, 2.5) offset to world (2.5, −2.5). Fixed scenario labels and a 3–13 s count independently fix verdict and restart timing.
  */
 export function test_motions_sport_kickboxing(): void {
   // 1. The placed ring.

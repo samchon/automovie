@@ -25,6 +25,10 @@ const DIFFERENCE: number = 1e-4;
  *    h / T^2 at mid-swing, and its acceleration peaks at
  *    `AutoMovieEnginePhysicalBalance.CLEARANCE` h / T^2 at lift-off.
  * 4. Before and after the swing the acceleration is zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies swing-path acceleration, its relation to sampled velocity and the zero acceleration outside the span.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples horizontal and vertical feed-forward at interior phases, lift-off, midpoint and before and after the swing.
+ * @evidence contracts/development/testing.md#independent-expectations Central velocity differences check both axes. Minimum jerk peaks at 10√3 d/(3T²), and the clearance quartic gives midpoint acceleration −16h/T².
  */
 export function test_engine_physics_sample_physical_recovery_goal(): void {
   const failures: string[] = [];

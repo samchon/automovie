@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. At 1.75 s neither the left arm nor the head.
  * 4. A nanosecond's rounding outside either end of a window still holds it.
  * 5. A plan without follows reads the whole posture.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names inactive, single and overlapping follow windows, an absent plan and the tested timing margin outside both ends.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `unfollowedHumanChannels` with typed left-arm and head windows. It checks exact ordered retained channels during active intervals and undefined when a full-posture read applies.
+ * @evidence contracts/development/testing.md#independent-expectations At 1.2 s only leftArm is active, and at 1.75 s leftArm and head are active. An offset of 0.5 ns outside each outer boundary stays inside the tested tolerance, while 2 ns outside returns undefined.
  */
 export function test_motions_perform_unfollowed_channels(): void {
   const plan: Parameters<typeof unfollowedHumanChannels>[0] = {

@@ -25,8 +25,19 @@ export namespace AutoMovieCliRenderTypes {
     /** `scene` for the film, `transparent` for a straight-alpha layer. */
     background: "scene" | "transparent";
 
+    /** Directory and source identity for retaining native render frames. */
+    checkpoint: ICheckpointRequest | null;
+
     /** The request's own options, for the request reader. */
     request: Map<string, string>;
+  }
+
+  /** The command-line part of a render checkpoint's identity. */
+  export interface ICheckpointRequest {
+    /** Directory relative to the production root or absolute. */
+    directory: string;
+    /** SHA-256 of the source inputs, dependencies and assets. */
+    identity: string;
   }
 
   /** Inputs to the `automovie render` command operation. */

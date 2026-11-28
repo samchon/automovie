@@ -19,12 +19,12 @@ import * as path from "node:path";
  *    inherit that verdict.
  * 3. A single-frame still decision certifies its frame. A saved multi-frame still
  *    decision supplies no proof even for one frame inside the interval.
+ * 4. The original acceptance retains its evidence when a separate repair
+ *    decision is written for the same scoped movie.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the media, interval, file identity and approval requirements demonstrated.
- * @evidence contracts/development/testing.md#behavioral-verification Consumes actual current bytes and an admitted observation through the named review verification path.
- * @evidence contracts/development/testing.md#independent-expectations A known two-frames-per-second clock establishes the declared frame times and Node independently computes the candidate hash.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts scoped approval with locator, wrong media, wrong occurrence, fractional interval loss, still scope wider than one frame and changed bytes.
- * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit writes and removes isolated files and launches no browser or decoder.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the reviewed medium, interval, occurrence, file identity and separate acceptance and repair receipts.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieCliProduction.runCheck with a typed review criterion, then checks its verdict, diagnostic and observation path against each written receipt. The fixture tests a stored decision and current file bytes without playback.
+ * @evidence contracts/development/testing.md#independent-expectations A two-frame-per-second clock places frame 1 at half a second, and Node hashes the literal candidate bytes independently. Changing only the mode, occurrence, interval, bound path or bytes distinguishes a valid acceptance from an inapplicable or stale verdict. Separate files retain their accepted and needs-repair decisions.
  */
 export async function test_cli_production_check_review(): Promise<void> {
   const root: string = await fs.mkdtemp(

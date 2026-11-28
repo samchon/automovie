@@ -42,6 +42,10 @@ const CHAIN: StrikingWeapon.IChain = {
  * 2. Radii that miss a capsule are refused.
  * 3. Of contacts at 0.4, 0.2 and 0.3 s, the first is at 0.2 s; of none, none.
  * 4. The shank's axis at 2 s is its knee and ankle; an unknown capsule is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents virtual collider spans by link, their changing radii and earliest contact selection.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds leg colliders from named joints, submits an invalid radius record, compares unordered contact times and reads a missing or present axis.
+ * @evidence contracts/development/testing.md#independent-expectations Authored radii distinguish tapered and constant segments. Minimum of the three times is 0.2 s and an unknown identifier is refused.
  */
 export function test_motions_striking_weapon(): void {
   const [thigh, shank] = StrikingWeapon.capsules(CHAIN);

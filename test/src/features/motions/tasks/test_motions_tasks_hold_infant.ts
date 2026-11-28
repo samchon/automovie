@@ -38,6 +38,10 @@ const P = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
  *    before it, 0.03 m along +X a quarter period after (1.3125 s) and 0.03 m
  *    the other way three quarters after (1.9375 s); an unrocked hold never
  *    sways.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual support frame, pat clock and periodic cradle sway after settling.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds upright and lying pose frames, then samples shoulder and cradle event schedules and several sway phases.
+ * @evidence contracts/development/testing.md#independent-expectations The orthogonal authored directions give the expected facing basis. Four seconds at 1.5 Hz gives six pats, and quarter periods set ±0.03 m sway.
  */
 export function test_motions_tasks_hold_infant(): void {
   const turned = (

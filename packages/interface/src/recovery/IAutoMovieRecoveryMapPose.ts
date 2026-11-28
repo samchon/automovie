@@ -1,14 +1,14 @@
-/** A calibrated world-to-camera transform in the seed's arbitrary length gauge. */
+/**
+ * World-to-camera rigid transform in the map's first-camera gauge. Apply `R ×
+ * point + t`; camera X points right, Y down and Z forward.
+ */
 export interface IAutoMovieRecoveryMapPose {
-  /**
-   * Nine row-major proper-rotation coefficients; camera axes are +X right, +Y
-   * down and +Z forward.
-   */
+  /** Nine row-major coefficients of the proper world-to-camera rotation. */
   rotation: number[];
 
   /**
-   * Three camera-frame translation coefficients in arbitrary seed-baseline
-   * units; a resected camera is not normalized independently.
+   * Additive camera-frame translation in seed-baseline units. Only the seed
+   * second-camera translation fixes the unit length.
    */
   translation: [number, number, number];
 }

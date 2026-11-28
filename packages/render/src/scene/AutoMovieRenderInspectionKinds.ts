@@ -6,9 +6,9 @@ import { AutoMovieRenderInspectionPalette } from "./AutoMovieRenderInspectionPal
  * The mark kinds the inspection itself produces, with the legend label and
  * colour each is drawn in, in the order a list of kinds shows them.
  *
- * `edge` and the `defect/<kind>` kinds are measured on the drawn meshes;
- * `trail` and `trail/now` are drawn from sampled trails. Every producer of
- * these kinds reads its label and colour here, and
+ * `edge` and the `defect/<kind>` kinds are measured on the drawn meshes.
+ * The trail kinds show sampled origins, the drawn second and an authored route.
+ * Each producer reads its label and colour here, and
  * `listInspectionKinds` lists them, so a panel, a capture plan and the
  * drawing agree. Supplied kinds are not listed: their producers own them.
  *
@@ -22,6 +22,7 @@ import { AutoMovieRenderInspectionPalette } from "./AutoMovieRenderInspectionPal
  * | `defect/sliver`       | `sliver triangle`           | Orange `ff9500`      |
  * | `trail`               | `trail`                     | Chocolate `d2691e`   |
  * | `trail/now`           | `trail at the drawn second` | Dodger blue `1e90ff` |
+ * | `trail/route`         | `Authored route`            | Teal `4fc5bb`        |
  */
 export const AutoMovieRenderInspectionKinds: Readonly<
   Record<string, Readonly<IAutoMovieInspectionKindStyle>>
@@ -49,4 +50,5 @@ export const AutoMovieRenderInspectionKinds: Readonly<
   },
   trail: { label: "trail", color: 0xd2691e },
   "trail/now": { label: "trail at the drawn second", color: 0x1e90ff },
+  "trail/route": { label: "Authored route", color: 0x4fc5bb },
 };

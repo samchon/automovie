@@ -26,6 +26,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * 1. A wide chair accommodates both thighs on its physical surface.
  * 2. A chair with the same nominal seam and a narrow side edge is refused.
  * 3. The transition into rise preserves the named seat until weight transfer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A named seat must support both thighs, and its support persists into the rise until weight transfers.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the sit-to-rise composition with two otherwise equal named chair fixtures whose breadth differs.
+ * @evidence contracts/development/testing.md#independent-expectations The width difference isolates the physical support surface from the nominal seat anchor. The named release fixes when the seat ceases to carry weight.
  */
 export async function test_motions_everyday_seat_material(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

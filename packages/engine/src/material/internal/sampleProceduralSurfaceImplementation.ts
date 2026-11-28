@@ -30,6 +30,8 @@ export function sampleProceduralSurfaceImplementation(
 ): IAutoMovieSampleProceduralSurface.IResult {
   const surface: IAutoMovieProceduralSurface = props.surface;
   const point: [number, number, number] = samplePoint(props);
+  if (!point.every((value: number): boolean => Number.isFinite(value)))
+    throw new Error("procedural sample coordinates must be finite");
   const value: number = proceduralPatternImplementation(surface, point);
   const [low, high]: [IAutoMovieColor, IAutoMovieColor] = surface.colors;
   const color: IAutoMovieColor = {

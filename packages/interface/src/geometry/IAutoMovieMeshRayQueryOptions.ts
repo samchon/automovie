@@ -2,11 +2,9 @@
  * Query-local selection of original triangles that are not ray targets.
  *
  * An attachment owner excludes the faces incident to its attachment vertex by
- * topology instead of moving the origin or skipping a band of near travel, as
- * body layer surfaces do for each vertex they cast from. Every ordinal must be
- * a safe integer addressing the caster's original triangles, and the query
- * throws before traversal otherwise. Exclusions never alter the caster's
- * snapshot and imply no sidedness or containment result.
+ * topology while retaining the original ray and travel interval. Supply safe
+ * integer ordinals from the caster's original triangle population. Filtering
+ * applies only to this query. Invalid ordinals throw before traversal.
  */
 export interface IAutoMovieMeshRayQueryOptions {
   /**

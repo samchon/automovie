@@ -206,8 +206,21 @@ function scenario_test_motions_reaction_stagger_swing_bow(): void {
 }
 
 /**
- * The stagger law's own logic: the balance, the capture distance and the
- * swing's bow, each scenario below.
+ * Check stagger balance, capture distance and sole clearance during swing.
+ *
+ * Scenarios:
+ *
+ * 1. Compare the residual series and its additive fallbacks. Preserve an
+ *    interior point and project exterior points to the nearest square edge or
+ *    corner.
+ * 2. Compare zero, one, two and many capture steps for a fixed pendulum. Each
+ *    successive step contributes less.
+ * 3. Calculate the swing bow at half and quarter progress. Check separated
+ *    soles, zero bow profile, the smaller side and the cap.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish balance, step capture and foot clearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Three fixtures test residual accumulation, the support polygon, the capture model and the swing bow selector.
+ * @evidence contracts/development/testing.md#independent-expectations The expectations use a geometric series, nearest points on a unit square, a closed-form pendulum series and the polynomial bow profile.
  */
 export function test_motions_reaction_stagger(): void {
   scenario_test_motions_reaction_stagger_balance();

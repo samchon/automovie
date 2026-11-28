@@ -37,6 +37,10 @@ const STILL: punchFootwork.ISchedule = {
  * 2. Standing, the left plants and the right pivots throughout.
  * 3. Stepping, the left plants until it leaves at 0.1 s and again from 0.4 s; the
  *    right pivots until it leaves at 0.2 s and plants from 0.6 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the virtual rear drag, root carrying and support windows for standing and advancing phases.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples drag around the shown instant and queries foot contact windows with and without an authored step.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.4 s out and return puts drag at 0.2–0.6 s, half complete at 0.4 s. Root carry is then 0.75 and plant intervals follow their fixed launch and landing events.
  */
 export function test_motions_striking_punch_footwork(): void {
   const timing = { shown: 0.4, recoil: 0.4 };

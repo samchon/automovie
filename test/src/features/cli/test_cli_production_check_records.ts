@@ -33,12 +33,13 @@ import * as path from "node:path";
  *    required controls by digest. A malformed output path or audit digest
  *    leaves the result unobserved. Replaced bytes or old controls are stale and
  *    a newer blocked attempt leaves the previous output available for repair.
+ * 5. A corrected sample can be verified on its own interval. Retiming changes
+ *    comparison scope, and a selected native frame and an off-grid instant
+ *    retain separate observations. Replacing a still's alpha is a byte change.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the selected scope, artifact identity and preserved blocked-attempt behavior.
- * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the shared evaluator used by the CLI.
- * @evidence contracts/development/testing.md#independent-expectations The fixture supplies individual checked frames, unmatched observations and independently hashed literal publication bytes.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts root and nested legacy captures, sealed shared and external files, one sample and two, matched and mixed views or passes, and current, stale and blocked delivery.
- * @evidence contracts/development/testing.md#execution-ownership The CLI test owns a temporary Git fixture and launches no graphics, encoding or browser process.
+ * @evidence contracts/development/common.md#meaningful-documentation Names capture selection, clock and shared-input scope, still identity, and the current, stale and blocked delivery cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieCliProduction.runCheck on typed capture, measurement and delivery inputs in a temporary Git checkout. The fixture writes retained records and uses the capture owner with small typed draw inputs for compared rounds.
+ * @evidence contracts/development/testing.md#independent-expectations The frame checks require the specified view, pass, occurrence and number of adjacent samples. A supplied off-grid finding belongs to its selected second. The temporary checkout distinguishes named sibling input changes from external paths. Independent SHA-256 digests of the fixture bytes predict the current, replaced and stale-control verdicts.
  */
 export async function test_cli_production_check_records(): Promise<void> {
   const scratch: string = await fs.mkdtemp(

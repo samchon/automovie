@@ -29,6 +29,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  * 2. Every skin vertex the host owns stands outside the cutter within that bound.
  * 3. With one host vertex moved to the cutter's centre the same check reports a
  *    vertex inside, so it is not vacuous.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the difference seam, host-vertex exclusion and a deliberate surface corruption control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a spherical subtractive join, observes seam and surviving host positions, then puts one measured host vertex at the cutter centre to exercise the checker.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting the two sphere equations gives their common plane. Surviving host vertices must lie at least one cutter radius from its centre within the spline bound.
  */
 export function test_engine_geometry_construction_join_diff(): void {
   type V3 = [number, number, number];

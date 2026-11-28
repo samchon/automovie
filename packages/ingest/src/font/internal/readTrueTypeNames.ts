@@ -13,20 +13,19 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  * is ASCII, because Mac Roman differs from Latin-1 above 0x7F and a guessed
  * decoding would misstate a licence. Records are only described here; no rights
  * are judged.
- * Parameter reader: Bounds-checked reader over the font bytes.
- * Parameter offset: Byte offset of the `name` table.
+ * Parameter reader: Bounds-checked reader over the `name` table.
  * Returns: The three names, each `null` when no usable record carries it.
  * A record or its string lies outside the bytes.
  */
 export function readTrueTypeNames(
   reader: TrueTypeByteReader,
-  offset: number,
 ): IAutoMovieFont["names"] {
-  const count: number = reader.u16(offset + 2, "name header");
-  const strings: number = offset + reader.u16(offset + 4, "name header");
+  const count: number = reader.u16(2, "name header");
+  const strings: number = reader.u16(4, "name header");
+  reader.require(6, count * 12, "name records");
   const best: Map<number, { rank: number; text: string }> = new Map();
   for (let index: number = 0; index < count; ++index) {
-    const record: number = offset + 6 + index * 12;
+    const record: number = 6 + index * 12;
     const platform: number = reader.u16(record, "name record");
     const encoding: number = reader.u16(record + 2, "name record");
     const language: number = reader.u16(record + 4, "name record");

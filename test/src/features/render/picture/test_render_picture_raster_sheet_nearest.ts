@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    samples, reduces to black under `nearest`.
  * 3. A still at the cell's own size is copied pixel for pixel under both
  *    reductions.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Uses center sampling for nearest reduction and copies exact-size inputs under either reduction.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the sheet reducer on two one-pixel highlights and on a same-size fixture under nearest and area modes.
+ * @evidence contracts/development/testing.md#independent-expectations The final destination center lands on source 39,39. That gives white under nearest and 64 under area, while an adjacent unsampled highlight stays black.
  */
 export function test_render_picture_raster_sheet_nearest(): void {
   const still: (

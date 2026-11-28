@@ -27,9 +27,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls public Root.calibrate/prepare.resolve and the real full native source on eight-control synthetic definitions, with no person, loft, mesh or reference.
  * @evidence contracts/development/testing.md#independent-expectations A unit cylinder has x²+z²=1. The explicit child frame and calipers give F=((q*cos(c)+lambda-1)/lambda)²+(sin(.01*q*sin(c))/.01)². At the selected ray F(1)<rho<F(2), with both derivative terms positive on (1,2), independently fixing an interior regular root.
- * @evidence contracts/development/testing.md#distinguishing-cases Uses both signs of station ray and nonzero lower/upper endpoints. Opposite signed station domains reproduce the same floating endpoint issue; identity and actual out-of-domain counterparts distinguish numerical bracket construction from a relaxed reader.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU source fixture discovered as human_native_root_domain; the supervisor alone runs the combined RED after the shared type watch.
- * @evidence contracts/development/common.md#meaningful-documentation Names physical mm, phase radians, dimensionless radial shares and source-level versus endpoint arithmetic claims. Boundary-only roots and all-domain uniqueness are outside this fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Synthetic cylinders and ellipses distinguish literal controls, an interior regular root on opposite rays, valid endpoints and exterior queries.
  */
 export function test_human_native_root_domain(): void {
   const failures: string[] = [];

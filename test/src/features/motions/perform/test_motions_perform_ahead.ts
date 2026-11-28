@@ -30,6 +30,10 @@ import { testAffordance } from "../../internal/fixtures/testAffordance";
  * 3. A cut at an event or a share of the stand is that event or share, with the
  *    plant the next action's law states for its resolved parameters; a cut
  *    cued by another anchor or by a proximity, or no cut, is none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names first matching grip demand, resolved parameters, unrequested grips, and the event, share and external cut cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanPerformanceAhead` on a staged actor with authored action laws. A recording demand callback reads the grip-frame aim twice, a plant callback records resolved parameters, and the cut assertions compare the resulting event or share records.
+ * @evidence contracts/development/testing.md#independent-expectations A grip root translated by 2 m in X moves aim (1, 2, 3) to (3, 2, 3). The draw resolves right hand, sword and lean 0.2. The explicit peak event carries the authored tip plant, while the half-share cut returns 0.5 and external or absent cuts return undefined.
  */
 export async function test_motions_perform_ahead(): Promise<void> {
   const sword = AutoMovieMotionHumanObject.prop(

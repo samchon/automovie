@@ -236,6 +236,9 @@ export namespace defend {
       lead,
       support,
     );
+    const local = (seconds: number): number =>
+      Math.min(duration, Math.max(0, seconds));
+    const waits = (seconds: number): boolean => seconds <= begin + 1e-9;
     const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
@@ -246,13 +249,17 @@ export namespace defend {
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        return t <= begin + 1e-9
+        const t: number = local(seconds);
+        return waits(t)
           ? waiting(t, channels, resolution, projection)
           : geometry().posture(t, channels, resolution, projection);
       },
       prepare: (): void => void shape.prepare(),
     };
+    motionPrepared.onDemand(
+      out,
+      (seconds: number): boolean => !waits(local(seconds - context.start)),
+    );
     return out;
   }
 

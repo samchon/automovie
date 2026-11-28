@@ -147,6 +147,10 @@ namespace part_jump_path_prepare {
  *   by its twist's fraction:
  * - `jump_path_prepare`: `jumpPath.prepare` draws the root on a quintic Hermite
  *   path between two points and velocities:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Jump curves carry launch and landing velocities, with heading chosen within the landing foot room.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls jump path preparation and landing heading with fixed points, velocities, turn shares, and restricted support geometry.
+ * @evidence contracts/development/testing.md#independent-expectations The endpoint velocities and twist shares determine expected values before the interpolator is called. A constrained landing distinguishes lack of foot room from an ordinary turn.
  */
 export async function test_motions_actions_jump(): Promise<void> {
   part_jump_landing_heading.verify();

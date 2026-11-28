@@ -29,6 +29,10 @@ import { vclose } from "../../internal/vclose";
  *    of its first step and falls below it by 0.75 although its velocity at 0.15
  *    is upward, so a plane through its phase-0.15 point keeps that resolved
  *    initial contact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the common resolver across capsule, plane and miss cases and a resolved dense drag contact whose motion turns within the first step.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls firstContact with prepared and direct distance fixtures, drops a ball and scans two posts and a dense cubic across known contact times.
+ * @evidence contracts/development/testing.md#independent-expectations Post entry is (10 − 0.03)/60 s with a -Z normal and floor entry is √(2/9.80665) s with +Y. Dense phase observations establish the initial contact must remain.
  */
 export function test_engine_physics_projectile_first_contact(): void {
   const zero = { x: 0, y: 0, z: 0 };

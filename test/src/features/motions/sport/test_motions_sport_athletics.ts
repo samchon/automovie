@@ -34,6 +34,10 @@ const TIPPED: IAutoMovieMotionHumanFoot.IPlacement["rotation"] = {
  *    after the gun.
  * 2. A foot swung from the origin over (0, 0.4, 0.5) to (0, 0, 1) passes the top
  *    at half progress with its turn there, and stands on `to` at the end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the sprint animation's crouch, release and block-off cues plus a foot path through its geometric apex.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the start clock with and without a drive, then swings a virtual foot through a raised midpoint with an authored turn.
+ * @evidence contracts/development/testing.md#independent-expectations Crouch and hold put release at 2.5 s and half of the 0.4 s drive puts rear release at 2.7. The swing crosses (0, 0.4, 0.5) at its midpoint.
  */
 export function test_motions_sport_athletics(): void {
   const driven: IAutoMovieMotionClock = athleticsClock(

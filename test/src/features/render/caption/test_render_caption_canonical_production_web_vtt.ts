@@ -12,6 +12,10 @@ import { throwsError } from "../../internal/predicates";
  * 1. Two authored edges and one omitted edge serialize in frame order with
  *    distinct snapped-line settings and an unchanged automatic cue.
  * 2. An unsupported placement value from untyped input is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Carries authored caption placement to the corresponding canonical WebVTT cue and refuses invalid placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Serializes a timed sidecar with two distinct authored edges and an automatic cue, then supplies one malformed edge.
+ * @evidence contracts/development/testing.md#independent-expectations Literal cue order and snapped-line settings distinguish both authored positions from default placement. The malformed value must be refused on its own cue.
  */
 export function test_render_caption_canonical_production_web_vtt(): void {
   type ICaption = IAutoMovieFilmTimeline["tracks"]["captions"][number];

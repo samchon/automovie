@@ -1,16 +1,19 @@
 import type { IAutoMovieRecoveryMapLandmark } from "..";
 
-/** A qualified sparse point with an actual observed parallax-supporting pair. */
+/**
+ * Accepted scene fitting point with the retained camera pair that provides its
+ * strongest resolved acute parallax.
+ */
 export interface IAutoMovieRecoverySceneLandmark extends IAutoMovieRecoveryMapLandmark {
   /**
-   * Two retained source indices supplying the strongest acute angle after final
-   * refinement.
+   * Original source indices of the two retained observations with the strongest
+   * acute parallax after fitting.
    */
   supportingViews: [number, number];
 
   /**
-   * That actual pair's acute angle in degrees, at least the declared point
-   * threshold.
+   * Acute angle of the supporting ray pair, in degrees. An accepted landmark
+   * meets the point parallax threshold.
    */
   acuteParallaxDegrees: number;
 }

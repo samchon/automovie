@@ -1,65 +1,63 @@
 /**
- * Explicit operating thresholds for conditional calibrated relative-pose
- * estimation.
+ * Explicit feature, robust consensus and relative-pose thresholds for an
+ * ordered calibrated camera pair. Residual thresholds use the original pixel
+ * charts.
  */
 export interface IAutoMovieRecoveryCameraPolicy {
   /**
-   * Multiscale Harris positions, oriented gradient descriptors and calibrated
-   * eight-point consensus.
+   * Select multiscale Harris detection, oriented gradient matching and
+   * calibrated eight-point consensus.
    */
   family: "harris-gradient-calibrated-eight-point";
 
   /**
-   * Positive harmonic Harris response threshold in squared grayscale-byte
+   * Positive harmonic Harris response threshold, in squared grayscale-byte
    * units.
    */
   minimumCornerResponse: number;
 
-  /** ANMS stronger-neighbour robustness strictly between zero and one. */
+  /** Adaptive spatial suppression's stronger-neighbour factor in (0, 1). */
   suppressionRobustness: number;
 
-  /** Strict Euclidean nearest/second-distinct-feature distance ratio in (0,1). */
+  /**
+   * Strict nearest-to-second-nearest Euclidean descriptor distance ratio in (0,
+   * 1).
+   */
   descriptorDistanceRatio: number;
 
-  /** Positive pixel Sampson threshold used to score calibrated consensus. */
+  /** Positive absolute signed-Sampson inlier threshold in pixels. */
   maximumSampsonErrorPx: number;
 
-  /**
-   * Conditional sampling confidence in (0,1), not probability that a returned
-   * pose is physically correct.
-   */
+  /** Conditional all-inlier sampling target in (0, 1). */
   samplingConfidence: number;
 
-  /**
-   * Unsigned 32-bit deterministic sampling identity, independent of fixture or
-   * invocation order.
-   */
+  /** Deterministic unsigned 32-bit sampling seed, including zero. */
   samplingSeed: number;
 
-  /** Positive minimum unique accepted correspondence count, at least eight. */
+  /** Safe integer minimum accepted epipolar support, at least eight. */
   minimumInliers: number;
 
-  /** Minimum inliers divided by all tentative matches, in (0,1]. */
+  /** Minimum final inlier fraction over all tentative matches, in (0, 1]. */
   minimumInlierFraction: number;
 
-  /** Positive median symmetric point-to-epipolar-line error limit in pixels. */
+  /** Positive upper bound on median symmetric point-to-line error in pixels. */
   maximumMedianErrorPx: number;
 
-  /** Positive 90th-percentile symmetric point-to-line error limit in pixels. */
+  /**
+   * Positive upper bound on the 90th percentile symmetric point-to-line error
+   * in pixels.
+   */
   maximumP90ErrorPx: number;
 
-  /** Minimum triangulated points in front of both cameras, in (0,1]. */
+  /** Minimum fraction of final inliers positive in both cameras, in (0, 1]. */
   minimumPositiveDepthFraction: number;
 
-  /**
-   * Positive median calibrated ray parallax in radians; metric scale remains
-   * unknown.
-   */
+  /** Positive median calibrated-ray parallax threshold, in radians. */
   minimumParallaxRadians: number;
 
   /**
-   * Homography overlap at or above this fraction of epipolar inliers rejects
-   * the nonplanar route, in (0,1].
+   * Fraction of final epipolar inliers at or above which planar overlap refuses
+   * the nonplanar route, in (0, 1].
    */
   maximumHomographyOverlapFraction: number;
 
@@ -70,11 +68,14 @@ export interface IAutoMovieRecoveryCameraPolicy {
   maximumHomographyTransferPx: number;
 
   /**
-   * Positive minimum eighth/largest singular-value ratio of the original
-   * eight-point design.
+   * Positive dimensionless lower bound for the relevant original-design
+   * singular ratio.
    */
   minimumDesignSingularRatio: number;
 
-  /** Positive pixel scale of the soft-L1 local Sampson objective. */
+  /**
+   * Positive soft-L1 scale in pixels for the fixed-subset signed Sampson
+   * objective.
+   */
   refinementLossScalePx: number;
 }

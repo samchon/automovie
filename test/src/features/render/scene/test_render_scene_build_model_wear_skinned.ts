@@ -37,6 +37,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    wear, stay on the same surface points.
  * 4. Disposing the part's material disposes its edge texture, which only that
  *    material's program reads.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names authored wear on a skinned object and its skin, geometry and texture lifecycle.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a typed worn skinned tube, reads native vertex and edge texture data, rotates a spine bone and samples native CPU skinning. Checks texture disposal through the material owner.
+ * @evidence contracts/development/testing.md#independent-expectations The Engine's authored-position edge measurement supplies the reference endpoints. Non-indexed triangle corners retain their own skin weights and wear list. Rotating the spine moves rendered positions by more than 0.1 m without mutating the bind data. Disposal retires the sole texture with its material.
  */
 export function test_render_scene_build_model_wear_skinned(): void {
   const wear: IAutoMovieMaterialWear = {

@@ -14,18 +14,21 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 32 * Number.EPSILON * 8;
 
 /**
- * Resolve authored correction bounds in their own clock frames.
+ * Check clock resolution and event demand for authored correction windows.
  *
  * Scenarios:
  *
- * 1. The second local pulse, shifted half a second earlier, opens at 1.5 s. An
- *    external cue at film second 74.5 closes at local second 4.5.
- * 2. A 2:1 pair of finite ramps whose sum overflows still meets at second 3.5 with
- *    a full weight. Both authored ratios survive the compression.
- * 3. An absent occurrence, unresolved external anchor or backwards window is
- *    refused. A window wholly beyond the action evaluates to none.
- * 4. A named clock supplies events once when its first local bound needs them. An
- *    inactive, direct or earlier-refused bound requires no event read.
+ * 1. The second local pulse offset earlier resolves to 1.5 s, and a film cue
+ *    at 74.5 s closes locally at 4.5 s. Compress overflowing ramps in a 2:1
+ *    ratio to meet at 3.5 s.
+ * 2. Refuse a missing occurrence, unresolved external cue and backwards
+ *    window. A window beyond the action evaluates to no correction.
+ * 3. Read named-clock events once for both local endpoints. Direct, inactive
+ *    or earlier-refused bounds need no event read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify film and action clocks, scaled ramp timing and conditional reads.
+ * @evidence contracts/development/testing.md#behavioral-verification The window resolver receives a callback that records exact event accesses alongside refusal controls.
+ * @evidence contracts/development/testing.md#independent-expectations Event order, offsets and film origin determine the endpoints. Dividing the available three seconds in two-to-one shares determines the ramps.
  */
 export function test_motions_law_human_physics_clock(): void {
   const timing: HumanPhysics.ITiming = {

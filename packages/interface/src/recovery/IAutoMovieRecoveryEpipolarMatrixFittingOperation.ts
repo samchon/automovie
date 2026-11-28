@@ -1,16 +1,11 @@
-/**
- * Fit x2 transpose F x1 = 0 with normalized original-design eight-point SVD.
- * Rank two is imposed in the normalized image chart before denormalization,
- * following Hartley's normalized algorithm; this is an algebraic initializer,
- * not a calibrated-pose fit or a pixel-error certificate.
- */
+/** Callable normalized eight-point design fit for a pixel fundamental matrix. */
 
 export namespace IAutoMovieRecoveryEpipolarMatrixFittingOperation {
   /**
-   * Fit x2 transpose F x1 = 0 with normalized original-design eight-point SVD.
-   * Rank two is imposed in the normalized image chart before denormalization,
-   * following Hartley's normalized algorithm; this is an algebraic initializer,
-   * not a calibrated-pose fit or a pixel-error certificate.
+   * Require at least eight paired points. Center and isotropically normalize
+   * each image population, solve the original design, and require its eighth
+   * singular direction to meet the ratio threshold. Impose rank two before
+   * denormalizing and return a unit-norm matrix in the original charts.
    */
 
   export type Operation = (
@@ -20,14 +15,11 @@ export namespace IAutoMovieRecoveryEpipolarMatrixFittingOperation {
     maxSweeps: number,
   ) => {
     /**
-     * Row-major 3 by 3 epipolar model in the declared image charts; homogeneous
-     * scale is arbitrary.
+     * Unit-norm row-major pixel fundamental matrix, with its largest-magnitude
+     * entry nonnegative.
      */
     matrix: number[];
-    /**
-     * Measured smallest over largest relevant design singular value;
-     * dimensionless rank evidence.
-     */
+    /** Eighth-to-largest singular value ratio of the normalized original design. */
     designSingularRatio: number;
   };
 }

@@ -27,6 +27,12 @@ import { throwsError } from "../../internal/throwsError";
  *    range, a repeated vertex, a crease 0-0, sharpness 11, a repeated crease, a
  *    crease 0-2 on no edge, UVs without faces, odd UVs, a short UV row, a UV
  *    out of range, one UV on two vertices, an unused UV.
+ * 5. Sparse or nonfinite coordinates and malformed face, UV and crease
+ *    ordinals fail at their authored fields.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes level-zero ownership, quad and triangle parameter conventions, crease and UV transfer, and the invalid cage cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls admitSubdivisionCage on adjacent grid quads and a triangle, observes positions and corner metadata, and changes one topology, numeric or UV rule per refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The two listed quads give their face and corner order directly. A triangle starts its three sub-faces at the origin. The declared crease fixes shared-edge sharpness at 2.
  */
 export function test_engine_geometry_admit_subdivision_cage(): void {
   const cage: IAutoMovieSubdivisionCage = {
@@ -87,9 +93,18 @@ export function test_engine_geometry_admit_subdivision_cage(): void {
     [uvs, cage.faces.flat()],
   );
 
-  // 4.
+  // 4 and 5.
+  const sparse: number[] = cage.positions.slice();
+  Reflect.deleteProperty(sparse, 0);
   const p: string = "subdivision cage ";
   for (const [label, bad, message] of [
+    ["NaN position", { ...cage, positions: [NaN, ...cage.positions.slice(1)] }, "positions[0] must be finite"],
+    ["sparse position", { ...cage, positions: sparse }, "positions[0] must be finite"],
+    ["fractional vertex", { ...cage, faces: [[0.5, 1, 4, 3], cage.faces[1]!] }, "face 0 corner 0 must index a cage vertex"],
+    ["nonfinite UV", { ...cage, uvs: [Infinity, ...uvs.slice(1)], uvFaces: cage.faces }, "uvs[0] must be finite"],
+    ["fractional UV", { ...cage, uvs, uvFaces: [[0.5, 1, 4, 3], cage.faces[1]!] }, "uvFaces[0][0] must index a cage UV"],
+    ["fractional crease end", { ...cage, creases: [{ from: 0.5, to: 1, sharpness: 1 }] }, "crease 0 must join two cage vertices"],
+    ["nonfinite sharpness", { ...cage, creases: [{ from: 0, to: 1, sharpness: NaN }] }, "crease 0 sharpness must be from 0 to 10"],
     [
       "empty",
       { ...cage, positions: [] },

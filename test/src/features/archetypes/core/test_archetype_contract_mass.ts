@@ -24,11 +24,9 @@ function builder(): AutoMovieArchetypeBuilder<never, never> {
  * 5. Each of the four maple bats of Nathan, Smith and Russell 2026, built as that bat, has a moment of inertia about a line across it 6 in (0.1524 m) from the knob within a tenth of its own measured moment.
  * 6. The S154 bat balances, to a nanometre, at the volume-weighted mean height of the bars it is built of, on its axis: one wood throughout, so its balance follows from its shape alone.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds solids and a bat through the public builder and producer and reads their mass properties; a wrong primitive formula, a missed parallel-axis term, a density applied the wrong way, a bat part weighed other than by its volume or a bat profile that puts the wood in the wrong place is caught.
- * @evidence contracts/development/testing.md#independent-expectations Scenarios 1 to 4 use closed-form rigid-body results worked by hand here. Scenario 5's moments are the four bats' own in Nathan, Smith and Russell, Studies of the Torpedo Bat, ISEA 2026, Table 1 (S154 13354, S155 13302, T153 13117 and T156 13527 oz in squared about the standard point 6 in from the knob). Scenario 6 is the centroid of coaxial uniform cylinders, the sum of radius squared times length times centre height over the sum of radius squared times length, worked here from each part's own radius, length and place. The 10 % tolerance allows for a bat's real taper, which the model steps, and the torpedo bats' moved barrel.
- * @evidence contracts/development/testing.md#distinguishing-cases Each primitive rule alone, then the composite, then real objects against their own shape and against measurement, each bat against its own.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the box, separated sphere, rod, uneven density and bat cases, including their units and axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public builder's mass properties and measures bat moments and balance through the resulting archetypes. The assertions distinguish primitive inertia, translation of inertia, mass weighting and geometry-dependent bat balance.
+ * @evidence contracts/development/testing.md#independent-expectations Uses closed-form moments for the box, spheres and rod, as well as the volume-weighted centroid of coaxial cylinders. The bat comparison uses each measured result of Nathan, Smith and Russell 2026 with a 10 percent allowance for the stepped model profile.
  */
 export function test_archetype_contract_mass(): void {
   const box: AutoMovieArchetypeMass.IProperties = builder()

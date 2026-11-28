@@ -8,7 +8,13 @@ import { nclose } from "../../internal/nclose";
 /** Covers cancellation in the logarithmic inverse at the tested exponent. */
 const PROFILE_ROUNDING: number = 2048 * Number.EPSILON;
 
-/** Both physical endpoints anchor the descending minimum-jerk profile. */
+/**
+ * Both physical endpoints anchor the descending minimum-jerk profile.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States descending quarter samples, forward and reverse crossing roots, boundary refusals and a tiny representable motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the actual profile and inverse at both anchors and a closed endpoint, then observes a huge span at a tiny phase. Invalid crossing and span values exercise separate refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The normalized quintic at a quarter is 53/512 and its derivative is 135/128. For span `2^800` and phase `2^-400`, the leading `10u^3` gives displacement `10*2^-400` and ordinary physical rate.
+ */
 export function test_archetypes_internal_track_profile(): void {
   const track = ArchetypeTrackProfile("gate", 8, -24, 4);
   // At u = 1/4, s(u) = 53/512 and s'(u) = 135/128.

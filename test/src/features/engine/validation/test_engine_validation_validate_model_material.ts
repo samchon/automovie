@@ -13,7 +13,7 @@ import { createModel } from "../../internal/fixtures";
 import { hasViolation } from "../../internal/predicates";
 
 /**
- * `validateModel`'s material rules, one decisive case each: texture bindings,
+ * Selected `validateModel` material branches: texture bindings,
  * scalar ranges, alpha and transmission coverage, colours, lobes, overlays,
  * procedural surfaces and wear.
  *
@@ -33,6 +33,10 @@ import { hasViolation } from "../../internal/predicates";
  * 5. Anisotropy strength 2 (range); the lobes on the UV-less box (type at the
  *    part's geometry); an overlay of strength 2; a procedural seed -1 (range);
  *    wear with neither layer (type).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers selected texture, scalar, alpha, color, lobe, overlay, procedural and wear admission branches.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel on a part carrying one varied material and a UV-bearing mesh control for the material lobes.
+ * @evidence contracts/development/testing.md#independent-expectations The authored bounded values and incompatible alpha combinations define the expected kinds. The UV-bearing mesh supplies a coordinate domain that the box lacks. Empty wear and contradictory swatches each have their own path.
  */
 export function test_engine_validation_validate_model_material(): void {
   const base: IAutoMovieModel = createModel();

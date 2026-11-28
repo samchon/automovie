@@ -25,11 +25,9 @@ const MILLIMETRE: number = 0.001;
  * 2. Build the same seeded banner twice and compare the emitted colliders. A
  *    nonpositive head dimension is independently outside the supported set.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the geometric oracle and how it distinguishes either form.
- * @evidence contracts/development/testing.md#behavioral-verification Reads collider extents and motion prop sites from the public producers.
- * @evidence contracts/development/testing.md#independent-expectations Author dimensions and measured shape faces pin the outputs independently of the helper's placement formulas.
- * @evidence contracts/development/testing.md#distinguishing-cases The rectangular banner and roundel emit distinct head solids. Same-seed replay covers free dimensions and a zero head span is refused.
- * @evidence contracts/development/testing.md#execution-ownership Discovered in-memory specification with no viewer, capture, or performer plan.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the square head and circular roundel, pole grip, seeded replay and zero-span refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures real public shapes and reads the grip through the motion prop adapter. It compares the seeded banner's emitted colliders across repeated calls and checks the invalid head dimension.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the explicitly authored pole and head dimensions and the measured model faces as the site reference. Square and circular head shapes provide separate collider observations.
  */
 export function test_archetype_scenic_standard(): void {
   /** Compare positioned contacts within the stage's millimetre tolerance. */

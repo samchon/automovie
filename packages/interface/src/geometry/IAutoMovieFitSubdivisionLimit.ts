@@ -9,19 +9,20 @@ export namespace IAutoMovieFitSubdivisionLimit {
    *
    * The limit point of a cage vertex is a fixed linear combination of the
    * vertex and its one-ring. An interior vertex of valence `n` goes to `(n^2 P
-   * + 4 sum E + sum D) / (n (n + 5))`, its edge neighbours `E` and the opposite
-   * corners `D` of its quads (Halstead, Kass and DeRose 1993, SIGGRAPH,
-   * "Efficient, fair interpolation using Catmull-Clark surfaces"); a boundary
-   * vertex, whose boundary is an infinitely sharp crease, goes to `(A + 4 P +
-   * B) / 6` along its two boundary neighbours, the cubic B-spline limit
-   * `subdivideSurface` gives boundaries. Interpolation is the linear
-   * system `L P = T`. It is solved by Jacobi iteration `P <- P + (T - L P)`
-   * from `P = T`, which converges when every eigenvalue of `L` lies between 0
-   * and 2; on a regular grid they lie between 1/9 and 1, for admitted regular
-   * topology the stencil weights form convex combinations. It stops when the
-   * largest residual falls below 1e-10 of the targets' extent or after 2,000
-   * sweeps, and returns the last measured residual, so a caller can refuse a
-   * fit that did not converge.
+   *
+   * - 4 sum E + sum D) / (n (n + 5))`, its edge neighbours `E`and the opposite
+   *   corners`D`of its quads (Halstead, Kass and DeRose 1993, SIGGRAPH,
+   *   "Efficient, fair interpolation using Catmull-Clark surfaces"); a boundary
+   *   vertex, whose boundary is an infinitely sharp crease, goes to`(A + 4 P +
+   *   B) / 6`along its two boundary neighbours, the cubic B-spline
+   *   limit`subdivideSurface`gives boundaries. Interpolation is the linear
+   *   system`L P = T`. It is solved by Jacobi iteration `P <- P + (T - L
+   *   P)`from`P = T`, which converges when every eigenvalue of `L` lies between
+   *   0 and 2; on a regular grid they lie between 1/9 and 1, for admitted
+   *   regular topology the stencil weights form convex combinations. It stops
+   *   when the largest residual falls below 1e-10 of the targets' extent or
+   *   after 2,000 sweeps, and returns the last measured residual, so a caller
+   *   can refuse a fit that did not converge.
    *
    * Pinned vertices keep their target as their control position and are not
    * solved, which is how a cage meets a fixed junction ring exactly: their
@@ -29,19 +30,16 @@ export namespace IAutoMovieFitSubdivisionLimit {
    */
   export type IProps = {
     /**
-     * Quad corner vertex indices, with consistent manifold winding as a caller
-     * premise. stencilSubdivisionLimit checks quad cardinality,
-     * integer index range, unused vertices and zero/two boundary edges per
-     * vertex; it does not certify full manifoldness. Inputs are borrowed only
-     * during the call.
+     * Borrowed quad corner ordinals on a consistently wound manifold cage. Each
+     * vertex participates in a face and has zero or two boundary edges.
      */
     faces: ReadonlyArray<readonly number[]>;
 
     /**
-     * Packed XYZ limit targets in one common frame and length unit, metres for
-     * surface networks. Length must be divisible by three; the wrapper checks
-     * packing but does not check finite coordinates. An empty cage has empty
-     * output and zero residual.
+     * Packed finite XYZ limit targets in one common frame and unit, metres for
+     * surface networks. Supply one triple per cage vertex. The solver relies on
+     * finite coordinates. An empty cage yields empty controls and zero
+     * residual.
      */
     targets: readonly number[];
 

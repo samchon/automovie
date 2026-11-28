@@ -40,6 +40,10 @@ import {
  *    restitutions 0.8 and 0.75 bounce with impulse 0.192 and velocities 0.004
  *    and 0.064 m/s; restitution 0 deflects with impulse 0.12 and both 0.04 m/s;
  *    both keep the momentum 2 (0) + 3 (0) + 2 (0.1) = 0.2 kg m/s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers capsule contact, static and moving impact, suppressed advisory output, separation and an invalid rate.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls detectBodyCollision on literal static capsule carriers and a linearly moving actor. It checks events and computed impacts under two restitution choices.
+ * @evidence contracts/development/testing.md#independent-expectations At one hertz the static overlap yields two contacts. The 2 and 3 kilogram masses and 0.1 metre-per-second closing speed give impulses 0.192 and 0.12. The resulting velocities preserve momentum 0.2.
  */
 export function test_engine_validation_detect_body_collision(): void {
   const A = (

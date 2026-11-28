@@ -31,7 +31,19 @@ export interface IAutoMovieSurfaceSample {
    * where it gives none; otherwise null. Sweep points are finalized once every
    * patch has sampled them, so the cell does not depend on patch order.
    */
-  point: {
+  point: IAutoMovieSurfaceSample.ISweepPoint | null;
+
+  /** Sweep rig and domain point for a sweep-edge sample. */
+  sweep: IAutoMovieSurfaceSample.ISweepEdge | null;
+
+  /** Curve rig and normalized share for a curve-edge sample. */
+  curve: IAutoMovieSurfaceSample.ICurveEdge | null;
+}
+
+/** Coordinate and rig bindings used by surface sample planning. */
+export namespace IAutoMovieSurfaceSample {
+  /** Sweep coordinates and cell spacing to register for one sample. */
+  export type ISweepPoint = {
     /**
      * Network sweep name whose registry resolves this point's shared sampling
      * footprint.
@@ -59,13 +71,10 @@ export interface IAutoMovieSurfaceSample {
      * sides are unconstrained.
      */
     cell: [number, number, number, number];
-  } | null;
+  };
 
-  /**
-   * The sweep and domain point it lies on, for a point of a sweep edge;
-   * otherwise null.
-   */
-  sweep: {
+  /** Sweep edge domain point and its compiled rig for live pose reads. */
+  export type ISweepEdge = {
     /**
      * Borrowed compiled sweep rig whose live pose supplies the loop's normal or
      * spine derivative. It must be updated before a bridge reads its probes.
@@ -83,13 +92,10 @@ export interface IAutoMovieSurfaceSample {
      * parameter convention.
      */
     v: number;
-  } | null;
+  };
 
-  /**
-   * The curve and share it lies at, for a point of a curve edge; otherwise
-   * null.
-   */
-  curve: {
+  /** Curve edge share and its compiled rig for live pose reads. */
+  export type ICurveEdge = {
     /**
      * Borrowed network-curve rig. Update it after its source sweeps/bones and
      * before reading bridge points, normals or declared directions.
@@ -101,5 +107,5 @@ export interface IAutoMovieSurfaceSample {
      * queries.
      */
     t: number;
-  } | null;
+  };
 }

@@ -12,6 +12,10 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenario: leading right, none at 0, 45 at 30, 90 from 60 to 180, 135 at 240
  * and 180 by 300; leading left the same turned the other way.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines two signed quarter-turn blends staged before and after the inverted pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples round-off headings at the authored phase boundaries and midpoints for both leading sides.
+ * @evidence contracts/development/testing.md#independent-expectations Minimum-jerk midpoints give 45° at motion 30° and 135° at 240°. The first 90° holds through handstand and later reaches 180°.
  */
 export function test_motions_sport_round_off(): void {
   TestValidator.predicate(

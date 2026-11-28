@@ -20,6 +20,10 @@ import * as THREE from "three";
  *    red and an amber legend entry.
  * 3. A picture with no located witness renders the scene alone and returns no
  *    legend; dispose leaves nothing attached.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names reused and rebuilt witness geometry, legend colors and attachment lifetime.
+ * @evidence contracts/development/testing.md#behavioral-verification Renders retained overlay state through its typed scene callback. Captures native objects, vertices and post-render child counts while moving a witness, adding a severity and removing every witness.
+ * @evidence contracts/development/testing.md#independent-expectations A cube edge begins one half-side below the literal witness center. Moving only that center keeps the same object. Adding a possible witness adds amber and requires new geometry. An empty observation leaves no overlay or legend.
  */
 export function test_render_scene_create_inspection_diagnostic_overlay(): void {
   const scene: THREE.Scene = new THREE.Scene();

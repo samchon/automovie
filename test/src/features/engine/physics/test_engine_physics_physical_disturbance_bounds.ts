@@ -27,6 +27,10 @@ const CEILING_SLACK: number = 1e-3;
  * 3. Anchor: the primitive's forward one-step bound lies within Koolen et al.'s
  *    Eq. 25 for the step times the literature reports, 0.3 to 0.6 s (Khadiv et
  *    al. 2017, Section V; Pratt et al., M2V2, IX-B).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines sustained, in-place, one-step and fall impulse ranges for forward and lateral support patterns.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes disturbance bounds for four feet and two diagonal feet without running the simulator.
+ * @evidence contracts/development/testing.md#independent-expectations Integrating the inverted pendulum over the 0.1 s pulse supplies the upper bound. Literature step times 0.3–0.6 s bound the independently computed forward capture threshold.
  */
 export function test_engine_physics_physical_disturbance_bounds(): void {
   const failures: string[] = [];

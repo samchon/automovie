@@ -53,13 +53,9 @@ export namespace motionHumanLawCovering {
    *
    * @param law The law.
    * @returns Each factor's values.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines omitted-value markers and the gesture kind/region dependency; an unlisted law yields no parameter factors.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the maintained ledger's parameter=value rows and represents the face-region choice only alongside touchFace, the gesture kind that consumes it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the law, collect parameter values and merge the one dependent gesture region factor.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses ledger values unchanged apart from the documented dependent-factor encoding; it supplies no staged pose, expected result or refusal exception.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For L ledger laws and R rows of the selected law, lookup/collection is O(L+R), with O(R) retained strings and a linear face-region merge when applicable.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns fresh parameter arrays from the shared immutable ledger; it has no cross-call cache or mutable result alias.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns its arrays; local references end at return and no scene, body or running task is acquired.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the coverage ledger, omit marker and dependent gesture-region encoding.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the selected law's authored rows into factor values. The default row contributes no value; the omit marker keeps defaults testable, and face regions enter the gesture kind they belong to.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads the ledger once per factors call, stops the law search at a match and scans that law's rows once. The returned factor map is caller-owned.
    */
   export async function factors(
     law: string,
@@ -103,13 +99,9 @@ export namespace motionHumanLawCovering {
    * @param report Receives each cell as it finishes.
    * @param only Limits the sweep to laws whose name is in it, when given.
    * @returns Every complaint of every cell.
-   * @evidence contracts/development/common.md#meaningful-documentation States covering strength, canonical body pairing, seed, callback, optional law selection and complete complaint return.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the single deterministic covering sweep with every body selected, at pair coverage (`STRENGTH`) for every law.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation supplies the all-bodies predicate and forwards the explicit selection/report inputs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It changes no cell, detector, physical bound or refusal policy and filters only caller-selected law names.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Per-law tuple construction belongs to motionCoveringArray; C resulting cells each incur real scene/performance/detector cost. No unmeasured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same sweep/staging/cell owners as partitioned runs; each actual cell shares one film across its physical detectors and repeats only the law's first cell for determinism.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the complete growing complaint list without a cap; active rows/film ownership belong to the sweep/cell calls and no process or global film cache is started.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes pairwise parameter/body/seed coverage, optional law selection and per-cell report delivery.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the shared covering sweep, which forms strength-two rows from ledger values, runs actual staged cells and enables determinism replay for index zero of each law.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses one covering generator per selected law and one cell reader per row. The returned list accumulates complaints; the report callback receives each result as produced.
    */
   export async function covering(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -136,13 +128,9 @@ export namespace motionHumanLawCovering {
    * @throws {Error} When the count/index is not a safe integer, the count is
    *   not positive, the body set is empty, the count does not divide by the
    *   bodies or the part is out of range.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines zero-based safe-integer part selection, body-first partitioning, modulo cell selection and malformed/range/divisibility refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Admitted integer part inputs make body index floor(i/k) and ordinal modulo k partition each body's deterministic cell order exactly once across all parts; a fractional part must not silently select no cells.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the existing bounds, choose one body and delegate a local ordinal predicate to the common sweep.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not suppress selected findings or alter a cell. Runtime admission rejects invalid numeric selections rather than returning an empty success; no physical threshold or valid integer partition changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each part enumerates the same complete per-law covering rows to preserve order (built once a process by motionCoveringArray and copied to each part), but performs only one body's every-kth cells and prepares that body's real scene participants. Physical work is not duplicated across parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the common enumeration and cell verifier instead of reimplementing factors or physical checks. The ordinal is local to this call and no result is retained across parts.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only the selected body name, stride and ordinal besides the delegated rows/complaints; all temporary sweep state releases on return or throw.
+   * @evidence contracts/development/common.md#meaningful-documentation States zero-based safe-integer partition inputs, body-first cell selection and refusal of malformed counts, bodies and indexes.
+   * @evidence contracts/development/implementation.md#principled-implementation Requires a safe integer part index and count before choosing one body. The stride is the count divided by the body count and only matching ordinal remainders run.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reuses the same covering rows as the unsplit sweep. It enumerates the table's coverage but prepares and executes only selected cells.
    */
   export async function part(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -152,6 +140,8 @@ export namespace motionHumanLawCovering {
   ): Promise<string[]> {
     const [i, n] = at;
     if (
+      !Number.isSafeInteger(i) ||
+      !Number.isSafeInteger(n) ||
       n <= 0 ||
       bodies.length === 0 ||
       n % bodies.length !== 0 ||
@@ -178,13 +168,9 @@ export namespace motionHumanLawCovering {
    * @param bodies The bodies.
    * @param seeds The seeds.
    * @returns The cells by body.
-   * @evidence contracts/development/common.md#meaningful-documentation States that counts size partitions without constructing a scene or performance.
-   * @evidence contracts/development/implementation.md#principled-implementation Enumerates the same factor/body/seed rows and strengths as execution, incrementing the actual named body for each row.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Initialize body counts, build each law's rows and count them once.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not estimate physical runtime from cell count or replace execution with a count; its result is scheduling data only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Covering construction retains its tuple cost; counting C emitted rows is O(C) with O(B) output entries for B body names, without expensive performance preparation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls the same factor extractor and covering constructor as execution, so scheduling does not keep a second ledger interpretation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only numeric counts escape; row arrays and factor records are local and no body, film, task or process is acquired.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies enumeration-only counts by body and the supplied stage, body and seed inputs.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same strength-two factor construction as real sweep and increments exactly one body counter for each generated row.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Runs each law's covering generation without staging or FK. It keeps only the current law's row set and the final body counters.
    */
   export async function cells(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
@@ -219,13 +205,9 @@ export namespace motionHumanLawCovering {
    * @param body The body of `a`; the partner is the small woman.
    * @param seed The seed.
    * @returns Every complaint, a refusal of either row included.
-   * @evidence contracts/development/common.md#meaningful-documentation States the side/seed precondition, actual body pairing, positional mirror ownership and refusal attribution from either row.
-   * @evidence contracts/development/implementation.md#principled-implementation For each declared mirrored parameter containing left, stage the actual left scene and compare actual displayed joints with the right scene reflected in x=0 at the existing 10 mm positional bound.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Discover mirrored parameters, perform each left row, delegate its right comparison and append attributed construction/read failures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal from either side remains a finding; finite-frame checks and the original bound remain. The comparison owns sampled joint positions over the common duration, not a separate proof of orientation or duration symmetry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms M mirrored parameter rows need at most two actual performance constructions each plus sampled bone comparisons; body preparation uses the shared canonical fixture cache.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each left film is built once and handed to its one right comparison; both use the existing staging, film and frame-validation owners without replacing source behavior.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The left/right films live only through their pair comparison; the returned complaint list has no added cap and no film/global callback history or running task escapes.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies authored left-side parameters, matching right-side scene, configured body/seed and refusal reporting.
+   * @evidence contracts/development/implementation.md#principled-implementation For each ledger parameter marked as mirrored with a left value, stages the corresponding left and right productions. The shared difference owner measures actual displayed positions at 4 Hz in the mirrored frame against the sweep's skin margin.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Loads each law's factor list once and constructs a film pair only for eligible rows. Each pair is temporary; the function returns only physical-difference and refusal complaints.
    */
   export async function mirrors(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,

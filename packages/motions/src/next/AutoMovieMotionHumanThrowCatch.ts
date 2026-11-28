@@ -3,6 +3,7 @@ import { juggle as juggleLaw } from "../exercise/internal/juggle";
 import { HumanSportThrow as HumanSportThrowSource } from "../lexicon/internal/HumanSportThrow";
 import { HumanBallPlay as HumanBallPlaySource } from "../sport/internal/HumanBallPlay";
 import { ballSport as ballSportLaw } from "../sport/internal/ballSport";
+import { dribblePush as dribblePushLaw } from "../sport/internal/dribblePush";
 import { fieldThrow as fieldThrowLaw } from "../sport/internal/fieldThrow";
 import { stickBall as stickBallLaw } from "../sport/internal/stickBall";
 import { catchObject as catchObjectLaw } from "../throwing/internal/catchObject";
@@ -160,8 +161,8 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The
    * ball's size is the ball's own (`ball`, `HumanBall`). The hands travel there
    * on minimum-jerk progress over the aimed movement time to an object of its
-   * size (McIntosh et al. 2018, `motionHumanTiming.aimed`), arriving
-   * at contact; the anticipatory `prepare` instant is 100 ms before impact
+   * size (McIntosh et al. 2018, `motionHumanTiming.aimed`), arriving at
+   * contact; the anticipatory `prepare` instant is 100 ms before impact
    * (Lacquaniti and Maioli 1989, J Neurosci 9:134). After contact the hands
    * give `GIVE` along the object's velocity over `GIVE_TIME` (the issue's 0.05
    * to 0.15 m, provisional), which is `secured`, then carry it to before the
@@ -184,12 +185,14 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * The hand stays where the hold kept it on the trunk (its grip frame at the
    * entry, read in the chest's frame and carried with the chest the carrier
    * shows), and opens at `open`, the decisive instant, a brief pause
-   * (`motionHumanTiming.PAUSES.brief`, provisional) after the entry.
-   * Until then its grip window on the prop takes the hand over from the hold;
-   * at `open` the prop is launched (`IHumanActionPlan.launches`) with the
-   * hand's velocity there, the central difference of the carried grip point at
-   * the engine's plan-time step (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`), so a drop
-   * from a still hand falls and one from a moving carrier carries its speed.
+   * (`motionHumanTiming.PAUSES.brief`, provisional) after the entry. Until then
+   * its grip window on the prop takes the hand over from the hold; at `open`
+   * the prop is launched (`IHumanActionPlan.launches`) with the hand's velocity
+   * there, the central difference of the carried grip point at the engine's
+   * plan-time step
+   * (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`), so a
+   * drop from a still hand falls and one from a moving carrier carries its
+   * speed.
    *
    * A prop that rests on something the hand held back (an arrow on a drawn
    * string) is launched by `launch` instead: along its line from one of its
@@ -294,7 +297,7 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * The field push uses the FIH playing face and the ice push reads the puck's
    * radial dimension as well as the blade. The lacrosse scoop seats the ball in
    * the crosse, and the pass declares release on the same clock. The teaching
-   * sources are FIH 2026 §2, IIHF 2026–27 §§10 and 13, and USA Lacrosse's Learn
+   * sources are FIH 2026 짠2, IIHF 2026??7 짠짠10 and 13, and USA Lacrosse's Learn
    * the Basics. Phase shares, shaft inclination and default speed are
    * provisional film-staging values.
    */
@@ -453,6 +456,23 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * along a head-on normal).
    */
   export const stageDeflect: typeof stageDeflectLaw = stageDeflectLaw;
+
+  /**
+   * Push a court ball down while a walk or run carries the body on the ground.
+   * Supply this law to `AutoMovieMotionHumanChain.extend` and to the
+   * performance's `laws`, then place the action over the gait.
+   *
+   * The first push continues the displayed holding arm and its finger pose. It
+   * opens the sole holding hand and launches the sphere from that grip. An
+   * anchored push fits a palm to the top of the rising ball at the given
+   * seconds after its preceding release. That touch publishes a new flight at
+   * the same ball frame. Use a staged catch after the last push to gather the
+   * ball.
+   *
+   * A missing holder, incompatible carrier, obstructed interception or changed
+   * final incoming frame or missed fitted palm refuses the action.
+   */
+  export const dribblePush: typeof dribblePushLaw = dribblePushLaw;
 
   /**
    * Read one ball's play from a placed performance and test it against the

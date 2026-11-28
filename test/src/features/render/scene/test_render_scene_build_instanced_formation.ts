@@ -19,6 +19,10 @@ import { nclose } from "../../internal/predicates";
  *    without changing index ownership.
  * 4. A later cue reuses the same target at identical progress and starts from a
  *    different lattice.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names lattice reformation, one sparse slot, frustum changes, reverse seeking and cue reuse.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the native instanced formation from typed lattice and take inputs. Reads placement matrices and mesh visibility through timed updates, out-of-order seeks and changed source lattice.
+ * @evidence contracts/development/testing.md#independent-expectations The untouched neighbors follow the literal line-to-column interpolation. The middle assignment adds only its own sparse displacement. Two short frusta are positioned over the displaced locations rather than the original lattice. A later cue at equal progress uses its newly supplied origin.
  */
 export function test_render_scene_build_instanced_formation(): void {
   const input: Parameters<typeof AutoMovieRenderFormation.buildInstancedFormation>[0] =

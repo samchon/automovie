@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. At 1.25 s the turn is halfway (local 0.25, phase 0.5) and the nod starts.
  * 3. At 2 s nothing runs, and `a` reads the nod, which ends with the turn but is
  *    indexed after it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Shows schedule reads at an exclusive end, in an overlap and after all actions, with state persistence and a same-end index tie.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Schedule.evaluate at three authored seconds on five entries with overlapping spans and an entry without a state.
+ * @evidence contracts/development/testing.md#independent-expectations At 1.25 s the 0.5 s turn has local time 0.25 and phase 0.5, while the nod is new. Later-indexed nod and last stateful dodge independently determine the final states.
  */
 export function test_engine_composition_evaluate_schedule(): void {
   const entry = (

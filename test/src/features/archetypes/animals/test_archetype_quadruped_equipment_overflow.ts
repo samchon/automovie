@@ -18,11 +18,9 @@ import { AnimalEquipmentFixture } from "../../internal/AnimalEquipmentFixture";
  * 3. Each refusal retains its authored parameter and leaves the genuine
  *    builder's parts and contacts identical to the original build.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two operations whereby finite authored hook depth and lead radius overflow.
- * @evidence contracts/development/testing.md#behavioral-verification Calls actual equipment and lead layout and compares the same real builder's complete model before and after each named refusal.
- * @evidence contracts/development/testing.md#independent-expectations The fixture's positive neck slope times the authored opening exceeds the binary64 overflow margin, and doubling the authored radius exceeds the binary64 exponent limit. The original serialized model supplies the expected atomic builder state.
- * @evidence contracts/development/testing.md#distinguishing-cases A finite depth can fail the upright ordinate sum and a finite lead radius can fail the grip diameter product. Each has its own refusal axis and unchanged builder state.
- * @evidence contracts/development/testing.md#execution-ownership Owns the actual in-memory ox builder and uses no renderer, process or method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines equipment and lead overflow inputs, reported axes and builder state before and after refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual tack and lead layout with finite but unrepresentable resulting geometry. The test saves the same builder's complete model before each call and compares the model after structured refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's positive neck slope and opening exceed the available binary64 height. A grip diameter twice `2^1023` is `2^1024`, above the binary64 limit. The captured pre-call model supplies the equality expectation.
  */
 export function test_archetype_quadruped_equipment_overflow(): void {
   const { builder, rig }: AnimalEquipmentFixture.IFixture =

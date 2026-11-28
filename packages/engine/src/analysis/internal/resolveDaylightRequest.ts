@@ -9,10 +9,10 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { AutoMovieEngineAnalysisMaxSamples } from "../AutoMovieEngineAnalysisMaxSamples";
 import { assertAnalysisSolids } from "./assertAnalysisSolids";
 import { assertAnalysisTargets } from "./assertAnalysisTargets";
 import { environmentInstant } from "./environmentInstant";
-import { AutoMovieEngineAnalysisMaxSamples } from "../AutoMovieEngineAnalysisMaxSamples";
 import { validateEnvironmentContext } from "./validateEnvironmentContext";
 
 /*
@@ -60,7 +60,7 @@ export function resolveDaylightRequest(
     );
   const workplane: IAutoMovieAnalysisWorkplane = request.workplane;
   for (const axis of ["sizeU", "sizeV"] as const)
-    if (workplane[axis] <= 0)
+    if (!Number.isFinite(workplane[axis]) || workplane[axis] <= 0)
       throw new Error(
         `workplane ${axis} must be a finite number above zero, but was ${workplane[axis]}`,
       );
@@ -83,14 +83,20 @@ export function resolveDaylightRequest(
       `a workplane grid of ${cells} cells exceeds the ${AutoMovieEngineAnalysisMaxSamples}-sample bound one run may carry; measure a coarser grid or split the plane`,
     );
   for (const key of ["axisU", "axisV"] as const) {
-    const length: number = AutoMovieEngineVector3.length(workplane[key]);
-    if (length <= EPSILON)
+    if (
+      !AutoMovieEngineVector3.isFinite(workplane[key]) ||
+      AutoMovieEngineVector3.length(workplane[key]) <= EPSILON
+    )
       throw new Error(
         `workplane ${key} must be a finite non-zero in-plane direction`,
       );
   }
-  const axisU: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(workplane.axisU);
-  const axisV: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(workplane.axisV);
+  const axisU: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    workplane.axisU,
+  );
+  const axisV: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    workplane.axisV,
+  );
   const normal: IAutoMovieVector3 = AutoMovieEngineVector3.cross(axisU, axisV);
   if (AutoMovieEngineVector3.length(normal) <= EPSILON)
     throw new Error(
@@ -112,14 +118,19 @@ export function resolveDaylightRequest(
     if (luminaires.has(luminaire.id))
       throw new Error(`luminaire id "${luminaire.id}" is declared twice`);
     luminaires.add(luminaire.id);
-    if (luminaire.intensity < 0)
+    if (!Number.isFinite(luminaire.intensity) || luminaire.intensity < 0)
       throw new Error(
         `luminaire "${luminaire.id}" intensity must be a finite number at or above zero, but was ${luminaire.intensity}`,
       );
   }
   assertAnalysisSolids(request.shades, "shading solid");
   assertAnalysisTargets(request.targets);
-  return { instant, normal: AutoMovieEngineVector3.normalize(normal), axisU, axisV };
+  return {
+    instant,
+    normal: AutoMovieEngineVector3.normalize(normal),
+    axisU,
+    axisV,
+  };
 }
 
 /*

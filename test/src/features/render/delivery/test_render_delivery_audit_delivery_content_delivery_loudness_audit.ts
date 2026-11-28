@@ -23,6 +23,10 @@ type Finding = IAutoMovieDeliveryContentAudit.Finding;
  * 4. A decoded stream with no loudness measurement blocks when targets apply, and
  *    the same stream without targets passes with no loudness finding.
  * 5. Targets with a negative tolerance are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Reports decoded loudness and true-peak violations only under the commissioned audio targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls delivery auditing with known measurements, absent measurements, no targets and a negative tolerance.
+ * @evidence contracts/development/testing.md#independent-expectations A 1.2 LU shortfall exceeds the 0.5 LU bound and −0.3 dBTP exceeds the −1 dBTP ceiling. A −23.2 LUFS measure with compliant peak passes.
  */
 export function test_render_delivery_audit_delivery_content_delivery_loudness_audit(): void {
   const targets: NonNullable<Audit["expected"]["loudness"]> = {

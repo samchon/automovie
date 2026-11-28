@@ -266,6 +266,10 @@ namespace part_seated_socket {
  * - `seated_popliteal`: A seat is judged by the popliteal height,
  *   `seated.popliteal`:
  * - `seated_socket`: `seated`'s seat socket:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Seated posture follows its support course and respects popliteal height, foot sockets, hand side, and surface depth.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls seated course, height and contact operations with prepared rig, pose, and support inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The fixed geometry and seating times determine socket positions, handedness, and departure. The shallow surface supplies an independent refusal case.
  */
 export async function test_motions_everyday_seated(): Promise<void> {
   part_seated_course.verify();

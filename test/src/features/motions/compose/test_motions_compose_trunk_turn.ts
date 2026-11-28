@@ -21,6 +21,10 @@ import { nclose } from "../../internal/nclose";
  *
  * 1. Sample signed excursion and the neutral endpoints on the authored clock.
  * 2. Check the other two axes and the supporting root at each sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the negative turn through its hold and the neutral endpoints, with other axes read on both trunk joints.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds HumanTrunk.turn on an authored clock and writes it onto fixed chest and spine angles before, during and after the hold.
+ * @evidence contracts/development/testing.md#independent-expectations The -20-degree excursion divides into -12 for chest and -8 for spine at the tested hold points. Endpoints contribute zero, and the unchanged axes and root use the literal entry pose.
  */
 export function test_motions_compose_trunk_turn(): void {
   const clock: IAutoMovieMotionClock = motionClock(1, [

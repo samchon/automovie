@@ -28,6 +28,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    UTF-16 code-unit order, which a locale collation reverses.
  * 4. A zero-duration take has one fixed-clock instant. Nonfinite clock input
  *    reports its own field before sampling, including during a zero-duration take.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name an existing collector finding, an absent staged camera, code-unit order and zero- or invalid-clock behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles coverage reports against the prepared scene and checks changes in the collector. It evaluates direct contacts and clock boundary values and compares ordered obstacle identities and diagnostic paths.
+ * @evidence contracts/development/testing.md#independent-expectations The initial collector item belongs to another stage, so a clear take contributes no finding. The missing camera is known by its absent scene ID. The literal case-differing keys define UTF-16 order independently of locale, and duration zero has exactly one fixed instant.
  */
 export function test_engine_film_camera_clearance_boundaries(): void {
   const hero: IAutoMovieCamera = {

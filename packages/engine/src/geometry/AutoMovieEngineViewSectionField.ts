@@ -20,26 +20,33 @@ import { AutoMovieEngineViewSectionReading } from "./AutoMovieEngineViewSectionR
  * forward-error certificate. Physical poles and world/frame jets are separate.
  */
 export namespace AutoMovieEngineViewSectionField {
-  /** Prepare original positive extents and effective shoulders at one station. */
+  /**
+   * Prepare finite extent and effective shoulder jets at one regular station.
+   * Each quarter supplies [value, first, second] in physical millimetre
+   * station. The first invalid input returns its field and quarter diagnostic.
+   */
   export function prepare(
     extents: readonly IAutoMovieViewSectionField.IStationJet[],
     shoulders: readonly IAutoMovieViewSectionField.IStationJet[],
   ): IAutoMovieViewSectionField.IPrepared | IAutoMovieConicArcField.IFailure {
-    if (
-      extents.length !== 4 ||
-      shoulders.length !== 4 ||
-      !extents.every(
-        (jet: IAutoMovieViewSectionField.IStationJet): boolean =>
-          stationJet(jet) && jet[0] > 0,
-      ) ||
-      !shoulders.every(
-        (jet: IAutoMovieViewSectionField.IStationJet): boolean =>
-          stationJet(jet) && jet[0] > 0 && jet[0] < 1,
-      )
-    )
+    if (extents.length !== 4 || shoulders.length !== 4)
       return failure(
         "A regular section field needs four finite positive extent 2-jets and four shoulder 2-jets inside (0,1).",
       );
+    for (let q: number = 0; q < 4; q++) {
+      const extent: IAutoMovieViewSectionField.IStationJet | undefined =
+        extents[q];
+      if (!stationJet(extent) || !(extent[0] > 0))
+        return failure(
+          `A regular section field needs a finite positive extent ${q} 2-jet.`,
+        );
+      const shoulder: IAutoMovieViewSectionField.IStationJet | undefined =
+        shoulders[q];
+      if (!stationJet(shoulder) || !(shoulder[0] > 0 && shoulder[0] < 1))
+        return failure(
+          `A regular section field needs a finite shoulder ${q} 2-jet inside (0,1).`,
+        );
+    }
     const ops: IAutoMovieConicFieldJet.IAlgebra<IAutoMovieConicFieldJet.IJet> =
       AutoMovieEngineConicFieldJet.AD;
     const e: IAutoMovieConicFieldJet.IJet[] = extents.map(
@@ -105,6 +112,11 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
 /*
  * Actual regular station jets contain three finite scalars.
  */
-function stationJet(value: readonly number[]): boolean {
-  return value.length === 3;
+function stationJet(
+  value: readonly number[] | undefined,
+): value is IAutoMovieViewSectionField.IStationJet {
+  if (value === undefined || value.length !== 3) return false;
+  for (let k: number = 0; k < 3; k++)
+    if (!Object.hasOwn(value, k) || !Number.isFinite(value[k])) return false;
+  return true;
 }

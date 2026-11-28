@@ -7,7 +7,13 @@ import type { IAutoMovieLocalHermiteField64 } from "./IAutoMovieLocalHermiteFiel
  * columns along u.
  */
 export type IAutoMoviePlanLocalHermite64Leaf =
-  IAutoMovieLocalHermiteField64.Cell & {
+  IAutoMovieLocalHermiteField64.Cell &
+    IAutoMoviePlanLocalHermite64Leaf.IRestriction;
+
+/** Named supplemental values of the prepared record. */
+export namespace IAutoMoviePlanLocalHermite64Leaf {
+  /** Longitudinal bounds and bound measurement of one restricted cell. */
+  export type IRestriction = {
     /**
      * Lower normalized longitudinal coordinate in [0,1]; physical station is
      * stations[j] + t0*(stations[j+1]-stations[j]).
@@ -34,3 +40,4 @@ export type IAutoMoviePlanLocalHermite64Leaf =
      */
     patch: string;
   };
+}

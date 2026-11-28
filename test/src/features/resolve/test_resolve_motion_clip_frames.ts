@@ -19,9 +19,7 @@ import { qclose, vclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves authored clinical poses and reads independently lowered node matrices.
  * @evidence contracts/development/testing.md#independent-expectations Actor placement multiplies the specialized bone transform and the shorter clip holds at its endpoint.
- * @evidence contracts/development/testing.md#distinguishing-cases Distinct placement and duration expose prefix or endpoint mixing.
- * @evidence contracts/development/testing.md#execution-ownership Uses synthetic elbow clips and a small in-memory rig.
- * @evidence contracts/development/common.md#meaningful-documentation Describes agreement and its duration boundary.
+ * @evidence contracts/development/common.md#meaningful-documentation Two performers with different clip lengths share the endpoint-inclusive clock. Bone transforms agree between graph and clinical resolution, with independent hip placements.
  */
 export function test_resolve_motion_clip_frames(): void {
   const staged = AutoMovieEngineFilm.stageScene(makeScriptWrite(), makeStagingWrite());

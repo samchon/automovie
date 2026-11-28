@@ -16,6 +16,10 @@ import { throwsError } from "../../internal/throwsError";
  *    preferring the left, the signs swap and 180 is still once.
  * 2. A step of zero, a negative or one too small to advance is refused.
  * 3. An infinite step leaves only no turn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines nearest-first signed turn enumeration and advancing-step admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Enumerates choices at 45° for each preference and tries zero, negative, underflowing and infinite step inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The angular grid alternates sign and includes one half turn. Infinite step leaves only 0, while nonadvancing inputs refuse.
  */
 export function test_motions_posture_freedom_choice_turns(): void {
   // 1. The enumeration.

@@ -34,6 +34,10 @@ type Result = ReturnType<typeof AutoMovieEngineValidation.detectFreeFall>;
  *    `defies-gravity` intent keeps the event and drops the warning and arc.
  * 4. Margin -1 and fall duration 0 are range findings at `.margin` and
  *    `.fallDuration`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers unsupported fall, support and attachment decisions, existing fall, gravity intent and invalid options.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls detectFreeFall with a declared body above a square footprint and inspects its event, advisory finding and proposed translation track.
+ * @evidence contracts/development/testing.md#independent-expectations After one second of zero-start gravity, height is five minus half standard gravity. The chosen centre is inside or outside the footprint independently of the validator, while null, attached and already falling bodies need no new trajectory.
  */
 export function test_engine_validation_detect_free_fall(): void {
   const body: IAutoMovieBody = {

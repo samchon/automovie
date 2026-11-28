@@ -31,9 +31,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Frames.segments`, `joints` and `world` and the law's `mirror` and `relative`.
  * @evidence contracts/development/testing.md#independent-expectations Joint centres from the joint table, the triple product of a right-handed frame and a reflection's effect on a rotation owe nothing to the tree's rules.
- * @evidence contracts/development/testing.md#distinguishing-cases The trunk's parallel frames, ISB's limb frames, the phalanges' chains and the rigid face parts.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on the f1 tables, reached by `--include human_f1_frames`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the expectation it is checked against.
+ * @evidence contracts/development/common.md#meaningful-documentation The checks cover parent order, handedness, stored joint centres, reference-chain parity and the reflected frame and relative joint rotation.
  */
 export function test_human_f1_frames(): void {
   const failures: string[] = [];

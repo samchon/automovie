@@ -25,6 +25,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * 1. One free waypoint between the entry and a fixed return. Its final
  *    coordinate is the locked wrist twist, exactly zero along the route.
  * 2. The entry, pinned waypoint and exit keep all their coordinates.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reconstruction of an arm's timed free state and preservation of fixed positions and locked twist.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a timed path with entry, pinned waypoint, free waypoint and return and reads its nine coordinates per arm.
+ * @evidence contracts/development/testing.md#independent-expectations Authored fixed coordinates are exact at all anchors and the last wrist coordinate stays zero through the independent free route.
  */
 export async function test_motions_posture_arm_seed_path(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

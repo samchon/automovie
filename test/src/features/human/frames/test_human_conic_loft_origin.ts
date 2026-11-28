@@ -32,9 +32,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production `axis`, `mirror` and `repose` on made families and on the stored f1 families.
  * @evidence contracts/development/testing.md#independent-expectations Identity with the line absent, a point's offset along given unit directions, a quarter turn's image of an axis, and reflection in the median plane are closed forms.
- * @evidence contracts/development/testing.md#distinguishing-cases Absent beside zero beside non-zero, straight beside rolled beside jointed, the original beside its twin and its pose, every finding collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made families and stored courses; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and expectation.
+ * @evidence contracts/development/common.md#meaningful-documentation Zero offsets preserve stored frames and jets. A moved origin tests absolute offsets, its reflected counterpart and the same local shifts after reposing.
  */
 export function test_human_conic_loft_origin(): void {
   const failures: string[] = [];

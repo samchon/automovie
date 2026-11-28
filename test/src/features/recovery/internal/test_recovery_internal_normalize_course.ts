@@ -19,6 +19,10 @@ import { nclose } from "../../internal/nclose";
  * 2. Reversed, the widths become (3/4, 1/4), the span order flips and each
  *    span's four controls reverse.
  * 3. A closed curve is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives width normalization, order reversal and the open-course admission condition.
+ * @evidence contracts/development/testing.md#behavioral-verification Normalizes two spans forward, reverses the same input and attempts a closed course.
+ * @evidence contracts/development/testing.md#independent-expectations Widths one and three divide by their sum four. Reversal exchanges the widths and the order of each span's controls.
  */
 export function test_recovery_internal_normalize_course(): void {
   const a: AutoMovieCubicBezierControls3 = [

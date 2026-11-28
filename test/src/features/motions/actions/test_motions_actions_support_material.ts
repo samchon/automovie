@@ -28,6 +28,10 @@ const ROUNDING: number = 1e-12;
  * material turns 90 degrees about +Y, even when the local progress is only a
  * quarter. Translating the material by (20, 4, 30) carries both that offset and
  * the material's origin. Endpoint reads keep the original achieved points.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Support intervals retain achieved local endpoints on moving material. Material geometry decides which parts bear.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the material contact reader on two endpoints, a turned and translated frame, and hovering, penetrating and broad flat inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Rotating the local interpolation by 90 degrees gives the world sample independently. Distances and clipping against the declared surface distinguish unsupported points from a bearing outline.
  */
 export async function test_motions_actions_support_material(): Promise<void> {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

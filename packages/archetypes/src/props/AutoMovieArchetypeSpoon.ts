@@ -2,18 +2,20 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createSpoon as createSpoonImplementation } from "./internal/createSpoon";
 
-/** Public operations for Auto Movie Archetype Spoon. */
+/** Constructs a steel spoon with a precision grip and outward bowl contact. */
 export namespace AutoMovieArchetypeSpoon {
   /**
-   * Spoon with a pinch grip and an bowl facing +Z in its tool frame.
+   * Build a steel spoon from a cylindrical handle and a flat bowl proxy.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * The handle runs along `+Y` from its butt at the origin. The bowl's
+   * outer rim marks the spoon's full length and its `face` points `+Z`.
+   *
+   * @param params Optional scene ID and finite length, grip diameter or mass
+   *   in their bands. The ID defaults to `tool`.
+   * @param seed Numeric seed for omitted band values. Seedless defaults are
+   *   0.15 metres long, 0.0095 metres grip diameter and 0.04 kilograms.
+   * @returns The spoon with a precision `grip` and a normal bowl `face`.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     HandToolDraw.IParams,
@@ -22,14 +24,8 @@ export namespace AutoMovieArchetypeSpoon {
     return createSpoonImplementation(params, seed);
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Precision `grip` facing `-Z` and `face` on the bowl's `+Z` side. */
   export type Affordance = "face" | "grip";
 
-  /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
-   */
+  /** Overall Y length and handle diameter in metres. Mass is in kilograms. */
   export type Dimension = "gripDiameter" | "length" | "mass";}

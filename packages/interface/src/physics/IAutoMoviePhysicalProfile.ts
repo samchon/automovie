@@ -4,36 +4,50 @@ import type { IAutoMoviePhysicalMaterial } from "./IAutoMoviePhysicalMaterial";
 import type { IAutoMoviePhysicalSegment } from "./IAutoMoviePhysicalSegment";
 
 /**
- * A solver-neutral articulated body in SI units, with +Y up.
+ * An articulated body's neutral geometry and mass in a body frame with +Y up.
+ * Segment placements use metres in that frame. Each segment gives its mass
+ * in kilograms and its colliders and inertia in its own bone frame. Include
+ * any attached equipment in the owning segment before computing the totals.
  *
- * Segment neutral transforms place bone origins in the body frame; inertia and
- * colliders use bone-local frames. Equipment contributes shapes and mass to a
- * segment. validatePhysicalProfile checks finite native-representable physical
- * quantities, unit rotations, positive principal moments satisfying the
- * triangle inequalities, total mass/centre consistency, known materials and a
- * connected acyclic joint tree. It returns diagnostic paths without repairing
- * the input. Providers own the mutable data and its provenance; simulation
- * admission consumes the same description for every body.
+ * Supply finite quantities and unit rotations. The joints form one rooted
+ * tree, and shape material IDs refer to records in this profile. Call
+ * AutoMovieEnginePhysics.validatePhysicalProfile to read diagnostic paths
+ * for field and cross-reference errors. It leaves the supplied data intact.
  */
 export interface IAutoMoviePhysicalProfile {
-  /** Stable provider/content identity, never used to select physical behavior. */
+  /** Nonblank provider identifier for the profile or its source model. */
   id: string;
 
-  /** Total kilograms, including equipment; must equal segment masses. */
+  /**
+   * Positive total mass in kilograms, including equipment. Use the sum of
+   * the declared segment masses.
+   */
   mass: number;
 
-  /** Neutral body-frame centre, metres; checked against the segment sum. */
+  /**
+   * Centre of mass in the neutral body frame, metres. Transform each
+   * segment's local centre into that frame before taking the mass-weighted
+   * mean of those centres.
+   */
   centerOfMass: IAutoMovieVector3;
 
-  /** Nonempty unique bones, in any order; joints define a connected tree. */
+  /**
+   * One or more segments with unique nonblank bone names and at least one
+   * collision shape each, in any order.
+   */
   segments: IAutoMoviePhysicalSegment[];
 
-  /** Exactly one parent for every nonroot segment. */
+  /**
+   * Links between known segments. Give every segment except the root one
+   * parent. Both anchors of each link meet in the neutral pose.
+   */
   joints: IAutoMoviePhysicalJoint[];
 
   /**
-   * Explicit overlapping pivot neighbours; other self collisions remain
-   * enabled.
+   * Optional unordered pairs of distinct bone names whose colliders may
+   * overlap. Give each pair once with a nonblank reason. The simulator
+   * skips both contact and sensor overlap for those pairs. Omission keeps
+   * the built-in exclusions for a segment and its direct joint neighbours.
    */
   collisionExclusions?: {
     /** First segment. */ a: string;
@@ -43,9 +57,23 @@ export interface IAutoMoviePhysicalProfile {
     /** Geometric reason for this exclusion. */ reason: string;
   }[];
 
-  /** Contact parameters addressed by shapes, independently of optical materials. */
+  /**
+   * Physical contact responses keyed by unique nonblank material IDs.
+   * Every collision shape names one of these responses.
+   */
   materials: IAutoMoviePhysicalMaterial[];
 
-  /** Provider's source, population limits and approximation uncertainty. */
+  /**
+   * Optional neutral station for the mirrored humanoid ear rays. The point
+   * is in the head bone's local frame, in metres. Humanoid surface readers
+   * project its lateral rays onto the actual head collider. With the station
+   * absent, each ray starts at the head collider bounds centre.
+   */
+  earRayOrigin?: IAutoMovieVector3;
+
+  /**
+   * Nonblank provider note naming the source of the physical parameters
+   * and describing their population limits and approximations.
+   */
   provenance: string;
 }

@@ -14,6 +14,10 @@ import { throwsError } from "../../internal/predicates";
  * 2. "prequel" and no name of ["starter", "sequel"] are refused listing "starter,
  *    sequel".
  * 3. A module offering nothing is refused as offering no subject, named or not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Selects a named subject or the sole unnamed choice and explains ambiguous or absent selections.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls subject selection for a named, sole, ambiguous, unknown and empty fixture.
+ * @evidence contracts/development/testing.md#independent-expectations The offered subject set and exact return identity distinguish sole fallback from guessing. Refusals list only the available choices.
  */
 export function test_render_draw_select_subject(): void {
   const two: string[] = ["starter", "sequel"];

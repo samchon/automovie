@@ -15,6 +15,10 @@ const INERTIA: number = 1e-7;
  * bodies have harmonic relative inertia, independently of segment labels. A
  * translating/rotating authored target supplies the same velocities at
  * intermediate samples; a wrapped quaternion takes the short physical arc.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies both bodies' combined world-axis inertia and authored point and angular velocities from the same shortest interpolation.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads joint inertia after a 90-degree rotation and samples a translating and rotating target with a wrapped quaternion.
+ * @evidence contracts/development/testing.md#independent-expectations Known axis moments exchange under the quarter turn and combine harmonically. Fixed endpoint displacement and the short physical turn determine velocities.
  */
 export async function test_engine_physics_physical_joint_inertia(): Promise<void> {
   const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({

@@ -1,19 +1,15 @@
 /**
- * Measure signed Sampson distance and mean two-sided point-to-line distance in
- * the supplied integer-pixel-centre charts. Undefined lines or nonfinite
- * residuals remain null observations and cannot be counted as inliers. Invalid
- * matrices or nonrepresentable matrix-vector actions throw in the algebra
- * owner. Sampson distance is a local approximation, not reprojection truth.
+ * Callable measurement of two pixel residuals for each paired original-image
+ * observation.
  */
 
 export namespace IAutoMovieRecoveryEpipolarErrorsMeasurementOperation {
   /**
-   * Measure signed Sampson distance and mean two-sided point-to-line distance
-   * in the supplied integer-pixel-centre charts. Undefined lines or nonfinite
-   * residuals remain null observations and cannot be counted as inliers.
-   * Invalid matrices or nonrepresentable matrix-vector actions throw in the
-   * algebra owner. Sampson distance is a local approximation, not reprojection
-   * truth.
+   * Apply the row-major fundamental matrix and its transpose to the matched
+   * homogeneous pixels. For each valid incidence, compute signed Sampson and
+   * mean two-sided line distance in pixels. Return null in the same ordinal
+   * when measurement is unavailable. Unequal observation lengths or invalid
+   * matrix actions raise an error.
    */
 
   export type Operation = (
@@ -22,11 +18,14 @@ export namespace IAutoMovieRecoveryEpipolarErrorsMeasurementOperation {
     second: readonly (readonly [number, number])[],
   ) => ({
     /**
-     * Signed first-order epipolar residual in pixels; this is a numerical
-     * Sampson approximation.
+     * Incidence divided by the joint epipolar normal norm, signed and expressed
+     * in pixels.
      */
     signedSampsonPx: number;
-    /** Symmetric point-to-epipolar-line discrepancy in pixels. */
+    /**
+     * Mean of the two absolute point-to-epipolar-line distances in the original
+     * image pixels.
+     */
     symmetricPointLinePx: number;
   } | null)[];
 }

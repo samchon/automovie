@@ -2,24 +2,24 @@ import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../human/AutoMovieHumanSide";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionTarget } from "./IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanBody } from "./IAutoMovieMotionHumanBody";
+import type { IAutoMovieHumanLimbGoal } from "./IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
+import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanArmAngles } from "./IAutoMovieMotionHumanArmAngles";
 import type { IAutoMovieMotionHumanArmPlanned } from "./IAutoMovieMotionHumanArmPlanned";
+import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
+import type { IAutoMovieMotionHumanBody } from "./IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionHumanHeldUse } from "./IAutoMovieMotionHumanHeldUse";
+import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTarget } from "./IAutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanTouchContacts } from "./IAutoMovieMotionHumanTouchContacts";
 import type { IAutoMovieMotionHumanTouchEffector } from "./IAutoMovieMotionHumanTouchEffector";
-import type { IAutoMovieMotionHumanTouchForm } from "./IAutoMovieMotionHumanTouchForm";
-import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHeldUse } from "./IAutoMovieMotionHumanHeldUse";
-import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
-import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
-import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
-import type { IAutoMovieHumanLimbGoal } from "./IAutoMovieHumanLimbGoal";
-import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTouchEffectors } from "./IAutoMovieMotionHumanTouchEffectors";
+import type { IAutoMovieMotionHumanTouchForm } from "./IAutoMovieMotionHumanTouchForm";
 import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouchSite";
+import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
+import type { IAutoMovieMotionTarget } from "./IAutoMovieMotionTarget";
 
 /**
  * Touching a partner: a touch, a high five, a kiss and a leg touch.
@@ -46,7 +46,6 @@ import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouc
  *   interface.
  */
 
-
 /** The parameter types of the Touch methods. */
 /**
  * A touch while standing: one hand, or both, laid on a region of a partner or
@@ -58,10 +57,10 @@ import type { IAutoMovieMotionHumanTouchSite } from "./IAutoMovieMotionHumanTouc
  * hands over the ears), each item a row of `(effector, region, kind, timing)`.
  *
  * The hand reaches the region in the free-space transport time of the distance
- * (`motionHumanTiming.transport`), repeats the kind's stroke `count`
- * times (`AutoMovieMotionHumanTouchForm.FORMS`), dwells for the hold and goes
- * back in the reach's time; the manner's tempo scales every span and its extent
- * the lift and the travel. The feet stay planted and the body keeps the entry
+ * (`motionHumanTiming.transport`), repeats the kind's stroke `count` times
+ * (`AutoMovieMotionHumanTouchForm.FORMS`), dwells for the hold and goes back in
+ * the reach's time; the manner's tempo scales every span and its extent the
+ * lift and the travel. The feet stay planted and the body keeps the entry
  * posture. A region of the performer's limbs is read on the entry pose, so it
  * must ride a limb the touch does not move, except a region on the other arm: a
  * person scratching or patting their own forearm first brings it up, so that
@@ -173,10 +172,20 @@ export namespace IAutoMovieMotionHumanTouch {
     balance?: IAutoMovieMotionHumanBalance;
 
     /**
-     * The region touched: a partner's (`person`) or the performer's own
-     * (`self`).
+     * The site touched on a person, the performer, a prop or another target
+     * admitted by the scene.
      */
     target: IAutoMovieMotionTarget;
+
+    /**
+     * Follow a moving prop's site from where it was at the start of the action.
+     * Use `"observed"` with a prop target and one bare hand. The reach aims at
+     * the initial site and corrects toward the site's sampled world position as
+     * it moves. The played stroke end refuses if the hand misses its requested
+     * position by more than 0.01 metres. Omit this setting to use the touch
+     * law's usual planning for the chosen target.
+     */
+    tracking?: "observed";
 
     /** The kind; `pat` when absent. */
     kind?: IAutoMovieMotionHumanTouchForm.Kind;
@@ -455,9 +464,9 @@ export namespace IAutoMovieMotionHumanTouch {
     skinDistance?: number;
 
     /**
-     * The region and the colliders as a plan perceives them, for a touch of
-     * another person (`IAutoMovieMotionHumanArmCarry.ICarry.perceived`); the
-     * hand then follows the person on the hold.
+     * The target region and optional colliders as the initial plan perceives
+     * them. A touch of another person or an observed prop follows the sampled
+     * site during the reach and hold.
      */
     perceived?: Pick<IAutoMovieMotionHumanTouch.ITouch, "region" | "others">;
 

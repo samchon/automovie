@@ -30,11 +30,9 @@ import { TestValidator } from "@nestia/e2e";
  *    brace=travel=1 similarly rounds to 1/(4 half) radians, distinguishing
  *    underflow and normal-square cancellation. Every row stays finite.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States admitted numeric boundaries, independent tiny/extreme-speed and 3-4-5 expectations, source-metadata refusals and the unchanged prototype scope.
- * @evidence contracts/development/testing.md#behavioral-verification Uses actual public producers, builder, launchSpeed and limbs; inspects structured refusal axes, exact neutral rows, finite monotone table inputs, full-draw geometry and positive finite launch results without replacing an implementation.
- * @evidence contracts/development/testing.md#independent-expectations The triangle's sides 3,4,5 and final nock distance 8 determine the tangent endpoint and atan2(3,4) turn; the tiny speed factors square roots and a dimensionless power using the prototype's explicit stroke factor .426, reference eta=.765 and .02 kg arrow, independently of the implementation's ordinary energy-first and exceptional logarithmic calculations. Extreme full-draw speed divides square roots rather than forming an overflowing or underflowing radicand. Numerical tolerance remains 1e-12, and no measured physical band is widened. These are numeric checks of an explicitly provisional stroke-energy law, not validation of the source's differently normalized native q.
- * @evidence contracts/development/testing.md#distinguishing-cases Every hand-drawn kind, brace and full draw, two extreme positive masses, negative/nonfinite inputs, absent/invalid draw metadata, zero and tangent table endpoints, impossible triangles and overflowed geometric intermediates.
- * @evidence contracts/development/testing.md#execution-ownership One portable in-memory discovered unit owns its authored metadata fixture; no process, renderer, host, runtime patch or foreign algorithm is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies structured input refusal, neutral pose rows, extreme finite samples and the provisional simulation calculation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public model, pose and simulation entries with finite, nonfinite and extreme numeric cases. Reads actual scene geometry, structured refusal axes and finite positive results under representability limits.
+ * @evidence contracts/development/testing.md#independent-expectations The authored right triangle fixes the tangent endpoint and turn independently. Scaled expectations for the tiny and large inputs distinguish a representable result from intermediate overflow or underflow.
  */
 export function test_archetype_weapon_bow_numeric(): void {
   const findings: string[] = [];

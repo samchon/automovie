@@ -1,11 +1,8 @@
-/**
- * Existing workspace data completed by
- * {@link AutoMovieTemplateScaffold.renderWorkspace}.
- */
+/** The settings text and path context used to complete existing pnpm catalogs. */
 export interface IAutoMovieTemplateWorkspaceRequest {
-  /** Directory containing the workspace whose catalogs need completion. */
+  /** Directory against which relative links in the YAML resolve. */
   directory: string;
 
-  /** Current `pnpm-workspace.yaml` contents. */
+  /** Contents of the current `pnpm-workspace.yaml` file. */
   source: string;
 }

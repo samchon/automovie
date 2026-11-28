@@ -4,12 +4,16 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
+  IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 import {
   HumanLimbFit
 } from "../../../../../packages/motions/src/posture/internal/HumanLimbFit";
+import { HumanLimbMirror } from "../../../../../packages/motions/src/posture/internal/HumanLimbMirror";
+import { HumanLimbPair } from "../../../../../packages/motions/src/posture/internal/HumanLimbPair";
+import { HumanLimbVanishedRefusal } from "../../../../../packages/motions/src/posture/internal/HumanLimbVanishedRefusal";
 import {
   poseBones
 } from "../../../../../packages/motions/src/posture/internal/poseBones";
@@ -116,6 +120,7 @@ function arm(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose): void {
   const next = goal(-20, 0, -80);
   const cold = HumanLimbFit.fit(body, pose, "rightArm", next, []);
   const hand = poseBones(body, cold.pose).get("rightHand")!;
+  const near: IAutoMovieSwivelNear = { ...first.seed!, tolerance: 0.0001 };
   TestValidator.predicate(
     "the arm reaches the next hand turn cold",
     first.seed?.admitted !== undefined &&
@@ -125,14 +130,65 @@ function arm(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose): void {
   );
   TestValidator.predicate(
     "the arm's earlier wrist arc cannot continue to that turn",
-    HumanLimbFit.continues(body, pose, "rightArm", next, [], undefined, {
-      ...first.seed!,
-      tolerance: 0.0001,
-    }) === null,
+    HumanLimbFit.continues(body, pose, "rightArm", next, [], undefined, near) ===
+      null,
+  );
+
+  function refused(fit: () => unknown): "leftArm" | "rightArm" {
+    try {
+      fit();
+    } catch (error) {
+      if (
+        error instanceof HumanLimbVanishedRefusal &&
+        error.kind === "reach" &&
+        error.axis === "rotation" &&
+        (error.value === "leftArm" || error.value === "rightArm") &&
+        error.reason.includes(error.value)
+      )
+        return error.value;
+      throw error;
+    }
+    throw new Error("Expected the disconnected hand turn to refuse");
+  }
+  const image: IAutoMoviePose = HumanLimbMirror.pose(pose);
+  const reflected: IAutoMovieHumanLimbGoal = HumanLimbFit.reflected(next);
+  const bones = poseBones(body, pose);
+  const other: IAutoMovieHumanLimbGoal = {
+    point: bones.get("leftHand")!.worldPosition,
+    bend: bones.get("leftLowerArm")!.worldPosition,
+  };
+  TestValidator.equals(
+    "each refusal reports the arm in the caller's pose",
+    [
+      refused(() => HumanLimbFit.fit(body, pose, "rightArm", next, [], undefined, near)),
+      refused(() => HumanLimbFit.fit(body, image, "leftArm", reflected, [], undefined, near)),
+      refused(() => HumanLimbPair.fitted(body, pose, { left: other, right: next }, { right: near })),
+      refused(() =>
+        HumanLimbPair.fitted(
+          body,
+          image,
+          { left: reflected, right: HumanLimbFit.reflected(other) },
+          { left: near },
+        ),
+      ),
+    ],
+    ["rightArm", "leftArm", "rightArm", "leftArm"],
   );
 }
 
-/** Continued limb fits follow the constraints their own chain uses. */
+/**
+ * Continued limb fits follow the constraints their own chain uses.
+ *
+ * Scenarios:
+ *
+ * 1. Fit both ankles around a small interval and measure their velocity.
+ * 2. Fit a wrist cold, refuse its disconnected continuation, and check the
+ *    reported side in both single-arm and paired fits of a pose and its mirror.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers mirrored free-leg continuity and a disconnected wrist branch in single-arm and paired fits.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits both ankles across a time interval, compares the cold wrist with the continued refusal, and checks its structured and textual arm labels through both reflection boundaries.
+ * @evidence contracts/development/testing.md#independent-expectations Each ankle moves upward at 1 m/s within 1e-6. The cold wrist reaches its goal while the continued wrist refuses. Reflecting the input arm also reflects the refusal's arm label.
+ */
 export async function test_motions_posture_limb_fit_continuation(): Promise<void> {
   const body = await humanFixtureBody("m-average");
   const performance = new AutoMovieMotionHumanPerformance({

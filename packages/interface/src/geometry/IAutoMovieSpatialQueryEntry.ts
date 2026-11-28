@@ -1,21 +1,19 @@
 /**
- * One resident object's actual bounding box and stable population ordinal, the
- * entry `buildMeshQueryHierarchy` partitions and
- * `collectSpatialQueryCandidates` returns.
+ * One resident object's enclosed geometry and stable population ordinal.
  *
- * The box encloses its geometry in the query's shared metre frame; its centre
- * chooses median partitions and never substitutes for that geometry. Mesh
- * crossings index triangles with it and lash contact indexes capsules, each
- * extending it with the geometry its narrow phase reads.
+ * Use one shared XYZ metre frame for the box and partition centre. Candidate
+ * collection borrows entries and orders them by the first shared grid cell,
+ * then ordinal. Mesh crossing uses triangle entries and lash contact uses
+ * capsule entries. Each adds the geometry required by its narrow phase.
  */
 export interface IAutoMovieSpatialQueryEntry {
   /** Ordinal in the owner's original resident population, unique per index. */
   ordinal: number;
 
-  /** Componentwise XYZ minimum of the actual enclosing box. */
+  /** Componentwise XYZ minima of the enclosing box in metres. */
   low: number[];
 
-  /** Componentwise XYZ maximum of the actual enclosing box. */
+  /** Componentwise XYZ maxima of the enclosing box in metres. */
   high: number[];
 
   /**

@@ -6,18 +6,16 @@ import type {
 } from "..";
 
 /**
- * Consume saved open cubics and their explicit adjacent endpoint transport
- * through the engine. One maximal ordinary run owns its common parameter grid,
- * shared station boundaries and PCHIP station fields. Course joins and the
- * emitted PL surface are not certified C1/G1.
+ * Callable reconstruction of saved open courses and their explicit neighbor
+ * transport.
  */
 
 export namespace IAutoMovieRecoveryOpenReconstructionOperation {
   /**
-   * Consume saved open cubics and their explicit adjacent endpoint transport
-   * through the engine. One maximal ordinary run owns its common parameter
-   * grid, shared station boundaries and PCHIP station fields. Course joins and
-   * the emitted PL surface are not certified C1/G1.
+   * Use the saved open cubics and admitted adjacent connections to find maximal
+   * ordinary runs. Realize each run on a shared normalized phase grid with its
+   * station interpolation. Preserve the closed reconstruction's unresolved
+   * records and report generated or refused open runs separately.
    */
 
   export type Operation = (
@@ -28,105 +26,66 @@ export namespace IAutoMovieRecoveryOpenReconstructionOperation {
     "construction"
   > & {
     /**
-     * Source-free generated construction polylines retained for downstream
-     * inspection.
+     * Generated construction polylines including the retained closed
+     * reconstruction and newly realized open runs.
      */
     construction: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Stable generated construction line id. */
       id: string;
-      /**
-       * Whether the observed path's actual incidence returns to its first
-       * endpoint; no artificial closing segment is inferred.
-       */
+      /** Whether the generated line is closed. */
       closed: boolean;
-      /**
-       * Ordered physical construction or observation points in the enclosing
-       * record's declared frame.
-       */
+      /** Generated physical line points in model metres. */
       points: Readonly<AutoMovieVector3Tuple>[];
     }[];
 
-    /**
-     * Actual open-run generation and omission accounting, separate from closed
-     * or analytic reconstruction.
-     */
+    /** Open continuation run counts and local generation outcomes. */
     openReports: {
-      /**
-       * Each attempted open continuation run with its actual emission and
-       * qualification outcome.
-       */
+      /** Attempted individual open runs with their measured results. */
       runs: {
-        /**
-         * Stable identity within the owning chart, boundary or occurrence
-         * registry; equal coordinates do not create identity.
-         */
+        /** Stable generated run ID derived from its first saved open arc. */
         id: string;
 
-        /**
-         * First saved-section ordinal included in the recorded continuation
-         * run.
-         */
+        /** First saved section index in the continuation run. */
         firstSection: number;
 
-        /** Last saved-section ordinal included in the recorded continuation run. */
+        /** Last saved section index in the continuation run. */
         lastSection: number;
 
-        /** Ordered saved coefficient identities used by this continuation run. */
+        /** Ordered saved cubic coefficient identities used by this run. */
         curves: string[];
 
-        /**
-         * Whether the run actually emitted geometry; this does not certify
-         * source coverage or fidelity.
-         */
+        /** Whether grid generation returned a retained open-run part. */
         generated: boolean;
 
-        /**
-         * Actual termination or qualification reason; null, where allowed,
-         * means no local failure was recorded.
-         */
+        /** Available local reason if grid generation failed. */
         reason: string | null;
 
-        /** Actual vertex population of this generated run or observed component. */
+        /** Actual generated vertex count for this run. */
         vertices: number;
 
-        /**
-         * Actual triangle population of this generated run or observed
-         * component.
-         */
+        /** Actual retained triangle count for this run. */
         triangles: number;
 
-        /**
-         * Generated triangle candidates omitted because their numerical area is
-         * zero.
-         */
+        /** Generated triangle candidates omitted for zero area. */
         omittedZeroAreaTriangles: number;
 
-        /** Generated vertices whose accumulated normal could not be qualified. */
+        /** Count of generated vertices with unqualified normal accumulation. */
         unresolvedVertexNormals: number;
 
         /** Generated vertices with no retained incident triangle. */
         isolatedVertices: number;
 
-        /** Accumulated generated normal vectors containing nonfinite values. */
+        /** Generated normal sums with a nonfinite component. */
         nonfiniteNormalSums: number;
       }[];
 
-      /**
-       * Admitted saved-section pair records or their counted population,
-       * preserving the caller's pair order.
-       */
+      /** Number of admitted adjacent saved-section pair records. */
       pairs: number;
 
-      /**
-       * Observed continuation components that cannot authorize a supported
-       * surface bridge.
-       */
+      /** Number of unsupported saved continuation groups. */
       unsupportedGroups: number;
 
-      /** Number of open continuation runs that emitted at least one triangle. */
+      /** Number of admitted runs for which a generated part was appended. */
       generatedRuns: number;
     };
   };

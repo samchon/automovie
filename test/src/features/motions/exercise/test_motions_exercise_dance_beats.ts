@@ -30,6 +30,10 @@ const SCORE: readonly IAutoMovieScheduleCue[] = [0.9, 1.2, 1.7, 2.3, 2.6].map(
  *    0.2) / 3; beat 2 is on that grid, and with `exact` at its own 0.7 s.
  * 3. A track with one beat after the start for four beats, and a tempo of zero,
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Unlocked dance follows the requested tempo. A locked score gives a mean grid or retains exact cue times.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls beat preparation with an unlocked tempo, uneven score, exact read, insufficient score, and zero tempo.
+ * @evidence contracts/development/testing.md#independent-expectations The tempo's 60 divided by BPM and the score's first-to-last interval give separate expected grids. The exact mode retains the original second beat.
  */
 export function test_motions_exercise_dance_beats(): void {
   const context: Parameters<typeof prepareDanceBeats>[0] = {

@@ -4,14 +4,18 @@ import type {
   IAutoMovieRecoveryRegularizationReport,
 } from "..";
 
-/** Local joint-refinement diagnostics on one fixed observation population. */
+/**
+ * Joint refinement report for a fixed population of retained calibrated pixel
+ * observations. It records the completed numerical fit, including its local
+ * stopping condition and available optional diagnostics.
+ */
 export interface IAutoMovieRecoveryMapJointFit {
-  /** Local numerical stopping condition, not global accuracy or uncertainty. */
+  /** Whether the fit reached its local numerical convergence rule. */
   converged: boolean;
 
   /**
-   * Numerical stop; pixel-kkt is normal constrained stationarity, while
-   * direction-incomplete, abnormal-or-stalled and iteration-budget are
+   * Recorded local stopping condition. `pixel-kkt` indicates constrained
+   * stationarity, while exhausted, incomplete or stalled fits remain
    * nonconverged.
    */
   termination:
@@ -24,67 +28,68 @@ export interface IAutoMovieRecoveryMapJointFit {
     | "abnormal-or-stalled";
 
   /**
-   * Nonlinear attempts; feasible mode counts every actual evaluation, including
-   * qualified unselected and rejected candidates.
+   * Numerical trial count under the selected method. Feasible mode counts full
+   * evaluated candidates, including qualified candidates it did not select.
    */
   iterations: number;
 
   /**
-   * Selected state updates decreasing the actual complete-population robust
-   * objective; qualified unselected evaluations are excluded.
+   * Updates selected for a strict decrease in robust cost on the complete
+   * observation population.
    */
   acceptedSteps: number;
 
   /**
-   * Same observations used in both initial and final objectives; none is
-   * silently dropped during this fit.
+   * Number of retained measurements used by both the initial and final
+   * objectives.
    */
   observationCount: number;
 
-  /** Initial sum s^2*(sqrt(1+norm2(r)/s^2)-1), in squared pixels. */
-  initialCost: number;
-
   /**
-   * Final robust sum over exactly observationCount measurements, in squared
+   * Initial soft-L1 sum of the two-coordinate residual norms, in squared
    * pixels.
    */
+  initialCost: number;
+
+  /** Final soft-L1 sum on exactly the same observations, in squared pixels. */
   finalCost: number;
 
-  /**
-   * Initial sum of squared two-coordinate pixel residual norms over the same
-   * observations.
-   */
+  /** Initial unweighted sum of squared Euclidean pixel residual norms. */
   initialSquaredError: number;
 
   /**
-   * Final unweighted squared error; robust descent need not decrease this
-   * distinct quantity.
+   * Final unweighted sum of squared Euclidean pixel residual norms on the fixed
+   * population.
    */
   finalSquaredError: number;
 
-  /** Smallest observed undamped column-scaled reduced-camera singular ratio. */
+  /**
+   * Smallest visited singular-value ratio of the undamped, column-scaled
+   * reduced camera design.
+   */
   minimumCameraDesignRatio: number;
 
-  /** Smallest observed undamped column-scaled point-block singular ratio. */
+  /**
+   * Smallest visited singular-value ratio of the undamped, column-scaled point
+   * blocks.
+   */
   minimumPointDesignRatio: number;
 
   /**
-   * Present only for internal accepted-agreement regularization; fit-local
-   * scalar reactions never replace normal convergence or data rank.
+   * Fit-local accepted-agreement diagnostics when that regularization option
+   * runs.
    */
   regularization?: IAutoMovieRecoveryRegularizationReport;
 
   /**
-   * Present only for requested internal lagged curvature; fixed model-use
-   * counters are independent of original rank, actual selection and normal
-   * convergence.
+   * Lagged-curvature admission and use diagnostics when requested by the
+   * feasible method.
    */
   curvature?: IAutoMovieRecoveryCurvatureReport;
 
   /**
-   * Completed feasible-fit normal/QP/SQP/trial diagnostics; absent for ordinary
-   * fits and older artifacts, without implying no fit ran. Nonfinite values use
-   * explicit JSON sentinels.
+   * Completed feasible-fit diagnostics, with explicit JSON values for nonfinite
+   * entries. This field can be absent for ordinary fits and older artifacts.
    */
   feasible?: IAutoMovieRecoveryFeasibleDiagnostics;
 }

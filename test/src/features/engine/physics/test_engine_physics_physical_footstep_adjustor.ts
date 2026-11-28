@@ -25,6 +25,10 @@ import { nclose } from "../../internal/nclose";
  * 3. A footstep at (0.93, 0), whose full outline reaches x = 1.03 into the region
  *    but whose half outline ends at x = 0.98, moves.
  * 4. An empty region moves nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States when the half-size touchdown outline overlaps a capture region and when a missed step moves to its far edge.
+ * @evidence contracts/development/testing.md#behavioral-verification Adjusts a 0.2 m step outline against a fixed square for offsets at zero, 0.97 m and 0.93 m, plus an empty region.
+ * @evidence contracts/development/testing.md#independent-expectations Half-outlines extend to x = 1.02 or 0.98, so only the first overlaps [1, 2]. A missed step moves to the known far edge x = 2.
  */
 export function test_engine_physics_physical_footstep_adjustor(): void {
   const region: Polygon.IPoint[] = Polygon.hull([

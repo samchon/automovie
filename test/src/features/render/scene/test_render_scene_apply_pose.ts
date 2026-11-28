@@ -31,6 +31,10 @@ const ROTATION_TOLERANCE: number = 16 * Number.EPSILON;
  * 2. A declared root supplies translation and rotation without display scale.
  * 3. A subsequent null root restores the neutral local frame under the same staged
  *    placement, independently of the previously applied pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names native rotation, missing-bone reporting, staged transforms and null-root restoration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public pose operation on a mapped native rig. Reads the missing ID and actual hip and model transforms before and after applying a null authored root.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture gives the hip a quarter-turn about Z and the root a different Y rotation and translation. The unmapped authored spine must be reported. Null restores the pre-recorded staged placement and neutral local frame even after the first pose.
  */
 export function test_render_scene_apply_pose(): void {
   const identity: IAutoMovieTransform = {

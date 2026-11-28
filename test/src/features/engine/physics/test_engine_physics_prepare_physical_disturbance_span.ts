@@ -64,6 +64,10 @@ const JOIN: number = 1e-4;
  *     push, trigger, touchdown, standing, end. 3.5 m/s falls. Every span starts
  *     at the push, puts each touchdown straight after its trigger, runs in time
  *     order and joins its capture point and centre of mass across each branch.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes a pure sampled push response, branch timing and continuity, floor reactions, and replay for varied support counts.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares in-place, one-step, two-step and fall paths, permutes reads, and repeats preparation over two through eight contacts.
+ * @evidence contracts/development/testing.md#independent-expectations The stance-edge LIPM expression predicts whether a 1.2 m/s push can capture after immediate or delayed reaction. Exponential return, mg and planted shares independently bound the resulting path.
  */
 export function test_engine_physics_prepare_physical_disturbance_span(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

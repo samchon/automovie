@@ -1,4 +1,8 @@
-import { AutoMovieEngineCanonicalJson, AutoMovieEngineRenderTarget, AutoMovieEnginePicture } from "@automovie/engine";
+import {
+  AutoMovieEngineCanonicalJson,
+  AutoMovieEnginePicture,
+  AutoMovieEngineRenderTarget,
+} from "@automovie/engine";
 import type {
   IAutoMovieAdmitProductionTtsReceipt,
   IAutoMovieDecodedProductionAudioAsset,
@@ -39,6 +43,11 @@ export function admitProductionTtsReceipt(
       `Dialogue receipt "${props.receiptPath}" [${field}] ${message}`,
     );
   }
+  if (!Number.isSafeInteger(props.sampleRate) || props.sampleRate <= 0)
+    fail(
+      "sampleRate",
+      "the output rate must be a positive safe integer in Hz.",
+    );
   const receipt: IAutoMovieProductionTtsReceipt = parseReceipt(
     props.receipt,
     fail,

@@ -1,19 +1,14 @@
 import type { IAutoMovieRecoveryImageFeaturesExtractionOperation } from "..";
 
-/**
- * Compare every admitted descriptor pair once and retain unique mutual matches.
- * The strict Euclidean ratio requires a distinct second feature in the other
- * image. Reverse exact ties refuse rather than choosing a material identity by
- * array order. This appearance test proposes correspondences, not their truth.
- */
+/** Callable directed matching of two admitted image descriptor populations. */
 
 export namespace IAutoMovieRecoveryImageFeaturesMatchingOperation {
   /**
-   * Compare every admitted descriptor pair once and retain unique mutual
-   * matches. The strict Euclidean ratio requires a distinct second feature in
-   * the other image. Reverse exact ties refuse rather than choosing a material
-   * identity by array order. This appearance test proposes correspondences, not
-   * their truth.
+   * Use a strict best-to-second-distance ratio from first to second and require
+   * the second feature's unique reverse nearest match to identify the first.
+   * Check actual traversal work before matching. Fewer than two targets or an
+   * empty source yields no comparisons. Preserve selected indices and original
+   * pixel locations.
    */
 
   export type Operation = (
@@ -22,30 +17,24 @@ export namespace IAutoMovieRecoveryImageFeaturesMatchingOperation {
     ratio: number,
     maxPairs: number,
   ) => {
-    /**
-     * Original feature ordinal in the first image's selected feature
-     * population.
-     */
+    /** Query feature index in the retained first image population. */
     firstIndex: number;
 
-    /**
-     * Original feature ordinal in the second image's selected feature
-     * population.
-     */
+    /** Target feature index in the retained second image population. */
     secondIndex: number;
 
-    /** First-image observation [x,y] in pixels. */
+    /** First measured pixel-center location [column, row]. */
     first: [number, number];
 
-    /** Second-image observation [x,y] in pixels. */
+    /** Second measured pixel-center location [column, row]. */
     second: [number, number];
 
-    /** Sum of squared descriptor-component differences; dimensionless. */
+    /** Dimensionless sum of squared differences of the normalized components. */
     squaredDescriptorDistance: number;
 
     /**
-     * Best-to-second-best descriptor distance ratio used by the declared
-     * matching gate.
+     * Forward Euclidean best-to-second candidate distance ratio used by the
+     * strict gate.
      */
     descriptorDistanceRatio: number;
   }[];

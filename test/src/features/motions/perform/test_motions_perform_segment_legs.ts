@@ -35,6 +35,10 @@ const NONE = (): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =>
  * 3. `resolved` inside the window resolves the posture without leg goals, with the
  *    kept records as joints and the kept seeds added; outside it resolves the
  *    posture as given.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names eligibility for the still-leg window, stored leg records and seeds, and resolver inputs inside versus outside that window.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanSegmentLegs` on prepared segment records and a recording resolver. It checks the plain and continued modes, an absent leg goal, returned seed identity, and the supplied posture records.
+ * @evidence contracts/development/testing.md#independent-expectations The action starts at 1 s, so at 2 s it is at plan second 1 inside [0.5, 1.5], while at 1.2 s it is at 0.2 outside. The stored 20-degree upper-leg joint and leg seed replace the leg goal only inside, while the arm goal remains.
  */
 export function test_motions_perform_segment_legs(): void {
   const person: HumanSegmentLegs.IPerson = { layers: [], overlays: [] };

@@ -28,11 +28,9 @@ import { nclose } from "../internal/predicates";
  *    line's 9 mm and `aa` 0.75.
  * 6. Two samplings of one second are identical.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the track, the seconds sampled and the mouth each must give.
+ * @evidence contracts/development/common.md#meaningful-documentation Silent and absent speakers, frame-held jaw opening, phoneme visemes and jaw fallback exercise mouth sampling. The later overlapping line owns its time, and repeat samples agree.
  * @evidence contracts/development/testing.md#behavioral-verification Samples `sampleDialogueMouth` on a hand-written track. A sampler that reads another frame's jaw, ignores the actor, lets an earlier line keep the mouth, scales the envelope weight by another maximum or leaves the mouth open outside every line fails.
  * @evidence contracts/development/testing.md#independent-expectations The openings are the track's own values by frame; 6 / 12 and 9 / 12 are the documented share of the 12 mm maximum speech opening; the dominant visemes follow from the ranges' centres and #4054's requirement that bilabials close on their own frames.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a speaking and a silent actor, a whole-frame and a between-frame second, a phoneme-driven and an envelope line, an overlap's two sides, and a valid and a non-finite second; the blend itself belongs to `test_engine_dialogue_viseme_coarticulation` and planning the track to `test_render_dialogue_mouth_track`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_mouth_sample`; it starts no process.
  */
 export function test_engine_dialogue_mouth_sample(): void {
   const track: IAutoMovieDialogueMouthTrack = {

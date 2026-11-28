@@ -141,70 +141,33 @@ export namespace AutoMovieEngineService {
   }
 
   /**
-   * Lower one service network to the models and staged pieces that draw it.
+   * Lower a service network into world-space run models and set pieces.
    *
-   * A run is authored as a centre line and a radius, which is the description a
-   * clash and a sleeve are measured against; drawing it is the deterministic
-   * derivation of that description and nothing more. Sweeping a regular polygon
-   * section along the authored line with `meshSweep`, one smooth-shaded
-   * ring per route point and both ends capped, is therefore the whole of it: no
-   * fitting library, no elbow catalogue, no per-discipline appearance. A
-   * production that wants a modelled valve body authors that prop and places it
-   * on the node, exactly as it would author any other asset.
+   * The network and its wet zones must pass admission against the supplied
+   * built environment. Each route sweeps a smooth, capped polygon of its
+   * radius. Sides default to eight and must be a safe integer of at least
+   * three.
    *
-   * The geometry is baked in world coordinates, matching how a connector's route
-   * and a support surface are already authored, so the staged piece carries no
-   * rotation and no scale of its own and a run cannot drift from the line the
-   * validator measured.
-   *
-   * Refuses to draw an invalid network. Lowering a graph with a dangling port or
-   * a clash would put a picture of a working installation in front of the reason
-   * it does not work, which is the one thing this record exists to prevent. No
-   * current production consumer calls this lowering; service render tests
-   * exercise the emitted contribution. Sides are unbounded apart from integer
-   * admission, so caller-selected resolution controls allocation size.
+   * Output IDs are network ID followed by segment ID. The mesh already uses
+   * world coordinates and each piece is placed at the origin.
    */
   export function lowerServiceNetwork(props: IAutoMovieLowerServiceNetwork.IProps): IAutoMovieSubjectContribution {
     return lowerServiceNetworkImplementation(props);
   }
 
   /**
-   * Compose a wet zone's plumbing into an independent fluid domain.
+   * Append a wet zone's plumbing sources and drains to a fluid domain.
    *
-   * This is the seam that keeps one model of moving water. The service graph
-   * states where water is delivered and where it is taken away; the shallow-water
-   * domain states how it then moves. Rather than inventing a second, weaker
-   * account of flow inside the building record, the zone's supply ports become
-   * the domain's declared sources and its drains become the domain's declared
-   * drains, at the lattice cells they actually stand over. A basin that fills,
-   * overflows and empties is then the fluid solver's ordinary business, and its
-   * mass ledger is the same one every other domain is checked with.
+   * Use an admitted service network and a domain over the zone. Plumbing
+   * inlets in its room become sources at their node's X/Z cell. Selected
+   * inlets require cubic metres per second on both system and port. Listed
+   * drain nodes contribute outgoing waste-water ports, with each sill at its
+   * cell's bed elevation.
    *
-   * The sill of a derived drain is the bed elevation of its own cell, which is
-   * what a plain floor gully is: it opens the moment water stands on the floor
-   * above it. A weir with a raised sill is a different fixture and is authored on
-   * the domain directly.
-   *
-   * Every supply inlet in the room becomes a source, including the inlet of a
-   * fitting that merely passes the medium on. That is not a double count: such a
-   * fitting declares `0`, so it lowers to a source that delivers nothing, and the
-   * water is counted once where it is actually drawn. Dropping those inlets by
-   * node kind would instead make `kind` decide a hydraulic quantity the port's
-   * own `demand` already states.
-   *
-   * The network is expected to have been validated already; this lowering answers
-   * only for the placement it performs, not for the graph it reads. Selected
-   * plumbing inlet system and port units must both be cubic-meter-per-second;
-   * other units throw because network admission permits nonvolumetric "other"
-   * media, while this seam performs no physical unit conversion.
-   *
-   * Refuses rather than repairs. An unknown zone, an unknown drain node, a node
-   * standing off the lattice and a derived id that collides with an authored one
-   * each raise, because every one of them would otherwise produce a domain that
-   * silently conserves the wrong amount of water. The returned domain shares
-   * unchanged grid, bed and authored entry records; only source/drain arrays and
-   * derived entries are new. There is currently no production caller for this
-   * composition, only service drainage tests.
+   * Derived flows start at zero seconds with no end time. The new source and
+   * drain arrays keep authored entries first. The function throws for an
+   * unknown zone or listed drain, an off-lattice selected node, incompatible
+   * inlet units or a derived ID already used by its authored flow array.
    */
   export function lowerWetZoneDrainage(props: IAutoMovieLowerWetZoneDrainage.IProps): IAutoMovieFluidDomain {
     return lowerWetZoneDrainageImplementation(props);
@@ -225,225 +188,167 @@ export namespace AutoMovieEngineService {
   }
 
   /**
-   * Squared distance from a point to a run's centre line, in square metres.
+   * Measure the closest squared distance to a service route, in square metres.
    *
-   * Squared because every caller compares it against a squared radius, and taking
-   * the root first would only add a rounding step to a comparison that does not
-   * need one. Fewer than two route points return infinity. Direct products assume
-   * finite representable spans and residuals; extreme coordinate squares can
-   * overflow or underflow and this query is not a certified separation bound.
+   * The closest point may lie inside a segment or at its endpoint. A segment
+   * with coincident endpoints supplies one candidate point. A route with
+   * fewer than two points returns Infinity. Use metre coordinates whose
+   * differences, projection products and squared distances are representable.
    */
   export function routeDistanceSquared(segment: IAutoMovieServiceSegment, point: IAutoMovieVector3): number {
     return routeDistanceSquaredImplementation(segment, point);
   }
 
   /**
-   * Sum consecutive 3D centre-line lengths in metres; fewer than two points yield
-   * zero. Finite represented differences and total are the caller's premise.
+   * Sum the lengths of consecutive three-dimensional route spans, in metres.
+   *
+   * A route with fewer than two points has length zero. Coincident neighbours
+   * contribute zero. Use finite metre coordinates whose differences and total
+   * length are representable.
    */
   export function routeLength(segment: IAutoMovieServiceSegment): number {
     return routeLengthImplementation(segment);
   }
 
   /**
-   * State plainly which analyses this network and this building can answer.
+   * Report which service checks the supplied network and building can
+   * support.
    *
-   * A record existing is not an analysis, and the honest way to say so is to say
-   * so. The structural rules below are the ones the engine really performs; the
-   * per-discipline entries are the quantitative questions nothing here solves,
-   * listed once for each discipline the network actually declares so a report
-   * names the missing solver rather than implying a pass.
+   * Placement and crossing require a declared space volume. Sleeve fit
+   * requires a face on each cited boundary. Shared-endpoint run pairs are
+   * exempt along their full routes. Each declared discipline adds an
+   * unsupported performance row, in first-declaration order.
    *
-   * The building is required rather than optional because two of these answers
-   * depend on it. A crossing is read off logical space volumes, so a building
-   * whose partitions are names with no cells cannot be asked where a run left a
-   * room; a sleeve is placed on its boundary's own face, so a boundary written
-   * before faces existed cannot be asked where its holes are. Saying `supported`
-   * in either case would be the dressing-up this report exists to prevent. This
-   * is capability metadata, not a record that validation ran. No current
-   * production report consumes these rows; topology tests exercise their
-   * wording.
+   * The rows describe available checks. Run network and wet-zone admission
+   * separately to obtain findings.
    */
   export function serviceAnalysisSupport(props: IAutoMovieServiceAnalysisSupport.IProps): IAutoMovieServiceCheckReport[] {
     return serviceAnalysisSupportImplementation(props);
   }
 
   /**
-   * Which nodes' maintenance envelopes a world volume intrudes on.
+   * List equipment whose maintenance envelopes overlap a world-space box.
    *
-   * This is the seam a prop, a piece of furniture or a second discipline is
-   * compared through: hand it any axis-aligned world box — a staged prop's
-   * occupancy bound, for instance — and it names the equipment that could no
-   * longer be serviced. Contact alone is not intrusion, so a cabinet standing
-   * exactly on the edge of an access zone is left alone. World metre boxes are
-   * expected to be admitted. This query currently has no product caller and is
-   * exercised only by service geometry tests.
+   * Supply axis-aligned metre bounds. Each minimum must lie strictly below
+   * the other box's maximum on every axis. This admits a flat box strictly
+   * inside an envelope and excludes exterior contact. The result gives
+   * node IDs in declaration order, skipping absent envelopes.
    */
   export function serviceEnvelopeObstructions(props: IAutoMovieServiceEnvelopeObstructions.IProps): string[] {
     return serviceEnvelopeObstructionsImplementation(props);
   }
 
   /**
-   * The world keep-out volume a node needs to be serviced, or `null`.
+   * Translate a node's maintenance box into world metres.
    *
-   * The authored box is node-local so that moving the equipment moves the space
-   * it is opened in; a world box authored beside a world position would let the
-   * two drift apart with no way to tell which one was meant. No rotation or scale
-   * is applied; the source node has only world position.
+   * Add the node's position to the local minimum and maximum corners. An
+   * absent envelope returns null.
    */
   export function serviceMaintenanceBounds(node: IAutoMovieServiceNode): IAutoMoviePropBox | null {
     return serviceMaintenanceBoundsImplementation(node);
   }
 
   /**
-   * Project one system to a plan schematic with its totals.
+   * Project one service system to a plan schematic with run lengths and
+   * demand.
    *
-   * Lengths are measured on the authored 3D centre line and only the drawing is
-   * flattened, so a riser does not silently become a point of zero pipe. Demand
-   * is the system's own declared load, read in the direction the system flows by
-   * {@link serviceSystemLoad}, so a drainage stack reports what it carries rather
-   * than the zero a supply-shaped reading would give it. This report has no
-   * current product caller. An unknown system throws and a missing endpoint owner
-   * remains the authored port id; validation is separate.
+   * Plan X and Y read world X and Z. Each edge length uses the original
+   * three-dimensional route in metres. Declared flow determines system
+   * demand and unreachable nodes are listed in declaration order.
+   *
+   * An unknown system throws. When an endpoint has no owner, its authored
+   * port ID remains in the schematic.
    */
   export function serviceNetworkSchematic(props: IAutoMovieServiceNetworkSchematic.IProps): IAutoMovieServiceSchematic {
     return serviceNetworkSchematicImplementation(props);
   }
 
   /**
-   * The single world volume a whole run is contained by.
+   * Enclose a service route in one world-space box padded by its radius.
    *
-   * This is the broad-phase companion to {@link serviceSegmentSpanBounds}: one box
-   * a caller can index, cull or draw a bounding volume from without walking every
-   * leg. Interference is decided on the spans, never on this. Coordinates and
-   * radius use metres and must already be admitted; empty routes throw, while a
-   * singleton gives its radius-padded point box. No live product caller currently
-   * consumes this broad-phase query.
+   * Use an admitted route and radius in metres. One route point gives a
+   * radius-padded point box. An empty route throws. Use the span bounds for
+   * clash comparisons.
    */
   export function serviceSegmentBounds(segment: IAutoMovieServiceSegment): IAutoMoviePropBox {
     return serviceSegmentBoundsImplementation(segment);
   }
 
   /**
-   * Every pair of runs whose occupied volumes overlap.
+   * Report run pairs with overlapping radius-padded span boxes.
    *
-   * Two runs that share any endpoint node are exempt as a whole pair: the query
-   * does not restrict that exemption to a neighbourhood of the fitting, so a
-   * second overlap farther along those same runs is currently unreported. Every
-   * other pair is a clash whether or not the two belong to the same discipline,
-   * because a duct and a cable tray cannot share a cubic metre any more than two
-   * ducts can.
+   * Use admitted world-metre routes. Runs with no spans are skipped. Pairs
+   * sharing any endpoint node are exempt along their full routes. The other
+   * pairs are emitted once in segment declaration order.
    */
   export function serviceSegmentClashes(network: IAutoMovieServiceNetwork): IAutoMovieServiceClash[] {
     return serviceSegmentClashesImplementation(network);
   }
 
   /**
-   * The world volume one run occupies, span by span.
+   * Return one radius-padded world-space box per consecutive route span.
    *
-   * Each straight leg of the centre line gets its own box grown by the run's
-   * radius, because one box around a whole polyline is not a pipe: a run that
-   * drops, turns and crosses a building would claim the entire cuboid those three
-   * legs span and clash with everything inside it. Per-span boxes stay tight on
-   * orthogonal routing, which is how distribution is actually run, and remain
-   * conservative on a diagonal — a bias that reports a near miss rather than
-   * missing a real interference.
-   *
-   * A route with fewer than two points has no span and yields nothing to compare;
-   * the validator refuses that route on its own path.
+   * Bounds follow route order and use metre coordinates. Diagonal spans are
+   * enclosed conservatively. A route with fewer than two points returns an
+   * empty array.
    */
   export function serviceSegmentSpanBounds(segment: IAutoMovieServiceSegment): IAutoMoviePropBox[] {
     return serviceSegmentSpanBoundsImplementation(segment);
   }
 
   /**
-   * Total demand one system is declared to carry, in the system's own unit.
+   * Sum one system's declared demand in the system's unit.
    *
-   * The load is read at the ports facing **opposite to the root**, because that
-   * is the end a system is loaded from. A supply main, a lighting circuit and a
-   * supply air trunk are loaded by what their `in` ports draw; a drainage stack,
-   * a return riser and an exhaust are loaded by what their `out` ports discharge.
-   * Summing `in` ports for every system would leave every `to-root` system
-   * measured against a load of zero — a capacity check that cannot fail is worse
-   * than none, because it reads as one that passed.
-   *
-   * A fitting merely passing the medium on — a tee, a valve, a damper — declares
-   * `0` and contributes nothing, so the water that reaches a basin through a
-   * shut-off is counted where the basin draws it and not again at the valve. A
-   * `bidirectional` port is counted at neither end: it is the fitting on a ring
-   * that may be fed from either side, and a tap's draw is stated on the port that
-   * draws it rather than on the ring it hangs off.
-   *
-   * This is a declaration check and nothing more. No diversity, no simultaneity
-   * and no head loss enter it; `serviceAnalysisSupport` names the solver that
-   * would as `unsupported`.
+   * A to-root system counts out ports. From-root and undirected systems
+   * count in ports. Zero-demand fittings contribute zero and bidirectional
+   * ports contribute nothing.
    */
   export function serviceSystemLoad(props: IAutoMovieServiceSystemLoad.IProps): number {
     return serviceSystemLoadImplementation(props);
   }
 
   /**
-   * Which nodes one system's root actually reaches.
+   * List the nodes reachable from one system's root in declaration order.
    *
-   * Reachability is what separates a drawn network from a working one, and its
-   * direction is the system's own: a supply main is walked forward from the root,
-   * a drainage stack backward into it, a ring either way. The answer is returned
-   * in declaration order so two runs of the same design produce the same list.
+   * Walk runs forward for from-root, backward for to-root and both ways for
+   * undirected flow. With closedValvesBlock enabled, a reached node whose
+   * opening is zero stops traversal through itself. The default traverses
+   * it.
    *
-   * `closedValvesBlock` is the difference between the design question and the
-   * operating one. Left off — the default — an isolating valve is walked straight
-   * through, because a valve someone happened to shut is not a design defect.
-   * Set, a node whose state passes nothing stops the walk at itself: it is still
-   * reached, everything beyond it is not, and that is how a shut-off is shown to
-   * isolate what it was installed to isolate.
-   *
-   * A system whose root does not resolve reaches nothing rather than reaching a
-   * name; the validator owns reporting the dangling root itself. An unknown
-   * system id throws. Nodes, ports and segment references must already be
-   * structurally admitted; the queue walk is not an arbitrary-JSON gate.
+   * An unknown system throws. An unresolved root returns an empty list.
+   * Supply a structurally admitted network.
    */
   export function serviceSystemReach(props: IAutoMovieServiceSystemReach.IProps): string[] {
     return serviceSystemReachImplementation(props);
   }
 
   /**
-   * Admit a typed distribution network against its served built environment.
-   * Vocabulary, references, units, port directions, declared capacity and root
-   * reach are checked before conservative run/maintenance interference. Findings
-   * retain declaration order and authored values; success is structural
-   * admission, not hydraulic pressure, electrical loss or discipline-performance
-   * proof.
+   * Admit a typed service network against its served built environment.
    *
-   * Logical-space containment is sampled at route vertices rather than
-   * continuously along each leg. Shared-endpoint run pairs are entirely exempt
-   * from clash comparison, so a second overlap along those same runs is currently
-   * omitted. Sleeve fit uses the authored boundary face when present; missing
-   * geometry is outside that fit check's applicability rather than a
-   * reconstructed wall.
+   * Findings cover schema, metre units, references, port compatibility,
+   * declared capacity, root reach, route and sleeve geometry, and
+   * conservative interference. Space containment uses route vertices, sleeve
+   * fit uses authored faces and shared-endpoint run pairs are exempt along
+   * their full routes.
+   *
+   * Success establishes structural admission. Use validateWetZones for the
+   * zone's slope, membrane and drain declarations.
    */
   export function validateServiceNetwork(props: IAutoMovieValidateServiceNetwork.IProps): IAutoMovieValidation {
     return validateServiceNetworkImplementation(props);
   }
 
   /**
-   * Validate the wet and waterproofed regions a network declares.
+   * Check wet-zone declarations against building boundaries and service
+   * nodes.
    *
-   * This is the half of building services a frame is worst at showing. A tiled
-   * room with a gully in it renders identically whether the membrane reaches the
-   * walls or stops at the screed, whether the floor falls toward the gully or
-   * away from it, and whether the sleeve carrying a pipe through the tanking was
-   * made good. Those are the facts a leak is found in, so they are stated and
-   * checked here rather than inferred from a look.
+   * Upturn and slope must be finite and nonnegative. Wet and immersed zones
+   * require full membrane coverage, positive declared slope and a drain.
+   * Thresholds cover handovers to a lower grade, and each cited drain must
+   * stand in the zone and declare outgoing waste-water.
    *
-   * The zone owns no geometry of its own on purpose. Its extent is the
-   * architecture's logical space, its membrane is that space's own boundaries,
-   * and its drains are the service network's nodes, so a zone can disagree with
-   * neither. What it adds is the obligations those three cannot state alone: that
-   * a wet region is covered everywhere water can reach, that every handover to a
-   * drier region is declared, that the floor actually falls, and that it falls to
-   * a drain that really discharges waste. Slope and membrane upturn are declared
-   * scalars; this gate does not measure an actual floor gradient or infer
-   * waterproof construction from mesh geometry.
+   * The check uses authored scalars for upturn and slope. Distinct
+   * declaration errors retain their field paths.
    */
   export function validateWetZones(props: IAutoMovieValidateWetZones.IProps): IAutoMovieValidation {
     return validateWetZonesImplementation(props);

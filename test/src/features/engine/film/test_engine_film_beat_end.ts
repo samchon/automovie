@@ -138,6 +138,10 @@ const shot: IAutoMovieShot = {
  *    in scene order under the supplied beat and shot ids.
  * 5. A referenced walk missing from the supplied motions throws its named
  *    missing-motion Error.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios cover each actor motion case, folded root transform, missing clip refusal and stable snapshot order and IDs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls resolveBeatEnd with performed, held, scene-motion and resting nodes. It checks the resulting transform, pose and clock records, then removes the referenced walk to check the boundary error.
+ * @evidence contracts/development/testing.md#independent-expectations The shot duration and offset set the hero's local time to one second. The authored walk reaches two metres and a 90-degree turn there. The held guard has one authored joint and the crowd clip clamps to its last joint pose at the sampled scene time.
  */
 export function test_engine_film_beat_end(): void {
   const end: IAutoMovieBeatEndState = AutoMovieEngineFilm.resolveBeatEnd({

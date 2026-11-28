@@ -24,9 +24,7 @@ type V = [number, number, number];
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the parts with `FamilyConicHeadParts.build` and calls every part's `keeps` on each point. It catches a point kept by two parts or by none, and a point given to the neighbour instead of the surface's owner.
  * @evidence contracts/development/testing.md#independent-expectations Each point is placed by the made landmarks' arithmetic written above, exact in floating point because the made axes are coordinate axes; the expected owner is the membership rule's statement, not a run's output.
- * @evidence contracts/development/testing.md#distinguishing-cases One point on every surface, the two points where two surfaces meet, and one strictly inside each of the four regions. Generic frames, where a point on a surface is not exact in floating point, and the -Z twin are not covered.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_head_parts_complement`; pure arithmetic on made landmarks, no reference and no figure.
- * @evidence contracts/development/common.md#meaningful-documentation States the made landmarks, why they are exact, and each point with its owner.
+ * @evidence contracts/development/common.md#meaningful-documentation Nose, eye, lip and wall cases have exclusive expected owners, including shared dividing surfaces. Coordinate axes give exact synthetic boundary points.
  */
 export function test_human_head_parts_complement(): void {
   const failures: string[] = [];

@@ -29,6 +29,12 @@ import { nclose } from "../../internal/predicates";
  * 6. At 4 fps, even sampling of a one-second subject ends at frame 3. An
  *    explicitly requested subject endpoint remains a drawable second with no
  *    frame number.
+ * 7. Events at the terminal boundary select the final encoded frame. Native
+ *    plans refuse an invalid clock, sampling interval or window radius.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fixture schedules, the distinction between a continuous pose and an encoded frame, and the invalid inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public capture planner on small numeric clocks and reads returned frames, windows and errors directly. The test starts no draw host.
+ * @evidence contracts/development/testing.md#independent-expectations At 4 fps for one second the encoded indices are 0 through 3. Both 0.999 and 1 seconds have the last frame as their nearest available image. On a 0.6-second request at 4 fps the shared encoded schedule rounds 2.4 to two frames. Refused values are chosen from each documented numeric boundary.
  */
 export function test_render_capture_plan_capture_frames(): void {
   const frames: (times: IAutoMovieCaptureTime[]) => (number | null)[] = (
@@ -202,4 +208,37 @@ export function test_render_capture_plan_capture_frames(): void {
       endpoint.frame === null &&
       nclose(endpoint.seconds, 1),
   );
+
+  const terminal = AutoMovieRenderCapture.planFrames({
+    ...oneSecond,
+    sampling: { kind: "at", seconds: [1] },
+    events: [0.999, 1],
+  });
+  TestValidator.equals("terminal event keeps its source time and native neighbor", terminal, {
+    times: [{ seconds: 0.75, frame: 3 }, { seconds: 1, frame: null }],
+    windows: [0.999, 1].map((seconds) => ({
+      kind: "event",
+      seconds,
+      frame: 3,
+      first: 3,
+      last: 3,
+      clipped: true,
+    })),
+  });
+  TestValidator.equals(
+    "partial duration uses the shared rounded native grid",
+    frames(AutoMovieRenderCapture.planFrames({ ...oneSecond, durationSeconds: 0.6 }).times),
+    [0, 1],
+  );
+  for (const props of [
+    { ...oneSecond, fps: Infinity },
+    { ...oneSecond, durationSeconds: Infinity },
+    { ...oneSecond, window: 0.5 },
+    { ...oneSecond, window: Infinity },
+    { ...oneSecond, sampling: { ...even, from: -0.25 } },
+    { ...oneSecond, sampling: { ...even, from: 0.75, to: 0.5 } },
+    { ...oneSecond, sampling: { ...even, rate: 0 } },
+    { ...oneSecond, sampling: { ...even, rate: Infinity } },
+  ])
+    TestValidator.error("invalid native planning input", () => AutoMovieRenderCapture.planFrames(props));
 }

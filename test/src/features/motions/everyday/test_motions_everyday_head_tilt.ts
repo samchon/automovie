@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Unstated, the phrase is 0.9 s, the peak at 0.3 s and the return at 0.6 s.
  * 2. A 1.5 s phrase peaks at 0.5 s and returns at 1 s.
  * 3. A 0.5 s phrase is refused on `seconds`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A head tilt peaks one third into the phrase, retracts after the second third, and refuses phrases below 0.6 seconds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the clock owner with its default, an authored duration, and a too-short duration.
+ * @evidence contracts/development/testing.md#independent-expectations Duration divided into thirds gives the event times directly. The 0.6-second boundary supplies the distinct refusal.
  */
 export async function test_motions_everyday_head_tilt(): Promise<void> {
   const read: (clock: IAutoMovieMotionClock) => number[] = (

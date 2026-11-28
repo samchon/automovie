@@ -15,6 +15,10 @@ const CLEARANCE = 0.02;
 /**
  * Surface backstroke and floating keep the mouth above the water across a
  * cycle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines open-water contact absence, mouth clearance and root travel during backstroke and float across body fixtures.
+ * @evidence contracts/development/testing.md#behavioral-verification Plays two complete cycles of each mode on six stored rigs at two water levels and samples resolved mouth and hips at a 240 Hz grid.
+ * @evidence contracts/development/testing.md#independent-expectations Authored timing gives stroke two at one period. The minimum measured clearance equals 20 mm, hips remain more than 30 mm submerged, and the full root path follows the specified backward speed for backstroke and stays fixed for float.
  */
 export function test_motions_sport_swim_supine_clearance(): void {
   for (const [id, yaw, water] of [

@@ -4,10 +4,11 @@ import type { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNode
 /**
  * Native use replays the inspected node tracks on the source rig the author
  * declares; ingest infers no rig and matches no names.
- * `AutoMovieIngestExternalModel.adoptMotion` borrows this record, validates mapped parents
- * and rests by its fixed TRS composition, and returns copies. Constraints and
- * unmapped rests remain unchecked; noncommuting helper scale/rotation loses
- * shear in that representation. The decision itself does not execute playback.
+ * `AutoMovieIngestExternalModel.adoptMotion` borrows this record, validates
+ * mapped parents and rests by its fixed TRS composition, and returns copies.
+ * Constraints and unmapped rests remain unchecked; noncommuting helper
+ * scale/rotation loses shear in that representation. The decision itself does
+ * not execute playback.
  */
 export interface IAutoMovieExternalMotionNativeDecision {
   /** Mode discriminator. */
@@ -28,4 +29,10 @@ export interface IAutoMovieExternalMotionNativeDecision {
    * ingest never derives it from names.
    */
   mapping: IAutoMovieImportedNodeBoneMapping[];
+
+  /** Omit the target identity when replaying on the source rig. */
+  target?: never;
+
+  /** Omit the retarget translation multiplier when replaying on the source rig. */
+  translationScale?: never;
 }

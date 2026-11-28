@@ -15,11 +15,9 @@ import { AutoMovieCliCapture, type IAutoMovieCliChromium } from "automovie";
  * 2. A launch rejecting for another reason rejects naming the backend, without the
  *    install instruction, and keeps its cause.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the launcher with Chromium doubles that reject and reads the error; a launcher that hid the install command, named it for an unrelated failure, or dropped the cause fails.
- * @evidence contracts/development/testing.md#independent-expectations The missing-browser message is the one Playwright prints for an absent executable, and the install command is `playwright-core`'s own for the headless shell, the package the production declares, so the browser revision is the one it launches, which the issue's case matrix requires the error to name.
- * @evidence contracts/development/testing.md#distinguishing-cases A missing executable against another failure. Successful launches are owned by `test_cli_capture_backends`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_capture_chromium_missing`; no browser exists or starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the missing Playwright executable and unrelated Chromium launch failure, including the distinct remediation and preserved error causes.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the public launcher with two rejecting Chromium doubles. Checks the install and `CHROME_PATH` message in the missing-executable case, the backend message for the other case, and each caught cause.
+ * @evidence contracts/development/testing.md#independent-expectations Supplies two independent Error instances and the missing-executable diagnostic text. Compares cause identity and requires the exact headless-shell install hint only for the missing-browser case.
  */
 export async function test_cli_capture_chromium_missing(): Promise<void> {
   const failing: (message: string) => IAutoMovieCliChromium = (

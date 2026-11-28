@@ -26,6 +26,8 @@ export function linearColorToSrgbHex(
 const srgbHexChannel: (component: number) => string = (
   component: number,
 ): string => {
+  if (!Number.isFinite(component))
+    throw new Error("sRGB encoding requires finite linear color components.");
   return Math.round(
     linearChannelToSrgb(Math.min(1, Math.max(0, component))) * 255,
   )

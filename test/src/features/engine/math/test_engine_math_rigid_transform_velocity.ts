@@ -30,6 +30,10 @@ const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
  *    converge.
  * 4. Identity, tiny rotation/time and near-pi increments retain finite answers.
  * 5. Invalid time/components, ambiguous pi and overflowing arithmetic refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers world-frame translation and angular secants, quaternion signs, point motion and finite boundary or refusal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls rigidTransformVelocity with analytic frame pairs, signed and reversed variants, tiny intervals and invalid rotations. It checks input ownership and uses a rotated lever for a world point.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit quaternion composition maps local +Y to world -X. Closed point derivatives give v plus omega crossed with the lever and the first-order secant error ratio. The half turn and subnormal fixtures pin distinct branch and arithmetic decisions.
  */
 export function test_engine_math_rigid_transform_velocity(): void {
   const previous: Pick<IAutoMovieTransform, "translation" | "rotation"> =

@@ -2,17 +2,22 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createCarryBasket as createCarryBasketImplementation } from "./internal/createCarryBasket";
 import { type AutoMovieArchetypeTray } from "./AutoMovieArchetypeTray";
 
-/** Public operations for Auto Movie Archetype Carry Basket. */
+/**
+ * Constructs a RISATORP basket proxy with an inner floor and a raised carrying bar.
+ */
 export namespace AutoMovieArchetypeCarryBasket {
   /**
-   * A carry basket with an open floor and a raised bar grip.
+   * Build the selected carry basket with its base at model Y zero.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The `inside` rectangle lies on the floor below the walls. The
+   * `handle` bar runs along Z, 0.12 metres above the rim.
+   *
+   * @param params Optional scene ID, catalogue size and finite mass
+   *   admitted by the basket band. The default ID is `tray`.
+   * @param seed Numeric seed for omitted values. Omit it to select
+   *   `risatorp25`, a 0.25 by 0.26 by 0.18 metre basket body.
+   * @returns The open basket with its supported floor and carrying bar.
+   * @throws {AutoMovieArchetypeRefusal} If the model or fixed mass is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeCarryBasket.IParams, seed?: number): AutoMovieArchetype<
   AutoMovieArchetypeCarryBasket.Affordance,
@@ -21,20 +26,25 @@ export namespace AutoMovieArchetypeCarryBasket {
     return createCarryBasketImplementation(params, seed);
   }
 
-  /** The `model` choices this producer admits. */
+  /**
+   * The two recorded basket bodies, `risatorp25` and `risatorp42` by their width in centimetres.
+   */
   export type Model = "risatorp25" | "risatorp42";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Outer body width, depth and rim height in metres, and mass in kilograms.
    */
   export type Dimension = "depth" | "height" | "mass" | "width";
 
-  /** The contact IDs declared by this producer. */
+  /** Supported inner `inside` floor and raised `handle` along model Z. */
   export type Affordance = "handle" | "inside";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional scene ID, catalogue body choice and finite mass in the basket band.
+   */
   export interface IParams extends Pick<AutoMovieArchetypeTray.IParams, "id" | "mass"> {
-    /** The recorded basket model. The seed selects it when omitted. */
+    /**
+     * Selects the correlated basket body sizes. Omit the model and seed for `risatorp25`.
+     */
     model?: Model;
   }}

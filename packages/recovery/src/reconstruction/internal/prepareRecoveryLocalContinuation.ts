@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieRecoveryAnalyticRealization,
   IAutoMovieRecoveryLocalContinuationPreparationOperation,
+  IAutoMovieRecoveryMeshSections,
   IAutoMovieRecoveryOpenArcAddress,
   IAutoMovieRecoveryOpenContinuation,
   IAutoMovieRecoveryOpenContinuationEdge,
@@ -7,13 +9,25 @@ import type {
 
 /*
  * Prepare immutable saved open-arc continuation maps before local surface
- * emission.
+ * emission. Every saved adjacency has one interval even when analytic owners
+ * take some of its pairs and unresolved groups.
  */
 export function prepareRecoveryLocalContinuation(
-  bundle: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[0],
-  graph: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[1],
-  analytic: Parameters<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation>[2],
+  bundle: IAutoMovieRecoveryMeshSections,
+  graph: IAutoMovieRecoveryOpenContinuation,
+  analytic?: IAutoMovieRecoveryAnalyticRealization,
 ): ReturnType<IAutoMovieRecoveryLocalContinuationPreparationOperation.Operation> {
+  if (
+    graph.intervals.length !== bundle.reports.length - 1 ||
+    graph.orientations.length !== bundle.reports.length ||
+    !Number.isFinite(graph.resolutionMm) ||
+    !(graph.resolutionMm > 0) ||
+    !Number.isSafeInteger(graph.maxVerticesPerRun) ||
+    graph.maxVerticesPerRun < 4
+  )
+    throw new Error(
+      "A complete source-free open-continuation sidecar is required",
+    );
   const key: (n: IAutoMovieRecoveryOpenArcAddress) => string = (
     n: IAutoMovieRecoveryOpenArcAddress,
   ): string => `${n.section}:${n.arc}`;
@@ -27,7 +41,11 @@ export function prepareRecoveryLocalContinuation(
     section: number,
     arc: number,
   ): void => {
-    if (arc < 0 || arc >= bundle.reports[section]!.open.length)
+    if (
+      !Number.isSafeInteger(arc) ||
+      arc < 0 ||
+      arc >= bundle.reports[section]!.open.length
+    )
       throw new Error(
         "Open curve address does not match saved coefficient authority",
       );
@@ -56,7 +74,7 @@ export function prepareRecoveryLocalContinuation(
     for (const [pairOrdinal, pair] of interval.pairs.entries()) {
       claim(0, pair.before);
       claim(1, pair.after);
-      if (analytic.openPairs.has(`${i}:${pairOrdinal}`)) continue;
+      if (analytic?.openPairs.has(`${i}:${pairOrdinal}`)) continue;
       const edge: IAutoMovieRecoveryOpenContinuationEdge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
@@ -74,7 +92,7 @@ export function prepareRecoveryLocalContinuation(
     for (const [groupOrdinal, group] of interval.unresolved.entries()) {
       for (const arc of group.before) claim(0, arc);
       for (const arc of group.after) claim(1, arc);
-      if (analytic.openUnresolved.has(`${i}:${groupOrdinal}`)) continue;
+      if (analytic?.openUnresolved.has(`${i}:${groupOrdinal}`)) continue;
       unsupportedGroups++;
       if (group.before.length || group.after.length)
         unsupportedGroupsWithOpenArcs++;

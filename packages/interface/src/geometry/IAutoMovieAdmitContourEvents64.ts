@@ -3,18 +3,16 @@ import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
 /** Saved-event admission results consumed by contour document preparation. */
 export namespace IAutoMovieAdmitContourEvents64 {
   /**
-   * Copied saved events and aligned local admission failures. A missing saved
-   * bracket cannot be located and refuses globally. Within a known bracket,
-   * invalid terminals, coordinates, incidence or names remain local reasons; no
-   * replacement terminal, contour association or critical coordinate is
-   * inferred. Duplicate names quarantine every participant rather than
-   * selecting one owner.
+   * Copied events and aligned admission reasons. A missing or reversed saved
+   * bracket prevents locating an event and throws. Recognized local defects
+   * stay attached to events within valid brackets. Every occurrence of a
+   * duplicate name receives a reason.
    */
   export type IResult = {
     /**
-     * New records in input order, including unsupported events. Incidence
-     * arrays contain only unique valid local loop ordinals; finite terminal
-     * triples are cloned and unusable terminals become null.
+     * New records in input order, including locally unsupported events. The
+     * reader deduplicates incidence and copies dense terminal triples. Supply
+     * integer loop ordinals and finite terminal coordinates.
      */
     events: IAutoMovieContourLoft64.IEvent[];
 

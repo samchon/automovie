@@ -24,18 +24,18 @@ const trunk = (
 });
 
 /**
- * A grappled trunk's side bending: its range toward a side, the spine's and the
- * chest's declared limits together, and the share of it a torque bends through
- * the through-range stiffness of 0.32, 0.83, 2.03 and 5.03 N m per degree by
- * quarter (Watt, Callaway and Williams 2022, Table 6).
+ * Check side-specific trunk range and torque-driven bending.
  *
  * Scenarios:
  *
- * 1. A spine bending 20 degrees left and 25 right and a chest 10 and 15 range 30
- *    degrees toward the left and 40 toward the right.
- * 2. Over a 40 degree range, 3.2 + 4.15 N m bends through the first quarter and
- *    half the second, 3/8; a torque past the 82.1 N m the range holds bends it
- *    all.
+ * 1. Sum the specified spine and chest limits to 30 degrees left and 40
+ *    degrees right.
+ * 2. Over a 40 degree range, 7.35 N m reaches three eighths. Torque beyond
+ *    the total stiffness capacity reaches the whole range.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the asymmetric range and partial and saturated bending.
+ * @evidence contracts/development/testing.md#behavioral-verification The trunk helper reads two segment limits and evaluates torque at two useful magnitudes.
+ * @evidence contracts/development/testing.md#independent-expectations The expected range is a joint-limit sum. The piecewise stiffness yields a 3.2 N m first quarter and 4.15 N m halfway into the next.
  */
 export function test_motions_grappling_force_trunk(): void {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map([

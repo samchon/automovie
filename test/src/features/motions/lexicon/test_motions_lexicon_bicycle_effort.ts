@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Over 4 s, off the seat at 1 s, standing at 1.5 s, lowering at 3 s and seated
  *    at 3.5 s, the cues fall at 0.25, 0.375, 0.75 and 0.875.
  * 2. Standing before leaving the seat is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines normalized timeline cues for rising, standing, lowering and reseating in the animated effort.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a four-second effort with the authored transition times and tries standing before leaving the seat.
+ * @evidence contracts/development/testing.md#independent-expectations Dividing the four times by duration gives 0.25, 0.375, 0.75 and 0.875, while reversed transitions are refused.
  */
 export function test_motions_lexicon_bicycle_effort(): void {
   const timeline: Parameters<typeof humanBicycleEffortTimeline>[0] = {

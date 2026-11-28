@@ -48,11 +48,15 @@ const ZERO = { x: 0, y: 0, z: 0 };
  *    step; before the film and after its last step it is clamped.
  * 3. The left hand's load is 1 N over the first step and 2 N from the second on;
  *    a hand the cloth does not pull bears nothing.
- * 4. The sustained forces are the anchored left hand's over the whole film and
- *    the other's right-hand grip over 1 to 2 s; a grip of the anchored hand and
- *    a worn span add none.
+ * 4. With explicit domain anchors, both hands have whole-film force records.
+ *    Without them, the two hand grips use their own 0–1 s and 1–2 s spans.
+ *    The worn span supplies no hand force.
  * 5. Reading an unknown prop reports the available domains. A declared domain
  *    with no solution refuses the read before any solve can run.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The prepared cloth separates anchored hand identity, interpolated positions, left-held step forces, sustained force spans and absent solutions.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds recorded soft-solves and grip windows through the particle and load readers. The test checks held anchors, full position and force records, and missing or unprepared error text without starting a solve.
+ * @evidence contracts/development/testing.md#independent-expectations In half-second steps the first midpoint is (0.5, 1, 1.5) and the second is (2, 3, 4). Force is 1 N before 0.5 s and 2 N from that boundary, while the unanchored side reads zero. A prepared span and separate hand grip preserve their declared times.
  */
 export async function test_motions_perform_soft_readers(): Promise<void> {
   const anchor = (

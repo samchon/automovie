@@ -36,6 +36,10 @@ import { throwsError } from "../../internal/throwsError";
  *    radii"), local x stretches -2 and -1, a MAX_VALUE stretch and two
  *    MAX_VALUE displacements ("local surface orientation") are refused; stretch
  *    -0.99 is admitted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names extreme finite stretch and gradient scale, compact support, buffer ownership and rejected orientation inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Deforms real triangles and vertices through compiled fields, then reads coordinates, normals and pass-through data before and after input edits.
+ * @evidence contracts/development/testing.md#independent-expectations The written cubic falloff is 27/64 at half radius. Its derivative yields the expected tilted normal. Outside the ellipsoid the field is zero.
  */
 export function test_engine_geometry_mesh_deformer(): void {
   const triangle: IAutoMovieMesh = {

@@ -1,15 +1,10 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
-/**
- * Cubic coefficient and physical-chart endpoint records used by curve
- * arithmetic.
- */
+/** Cubic Bernstein coefficients and physical-chart endpoint conversion results. */
 export namespace IAutoMovieCurveMath64 {
   /**
-   * One mutable cubic Bernstein record in P0, P1, P2, P3 order; the inner
-   * coefficients are handles, not interpolated supports. All four triples use a
-   * common caller-defined frame and coefficient unit; the tuple shape enforces
-   * degree but not finiteness.
+   * Mutable ordered four-control XYZ Bernstein span in one caller-defined chart
+   * and value unit.
    */
   export type Span = [
     AutoMovieVector3Tuple,
@@ -19,33 +14,34 @@ export namespace IAutoMovieCurveMath64 {
   ];
 
   /**
-   * Endpoint Hermite data converted from four cubic Bernstein controls on a
-   * positive finite chart width. Derivatives are dP/ds, not unit directions or
-   * unit-parameter derivatives. Endpoints and derivatives own fresh triples.
-   * The inverse is algebraic in real arithmetic; finite evaluation does not
-   * promise bitwise round trips or recover handles already lost to rounding.
-   * Nonfinite input, a noncubic net and unresolved binary64 derivatives throw.
-   * Existing endpoint evaluation is tried first, then fixed equivalent quotient
-   * orders for unresolved components. This is not an arbitrary-precision
-   * guarantee for every mathematically representable derivative.
+   * Owned cubic endpoints and endpoint derivatives per supplied positive finite
+   * chart width.
+   *
+   * Supply dense finite controls and positive finite chart width. Binary64
+   * representability and endpoint rounding limit reversibility.
    */
   export type IToHermiteResult = {
-    /** Fresh copy of P0 in the input coefficient frame and units. */
+    /**
+     * Fresh first Bernstein endpoint triple in the input chart and coefficient
+     * units.
+     */
     start: AutoMovieVector3Tuple;
 
-    /** Fresh copy of P3 in the input coefficient frame and units. */
+    /**
+     * Fresh last Bernstein endpoint triple in the same chart and coefficient
+     * units.
+     */
     end: AutoMovieVector3Tuple;
 
     /**
-     * Fresh dP/ds triple, algebraically 3*(P1-P0)/dy for supplied positive
-     * chart width dy; not the derivative with respect to normalized span
-     * fraction unless dy=1.
+     * Fresh derivative per chart unit at the first endpoint, algebraically 3 ?
+     * (P1 ? P0) divided by chart width.
      */
     startDerivative: AutoMovieVector3Tuple;
 
     /**
-     * Fresh dP/ds triple, algebraically 3*(P3-P2)/dy, with the same
-     * length-per-chart-unit scaling as startDerivative.
+     * Fresh derivative per chart unit at the last endpoint, algebraically 3 ?
+     * (P3 ? P2) divided by chart width.
      */
     endDerivative: AutoMovieVector3Tuple;
   };

@@ -70,6 +70,10 @@ const refusedAt: (images: IAutoMovieImage[], path: string) => boolean = (
  *    interlacing, a zero edge and an edge one past 8192 are each refused at the
  *    image's path, while greyscale, greyscale-alpha and RGB images and an
  *    8192-pixel edge are admitted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers carried PNG admission, ledger closure, decoder bounds and conflicting reading spaces.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel and validateTextureAssets on models with authored carried image bytes, bound slots and missing or conflicting declarations.
+ * @evidence contracts/development/testing.md#independent-expectations The carried id supplies its binding without the external ledger. One image cannot serve incompatible color and normal decoding. Header literals fix known valid color types, bit depth and the inclusive 8192 edge boundary.
  */
 export function test_engine_validation_model_images(): void {
   /** Greyscale, RGB and greyscale-alpha: the PNG colour types besides RGBA. */

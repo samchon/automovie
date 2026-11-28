@@ -16,6 +16,10 @@ import { createScenePassRendererDouble } from "../../internal/createScenePassRen
  *    unchanged policy sends no update.
  * 3. An actual owned material subclass rejects updates, preserving both failure
  *    causes and restoring renderer policy.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe per-material version changes as shadow policy applies and restores, with a throwing material as the error control.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that changed policy updates each material as needed, unchanged policy adds no updates, and restore preserves renderer policy and both failure causes.
+ * @evidence contracts/development/testing.md#independent-expectations Uses original material versions, explicit distinct and shared material identities, and the independently created update errors.
  */
 export function test_render_scene_render_scene_pass(): void {
   const empty: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();

@@ -13,6 +13,10 @@ import { throwsError } from "../../internal/predicates";
  *    refuse.
  * 3. A following valid call remains usable, and unused coordinates do not enter
  *    the fit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers malformed XYZ correspondence, selected coordinate validity, finite centering and a later valid fit.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls fitRigidMeshTransform directly on misaligned buffers, invalid vertex selections, nonfinite or missing selected coordinates and coordinates that overflow centering. A separate valid selection skips unselected NaNs.
+ * @evidence contracts/development/testing.md#independent-expectations An index of one third would start at a coordinate instead of a vertex, despite landing on an integer buffer offset. Arithmetic on sparse or nonfinite selected coordinates is undefined. The valid pair has target centroid (0.5, 1, 0), and selecting one vertex keeps its exact target.
  */
 export function test_engine_math_rigid_mesh_transform_admission(): void {
   const valid: Parameters<typeof AutoMovieEngineMath.fitRigidMeshTransform>[0] = {
@@ -23,12 +27,15 @@ export function test_engine_math_rigid_mesh_transform_admission(): void {
   const invalid: Parameters<typeof AutoMovieEngineMath.fitRigidMeshTransform>[0][] = [
     { ...valid, target: [0, 0, 0] },
     { ...valid, reference: [0], target: [0] },
-    ...[[], [0, 0], [-1], [2]].map(
+    ...[[], [0, 0], [-1], [2], [1 / 3]].map(
       (vertices: number[]): Parameters<typeof AutoMovieEngineMath.fitRigidMeshTransform>[0] => ({
         ...valid,
         vertices,
       }),
     ),
+    { ...valid, reference: [NaN, 0, 0, 1, 0, 0] },
+    { ...valid, target: [0, 1, 0, Infinity, 1, 0] },
+    { ...valid, target: new Array<number>(1).concat(valid.target.slice(1)) },
     {
       ...valid,
       reference: [

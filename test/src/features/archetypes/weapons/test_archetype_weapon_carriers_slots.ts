@@ -13,11 +13,9 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A quiver of 12 slots, the default, and of 1, 24 and 50: as many `slot` sockets as asked, each facing up on the mouth's plane and inside the tube's radius, every two at least the spacing an even packing of that many in the mouth gives apart, half the mouth's diameter over the square root of the count.
  * 2. A count of 0, 51, 2.5 or any count on a holster is refused with the axis `slots`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces quivers with given counts and reads their slot frames and colliders; a slot missing, outside the mouth, crowded onto another or tilted, or a count accepted out of range is caught.
- * @evidence contracts/development/testing.md#independent-expectations The spacing bound is the even packing of n points in a disc, whose cell is the disc's area over n, so neighbours are about the radius over the square root of n apart; the 50 is the producer's cited capacity.
- * @evidence contracts/development/testing.md#distinguishing-cases Singleton, default and limit counts, a malformed count, and a kind without slots; the arrows themselves belong to the projectile's specs.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines authored counts, physical slot placement at the mouth, spacing and invalid count cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real carrier props at the tested counts and reads the emitted slot frames and collider boundary. It checks missing, crowded, tilted or physically outlying slots.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated capacity bound and independent disk spacing scale from radius divided by the square root of count. The measured mouth constrains each slot position.
  */
 export function test_archetype_weapon_carriers_slots(): void {
   const findings: string[] = [];

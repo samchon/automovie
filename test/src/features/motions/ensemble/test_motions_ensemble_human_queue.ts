@@ -202,13 +202,20 @@ namespace part_human_queue_marks {
 }
 
 /**
- * `HumanQueue`'s unit contract: its marks and advance.
+ * Check single-file mark admission and composition of successive advances.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `human_queue_advance`: `humanQueueAdvance` advances a single-file queue by
- *   one place:
- * - `human_queue_marks`: `humanQueueMarks` admits a single-file queue's release:
+ * 1. Advance three members once into the mark ahead. Cue the head from
+ *    `counter.release` , then cue each follower 0.25 s after the preceding
+ *    walk ends.
+ * 2. Read three accepted marks on a level line. Refuse overlap after advance,
+ *    an exit on the head, off-line, reversed or population ranks, negative
+ *    wait and an empty queue.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the release chain, occupied marks and refusal subjects.
+ * @evidence contracts/development/testing.md#behavioral-verification The composed walking intents and sync anchors are read directly alongside typed mark admission cases.
+ * @evidence contracts/development/testing.md#independent-expectations The given 0.25 m half breadth per rank implies 0.5 m separation. The authored positions and wait determine each move and cue.
  */
 export async function test_motions_ensemble_human_queue(): Promise<void> {
   await part_human_queue_advance.verify();

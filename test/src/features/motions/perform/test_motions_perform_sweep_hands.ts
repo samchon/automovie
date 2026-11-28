@@ -53,6 +53,10 @@ type IGrip = IAutoMovieMotionHumanPerformanceState.IGrip;
  *    the other hand and the arm kept; outside it nothing is.
  * 8. A reserved hold closes on a ball centred at the fitted hand, not on one ten
  *    metres off; a hold without a capture always closes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The fixture traces launch and handback ownership, stationary and carried props, capture reservations, and the receiving-hand reach check.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the sweep and catch-hand owners on a typed performance containing a release, gripped or fixed props, a tether and fitted capture. The returned bounds, carriers and bone sets are checked directly.
+ * @evidence contracts/development/testing.md#independent-expectations The collider distance is 0.3 before handback at 1 s and infinite from that instant. The modeled left approach lasts 1.2–1.4 s and excludes its hand and fingers while keeping the other hand and forearm. A ball ten metres from the fitted contact cannot close the hold.
  */
 export async function test_motions_perform_sweep_hands(): Promise<void> {
   const origin = { at: { x: 0, y: 0, z: 0 }, yaw: 0 };

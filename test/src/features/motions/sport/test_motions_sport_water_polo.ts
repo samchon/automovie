@@ -81,6 +81,10 @@ const film = (
  *    radius behind the plane, scored to its thrower.
  * 2. A shot 2 m aside, or one whose flight ends before it crosses, scores nothing.
  * 3. A goal that is not fixed is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify who scores, the crossing instant and the three distinct ways a goal cue is withheld.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the scoring owner with explicit fixed-mouth geometry and prepared ball flights, then reads cue time, world centre, scorer, goal identity and refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The prescribed ball radius, mouth plane and constant flight speed give the crossing time and centre by hand. A lateral miss, an early flight end and a loose goal exercise separate admission conditions.
  */
 export function test_motions_sport_water_polo(): void {
   const cues: readonly IAutoMovieMotionHumanWaterPolo.ICue[] =

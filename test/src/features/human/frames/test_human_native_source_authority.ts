@@ -33,9 +33,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls NativeFamily.create and actual ConicLoft.source/part/mirror plus the engine full-native reader on made complete sources, collecting every independent scenario.
  * @evidence contracts/development/testing.md#independent-expectations The original radius is sqrt(4-s). An ellipse's polar radius is h/sqrt(cos(t)^2/4+sin(t)^2/9); its closed first/second derivatives supply physical station/phase jets. Sampling bounds use only interval lengths and the supplied speed bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes anisotropy, cap-interior queries, both source names, literal unit-course grid, source-name cache selection, missing source, altered controls/cap bindings and cap-inclusive nonidentity density.
- * @evidence contracts/development/testing.md#execution-ownership Portable synchronous tiny conics only; no Human assembly, private reference, solver, render or process.
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes native material addresses, physical jet units, selected source identity and sampling-only rows.
+ * @evidence contracts/development/common.md#meaningful-documentation A full native source keeps its scalar and physical jets through source, part and mirror calls. Invalid source bindings and sampling refinement provide separate checks.
  */
 export function test_human_native_source_authority(): void {
   const failures: string[] = [];

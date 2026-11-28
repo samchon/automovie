@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Samples outside `[0, duration]` are dropped: around 0.5 the first is 0.
  * 3. A non-positive duration, a second outside the duration and a reach or tick
  *    count of zero are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases state the reach, sample frequency, middle and boundary windows, and invalid inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the planner emits the centered requested interval, clips samples to the film, and refuses invalid duration, time, reach and frequency.
+ * @evidence contracts/development/testing.md#independent-expectations Lists expected ticks at 0.5 s spacing for the middle, start, and end, then supplies explicit examples of each invalid argument.
  */
 export function test_render_scene_plan_inspection_trail_times(): void {
   const plan = (

@@ -7,7 +7,7 @@ import type {
 import type { IAutoMovieRenderModelObject } from "./IAutoMovieRenderModelObject";
 import type { IAutoMovieRenderTextureLoader } from "./IAutoMovieRenderTextureLoader";
 
-/** What `prepareSurfaceGraphics` builds a shot's surface graphics from. */
+/** Inputs for mounting and playing one shot's surface graphics. */
 export interface IAutoMovieRenderPrepareSurfaceGraphicsProps {
   /**
    * The admitted shot: its surface graphic tracks, its duration and the font
@@ -25,8 +25,9 @@ export interface IAutoMovieRenderPrepareSurfaceGraphicsProps {
   models: readonly IAutoMovieModel[];
 
   /**
-   * The model object mounted for a scene node, as the host built it for
-   * `buildScene`; the graphic is parented to its `object`.
+   * The mounted model object for a scene node. A fixed graphic attaches to its
+   * root. A moving graphic attaches to the corresponding entry in `parts`, so
+   * it uses the same rigid part as the staged articulation.
    */
   resolveNode: (node: string) => IAutoMovieRenderModelObject | undefined;
 

@@ -34,6 +34,10 @@ const SEGMENT_END: number = 1e-8;
  *    point reading at the returned segment point equals the distance within
  *    1e-12 m; each segment end reads its brute-force signed distance within
  *    1e-12 m, at a surface point that far from it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a point's signed distance from the least signed distance along a segment, including surface and interior readings.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads points and segments over a known box hull and deterministic seeded hulls, then compares against a separately implemented face and edge search.
+ * @evidence contracts/development/testing.md#independent-expectations The box distances are 0.3 m, -0.1 m and 0.5 m. A brute-force point oracle with two endpoints and a 44-step golden-section search bounds the seeded segment comparison.
  */
 export function test_engine_physics_physical_hull_nearest(): void {
   const still: IAutoMovieRigidTransform = {

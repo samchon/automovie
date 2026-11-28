@@ -19,6 +19,10 @@ import { namedFacts, throwsError } from "../../internal/predicates";
  * 2. The three-sample finite source includes its near-Float32-limit value in the
  *    actual mix; gain 4 overflows at independently derived sample index 0 and
  *    refuses before limiting.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify unused and referenced input buffers, a referenced empty buffer and the separate overflowing mixed sample.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the public mixer with resident decoded assets and reads entered errors by identity or sample index. It also exercises a valid plan whose unused map entry is invalid.
+ * @evidence contracts/development/testing.md#independent-expectations Unused decoded entries do not contribute samples. The referenced empty buffer supplies none to the declared cue. In the overflow case multiplying 3.4e38 by gain four goes past Float32 range at sample zero before any limiter could reshape it.
  */
 export function test_engine_film_production_sound_pcm_ingress(): void {
   const {

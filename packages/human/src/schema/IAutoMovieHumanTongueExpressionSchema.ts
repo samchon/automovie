@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanTongueExpression } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanTongueExpression. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Optional tongue positions for a typia validator or schema. Tip elevation,
+ * protrusion and lateral motion and dorsum height use signed normalized
+ * values. Dorsum backing uses a fraction from rest to maximum.
+ */
 export type IAutoMovieHumanTongueExpressionSchema =
   IAutoMovieHumanTongueExpression & {
     /** Tip elevation toward the alveolar ridge and palate (1), or depression to the floor of the mouth (-1). */

@@ -15,11 +15,9 @@ const MM: number = 1e-3;
  * 2. Over 200 seeds a speed gate's lane is exactly the Speedlane's 615 or 915 mm between its two cabinets' faces, each drawn, the cabinets 1035 mm high, the wings from 200 to 940 mm and meeting at the lane's middle.
  * 3. On both, `passage` is the lane's width and the cabinets' height, and `top` lies on the `-X` cabinet's top.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a lane between two of the maker's passages, a passage never drawn, or an arm or wing off the maker's figures is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Every figure is Boon Edam's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases One cabinet with an arm against two cabinets with wings.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the turnstile arm and speed-gate wing dimensions, each catalogue lane width and the passage's centre and height.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds gates over the seed sweep and measures actual lane, cabinet and moving-barrier geometry. Reads passage and top contacts for the one-cabinet arm and both-cabinet wings.
+ * @evidence contracts/development/testing.md#independent-expectations Uses Boon Edam's literal lane widths, 965 and 1035 mm cabinet heights and stated arm and wing sizes. Each passage frame must describe the clear lane between its measured side boundaries.
  */
 export function test_archetype_gates(): void {
   const findings: string[] = [];

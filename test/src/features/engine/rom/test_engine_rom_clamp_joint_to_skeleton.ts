@@ -88,8 +88,8 @@ const GATED: IAutoMovieJointConstraint = {
 
 /**
  * `AutoMovieEngineKinematics.clampJointToSkeletonOf` clamps one joint to the rig's current record of its
- * bone: the first declaration's constraint, its last declared axes, nothing for
- * an unconstrained bone.
+ * bone, using the first declared constraint and the last declared axes. An
+ * unconstrained joint is returned as given.
  *
  * Scenarios:
  *
@@ -106,6 +106,10 @@ const GATED: IAutoMovieJointConstraint = {
  * 5. A zero axis on the winning declaration is refused naming `axes.flexion`; on
  *    an unconstrained joint it is not admitted and the joint is returned as
  *    is.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names declaration precedence and fallback, live bound and axis reads, gated twist, invalid axes and unconstrained identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds skeleton-scoped joint clamping readers from typed repeated and updated bones, then compares angles, the clipped quaternion, identity and refusal paths.
+ * @evidence contracts/development/testing.md#independent-expectations The first bounds [-10,20] cap flexion at 20 and replacement bounds [-4,7] select 7. A 15-degree turn around the winning Z axis has quaternion terms sin and cos of 7.5 degrees. A zero flexion axis must fail where declared.
  */
 export function test_engine_rom_clamp_joint_to_skeleton(): void {
   const first: IAutoMovieSkeleton = {

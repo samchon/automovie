@@ -33,11 +33,19 @@ function observe(
   );
 }
 /**
+ * Attachment sampling follows staged world placement and the active rest frame.
+ *
+ * Scenarios:
+ *
  * 1. Place the parent a quarter turn from neutral and observe a resting marker in
  *    shot time.
  * 2. Flex the elbow and compare its marker to a rotating forearm, then compare a
  *    raw and clinical shoulder frame.
  * 3. Reject sampling clocks that cannot produce ordered finite keys.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The numbered cases distinguish resting and flexed attachment markers, raw versus clinical frames and malformed sampling clocks.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles the actual attachment clip and observes its translation and orientation through native sequence sampling. It applies a rest frame override and calls the same owner with invalid duration or rate.
+ * @evidence contracts/development/testing.md#independent-expectations The staged quarter turn and flexing elbow determine known marker points, including the raw result [1, 1.4, 2.35] at half a second. A raw and clinical shoulder frame produce distinct expected placements. Invalid clocks cannot yield a finite increasing key sequence.
  */
 export function test_engine_film_motion_attachment_frames(): void {
   const args: IAutoMovieCompileAttach.IProps = {

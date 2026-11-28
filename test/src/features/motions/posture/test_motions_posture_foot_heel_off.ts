@@ -42,6 +42,10 @@ const BALL: IAutoMovieVector3 = { x: 0, y: -0.07, z: 0.14 };
  * 2. The left foot pivoted about its ball at the anchor, flat and then pitched −20
  *    degrees: the ball stays on the anchor, the heel rises, and its distance
  *    from the anchor in the sagittal plane is unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a fixed forefoot pivot when the ankle falls short of requested pitch, with toes taking the lost pitch.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs heel-off at two headings and three pitch pairs, then pivots a full rig foot about its authored ball.
+ * @evidence contracts/development/testing.md#independent-expectations Pitch deficits are 15°, 15° and zero. Ball position equals its fixed anchor and the heel's sagittal radius is conserved under the rigid pivot.
  */
 export async function test_motions_posture_foot_heel_off(): Promise<void> {
   // 1. The heel-off.

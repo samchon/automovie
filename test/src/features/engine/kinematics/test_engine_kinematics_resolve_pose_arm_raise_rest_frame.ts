@@ -35,6 +35,10 @@ import { nclose } from "../../internal/nclose";
  * 3. A clinical pose resolved with the frames equals the pre-converted rig pose
  *    resolved without them (left clinical 180 ≡ rig 90; right clinical 180 ≡
  *    rig −90), tying the semantics back to the raw rig articulation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers symmetric clinical arm raise and drop, tying those movements to the opposite-sign raw rig angles.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolvePose on the code-authored identity-rest T-pose with and without the humanoid rest-frame table and reads hand heights.
+ * @evidence contracts/development/testing.md#independent-expectations Clinical 180 maps to raw +90 on the left and -90 on the right in the given frames. A quarter turn of either horizontal limb raises its hand at those signs, while clinical zero drops it.
  */
 export function test_engine_kinematics_resolve_pose_arm_raise_rest_frame(): void {
   // A minimal T-pose-arm rig matching the stickman's arm geometry: identity rest

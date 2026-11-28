@@ -17,6 +17,10 @@ import { throwsError } from "../../internal/predicates";
  *    to the same mesh.
  * 2. One point ("needs at least two points"), 2 segments ("a safe integer >= 3")
  *    and a negative radius ("profile[0] radius must be >= 0") are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shared seam rings, pole triangles, deterministic output and malformed profiles.
+ * @evidence contracts/development/testing.md#behavioral-verification Revolves a four-point radius profile, inspects emitted indices and degenerate triangle receipts, and varies the point, segment and radius inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Eight segments plus the repeated seam give nine rings. Three bands with two triangles per segment give 48 faces. Collapsed poles give the stated degeneracies.
  */
 export function test_engine_geometry_revolve_profile(): void {
   const profile = [

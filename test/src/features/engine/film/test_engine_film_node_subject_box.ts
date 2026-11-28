@@ -18,6 +18,10 @@ import { vclose } from "../../internal/vclose";
  *    to (2, 2.3, -3).
  * 2. The extent x 0…2, y 0…1, z -1…1 turned a quarter about +Y, which takes (x, y,
  *    z) to (z, y, -x), and placed at (10, 0, 0) fills x 9…11, y 0…1, z -2…0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify a height-only segment and the transformed corners of a three-dimensional extent.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls nodeSubjectBox with explicit local extents and placement inputs and compares both authored world boxes.
+ * @evidence contracts/development/testing.md#independent-expectations Adding a 0.5-metre Y placement to height 0 through 1.8 gives 0.5 through 2.3. A positive Y quarter turn maps local coordinates by (x, y, z) to (z, y, -x), so applying the ten-metre X placement fixes the other case's literal world bounds.
  */
 export function test_engine_film_node_subject_box(): void {
   const place = (

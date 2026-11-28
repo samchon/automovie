@@ -68,6 +68,10 @@ function rate(read: (seconds: number) => number[], t: number): number {
  *    mark there stop it.
  * 4. Breaks given out of order and repeated, 1.5, 0.5 and 0.5, stop the course at
  *    0.5 and 1.5 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines sorting and coalescing requested events, including break precedence and forced markers at boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares sampled sine courses with near marks, near-end mark, coincident break and repeated unordered breaks.
+ * @evidence contracts/development/testing.md#independent-expectations GAP determines event identity and endpoint absorption. A lone mark at 0.77 s has rate cos 0.77 while a coincident break forces zero.
  */
 export function test_motions_posture_sampled_course_forced(): void {
   const gap: number = prepareHumanSampledCourse.GAP;

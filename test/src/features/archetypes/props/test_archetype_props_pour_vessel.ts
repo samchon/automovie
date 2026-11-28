@@ -28,11 +28,9 @@ import { nclose, vclose } from "../../internal/predicates";
  * 4. A repeated seed reproduces the cup and a different seed varies its diameter
  *    and empty mass within the maker's bounds.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured geometry, seeded admission and four distinct scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Measures collider and mesh openings independently, probes the spout and handle clearance, reads the upward mouth and bar frames, and compares seeded models.
- * @evidence contracts/development/testing.md#independent-expectations The makers provide 82–90 mm and 55 mm for the cup and 110 mm and 170–210 mm for the jug. The floor grounds the vessel and meets every wall base in the same horizontal plane. The mouth ray meets the measured collider floor within 1e-7 m. The cup's lip matches the innermost front rim point at rim height.
- * @evidence contracts/development/testing.md#distinguishing-cases A visible cap, hidden solid collider, missing floor, flat pitcher rim, off-bar grip, filled handle loop or nondeterministic seed each breaks a different expectation.
- * @evidence contracts/development/testing.md#execution-ownership The discovered entry uses public model records and engine queries in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States vessel dimensions and seeded replay and identifies the vessel floor, open mouth, lip and handle clearance probes.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures real mesh and collider openings and probes handle clearance. Reads mouth and grip frames and compares repeated and different seeds. A capped mesh and a hidden solid collider fail independent observations.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the cup's 82 to 90 mm diameter and 55 mm height and the jug's 110 mm diameter and 170 to 210 mm height. A vertical mouth ray must reach the measured vessel floor within `1e-7` m, and the cup lip coincides with the innermost front point of the rim.
  */
 export function test_archetype_props_pour_vessel(): void {
   const cup: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create({

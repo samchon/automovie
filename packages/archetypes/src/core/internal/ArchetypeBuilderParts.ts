@@ -60,9 +60,9 @@ export class ArchetypeBuilderParts {
    * Parameter geometry: Local geometry; no bounding representation is substituted.
    * Parameter at: Local origin in model metres.
    * Parameter rotation: Unit local-to-model quaternion, or identity when absent.
-   * Parameter options: Optical colour and opacity, relative density/weight and
-   * physical surface.
-   * For a repeated part id.
+   * Parameter options: Optical colour, finite opacity from zero to one,
+   * relative density or weight, and physical surface.
+   * For a repeated part ID or invalid opacity.
    */
   public add(
     id: string,
@@ -77,9 +77,9 @@ export class ArchetypeBuilderParts {
       options?.color ?? ArchetypeBuilderParts.NEUTRAL
     ).toLowerCase();
     const opacity: number = options?.opacity ?? 1;
-    if (!(opacity >= 0 && opacity <= 1))
+    if (!(Number.isFinite(opacity) && opacity >= 0 && opacity <= 1))
       throw new Error(
-        `Archetype ${this.archetype} part "${id}" opacity must lie in [0, 1]`,
+        `Archetype ${this.archetype} part "${id}" opacity must be a finite number in [0, 1]`,
       );
     const material: string = `flat-${hex.slice(1)}${
       opacity === 1 ? "" : opacity === 0 ? "-clear" : `-alpha${opacity}`

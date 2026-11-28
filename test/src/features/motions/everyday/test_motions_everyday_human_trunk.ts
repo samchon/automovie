@@ -295,6 +295,10 @@ namespace part_human_trunk_region {
  * - `human_trunk_pelvis_limit`: Rounding of a straight knee, degrees:
  * - `human_trunk_region`: `HumanTrunk`'s region readers place a trunk region on a
  *   posture:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Trunk readers split inclination among joints, retain pelvis limits, and place and intersect body regions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the incline, limit, region, and ray readers with explicit body and posture inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Known pelvis bounds, angular contributions, and world transforms determine the expected joint shares and surface points. The intersected ray must meet the independently posed surface.
  */
 export async function test_motions_everyday_human_trunk(): Promise<void> {
   part_add_human_trunk_inclination.verify();

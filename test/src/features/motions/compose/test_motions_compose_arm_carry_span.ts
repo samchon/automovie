@@ -35,6 +35,10 @@ const REST: IAutoMovieMotionHumanArmAngles.IAngles = {
  *    knots 0.5, 1.5, 2.
  * 3. A hold handed over, one member 0, 1, 1.5, 2 and the other 0.5, 1.2, 2.5, 3:
  *    0, 1, 2.5, 3.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names common-span identity, cross-member knot union and a handover with distinct reach and release times.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motionHumanArmCarrySpan with typed members from the stored body and compares identity, span fields and knot arrays.
+ * @evidence contracts/development/testing.md#independent-expectations The two knot lists merge to 0.5, 1.5 and 2. For a handover the earliest start and ready and latest relax and end select 0, 1, 2.5 and 3.
  */
 export async function test_motions_compose_arm_carry_span(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

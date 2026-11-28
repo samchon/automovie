@@ -15,6 +15,10 @@ const PERIODIC_TOLERANCE: number = 0;
  * 2. Negative height, a positive height below the representable spectrum and a
  *    heading that cannot define an angular direction are refused.
  * 3. Adding one full turn preserves elevation and slope for the same seed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States calm-water outputs, rejected height and heading inputs and same-seed heading periodicity.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual sea fields, reads components, crest and slope, checks three refusal cases and samples equal headings one turn apart.
+ * @evidence contracts/development/testing.md#independent-expectations Zero wave height has no spectral components or spatial slope. Angles separated by one full turn represent the same direction, so a fixed seed and sample must give equal outputs within the stated tolerance.
  */
 export function test_archetypes_internal_sea_admission(): void {
   const calm: sea.ISea = sea.of({ height: 0, heading: 0, seed: 1 });

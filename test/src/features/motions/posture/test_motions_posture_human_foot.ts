@@ -57,6 +57,10 @@ const ROUNDING: number = 1e-9;
  *    height; the prepared readers agree with the direct ones.
  * 7. Standing, every base point is within `BEARING` of the lowest, and the left
  *    foot's base alone is the leading part of both feet's.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rig foot rotations, sole anchors and bearing geometry, including prepared placement reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Tests heading, pitch, roll, ball pivot, edge, heel-off and bearing points on a posed rig with authored sockets.
+ * @evidence contracts/development/testing.md#independent-expectations Known requested angles round-trip, ball stays at its anchor and each edge is half-breadth from its reference. A missing 20° pitch is compensated at the toes.
  */
 export async function test_motions_posture_human_foot(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

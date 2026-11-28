@@ -1,29 +1,40 @@
 /**
- * Positive integer work limits for calibrated camera-map phases. Seed
- * observation and epipolar work retain their separate pair budget.
+ * Positive safe integer limits for the resident three-view camera map. The map
+ * owns aggregate image and matching limits, linked populations, resection
+ * proposals, and limits for its numerical designs. Seed-pair work has an
+ * independent budget.
  */
 export interface IAutoMovieRecoveryCameraMapBudget {
-  /**
-   * Aggregate resident pixels across every supplied view in the owning
-   * operation.
-   */
+  /** Maximum total resident pixels across the three supplied views. */
   maxPixels: number;
 
-  /** Aggregate directed descriptor comparisons over all admitted image pairs. */
+  /**
+   * Maximum total directed descriptor comparisons across all three unordered
+   * view pairs, including both matching directions.
+   */
   maxDescriptorPairs: number;
 
-  /** Maximum linked feature components before conflict or geometry filtering. */
+  /**
+   * Maximum linked feature components before duplicate-view conflict or
+   * geometric filtering.
+   */
   maxTracks: number;
 
-  /** Maximum linked (view, feature) observations before conflict filtering. */
+  /**
+   * Maximum linked view-feature observations before duplicate-view conflict or
+   * geometric filtering.
+   */
   maxObservations: number;
 
-  /** Maximum six-point resection proposals, including degenerate proposals. */
+  /**
+   * Maximum six-point resection proposals, including numerically degenerate
+   * proposals.
+   */
   maxResectionTrials: number;
 
   /**
-   * Minimum proposals before conditional stopping, no greater than
-   * maxResectionTrials.
+   * Minimum proposals before conditional-confidence stopping, no greater than
+   * `maxResectionTrials`.
    */
   minimumResectionTrials: number;
 
@@ -31,14 +42,14 @@ export interface IAutoMovieRecoveryCameraMapBudget {
   maxLocalRefinements: number;
 
   /**
-   * Maximum accepted and rejected iterations combined per local pose or joint
-   * fit.
+   * Maximum total accepted and rejected iterations within one local resection
+   * fit or joint fit.
    */
   maxRefinementIterations: number;
 
   /**
-   * Maximum entries in any original or augmented linear design and its right
-   * basis.
+   * Maximum scalar entries for any original or augmented linear design and its
+   * right basis.
    */
   maxLinearEntries: number;
 

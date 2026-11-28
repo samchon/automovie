@@ -50,6 +50,10 @@ const LOCAL: IAutoMovieVector3 = { x: 0.03, y: -0.04, z: 0.07 };
  *    hand's central difference per degree.
  * 2. Each of the right hip's three clinical angles at (65, 15, 28) predicts the
  *    central difference of a material point on the right foot.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines clinical-angle rigid twists and their point derivatives per degree from a posed rig.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes elbow and three-axis hip Jacobians, then perturbs each corresponding angle and reads hand or foot positions.
+ * @evidence contracts/development/testing.md#independent-expectations The elbow center is fixed and angular velocity crossed with its lever gives hand motion. Central differences of actual positions independently verify each derivative.
  */
 export async function test_motions_posture_human_jacobian(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

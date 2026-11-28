@@ -13,10 +13,13 @@ import { nclose } from "../../internal/nclose";
  * Scenarios:
  *
  * 1. A 1 m cord in four links between ends 0.6 m apart at 1 m up sags 0.4 m
- *    straight down to (0.3, 0.6, 0), the particles at the ends, the quarter
- *    points of each arm and the middle; each arm is half a metre, so the vee is
- *    the cord's length.
+ *    straight down to (0.3, 0.6, 0). Five particles mark the two ends, two
+ *    arm midpoints and the low point. Each arm is half a metre.
  * 2. Ends farther apart than the cord, or one end on the other, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The rest layout covers discrete points along a gravity-aligned vee, its arm length, and the two impossible endpoint configurations.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies explicit endpoint positions, length, link count and gravity to `HumanObjectCord.rest`, then checks the returned coordinates and each refusal.
+ * @evidence contracts/development/testing.md#independent-expectations A metre of cord over a 0.6 m chord gives two 0.5 m arms with horizontal run 0.3 m and sag 0.4 m by the 3-4-5 triangle. Four links place one interior point at the middle of each arm.
  */
 export function test_motions_perform_object_cord_rest(): void {
   const rest: number[] = HumanObjectCord.rest(

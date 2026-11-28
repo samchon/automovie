@@ -17,6 +17,10 @@ import { filmEffectTimeline } from "../../internal/filmEffectTimeline";
  * 2. Changing builder provenance preserves the digest.
  * 3. Changing edit length, segment source, effect intensity or rational rate
  *    changes it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify which normalized edit fields affect the digest and the builder metadata that does not.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the public edit fingerprint, compares it with Node SHA-256 over a fixture-built canonical record, and changes one edit field or builder at a time.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture independently assembles the protocol fields before using the canonical JSON serializer and Node hash. Altering total frames, segment source, intensity or rate changes that payload. Builder identity is outside the record.
  */
 export function test_engine_film_effect_edit_fingerprint(): void {
   const nodeProtocolDigest: (timeline: IAutoMovieFilmTimeline) => string = (

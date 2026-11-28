@@ -40,6 +40,10 @@ const refusal: (timeline: IAutoMovieFilmTimeline) => string | null = (
  * 3. Each runtime states the film clock, owner and the 24/1 frame rate.
  * 4. Two cues with one id are refused as invalid input.
  * 5. A cue naming a missing zone is refused as a missing zone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines effect compilation on the film clock, interval and identity publication, and duplicate or missing-zone refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Materializes two cues supplied out of order on one prepared film and retries with duplicated identity and absent effect geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Frame starts 0 and 12 establish haze before mist. Frames 12–24 correspond to 0.5–1 s at 24/1, and the cue IDs and zone declarations define the refusal boundaries.
  */
 export function test_engine_effect_runtime_materialize_production_film_effects(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

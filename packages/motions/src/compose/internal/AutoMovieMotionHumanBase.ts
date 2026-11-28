@@ -17,8 +17,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * seat, the posture the action was entered in), so their base is one posture
  * held for the action's duration with the supports it stands on. A held base
  * borrows its posture and returns that exact object on every read, including
- * later caller edits. An explicit function Object() { [native code] } that owns copied coefficients is
- * separate from this public borrowing contract.
+ * later caller edits.
  */
 export namespace AutoMovieMotionHumanBase {
   /*

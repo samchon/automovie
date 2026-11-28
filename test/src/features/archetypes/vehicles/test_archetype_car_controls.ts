@@ -50,11 +50,9 @@ import { TestValidator } from "@nestia/e2e";
  *    hatchback's rear opening runs from the middle pillar to that trailing
  *    edge, 904 mm.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces cars and reads the pedal, wheel, door, opening and seat frames; a pedal on another plane, off the ball of foot, a wheel at another distance from the pedals, a door or a seat off its measured station, or a floor outside its read bounds is caught.
- * @evidence contracts/development/testing.md#independent-expectations The angle and the tool reference distance are SAE J1516's equations (reaffirmed 1990), the 203 mm its 3.3.4 and ISO 20176:2020's, L6 and H17 Park et al. 2018's sedan package, the door's stations NHTSA report NCAP-MGA-23-030's, the rocker edge, belt, window, strikers' distances and doors' edges NHTSA report M20185302's, each worked here from the car's drawn seat height, wheelbase and floor, not read from the producer's layout. The floor is the producer's provisional constant, which this test bounds rather than derives.
- * @evidence contracts/development/testing.md#distinguishing-cases Four classes, four seeds spreading the seat height through its band, and both driving sides; the van's floor is its drawn side step, the pickup's belt its bed's rail.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the pedal, steering wheel, driver's station, hinge and seat geometry, cabin floor and rear bench across the four vehicle types.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds cars across the chosen seeds and driving sides and reads actual pedal, steering, door and seat frames. It distinguishes the measured station conditions from the explicit provisional floor bounds.
+ * @evidence contracts/development/testing.md#independent-expectations Uses SAE and ISO pedal references, the 203 mm ball-of-foot height and 550 mm wheel offset, and the stated cited cabin and door measurements. The floor fixture imposes a measured rocker and seat interval.
  */
 export function test_archetype_car_controls(): void {
   const findings: string[] = [];

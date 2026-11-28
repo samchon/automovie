@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenario: for a waist at 1 m and shoulders at 1.4 m, a point at 0.8 m is low,
  * at 0.85 m and 1.4 m middle, at 1.428 m and above high.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines inclusive boundaries of authored elevation bands relative to pose landmarks.
+ * @evidence contracts/development/testing.md#behavioral-verification Classifies heights near waist and shoulder thresholds for a fixed rig.
+ * @evidence contracts/development/testing.md#independent-expectations Factors 0.85 and 1.02 give thresholds 0.85 and 1.428 m. Exact equality enters the next band.
  */
 export function test_motions_striking_kick_launch(): void {
   const m = { waistHeight: 1, shoulderHeight: 1.4 };

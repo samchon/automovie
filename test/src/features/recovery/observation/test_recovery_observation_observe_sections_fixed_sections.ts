@@ -1,13 +1,16 @@
 import type {
+  IAutoMovieRecoveryOrderedLineage,
   IAutoMovieRecoverySectionsInput,
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 import {
   AutoMovieRecoveryObservation,
+  AutoMovieRecoveryOrderedLineage,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
+import { throwsError } from "../../internal/throwsError";
 
 /**
  * Named fixed planes retain all intersected components, physical frames and
@@ -30,6 +33,12 @@ import { nclose } from "../../internal/nclose";
  *    tube cannot authorize a point tip.
  * 7. A single plane can request exact cutter-face lineage without adding a slab or
  *    changing its coefficient publication.
+ * 8. Ordered recuts preserve a valid native face remap and refuse invalid map
+ *    entries before binding saved contours.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names fixed physical planes, ordered sections, refusal, lineage and distal-tip qualifications.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes translated tetrahedra and an open tube, checks saved Hermite curves and source lineages, and recuts a saved plane using valid and malformed native triangle maps.
+ * @evidence contracts/development/testing.md#independent-expectations Authored coordinates determine two apex contacts, intersected faces and the actual distal tip. The tube's open end cannot supply that tip. The first tetrahedron cut emits faces 0, 1 and 3; the declared map assigns them native ordinals 10, 20 and 40.
  */
 export function test_recovery_observation_observe_sections_fixed_sections(): void {
   const vertices: IAutoMovieRecoverySectionsInput["verticesMm"] = [
@@ -221,6 +230,76 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     ),
     [4, 5, 7],
   );
+  const frame = exact.value.frame;
+  const originalIds: number[] = input.triangles.map(
+    (_face, i): number => 10 * (i + 1),
+  );
+  const selection = (
+    ids: readonly number[],
+  ): IAutoMovieRecoveryOrderedLineage.Input => ({
+    name: input.name,
+    sourceIdentity: "fixed-source",
+    sourceSelectionIdentity: "fixed-selection",
+    verticesMm: input.verticesMm,
+    triangles: input.triangles,
+    axis: input.axis,
+    reference: input.reference,
+    exactCoordinateAliases: input.exactCoordinateAliases,
+    originalTriangleIds: ids,
+    savedSections: [
+      {
+        coordinateMm: 0.5,
+        sourceIdentity: "fixed-source",
+        sourceSelectionIdentity: "fixed-selection",
+        observationIdentity: "fixed-observation",
+        frame,
+        exactCoordinateAliases: input.exactCoordinateAliases,
+        sourceLineage: exactLineage.map(
+          (record): IAutoMovieRecoverySourceLineage => ({
+            ...record,
+            sourceTriangleIds: record.sourceTriangleIds.map(
+              (face): number => ids[face]!,
+            ),
+            exactSourceTriangleIds: record.exactSourceTriangleIds!.map(
+              (face): number => ids[face]!,
+            ),
+          }),
+        ),
+      },
+    ],
+  });
+  const observeCuts = AutoMovieRecoveryOrderedLineage.observeCuts;
+  const ordered = observeCuts(selection(originalIds));
+  TestValidator.equals(
+    "ordered recut maps only native face evidence",
+    ordered.sections[0]!.contours[0]!.exactSourceTriangleIds,
+    [10, 20, 40],
+  );
+  TestValidator.equals("ordered recut retains the registered frame", ordered.frame, frame);
+  const greatest: number[] = [...originalIds];
+  greatest[0] = Number.MAX_SAFE_INTEGER;
+  TestValidator.equals(
+    "the positive safe maximum remains a usable caller face ordinal",
+    observeCuts(selection(greatest)).sections[0]!.contours[0]!.exactSourceTriangleIds,
+    [Number.MAX_SAFE_INTEGER, 20, 40],
+  );
+  const sparse: number[] = [...originalIds];
+  delete sparse[0];
+  const invalid: [string, number[]][] = [
+    ["fractional", [10.5, ...originalIds.slice(1)]],
+    ["NaN", [NaN, ...originalIds.slice(1)]],
+    ["infinite", [Infinity, ...originalIds.slice(1)]],
+    ["unsafe", [Number.MAX_SAFE_INTEGER + 1, ...originalIds.slice(1)]],
+    ["duplicate", [originalIds[1]!, ...originalIds.slice(1)]],
+    ["negative", [-1, ...originalIds.slice(1)]],
+    ["sparse", sparse],
+    ["short", originalIds.slice(1)],
+  ];
+  for (const [label, ids] of invalid)
+    TestValidator.predicate(
+      `Ordered face map refuses ${label}`,
+      throwsError(() => observeCuts(selection(ids)), "Original face mapping is not a complete injection"),
+    );
   const reversed: ReturnType<
     typeof AutoMovieRecoveryObservation.observeSections<"hermite">
   > = AutoMovieRecoveryObservation.observeSections(

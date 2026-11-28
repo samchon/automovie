@@ -27,6 +27,10 @@ import { motionActionContext } from "../../internal/motionActionContext";
  * 1. A lifted victim cannot place its trunk on a deck 50 mm deep.
  * 2. An unaided swimmer cannot set either palm 120 mm behind a 50 mm deck.
  * 3. The native pool deck admits the same victim's receiving pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the limited deck footprint, both refused receiving postures and the native-deck control.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the aquatic planner with one stored body, one pool-edge model and two declared deck depths. It reads typed support refusals and the admitted lift-out plan's duration.
+ * @evidence contracts/development/testing.md#independent-expectations A 50 mm deck cannot contain the unaided exit's 120 mm palm placement or the lifted victim's receiving points. The native deck provides the positive lift-out control with the same body and entry.
  */
 export async function test_motions_sport_aquatic_deck(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

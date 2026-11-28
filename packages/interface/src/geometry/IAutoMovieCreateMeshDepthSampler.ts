@@ -29,10 +29,10 @@ export namespace IAutoMovieCreateMeshDepthSampler {
    * arguments. u and v must be finite metre coordinates in the stated cyclic
    * plane order.
    */
-  export type IResult = (
-    u: number,
-    v: number,
-  ) => {
+  export type IResult = (u: number, v: number) => IDepthRange | null;
+
+  /** Min and max surface depth at one covered plane coordinate. */
+  export type IDepthRange = {
     /**
      * Smallest axial surface depth in mesh-local metres among covering
      * projected triangles; may equal maximum on an open sheet.
@@ -44,5 +44,5 @@ export namespace IAutoMovieCreateMeshDepthSampler {
      * is an envelope, not proof of occupied volume.
      */
     maximum: number;
-  } | null;
+  };
 }

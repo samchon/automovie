@@ -52,6 +52,10 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  * 4. Two limb keys sharing one goal retain that one goal and translate it once.
  * 5. A constant curve returns equal, distinct copies, unaffected by the input's or
  *    a read's later change.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines raw translation eligibility, bone-owned and world goals, shared reference ownership and constant-curve copies.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks free and constrained poses, translates before reading world and attached targets, and changes source and returned constant values.
+ * @evidence contracts/development/testing.md#independent-expectations The requested displacement (1, 0, 2) moves each world target exactly once even if aliased. Bone-local targets stay equal and copied reads retain the saved posture.
  */
 export function test_motions_posture_posture_raw(): void {
   // 1. Eligibility.

@@ -11,11 +11,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a white oak 24 to 30 m tall, its trunk 91 to 122 cm across, its crown base at 50 to 60 % of its height; a Douglas-fir 50.8 to 61.6 m tall, 87.1 to 153.5 cm across, its crown base at 36 to 55 % of its height.
  * 2. For three seeds of each, its mass is exp(b0 + b1 ln(dbh in cm)) kg times one plus its drawn moisture, inside the Wood Handbook's band (0.64 to 0.78 for white oak, 0.37 to 1.15 for Douglas-fir), with Jenkins et al.'s b0 and b1 (-2.0127 and 2.4342; -2.2304 and 2.4435); its centre of mass stands where its trunk, carrying the stem wood's and bark's ratios of the mass (hardwood -0.3065, -5.424 and -2.0129, -1.6805; softwood -0.3737, -1.8055 and -2.098, -1.1432), and its crown, carrying the rest, put it; its `trunk` contact is on the bole's +Z face at 4.5 ft, facing out; its lowest point is on the ground.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each tree for 200 seeds and measures its parts, mass, centre of mass and contact; a size other than its sources', a mass off the equation, a balance off the stem's share or a contact off breast height is caught.
- * @evidence contracts/development/testing.md#independent-expectations The silvics manual's, Spiecker's, Ishii and Wilson's and Hummel's sizes and shares, Jenkins et al. 2003's Table 4 and Table 6 coefficients, the Wood Handbook's moisture and the FIA field guide's 4.5 ft, written here as literals.
- * @evidence contracts/development/testing.md#distinguishing-cases A hardwood and a softwood, whose equations and stem ratios differ.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the oak and Douglas-fir size, crown, wet-mass, balance and trunk-site observations.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures real seeded tree colliders, mass, balance and the trunk frame. Species ranges, moisture scaling and the marked breast-height site distinguish separate geometry and mass errors.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated silvics ranges, Jenkins et al. allometric and stem-share coefficients, Wood Handbook moisture and FIA breast height. Wet mass is dry mass times one plus moisture.
  */
 export function test_archetype_nature_tree_bands(): void {
   const tree = (

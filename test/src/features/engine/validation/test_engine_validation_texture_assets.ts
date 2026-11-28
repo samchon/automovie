@@ -158,6 +158,10 @@ const closure: (
  *    at both consumers, the same sky beside a base-color binding of that asset
  *    is clean, and a Radiance sky beside a separate normal-map asset is
  *    accepted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers production texture authorization, path-located ledger and media findings, reading-space conflicts and the no-image case.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateTextureAssets with authored models, scenes, declared uses and explicit image facts, then varies the missing, conflicting or compatible consumer.
+ * @evidence contracts/development/testing.md#independent-expectations The ledger ids and typed uses independently establish which consumer is authorized. The portable edge limit is an exact boundary. PNG sky and color slots agree in sRGB, while using that same asset for a linear map contradicts the reading intent.
  */
 export function test_engine_validation_texture_assets(): void {
   TestValidator.equals(

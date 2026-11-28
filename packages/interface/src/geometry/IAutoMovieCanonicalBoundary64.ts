@@ -2,10 +2,10 @@ import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBo
 
 /**
  * Exact normalized boundary addresses and directed interval incidence.
- * AutoMovieEngineCanonicalBoundary64 admits finite phases in [0,1], distinct interval
- * endpoints and unique use IDs. Authority identity is declared independently of
- * numeric position. Inversion borrows its monotone map and anchors; partition
- * returns new atom arrays and diagnostics.
+ * AutoMovieEngineCanonicalBoundary64 admits finite phases in [0,1], distinct
+ * interval endpoints and nonempty exact authority and use identifiers. Use
+ * identifiers are unique. Inversion borrows its monotone map and anchors;
+ * partition returns new atom arrays and diagnostics.
  */
 export namespace IAutoMovieCanonicalBoundary64 {
   /**
@@ -13,7 +13,7 @@ export namespace IAutoMovieCanonicalBoundary64 {
    * and differ. Authority is a caller-owned identity, not a position.
    */
   export type Interval = {
-    /** Caller-owned boundary identity, independent of numeric coincidence. */
+    /** Nonempty caller-owned boundary identity, shared by exact string match. */
     authority: string;
 
     /** Finite initial canonical phase in [0,1]; directed order is preserved. */
@@ -35,20 +35,7 @@ export namespace IAutoMovieCanonicalBoundary64 {
    * inconsistent anchor, out-of-range target or unrepresentable interior
    * inverse throws rather than moving an authored local coordinate.
    */
-  export type IInverseAnchors = readonly {
-    /**
-     * Authored local coordinate in [0,1]. Entries increase strictly, include
-     * both endpoints, and retain their exact original coordinates when
-     * inverted.
-     */
-    local: number;
-    /**
-     * Exact canonical address produced by the supplied map at local. Anchor
-     * phases are strictly increasing or strictly decreasing; inconsistent
-     * values or a local reversal against that direction throw.
-     */
-    phase: IAutoMovieCanonicalBoundaryPhase64;
-  }[];
+  export type IInverseAnchors = readonly IInverseAnchor[];
 
   /**
    * Declared uses partitioned at each named authority's binary64 endpoints.
@@ -62,15 +49,57 @@ export namespace IAutoMovieCanonicalBoundary64 {
    * coarse1+fine2 with exactly two uses per atom. Duplicate IDs, empty
    * authority/ID, invalid walks and invalid intervals throw.
    */
-  export type IPartitionUses = readonly {
+  export type IPartitionUses = readonly IPartitionUse[];
+
+  /**
+   * Owned atom coverage and diagnostics after partitioning admitted declared
+   * uses. Atoms cover the span between each authority's extreme declared
+   * endpoints; phases outside that span are not reported as uncovered. Endpoint
+   * points do not contribute open-atom incidence. Returned records and arrays
+   * are new.
+   */
+  export type IPartitionResult = {
     /**
-     * Use identifier unique across the entire input list; duplicate IDs throw
+     * New increasing open intervals between successive declared endpoints,
+     * sorted lexically by authority then numerically by start. Gaps inside the
+     * declared endpoint span remain atoms with no uses; an empty input yields
+     * no atoms.
+     */
+    atoms: IPartitionAtom[];
+    /**
+     * Uncovered, overfull or equal-walk atom reports. Empty means these
+     * declared-incidence checks passed; it does not certify geometric embedding
+     * or source topology.
+     */
+    diagnostics: string[];
+  };
+
+  /** An authored local coordinate paired with its exact canonical phase. */
+  export type IInverseAnchor = {
+    /**
+     * Finite authored local coordinate in [0,1]. Entries increase strictly,
+     * include both endpoints, and retain their exact original coordinates when
+     * inverted.
+     */
+    local: number;
+    /**
+     * Exact canonical address produced by the supplied map at local. Anchor
+     * phases are strictly increasing or strictly decreasing; inconsistent
+     * values or a local reversal against that direction throw.
+     */
+    phase: IAutoMovieCanonicalBoundaryPhase64;
+  };
+
+  /** One directed use of a normalized canonical boundary interval. */
+  export type IPartitionUse = {
+    /**
+     * Nonempty use identifier unique across the input list; duplicate IDs throw
      * even under different authorities.
      */
     id: string;
     /**
-     * Caller-declared boundary identity. Only uses with this exact string share
-     * a partition.
+     * Nonempty caller-declared boundary identity. Uses with this exact string
+     * share a partition.
      */
     authority: string;
     /**
@@ -89,53 +118,33 @@ export namespace IAutoMovieCanonicalBoundary64 {
      * multiplies it by the restriction direction.
      */
     walk: 1 | -1;
-  }[];
+  };
 
-  /**
-   * Owned atom coverage and diagnostics after partitioning admitted declared
-   * uses. Atoms cover the span between each authority's extreme declared
-   * endpoints; phases outside that span are not reported as uncovered. Endpoint
-   * points do not contribute open-atom incidence. Returned records and arrays
-   * are new.
-   */
-  export type IPartitionResult = {
+  /** One open interval and its incidence under an exact boundary identity. */
+  export type IPartitionAtom = {
+    /** Exact authority string shared by this atom's incidence group. */
+    authority: string;
     /**
-     * New increasing open intervals between successive declared endpoints,
-     * sorted lexically by authority then numerically by start. Gaps inside the
-     * declared endpoint span remain atoms with no uses; an empty input yields
-     * no atoms.
+     * Lower normalized endpoint of the open atom; finite in [0,1] and strictly
+     * below end.
      */
-    atoms: {
-      /** Exact authority string shared by this atom's incidence group. */
-      authority: string;
-      /**
-       * Lower normalized endpoint of the open atom; finite in [0,1] and
-       * strictly below end.
-       */
-      start: number;
-      /**
-       * Upper normalized endpoint of the open atom; endpoints themselves do not
-       * contribute point incidence.
-       */
-      end: number;
-      /**
-       * Lexically sorted IDs whose directed restrictions cover this open atom.
-       * Empty means uncovered, and more than two means overfull declared
-       * incidence.
-       */
-      uses: string[];
-      /**
-       * One sign per uses entry, aligned by index and expressed relative to
-       * increasing canonical phase. Two equal signs produce a
-       * direction-conflict diagnostic.
-       */
-      walks: (1 | -1)[];
-    }[];
+    start: number;
     /**
-     * Uncovered, overfull or equal-walk atom reports. Empty means these
-     * declared-incidence checks passed; it does not certify geometric embedding
-     * or source topology.
+     * Upper normalized endpoint of the open atom; endpoints themselves do not
+     * contribute point incidence.
      */
-    diagnostics: string[];
+    end: number;
+    /**
+     * Lexically sorted IDs whose directed restrictions cover this open atom.
+     * Empty means uncovered, and more than two means overfull declared
+     * incidence.
+     */
+    uses: string[];
+    /**
+     * One sign per uses entry, aligned by index and expressed relative to
+     * increasing canonical phase. Two equal signs produce a direction-conflict
+     * diagnostic.
+     */
+    walks: (1 | -1)[];
   };
 }

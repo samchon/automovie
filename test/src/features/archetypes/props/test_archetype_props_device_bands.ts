@@ -17,11 +17,9 @@ const RADIO: string = "Motorola MOTOTRBO CP200d";
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a tablet 248.6 mm high, 179.5 mm wide, 7 mm thick, 477 to 481 g; a walkie-talkie 127.7 mm high, 61.5 mm wide, 39 to 44 mm thick, 341 to 406 g.
  * 2. For three seeds of each, its `grip` is at the slab's middle across its thickness, and its `screen` or `speaker` covers its whole front, facing `+Z`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each device for 200 seeds and measures its collider, mass and contact frames; a size other than the maker's, a seed that does not vary it, a grip off the slab's middle or a face off its front is caught.
- * @evidence contracts/development/testing.md#independent-expectations Apple's and Motorola's published dimensions and weights; a slab held across its back closes over its thickness.
- * @evidence contracts/development/testing.md#distinguishing-cases The kinds the producer gained; the phone, camera and remote belong to `test_archetype_props_bands`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States both device dimensions, mass ranges and the distinction between a screen and speaker face.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures actual built tablet and radio colliders and body masses over 200 seeds. Model-local frames must put the across-thickness grip at the midplane and aim the working face forward.
+ * @evidence contracts/development/testing.md#independent-expectations Uses Apple's 248.6 by 179.5 by 7 mm slab and Motorola's 127.7 by 61.5 mm face and measured thickness range, plus their stated mass ranges. The slab grip reference is the centre between front and back.
  */
 export function test_archetype_props_device_bands(): void {
   const device = (

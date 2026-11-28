@@ -2,16 +2,11 @@ import { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * Friction by material pair: what a part's surface is made of, and the static
- * and kinetic coefficients of each measured pair of materials, each with the
- * source it was read at.
+ * Reads cited static and kinetic friction data for supported surface pairs.
  *
- * A producer declares each touching part's surface
- * (`AutoMovieArchetypeBuilder.IOptions.surface`) and what the model rests on
- * and on what ground (`AutoMovieArchetypeBuilder.build`); the archetype's body
- * then carries that pair's coefficients, and `AutoMovieArchetype.friction`
- * gives any declared part's against any material. A pair no source here
- * measured is refused, never guessed.
+ * Producers declare the surfaces of contacting parts and the ground they
+ * rest on. Use `pair` for the immutable catalogue row. A producer with a
+ * missing surface declaration can construct a refusal with `undeclared`.
  */
 export namespace AutoMovieArchetypeFriction {
   /**
@@ -70,13 +65,11 @@ export namespace AutoMovieArchetypeFriction {
     | "felt";
 
   /**
-   * The ground a model's body friction is taken against when its producer names
-   * none: concrete, the paving and floor slab most staged ground is, and the
-   * ground most measured pairs here share.
+   * Default ground for a producer that declares its resting surface.
    */
   export const GROUND: Material = "concrete";
 
-  /** One measured pair's coefficients. */
+  /** The source-backed coefficients shared with the material catalogue. */
   export type ICoefficients = AutoMovieArchetypeMaterial.IFriction;
 
   /** A coefficient's measured or authored minimum and maximum. */
@@ -96,14 +89,13 @@ export namespace AutoMovieArchetypeFriction {
     AutoMovieArchetypeMaterial.FRICTION;
 
   /**
-   * The measured coefficients of a pair of materials, in either order.
+   * Looks up a pair of materials in either order.
    *
    * @param a One material.
    * @param b The other.
    * @param archetype The producer asking, which a refusal names.
-   * @returns The pair's row.
-   * @throws {AutoMovieArchetypeRefusal} When no source here measured the pair,
-   *   listing the pairs that were.
+   * @returns The pair's coefficients and their source conditions.
+   * @throws {AutoMovieArchetypeRefusal} When the catalogue lacks the pair.
    */
   export function pair(
     a: Material,
@@ -114,7 +106,7 @@ export namespace AutoMovieArchetypeFriction {
   }
 
   /**
-   * A coefficient's single value: itself, or the middle of its measured range.
+   * Returns a single coefficient or the arithmetic midpoint of its range.
    *
    * @param value A coefficient or its range, with named minimum and maximum.
    * @returns The value.

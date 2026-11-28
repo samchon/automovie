@@ -24,6 +24,10 @@ const AIM_ROUNDING: number = 16 * Number.EPSILON;
  * 1. A spot aimed along +X rotates local −Z by −90° about +Y. Its default range
  *    and cone are 0 and 45°, without replacing the supplied shadow map.
  * 2. A point stays unrotated, with its authored world-position and range.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the spot aim convention and defaults, supplied shadow identity and the unrotated positioned point light.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the staging light lowerer with a positioned spot and point. It checks rotation, optical fields, shadow record and the world transform and neutral color.
+ * @evidence contracts/development/testing.md#independent-expectations Rotating local negative Z by a negative 90-degree Y turn gives positive X, so the expected quaternion uses signed sqrt(1/2). The spot omits range and cone and uses literal defaults. The point's authored translation and four-metre range remain exact.
  */
 export function test_engine_film_lower_light_placement(): void {
   const spot: IAutoMovieStageLight = {

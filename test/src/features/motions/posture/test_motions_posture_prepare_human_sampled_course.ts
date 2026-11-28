@@ -46,6 +46,10 @@ const TOLERANCE: number = 1e-4;
  * 6. An interval of half `GAP` reads its start once and holds it.
  * 7. Through 0 s, half `GAP` and 1 s the course equals the course through 0 and 1
  *    s, and one knot holds its value at every second.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines adaptive sample membership, rest at breaks, moving marks and sampling resolution for short and forced intervals.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares sine and step data with known events, varies the minimum time step, then joins explicit and nearly coincident knots.
+ * @evidence contracts/development/testing.md#independent-expectations The sine and cos(1) provide independent value and rate references. A complete sweep gives six plus five knots, and sub-GAP intervals read and hold the first value.
  */
 export function test_motions_posture_prepare_human_sampled_course(): void {
   const reads: number[] = [];

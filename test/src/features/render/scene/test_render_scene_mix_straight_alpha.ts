@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A fade (incoming null) of (40, 80, 120, 200) at ¾: colour kept, alpha ¼ × 200
  *    = 50.
  * 4. Weight 1.5 refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the source colors, opacities, blend weights, and inadmissible weight.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that mixing opaque colors, blending over transparency, and fading return straight color with the expected alpha, and rejects a weight above one.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal RGBA tuples derived from equal red and blue weights, half coverage of white, and a quarter of incoming alpha 200.
  */
 export function test_render_scene_mix_straight_alpha(): void {
   TestValidator.equals(

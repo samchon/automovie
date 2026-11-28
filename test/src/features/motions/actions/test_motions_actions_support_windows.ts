@@ -24,6 +24,10 @@ const ROUNDING: number = 2 * Number.EPSILON;
  *    fresh hand placement opens at its own arriving key.
  * 3. A prop contact names its exact point, whether authored directly or
  *    through the shared target. A self-support names the performer and region.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Support windows join neighboring matching placements and retain exact prop points or self regions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls window preparation on an explicit heel gap, a replaced grip, a prop contact and a self-support contact.
+ * @evidence contracts/development/testing.md#independent-expectations The sequence's stated key instants fix four independent window boundaries. Replacing a grip splits its window even where the target remains the same.
  */
 export function test_motions_actions_support_windows(): void {
   const heel: IAutoMovieMotionHumanSupport.IContact = {

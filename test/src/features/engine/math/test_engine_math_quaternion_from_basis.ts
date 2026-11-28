@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
  *    0).
  * 4. A half turn about (1, -1, 0) ties the x and y diagonal terms. The packed
  *    sweep entry writes (−sqrt(1/2), sqrt(1/2), 0, 0) over its input.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers basis conversion for identity, quarter and half turns, including the packed diagonal tie and overlapping storage.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls quaternionFromBasis on explicit basis columns and fromBasis on one packed buffer with an overlapping destination.
+ * @evidence contracts/development/testing.md#independent-expectations The world basis gives the identity and the signed axis permutations give the named turns. The half-angle formula yields the expected quaternion including the diagonal-tie axis, up to sign.
  */
 export function test_engine_math_quaternion_from_basis(): void {
   const h: number = Math.SQRT1_2;

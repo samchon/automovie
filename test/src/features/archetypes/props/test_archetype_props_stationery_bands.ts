@@ -11,11 +11,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: a clipboard 232 by 349 mm and 3 mm thick, 168 to 190 g; a folded map 11 by 25 cm and 0.7 cm thick, 89 to 90 g.
  * 2. For three seeds of each, its `grip` is on its `+Z` edge, pinching its thickness along its whole width, its `face` on its upper side, and it lies on the floor.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each for 200 seeds and measures its collider, mass and contact frames; a size other than the maker's, a seed that does not vary it, a grip off the edge or a face off the upper side is caught.
- * @evidence contracts/development/testing.md#independent-expectations Esselte's clipboard data sheets and Michelin's folded size with the listed thickness and mass.
- * @evidence contracts/development/testing.md#distinguishing-cases The two kinds the producer gained; the book, the sheet and the pen keep their own specs.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the clipboard and folded map dimensions, masses, forward-edge grip and upper reading face.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces each object across the seed sweep and measures its footprint, thickness, mass and frames. It checks floor contact and distinguishes a grip on the forward edge from the reading face at the upper solid boundary.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated Esselte clipboard dimensions and Michelin folded-map size and mass. The pinch aperture equals the object thickness and the reading face meets the top of the measured slab.
  */
 export function test_archetype_props_stationery_bands(): void {
   const make = (

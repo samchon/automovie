@@ -65,6 +65,10 @@ const HELD: IAutoMovieMotionHumanHeld.IHeld = {
  * 2. From the grip, the run is 0.7 m; from the point itself it is refused.
  * 3. Squared off +Z, (0, 1, 1) is +Y and +Z itself falls back to +Y; off +Y with
  *    only +Y to fall back on it is +X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies local tool axis, edge span and geometric fallback, including refusal for a zero-length named line.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads an authored tool frame, tries a named offset and coincident points, and squares vectors off two different axes.
+ * @evidence contracts/development/testing.md#independent-expectations The authored extent fixes 0.8 and 0.7 m lengths. Removing the axial component of (0, 1, 1) leaves +Y and parallel vectors exercise fallback.
  */
 export function test_motions_striking_held_frame(): void {
   const tool = StrikingHeldFrame.read(HELD);

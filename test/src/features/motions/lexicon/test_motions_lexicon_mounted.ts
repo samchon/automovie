@@ -243,7 +243,13 @@ function scenario_test_motions_lexicon_mounted_whip(): void {
   );
 }
 
-/** The mounted laws' own logic: the timeline and the whip, each scenario below. */
+/**
+ * The mounted laws' own logic: the timeline and the whip, each scenario below.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines figure transfer and hold timing, support windows, virtual cue admission and stirrup seat profiles.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the timeline and overlay scenarios covering two handed contacts, timed cues inside and outside holds, and support-profile interpolation.
+ * @evidence contracts/development/testing.md#independent-expectations Authored figures sum to 6 s and their arrivals fix contact windows. Independent cue times and interval separation expose out-of-hold and overlapping motions.
+ */
 export function test_motions_lexicon_mounted(): void {
   scenario_test_motions_lexicon_mounted_timeline();
   scenario_test_motions_lexicon_mounted_whip();

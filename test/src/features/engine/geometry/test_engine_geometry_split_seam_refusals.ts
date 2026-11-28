@@ -21,6 +21,10 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  * 2. Two knots at the same place are refused by admission naming "knot".
  * 3. A last knot at 0.05 m, beyond the 0.0463 m chord, leaves one diagnostic on
  *    the split naming the seam and no band.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names invalid corner, duplicate knot and local rejection of an out-of-span profile.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs each malformed profile separately, observing admission exceptions or the retained realization diagnostic and band population.
+ * @evidence contracts/development/testing.md#independent-expectations The corner must stay below its upper angle. Coincident knots violate strict order. A 50 mm last knot cannot fit inside the authored 46.3 mm chord.
  */
 export function test_engine_geometry_split_seam_refusals(): void {
   const bad: [IAutoMovieConstructionSplit.IProfile, string][] = [

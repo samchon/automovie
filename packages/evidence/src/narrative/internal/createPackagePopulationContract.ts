@@ -5,11 +5,12 @@ import type {
 
 import { PRODUCTION_CONTRACTS } from "../../internal/PRODUCTION_CONTRACTS";
 import type { AuthoredLayer } from "../AuthoredLayer";
-import type { IPackagePopulationContractProps } from "../IPackagePopulationContractProps";
 import type { AutoMovieEvidenceProductionStage } from "../AutoMovieEvidenceProductionStage";
+import type { IPackagePopulationContractProps } from "../IPackagePopulationContractProps";
 import { BODY_ROOT } from "./utilities/BODY_ROOT";
 import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
 import { createUnitFiles } from "./utilities/createUnitFiles";
+import { workContractAddress } from "./workContractAddress";
 
 /*
  * Creates one population obligation claim per selected layer.
@@ -22,18 +23,8 @@ import { createUnitFiles } from "./utilities/createUnitFiles";
 export function createPackagePopulationContract(
   props: IPackagePopulationContractProps,
 ): IEvidenceClaim[] {
-  const normalizedDocument: string = props.document.replaceAll("\\", "/");
-  if (
-    !normalizedDocument.startsWith("work/obligations/") ||
-    normalizedDocument
-      .split("/")
-      .some(
-        (part: string): boolean => part === "" || part === "." || part === "..",
-      ) ||
-    /[[\]*?#]/u.test(normalizedDocument) ||
-    !normalizedDocument.endsWith(".md") ||
-    normalizedDocument.toLowerCase().endsWith("/skill.md")
-  )
+  const address = workContractAddress(props.document);
+  if (address.family !== "obligations")
     throw new Error(
       `${props.document}: a population obligation must be one exact work/obligations/...md document.`,
     );
@@ -54,9 +45,7 @@ export function createPackagePopulationContract(
     );
 
   return layers.map(
-    (
-      [layer, stage]: [string, AutoMovieEvidenceProductionStage],
-    ): {
+    ([layer, stage]: [string, AutoMovieEvidenceProductionStage]): {
       disabled: boolean;
       reference: IEvidenceMarkdownReference;
       evidenceFiles: string[];
@@ -69,7 +58,7 @@ export function createPackagePopulationContract(
       const obligation: IEvidenceMarkdownReference = {
         type: "markdown",
         root: PRODUCTION_CONTRACTS,
-        files: [normalizedDocument],
+        files: [address.path],
         symbol: "h2",
         noEvidenceExclude: true,
         uniqueEvidence: true,

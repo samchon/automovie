@@ -56,6 +56,10 @@ function near(angle: number | null | undefined, expected: number): boolean {
  *    twist push leaves flexion and abduction at rest and forces the twist to 0;
  *    an explicit zero push rests too; (200, 1) clamps to (145, 5); a falloff of
  *    0 leaves the next link at rest, not at its minimum.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains chain falloff and joint range clipping, including authored rest on inactive axes and validation of the resulting pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies direct recoil pushes to small spine and elbow chains and to humanoid elbow and hip ranges, then validates their output poses.
+ * @evidence contracts/development/testing.md#independent-expectations Authored bounds give the spine (40, 15, 10), the negative flexion limit -30, and an elbow pushed on two axes (145, 5). Falloff 0, falloff 1 and invalid values separate propagation decisions.
  */
 export function test_engine_physics_impact_recoil(): void {
   // 1. The falloff.

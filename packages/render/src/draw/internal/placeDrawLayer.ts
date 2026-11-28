@@ -14,14 +14,13 @@ import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene";
  * has. Otherwise, at an output second inside the entry's live span, from its
  * start to the next entry's, where `playbackEntryAt` resolves it, `seek` places
  * that entry on its own clock. At any other second, a transition's outgoing
- * tail, a shutter sample or trail time before the in-point, the film's first
- * frame included, or a trail time after the out-point, `seekShot` places the
- * layer's shot at `playbackEntryTime` of its entry, with the output second for
+ * tail or a shutter sample before the in-point or after the out-point,
+ * `seekShot` places the layer's shot at `playbackEntryTime` of its entry, with the output second for
  * the film-clock readings. Outside the trimmed span that time runs into the
  * entry's handles, the shot's own source before the trim's start or after its
  * end, as an editor's handle frames supply a shot's edge; beyond the shot's own
- * ends the shot answers as its clips clamp, holding their end states. So a
- * frame or a trail at a hard cut shows only the entry's own shot.
+ * ends the shot answers as its clips clamp, holding their end states. The
+ * trail host selects each displayed occurrence before it calls this placer.
  *
  * A subject without `seekShot`, which only a transition requires and whose
  * transitions `AutoMovieRenderDraw.planLayers` refuses, has no clock but `seek`: a

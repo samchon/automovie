@@ -119,11 +119,11 @@ export namespace AutoMovieEngineValidation {
   }
 
   /**
-   * Require a finite value between independently configured open/closed
-   * endpoints.
+   * Check a finite scalar against independently open or closed bounds.
    *
-   * Both endpoints default to inclusive. Infinite bounds are permitted, but the
-   * tested value must be finite. Refusals retain the authored value.
+   * Either endpoint defaults to included. Use -Infinity for an unbounded
+   * lower end and Infinity for an unbounded upper end. Rejection appends one
+   * range finding to the supplied collector with the original path and value.
    */
   export function validateRange(value: number, path: string, min: number, max: number, label: string, violations: IAutoMovieConstraintViolation[], inclusiveMin?: boolean, inclusiveMax?: boolean): void {
     validateRangeImplementation(value, path, min, max, label, violations, inclusiveMin, inclusiveMax);
@@ -301,8 +301,12 @@ export namespace AutoMovieEngineValidation {
   }
 
   /**
-   * Validate sparse member cue slots, states, ids, order and participant
-   * formation references.
+   * Check sparse motion cues for members of participating compiled formations.
+   *
+   * Each cue lists one or more unique, nonnegative safe integer slot
+   * ordinals below the formation count. Promoted slots use their actor's
+   * motion channel. A malformed list produces one diagnostic at its slots
+   * path alongside any independent findings for the cue.
    */
   export function validateAutoMovieFormationSlotMotions(contract: Pick<
     IAutoMovieShotContract,
@@ -449,8 +453,15 @@ export namespace AutoMovieEngineValidation {
   }
 
   /**
-   * Switch on primitive shape and require finite positive supported dimensions,
-   * including capsule length policy.
+   * Record each primitive dimension that is not finite and strictly positive.
+   *
+   * Adds a range violation with the dimension name appended to `path`. The
+   * dimensions use metres. Successful dimensions add no violations.
+   *
+   * @param shape Primitive recipe using a supported discriminator.
+   * @param path Path prefix for the primitive's dimensions.
+   * @param collector Recipient of the violations.
+   * @throws TypeError for an unknown primitive discriminator.
    */
   export function validateExtents(shape: IAutoMoviePrimitiveShape, path: string, collector: IAutoMovieViolationCollector): void {
     validateExtentsImplementation(shape, path, collector);
@@ -701,8 +712,16 @@ export namespace AutoMovieEngineValidation {
   }
 
   /**
-   * Admit constant/plane finite parameters or a finite heightfield with positive
-   * pitch, safe dimensions>=2 and exact row-major count.
+   * Record unsupported numeric values in a surface height rule.
+   *
+   * Constant and plane coefficients must be finite. A heightfield uses finite
+   * origins, positive finite spacings and at least two knots per axis. Counts
+   * must be safe integers. Each axis must advance through distinct finite
+   * coordinates, and the row-major sample array must be dense and finite.
+   *
+   * @param rule The height rule with its world-space lengths in metres.
+   * @param path Prefix of the fields reported as range violations.
+   * @param collector Recipient of the violations.
    */
   export function validateSurfaceHeightRule(rule: IAutoMovieHeightRule, path: string, collector: IAutoMovieViolationCollector): void {
     validateSurfaceHeightRuleImplementation(rule, path, collector);
@@ -730,8 +749,16 @@ export namespace AutoMovieEngineValidation {
   }
 
   /**
-   * Grades one active requirement against delivery framing and occlusion
-   * evidence.
+   * Classify delivery framing and the available occlusion evidence.
+   *
+   * An excluded projection has no occlusion grade. Pixel measurements use
+   * nonnegative safe integer counts, with visible at most isolated. Zero
+   * isolated pixels reports an absent target footprint. A finite limit in
+   * [0, 1] grades the measured ratio. Valid sparse ray counts supply evidence
+   * when pixel counts are unavailable or invalid.
+   *
+   * @param input Framing result, optional counts and optional occlusion limit.
+   * @returns The framing and status of the strongest available observation.
    */
   export function classifyAutoMovieCameraInspection(input: IAutoMovieCameraInspection): IAutoMovieCameraInspection.IResult {
     return classifyCameraInspectionImplementation(input);

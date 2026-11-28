@@ -4,6 +4,7 @@ import type {
   IAutoMovieHumanBodySources,
   IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanEyeSeat,
+  IAutoMovieHumanFootFrame,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadPrior,
   IAutoMovieHumanLimbRest,
@@ -14,6 +15,9 @@ import type {
 
 import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
+import { AutoMovieHumanEarPlace } from "../generation/AutoMovieHumanEarPlace";
+import { AutoMovieHumanFootFrame } from "../generation/AutoMovieHumanFootFrame";
+import { AutoMovieHumanFootPrior } from "../generation/AutoMovieHumanFootPrior";
 import { AutoMovieHumanHeadArcs } from "../generation/AutoMovieHumanHeadArcs";
 import { AutoMovieHumanHeadLandmarks } from "../generation/AutoMovieHumanHeadLandmarks";
 import { AutoMovieHumanHeadMedianProfile } from "../generation/AutoMovieHumanHeadMedianProfile";
@@ -26,62 +30,55 @@ import { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonL
 import { AutoMovieHumanHeadNeckScalars } from "../generation/AutoMovieHumanHeadNeckScalars";
 
 /**
- * The polygon man's bind joints, placed from the person's parameters by
- * closed-form placement laws alone, in calibration millimetres (forward +X,
- * up +Y, left +Z).
- *
- * The polygon man is a coarse stand-in on Human's skeleton and carries only
- * the form it needs, so nothing here builds, fits or measures a curve of the
- * detailed figure: no trunk tape or course is closed, no neck girth is
- * solved, no head mass or surface is prepared. The detailed figure keeps its
- * own bind skeleton (`AutoMovieHumanBodyLaw.prepare`), whose trunk joints
- * stand on its converged surface.
- *
- * What each joint is placed from:
- *
- * - Legs, feet and toes: `AutoMovieHumanLimbRest` from the public limb
- *   inputs and the body frame's perineal datum, as the detailed figure
- *   places them.
- * - Neck base, neck radius, atlas, head and crown: the neck prior's affine
- *   axis and tape radius (`AutoMovieHumanNeckSource`) and the head's landmark
- *   layout (`AutoMovieHumanHeadLandmarks.layout`), the head joint on the
- *   cranial centre at the tragion's published drop under the vertex. These
- *   are the values the detailed head lane publishes.
- * - Jaw and eyes: the same layout's median profile at the nasion and its eye
- *   openings, by the rule of `AutoMovieHumanHeadLane.prepare`.
- * - Shoulders and arms: the acromion and the glenohumeral centre of
- *   `AutoMovieHumanShoulderDatum`, its neck support the neck's tape radius
- *   at the neck base. The detailed figure reads the support from its solved
- *   neck-base course instead, which moves the glenohumeral centre by a few
- *   hundredths of a millimetre at most on the motion population.
- * - Spine, chest and the sternoclavicular joints' forward place: on the
- *   straight line from the mid-hip to the neck base, at the heights the
- *   skeleton law already gives them. This is the polygon man's own
- *   definition of its trunk joints, directed by the project owner: no
- *   published source in the package gives the vertebral column's forward
- *   place at these levels, and the detailed figure's column axis, the middle
- *   of its converged sections' depth, belongs to that figure's surface. The
- *   line is the simplest construction through the two joints the skeleton
- *   level does place.
+ * Place the stock polygon body's bind joints in Human calibration space (+X
+ * forward, +Y up, +Z left; millimetres). Limb rest, shoulder support, and the head
+ * and neck landmarks come from the corresponding Human placement laws. The stock
+ * spine follows the straight axis from mid-hip to neck base at the skeleton law's
+ * joint heights.
  */
 export namespace AutoMovieHumanCanonicalBind {
-  /** The bind joints with the stature they are scaled by. */
+  /**
+   * Bind bones, calibration stature, rear foot planes and the ear ray offset
+   * in Human calibration axes.
+   */
   export interface IOutput {
-    /** Parent-before-child bones, calibration mm. */
+    /**
+     * Bind joint centres and leaf tips in millimetres, ordered parent before
+     * child.
+     */
     bones: IAutoMovieHumanCalibrationBone[];
 
-    /** Stature in the same calibration mm. */
+    /**
+     * Calibration stature in millimetres used by canonical preparation to scale
+     * the rest geometry.
+     */
     stature: number;
+
+    /**
+     * Rear foot plane points for the left and right foot in calibration
+     * millimetres. Each point is at floor level and uses the transverse station of
+     * that foot's hallux-tip prior.
+     */
+    heels: Record<"left" | "right", Vec3>;
+
+    /**
+     * Station for the lateral ear ray relative to the head's tragion-level
+     * pivot, in Human calibration millimetres. The sagittal coordinate
+     * follows tragion and the height follows the upper auricle.
+     */
+    earRayOffset: Vec3;
   }
 
   /**
-   * Place every bind joint of a person's polygon man.
+   * Place the stock bind skeleton, heel planes and ear ray station from Human
+   * measurements. The calibration frame has +X forward, +Y up and +Z left.
+   * Canonical preparation carries the heel with the ankle and the ear ray
+   * station with the head pivot.
    *
-   * The cost is fixed-size arithmetic: the limb and head input conversions,
-   * four harmonic neck rows, one landmark layout and the skeleton law.
-   *
-   * @param params The Human's parameters.
-   * @returns The bones and their stature.
+   * @param params Human body measurements and shape parameters shared with the
+   * placement laws.
+   * @returns Parent-first bind bones, stature, two heel-plane points and the
+   * ear ray offset, all in Human calibration millimetres.
    */
   export function of(params: IAutoMovieHumanParameters): IOutput {
     // The resolved inputs and frame; every solve behind this record is an
@@ -180,6 +177,18 @@ export namespace AutoMovieHumanCanonicalBind {
         radius: face.radius * plan.scale,
       }),
     );
+    function heel(side: "left" | "right"): Vec3 {
+      const leg: IAutoMovieHumanLimbRest.ILeg = limbs.leg(side);
+      const frame: IAutoMovieHumanFootFrame.IFrame = AutoMovieHumanFootFrame.of(
+        original.limbs.feet[side],
+      );
+      const [x, , z]: Vec3 = frame.at(
+        0,
+        AutoMovieHumanFootPrior.PRIOR.toes[0]!.tip[1],
+        0,
+      );
+      return [leg.shift[0] + x, 0, leg.shift[1] + (side === "left" ? z : -z)];
+    }
     return {
       bones: AutoMovieHumanSkeletonLaw.complete(
         body,
@@ -195,6 +204,14 @@ export namespace AutoMovieHumanCanonicalBind {
         stature,
       ).bones,
       stature,
+      heels: { left: heel("left"), right: heel("right") },
+      earRayOffset: [
+        AutoMovieHumanHeadLandmarks.atTragion(plan, tragion).landmarks.tragion[0] -
+          plan.centre,
+        AutoMovieHumanEarPlace.aboveTragion(original.headInputs.head.earPair.right, sex) *
+          plan.scale,
+        0,
+      ],
     };
   }
 }

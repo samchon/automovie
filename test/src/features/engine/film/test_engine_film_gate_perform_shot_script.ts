@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The original middle beat is chosen despite two conflicting duplicates.
  * 2. An absent id in an otherwise valid script returns undefined without a
  *    duplicate diagnostic.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify first declaration ownership, addressed later duplicates and a missing selection without a duplicate finding.
+ * @evidence contracts/development/testing.md#behavioral-verification The test passes authored beat records to the performance script gate and reads both the selected reference and indexed issues. It separately requests an absent beat in the valid list.
+ * @evidence contracts/development/testing.md#independent-expectations The literal first matching beat appears before two later conflicting records. Its position and the later indices are fixed by array order. An absent ID with distinct existing beats has no duplicate source address.
  */
 export function test_engine_film_gate_perform_shot_script(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

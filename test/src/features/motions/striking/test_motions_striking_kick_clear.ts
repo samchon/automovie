@@ -20,6 +20,10 @@ const planned = (step: number, shortBeyond: number): KickClear.IStepped => ({
  *    clearing from -0.2 m clears there, after two replans.
  * 2. One clearing only from -0.4 m runs out of steps.
  * 3. One falling short beyond -0.15 m gives up at -0.2 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines bounded pose replanning when an animated limb's chamber lacks geometric clearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies three fixture callbacks that clear after two increments, stay blocked to the travel cap or become short.
+ * @evidence contracts/development/testing.md#independent-expectations From zero, two 0.1 m retreats reach -0.2 m. A clearance request at -0.4 m exceeds the -0.35 m bound.
  */
 export function test_motions_striking_kick_clear(): void {
   let replans: number = 0;

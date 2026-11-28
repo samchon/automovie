@@ -22,6 +22,10 @@ import {
  * 3. The same inputs give the same digest, and a different scale a different one.
  * 4. A view restricted to a space the design does not declare reports one
  *    `view-space-filter` gap, status `not-run`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the sheet identity and origin, repeatable and scale-sensitive digest, and status of an unknown space filter.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes prepared atelier and plan view records to Drawing.deriveAutoMovieDrawing and reads the identity, frame, digest and selected gap.
+ * @evidence contracts/development/testing.md#independent-expectations The authored plan determines its declared identity and y = 1.2 m origin. The space ghost is absent and must have a not-run view-space-filter gap. Separate digest comparisons exercise sameness on repeated input and change at scale 100.
  */
 export function test_engine_drawing_derive_drawing(): void {
   const sheet: IAutoMovieDrawing =

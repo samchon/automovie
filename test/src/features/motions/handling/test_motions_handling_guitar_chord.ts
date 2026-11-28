@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    0.2 s, crossings at 1 s and 1.25 s.
  * 2. A sweep that starts before the stop is refused on `stopAt`.
  * 3. A sweep one ulp wide has no distinct crossings: refused on `sweepStartAt`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines preparation and two string-crossing times and refusal axes for invalid sweep ordering or collapsed clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds one valid stopped chord, tries an early sweep and constructs a one-ulp sweep.
+ * @evidence contracts/development/testing.md#independent-expectations Half the 0.4 s hold preparation gives 0.2 s. Thirds of [0.75, 1.5] give crossings 1 and 1.25 s, but adjacent clock values cannot hold two crossings.
  */
 export function test_motions_handling_guitar_chord(): void {
   const params: Pick<

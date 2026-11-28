@@ -11,26 +11,22 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeConsoleData } from "./internal/AutoMovieArchetypeConsoleData";
 
-/** Constructs the console archetype from its recipe. */
+/**
+ * Constructs a Winsted-style control console with a deep front work surface.
+ */
 export namespace AutoMovieArchetypeConsole {
 /**
- * A control room console: a work surface at the front over the knee space
- * between two end panels, and the equipment section behind it.
+ * Build a console with two end panels and a recessed equipment body.
  *
- * The console's back stands on the floor along `X` at the origin's `Z`, its
- * front at `+Z`, where the operator sits. It is one of the sheet's three
- * widths, given or drawn from the seed. The work surface takes the front of the
- * console's depth, its top at the drawn height; the equipment section fills the
- * rest of the depth from the floor to that height. `surface` is the work
- * surface, and `edge` its front edge, where forearms and hands rest.
+ * The back is at model Z zero. The operator's work surface is on the
+ * `+Z` side and spans 20 inches in depth.
  *
- * @param params The size and any dimension the author fixes.
- * @param seed The seed that draws the width when it is not given and every
- *   dimension left free inside its band; absent, the first width and the middle
- *   of each band.
- * @returns The console.
- * @throws {AutoMovieArchetypeRefusal} For a size the sheet does not list, or a
- *   fixed dimension outside its band.
+ * @param params Optional size, scene ID, work surface height and mass.
+ *   The ID defaults to `console`.
+ * @param seed Numeric seed for omitted options. Without it the
+ *   width is 48 inches and the top is 0.73104375 metres high.
+ * @returns The work `surface` and its front `edge` along X.
+ * @throws {AutoMovieArchetypeRefusal} If size or a fixed option is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeConsole.IParams = {},
@@ -115,23 +111,16 @@ export function create(
 }
 
   /**
-   * The affordance ids:
-   *
-   * - `surface`: the work surface, facing up.
-   * - `edge`: the work surface's front edge along `X`.
+   * `surface` is centred over the working slab. `edge` is its `+Z` edge along X.
    */
   export type Affordance = "surface" | "edge";
 
   /**
-   * The dimensions, metres unless stated:
-   *
-   * - `width`: the console along `X`, its size's.
-   * - `height`: the work surface's top above the floor.
-   * - `mass`: kilograms.
+   * Catalogue width and working height in metres, and model mass in kilograms.
    */
   export type Dimension = "width" | "height" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for width and height, kilograms for the model mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -140,12 +129,11 @@ export function create(
     mass: "kg",
   };
 
-  /** The base console's sizes the sheet lists, by their widths in inches. */
+  /** Catalogue width options in inches for an E-SOC base console. */
   export type Size = "48in" | "60in" | "72in";
 
   /**
-   * Each size's width, metres, the default first: the sheet's 48, 60 and 72 in
-   * (5.1).
+   * Converts the 48, 60 and 72 inch options to widths in metres. The 48 inch model is the first entry.
    */
   export const SIZES: Readonly<
     Record<Size, Readonly<Partial<Record<Dimension, number>>>>
@@ -155,24 +143,18 @@ export function create(
     "72in": { width: 72 * AutoMovieArchetypeUnits.INCH },
   };
 
-  /**
-   * The parameters: the size, and any free dimension fixed to a value inside
-   * its band.
-   */
+  /** Optional scene ID, catalogue width option, fixed height and fixed mass. */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "width">, number>
   > {
-    /**
-     * Which of the sheet's sizes, which sets `width`; drawn from the seed when
-     * absent.
-     */
+    /** Catalogue width choice. Defaults to `48in` without a seed. */
     size?: Size;
 
-    /** The model's id, unique in a scene; `console` when absent. */
+    /** Scene object ID, defaulting to `console`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /** Admitted height and mass intervals. Width comes from the selected size. */
   export const BANDS: Readonly<
     Record<Exclude<Dimension, "width">, IAutoMovieArchetypeBand>
   > = {

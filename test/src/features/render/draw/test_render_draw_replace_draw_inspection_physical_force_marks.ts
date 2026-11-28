@@ -53,6 +53,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    under their clamp label and it counts one support shortfall under its flag
  *    entry; seeking back to the falling frame clears both, and returning to the
  *    contact frame draws them again.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Draws solver contacts and allocated support in the correct directions, with clamping, shortfall flags and seek behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Simulates and replays a dropped rigid body, reads compliant contact ownership and feeds actual support allocation records through inspection.
+ * @evidence contracts/development/testing.md#independent-expectations The floor witness and paired opposite forces determine mark origin and direction. A 0.1 m clamp and the known friction cone bound lengths and support flags, with reverse seek replaying the same state.
  */
 export async function test_render_draw_replace_draw_inspection_physical_force_marks(): Promise<void> {
   const metresPerNewton: number = 0.001;

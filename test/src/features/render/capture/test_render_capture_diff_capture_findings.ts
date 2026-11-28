@@ -82,6 +82,10 @@ const audit = (props: {
  *    cause `not-sampled`, and the outcome stays the same.
  * 6. Coverage at 0.5 fps observes only seconds 0, 2 and 4. It cannot classify a
  *    finding from frames 1 and 2 at 1 fps because second 1 was not checked.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines finding changes only across sampled coverage and omission of missing comparison rounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares prepared absent, clean, altered and unmatched rounds, including different frame-rate grids over the same elapsed time.
+ * @evidence contracts/development/testing.md#independent-expectations A difference counts as new or fixed only where the other scan observed its span. A 0.5 fps grid omits second 1 despite overlapping elapsed time.
  */
 export function test_render_capture_diff_capture_findings(): void {
   TestValidator.equals(

@@ -21,16 +21,21 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * Plan an edge transfer through the public snow glide law.
+ * Check public snow-glide edge changes and the material plane used for
+ * travel.
  *
  * Scenarios:
  *
- * 1. A transfer at 1 s in a 2 s glide changes edges halfway through the glide.
- * 2. Mixed alpine and Nordic techniques are refused on `nordic`.
- * 3. A transfer at 3 s is refused on `edgeTransfer.at`, one countering 40 degrees
- *    on `edgeTransfer.counter`, and one to a same-sign 20 degree edge on
- *    `edgeTransfer.next.degrees`.
- * 4. A named slope must supply the actual bearing plane and contain the glide.
+ * 1. A transfer at 1 s in a 2 s glide gives a cue at share 0.5. Reject mixed
+ *    techniques, a late transfer, excessive counter-turn and a same-sign next
+ *    edge on their own axes.
+ * 2. Use the slope's displayed deck plane to lower a sole during forward
+ *    travel. Refuse a false grade, missing material, and travel outside the
+ *    fore-aft or lateral extent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify edge timing, technique and the bounds of the named material.
+ * @evidence contracts/development/testing.md#behavioral-verification The public plan asserts cue timing and the supporting surface reader independently asserts slope and finite bounds.
+ * @evidence contracts/development/testing.md#independent-expectations The cue share is one second divided by two, and the test derives the vertical travel from the inclined deck fixture.
  */
 export async function test_motions_carrier_human_snow_glide(): Promise<void> {
   const pivots = { left: { x: 0, y: 0, z: 0 }, right: { x: 0, y: 0, z: 0 } };

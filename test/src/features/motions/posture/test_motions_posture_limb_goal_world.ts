@@ -39,6 +39,10 @@ const ROUNDING: number = 1e-12;
  *    one it already keeps clear of.
  * 3. A goal on no bone is returned; on the left forearm or a bone the reading
  *    lacks it is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines composition of a goal's local point, bend, orientation and attached colliders into the posed bone frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Carries a left-arm goal on an authored chest frame, leaves an unattached goal unchanged, and tries its own limb and a missing frame.
+ * @evidence contracts/development/testing.md#independent-expectations A 90° y rotation and translation transform the stated goal to (0.2, 1.3, −0.1). The local collider follows the same transform after existing world entries.
  */
 export async function test_motions_posture_limb_goal_world(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

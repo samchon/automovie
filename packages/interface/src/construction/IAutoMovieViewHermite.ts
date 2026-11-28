@@ -1,18 +1,29 @@
 /** Data and callback contracts shared by the ViewHermite operations. */
 export namespace IAutoMovieViewHermite {
-  /** Prepared spans in the selected unnormalized source parameter. */
+  /**
+   * Prepared quintic interpolation for one scalar outline. The knots and
+   * derivative rows use the unnormalized source parameter. Each stored span
+   * evaluates its polynomial at the fraction between adjoining knots, with the
+   * left source value as the constant coefficient.
+   */
   export interface ICurve {
-    /** Source parameter knots, shared with the owning admitted natural source. */
+    /**
+     * Ordered knots in the actual source parameter, shared with the underlying
+     * prepared spline.
+     */
     xs: readonly number[];
-    /** Source values, shared with the same owner. */
+    /** Scalar values at the source knots, in the receiving outline's units. */
     ys: readonly number[];
-    /** First derivatives in the selected source parameter at every knot. */
+    /** First derivative at each knot in units per source-parameter unit. */
     first: readonly number[];
-    /** Second derivatives in that same parameter at every knot. */
+    /**
+     * Second derivative at each knot in units per squared source-parameter
+     * unit.
+     */
     second: readonly number[];
     /**
-     * Increment coefficients c1..c5 on each unit span, with the left source
-     * value as c0.
+     * Five coefficients c1 through c5 for each unit span. Use its left knot
+     * value ys[i] as c0.
      */
     coefficients: readonly (readonly number[])[];
   }

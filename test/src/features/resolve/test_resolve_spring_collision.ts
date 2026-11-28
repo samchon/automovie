@@ -69,9 +69,7 @@ const at: (w: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Steps actual force-free springs against authored spheres and checks pushout, unchanged nonpenetration, center-coincident upward fallback, sequential ordering and malformed collider refusals.
  * @evidence contracts/development/testing.md#independent-expectations Inflated radius is sphere radius plus hitRadius0.05, yielding1.25 or0.35 offsets; a second center at the first pushout produces the next0.25 upward displacement. These literal geometries independently fix the expected coordinates.
- * @evidence contracts/development/testing.md#distinguishing-cases Penetrating/nonpenetrating/center-coincident and ordered two-sphere neighbors accompany zero/negative radius cases; collision projection may stretch the earlier length constraint and is not a general nonpenetration/convergence proof.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_spring_collision entry directly runs portable synchronous numeric spring/collider semantics on existing scene-node fixtures, without simulating new Human geometry or observing GPU contact.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A sphere the joint penetrates pushes it out to `radius + hitRadius` along the).
+ * @evidence contracts/development/common.md#meaningful-documentation Penetration projects to the sum radius, outside contact leaves the step unchanged and exact centre uses +Y. Ordered colliders and invalid radii exercise the other cases.
  */
 export function test_resolve_spring_collision(): void {
   // 1. push-out: sphere at the parent, min distance 1.2 + 0.05

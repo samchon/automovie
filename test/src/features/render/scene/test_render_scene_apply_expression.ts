@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
  * 3. The mouth layer replaces the authored expression's channels it sets and
  *    leaves the others: an authored `surprised` keeps its brows while the
  *    visemes set `jawOpen`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the viseme blend, the closed-mouth case and the authored brow retained when speech supplies the jaw.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls expression application with a typed in-memory target and records names and values sent to its setter. Checks an open blend, a bilabial closure and a layered surprised expression.
+ * @evidence contracts/development/testing.md#independent-expectations Half of aa's 1 plus half of O's 0.6 gives jaw 0.8. Half of O's 0.75 gives funnel 0.375. PP contributes no positive tested channel. The final blend specifies a quarter jaw and preserves the authored brow weight 1.
  */
 export function test_render_scene_apply_expression(): void {
   const apply: (

@@ -3,32 +3,33 @@ import type { IAutoMovieRecoveryDimensionScales } from "./IAutoMovieRecoveryDime
 import type { IAutoMovieRecoveryImageLoftCoverage } from "./IAutoMovieRecoveryImageLoftCoverage";
 
 /**
- * Compact source-independent image-loft recipe, with explicit family
- * assumptions. Source images, row samples, masks, reference mesh and fitted
- * residuals belong to separate evidence records and are unnecessary for
- * generation. Width/depth edits scale X/Z about the supplied frame origin;
- * height scales Y about the first saved station. Each positive scale preserves
- * the other two axis extents.
+ * Open lateral surface recipe with aligned elliptical X/Z sections. Compilation
+ * applies width and depth scales about the supplied frame origin and height
+ * about the first saved Y station, then produces a bicubic atlas.
  */
 export interface IAutoMovieRecoveryImageLoft {
-  /** Explicit supported hypothesis rather than unrestricted topology. */
+  /** Select the aligned elliptical X/Z section representation. */
   family: "aligned-elliptical-sections";
 
-  /** Object identity without a source address. */
+  /** Recovered object identifier used in the generated model. */
   objectId: string;
 
-  /** Supplied metric-frame provenance, without acquisition paths. */
+  /** Supplied metric frame in which the coefficients were fitted. */
   frame: string;
 
-  /** Generating coefficients in metres, before independent edits. */
+  /** Unedited section radii, centers, and longitudinal span intervals in metres. */
   loft: IAutoMovieEllipticLoft;
 
   /**
-   * Finite positive ratios in [0.25, 4], independently editable about the
-   * documented anchors.
+   * Independent width, depth, and height factors, each in [0.25, 4]. Width and
+   * depth scale about the X/Z origin, and height about the first saved Y
+   * endpoint.
    */
   dimensions: IAutoMovieRecoveryDimensionScales;
 
-  /** A fitting success never turns unseen surfaces into measurements. */
+  /**
+   * Coverage declaration required to compile the recipe as an inferred open
+   * lateral surface.
+   */
   coverage: IAutoMovieRecoveryImageLoftCoverage;
 }

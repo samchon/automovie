@@ -28,6 +28,10 @@ import { IDENTITY_TRANSFORM, createModel } from "../../internal/fixtures";
  * 4. A table whose takes hold different counts of poses is refused.
  * 5. Without takes and without gaits, nothing is baked (null cycle), as before the
  *    change.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names authored sample matrices, unchanged take timing, mismatched sample refusal and no-cycle case.
+ * @evidence contracts/development/testing.md#behavioral-verification Flattens a typed one-bone fixture with one take, two takes, nonmatching pose counts and no take. Reads the returned sampled matrices and take metadata.
+ * @evidence contracts/development/testing.md#independent-expectations The eight literal poses raise the root by 0.1 m per sample, so sample i adds 0.1 times i to its Y translation relative to sample 0. A Float32 1e-6 tolerance admits rounding. The take names, period and stride come from the fixture.
  */
 export function test_render_scene_flatten_instanced_model_formation_cycle_poses(): void {
   const findings: string[] = [];

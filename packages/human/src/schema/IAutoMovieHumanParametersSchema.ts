@@ -8,7 +8,11 @@ import type { IAutoMovieHumanHeadIdentitySchema } from "./IAutoMovieHumanHeadIde
 import type { IAutoMovieHumanPigmentationSchema } from "./IAutoMovieHumanPigmentationSchema";
 import type { IAutoMovieHumanPoseSchema } from "./IAutoMovieHumanPoseSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanParameters. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Complete Human input for a typia validator or generated schema. Body and
+ * head measurements are required. Extremities, appearance, pigmentation, pose
+ * and expression carry their own units and constraints when supplied.
+ */
 export type IAutoMovieHumanParametersSchema = IAutoMovieHumanParameters & {
   /** Body tapes, lengths, skeletal breadths, landmark heights and composition. */
   body: IAutoMovieHumanBodyParametersSchema;

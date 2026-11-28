@@ -7,78 +7,63 @@ import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
 import { QuadrupedGaitAdmission } from "./quadruped/QuadrupedGaitAdmission";
 
 /**
- * Explicit authored clocks for locomotion absent from the measured walk tables.
- *
- * A clock is supplied in metres per second and seconds. No missing biological
- * period, stance, spread or speed band is inferred. Spread is authored zero,
- * making these deterministic construction clocks, not zero-variance samples.
- * The species' measured walk remains unchanged; faster gaits borrow its named
- * construction pose ranges, not measured faster-gait joint kinematics.
- *
- * Dagg (1974), doi:10.1111/j.1469-7998.1974.tb03144.x, distinguishes the
- * camel's lateral walk from its running pace. Here a pace is constructed with
- * simultaneous ipsilateral contacts and opposite sides half a stride apart.
- * Dagg (1967), Gaits and Their Development in the Infraorder Pecora, pp.65–66,
- * observed sika trot and rotary gallop. The trot uses coincident diagonals; the
- * rotary gallop uses authored quarter-stride intervals, with opposite leading
- * fore/hind sides. These fractions are constructions, not measured full-phase
- * statistics. Their durations always come from the caller.
- *
- * Each faster gait's first authored speed is its automatic change boundary, not
- * a claimed biological transition. Absolute scaling preserves all clocks.
- * Admission makes a private numerical snapshot for a ride; no species registry,
- * model identity, motion law or foreign function is modified.
+ * Builds camel and sika speed tables from authored periods and contact times
+ * and validates complete caller-supplied gait tables.
  */
 export namespace AutoMovieArchetypeQuadrupedLocomotion {
-  /** An authored SI clock, with independent fore/hind contact durations. */
+  /** One finite SI clock with separate fore and hind contact durations. */
   export interface IClock {
-    /** Authored speed, metres per second; rows must increase strictly. */
-    speed: number;
     /**
-     * Authored complete stride period, seconds, with a finite representable
-     * reciprocal frequency.
+     * Positive speed in metres per second. Speeds increase strictly across
+     * rows.
      */
+    speed: number;
+    /** Positive stride period in seconds with a finite reciprocal frequency. */
     stride: number;
-    /** Authored fore-foot ground-contact duration, seconds, below stride. */
+    /** Positive fore contact seconds, strictly shorter than the stride. */
     foreStance: number;
-    /** Authored hind-foot ground-contact duration, seconds, below stride. */
+    /** Positive hind contact seconds, strictly shorter than the stride. */
     hindStance: number;
   }
 
-  /** Required authored lateral-pace clocks, separate from the measured walk. */
+  /** Adds an authored running pace to the camel's observed walk. */
   export interface ICamel {
-    /** One or more strictly increasing speed points; no clock is defaulted. */
+    /** One or more running-pace clocks in increasing speed order. */
     pace: readonly IClock[];
   }
 
-  /** Deer input with an authored diagonal-trot clock table. */
+  /** Supplies an authored sika trot, with an optional faster gallop. */
   export interface IDeerTrot {
-    /** Required authored diagonal-trot clocks in this branch. */
+    /** Required clocks for the diagonal trot, slowest first. */
     trot: readonly IClock[];
-    /** Optional authored rotary-gallop clocks, faster than trot. */
+    /** Optional faster rotary-gallop clocks, slowest first. */
     gallop?: readonly IClock[];
   }
 
-  /** Deer input with rotary-gallop clocks and no authored trot. */
+  /** Supplies an authored sika rotary gallop without a trot. */
   export interface IDeerGallop {
-    /** No authored trot is supplied in the gallop-only branch. */
+    /** Omit the trot to use the walk and rotary gallop. */
     trot?: undefined;
-    /** Required authored rotary-gallop clocks in this branch. */
+    /** Required clocks for the rotary gallop, slowest first. */
     gallop: readonly IClock[];
   }
 
-  /** Authored sika trot and/or rotary gallop; an absent gait stays unsupported. */
+  /**
+   * Adds either or both of the authored sika trot and rotary gallop above
+   * the walk.
+   */
   export type IDeer = IDeerTrot | IDeerGallop;
 
   /**
-   * The camel's measured walking point plus the caller's running-pace clocks.
+   * Adds authored running-pace clocks above the measured camel walk.
    *
-   * @param params Required authored SI clocks; construction pose ranges remain
-   *   the walk's proxies.
-   * @returns An admitted absolute table, with ipsilateral running-pace
-   *   contacts.
-   * @throws {AutoMovieArchetypeRefusal} For an empty, unordered, nonfinite or
-   *   unsupported clock.
+   * Left and right lateral pairs land one half stride apart. The pace uses
+   * the walk's pose ranges and the caller's timing, with zero stride spread.
+   *
+   * @param params One or more pace clocks in increasing speed order.
+   * @returns A validated absolute table with walk and pace.
+   * @throws {AutoMovieArchetypeRefusal} For an empty or invalid authored
+   *   clock sequence, including a pace that starts at or below the walk.
    */
   export function camel(
     params: ICamel,
@@ -94,14 +79,17 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   }
 
   /**
-   * The sika's measured walk plus explicitly authored trot and/or rotary
-   * gallop.
+   * Adds an authored diagonal trot, rotary gallop or both above the sika walk.
    *
-   * @param params At least one faster gait's SI clocks, in increasing speed
-   *   order.
-   * @returns An admitted absolute table; absent faster gaits stay unsupported.
-   * @throws {AutoMovieArchetypeRefusal} For no faster gait or any invalid
-   *   clock/table.
+   * Trot uses opposite diagonal pairs. The rotary phase order from left fore
+   * is left hind, right hind and right fore. The faster gaits use the walk's
+   * pose ranges. Their timing uses the caller's clocks with zero stride spread.
+   *
+   * @param params One or both nonempty authored gait sequences. Within each,
+   *   clocks increase by speed. Trot starts below gallop when both are present.
+   * @returns The validated absolute table containing the supplied gaits.
+   * @throws {AutoMovieArchetypeRefusal} If both authored sequences are absent
+   *   or the admitted clock or gait order is invalid.
    */
   export function deer(params: IDeer): AutoMovieArchetypeQuadrupedGait.ITable {
     if (params.trot === undefined && params.gallop === undefined)
@@ -127,14 +115,17 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   }
 
   /**
-   * Admit and snapshot a complete caller-supplied table before a ride reads it.
+   * Validates and copies the clock and pose inputs for a complete gait table.
    *
-   * @param table Closed gaits, ordered finite SI rows and normalized touchdown
-   *   phases.
-   * @returns A new numerical snapshot, without references to mutable caller
-   *   rows or pose records.
-   * @throws {AutoMovieArchetypeRefusal} For malformed tables, unordered speeds,
-   *   invalid contact/phase data or an absent transition rule.
+   * Automatic gaits start at increasing speeds. Each after the slowest has
+   * an entry rule, and explicit-only gaits have none. The four touchdown
+   * phases lie below one, with left fore at zero.
+   *
+   * @param table Caller-owned gait table with declared clocks and pose inputs.
+   * @returns An independent snapshot of the admitted table, including copied
+   *   row, phase and pose records.
+   * @throws {AutoMovieArchetypeRefusal} For invalid scalar measurements,
+   *   gait choices, ordering, touchdown phases or transition rules.
    */
   export function admit(
     table: AutoMovieArchetypeQuadrupedGait.ITable,
@@ -423,6 +414,12 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     if (rule.kind === "mass") {
       positive(rule.speed, `${axis}.change.speed`);
       positive(rule.mass, `${axis}.change.mass`);
+      if (!Number.isFinite(rule.exponent))
+        refuse(
+          `${axis}.change.exponent`,
+          rule.exponent,
+          "supply a finite exponent",
+        );
       return {
         kind: "mass",
         speed: rule.speed,
@@ -445,14 +442,16 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
    * A finite positive SI time, reciprocal frequency, speed or reference length.
    */
   function positive(value: number, axis: string): void {
-    if (value <= 0) refuse(axis, value, "supply a finite positive value");
+    if (!Number.isFinite(value) || value <= 0)
+      refuse(axis, value, "supply a finite positive value");
   }
 
   /*
    * A finite nonnegative range, spread or hysteresis.
    */
   function nonnegative(value: number, axis: string): void {
-    if (value < 0) refuse(axis, value, "supply a finite nonnegative value");
+    if (!Number.isFinite(value) || value < 0)
+      refuse(axis, value, "supply a finite nonnegative value");
   }
 
   /*
@@ -460,7 +459,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
    * one.
    */
   function unit(value: number, axis: string): void {
-    if (value < 0 || value > 1)
+    if (!Number.isFinite(value) || value < 0 || value > 1)
       refuse(axis, value, "supply a finite fraction from zero through one");
   }
 

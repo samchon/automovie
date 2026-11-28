@@ -1,61 +1,41 @@
 /**
- * Form two physical tangent observations for one affine source triangle. For
- * physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal physical
- * tangent coordinates to global UV. A leaf basis contributes
- * lengthMm*(phi_s_T[0,a]/hu + phi_t_T[1,a]/hv), with target lengthMm*Q[:,a].
- * Thus the two rows measure the source-metric first derivative residual.
- * Targets are millimetres and receive no position-origin subtraction. The
- * original triangle may cross the leaf bounds. Its frame is reusable by every
- * clipped child and quadrature point. UV orientation must be positive. A second
- * physical edge unresolved at machine-relative angular precision,
- * nonrepresentable positive area or nonfinite arithmetic throws. The diagonal
- * scale ratio and edge reconstruction residual are diagnostics, not condition
- * numbers, rank certificates or continuous source-error bounds. Input arrays
- * are not mutated and no geometry or normal is published.
+ * Callable construction of two first-derivative observations from an affine
+ * source triangle.
  */
 
 export namespace IAutoMovieRecoveryChartPhysicalJet {
   /**
-   * Form two physical tangent observations for one affine source triangle. For
-   * physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal physical
-   * tangent coordinates to global UV. A leaf basis contributes
-   * lengthMm*(phi_s_T[0,a]/hu + phi_t_T[1,a]/hv), with target lengthMm*Q[:,a].
-   * Thus the two rows measure the source-metric first derivative residual.
-   * Targets are millimetres and receive no position-origin subtraction. The
-   * original triangle may cross the leaf bounds. Its frame is reusable by every
-   * clipped child and quadrature point. UV orientation must be positive. A
-   * second physical edge unresolved at machine-relative angular precision,
-   * nonrepresentable positive area or nonfinite arithmetic throws. The diagonal
-   * scale ratio and edge reconstruction residual are diagnostics, not condition
-   * numbers, rank certificates or continuous source-error bounds. Input arrays
-   * are not mutated and no geometry or normal is published.
+   * Factor the two physical edge vectors with thin QR. Map the orthonormal
+   * tangent directions to global UV, then scale them into the containing leaf
+   * and multiply by the requested millimetre exchange length. Reject a
+   * collapsed or numerically unresolved tangent frame.
    */
 
   export type Operation = (input: {
-    /** Three private PL observations in millimetres, in triangle order. */
+    /** Three original physical triangle vertices in registered millimetres. */
     pointsMm: readonly [
       readonly [number, number, number],
       readonly [number, number, number],
       readonly [number, number, number],
     ];
 
-    /** Their dimensionless global UV addresses, with positive signed area. */
+    /** Three original global UV coordinates in vertex order. */
     parameters: readonly [
       readonly [number, number],
       readonly [number, number],
       readonly [number, number],
     ];
 
-    /** Positive affine leaf rectangle [u0,u1,v0,v1] in the same global UV. */
+    /** Containing leaf bounds [uMin, uMax, vMin, vMax]. */
     bounds: readonly [number, number, number, number];
 
-    /** Positive physical derivative weight length, in millimetres. */
+    /**
+     * Positive millimetre exchange length multiplying both tangent operators
+     * and targets.
+     */
     lengthMm: number;
   }) => {
-    /**
-     * Weights of local leaf phi_s and phi_t; targets multiply the same
-     * millimetre coefficients.
-     */
+    /** Two independent chart derivative operators and their physical targets. */
     directions: [
       {
         /**
@@ -93,22 +73,16 @@ export namespace IAutoMovieRecoveryChartPhysicalJet {
       },
     ];
 
-    /**
-     * Original physical triangle area, before any private clipping, square
-     * millimetres.
-     */
+    /** Physical source triangle area in square millimetres. */
     sourceAreaMm2: number;
 
-    /** Twice the positive signed area of the original UV triangle. */
+    /** Positive determinant of the source triangle's UV edge matrix. */
     determinantUv: number;
 
-    /**
-     * Smaller over larger positive QR diagonal magnitude, not a condition
-     * number.
-     */
+    /** Ratio of measured thin-QR tangent scales. */
     tangentScaleRatio: number;
 
-    /** Largest Euclidean edge residual of reconstructed K=Q R, millimetres. */
+    /** Maximum measured physical edge reconstruction discrepancy in millimetres. */
     reconstructionErrorMm: number;
   };
 }

@@ -46,6 +46,10 @@ const METRES: number = 1e-12;
  * 3. At toe-off it is at its push pitch, the toes extended by as much.
  * 4. Over the heel rocker the heel keeps its place, and over the forefoot rocker
  *    the ball keeps its place.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A stance foot rocks over its heel and forefoot while their respective world contacts stay fixed.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls foot-rocker placement at strike, flat stance, toe-off and inside the two rocker windows on the stored sole geometry.
+ * @evidence contracts/development/testing.md#independent-expectations A fixed pivot carries the known local heel or ball to the same world point. The prescribed strike and 40-degree push fix the toe and foot orientation checks.
  */
 export async function test_motions_actions_walk_foot_stance(): Promise<void> {
   const body: humanFootOffset.IBody = {

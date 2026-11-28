@@ -104,6 +104,10 @@ const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (
  * 3. A negative colorFactor channel is refused at its path.
  * 4. A finite nonnegative RGB factor, including zero and a value above one,
  *    remains admitted by the factor contract.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers overlay image closure, normalized versus source-coordinate scale and color factor admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateTextureAssets, validateTextureScale and validateModel on the same typed overlay fixture with separately exchanged image, UV intent or factor.
+ * @evidence contracts/development/testing.md#independent-expectations The registered id is available and the alternate id is absent. A nine-by-four measured normalized span exceeds one; source UV makes no such claim. The factor range includes finite zero and values above one but excludes negatives.
  */
 export function test_engine_validation_material_overlay_textures(): void {
   const closure: (

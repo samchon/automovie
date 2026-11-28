@@ -3,12 +3,15 @@ import type {
   IAutoMovieRecoveryReconstruction,
 } from "..";
 
-/** Reconstructed model with its independent declared-domain membership ledger. */
+/**
+ * Generated reconstruction together with a ledger of each declared domain's
+ * realized membership.
+ */
 
 export interface IAutoMovieRecoveryReconstructedModel extends IAutoMovieRecoveryReconstruction {
   /**
-   * Declared-to-generated domain accounting, independent of numerical
-   * qualification.
+   * Ledger relating declared saved domains to generated parts and recording any
+   * missing or unattributed geometry.
    */
   membership: IAutoMovieRecoveryDomainLedger;
 }

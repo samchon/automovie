@@ -2,26 +2,32 @@ import type { AutoMovieMatrix3Tuple } from "./AutoMovieMatrix3Tuple";
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * A named local-to-parent rigid frame with finite rotation rows and millimetre
- * translation. Parents must precede children when constructing the context;
- * null identifies a root.
+ * Named rigid frame with a parent key, translation in millimetres and three
+ * proper rotation rows.
+ *
+ * Translation affects points. Rotation alone transforms derivative vectors and
+ * preserves their physical units.
  */
 export interface IAutoMovieCurveHierarchyFrame64 {
   /**
-   * Actual owning node key, resolved by the shared context before controls are
-   * generated.
+   * Unique nonempty hierarchy node key used to resolve transforms and edge
+   * endpoints.
    */
   bone: string;
 
-  /** Single parent node key, or null for the hierarchy root. */
+  /** Parent node key already declared during construction, or null for a root. */
   parent: string | null;
 
   /**
-   * Dimensionless local-to-parent rotation rows; context admission requires a
-   * finite proper orthonormal basis.
+   * Dimensionless proper orthonormal rotation rows. Constructor inputs are
+   * local-to-parent, and frame lookup returns the resolved local-to-world
+   * rows.
    */
   rotation: AutoMovieMatrix3Tuple.ReadonlyRows;
 
-  /** Finite parent-relative translation in millimetres before hierarchy resolution. */
+  /**
+   * Finite millimetre translation tuple. Constructor input is relative to the
+   * parent and frame lookup reports world coordinates.
+   */
   translationMm: Readonly<AutoMovieVector3Tuple>;
 }

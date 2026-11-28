@@ -2,36 +2,44 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createAshtray as createAshtrayImplementation } from "./internal/createAshtray";
 import { type AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
-/** Public operations for Auto Movie Archetype Ashtray. */
+/**
+ * Constructs a glass ashtray with a supported inner floor and underside pinch.
+ */
 export namespace AutoMovieArchetypeAshtray {
   /**
-   * An ashtray with an inside floor and a precision grip from beneath.
+   * Build an open glass ashtray resting at model Y zero.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The `rim` and supported `inside` face `+Y`. The `body` pinches
+   * across floor thickness from below, toward `-Y`.
+   *
+   * @param params Optional scene ID and complete glass ashtray model.
+   *   The default ID is `vessel`.
+   * @param seed Numeric seed for an omitted model. Omit it for `nachtmann`,
+   *   0.1 metres wide, 0.03 metres high and 0.258 kilograms.
+   * @returns The glass dish with its opening, floor surface and precision hold.
+   * @throws {AutoMovieArchetypeRefusal} If the model is unavailable.
    */
   export function create(params?: AutoMovieArchetypeAshtray.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeAshtray.Affordance, AutoMovieArchetypeAshtray.Dimension> {
     return createAshtrayImplementation(params, seed);
   }
 
-  /** The `model` choices this producer admits. */
+  /** Recorded glass ashtray labels `nachtmann` and `harris`. */
   export type Model = "nachtmann" | "harris";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Recorded outside span and rim height in metres, and model mass in kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * Upward `rim` and supported `inside`, plus downward precision `body` grip.
+   */
   export type Affordance = "body" | "inside" | "rim";
 
-  /** The admitted settings and optional model ID. */
+  /** Optional scene ID and one complete glass catalogue model. */
   export interface IParams extends Pick<AutoMovieArchetypeVessel.IParams, "id"> {
-    /** The recorded ashtray. The seed selects it when omitted. */
+    /**
+     * Selects `nachtmann` or `harris`. Omit the model and seed for `nachtmann`.
+     */
     model?: Model;
   }}

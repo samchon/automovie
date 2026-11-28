@@ -31,6 +31,10 @@ type P2 = [number, number];
  * 1. No diagnostic; at every station the tape is the girth within its tolerance,
  *    and the section at 64 phases stands on the ellipse within the bound.
  * 2. The tape read against a girth three tolerances larger misses it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the authored tape length, elliptical station checks, independent sampling error and an oversized comparison.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the tape-driven part and measures its sections with a separately sampled convex perimeter and ellipse check.
+ * @evidence contracts/development/testing.md#independent-expectations The AGM ellipse perimeter fixes the required tape. Convex hull chord sampling and the periodic section error give the stated tolerance. A length three tolerances larger cannot agree.
  */
 export function test_engine_geometry_construction_view_girth(): void {
   const [a, b]: [number, number] = [0.03, 0.02];

@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanWristPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanWristPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Palmar flexion and radial deviation in degrees from neutral. Positive values
+ * bend toward the palm and toward the thumb. Negative values describe
+ * extension and ulnar deviation.
+ */
 export type IAutoMovieHumanWristPoseSchema = IAutoMovieHumanWristPose & {
   /** Palmar flexion 80, extension 70 (AAOS). */
   flexion?: number & tags.Minimum<-70> & tags.Maximum<80>;

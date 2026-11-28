@@ -74,6 +74,10 @@ function close(title: string, actual: number, expected: number): void {
  * 3. An exactly zero error at rest fails the program once, sticks the integral at
  *    zero and holds the pivot on the capture point; a 1 mm error then solves
  *    and gathers `K_i dt e`; a moving plan clears the integral.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains feedback split, rate regularization, support constraints and integral state for moving or quiet plans.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the controller with aligned forward/lateral motion, previous feedback, limits on a small support and zero and nonzero rest errors.
+ * @evidence contracts/development/testing.md#independent-expectations The one-axis stationary point and a c = 10 m fix the gain-weighted split. A 4 cm support shrunk by 2 mm bounds pressure while the pivot may move farther.
  */
 export function test_engine_physics_physical_icp_controller(): void {
   const zulu = AutoMovieEnginePhysicalIcpController.ZULU;

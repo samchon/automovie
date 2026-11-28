@@ -43,9 +43,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production re-expression, moved course, chart map, scaling-centre jet and turn rule, and reads sections through the production resolver and the engine's chain.
  * @evidence contracts/development/testing.md#independent-expectations World-point equality between two representations, the centred ellipse's polar equation, a hand-expanded polynomial and the offset curve's speed are closed forms.
- * @evidence contracts/development/testing.md#distinguishing-cases On and between knots, all four quadrants, window corners and loop addresses, the identity line, two refusals, three scaling cases and two half lengths, every finding collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made families and courses; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and expectation.
+ * @evidence contracts/development/common.md#meaningful-documentation Moving a chart origin preserves world points, windows and loop addresses. The synthetic cases also check its jet, zero offsets, domain refusal and turn speed under offset.
  */
 export function test_human_conic_recentre(): void {
   const failures: string[] = [];

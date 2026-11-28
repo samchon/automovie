@@ -20,9 +20,7 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual production mixer for missing, one-sample and two-sample dialogue on a one-sample span, and the real phoneme timing and viseme join with a chunk past the line, observing zero peak, the levelling refusal and the join's refusal.
  * @evidence contracts/development/testing.md#independent-expectations A missing dialogue map supplies no samples and independently implies zero peak; a one-sample line is zero after the 240-sample edge fade, so it cannot pass the −70 LUFS absolute gate and is refused; a line with more samples than its span holds must be refused, because the mixer plays lines at unit rate. At 48 000 fps and 48 kHz a sample is a frame, so a chunk ending at sample 101 ends past frame 2.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves the two-frame48000 Hz plan with a one-sample dialogue span, supplied [ .25 ] and refused [ .25,.5 ] input and the chunk at samples 100..101 past the two-frame line. Former exact silence uses nclose with zero tolerance; dialogue levelling owns its range in `test_engine_sound_dialogue_levelling`.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh plans, map, PCM and chunk records through the existing fixture; it runs no speech generator/recognizer, decoder, file/audio-device operation, renderer, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One-sample dialogue at 48000 Hz stays silent when missing, refuses a faded-out one-sample line and a two-sample line.).
+ * @evidence contracts/development/common.md#meaningful-documentation A missing one-sample line is silent and malformed input refuses. A one-sample phoneme range checks its two-frame line's source clock.
  */
 export function test_engine_sound_short_dialogue_clock(): void {
   const { eventPlan }: ReturnType<typeof createSoundPropagationTestInputs> =

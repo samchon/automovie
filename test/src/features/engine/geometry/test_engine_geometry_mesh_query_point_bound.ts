@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. (0.5, 0.5, 0.5) inside: 0; (3, 0.5, 0.5): 4; (2, 3, -1): 1 + 4 + 1 = 6.
  * 2. For (2, 3, -1): cutoff 0.5 stops after x at 1; cutoff 3 stops after y at 5;
  *    cutoffs 6 (equality continues) and 5.9 sum all three to 6.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names squared distance, sum order and strictly exceeded cutoff behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries an explicit unit-box node at inside and exterior points with different cutoff values.
+ * @evidence contracts/development/testing.md#independent-expectations For (2,3,−1), the per-axis squared gaps are 1, 4 and 1. Their prefixes 1, 5 and 6 determine exactly when a cutoff is exceeded.
  */
 export function test_engine_geometry_mesh_query_point_bound(): void {
   const box = { low: [0, 0, 0], high: [1, 1, 1] };

@@ -1,20 +1,14 @@
 import type { IAutoMovieRecoveryPoseModelCreationOperation } from "..";
 
-/**
- * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
- * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each
- * derivative is de/d - (e/d)_sum((line/d)_(derivativeLine/d)). This
- * differentiates both the incidence and its pixel normalization; zero/undefined
- * lines refuse the fit.
- */
+/** Callable signed Sampson residuals and analytic five-parameter pose Jacobian. */
 
 export namespace IAutoMovieRecoveryPoseResidualsLinearizeOperation {
   /**
-   * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
-   * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each
-   * derivative is de/d - (e/d)_sum((line/d)_(derivativeLine/d)). This
-   * differentiates both the incidence and its pixel normalization;
-   * zero/undefined lines refuse the fit.
+   * Use equal-length original pixel pairs and a pose model with five
+   * fundamental-matrix derivatives. Differentiate both signed incidence and the
+   * joint epipolar normal length. Return one residual and one Jacobian row per
+   * correspondence. Missing directions or undefined epipolar normals raise an
+   * error.
    */
 
   export type Operation = (
@@ -22,12 +16,12 @@ export namespace IAutoMovieRecoveryPoseResidualsLinearizeOperation {
     first: readonly (readonly [number, number])[],
     second: readonly (readonly [number, number])[],
   ) => {
-    /**
-     * Signed pixel residuals aligned with the supplied correspondence and
-     * Jacobian row order.
-     */
+    /** Signed Sampson residuals in pixels, in correspondence order. */
     residuals: number[];
-    /** Residual derivative rows in the current pose tangent-coordinate ordering. */
+    /**
+     * One derivative row per correspondence, with five columns in model tangent
+     * order.
+     */
     jacobian: number[][];
   };
 }

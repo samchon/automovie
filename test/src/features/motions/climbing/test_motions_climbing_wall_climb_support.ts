@@ -25,6 +25,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Releasing the right foot leaves three contacts.
  * 3. Releasing a second limb while one is free is refused on `moves`.
  * 4. Two limbs starting on the same hold are refused on `start`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ordered wall-climb contacts, unique holds and admission of only one simultaneous released limb.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds four authored supports, moves and releases a foot, then tries a double release and two identical starting holds.
+ * @evidence contracts/development/testing.md#independent-expectations Named fixture holds and timestamps determine each contact table. A single release keeps exactly three supports and the two refusal axes distinguish causes.
  */
 export function test_motions_climbing_wall_climb_support(): void {
   const hold: (point: string) => IAutoMovieMotionHumanWallClimb.Hold = (

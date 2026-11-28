@@ -16,6 +16,10 @@ const EXACT_DYADIC_TOLERANCE: number = 0;
  *    recovers the original covector, and backward substitution gives the
  *    independently derived physical step.
  * 2. Zero pivots refuse whitening, and a mismatched step width refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes point-first factored action and original physical coordinate order.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies transpose, whitening and reverse substitution to a coupled factor, then exercises zero pivots and a width mismatch.
+ * @evidence contracts/development/testing.md#independent-expectations Independent triangular substitution with the authored entries and scales gives the expected ordered physical covector and step.
  */
 export function test_recovery_internal_triangular_map_metric(): void {
   const camera: number[][] = [

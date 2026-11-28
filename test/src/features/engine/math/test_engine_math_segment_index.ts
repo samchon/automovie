@@ -29,6 +29,10 @@ const at: (times: readonly number[]) => (i: number) => number =
  * 2. A two-key sequence returns zero, exact interior keys choose their preceding
  *    segment, and strict-interior first/last midpoints select their straddling
  *    segment.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers ordered segment lookup, including exact interior keys and strict interior midpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls segmentIndex on two-key, short, irregular and 200-key arrays at exact keys, midpoints and off-grid times.
+ * @evidence contracts/development/testing.md#independent-expectations An inclusive linear scan is independent of the binary search. The explicit assertions pin the preceding segment at a tie and the straddling segment at a midpoint.
  */
 export function test_engine_math_segment_index(): void {
   const arrays: number[][] = [

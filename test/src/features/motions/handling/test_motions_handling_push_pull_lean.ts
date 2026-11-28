@@ -20,6 +20,10 @@ const ROUNDING: number = 1e-12;
  *    21.9.
  * 2. A heavy pull half way leans back `(17.7 + 21.8) / 2 = 19.75`.
  * 3. A drag takes the push's table; handles under the waist hold its lean.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines table-driven trunk lean by load, direction and handle height with clamping outside the waist-to-shoulder interval.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates one heavy load at waist, shoulder and middle height for push and pull, and at a lower drag height.
+ * @evidence contracts/development/testing.md#independent-expectations Declared push endpoints 18.7° and 25.1° interpolate to 21.9°. The pull mean 19.75° has opposite sign and the low drag uses the push's waist value.
  */
 export function test_motions_handling_push_pull_lean(): void {
   const body: Parameters<typeof pushPullLean>[0] = {

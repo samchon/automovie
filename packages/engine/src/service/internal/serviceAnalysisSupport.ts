@@ -64,7 +64,7 @@ export function serviceAnalysisSupport(
       check: "segment-clash",
       status: "supported",
       reason:
-        "runs are compared as axis-aligned swept volumes, exempt only where they meet at a shared node",
+        "runs are compared by radius-padded span boxes. Pairs sharing an endpoint node are exempt along their full routes",
     },
     {
       check: "maintenance-envelope",

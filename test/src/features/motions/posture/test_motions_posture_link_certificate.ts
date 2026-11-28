@@ -62,6 +62,10 @@ function part(offset: number): IAutoMovieMotionHumanAuditTangleModel.IPart {
  *    second, nearer solid 0.5 m away the least, 0.15.
  * 2. Two placed segments of those spheres, offsets 0.05 and 0.08: 0.62; at centres
  *    0.2 m apart, overlapping by 0.1, −0.18; at one centre, negative infinity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines signed probe separation for one or two placed segments, conservative offsets and coincident core behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Certifies one and two sphere parts at distinct separations and queries two segments with different offsets.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting radii and the required offset gives 0.65, 0.15 and 0.62 m for separated cases, −0.18 m for overlap, and negative infinity for coincident cores.
  */
 export function test_motions_posture_link_certificate(): void {
   const a: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(

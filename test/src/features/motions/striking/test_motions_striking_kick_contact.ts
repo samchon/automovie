@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * Scenario: a round kick preferring 15 tries 15, 5, 10, 20, ..., 40; with no
  * preference 5 to 40; a push kick preferring 10 tries 10 then 0, preferring 0
  * only 0, and with none only 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the numerical lean trial order and duplicate elimination for two animation variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Enumerates fallback leans with preferred, absent and exact zero preferences and reads the pose range case.
+ * @evidence contracts/development/testing.md#independent-expectations The 5-degree grid from 5 to 40 excludes the first preferred sample. An upright-only fallback adds zero exactly once.
  */
 export function test_motions_striking_kick_contact(): void {
   TestValidator.equals(

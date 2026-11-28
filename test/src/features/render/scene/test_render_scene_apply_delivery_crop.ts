@@ -18,6 +18,10 @@ const NDC_TOLERANCE: number = 1e-9;
  *    0.1..0.9, and that window reads back.
  * 3. A window starting at x 0.5 puts its left edge at NDC -1 and the right
  *    edge at +1.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names omitted, whole, interior and right-side windows and the coordinates they affect.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies actual crop settings to a Three.js perspective camera. Projects world points through that camera and reads the installed crop back.
+ * @evidence contracts/development/testing.md#independent-expectations At depth 2 in a 90-degree aspect-2 camera, the point projects to 0.125 on both axes before crop. Window rescaling yields 0.25 and 0.15625. The two edge points bound the right-half crop at NDC −1 and +1. The 1e-9 tolerance allows floating projection roundoff.
  */
 export function test_render_scene_apply_delivery_crop(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(

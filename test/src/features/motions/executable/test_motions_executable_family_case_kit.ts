@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/throwsError";
  * 5. 91 degrees fails a 0 to 90 degree band, shown in degrees.
  * 6. A build that throws yields null and appends its refused case: no figure and
  *    one failing `planned` verdict with the thrown message.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reusable capture joint and drift reads, event and frame selection, threshold verdicts and refused case recording.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the shared kit against a synthetic pose, moving point and action, an authored frame grid, and a throwing builder.
+ * @evidence contracts/development/testing.md#independent-expectations The known 45° axis, 0.5 m drift, event at 3.25 s and frame 0.25 s supply separate oracles. A refused case keeps the thrown message and has no figure.
  */
 export function test_motions_executable_family_case_kit(): void {
   // 1. An angle.

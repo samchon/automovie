@@ -33,6 +33,10 @@ const GRID: number = 1e-10;
  * 3. A parent returning while its child stays dynamic is `return` at 0.2 s, the
  *    child `dynamic` at 0.35 s, the parent `authored` at 0.4 s.
  * 4. A soft sphere compressed into the floor still completes its return.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains segment authority on the native substep clock, mixed parent-child handoffs and admissible compressed return.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes sphere and hinged-pair playback at multiple substep counts, reads segment authorities and compares archived metadata.
+ * @evidence contracts/development/testing.md#independent-expectations Tick arithmetic requires increasing nonnegative times and exact reactivation at 0.4 s. The 1 mm inherited error converges to the 0.3 m anchor while child and parent preserve their separate ownership.
  */
 export async function test_engine_physics_physical_playback_ownership(): Promise<void> {
   for (const substeps of [3, 8, 32]) {

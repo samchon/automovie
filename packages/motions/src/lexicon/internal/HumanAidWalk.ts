@@ -1,4 +1,8 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -19,6 +23,7 @@ import { support } from "../../actions/internal/support";
 import { supportContact } from "../../actions/internal/supportContact";
 import { getUp } from "../../floor/internal/getUp";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanMountRider } from "./HumanMountRider";
 import { humanAidWalkGrip } from "./humanAidWalkGrip";
 
@@ -67,10 +72,11 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     );
     if (tip === undefined)
       return refuse("prop", params.prop, "the placed aid has no floor tip");
-    const footOffset: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
-      start.rotation,
-      tip.frame.translation,
-    );
+    const footOffset: IAutoMovieVector3 =
+      AutoMovieEngineQuaternion.rotateVector(
+        start.rotation,
+        tip.frame.translation,
+      );
     if (Math.abs(start.position.y + footOffset.y) > FLOOR)
       return refuse("prop", params.prop, "the aid does not start on its floor");
     const walker: boolean = params.kind === "walker";
@@ -94,7 +100,8 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
     // The feet turn with the aid about the entry station, or about their own
     // midpoint when the walk gives none.
     const center: IAutoMovieVector3 =
-      params.origin ?? AutoMovieEngineVector3.lerp(initial[0]!, initial[1]!, 0.5);
+      params.origin ??
+      AutoMovieEngineVector3.lerp(initial[0]!, initial[1]!, 0.5);
     const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] =
       getUp.quiet(body);
     let leading: IAutoMovieMotionHumanSupport.IContact = foot(
@@ -114,17 +121,15 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
       },
     ];
     let turn: number = 0;
-    for (const station of params.stations) {
+    for (const [index, station] of params.stations.entries()) {
       const heading: number = station.turn ?? 0;
       const next: IAutoMovieVector3 = AutoMovieEngineVector3.add(center, {
         x: station.x,
         y: 0,
         z: station.z,
       });
-      const rotation: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
-        UP,
-        heading,
-      );
+      const rotation: IAutoMovieQuaternion =
+        AutoMovieEngineQuaternion.fromAxisAngle(UP, heading);
       const phase: number = station.seconds / (walker ? 3 : 2);
       if (walker)
         stances.push({
@@ -165,6 +170,14 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
         turn: heading,
         prefer,
       });
+      const pause: IAdvance["pause"] = moves[index]!.pause;
+      if (pause !== undefined)
+        stances.push({
+          contacts: [leading, trailing],
+          seconds: pause[1] - pause[0],
+          turn: heading,
+          prefer,
+        });
       turn = heading;
     }
 
@@ -179,9 +192,24 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
         (event: IAutoMovieMotionEvent): number => event.share * plan.duration,
       ),
     ]);
-    for (const move of moves)
+    const events: IAutoMovieMotionEvent[] = [...plan.events];
+    for (const [index, move] of moves.entries()) {
+      events.push({
+        name: `aidPlant${index + 1}`,
+        share: move.to / plan.duration,
+      });
       for (const share of [0, 0.25, 0.5, 0.75, 1])
         samples.add(move.from + share * (move.to - move.from));
+      if (move.pause !== undefined) {
+        const [from, to]: readonly [number, number] = move.pause;
+        events.push(
+          { name: `aidPause${index + 1}`, share: from / plan.duration },
+          { name: `aidResume${index + 1}`, share: to / plan.duration },
+        );
+        for (const share of [0, 0.25, 0.5, 0.75, 1])
+          samples.add(from + share * (to - from));
+      }
+    }
     const stations: humanAidWalkGrip.IStation[] = [];
     for (const seconds of samples) {
       const intended: IAutoMovieRigidTransform = frameAt(moves, start, seconds);
@@ -189,7 +217,8 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
         context.start + seconds,
       );
       if (
-        AutoMovieEngineVector3.distance(actual.position, intended.position) > FLOOR ||
+        AutoMovieEngineVector3.distance(actual.position, intended.position) >
+          FLOOR ||
         AutoMovieEngineQuaternion.angle(actual.rotation, intended.rotation) > 1
       )
         return refuse(
@@ -277,15 +306,7 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
           }),
         ),
       ],
-      events: [
-        ...plan.events,
-        ...moves.map(
-          (move: IAdvance, index: number): IAutoMovieMotionEvent => ({
-            name: `aidPlant${index + 1}`,
-            share: move.to / plan.duration,
-          }),
-        ),
-      ].sort(
+      events: events.sort(
         (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
           a.share - b.share,
       ),
@@ -366,11 +387,16 @@ function course(
       // The aid moves rigidly with the walker: displaced by the station and
       // turned about the entry station (`origin`), or about its own staged
       // frame when none is given: p' = p + d + (R - I)(p - origin).
-      const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(UP, heading);
+      const turn: IAutoMovieQuaternion =
+        AutoMovieEngineQuaternion.fromAxisAngle(UP, heading);
       const pivot: IAutoMovieVector3 = props.origin ?? start.position;
       const pose: IAutoMovieRigidTransform = {
         position: AutoMovieEngineVector3.add(
-          AutoMovieEngineVector3.add(pivot, { x: station.x, y: 0, z: station.z }),
+          AutoMovieEngineVector3.add(pivot, {
+            x: station.x,
+            y: 0,
+            z: station.z,
+          }),
           AutoMovieEngineQuaternion.rotateVector(
             turn,
             AutoMovieEngineVector3.subtract(start.position, pivot),
@@ -378,13 +404,29 @@ function course(
         ),
         rotation: AutoMovieEngineQuaternion.multiply(turn, start.rotation),
       };
+      const parked: number = clock + station.seconds;
+      const pause: number = HumanBound.within(
+        "pause",
+        station.pause ?? 0,
+        0,
+        Number.MAX_VALUE,
+        "s",
+      );
+      const next: number = parked + pause;
+      if (pause > 0 && !(Number.isFinite(next) && next > parked))
+        return refuse(
+          "pause",
+          pause,
+          "the hold must advance the finite route clock",
+        );
       const move: IAdvance = {
         from: clock,
         to: clock + phase * (walker ? 1 : 2 / 3),
         floor: [old, pose],
+        pause: pause === 0 ? undefined : [parked, next],
       };
       old = pose;
-      clock += station.seconds;
+      clock = next;
       return move;
     },
   );
@@ -405,13 +447,16 @@ function frameAt(
     if (seconds <= move.from) return stable;
     if (seconds < move.to) {
       const share: number = (seconds - move.from) / (move.to - move.from);
-      const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
+      const blend: number =
+        AutoMovieEngineMotionSampling.minimumJerkShare(share);
       const position: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
         move.floor[0].position,
         move.floor[1].position,
         blend,
       );
-      const height: number = AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share));
+      const height: number = AutoMovieEngineMotionSampling.minimumJerkShare(
+        2 * Math.min(share, 1 - share),
+      );
       return {
         position: { ...position, y: position.y + LIFT * height },
         rotation: AutoMovieEngineQuaternion.slerp(
@@ -445,6 +490,11 @@ interface IAdvance {
    * Start and finish floor poses.
    */
   floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
+
+  /*
+   * The optional hold after both feet reach this station.
+   */
+  pause: readonly [from: number, to: number] | undefined;
 }
 
 /*

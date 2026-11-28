@@ -17,6 +17,10 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
  *    lead carrier and source ownership.
  * 3. An authored 20-degree support nod peaks ten degrees nose-up at lift-off
  *    and moves the actual head and its carrier.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States canine cohort clocks, both lead orders, fixed and lifted terminal support and the authored head nod.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the pet, show and sled profiles, reads their gait clocks and solves the actual model. Checks footprint contact, unchanged link geometry, carried lead and the posed head.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's observed timing rows and expected lead orders. Half of the authored 20 degree nod range is ten degrees, and the stated lift-off sample must turn nose-up.
  */
 export function test_archetypes_animals_canine_attachment_clock(): void {
   const findings: string[] = [];

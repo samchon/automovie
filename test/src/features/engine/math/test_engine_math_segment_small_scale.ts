@@ -20,6 +20,10 @@ import { nclose, vclose } from "../../internal/predicates";
  *    1e-6, with witnesses at the two midpoints (0, 0, 0) and (0, 0, 1e-6).
  * 2. On a 1e-10 metre segment, the midpoint is 0 from it by `pointSegmentDistance`
  *    and is its own XZ projection by `closestPointOnSegmentXZ`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers micrometre closest-point witnesses and projections on a sub-nanometre segment.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the closest-pair, segment distance and XZ projection operations on explicitly scaled XYZ endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The perpendicular midpoint witnesses are one micrometre apart. The smaller test point is the exact midpoint of a 1e-10-metre segment, so distance is zero and projection is unchanged. Fixed tolerances distinguish collapse from rounding.
  */
 export function test_engine_math_segment_small_scale(): void {
   const a: IAutoMovieVector3 = { x: -5e-6, y: 0, z: 0 };

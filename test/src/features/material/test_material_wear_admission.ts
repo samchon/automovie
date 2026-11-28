@@ -22,10 +22,8 @@ import { hasViolation } from "../internal/hasViolation";
  * 3. `amount: 1.5`, `amount: 0`, `width: 0` and `roughness: 1.2` are refused at
  *    their fields, and a seed of 2³² is refused at `wear.seed`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `validateModel` on boxes citing worn materials; a field let through or reported elsewhere fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `validateModel` on boxes citing worn materials; a field let through or reported elsewhere fails. The amount cases admit one and refuse zero and 1.5. Each other refusal isolates its changed field.
  * @evidence contracts/development/testing.md#independent-expectations Every refusal is a range the issue and the contract state: amount in (0, 1], positive width, roughness in [0, 1], at least one layer.
- * @evidence contracts/development/testing.md#distinguishing-cases The amount boundary one is admitted while zero and 1.5 are refused; each refused case changes one field of an admitted one. Distances and shading are owned by the geometry and render wear tests.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_wear_admission`, with in-memory models.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_wear_admission(): void {

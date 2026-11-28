@@ -27,9 +27,11 @@ import { AutoMovieRecoveryChartMap as M } from "./AutoMovieRecoveryChartMap";
  */
 export namespace AutoMovieRecoveryChartSurface {
   /**
-   * Fit one observed orientable disk whose four boundary paths are already
-   * identified. Paths include their shared endpoints and contain private vertex
-   * ordinals.
+   * Fit one observed orientable disk with four ordered boundary paths in
+   * millimetres. Paths include shared endpoint indices, in bottom, right, top
+   * and left order with increasing chart parameters. Supply a complete shared
+   * boundary authority or let the owner fit each path. Report numerical fit
+   * and map qualifications independently.
    */
   export function fit(
     input: Parameters<IAutoMovieRecoveryChartSurface.Fit>[0],

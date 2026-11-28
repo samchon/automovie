@@ -1,60 +1,53 @@
-import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
+import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
-/**
- * Polar section-plane location of a model-space point near a
- * direction-correspondence sweep.
- */
+/** Input and output for radial section-plane inversion of a direction sweep. */
 export namespace IAutoMovieLocateSweepPoint {
   /**
-   * A model-space point and a compiled direction-correspondence sweep for
-   * section-plane inversion.
+   * Finite model-space point and compiled direction-correspondence sweep
+   * supplied for section-plane inversion.
    *
-   * The locator samples signed plane distance over 128 intervals and bisects
-   * sign changes 48 times. It selects the candidate with the smallest absolute
-   * radial offset. If no candidate is detected, it uses the end plane with
-   * smaller absolute signed distance. Tangential roots and multiple crossings
-   * between samples can be missed, so fallback does not prove the point lies
-   * beyond an end.
+   * The solver samples 128 plane intervals and bisects detected sign changes 48
+   * times. Tangential roots or several roots within one interval can escape
+   * detection.
    */
   export type IProps = {
     /**
-     * Compiled surface queried by section frame and polar radius. Parameter
-     * correspondence throws; explicit direction and omitted/default
-     * correspondence are accepted.
+     * Compiled sweep under direction correspondence, including the default when
+     * omitted. Explicit parameter correspondence is refused.
      */
     surface: IAutoMovieSweepSurface;
 
     /**
-     * Finite position in the surface's model frame, in metres. The locator
-     * rejects nonfinite coordinates; distance outside an end is projected into
-     * that end plane for the reported radial offset.
+     * Finite position in the sweep's model frame in metres. Use coordinates for
+     * which plane projections and radial evaluation remain representable.
      */
     point: IAutoMovieVector3;
   };
 
   /**
-   * Newly allocated section-plane address and signed radial residual from the
-   * locator's selected candidate. This record is mutable and retains neither
-   * the source point nor the compiled surface.
+   * Selected normalized spine coordinate, polar turn and signed metre radial
+   * residual.
    */
   export type IResult = {
     /**
-     * Chosen normalized spine coordinate in [0,1]; the sampled root search can
-     * miss tangential roots or multiple crossings between probes.
+     * Selected normalized chord coordinate in [0, 1]. It can be an end-plane
+     * fallback when the sampled search detects no crossing.
      */
     u: number;
 
     /**
-     * Polar direction in [0,1) turns, measured from frame.x toward frame.y.
-     * This is a surface query parameter only for direction correspondence.
+     * Polar turn in [0, 1), measured from the first section axis toward the
+     * second.
      */
     v: number;
 
     /**
-     * Signed in-plane radial distance minus surface.radius(u,v), in metres.
-     * Positive means outside that radial value; this is not Euclidean
-     * closest-surface distance.
+     * In-plane radial distance minus the compiled surface radius at the
+     * selected address, in metres. Positive means outside the radial profile.
+     *
+     * The offset is measured in the selected slice plane. An end-plane fallback
+     * can project a point lying outside the sweep's sampled span.
      */
     offset: number;
   };

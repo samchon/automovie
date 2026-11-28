@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Eight stills under a 200 budget fit: every sheet's grid stays inside the
  *    longest edge, the sheets hold every still, and no cell exceeds its still.
  * 3. A count of zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines contact sheet grid within a dimension budget and marks when stills require reduction.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans one native-size still, a set of eight constrained stills and a zero-still input.
+ * @evidence contracts/development/testing.md#independent-expectations The single cell is exactly 100 by 50. Width and height bounds and counting every input still validate the reduced layout independently of grid shape.
  */
 export function test_render_capture_plan_capture_layout(): void {
   const single: IAutoMovieCaptureLayout = AutoMovieRenderCapture.planLayout({

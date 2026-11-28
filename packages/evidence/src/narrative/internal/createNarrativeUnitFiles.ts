@@ -1,5 +1,6 @@
-import type { NarrativeLayer } from "../NarrativeLayer";
 import type { AutoMovieEvidenceNarrativeScope } from "../AutoMovieEvidenceNarrativeScope";
+import type { NarrativeLayer } from "../NarrativeLayer";
+import { assertNarrativeScope } from "./assertNarrativeScope";
 
 /*
  * Selects the authored unit files of one narrative layer.
@@ -29,14 +30,7 @@ export function createNarrativeUnitFiles(props: {
   scope: AutoMovieEvidenceNarrativeScope;
 }): string[] {
   const { layer, scope } = props;
-  if (
-    scope.mode !== "complete-work" &&
-    (scope.mode !== "first-part-pilot" ||
-      !/^001-[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(scope.part))
-  )
-    throw new Error(
-      "A first-part pilot requires one exact 001-lower-kebab-case part directory.",
-    );
+  assertNarrativeScope(scope);
   if (layer === "treatments") return [`${layer}/???-*.md`];
   if (layer === "screenplay")
     return scope.mode === "complete-work"

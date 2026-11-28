@@ -32,8 +32,6 @@ import path from "node:path";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real settings trees on disk and observes the reader's returned order and the outline validator's acceptance or refusal, so the layout contract is checked through the files the graph actually reads.
  * @evidence contracts/development/testing.md#independent-expectations The expected order is written from the scaffold's documented domain list and alphabetical file names, not computed by the reader.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a valid and a reordered outline, valid and invalid folder and file names, a mixed layout, and the retained numbered and flat layouts.
- * @evidence contracts/development/testing.md#execution-ownership The unit creates and removes its own temporary directories and starts no process.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Domain folders read in the scaffold's order (world, cast, props, sets),).
  */
 export function test_evidence_settings_domain_layout(): void {

@@ -2,17 +2,22 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createHospitalBed as createHospitalBedImplementation } from "./internal/createHospitalBed";
 import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
-/** Public operations for Auto Movie Archetype Hospital Bed. */
+/**
+ * Constructs a caster hospital bed with a patient surface and fixed side rails.
+ */
 export namespace AutoMovieArchetypeHospitalBed {
   /**
-   * A hospital bed with a caster base, patient support and bars along both sides.
+   * Build a hospital bed with four casters, a litter, a mattress and fixed rails.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The side seats mark the long mattress edges beside the raised rail
+   * solids. The rail bars expose grasp frames at their tops.
+   *
+   * @param params Optional ID and fixed dimensions in the hospital bed bands.
+   *   The ID defaults to `bed`.
+   * @param seed Numeric seed for omitted dimensions. Without it the
+   *   patient surface is 0.7025 metres above the floor.
+   * @returns Patient surface, side-edge seats and the two fixed rail bars.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed dimension is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeHospitalBed.IParams, seed?: number): AutoMovieArchetype<
   AutoMovieArchetypeHospitalBed.Affordance,
@@ -22,8 +27,7 @@ export namespace AutoMovieArchetypeHospitalBed {
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Patient and outer frame dimensions, litter height, mattress thickness and rail rise in metres, plus mass in kilograms.
    */
   export type Dimension =
     | "length"
@@ -35,7 +39,9 @@ export namespace AutoMovieArchetypeHospitalBed {
     | "thickness"
     | "width";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * The mattress `surface`, opposed side-edge seats and fixed `leftRail` and `rightRail` bar contacts.
+   */
   export type Affordance =
     | "leftRail"
     | "leftSide"
@@ -43,7 +49,9 @@ export namespace AutoMovieArchetypeHospitalBed {
     | "rightSide"
     | "surface";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional ID and fixed values in the hospital bed bands, including litter height, rail rise and empty mass.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeBed.IParams,
     | "id"

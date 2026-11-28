@@ -1,11 +1,9 @@
 /**
  * Fixed-step integration settings and the budgets validation enforces.
  *
- * ValidateFluidDomain checks finite authored scalars and rejects a computed
- * Courant number above one at referenceDepth. Its direct intermediate products
- * can produce NaN for extreme finite inputs, which that comparison does not
- * reject. Initial depths are bounded by referenceDepth, while inflow can raise
- * solved depths beyond it without a new Courant check.
+ * validateFluidDomain checks finite authored scalars and rejects a computed
+ * Courant number above one at referenceDepth. Initial depths are bounded by
+ * referenceDepth. Inflow can raise solved depths beyond it during replay.
  */
 export interface IAutoMovieFluidSolver {
   /** Integration step in seconds; strictly positive. */

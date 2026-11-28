@@ -25,6 +25,10 @@ import { throwsError } from "../../internal/throwsError";
  *    disagree"); a member with a negative reference is refused.
  * 5. Editing the merged lineage changes no member's; legacy-only and empty
  *    merges carry no lineage.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shared and disjoint domains, grouping, legacy behaviour, ownership and malformed lineage.
+ * @evidence contracts/development/testing.md#behavioral-verification Merges related, independent and legacy meshes and reads actual physical vertices and topology, then changes placement and returned lineage.
+ * @evidence contracts/development/testing.md#independent-expectations Equal source IDs in one domain share the literal edge with opposite traversal. Other domains retain distinct entries. A declared alias moved 2 m no longer shares its required grid cell.
  */
 export function test_engine_geometry_physical_vertices_merge(): void {
   const a: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2], [11, 12, 13], "actual-instance");

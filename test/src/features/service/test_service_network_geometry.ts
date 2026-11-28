@@ -74,9 +74,7 @@ const box: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual overall/span/access bounds, obstruction and clash queries, then validates authored lane and maintenance intrusions with exact source paths and single-defect counts.
  * @evidence contracts/development/testing.md#independent-expectations Literal route extrema plus radii0.025/0.02 and translated equipment corners supply bounds at 1e-12 tolerance; independent interior/face-contact boxes and authored source ids define obstruction/clash expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts straight/turning/empty/singleton routes, present/absent access boxes, strict interior versus face contact, one/two/no obstructions, shared-fitting exemption and unrelated runs crossing a maintenance volume.
- * @evidence contracts/development/testing.md#execution-ownership Owns synchronous portable bathhouse/network metadata and invokes conservative AABB-based engine checks; no mesh rendering or physical installation is observed, and diagonal circular interference or distant overlap of shared-node runs is not established by these orthogonal cases.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A straight run's overall bound is its extremes grown by its own radius, and a).
+ * @evidence contracts/development/common.md#meaningful-documentation Checks bounds from service runs and translated equipment boxes, then exercises interior overlap, touching faces, shared fittings and access clearance. Compares complete, empty and singleton route inputs.
  */
 export function test_service_network_geometry(): void {
   const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();

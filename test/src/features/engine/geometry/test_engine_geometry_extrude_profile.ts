@@ -24,6 +24,10 @@ import { throwsError } from "../../internal/predicates";
  * 4. Depth NaN, either infinity or zero ("finite number > 0"), three collinear
  *    points ("three non-collinear points"), an interior point and an L-shaped
  *    concave profile ("must be convex") are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names prism counts, depth and volume, input reordering, unchanged box geometry and invalid cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Extrudes the convex square and reordered input, reads the emitted buffers and topology, and exercises depth and convexity refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The square prism has volume 2 and centred z limits ±0.25. Two quads for its ends and four side quads give 12 triangles. Its vertex set is unaffected by order.
  */
 export function test_engine_geometry_extrude_profile(): void {
   // 1.

@@ -43,6 +43,10 @@ const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
  *    leaves too little headroom.
  * 4. A beam from 2 m up blocks a 2.2 m body on headroom and not a 1.8 m one.
  * 5. A path beside the wall is free, and a wall with one end is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Wall thickness, doorway width and headroom, an overhead beam, a clear route and a degenerate wall all have separate checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds walls and an overhead obstacle from typed fixture points, then calls the direct clearance owner. It reads the footprint, intersection point, named obstruction cause and available width.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.2 m wall centered at Z 1 has near face Z 0.9. The doorway center clears a 0.5 m body, but at its side the available width is zero. A 2 m aperture or beam fails a 2.2 m body and clears a 1.8 m body in the tested centered route.
  */
 export function test_motions_perform_obstacle(): void {
   const plain: IAutoMovieMotionHumanObstacle = HumanObstacle.wall(

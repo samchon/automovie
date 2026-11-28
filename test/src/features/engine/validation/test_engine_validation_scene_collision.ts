@@ -28,6 +28,10 @@ import { nclose } from "../../internal/nclose";
  * 5. Enclosing cord segments in one deformable body skip their own pairs, prove
  *    clearance when separated, and stay below confirmation when they overlap a
  *    post.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers search equivalence, geometry witness kinds, timed collision permissions, order and budget and managed exclusions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls measureSceneCollision for two candidate searches and closed-solid fixtures, then changes permission windows, geometry certainty and work budget.
+ * @evidence contracts/development/testing.md#independent-expectations An exhaustive sphere oracle fixes eligible pairs. The confirmed contained sphere has half a metre to the closest face. Permission intervals are end-exclusive and scope-specific, while a proxy or unresolved pair cannot certify displayed contact.
  */
 export async function test_engine_validation_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =

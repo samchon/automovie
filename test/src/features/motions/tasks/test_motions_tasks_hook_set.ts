@@ -30,6 +30,10 @@ const AHEAD: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
  *    0.625 of it.
  * 2. At the start the grip is unturned.
  * 3. A lift past `LIFT` (90 degrees), or a set of no time, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the animated rod rotation around a fixed grip, held finish and invalid nominal rotation or timing.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the neutral and fully raised frames for a 0.5 s set, then tries excessive lift and zero duration.
+ * @evidence contracts/development/testing.md#independent-expectations A 60° rotation gives (0, sin 60°, cos 60°). With a 0.3 s hold total time is 0.8 s and the set cue is 0.625 of that span.
  */
 export function test_motions_tasks_hook_set(): void {
   const grip: IAutoMovieRigidTransform = {

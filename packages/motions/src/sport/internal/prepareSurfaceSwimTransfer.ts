@@ -2,6 +2,7 @@ import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotio
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanAquatic,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSwim,
   IAutoMovieQuaternion,
@@ -28,15 +29,24 @@ export function prepareSurfaceSwimTransfer(
   ): IAutoMovieMotionHumanActionPlan;
 } {
   const { body, entry: state, params } = context;
-  const previous = state.from?.family === "swim" ? state.from : undefined;
-  const mode = (
-    previous?.params as IAutoMovieMotionHumanSwim.IParams | undefined
-  )?.kind;
+  const previous = state.from;
+  const priorSwim: boolean = previous?.family === "swim";
+  const submerge =
+    previous?.family === "aquatic" &&
+    (previous.params as IAutoMovieMotionHumanAquatic.IParams).kind === "distress"
+      ? previous.plan.events.find(({ name }) => name === "submerge")
+      : undefined;
+  const mode: IAutoMovieMotionHumanSwim.Kind | "distress" | undefined =
+    previous?.family === "swim"
+      ? (previous.params as IAutoMovieMotionHumanSwim.IParams).kind
+      : previous !== undefined && submerge !== undefined && previous.share < submerge.share
+        ? "distress"
+        : undefined;
   const { rotation: _turn, ...inherited } = state.posture;
   const rest: IAutoMovieVector3 = body.rest.get("hips")!;
   const displayed = state.pose.root;
   const hips: IAutoMovieVector3 =
-    previous === undefined || displayed === null
+    (!priorSwim && mode === undefined) || displayed === null
       ? inherited.root
       : AutoMovieEngineVector3.add(
           displayed.translation,
@@ -153,10 +163,13 @@ const CHANGE: number = 0.65;
 /*
  * The angle of a stroke's long axis from the upright root, degrees.
  */
-const PITCH: Readonly<Record<IAutoMovieMotionHumanSwim.Kind, number>> = {
+const PITCH: Readonly<Record<IAutoMovieMotionHumanSwim.Kind | "distress", number>> = {
   treadWater: 0,
   frontCrawl: 90,
   breaststroke: 90,
   backstroke: -90,
   float: -90,
+  dogPaddle: 67,
+  falter: 52,
+  distress: 0,
 };

@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Facing at 0.55 m: `b` at (0, 0, 0.55) heading 180 degrees.
  * 2. Turned away at 0.45 m: `b` heading 0 degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines two prepared performers' placement, opposing or equal headings and shared supplied profile.
+ * @evidence contracts/development/testing.md#behavioral-verification Constructs the pair with explicit gaps and switches the facing flag.
+ * @evidence contracts/development/testing.md#independent-expectations Authored gap positions the second at z = 0.55 or 0.45 m, and the facing mode sets exactly 180° or zero yaw.
  */
 export function test_motions_executable_affection_case_performers(): void {
   TestValidator.equals("facing", affectionCasePerformers("body", true, 0.55), [

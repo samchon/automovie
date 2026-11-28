@@ -22,6 +22,10 @@ const ORTHOGONAL_ROUNDING: number = 64 * 32 * Number.EPSILON;
  *    cases.
  * 3. Collinear nonzero columns, an insufficient budget and a negative damping
  *    value each refuse before accepting a local answer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names independent rank, scaling, damping and budget conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Factors exact orthogonal columns, checks zero- and positive-damping steps and exercises three refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's original norms are sqrt(8) and sqrt(32), and damping three divides its independent normalized solution by four.
  */
 export function test_recovery_internal_factor_map_design(): void {
   const design: number[][] = [
