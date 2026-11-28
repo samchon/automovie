@@ -25,6 +25,10 @@ function v(x: number, y: number, z: number): IAutoMovieVector3 {
  * 3. A segment starting at the centre is inside from 0; a point segment inside a
  *    sphere at the origin is 0, one outside it null.
  * 4. A radius of 0 or -1 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines normalized first entry, starting overlap, finite-segment misses and refusal for nonpositive radii.
+ * @evidence contracts/development/testing.md#behavioral-verification Tests a crossing, side and short misses, starts inside, degenerate point segments and invalid radii through segmentSphere.
+ * @evidence contracts/development/testing.md#independent-expectations The segment ends at x = 10 and a unit sphere starts at x = 4, giving 0.4. A start inside returns 0 and the disjoint segments return null.
  */
 export function test_engine_physics_segment_sphere(): void {
   const center: IAutoMovieVector3 = v(5, 0, 0);

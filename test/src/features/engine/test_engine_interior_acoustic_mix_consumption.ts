@@ -16,9 +16,7 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives the actual different-room response and sends dry/wet one-frame plans through the real CPU sound renderer, observing a nonzero below-limiter dry impulse, both gain-scaled stereo components and the output sample clock.
  * @evidence contracts/development/testing.md#independent-expectations The fixture's literal 20 dB partition loss independently implies amplitude gain 10^(-20/20)=.1; the dry render provides the same event baseline rather than an independent tone oracle. Numeric PCM is observed without audio playback or encoded-delivery proof.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves the single stereo frame at 48000 Hz and otherwise equal dry/wet events; original nclose tolerance and positive/below-limiter inequalities remain unchanged. Same-room tails, unavailable responses and propagation have separate owning units.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous entry owns fresh room requests, plans and rendered CPU arrays through the existing fixture. It opens no file, audio device, codec process, browser, renderer host or GPU and replaces no foreign method or installed consumer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A real48000 Hz one-frame renderer produces a nonzero dry stereo impulse.).
+ * @evidence contracts/development/common.md#meaningful-documentation A dry native stereo impulse gives a nonzero control. Different-room transmission reduces the onset, and the acoustic response adds the exercised delayed output.
  */
 export function test_engine_interior_acoustic_mix_consumption(): void {
   const {

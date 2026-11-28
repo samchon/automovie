@@ -17,6 +17,10 @@ import { sweepPolygonLoft } from "../../internal/sweepPolygonLoft";
  *    1), 3 (loft length) and 6 pi (circumference), none a normalized 1.
  * 4. The region's ring opens its seam at vertex 8 with u = 0 and closes it at
  *    vertex 23 with u = 8.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names metric and absent UV families, unit comparisons and seam endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises each actual mesh constructor and reads its stored UV pairs, extrema and the extruded ring's seam endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations Written lengths fix spans of 3, 8, 3 and circumference 6π. A perimeter seam duplicates the start with accumulated length 8, not a normalized unit.
  */
 export function test_engine_geometry_uv_coordinate_source(): void {
   const span = (mesh: IAutoMovieMesh, axis: 0 | 1): number =>

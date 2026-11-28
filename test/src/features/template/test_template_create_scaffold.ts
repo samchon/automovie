@@ -38,12 +38,11 @@ const ROOT: string = repositoryRoot();
  *    sections.
  * 3. Only `production` and `workspace-production` carry `evidence.config.ts`,
  *    which names a skills root only inside a workspace.
- * 4. A refused name throws.
+ * 4. Rejected directory syntax throws. A name that resembles a replacement or
+ *    another scaffold token is preserved in each layout's manifest.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public generator for every kind and checks the selected files, name, catalog ranges, installed guide and shared section. Leaking a citation, marker or dropping part of the section changes the expected output.
- * @evidence contracts/development/testing.md#independent-expectations Ranges come from the repository catalogs and template manifest. The expected guide is the authored Markdown with its source paragraph omitted, so its rules, links and paragraph breaks must survive installation.
- * @evidence contracts/development/testing.md#distinguishing-cases The three kinds differ in instructions, workspace file, packages and evidence configuration, and the refused name pins admission.
- * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that reads the installed template in-process and writes nothing.
+ * @evidence contracts/development/testing.md#independent-expectations Ranges come from the repository catalogs and template manifest. The expected guide is the authored Markdown with its source paragraph omitted. The three layouts differ in shared files and Evidence roots. A literal admitted name and a refused path distinguish substitution from admission.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export function test_template_create_scaffold(): void {
@@ -117,7 +116,13 @@ export function test_template_create_scaffold(): void {
   for (const guide of [
     ".agents/skills/story/layers/notation.md",
     ".agents/skills/evidence/configuration.md",
+    ".agents/skills/motion/compose/scene-recipes.md",
     ".agents/skills/motion/catalog-cases.md",
+    ".agents/skills/motion/performance.md",
+    ".agents/skills/production/director.md",
+    ".agents/skills/production/checks.md",
+    ".agents/skills/production/workflow.md",
+    ".agents/skills/review/delivery-review.md",
     ".agents/skills/contracts/development/composition.md",
   ]) {
     const manuscript: string = fs.readFileSync(
@@ -193,4 +198,26 @@ export function test_template_create_scaffold(): void {
   TestValidator.error("refused name", () =>
     AutoMovieTemplateScaffold.create({ kind: "production", name: "a/b" }),
   );
+  for (const kind of [
+    "production",
+    "workspace",
+    "workspace-production",
+  ] as const) {
+    const name: string = "$&-{{skills}}";
+    const files: Record<string, string> = AutoMovieTemplateScaffold.create({
+      kind,
+      name: ` ${name} `,
+    });
+    TestValidator.equals(
+      `${kind} keeps admitted literal name`,
+      (JSON.parse(files["package.json"]!) as IManifest).name,
+      name,
+    );
+    if (kind === "workspace-production")
+      TestValidator.predicate("member still uses shared skills", () =>
+        files["evidence.config.ts"]!.includes(
+          'skills: "../../../.agents/skills"',
+        ),
+      );
+  }
 }

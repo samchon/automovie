@@ -28,6 +28,10 @@ import { throwsError } from "../../internal/throwsError";
  *    constant.
  * 5. Its range encloses 2000 readings and lies within [-1.01, 1.01]; two controls
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names matched knots, derivatives, endpoint tangent continuation, periodic smoothness and bounded range.
+ * @evidence contracts/development/testing.md#behavioral-verification Constructs open and periodic splines and queries their values, derivative orders, range and undersized periodic input.
+ * @evidence contracts/development/testing.md#independent-expectations The two stated linear curvature equations give −3.75 and 3.75. Those curvatures determine the closed midpoint derivatives and outside-end continuation independently.
  */
 export function test_engine_geometry_natural_spline(): void {
   const near = (a: number, b: number, e: number = 1e-12): boolean =>

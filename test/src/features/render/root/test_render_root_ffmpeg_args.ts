@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. A 1920×1080, 30 fps, crf 20 yuv420p spec gives the pinned vector.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Pins the encoder argument vector for one 1920 × 1080, 30 fps H.264 render specification.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the argument planner directly with a fixed raster, pixel format, CRF and input and output paths.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the complete literal vector, including the input rate, scaling, retained color tags, disabled B-frames and fast-start flag.
  */
 export function test_render_root_ffmpeg_args(): void {
   const spec: IAutoMovieRenderSpec = {

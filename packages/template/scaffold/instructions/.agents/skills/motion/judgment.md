@@ -38,4 +38,6 @@ Record the time or frames, the failed requirement and the repair owner. Trace th
 
 Stage the decisive passage and its lead-in and consequence with coarse cast, props, obstacles and timing cues. Watch it at 1× in the intended view and clear segment review before widening.
 
+Use the same participant identities, source and camera as the registered film. Preserve the realized support, direction, speed and custody at the join. Recheck a new participant or prop when it can change the event or hide it.
+
 If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost before planning the whole-film render. Check new conditions as they enter the film.

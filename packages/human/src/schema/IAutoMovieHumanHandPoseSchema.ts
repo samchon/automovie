@@ -3,7 +3,11 @@ import type { IAutoMovieHumanHandPose } from "@automovie/interface";
 import type { IAutoMovieHumanFingerPoseSchema } from "./IAutoMovieHumanFingerPoseSchema";
 import type { IAutoMovieHumanThumbPoseSchema } from "./IAutoMovieHumanThumbPoseSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanHandPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * One hand's optional digit angles for typia validation. The thumb has its own
+ * channels. The index, middle, ring and little fingers share the same channel
+ * shape. All angles use degrees from neutral.
+ */
 export type IAutoMovieHumanHandPoseSchema = IAutoMovieHumanHandPose & {
   /** Thumb. */
   thumb?: IAutoMovieHumanThumbPoseSchema;

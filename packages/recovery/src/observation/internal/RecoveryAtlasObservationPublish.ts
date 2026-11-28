@@ -77,7 +77,7 @@ export function RecoveryAtlasObservationPublish(
         ],
       ),
     );
-  const batch: ReturnType<IAutoMovieRecoveryChartBatch.Operation> = B({
+  const batch: Generator<IAutoMovieRecoveryChartBatch.IResult, void, void> = B({
     charts: pending.map(
       (prepared: IAutoMovieRecoveryPendingChartObservation): Prepared =>
         prepared.chart,
@@ -107,23 +107,27 @@ export function RecoveryAtlasObservationPublish(
       pendingByName.get(result.name);
     if (!prepared)
       throw new Error("A common-network result lost its private source owner");
-    if (!result.fit || !result.chart) {
-      prepared.outcomes.push({
-        component: prepared.component,
-        chart: null,
-        proposedChart: result.name,
-        sourceFaces: prepared.sourceFaces,
-        reason: result.reason,
-      });
-      const key: string = `${prepared.interval}:${prepared.component}`;
-      if (!failedSelectedComponents.has(key)) {
-        failedSelectedComponents.add(key);
-        incrementUnsupported();
+    switch (result.type) {
+      case "boundary-network-refused":
+      case "chart-fit-refused": {
+        prepared.outcomes.push({
+          component: prepared.component,
+          chart: null,
+          proposedChart: result.name,
+          sourceFaces: prepared.sourceFaces,
+          reason: result.reason,
+        });
+        const key: string = `${prepared.interval}:${prepared.component}`;
+        if (!failedSelectedComponents.has(key)) {
+          failedSelectedComponents.add(key);
+          incrementUnsupported();
+        }
+        continue;
       }
-      continue;
+      case "fitted":
+        break;
     }
-    const fit: NonNullable<typeof result.fit> = result.fit,
-      chart: NonNullable<typeof result.chart> = result.chart;
+    const { fit, chart } = result;
     fittedCharts.push({
       name: result.name,
       controlsMm: fit.controlsMm,
@@ -411,4 +415,4 @@ export function RecoveryAtlasObservationPublish(
   };
 }
 type Prepared =
-  Parameters<IAutoMovieRecoveryChartBatch.Operation>[0]["charts"][number];
+  IAutoMovieRecoveryChartBatch.IInput["charts"][number];

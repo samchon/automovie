@@ -42,96 +42,7 @@ export namespace IAutoMovieTessellateParametricAtlas64 {
      * Borrowed finite chart definitions; callbacks and their coefficients must
      * remain unchanged until this synchronous call returns.
      */
-    patches: readonly {
-      /**
-       * Nonblank chart identity, unique within patches and retained in omission
-       * diagnostics.
-       */
-      id: string;
-      /** Integer u-lattice interval count from 1 through 128, inclusive. */
-      stepsU: number;
-      /** Integer v-lattice interval count from 1 through 128, inclusive. */
-      stepsV: number;
-      /**
-       * Read the same immutable chart at unit coordinates u and v; return
-       * finite millimetre position and first partials. Callback failures omit
-       * the affected chart and produce diagnostics.
-       */
-      evaluate: (
-        u: number,
-        v: number,
-      ) => {
-        /**
-         * Cartesian chart point in millimetres; boundary publication uses the
-         * declared boundary owner's agreeing position.
-         */
-        point: AutoMovieVector3Tuple;
-        /**
-         * First chart partial per unit u, in millimetres, used with dv to
-         * derive the analytic normal.
-         */
-        du: AutoMovieVector3Tuple;
-        /**
-         * First chart partial per unit v, in millimetres, with orientation
-         * fixed by du cross dv.
-         */
-        dv: AutoMovieVector3Tuple;
-        /**
-         * Optional authored analytic limiting direction at a zero chart cross
-         * product; finite nonzero directions are normalized, counted separately
-         * and do not certify a unique continuous limit.
-         */
-        normalLimit?: AutoMovieVector3Tuple;
-      };
-      /**
-       * Exactly four declared boundaries in bottom, right, top, left order;
-       * each uses its increasing local chart coordinate.
-       */
-      edges: readonly {
-        /**
-         * Nonblank boundary authority identity used to union exact phase
-         * requests across all incident restrictions.
-         */
-        authority: string;
-        /**
-         * Finite canonical phase at local zero, in [0,1]; differs from end and
-         * may exceed it for reversed incidence.
-         */
-        start: number;
-        /**
-         * Finite canonical phase at local one, in [0,1]; direction follows end
-         * minus start.
-         */
-        end: number;
-        /**
-         * Local unit coordinate to this authority's canonical phase; paired
-         * with localize.
-         */
-        parameterize?: (local: number) => IAutoMovieCanonicalBoundaryPhase64;
-        /**
-         * Inverse on the directed restriction; finite schedule checks are not a
-         * continuous certificate.
-         */
-        localize?: (phase: IAutoMovieCanonicalBoundaryPhase64) => number;
-        /**
-         * Read an immutable canonical boundary position at an exact phase.
-         * Equal returned keys must have exactly equal coordinates across
-         * incidents; a conflict omits every implicated chart.
-         */
-        sample: (phase: IAutoMovieCanonicalBoundaryPhase64) => {
-          /**
-           * Nonblank physical sample identity supplied by the boundary owner,
-           * independent of rounded-coordinate coincidence.
-           */
-          key: string;
-          /**
-           * Finite canonical Cartesian boundary position in millimetres, copied
-           * into the call's identity registry.
-           */
-          point: AutoMovieVector3Tuple;
-        };
-      }[];
-    }[];
+    patches: readonly IPatch[];
   };
 
   /**
@@ -179,10 +90,7 @@ export namespace IAutoMovieTessellateParametricAtlas64 {
 
   /** The counts object of {@link IResult}. */
   export type IResultCounts = {
-    /**
-     * Number of charts retained after boundary planning and emission
-     * admission.
-     */
+    /** Number of charts retained after boundary planning and emission admission. */
     patches: number;
     /** Number of charts omitted after local planning or emission failure. */
     omittedPatches: number;
@@ -205,5 +113,109 @@ export namespace IAutoMovieTessellateParametricAtlas64 {
     limitingNormals: number;
     /** Proposed faces omitted for a zero or nonfinite cross-product magnitude. */
     zeroAreaTriangles: number;
+  };
+
+  /**
+   * A callback chart with a sampled lattice and four ordered boundary
+   * restrictions.
+   */
+  export type IPatch = {
+    /**
+     * Nonblank chart identity, unique within patches and retained in omission
+     * diagnostics.
+     */
+    id: string;
+    /** Integer u-lattice interval count from 1 through 128, inclusive. */
+    stepsU: number;
+    /** Integer v-lattice interval count from 1 through 128, inclusive. */
+    stepsV: number;
+    /**
+     * Read the same immutable chart at unit coordinates u and v; return finite
+     * millimetre position and first partials. Callback failures omit the
+     * affected chart and produce diagnostics.
+     */
+    evaluate: (u: number, v: number) => IChartSample;
+    /**
+     * Exactly four declared boundaries in bottom, right, top, left order; each
+     * uses its increasing local chart coordinate.
+     */
+    edges: readonly IEdge[];
+  };
+
+  /** A chart's millimetre position, first partials and optional limiting normal. */
+  export type IChartSample = {
+    /**
+     * Cartesian chart point in millimetres; boundary publication uses the
+     * declared boundary owner's agreeing position.
+     */
+    point: AutoMovieVector3Tuple;
+    /**
+     * First chart partial per unit u, in millimetres, used with dv to derive
+     * the analytic normal.
+     */
+    du: AutoMovieVector3Tuple;
+    /**
+     * First chart partial per unit v, in millimetres, with orientation fixed by
+     * du cross dv.
+     */
+    dv: AutoMovieVector3Tuple;
+    /**
+     * Optional authored analytic limiting direction at a zero chart cross
+     * product; finite nonzero directions are normalized, counted separately and
+     * do not certify a unique continuous limit.
+     */
+    normalLimit?: AutoMovieVector3Tuple;
+  };
+
+  /** A directed restriction of a chart edge on its named boundary authority. */
+  export type IEdge = {
+    /**
+     * Nonblank boundary authority identity used to union exact phase requests
+     * across all incident restrictions.
+     */
+    authority: string;
+    /**
+     * Finite canonical phase at local zero, in [0,1]; differs from end and may
+     * exceed it for reversed incidence.
+     */
+    start: number;
+    /**
+     * Finite canonical phase at local one, in [0,1]; direction follows end
+     * minus start.
+     */
+    end: number;
+    /**
+     * Local unit coordinate to this authority's canonical phase; paired with
+     * localize.
+     */
+    parameterize?: (local: number) => IAutoMovieCanonicalBoundaryPhase64;
+    /**
+     * Inverse on the directed restriction; finite schedule checks are not a
+     * continuous certificate.
+     */
+    localize?: (phase: IAutoMovieCanonicalBoundaryPhase64) => number;
+    /**
+     * Read an immutable canonical boundary position at an exact phase. Equal
+     * returned keys must have exactly equal coordinates across incidents; a
+     * conflict omits every implicated chart.
+     */
+    sample: (phase: IAutoMovieCanonicalBoundaryPhase64) => IBoundarySample;
+  };
+
+  /**
+   * The boundary owner's stable sample identity and canonical millimetre
+   * position.
+   */
+  export type IBoundarySample = {
+    /**
+     * Nonblank physical sample identity supplied by the boundary owner,
+     * independent of rounded-coordinate coincidence.
+     */
+    key: string;
+    /**
+     * Finite canonical Cartesian boundary position in millimetres, copied into
+     * the call's identity registry.
+     */
+    point: AutoMovieVector3Tuple;
   };
 }

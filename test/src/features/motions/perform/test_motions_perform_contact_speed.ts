@@ -34,6 +34,10 @@ const X = (x: number): IAutoMovieVector3 => ({ x, y: 0, z: 0 });
  *    bounds 0.75.
  * 5. A grid ending at 0.9 s has its last interval of 0.15 s, (0.81 − 0.5625) /
  *    0.15 = 1.65 m/s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the endpoint speed bound over adjacent grid samples, cache restart, an off-grid or inactive start, and clips at the last grid point.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the contact speed owner with synthetic center or capsule endpoint callbacks and literal grids. The query order changes, and shortened windows test both a truncated live span and a final partial grid interval.
+ * @evidence contracts/development/testing.md#independent-expectations For x = t² the neighboring secant is t₀ + t₁. A quarter-second grid gives maxima 0.75 and 1.75 over the named windows. The far capsule endpoint at 3t yields speed 3, and the 0.75–0.9 s last interval gives 1.65 m/s.
  */
 export function test_motions_perform_contact_speed(): void {
   const grid: IAutoMovieResolveContactEvents.IGrid = {

@@ -6,19 +6,17 @@ import type {
 } from "..";
 
 /**
- * Link bidirectionally ratio-qualified feature identities across fixed images.
- * A component containing two feature indices from one image is explicitly
- * conflicting and is withheld; even a conflict-free component is tentative
- * appearance linkage rather than material truth or a geometric landmark.
+ * Callable linkage of calibrated image feature identities through reciprocal
+ * appearance matches.
  */
 
 export namespace IAutoMovieRecoveryCameraTracksLinkageOperation {
   /**
-   * Link bidirectionally ratio-qualified feature identities across fixed
-   * images. A component containing two feature indices from one image is
-   * explicitly conflicting and is withheld; even a conflict-free component is
-   * tentative appearance linkage rather than material truth or a geometric
-   * landmark.
+   * Intersect matched index pairs in both directions, join the surviving
+   * feature nodes, and withhold any component containing multiple features from
+   * the same source. Enforce the linked observation and component caps as the
+   * populations grow. Returned components remain tentative appearance
+   * evidence.
    */
 
   export type Operation = (

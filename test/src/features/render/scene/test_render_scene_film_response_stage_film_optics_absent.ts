@@ -15,6 +15,10 @@ import { createFilmResponseRendererDouble } from "../../internal/createFilmRespo
  *    stage makes one render call, of the scene, into the canvas, under that
  *    curve and exposure, with the scene's overlays visible in the same draw.
  * 2. The host's state is untouched afterwards and no target was ever set.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the one-render route without optics and untouched host exposure, curve and targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the response stage through a typed renderer recording its target and render calls. Supplies a scene with visible overlays and no film optics.
+ * @evidence contracts/development/testing.md#independent-expectations The host starts with ACES filmic tone mapping, exposure 2 and the canvas target. The absent stage must leave those fields untouched and submit exactly the unchanged scene once, with no target switch.
  */
 export function test_render_scene_film_response_stage_film_optics_absent(): void {
   const scene: THREE.Scene = new THREE.Scene();

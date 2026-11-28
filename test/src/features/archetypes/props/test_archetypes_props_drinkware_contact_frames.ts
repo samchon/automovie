@@ -57,6 +57,12 @@ interface ISpan {
  *    mug bar at its actual width. A glass exposes no hook handle.
  * 3. Opposite palm and thumb probes see the same signed clearance at the
  *    two radial support planes halfway up the cylinder.
+ * 4. A 55 mm cup with a tall, thick handle retains the hook at the centre of
+ *    the emitted bar when the lower stub is placed at the base.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the seeded band, radial contact, grip availability and short-cup bar centre witnesses.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public factory and observes emitted colliders, named affordances and signed distances to a sphere probe.
+ * @evidence contracts/development/testing.md#independent-expectations Uses sourced body bands and measures the hook against the emitted bar. The shorter cup distinguishes the hook at the bar centre from one fixed at the vessel midpoint.
  */
 export function test_archetypes_props_drinkware_contact_frames(): void {
   const failures: Map<string, string> = new Map();
@@ -138,6 +144,20 @@ export function test_archetypes_props_drinkware_contact_frames(): void {
     if (kind === "mug" && !spreads(bar))
       failures.set("mug/bar/spread", "mug hook bars do not span their sourced band");
   }
+
+  const cup: ReturnType<typeof AutoMovieArchetypeDrinkware.create> =
+    AutoMovieArchetypeDrinkware.create({
+      kind: "cup",
+      handleDiameter: 0.016,
+      handleLoop: AutoMovieArchetypeDrinkware.LOOP.handleLoop.maximum,
+    });
+  const cupBar: ReturnType<typeof archetypeExtent> = archetypeExtent(
+    cup.shapes(),
+    "y",
+    ["handle"],
+  );
+  if (!nclose(cup.affordance("handle").frame.translation.y, (cupBar.low + cupBar.high) / 2, ROUNDING))
+    failures.set("cup/handle", "the short cup hook misses the centre of its bar");
 
   TestValidator.equals("seeded vessel contact geometry", [...failures.values()], []);
 }

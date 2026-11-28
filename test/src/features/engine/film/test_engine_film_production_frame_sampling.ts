@@ -66,6 +66,10 @@ const timeline: (
  * 4. Stamp frame three at 30000/1001 fps and preserve reverse-order sampling.
  * 5. Refuse invalid frame indexes, an uncovered frame and an orphan dissolve while
  *    admitting its post-window neighbour.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios cover layer endpoints and overlap, the hard-cut frame owner, rational timestamp, reverse sampling and addressed refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification The test samples explicit frame indices through the native render schedule and observes layers and source frames across transitions in both query orders. It separately checks available and invalid schedule entries.
+ * @evidence contracts/development/testing.md#independent-expectations Hand-authored fade and dissolve boundaries determine ordinary and overlapping weights. The final fade-out frame keeps one-quarter weight. The hard cut assigns its boundary to the next segment, and frame three at 30000/1001 fps is 0.1001 seconds independent of query order.
  */
 export function test_engine_film_production_frame_sampling(): void {
   const edit: IAutoMovieFilmTimeline = timeline(

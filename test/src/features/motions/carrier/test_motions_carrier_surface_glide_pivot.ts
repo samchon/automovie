@@ -19,20 +19,19 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * Two glide helpers: `measureSurfaceGlide` reads a gliding equipment's
- * displacement along the bisector of its two headings in the surface's plane,
- * across it, and its last height off the plane; `pivotSurfaceFoot` turns a foot
- * goal about a foot-local support, keeping that point fixed in the world.
+ * Check a glide's displacement and an anchored skate-foot turn.
  *
  * Scenarios:
  *
- * 1. A ski moving 1 m along +Z and 0.1 m along +X on level snow, both samples
- *    pointing +Z and the last 0.02 m above the snow, reads 1 along, 0.1 across
- *    (the normal crossed with the forward, +X) and a 0.02 gap.
- * 2. A plane with no normal and a ski pointing straight up are refused.
- * 3. A foot facing +Z turned 90 degrees about Y around a support 0.2 m ahead of
- *    its ankle keeps that support where it was: the ankle moves 0.2 m along -X
- *    and 0.2 m ahead, the bend with it, and the support is recorded.
+ * 1. On level snow with headings along +Z, read 1 m forward, 0.1 m sideways
+ *    and 0.02 m above the plane. Refuse a zero normal or a vertically
+ *    pointing ski.
+ * 2. Turn a foot by 90 degrees around a point 0.2 m ahead of its ankle. The
+ *    ankle and bend move while the world support is held.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios describe the measured axes, inadmissible geometry and fixed pivot anchor.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture checks direction, gap and invalid geometry, then reads the point and bend after the pivot.
+ * @evidence contracts/development/testing.md#independent-expectations The plane axes give the three displacement components and a quarter turn about the given world point gives the expected ankle and bend.
  */
 export function test_motions_carrier_surface_glide_pivot(): void {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

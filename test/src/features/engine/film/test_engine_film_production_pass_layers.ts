@@ -31,6 +31,10 @@ const frame: (
  * 2. Select outgoing/incoming heavier neighbours for all five structural passes.
  * 3. Select the incoming layer at an exact mask-pass tie.
  * 4. Keep singleton fade weight for beauty and full weight for depth.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios describe copy isolation, complementary beauty layers, structural winner and tie selection, and singleton fade weights.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls productionRenderLayersForPass for beauty and each structural pass. It mutates one returned beauty layer and reads later output, then checks both weight orders, equal weights and a singleton fade.
+ * @evidence contracts/development/testing.md#independent-expectations Authored weights directly identify the larger layer. At a tie the incoming layer wins the structural mask. Beauty keeps the supplied fade and blend weights, while the selected structural layer is represented at full weight.
  */
 export function test_engine_film_production_pass_layers(): void {
   const outgoingHeavy: IAutoMovieProductionRenderFrame = frame([

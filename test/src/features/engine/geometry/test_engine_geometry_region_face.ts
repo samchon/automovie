@@ -22,6 +22,10 @@ import { throwsError } from "../../internal/predicates";
  *    degenerate.
  * 2. Both rings reversed build the same mesh.
  * 3. A self-crossing boundary is refused ("crosses itself").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the one-sided region, winding, metre UVs, expected boundary and self-crossing refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds planar faces from two ring orderings and compares emitted normals, UVs, triangles and topology.
+ * @evidence contracts/development/testing.md#independent-expectations The rectangle-with-void has eight corners and eight boundary edges. A single +z face has no reverse skin, so the boundary remains open.
  */
 export function test_engine_geometry_region_face(): void {
   const p = (x: number, y: number): IAutoMovieProfilePoint => ({ x, y });

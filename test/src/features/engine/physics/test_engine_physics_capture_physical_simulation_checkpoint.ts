@@ -29,6 +29,10 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
  *    20: the open episode with its end and its samples at 20 only.
  * 3. The controller record restored at 20 holds the open pair, the softened
  *    tracking, the release set and the recovery plan as they stood at 20.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines what a captured checkpoint owns before and inside a contact episode while later simulation state changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Captures typed runs at intervals 10 and 20, grows the open episode and changes ownership, recovery and binding state, then restores both.
+ * @evidence contracts/development/testing.md#independent-expectations The declared timeline fixes which receipts and samples exist at each capture. Open-pair, tracking, release and recovery values must match the interval-20 fixture.
  */
 export function test_engine_physics_capture_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =

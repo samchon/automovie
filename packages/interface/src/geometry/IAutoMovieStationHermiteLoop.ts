@@ -18,7 +18,13 @@ export interface IAutoMovieStationHermiteLoop {
    * The loop's knots (points in the section's `[a, b]` millimetres about the
    * station's axis point) and its chord length.
    */
-  loop: {
+  loop: IAutoMovieStationHermiteLoop.IPeriodicLoop;
+}
+
+/** Input loop values shared by station profile preparation. */
+export namespace IAutoMovieStationHermiteLoop {
+  /** A reduced closed section curve with its physical chord-length period. */
+  export type IPeriodicLoop = {
     /**
      * Periodic Hermite knots in section [a,b] millimetres; profileCurve
      * requires at least three, normalizes winding and copies their

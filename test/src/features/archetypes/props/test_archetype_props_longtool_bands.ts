@@ -13,11 +13,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 2. For three seeds, the rod's `grip` is at its butt, its centre half the grip's length up the rod, and its `tip` at its top end.
  * 3. For three seeds, the axe's `shaft` aperture is the diameter at which hickory of 800 kg per cubic metre over the handle's length below the head weighs the whole less the head; the head's poll is flush with the handle's back, and the `face` sits on the edge at the head's length less the handle's radius ahead of its axis, facing `+Z`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the rod and the axe for 200 seeds and measures their colliders, frames, masses and balance; a band other than the citation's, a seed that does not vary it, a rod gripped off its butt or cast from off its end, a handle not sized by its mass, or an edge off the head's front is caught.
- * @evidence contracts/development/testing.md#independent-expectations Daiwa's published length and weights; Gränsfors Bruk's and a retailer's figures for the 430 axe and The Wood Database's hickory density; an angler holds a spinning rod at its butt and the line leaves its tip, and an axe's handle runs through the eye at the head's back.
- * @evidence contracts/development/testing.md#distinguishing-cases The rod and the axe the producer gained; the broom, mop and shovel are pinned by the older band tests and their unchanged contract rows.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the seven rod sizes and the axe's dimensions, balance, shaft aperture, poll and cutting-face position.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures built colliders and grip and tip records for a fishing rod and a forest axe. The rod contact must follow the butt and tip, and the axe aperture and face must agree with the measured handle and head.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the Daiwa model catalogue and the stated axe dimensions and hickory density. A uniform cylinder's cross-sectional area is its shaft mass divided by density and length, which gives the asserted diameter.
  */
 export function test_archetype_props_longtool_bands(): void {
   const row = (

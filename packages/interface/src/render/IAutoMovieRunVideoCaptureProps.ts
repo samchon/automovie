@@ -1,6 +1,7 @@
 import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest";
 import type { IAutoMovieCaptureStorage } from "./IAutoMovieCaptureStorage";
 import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
+import type { IAutoMovieCaptureVideoSource } from "./IAutoMovieCaptureVideoSource";
 
 /**
  * A probed video's clock/raster, capture request and host storage/process
@@ -38,6 +39,20 @@ export interface IAutoMovieRunVideoCaptureProps {
    * reject failure and release process resources.
    */
   run: (args: readonly string[]) => Promise<void>;
+
+  /** Absolute index selected by the probe. Omitted selects the first video stream. */
+  streamIndex?: number;
+
+  /**
+   * Run the picture extraction and bind its timestamps to the source bytes.
+   * The arguments preserve input PTS and report frames in the supplied order.
+   * If omitted, `run` extracts the stills and the record carries estimated
+   * sampling seconds only.
+   */
+  extract?: (
+    args: readonly string[],
+    frames: readonly number[],
+  ) => Promise<IAutoMovieCaptureVideoSource.Presentation>;
 
   /** Source revision the host captures from. */
   revision: string;

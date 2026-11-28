@@ -15,27 +15,22 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeBarrelData } from "./internal/AutoMovieArchetypeBarrelData";
 
-/** Constructs the barrel archetype from its recipe. */
+/** Constructs an upright empty steel drum or beer keg with two rim grips. */
 export namespace AutoMovieArchetypeBarrel {
 /**
- * A barrel moved by hand: a 55 gallon steel drum or a 50 L beer keg.
+ * Build an upright empty barrel with its axis along model `+Y`.
  *
- * The barrel stands upright on the floor at the origin, its axis along `+Y`.
- * Two hands take it at its top rim on `+X` and `-X`, where a drum's chime and a
- * keg's top skirt are gripped to tip, lift or walk it; its top is a face
- * another load rests on.
+ * The steel drum is 22.5 inches across and its chosen drawing supplies
+ * height and mass together. The keg uses bands for all three dimensions.
  *
- * Both barrels rest on their steel chimes: steel on concrete
- * (`AutoMovieArchetypeFriction`).
- *
- * @param params The kind, a drum's model and any dimension the author fixes.
- * @param seed The seed that draws a drum's model when it is not given and every
- *   dimension left free inside its band; absent, the first model and the middle
- *   of each band.
- * @returns The barrel, empty.
- * @throws {AutoMovieArchetypeRefusal} For a model the drum maker does not list
- *   or one named for a keg, a fixed dimension outside its band, or one only
- *   another kind has.
+ * @param params Kind, optional drum model, scene ID and applicable
+ *   fixed values. The ID defaults to `barrel`.
+ * @param seed Numeric seed for omitted values. Without it the
+ *   drum defaults to `DWG20459` and the keg uses its band midpoints.
+ * @returns The barrel with opposed top rim grips and an upward stacking
+ *   surface.
+ * @throws {AutoMovieArchetypeRefusal} If a variant, model or fixed
+ *   dimension is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeBarrel.IParams,
@@ -114,31 +109,21 @@ export function create(
   return builder.build(d.mass!, { rests: "steel" });
 }
 
-  /** The kinds of barrel. */
+  /** Selects a 55 gallon steel drum or 50 litre keg proxy. */
   export type Kind = "steelDrum" | "keg";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Barrel kinds accepted by `create`. */
   export const KINDS: readonly Kind[] = ["steelDrum", "keg"];
 
   /**
-   * The affordance ids:
-   *
-   * - `left`, `right`: where the two hands take the barrel, on its top rim at
-   *   `+X` and `-X`, `+Y` pointing out.
-   * - `top`: the top, on which another load rests.
+   * `left` and `right` lie on the top rim at `+X` and `-X` with outward grip normals. `top` is the upward stacking surface.
    */
   export type Affordance = "left" | "right" | "top";
 
-  /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `diameter`: across the barrel.
-   * - `height`: the barrel's outside height.
-   * - `mass`: the empty barrel, kilograms.
-   */
+  /** Outside diameter and height in metres, and empty mass in kilograms. */
   export type Dimension = "diameter" | "height" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for diameter and height, kilograms for empty mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -147,16 +132,11 @@ export function create(
     mass: "kg",
   };
 
-  /**
-   * The steel drums read: Pipeline Packaging's DWG20459 tight head and DWG20443
-   * open head.
-   */
+  /** Pipeline Packaging drawing IDs for the tight-head and open-head drums. */
   export type Drum = "DWG20459" | "DWG20443";
 
   /**
-   * Each kind's models with their read height and mass, the default first:
-   * Pipeline Packaging's DWG20459, 34.75 in high and 38.4 lb, and DWG20443, 35
-   * 1/4 in high and 43 lb; a keg has one read model.
+   * Paired heights and masses from DWG20459 and DWG20443. The first entry is the seedless default.
    */
   export const DRUMS: Readonly<
     Partial<
@@ -179,24 +159,24 @@ export function create(
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+   * Barrel kind, optional scene ID, steel drum model and applicable finite dimensions.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which barrel. */
+    /** Selects steel drum or keg construction and dimension admission. */
     kind: Kind;
 
     /**
-     * A steel drum's model; drawn from the seed when absent. A keg has one read
-     * model.
+     * Optional steel drum model. The keg takes its dimensions from its bands.
      */
     model?: Drum;
 
-    /** The model's id, unique in a scene; `barrel` when absent. */
+    /** Scene object ID, defaulting to `barrel`. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * The steel drum's fixed diameter and the keg's diameter, height and mass ranges.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

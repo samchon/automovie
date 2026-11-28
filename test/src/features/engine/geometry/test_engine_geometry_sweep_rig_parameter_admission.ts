@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/throwsError";
  *    probes, which a null pose leaves as they were.
  * 4. Cell weights (MIN_VALUE, MAX_VALUE, 0, 0) are refused ("parameter sweep cell
  *    weight is not representable").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names subnormal products, overflow, invalid cell weights and transactional output preservation.
+ * @evidence contracts/development/testing.md#behavioral-verification Writes and probes compiled parameter-corresponded samples under extreme girth and inspects the prior state on refusal.
+ * @evidence contracts/development/testing.md#independent-expectations MIN_VALUE times the larger authored section coordinates stays positive at representable components. Reducing the section drives the product below the binary64 floor. MAX_VALUE can overflow the corresponding probe.
  */
 export function test_engine_geometry_sweep_rig_parameter_admission(): void {
   const make = (a: number): IAutoMovieSweepRig => {

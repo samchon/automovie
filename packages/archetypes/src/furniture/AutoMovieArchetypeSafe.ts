@@ -14,28 +14,20 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeSafeData } from "./internal/AutoMovieArchetypeSafeData";
 
-/** Constructs the safe archetype from its recipe. */
+/** Constructs a closed steel safe with a fixed front-door hinge frame. */
 export namespace AutoMovieArchetypeSafe {
 /**
- * A gun safe: a steel body whose door fills the front's clear opening, hung on
- * a hinge at one side.
+ * Build a closed steel safe with its back at model Z zero.
  *
- * The safe stands on the floor with its back on the origin's `Z` and its front
- * at `+Z`, centred on `X`. The door is a slab of the maker's thickness and
- * clear opening, flush with the front and centred in it, framed by the front's
- * stiles and rails, which leave the outside's width and height. `door` is its
- * hinge on the side `hinge` names as seen from in front; a positive travel
- * would swing the door out toward `+Z`, but the hinge states no travel, since
- * no source read gives the door's swing. The dial and the handle are not built:
- * no source read places them.
+ * The body is centred in X and rests on the floor. The front door fills
+ * the opening between the two stiles and two horizontal rails.
  *
- * It rests on its steel body: steel on concrete (`AutoMovieArchetypeFriction`).
- *
- * @param params The hinge side and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The safe.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Optional hinge side, scene object ID and dimensions
+ *   equal to their recorded band values.
+ * @param seed Numeric seed for omitted dimensions. This model's bands
+ *   have equal endpoints.
+ * @returns The closed safe and its resting `door` hinge frame.
+ * @throws {AutoMovieArchetypeRefusal} If hinge side or a fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeSafe.IParams = {},
@@ -123,18 +115,12 @@ export function create(
 }
 
   /**
-   * The affordance id: `door`, the door's hinge on the side the parameter
-   * names, swinging toward `+Z`; it states no travel.
+   * `door` names the resting hinge frame on the selected side. The frame has no authored travel.
    */
   export type Affordance = "door";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `height`, `width`, `depth`: outside.
-   * - `clearHeight`, `clearWidth`: the door's clear opening.
-   * - `door`: the door's thickness.
-   * - `mass`: kilograms.
+   * Outside height, width and depth, door opening height and width and slab thickness in metres. `mass` is in kilograms.
    */
   export type Dimension =
     | "height"
@@ -145,7 +131,7 @@ export function create(
     | "door"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for body and door geometry, kilograms for body mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -159,21 +145,21 @@ export function create(
   };
 
   /**
-   * The parameters: the hinge side, and any free dimension fixed to a value
-   * inside its band.
+   * Optional scene object ID, hinge side and values equal to the model's bands.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /**
-     * The side the hinge is on, as seen by someone in front of the safe facing
-     * it: `left` is `-X`. Right when absent.
+     * `left` places the hinge on `-X` and `right` on `+X`. Defaults to `right`.
      */
     hinge?: "left" | "right";
 
-    /** The model's id, unique in a scene; `safe` when absent. */
+    /** Scene object ID, defaulting to `safe`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /**
+   * Fixed outside dimensions, door opening, slab thickness and mass from the BFX6030 catalogue record.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     height: AutoMovieArchetypeBand.metres(
       59.25 * AutoMovieArchetypeUnits.INCH,

@@ -1,8 +1,12 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * Four cubic Bernstein coefficients in P0, P1, P2, P3 order, in the enclosing
- * field units; P1 and P2 are handles rather than interpolated samples.
+ * Read-only view of four ordered XYZ Bernstein controls for one cubic span in
+ * its owning chart.
+ *
+ * The readonly type gives consumers a read-only view of the tuple and its
+ * triples. A caller that needs a frozen publication obtains it from the
+ * curve-parent context.
  */
 export type AutoMovieCubicBezierControls3 = readonly [
   Readonly<AutoMovieVector3Tuple>,

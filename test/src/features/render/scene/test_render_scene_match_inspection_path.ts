@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A multi-name pattern is anchored at the root and covers descendants.
  * 3. `*` matches within a name only, and `**` spans names.
  * 4. An empty pattern is refused, and the empty path matches no name.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases define single-name searches, anchored paths, segment globbing, and invalid or empty inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that inspection paths distinguish partial names from whole segments, preserve descendant matches, apply the two wildcard widths, and refuse an empty pattern.
+ * @evidence contracts/development/testing.md#independent-expectations Compares hand-selected literal paths and patterns with explicit positive and negative outcomes.
  */
 export function test_render_scene_match_inspection_path(): void {
   const cases: [string, string, boolean][] = [

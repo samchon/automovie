@@ -52,11 +52,9 @@ function pick(
  * 4. The pick is keyed by producer and axis: over 300 seeds, two axes of one
  *    producer, and one axis of two producers, do not always agree.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Picks through a draw session and reads its result and refusal; a pick that ignores a given value, accepts an unlisted one, depends on call order, skips an alternative or reuses one stream for two axes is caught.
- * @evidence contracts/development/testing.md#independent-expectations The refusal contract of #3368; a uniform draw of three over 300 seeds gives each 100 on average with a standard deviation near 8, so 60 lies five deviations below; two independent uniform draws of three agree on a third of seeds, so 300 agreements is impossible for independent streams.
- * @evidence contracts/development/testing.md#distinguishing-cases Given, refused, seedless and drawn; one axis against another and one producer against another.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over fresh draw sessions, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the explicit, empty and seeded selector cases and the separate producer and axis streams.
+ * @evidence contracts/development/testing.md#behavioral-verification Picks from a three-model fixture through a fresh session. It checks the explicit choice, the refused axis and alternatives, the no-seed default, repeatability, reachability and disagreements across producer and axis.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's literal order gives the unseeded answer. Three equiprobable choices over 300 draws give an expected count of 100 per choice and a standard deviation just over 8. The test requires 60 per choice and at least one disagreement for each independent stream comparison.
  */
 export function test_archetype_draw_pick(): void {
   const findings: string[] = [];

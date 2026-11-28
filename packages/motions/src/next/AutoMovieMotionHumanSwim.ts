@@ -13,8 +13,8 @@ import { swimImmersed as swimImmersedLaw } from "../sport/internal/swimImmersed"
  *
  * Laws and helpers, each the shipped function under the family name:
  *
- * - `swim`: Swimming on a declared water plane: treading water and the front
- *   crawl.
+ * - `swim`: Surface strokes, treading, floating and a scripted falter on a
+ *   declared water plane.
  * - `aquatic`: Sequences in a pool or on a small craft.
  * - `swimImmersed`: Register this immersed action with `AutoMovieMotionHumanChain.extend` and
  *   `AutoMovieMotionHumanPerformance`'s `laws`.
@@ -39,7 +39,7 @@ import { swimImmersed as swimImmersedLaw } from "../sport/internal/swimImmersed"
  */
 export namespace AutoMovieMotionHumanSwim {
   /**
-   * Swimming on a declared water plane: treading water and the front crawl.
+   * Swim, tread, float, or falter on a declared horizontal water plane.
    * There is no fluid: the root floats at the plane, a height the author
    * declares, and the limbs cycle by joint angles with their goals released, as
    * a swing arm does (`AutoMovieMotionHumanArm.swing`).
@@ -77,7 +77,16 @@ export namespace AutoMovieMotionHumanSwim {
    * The breaststroke, the backstroke and floating are keyed strokes
    * (`SwimStroke`), planned by their own table on the same plane.
    *
-   * Not drafted: the eggbeater proper, entering and leaving the water.
+   * Dog paddle advances 0.6 m on a 1.1 s cycle at neutral pace. Its
+   * alternating reaches and hip kicks travel with the mouth above the plane.
+   * An optional relative yaw turns the course. The travel and cycle estimates
+   * are provisional. The played cues are `reachRight{i}`, `reachLeft{i}`, and
+   * `breath{i}`.
+   *
+   * A falter plays one 1.65 s loss of rhythm at neutral pace in place, exposing
+   * `falter`, `dip`, and `breath`. Follow it with a surface action such as
+   * `float` or `treadWater` to author the recovery. Enter and leave water
+   * using the dedicated actions under `aquatic`.
    */
   export import swim = swimLaw;
 

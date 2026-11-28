@@ -64,6 +64,10 @@ const ABDUCTION: number = 15;
  * The body is built whole (`humanFixtureBody`): the arm's plan reads the body's
  * pose rig, limb chains, ROM projection, collider bones and tangle model, and
  * the hand is read by resolving the whole posture.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the timed reach, hold and return along with the shoulder before motion and the prepared hold sample.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes a carried arm on the stored body rig, then reads the produced posture and reads the resolved hand at three hold seconds and after preparation.
+ * @evidence contracts/development/testing.md#independent-expectations The target is an authored offset of 0.25 m up and 0.25 m forward from the resting hand. The hold must reach that point within the fixture's tolerance, and the earlier shoulder must match the held angles.
  */
 export async function test_motions_compose_arm_carried(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

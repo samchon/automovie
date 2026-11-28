@@ -1,8 +1,8 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * Shared ring identity and evolving cyclic points used by slit-walk planning.
- * IDs must remain stable and distinguish rings within one planner invocation.
+ * One cyclic ring shared by preparation and resolution. Keep its identity
+ * unique and stable throughout the planner invocation.
  */
 export interface IAutoMoviePlanContourWalks64Ring {
   /**

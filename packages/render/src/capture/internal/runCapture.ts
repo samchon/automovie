@@ -14,6 +14,7 @@ import type {
 
 import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture";
 import { AutoMovieRenderRasterSheet } from "../../picture/AutoMovieRenderRasterSheet";
+import { matchInspectionPath } from "../../scene/inspection/internal/matchInspectionPath";
 import { reduceInspectionEpisodes } from "../../scene/inspection/internal/reduceInspectionEpisodes";
 import { compareCaptureRounds } from "./compareCaptureRounds";
 import { formatCapturePlanRequest } from "./formatCapturePlanRequest";
@@ -179,6 +180,15 @@ export async function runCapture(
       },
     );
     await folder.write(file, bytes);
+    const patterns: readonly string[] = cell.request.trail;
+    const motionTrails =
+      patterns.length === 0
+        ? undefined
+        : drawing.motionTrails?.filter(
+            (trail) =>
+              trail.motion !== undefined &&
+              patterns.some((pattern) => matchInspectionPath(trail.path, pattern)),
+          );
     rows.push({
       ...fixed,
       ...place,
@@ -190,6 +200,9 @@ export async function runCapture(
       camera: drawing.camera ?? null,
       repeat: drawing.repeat ?? null,
       resolved: drawing.resolved ?? null,
+      ...(motionTrails !== undefined && motionTrails.length !== 0
+        ? { motionTrails }
+        : {}),
     });
     sheet.add(picture, cell.caption);
     sheet = await full(sheet, cell, folder, sheets, sheetNames, plan);
@@ -234,6 +247,7 @@ export async function runCapture(
     layout,
     times: plan.times,
     windows: plan.windows,
+    ...(plan.playedCue === undefined ? {} : { playedCue: plan.playedCue }),
     rows,
     sheets,
     comparison,

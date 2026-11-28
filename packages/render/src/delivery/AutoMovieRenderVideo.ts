@@ -71,7 +71,14 @@ export namespace AutoMovieRenderVideo {
   }
 
 
-  /** Render a drawn subject's frames and encode them through the supplied host. */
+  /**
+   * Draw and encode every native frame on the subject's clock.
+   *
+   * Write each frame through the supplied host before encoding. The host can
+   * observe completed writes and a partial scene audit after interrupted
+   * drawing. A partial audit counts only observations on the output grid it
+   * actually visited. File retention belongs to the host.
+   */
   export function renderDrawnVideo(
     props: IAutoMovieRenderDrawnVideoProps,
   ): Promise<IAutoMovieDrawnVideoResult> {

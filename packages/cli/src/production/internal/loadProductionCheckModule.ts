@@ -158,12 +158,29 @@ export async function loadProductionCheckModule(
     const loaded: NodeJS.Module | undefined = load.cache[native];
     if (loaded !== undefined) common.set(file, loaded);
   }
+  let cacheNames: Map<NodeJS.Module, string> | undefined;
   for (const [file, children] of edges) {
     const parent: NodeJS.Module | undefined = common.get(file);
     if (parent === undefined) continue;
     if (prior.has(parent)) digests.set(file, null);
+
+    // An ESM JSON import is shared through a cache record with only exports
+    // and loaded. Its source and ESM edges already came from the native hooks.
+    if (!Array.isArray(parent.children)) continue;
     for (const child of parent.children) {
-      const dependency: string | undefined = local(child.filename);
+      let filename: string | undefined = child.filename;
+      if (typeof filename !== "string") {
+        // A CommonJS require can reuse that same JSON record without a
+        // filename. Recover its exact cache key before checking old loads.
+        if (cacheNames === undefined) {
+          cacheNames = new Map();
+          for (const [key, record] of Object.entries(load.cache))
+            if (record !== undefined) cacheNames.set(record, key);
+        }
+        filename = cacheNames.get(child);
+      }
+      const dependency: string | undefined =
+        filename === undefined ? undefined : local(filename);
       if (dependency === undefined) continue;
       children.add(dependency);
       common.set(dependency, child);

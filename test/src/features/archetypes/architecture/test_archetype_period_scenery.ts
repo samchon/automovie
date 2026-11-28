@@ -21,11 +21,9 @@ import { nclose, vclose } from "../../internal/predicates";
  * 2. The civic bell frame rests on its plinth, clears the front step, and the
  * canopy contains the highest point over a flared hanging bell.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two fixed props and the geometry pinned for each.
- * @evidence contracts/development/testing.md#behavioral-verification Measures the public model's colliders and affordance frames from one seeded build per prop. Compares the doorway to the jambs and lintel, and checks the stepped front and hanging silhouette.
- * @evidence contracts/development/testing.md#independent-expectations Contact limits come from measured collider faces. Gap and clearance checks compare actual parts and use no producer dimension formulas.
- * @evidence contracts/development/testing.md#distinguishing-cases Three top surfaces have distinct positions; the aperture has a different kind and an independently measured void. The bell silhouette is assessed independently of the tower.
- * @evidence contracts/development/testing.md#execution-ownership An in-memory archetype test discovered by its exported name.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the stepped stage front, separate support surfaces, tower opening and hanging bell geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures both generated props' colliders and contact frames. Checks doorway fit against jambs and lintel and measures the stepped surfaces and hanging silhouette independently.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the authored fixed prop dimensions and measured adjacent solid boundaries. Each opening and support contact must agree with its own physical faces.
  */
 export function test_archetype_period_scenery(): void {
   const tower: ReturnType<typeof AutoMovieArchetypeLoadingTower.create> =

@@ -43,6 +43,10 @@ const FINEST: number = 0.005;
  * 3. The steady turn with its quaternion negated from 1 s, the same rotation (the
  *    double cover), still spins at 90 deg/s and leaves no turn.
  * 4. A spin that speeds up smoothly, `30 t^2` degrees, leaves no turn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names steady speed, an angular snap, an antipodal quaternion representation and smooth acceleration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditSpin.measure with analytic quaternion readers and samples a step, a continuous turn and a sign-flipped representation of the same turn.
+ * @evidence contracts/development/testing.md#independent-expectations At 24 Hz, a snapped frame adds 20×24 degrees per second to the 90-degree base rate. The localized turn retains 20 degrees plus only steady motion in the final subdivision. Negating a quaternion preserves its rotation.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_spin_measure(): void {
   const motion = (

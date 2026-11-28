@@ -32,7 +32,10 @@ export namespace IAutoMovieMeasureMeshClearance {
    * may retain its fresh witness arrays, and is not retained after return; a
    * visitor exception propagates and prevents return of the list.
    */
-  export type IResult = {
+  export type IResult = ITriangleClearance[];
+
+  /** Smallest signed separation over one front triangle's projected overlap. */
+  export type ITriangleClearance = {
     /**
      * Zero-based ordinal of the original front triangle, in ascending order;
      * absent ordinals have no nondegenerate projected overlap.
@@ -45,5 +48,5 @@ export namespace IAutoMovieMeasureMeshClearance {
      * ordering.
      */
     minimum: number;
-  }[];
+  };
 }

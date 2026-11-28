@@ -26,6 +26,10 @@ import { TestValidator } from "@nestia/e2e";
  * 6. Finishing an empty sheet, adding to a full sheet, a zero, negative or
  *    fractional capacity, column count or cell size, and a sheet above 64
  *    megapixels are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lays out row-major cells, averages source pixels, paints captions and returns an independent filled extent.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds sheets with known colors, an alternating source, partial capacities and invalid dimensions or occupancy.
+ * @evidence contracts/development/testing.md#independent-expectations Three 8-pixel cells span 24 pixels and each caption row is 21 pixels tall. The explicit colors and alternating 0/200 values independently pin placement and mean 100.
  */
 export function test_render_picture_raster_sheet(): void {
   const picture = (

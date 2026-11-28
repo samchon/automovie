@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Flexion 50, abduction -5 and twist 7 report (flexion, 50, 30), (abduction,
  *    -5, 5), (twist, 7, 7) in that order, and the overshoot sum is 42.
  * 3. A twist of 0 on the immobile axis is its rest and reports nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names clean inside and rest readings, the immobile axis, ordered faults and their summed overshoot.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Kinematics.scanJointRom and scanJointRomOvershoot with the same fixture interval and distinct given angle records.
+ * @evidence contracts/development/testing.md#independent-expectations Flexion 50 lies 30 past 20, abduction -5 lies 5 below zero, and twist 7 lies 7 from immobility. Those literal excesses sum to 42 and appear in axis order.
  */
 export function test_engine_rom_scan_joint_rom(): void {
   const constraint: IAutoMovieJointConstraint = {

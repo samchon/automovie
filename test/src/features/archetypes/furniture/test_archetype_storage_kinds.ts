@@ -59,11 +59,9 @@ const BILLY: Readonly<Record<string, number>> = {
  * 2. A locker stands Lyon's height on its legs, over 200 seeds exactly one of Lyon's six 72 in single tier sizes, width and depth together, each drawn, and a width an author fixes refused on `width` as the size's own figure; its hat shelf at Penco's 48 in above its bottom; its door hinge states no travel, so any opening is refused, and it declares no handle.
  * 3. A bookcase is the BILLY's size and its five shelves divide its height into six equal steps, each shelf's extent inside the sides.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the drawers; a drawer that does not carry its front, a door that opens without a source, or a shelf off its step is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The expected figures are the makers' (HON, Lyon, IKEA) restated here, and the shelf steps follow from the BILLY's height and shelf count; nothing is read from the producer's bands.
- * @evidence contracts/development/testing.md#distinguishing-cases Drawers without pulls, a door without travel and fixed shelves; the wardrobe's and chest's pulls, swing and travel belong to `test_archetype_furniture_bands`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the cabinet's drawer count and full travel, the locker's correlated catalogue size and resting hinge, and the bookcase's shelf placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures each built model through the saved storage producer. Articulation must carry the filing drawer front and box, opening the locker's door must refuse, and each bookcase shelf must stay within the sides.
+ * @evidence contracts/development/testing.md#independent-expectations Uses HON's 52 inch height and 23.5 inch drawer travel, Lyon's six paired body sizes, the 48 inch hat-shelf height and BILLY's dimensions. Five evenly spaced interior shelves divide the bookcase height into six intervals. Geometry comparisons allow one millimetre.
  */
 export function test_archetype_storage_kinds(): void {
   const findings: string[] = [];

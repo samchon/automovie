@@ -35,6 +35,7 @@ import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 
+import { installedPassageSmoke } from "./installedPassageSmoke.mjs";
 import { installedSdkTestSource } from "./installedSdkTestSource.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
@@ -52,8 +53,8 @@ const work = fs.realpathSync.native(
 );
 const results = [];
 
-/** Run one command, echoing it, and record whether it exited with 0. */
-const run = (label, command, args, cwd) => {
+/** Run one command and record its expected exit and any output assertions. */
+const run = (label, command, args, cwd, options = {}) => {
   const line = [command, ...args]
     .map((part) => (/\s/.test(part) ? `"${part}"` : part))
     .join(" ");
@@ -70,12 +71,39 @@ const run = (label, command, args, cwd) => {
       ? spawnSync(
           "powershell.exe",
           ["-NoProfile", "-Command", windowsInvocation],
-          { cwd, stdio: "inherit" },
+          {
+            cwd,
+            stdio: options.read ? ["ignore", "pipe", "inherit"] : "inherit",
+            encoding: "utf8",
+          },
         )
-      : spawnSync(command, args, { cwd, stdio: "inherit" });
-  const ok = result.status === 0;
+      : spawnSync(command, args, {
+          cwd,
+          stdio: options.read ? ["ignore", "pipe", "inherit"] : "inherit",
+          encoding: "utf8",
+        });
+  let ok = result.status === (options.status ?? 0);
+  if (options.read && ok)
+    try {
+      options.read(result.stdout);
+    } catch (error) {
+      console.error(error);
+      ok = false;
+    }
+  if (!ok && result.stdout) console.error(result.stdout);
   results.push({ label, ok });
   return ok;
+};
+
+/** Run file assertions without skipping the remaining installation checks. */
+const verify = (label, inspect) => {
+  try {
+    inspect();
+    results.push({ label, ok: true });
+  } catch (error) {
+    console.error(error);
+    results.push({ label, ok: false });
+  }
 };
 
 /** Print every recorded result, clean up, and exit with the verdict. */
@@ -178,7 +206,17 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
   const nested = path.join(directory, "test", "features", "installed-sdk");
   fs.mkdirSync(nested, { recursive: true });
   const contactBody = JSON.parse(
-    fs.readFileSync(path.join(ROOT, "test", "src", "features", "internal", "MOTION_HUMAN_PEOPLE.json"), "utf8"),
+    fs.readFileSync(
+      path.join(
+        ROOT,
+        "test",
+        "src",
+        "features",
+        "internal",
+        "MOTION_HUMAN_PEOPLE.json",
+      ),
+      "utf8",
+    ),
   )["f-average"];
   fs.writeFileSync(
     path.join(nested, "test_installed_sdk.ts"),
@@ -303,6 +341,14 @@ document.documentElement.dataset.sdkSmoke = "ready";
     path.join(import.meta.dirname, "installedParityFilm.ts"),
     path.join(films, "installedParityFilm.ts"),
   );
+  fs.copyFileSync(
+    path.join(import.meta.dirname, "installedPassageFilm.ts"),
+    path.join(films, "installedPassageFilm.ts"),
+  );
+  fs.writeFileSync(
+    path.join(films, "installedPassageBody.json"),
+    JSON.stringify(contactBody),
+  );
   const index = path.join(films, "index.ts");
   const registered = fs.readFileSync(index, "utf8");
   if (!registered.includes("  starter: starter(),"))
@@ -310,9 +356,18 @@ document.documentElement.dataset.sdkSmoke = "ready";
   fs.writeFileSync(
     index,
     'import { installedParityFilm } from "./installedParityFilm";\n' +
+      'import { installedPassageFilm } from "./installedPassageFilm";\n' +
       registered.replace(
         "  starter: starter(),",
-        '  starter: starter(),\n  "installed-parity": installedParityFilm(),',
+        [
+          "  starter: starter(),",
+          '  "installed-parity": installedParityFilm(),',
+          '  "installed-passage": installedPassageFilm(),',
+          '  "installed-passage-withdraw": installedPassageFilm("withdraw"),',
+          '  "installed-passage-missing": installedPassageFilm("missing-receiver"),',
+          '  "installed-passage-layout": installedPassageFilm("unready-layout"),',
+          '  "installed-passage-obscured": installedPassageFilm("transfer", true),',
+        ].join("\n"),
       ),
   );
   const executable = path.join(directory, "src", "executable");
@@ -320,9 +375,23 @@ document.documentElement.dataset.sdkSmoke = "ready";
     path.join(import.meta.dirname, "installedParityCheck.ts"),
     path.join(executable, "installedParityCheck.ts"),
   );
+  fs.copyFileSync(
+    path.join(import.meta.dirname, "installedPassageCheck.ts"),
+    path.join(executable, "installedPassageCheck.ts"),
+  );
   fs.writeFileSync(
     path.join(executable, "check.ts"),
-    'export { checks as default } from "./installedParityCheck.ts";\n',
+    [
+      'import type { IAutoMovieProductionCheck } from "@automovie/interface";',
+      'import { checks as parity } from "./installedParityCheck.ts";',
+      'import { passageChecks } from "./installedPassageCheck.ts";',
+      "",
+      "/** The installed parity and passage targets verified by the production. */",
+      "const targets: readonly IAutoMovieProductionCheck[] = [...parity, ...passageChecks];",
+      "",
+      "export default targets;",
+      "",
+    ].join("\n"),
   );
 };
 
@@ -398,7 +467,13 @@ const motionTakeSmoke = (directory) => {
   run(
     "pnpm run motion:take open (saved branch)",
     "pnpm",
-    ["run", "motion:take", "open", `${fixture}/branch.ts`, `${fixture}/branch.json`],
+    [
+      "run",
+      "motion:take",
+      "open",
+      `${fixture}/branch.ts`,
+      `${fixture}/branch.json`,
+    ],
     directory,
   );
 };
@@ -449,7 +524,10 @@ if (layout === "production") {
   run("pnpm run test", "pnpm", ["run", "test"], target);
   run("pnpm run build", "pnpm", ["run", "build"], target);
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
-  if (browserSmoke(target)) motionTakeSmoke(target);
+  if (browserSmoke(target)) {
+    installedPassageSmoke(target, run, verify);
+    motionTakeSmoke(target);
+  }
 } else {
   if (
     !run(
@@ -512,8 +590,10 @@ if (layout === "production") {
   for (const production of productions) {
     const directory = path.join(target, "movies", production);
     const parity = production === parityProduction;
-    if (browserSmoke(directory, { parity }) && parity)
+    if (browserSmoke(directory, { parity }) && parity) {
+      installedPassageSmoke(directory, run, verify);
       motionTakeSmoke(directory);
+    }
   }
 }
 finish();

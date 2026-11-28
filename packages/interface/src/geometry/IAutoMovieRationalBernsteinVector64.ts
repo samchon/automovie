@@ -1,13 +1,22 @@
 import type { AutoMovieBernsteinPolynomial64 } from "./AutoMovieBernsteinPolynomial64";
 
 /**
- * A rational vector field N/Q; the denominator must remain positive on the
- * evaluated chart.
+ * Three-component rational Bernstein field with one scalar homogeneous
+ * denominator.
+ *
+ * Both fields use the same local parameter. Use finite controls and query
+ * coordinates with representable quotient and derivative arithmetic.
  */
 export interface IAutoMovieRationalBernsteinVector64 {
-  /** Homogeneous vector numerator coefficients. */
+  /**
+   * Mutable homogeneous XYZ Bernstein controls in one caller-defined frame,
+   * ordered along the field parameter.
+   */
   numerator: AutoMovieBernsteinPolynomial64;
 
-  /** Scalar denominator coefficients in the same parameter. */
+  /**
+   * Mutable scalar Bernstein coefficients on the same local parameter. Supply a
+   * positive finite evaluated denominator.
+   */
   denominator: number[];
 }

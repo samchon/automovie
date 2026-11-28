@@ -15,6 +15,10 @@ import { vclose } from "../../internal/vclose";
  * 1. An unturned foot at (0, 0.08, 0) with a 0.4 m shank hints at (0, 0.48, 0.2);
  *    turned 90 degrees about +Y, at (0.2, 0.48, 0).
  * 2. A bearing goal is planted at its contact; a free one is neither.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains the rig knee hint in toe coordinates and the optional bearing constraint on the foot.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds hints for an original and a quarter-turned ankle and compares bearing and free goal records.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.4 m shank adds 0.4 m upward and 0.2 m forward. Yaw rotates the horizontal shift from z to x, with the bearing point copied only for a planted goal.
  */
 export function test_motions_striking_leg_goals(): void {
   const body = { measure: { shank: 0.4 } };

@@ -21,6 +21,10 @@ import { vclose } from "../../internal/vclose";
  * Scenarios:
  *
  * 1. An 0.11 m ball at (0.2, 0.11, 0.4) reads back that centre and radius.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines staged ball contact geometry and reading its own center and radius.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages the execution case at its authored position and reads it through the motion ball placement operation.
+ * @evidence contracts/development/testing.md#independent-expectations The fixed center (0.2, 0.11, 0.4) and 0.11 m radius recover through the diameter-based affordance, exposing center or aperture drift.
  */
 export function test_motions_executable_ball_strike_case_ball(): void {
   const prop: IAutoMovieMotionHumanProp = ballStrikeCaseBall(

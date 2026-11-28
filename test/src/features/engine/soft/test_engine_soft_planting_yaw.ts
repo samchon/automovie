@@ -14,6 +14,10 @@ import { qclose } from "../../internal/qclose";
  * 2. Sample ¼, amount 1: t = ½ gives (cos, sin) = (0.6, 0.8), so the quaternion is
  *    (0, 0.8, 0, 0.6).
  * 3. Sample 0, amount 1: t = 0 gives identity.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEnginePlanting.plantingYaw for a zero amount, a quarter sample at full amount and a zero sample at full amount. Compares the resulting quaternions within 1e-15.
+ * @evidence contracts/development/testing.md#independent-expectations Sample 1/4 has doubled coordinate 1/2, giving rational-circle cosine 3/5 and sine 4/5 for a +Y quaternion. A zero amount and a zero sample each yield the identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Zero amount isolates the interpolation endpoint. Zero and quarter samples distinguish the identity from a nonzero +Y rotation at full amount.
  */
 export function test_engine_soft_planting_yaw(): void {
   TestValidator.predicate(

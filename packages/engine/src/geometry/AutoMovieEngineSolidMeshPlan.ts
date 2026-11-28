@@ -9,6 +9,7 @@ import { AutoMovieEngineSolidMeshConstraints } from "./AutoMovieEngineSolidMeshC
 import { AutoMovieEngineSolidMeshIncidence } from "./AutoMovieEngineSolidMeshIncidence";
 import { insertSolidMeshPoints } from "./construction/internal/insertSolidMeshPoints";
 import { legalizeSolidMesh } from "./construction/internal/legalizeSolidMesh";
+import { isOnSolidChartSegment } from "./construction/internal/isOnSolidChartSegment";
 import { orientSolidChart } from "./construction/internal/orientSolidChart";
 import { probeSolidMesh } from "./construction/internal/probeSolidMesh";
 import { regionSolidMesh } from "./construction/internal/regionSolidMesh";
@@ -419,7 +420,7 @@ function bridge(
         (middle[0] === end[0] && middle[1] === end[1])
       )
         continue;
-      if (!on(first, end, middle)) {
+      if (!isOnSolidChartSegment(first, end, middle)) {
         const witness: boolean | string = witnessSolidChartTriangle(
           vertices,
           edges,
@@ -527,22 +528,6 @@ function images(
   return [nearest - 1, nearest, nearest + 1];
 }
 
-/*
- * Exact closed segment membership on the represented native points.
- */
-function on(
-  a: Readonly<AutoMovieVector2Tuple>,
-  b: Readonly<AutoMovieVector2Tuple>,
-  p: Readonly<AutoMovieVector2Tuple>,
-): boolean {
-  return (
-    p[0] >= Math.min(a[0], b[0]) &&
-    p[0] <= Math.max(a[0], b[0]) &&
-    p[1] >= Math.min(a[1], b[1]) &&
-    p[1] <= Math.max(a[1], b[1]) &&
-    orientSolidChart(a, b, p) === 0
-  );
-}
 
 /*
  * Refuse third vertices, edge intersections and coincident existing diagonals.
@@ -575,7 +560,7 @@ function clear(
         point[0],
         point[1] + turn * (period ?? 0),
       ];
-      if (on(a, b, lifted)) return false;
+      if (isOnSolidChartSegment(a, b, lifted)) return false;
     }
   }
   for (const edge of edges) {

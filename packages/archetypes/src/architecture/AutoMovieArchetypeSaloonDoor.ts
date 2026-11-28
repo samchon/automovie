@@ -11,30 +11,21 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeSaloonDoorData } from "./internal/AutoMovieArchetypeSaloonDoorData";
 
-/** Constructs the saloon door archetype from its recipe. */
+/** Constructs paired swinging saloon door leaves in a fixed passage. */
 export namespace AutoMovieArchetypeSaloonDoor {
 /**
- * A pair of saloon (café) doors hung in a doorway: two leaves meeting at its
- * middle, each on a double-acting gravity hinge at its jamb.
+ * Build two independently hinged leaves across a selected opening.
  *
- * The doorway stands in the `XY` plane with its threshold's middle at the
- * origin; the opening is one the maker sizes its doors for, given or drawn from
- * the seed, each leaf half of it, the two meeting at the middle, its foot the
- * drawn gap above the floor. `leftLeaf` and `rightLeaf` are the hinges on the
- * `+X` and `-X` jambs; a positive travel swings a leaf out toward `+Z` up to
- * the hinge's 125 degrees, and a negative one toward `-Z` as far, the hinge's
- * `reverse`, since the double-acting hinge locks open at 125 degrees in either
- * direction. `leftPush` and `rightPush` are the leaves' faces at their middles,
- * where a body pushes through, riding their hinges; `passage` is the opening
- * under the leaves' tops. The doorway's frame is the wall's, not built.
+ * Each leaf allows 125 degrees forward and reverse. Its front push
+ * surface travels with that leaf. The fixed `passage` spans from Y
+ * zero to the top of the closed leaves.
  *
- * @param params The opening and any dimension the author fixes.
- * @param seed The seed that draws the opening when it is not given and every
- *   dimension left free inside its band; absent, the first opening and the
- *   middle of each band.
- * @returns The doors.
- * @throws {AutoMovieArchetypeRefusal} For an opening the maker does not list,
- *   or a fixed dimension outside its band.
+ * @param params Optional catalogue opening, scene ID and finite leaf
+ *   height, thickness, floor gap or mass. The ID defaults to `saloonDoor`.
+ * @param seed Numeric seed for omitted settings. Omission selects `30in`
+ *   and the midpoint of each applicable leaf band.
+ * @returns The two hinges and push surfaces with the fixed aperture.
+ * @throws {AutoMovieArchetypeRefusal} If the opening choice or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeSaloonDoor.IParams = {},
@@ -122,13 +113,8 @@ export function create(
 }
 
   /**
-   * The affordance ids:
-   *
-   * - `leftLeaf`, `rightLeaf`: the leaves' hinges on `+X` and `-X`, swinging
-   *   toward `+Z` and, by their reverse, as far toward `-Z`.
-   * - `leftPush`, `rightPush`: the leaves' faces at their middles, riding their
-   *   hinges.
-   * - `passage`: the doorway's opening under the leaves' tops.
+   * Independent `leftLeaf` and `rightLeaf` hinges and their front push
+   * surfaces, with a fixed `passage` aperture at floor level.
    */
   export type Affordance =
     | "leftLeaf"
@@ -138,16 +124,13 @@ export function create(
     | "passage";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `opening`: the doorway's width, both leaves together, its model's.
-   * - `height`: a leaf's height; `thickness`: its thickness.
-   * - `gap`: the leaves' feet above the floor.
-   * - `mass`: both leaves, kilograms.
+   * Catalogue opening width, leaf height, thickness and floor gap in metres, and paired mass in kilograms.
    */
   export type Dimension = "opening" | "height" | "thickness" | "gap" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /**
+   * Metres for the selected opening and leaf dimensions, and kilograms for mass.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -158,13 +141,12 @@ export function create(
     mass: "kg",
   };
 
-  /**
-   * The doorway openings the maker sizes its doors for: its "30",32",36" Door
-   * Opening Sizes".
-   */
+  /** Catalogue clear-width labels `30in`, `32in` and `36in`. */
   export type Opening = "30in" | "32in" | "36in";
 
-  /** Each opening with its width, metres, the default first. */
+  /**
+   * Clear width in metres for each opening label. The first row supplies the seedless selection.
+   */
   export const OPENINGS: Readonly<
     Record<Opening, Readonly<Partial<Record<Dimension, number>>>>
   > = {
@@ -174,23 +156,21 @@ export function create(
   };
 
   /**
-   * The parameters: the opening, and any free dimension fixed to a value inside
-   * its band.
+   * Optional opening size, scene ID and applicable finite leaf measurements.
    */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "opening">, number>
   > {
-    /**
-     * The doorway's opening size, which sets `opening`; drawn from the seed
-     * when absent.
-     */
+    /** Selects the catalogue clear width. Omit it and the seed for `30in`. */
     size?: Opening;
 
-    /** The model's id, unique in a scene; `saloonDoor` when absent. */
+    /** Scene object ID, defaulting to `saloonDoor`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /**
+   * Admitted height, thickness, lower gap and mass ranges for the paired leaves.
+   */
   export const BANDS: Readonly<
     Record<Exclude<Dimension, "opening">, IAutoMovieArchetypeBand>
   > = {

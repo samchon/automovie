@@ -3,26 +3,27 @@ import type { IAutoMovieConstructionProfileLoop } from "./IAutoMovieConstruction
 /** Adaptive station/piece-coordinate grids for original profile tessellation. */
 export namespace IAutoMovieConstructionProfileGrid {
   /**
-   * Tessellation marks of one actual loop; true collapsed rows stay separate
-   * from regular face grids.
-   *
-   * Arrays are freshly built and mutable; the loop is borrowed from the
-   * prepared definition. ProfileBody retains station arrays and nonperiodic
-   * phase arrays, so callers must not alter them after publication.
+   * One loop's adaptive section tessellation grid. Station rows are regular
+   * physical millimetres. Phase marks use each piece's normalized interval.
+   * Preserve these arrays while the published body reads them.
    */
   export interface IGrid {
-    /** Same copied declaration whose original functions were sampled. */
+    /**
+     * Loop from the prepared definition whose original pieces supply grid
+     * points.
+     */
     loop: IAutoMovieConstructionProfileLoop;
 
     /**
-     * Strictly increasing regular station rows in millimetres; declared
-     * collapsed endpoints are omitted.
+     * Increasing regular physical station rows in kernel millimetres, with
+     * declared collapsed tips omitted.
      */
     stations: number[];
 
     /**
-     * Piece IDs map to increasing coordinates including 0 and 1 and every
-     * declared guide; each array is mutable despite the readonly map view.
+     * Normalized [0, 1] coordinates by piece ID, including both endpoints and
+     * declared guides. Each piece array is mutable and shared with its
+     * consumer.
      */
     phases: ReadonlyMap<string, number[]>;
   }

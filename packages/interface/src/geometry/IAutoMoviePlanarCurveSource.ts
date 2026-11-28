@@ -2,30 +2,51 @@ import type { AutoMovieVector2Tuple } from "../index";
 import type { IAutoMovieCurveDomain } from "./IAutoMovieCurveDomain";
 
 /**
- * Borrowed parametric planar source, with source-span and singularity breaks.
- * Derivatives are with respect to the original parameter, not normalized arc
- * length. At a declared break the derivative callback must supply the exact
- * requested one-sided limit; no epsilon displacement approximates a corner.
- * Smooth callbacks may ignore side. Callbacks must be deterministic and leave
- * their input unchanged; algorithms snapshot returned coordinate tuples.
+ * Borrowed planar millimetre evaluator with an original parameter domain, chart
+ * breaks and explicit one-sided derivative queries.
+ *
+ * Provide deterministic callbacks for valid queries. Retained observations are
+ * copied, while callback state and source geometry remain caller-owned.
  */
 export interface IAutoMoviePlanarCurveSource {
-  /** Inclusive finite source parameter interval, strictly increasing. */
+  /**
+   * Inclusive strictly increasing finite interval in the source's native
+   * parameter.
+   */
   domain: IAutoMovieCurveDomain;
 
-  /** Ordered or unordered interior parameter boundaries that may not be crossed. */
+  /**
+   * Finite parameter boundaries strictly inside the full interval. A fitted
+   * smooth piece cannot cross a declared break.
+   */
   breaks: readonly number[];
 
-  /** Whether the source identifies its two domain endpoints. */
+  /**
+   * Whether the source identifies the two ends of its full domain as one closed
+   * curve.
+   */
   closed: boolean;
 
-  /** Evaluate in millimetres; nonfinite coordinates refuse the affected arc. */
+  /**
+   * Return one XY position in millimetres for the supplied source parameter.
+   *
+   * @param t Parameter inside the declared interval.
+   * @returns XY in millimetres in the source chart.
+   */
   evaluate(t: number): Readonly<AutoMovieVector2Tuple>;
 
   /**
-   * Evaluate mm/parameter^order. At a nonsmooth break, left/right requests
-   * select the exact incident chart's endpoint derivative; omission selects the
-   * caller's ordinary point value and makes no one-sided promise.
+   * Return an XY derivative of the requested order in millimetres per source
+   * parameter unit to that order. An explicit side selects the incident chart
+   * at a break.
+   *
+   * At a nonsmooth break, give the exact requested incident chart endpoint
+   * value. Omitting side uses the callback's ordinary point convention.
+   *
+   * @param t Parameter in the declared source interval.
+   * @param order Requested derivative order from one through five.
+   * @param side Incident chart side for a one-sided query.
+   * @returns XY derivative in the source chart and parameter units.
    */
   derivative(
     t: number,

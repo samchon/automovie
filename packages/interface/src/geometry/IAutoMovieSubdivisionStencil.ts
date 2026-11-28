@@ -1,11 +1,10 @@
 /**
- * The Catmull-Clark limit stencil of every vertex of a quad cage, from
- * `stencilSubdivisionLimit`, in compressed rows.
+ * Position-independent Catmull-Clark limit weights for a quad cage, stored as
+ * compressed rows.
  *
- * Vertex `i`'s limit point is the sum over `k` from `offsets[i]` to `offsets[i
- * + 1]` of `weights[k]` times the control position of vertex `indices[k]`. The
- * stencils depend only on the cage's faces, so a cage whose positions change
- * every frame keeps them.
+ * Vertex i uses terms from offsets[i] through offsets[i + 1] - 1. Multiply each
+ * term's weight by the control position at its index and sum them. A caller can
+ * reuse the rows while the cage's face connectivity stays fixed.
  */
 export interface IAutoMovieSubdivisionStencil {
   /** Number of vertices. */

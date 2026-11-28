@@ -28,9 +28,7 @@ import { nclose } from "../internal/nclose";
  *    corner of a crossing, where both thread profiles vanish, the value is 0.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Samples every kind and the noise directly; a pattern that saturated, a noise that was not zero on its lattice, a fade that broke continuity or a weave whose top thread did not alternate fails.
- * @evidence contracts/development/testing.md#independent-expectations Zero at lattice corners and continuity follow from Perlin's construction; the weave's top-thread heights follow from the squared-sine profile and the 0.8 to 1 jitter the contract defines; the value-spread bounds only require a non-degenerate pattern and are far from any tuned value.
- * @evidence contracts/development/testing.md#distinguishing-cases Even and odd crossings and the gap between threads distinguish the over-under rule; determinism and seed sensitivity are owned by `test_material_procedural_sample`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_procedural_statistics`, with in-memory inputs only.
+ * @evidence contracts/development/testing.md#independent-expectations Zero at lattice corners and continuity follow from Perlin's construction; the weave's top-thread heights follow from the squared-sine profile and the 0.8 to 1 jitter the contract defines; the value-spread bounds only require a non-degenerate pattern and are far from any tuned value. The even and odd crossings and the gap sample separately check thread order and background.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_procedural_statistics(): void {

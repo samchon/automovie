@@ -41,13 +41,18 @@ const AIM: number = 1e-12;
  *    normal.
  * 3. A performer point (0.5 left, 1 up, 2 forward) is at (12, 1, -0.5), facing
  *    back; one stated in statures is scaled by the stature.
- * 4. No target lies on the chin's line at the arm's length ahead, or at a given
- *    line and range.
+ * 4. An unspecified target lies on the middle line an arm's length ahead.
+ *    An explicit low line and range replace those defaults.
  * 5. A cup's rim at (0, 0.1, 0) on the cup at (1, 0, 0) is at (1, 0.1, 0) facing
  *    up.
  * 6. The performer's own region is placed on their own bones; another person's
  *    on that person's bones a reaction time earlier.
- * 7. Refused: an unknown prop, point or region, and an unknown person.
+ * 7. An unknown prop, a point missing from an existing prop, and an unknown
+ *    person each produce the specified refusal axis.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names world, performer, stature, virtual line, prop, and body-region targets plus the three refused references.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds an aiming frame from the standing fixture and calls the aim owner for each target kind. It compares literal positions and normals and checks the refusal axes for an unknown prop, its missing named point, and an unknown person.
+ * @evidence contracts/development/testing.md#independent-expectations At yaw 90, local (0.5, 1, 2) from X 10 yields (12, 1, -0.5) with normal -X. The cup at (1, 0, 0) puts its rim at (1, 0.1, 0) with upward normal. The body-region comparisons use the separately read bone transforms as consistency checks.
  */
 export async function test_motions_perform_aim(): Promise<void> {
   const cup = AutoMovieMotionHumanObject.prop(

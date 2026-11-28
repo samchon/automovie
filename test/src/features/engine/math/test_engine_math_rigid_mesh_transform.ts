@@ -25,6 +25,10 @@ const FIT_ROUNDING: number = 8 * 24 * 6 * 32 * Number.EPSILON;
  * 5. Tiny and large coordinate units retain the same analytic rotation.
  * 6. A large translation of integer points leaves the centered covariance and
  *    recovered quarter turn unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers proper rigid fits across coordinate scales, rank deficiency, translation, ownership and reflection or scale limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls fitRigidMeshTransform on corresponding point buffers and applies the returned centered rigid transformation. It compares snapshots and probes isotropic scaling and a large translated target.
+ * @evidence contracts/development/testing.md#independent-expectations Coordinate permutations and signs are analytic rotations. Centered symmetric axes expose prohibited scale, and a reflection cannot match a proper rotation. Explicit translations and a known quarter-turn quaternion remain references under rank deficiency and rescaling.
  */
 export function test_engine_math_rigid_mesh_transform(): void {
   const source: number[] = [0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3];

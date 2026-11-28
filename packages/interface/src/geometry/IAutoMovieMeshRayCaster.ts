@@ -5,20 +5,18 @@ import type { IAutoMovieMeshRayQueryOptions } from "./IAutoMovieMeshRayQueryOpti
  * Synchronous ray queries over one owned resident-mesh snapshot, returned by
  * `createMeshRayCaster`.
  *
- * Every query takes an XYZ `origin` and `direction` in the mesh-local metre
- * frame, a `maximum` travel and an optional `minimum` travel (default zero),
- * and accepts a hit whose travel lies in the inclusive interval [minimum,
- * maximum]. Positive infinity is an unbounded maximum. The direction is
- * normalized first, so travel is metres along the ray. A query throws on a
- * non-finite origin, a zero or non-finite direction, `minimum > maximum`, an
- * exclusion outside the original triangle ordinals, and arithmetic a triangle
- * or box cannot represent. A null answer means no unexcluded triangle lies in
- * the interval, never that the origin is inside a volume.
+ * Supply finite three-component origin and nonzero direction in the mesh-local
+ * frame. Travel is in metres along the normalized direction. The interval
+ * includes both endpoints and requires a finite nonnegative minimum, defaulting
+ * to zero, and a maximum at least as large. Positive infinity makes the maximum
+ * unbounded. Exclusions address original triangle ordinals. A null answer
+ * indicates no unexcluded intersection in that interval. Invalid vectors,
+ * travel bounds and triangle ordinals throw before traversal. Unrepresentable
+ * intersection arithmetic also throws.
  *
- * Triangle winding does not matter, an edge belongs to both its triangles, and
- * a ray within the 1e-18 determinant threshold of a triangle's plane passes it.
- * The three queries share one traversal stack, which is safe because each runs
- * to completion without calling back into the caller.
+ * The caster tests both windings and includes triangle edges. A determinant
+ * within 1e-18 of zero counts as parallel. Queries are synchronous and reuse
+ * one traversal stack.
  */
 export interface IAutoMovieMeshRayCaster {
   /**

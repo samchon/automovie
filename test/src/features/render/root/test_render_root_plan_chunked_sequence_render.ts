@@ -49,6 +49,10 @@ const SPEC: IAutoMovieRenderSpec = {
  * 4. With passes, each chunk gets pass outputs and each pass a manifest of
  *    every chunk directory.
  * 5. A chunk size of 0 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Cuts a sequence into locally numbered chunks and plans ordered reassembly and pass manifests.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls chunk planning on a ten-frame render with a four-frame limit, with and without passes, and with an invalid size.
+ * @evidence contracts/development/testing.md#independent-expectations The half-open ranges 0–4, 4–8 and 8–10 give the exact chunk boundaries. The final chunk restarts at index zero and reassembly follows chunk order.
  */
 export function test_render_root_plan_chunked_sequence_render(): void {
   const plan: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({

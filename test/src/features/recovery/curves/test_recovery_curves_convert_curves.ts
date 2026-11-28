@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A polyline fit's curve turns Hermite, its residual fields kept.
  * 2. A section's loop and a report's open arc both turn Hermite.
  * 3. The input record still holds its Bernstein curves.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the supported fit, loop and open arc records with copied curves and retained residuals.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts polyline, section and open-arc record fields, then reads the original records again.
+ * @evidence contracts/development/testing.md#independent-expectations The fixtures supply Bernstein curves at the declared curve locations and a known residual value. Only those curve fields should become Hermite.
  */
 export function test_recovery_curves_convert_curves(): void {
   const curve: IAutoMovieCubicBezierCurve64 = {

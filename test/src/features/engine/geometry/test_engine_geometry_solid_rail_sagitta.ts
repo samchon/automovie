@@ -25,6 +25,10 @@ type Vec3 = [number, number, number];
  * 2. Started on the sheet at u = root + 0.1 and root + 0.3, and on the band at u
  *    -0.1 and -0.05, the rail settles at v* within 1e-9 on the sheet at u =
  *    root or on the band at u = root - 0.5 - g(v*).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the exact curve-versus-chord premise and settlement on both adjacent charts.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the cylinder and band and applies the public rail solve from two seeds per chart, comparing their returned coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations The cosine boundary evaluated halfway between phase knots gives the exact curve while interpolation gives its chord. The authored root and band frame determine the two expected station coordinates.
  */
 export function test_engine_geometry_solid_rail_sagitta(): void {
   const R: number = 10;

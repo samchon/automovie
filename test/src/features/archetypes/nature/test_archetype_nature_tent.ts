@@ -11,11 +11,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it where it has width: its frame 4 m wide and 4 m long, its side walls 1.25 to 1.40 m high, 6.6 m from vestibule end to vestibule end, its ridge at 2.2 m within a roof slab's thickness, 49 to 53 kg.
  * 2. For three seeds, its outer doors are 1.3 m wide and 1.4 m high at the vestibules' ends, its inner doors 1 m wide and 1.75 m high at the frame's ends, each on the ground; its lowest point is on the ground.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the tent for 200 seeds and measures its parts, mass and door frames; a size off the specification, a seed that does not vary the walls, or a door of another size or place is caught.
- * @evidence contracts/development/testing.md#independent-expectations UNHCR's Family Tent eco-design specification, written here as literals.
- * @evidence contracts/development/testing.md#distinguishing-cases The one built tent, outer and inner doors; a camping tent waits for a maker's door size.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States tent dimensions, seeded wall height and both pairs of ground-supported doorways.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the public tent's geometry, mass and named doors over seeded draws. The outer vestibule and inner hall door frames must match their different end planes and dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations The UNHCR Family Tent eco-design dimensions give a 4 by 4 metre frame, 6.6 metre overall length and 2.2 metre ridge. Its stated outer and inner door openings define separate literal checks.
  */
 export function test_archetype_nature_tent(): void {
   const tent = (seed: number): ReturnType<typeof AutoMovieArchetypeTent.create> =>

@@ -15,11 +15,9 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Nonfinite phases refuse and mutating a result cannot change a later query.
  *    Existing ride tests verify actual feet, support and attachments.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States normalized phase, endpoint progress, nonnegative clearance, independent dyadic literals, binary64 boundary cases, invalid input and pure result ownership.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual profile used by all quadruped rides and checks its raw shares before they become geometric goals. A descending subtraction that creates negative lift is caught without a tolerance or a patched ride.
- * @evidence contracts/development/testing.md#independent-expectations The rest-to-rest quintic has integrated coefficients 10,-15,6; literal values at eighths are exact binary64 fractions. Progress is in [0,1], lift is in [0,1], endpoint lift is zero, middle lift is one and time reversal leaves lift unchanged. Expectations never call the production minimumJerk helper.
- * @evidence contracts/development/testing.md#distinguishing-cases Literal anchors, 4097 exact dyadic phases, powers-of-two adjacent boundary distances, nonfinite input and returned-record mutation distinguish a mathematically correct but cancellation-prone expression from a bounded actual goal path.
- * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit uses the actual package entry point for the authoring profile consumed by rideQuadruped, with no filesystem fixture, process, compiler, renderer, foreign-method replacement or wall-time assertion.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the dyadic quintic samples, monotonic progress, symmetric bounded lift, boundary refusal and fresh result ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the real swing profile across dyadic, adjacent and nonfinite phases. It checks raw negative lift and time reversal directly before the values become an authored motion position.
+ * @evidence contracts/development/testing.md#independent-expectations The rest-to-rest quintic has coefficients 10, -15 and 6. Its values at eighths are exact binary fractions. Lift vanishes at either endpoint and reaches one at the midpoint.
  */
 export function test_archetype_animal_swing_profile(): void {
   const findings: string[] = [];

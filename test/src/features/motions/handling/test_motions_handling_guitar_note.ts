@@ -33,6 +33,10 @@ const ROUNDING: number = 1e-12;
  *    soundboard's centre at (0.5, 0, 0), the normal +Y, the sweep half the
  *    spacing along -Z; a fret missing the string, a guitar without the fret and
  *    a single string are refused on `fret`, `prop` and `string`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ordered note phases, free hands, fixed guitar and geometric fret and string contact resolution.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits malformed timing, an occupied hand and moving guitar, then resolves two adjacent strings and missing or disconnected fret cases.
+ * @evidence contracts/development/testing.md#independent-expectations The straight fixture places stop at x = 0.1 and pluck at x = 0.5. Its 10 mm string spacing gives half-spacing sweep, and refusal axes distinguish each missing prerequisite.
  */
 export function test_motions_handling_guitar_note(): void {
   const times = { stopAt: 0.5, pluckAt: 0.9, releaseAt: 1.3, duration: 1.6 };

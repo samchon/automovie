@@ -1,215 +1,116 @@
 /**
- * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics.
- * axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are
- * bottom, right, top, left and all side parameters increase. Equal UV scalar
- * endpoint identities share one control; this is parameter identity, not a
- * physical coordinate weld. Each maximal containing interval owns one cubic.
- * Nested fine intervals use de Casteljau restriction expressions in that cubic.
- * Disjoint intervals, including those meeting only at endpoints, keep their own
- * cubic handles. Every patch retains four independent interior controls. Atomic
- * intervals verify one exterior incident and two opposed interior uses. Missing
- * exterior coverage, nonnested overlaps, inconsistent corner equations, cycles,
- * nonfinite arithmetic and control-budget exhaustion throw atomically. boundary
- * contains only master exterior controls, with their nominal affine UV
- * coefficient locations; physical fitted coefficients belong to the caller.
- * Binary64 restriction is algebraically exact before rounding. Canonical point
- * expressions own shared cut endpoints rather than separate restriction paths.
- * This helper supplies coefficient coupling, not source coverage, G1 or a
- * conforming generated mesh: the old four-ID-only engine cannot join unequal
- * intervals without canonical interval sample ownership.
+ * Coefficient registry for an axis-aligned chart leaf layout and its shared
+ * edges.
  */
 
 export namespace IAutoMovieRecoveryChartLeafControls {
   /**
-   * Input observations and explicit numerical policy for
-   * RecoveryChartLeafControls. Unique named rectangles covering the unit UV
-   * square with disjoint interiors.
+   * Supply identified rectangular leaf bounds and the control budget for one
+   * coefficient registry.
    */
 
   export type Input = {
-    /**
-     * Unique named rectangles covering the unit UV square with disjoint
-     * interiors.
-     */
+    /** Identified rectangular leaves in the complete chart partition. */
     leaves: readonly {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Stable leaf identifier used to address its patch net. */
       id: string;
 
-      /**
-       * Global normalized chart rectangle [u0,v0,u1,v1] with strictly
-       * increasing extents.
-       */
+      /** Normalized [uMin, uMax, vMin, vMax] leaf bounds. */
       bounds: readonly [number, number, number, number];
     }[];
 
-    /**
-     * Positive safe cap on every allocated corner, edge and interior control
-     * ID.
-     */
+    /** Maximum generated coefficient slots for this leaf registry. */
     maxControls: number;
   };
 
   /**
-   * Returned coefficient or observation state from RecoveryChartLeafControls.
-   * Master outer coefficients only; never dependent fine-edge controls.
+   * Shared control IDs, bicubic leaf patch nets and affine edge restrictions
+   * for the given layout.
    */
 
   export type Result = {
-    /** Number of original IDs for the relation resolver and fitter. */
+    /** Total registered control slots before fitting physical values. */
     controls: number;
 
-    /** Sixteen original control IDs per patch, v rows with u varying fastest. */
+    /** Per-leaf bicubic patch nets in the shared registry. */
     patches: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Leaf identifier carried as the patch address. */
       id: string;
-      /**
-       * Indices into the shared control registry; bicubic nets use sixteen IDs
-       * with u varying fastest.
-       */
+      /** Sixteen shared control indices in U-fastest order. */
       controlIds: number[];
     }[];
 
-    /**
-     * Dependent original controls as unchanged sparse master-control
-     * expressions.
-     */
+    /** Affine dependent definitions for non-master edge slots. */
     relations: {
-      /**
-       * Zero-based ordinal in this record's owning cell, component or control
-       * registry; it is not a source coordinate.
-       */
+      /** Original dependent control slot defined by this relation. */
       id: number;
-      /**
-       * Sparse affine contributions in original control IDs; duplicate IDs and
-       * signed weights retain the owning operation's declared combination
-       * rule.
-       */
+      /** Signed terms expressing this slot from original registry controls. */
       terms: {
-        /**
-         * Zero-based ordinal in this record's owning cell, component or control
-         * registry; it is not a source coordinate.
-         */
+        /** Original id of one contributing control. */
         id: number;
-        /**
-         * Dimensionless signed affine coefficient; neither positivity nor
-         * convexity is inferred.
-         */
+        /** Coefficient multiplying that control in the edge restriction. */
         weight: number;
       }[];
     }[];
 
-    /** Master cubic intervals only, with increasing global varying coordinate. */
+    /** Canonical edge segments that own master control rows. */
     edges: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Stable identifier of the master edge segment. */
       id: string;
 
-      /** Normalized chart axis: 0 selects u and 1 selects v. */
+      /**
+       * Varying chart axis of this master segment. Zero denotes U and one
+       * denotes V.
+       */
       axis: 0 | 1;
 
-      /**
-       * Fixed global normalized coordinate of the master edge on its nonvarying
-       * axis.
-       */
+      /** Normalized coordinate on the fixed axis of the edge. */
       line: number;
 
-      /**
-       * Increasing normalized interval start on the declared shared edge or
-       * boundary curve.
-       */
+      /** Lower global parameter along the master edge axis. */
       start: number;
 
-      /**
-       * Increasing normalized interval end on the declared shared edge or
-       * boundary curve.
-       */
+      /** Upper global parameter along the master edge axis. */
       end: number;
 
-      /**
-       * Indices into the shared control registry; bicubic nets use sixteen IDs
-       * with u varying fastest.
-       */
+      /** Four master control ids in increasing edge parameter order. */
       controlIds: [number, number, number, number];
     }[];
 
-    /** Increasing side intervals normalized to their declared master edge. */
+    /** Bindings mapping each attached patch side to its master edge restriction. */
     bindings: {
-      /**
-       * Patch identity or zero-based patch ordinal, according to this record,
-       * addressing the supplied coefficient-patch registry.
-       */
+      /** Leaf patch ID addressed by this binding. */
       patch: string;
 
-      /**
-       * Chart boundary-side ordinal in the owning rectangle's fixed side
-       * convention.
-       */
+      /** Indexed patch side in the declared bottom, right, top, left order. */
       side: 0 | 1 | 2 | 3;
 
-      /**
-       * Declared undirected edge identity; halfedge occurrences retain their
-       * own direction and source-face ownership.
-       */
+      /** Master edge ID supplying the boundary curve. */
       edge: string;
 
-      /**
-       * Increasing normalized interval start on the declared shared edge or
-       * boundary curve.
-       */
+      /** Lower patch side coordinate in the master edge's normalized parameter. */
       start: number;
 
-      /**
-       * Increasing normalized interval end on the declared shared edge or
-       * boundary curve.
-       */
+      /** Upper patch side coordinate in the master edge's normalized parameter. */
       end: number;
     }[];
 
-    /** Master outer coefficients only; never dependent fine-edge controls. */
+    /** Exterior master-control slots with their normalized chart locations. */
     boundary: {
-      /** Original control-registry index addressed by this boundary constraint. */
+      /** Shared registry id of this exterior master control. */
       control: number;
-      /**
-       * Normalized u coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Nominal U parameter of this exterior control. */
       u: number;
-      /**
-       * Normalized v coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Nominal V parameter of this exterior control. */
       v: number;
     }[];
   };
 
   /**
-   * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics.
-   * axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are
-   * bottom, right, top, left and all side parameters increase. Equal UV scalar
-   * endpoint identities share one control; this is parameter identity, not a
-   * physical coordinate weld. Each maximal containing interval owns one cubic.
-   * Nested fine intervals use de Casteljau restriction expressions in that
-   * cubic. Disjoint intervals, including those meeting only at endpoints, keep
-   * their own cubic handles. Every patch retains four independent interior
-   * controls. Atomic intervals verify one exterior incident and two opposed
-   * interior uses. Missing exterior coverage, nonnested overlaps, inconsistent
-   * corner equations, cycles, nonfinite arithmetic and control-budget
-   * exhaustion throw atomically. boundary contains only master exterior
-   * controls, with their nominal affine UV coefficient locations; physical
-   * fitted coefficients belong to the caller. Binary64 restriction is
-   * algebraically exact before rounding. Canonical point expressions own shared
-   * cut endpoints rather than separate restriction paths. This helper supplies
-   * coefficient coupling, not source coverage, G1 or a conforming generated
-   * mesh: the old four-ID-only engine cannot join unequal intervals without
-   * canonical interval sample ownership.
+   * Allocate one shared bicubic control registry from the admitted rectangular
+   * leaves. Assign master edge controls and oriented interval bindings. Return
+   * dependent relations and exterior master-control layout within the explicit
+   * control cap.
    */
 
   export type Operation = (

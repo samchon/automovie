@@ -1,18 +1,20 @@
 import type { AutoMovieArchetype } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
 
-/** The canonical producer and authoring contract for a remote control. */
+/**
+ * Constructs an upright remote with two grasp frames and a front thumb contact.
+ */
 export namespace AutoMovieArchetypeRemote {
   /**
-   * An upright remote control with a shallow case and a front thumb contact.
+   * Build the remote upright on its bottom edge, facing model `+Z`.
    *
-   * The model stands on its bottom edge at the origin with its front toward `+Z`.
-   *
-   * @param params The identifier, fixed outside dimensions and mass.
-   * @param seed The seed for the device's remaining choices.
-   * @returns The device and its named contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
-   *   input.
+   * @param params Optional scene ID and finite dimensions in the remote bands.
+   *   The ID defaults to `device`.
+   * @param seed Numeric seed for omitted dimensions. Omit it for band
+   *   midpoints, including case height 0.139 metres.
+   * @returns Rear `grip`, lower `pinch` and a front `button` at three
+   *   quarters of the case height. The button has no authored travel.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed dimension or model selection is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypeRemote.IParams = {},
@@ -52,20 +54,23 @@ export namespace AutoMovieArchetypeRemote {
 
   /* The parameters and affordance identifiers of {@link AutoMovieArchetypeRemote}. */
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Height, width and case thickness in metres and whole remote mass in kilograms.
    */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
-  /** The identifiers of contacts built by this producer. */
+  /** Rear `grip`, lower lateral `pinch` and the front `button` frame. */
   export type Affordance = "button" | "grip" | "pinch";
 
-  /** Parameters for this remote control. */
+  /**
+   * Optional scene ID and fixed finite dimensions or mass from the remote-control bands.
+   */
   export interface IParams extends Omit<
     HandheldDevice.IParams,
     "kind" | "model"
   > {
-    /** This remote control has no manufacturer model selector. */
+    /**
+     * Keep this field absent. The remote takes its dimensions from the bands.
+     */
     model?: never;
   }
 }

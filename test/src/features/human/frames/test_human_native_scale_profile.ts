@@ -20,10 +20,8 @@ import type { AutoMovieVector2Tuple } from "@automovie/interface";
  *    single samples are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production profile, constant, handoff and guard on made anchors.
- * @evidence contracts/development/testing.md#independent-expectations The quintic and its derivatives are written in their expanded polynomial form, not the module's factored one; the handoff's expectation is the hand-derived chain rule on a constant target.
- * @evidence contracts/development/testing.md#distinguishing-cases Interior, site, held-before and held-after stations in two directions with different rises, constant and varying laws, carried and plain scales, and every refusal, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic on made anchors; no family, source, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios with their closed forms.
+ * @evidence contracts/development/testing.md#independent-expectations The expanded quintic gives value and both derivatives. A constant target simplifies the handoff's chain rule. The centre-line control at [0, 1, 2] checks the natural-cubic value and jets against 1.5x − 0.5x³ on its first segment.
+ * @evidence contracts/development/common.md#meaningful-documentation Quintic scale jets, constant profile recognition, handoff, profile ownership, invalid anchors and a natural-cubic centre line have distinct expectation cases.
  */
 export function test_human_native_scale_profile(): void {
   const failures: string[] = [];

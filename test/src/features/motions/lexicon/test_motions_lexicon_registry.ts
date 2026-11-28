@@ -30,6 +30,10 @@ import { TestValidator } from "@nestia/e2e";
  *    of it, mirrored; `eatWith` keeps the held utensil and its point and fixes
  *    the visit to the mouth for a beat in a fist. Both are rows of
  *    `armPhrase`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines lexicon family membership and ordering and preset authority over supplied composition properties.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares registered families with their declared records, inspects the gait namespace boundary and resolves two authored gesture rows.
+ * @evidence contracts/development/testing.md#independent-expectations Declared family records define exact order without exported helper constants. The tuck-hair and utensil fixtures expose preset ownership through concrete tool and pose properties.
  */
 export function test_motions_lexicon_registry(): void {
   // 1. One for one.

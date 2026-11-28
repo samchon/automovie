@@ -1,16 +1,11 @@
 import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
 
 /**
- * All local Cartesian partials through total order two in physical station and
- * phase.
- *
- * Station s is measured in millimetres; phase is the inherited
- * polar/correspondence angle in radians. These derivatives have already been
- * converted from any root, angle or normalized interpolation coordinate.
- * AutoMovieEngineLoftSectionLegacy.jet requires a prepared jet variant and rejects
- * unavailable or nonfinite requested derivatives; AutoMovieEngineLoftSection returns
- * the same shape for native and mixed fields. All six local vectors are fresh
- * and mutable.
+ * Local [u, v] point and all partial derivatives through total order two.
+ * Physical station is in millimetres and phase is in radians. The additional
+ * fields give the first station partial, second station partial and mixed
+ * station/phase partial. Native, legacy and mixed section readers return the
+ * same shape after any coordinate conversion and before world placement.
  */
 export type IAutoMovieLoftSectionJet = IAutoMovieLoftSectionPhase & {
   /** First physical-station partial of local [u,v], millimetres per millimetre. */

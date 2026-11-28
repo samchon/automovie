@@ -64,9 +64,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds environments through the public producers and reads `support`, which catches a floating or sunk piece reported resting, a tucked or attached piece judged against the wrong support, a hung piece not judged against its wall, a declared prop measured again, a building body judged differently from its own sweep and a duplicated or missing node.
  * @evidence contracts/development/testing.md#independent-expectations The 0.8 m and -0.3 m gaps are the authored placements plus the crate's rest-box underside measured through the engine; the building verdicts come from the building sweep run separately; the wall and table ids are the producers' documented names.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a floating and a sunk crate, an attached and a declared cup, a mirror on its wall and 0.1 m off it, and furnished pieces against building bodies; `test_architecture_built_environment_placement` owns the building sweep's own cases.
- * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory environments; it starts no renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its ten scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks measured support for a crate above or below its surface, an attached or declared cup, and a mirror on or off its wall. Compares furnished support rows with the building placement sweep.
  */
 export function test_environment_support_report(): void {
   const crate: IAutoMovieModel = AutoMovieArchetypeMoldedCrate.create({}, 1021);

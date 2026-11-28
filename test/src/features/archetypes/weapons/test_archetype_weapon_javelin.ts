@@ -9,11 +9,9 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A lance's `grip` lies behind its centre of mass, toward the butt, so its steel head carries the point forward of the couching hand.
  * 3. A length or a balance a millimetre past either end of the rule's band is refused on that dimension, for both categories.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces javelins at every band end and a lance and reads their mass properties against their contacts; a javelin balanced off its cord, or a lance balanced behind its grip, is caught.
- * @evidence contracts/development/testing.md#independent-expectations The balance distances, lengths and masses are the rule's, written here; the centre of mass is read from the produced model's own mass properties.
- * @evidence contracts/development/testing.md#distinguishing-cases Both categories at all four band corners and a millimetre past each band end, and the lance.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines sporting prop size extremes and the balance observed at its grip for the public javelin and scenic lance.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual prop at each tested dimension endpoint and reads its returned centre of mass and grip placement. Applies the stated comparative balance check to the lance.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the authored sporting size, mass and balance bands. The centre of mass and grip are independently observed on the generated model.
  */
 export function test_archetype_weapon_javelin(): void {
   const findings: string[] = [];

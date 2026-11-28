@@ -39,6 +39,10 @@ function window(
  * 6. The left foot keeps the named stirrup, sole region, ball socket and zero
  *    load. The right foot keeps its explicit foot-local offset and leaves its
  *    other optional fields unassigned.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names default feet, inclusive and clamped plan shares, grip and strike exclusion, and retained support frame and contact metadata.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanSegmentEntry.supports` with no prior action and with a typed contact plan at five film seconds. It compares exact support membership and then reads the stirrup, offsets, region, socket, and load fields directly.
+ * @evidence contracts/development/testing.md#independent-expectations With plan start 2 s and duration 4 s, film seconds 3, 4, and 5 give shares 0.25, 0.5, and 0.75. They include both feet, both feet again, and only the right foot. Times 1 and 9 clamp to shares 0 and 1.
  */
 export function test_motions_perform_segment_entry_supports(): void {
   // 1. No action.

@@ -24,11 +24,9 @@ import { createCaptureMemory } from "./createCaptureMemory";
  *    raster writes the graphics still with colour type 6 and the raster's four
  *    channels, and the beauty still with colour type 2.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the plan and the raster the test pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Graphics pass planning and RGBA writing are checked with an opaque pixel and a transparent pixel. The captured beauty still independently uses RGB.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public pass planner, encoder and decoder, and runs a capture against in-memory storage, and reads the IHDR colour type and the decoded pixels.
  * @evidence contracts/development/testing.md#independent-expectations Colour type 6 is PNG's RGBA type (W3C PNG, 2nd edition, section 11.2.2); the expected pixels are the authored ones.
- * @evidence contracts/development/testing.md#distinguishing-cases An RGB plate (type 2) or a dropped alpha fails. A capture still that drops the plate's alpha, or a beauty still written with alpha, fails. The control writer's choice of alpha for the graphics pass is exercised by the render path.
- * @evidence contracts/development/testing.md#execution-ownership In-memory planning, capture storage and PNG bytes; no browser.
  */
 export async function test_capture_graphics_plate_png(): Promise<void> {
   const outputs: IAutoMovieGuidePassOutput[] = AutoMovieRenderMedia.planGuidePassOutputs({

@@ -25,6 +25,10 @@ const NONE: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  *    inside the push's build, `t² / (2 TAKE)` metres on, sliding at the push
  *    built so far.
  * 3. Released at the floor it has landed already.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual rider fall, early shove and friction-limited travel after landing.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates held-flight helpers for a level launch, an impact while the push is still growing and a root already on the floor.
+ * @evidence contracts/development/testing.md#independent-expectations The height fixes flight time √(2h/g), and stop travel follows v²/(2μg). A flight ending during push uses its partial accumulated velocity.
  */
 export function test_motions_lexicon_unseat_flight(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

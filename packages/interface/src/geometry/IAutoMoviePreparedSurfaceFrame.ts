@@ -2,16 +2,29 @@ import type { IAutoMovieSurfaceFrame } from "./IAutoMovieSurfaceFrame";
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * Three rigid sample points prepared by prepareSurfaceFrame. All
- * records and the offset tuple are frozen. Offsets are centroid-relative metres
- * along forward, normal-cross-forward, and normal, respectively. Their order is
- * the original point order; placement never refits their lengths.
+ * Centroid-based source frame and three read-only local offsets for one rigid
+ * triangle.
+ *
+ * Preparation accepts three finite noncollinear metre points. The first edge
+ * supplies heading and the oriented edge cross product supplies normal, with an
+ * optional reference choosing its sign. Treat the returned offsets as read-only
+ * and use them as a unit.
  */
 export interface IAutoMoviePreparedSurfaceFrame {
-  /** Frozen centroid and unit source directions, useful for a round trip. */
+  /**
+   * Owned source centroid and unit heading and normal. The source basis
+   * supports a rigid round trip in the same metre frame.
+   */
   readonly frame: IAutoMovieSurfaceFrame;
 
-  /** Frozen original-order point coordinates in the orthonormal source basis. */
+  /**
+   * Three owned centroid-relative offsets in original point order, in metres
+   * along forward, normal cross forward and normal.
+   *
+   * Supply the prepared finite offsets to the placement operation. A
+   * destination basis reconstructs coordinates without resizing the source
+   * sample.
+   */
   readonly offsets: readonly [
     Readonly<IAutoMovieVector3>,
     Readonly<IAutoMovieVector3>,

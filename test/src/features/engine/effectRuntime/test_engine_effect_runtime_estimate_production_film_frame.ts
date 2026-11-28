@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    - 30 / 1001 = 0.01528..., which `floor` reads as 0 and `ceil` as 1.
  * 2. A negative time floors at frame 0.
  * 3. A time past 2^53 - 2 frames is null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rounded frame estimation from time and rational rate, zero floor and safe-integer refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Estimates exact and fractional frame positions under requested rounding, then checks negative time and unsafe frame position.
+ * @evidence contracts/development/testing.md#independent-expectations At 24 fps, 1.5 s gives frame 36. The fixture's fractional rate leaves a value between zero and one, so floor gives 0 and ceiling 1.
  */
 export function test_engine_effect_runtime_estimate_production_film_frame(): void {
   const film: { numerator: number; denominator: number } = {

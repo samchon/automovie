@@ -7,6 +7,7 @@
     "ttsc": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "typescript": "catalog:typescript",
+    "typescript-compiler": "npm:typescript@5.9.3",
     "@wrtnlabs/evidence": "catalog:samchon"
   },
   "imports": {

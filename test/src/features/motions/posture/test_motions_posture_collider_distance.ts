@@ -68,6 +68,10 @@ function sphere(
  * 5. Prepared readings in either order retain the analytic distances and
  *    first-minimum ownership.
  * 6. A body without colliders has no distance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines signed collider distance, composed bone placement, stable ties and prepared out-of-order reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries two sphere colliders with point and tapered segment probes, then tests a tie, empty body and reversed prepared reads.
+ * @evidence contracts/development/testing.md#independent-expectations The composed chest at x = 0.8 gives 0.15 m from x = 0.45, the interior head yields −0.05 m and adding 0.05 taper reduces 0.3 m to 0.25.
  */
 export function test_motions_posture_collider_distance(): void {
   const body: IAutoMovieMotionHumanColliders.IPlaced[] = [

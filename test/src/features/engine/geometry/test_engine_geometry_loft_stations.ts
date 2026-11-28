@@ -22,6 +22,10 @@ type V3 = [number, number, number];
  *    holds.
  * 2. The 0.01 mm stations with every other interior station dropped leave an
  *    interval past 0.01 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names preserved principal stations, two midpoint tolerances and failure of a deliberately thinned list.
+ * @evidence contracts/development/testing.md#behavioral-verification Bisects a curved loft and checks actual midpoint-ring departures from endpoint ring averages, then removes alternate interior stations.
+ * @evidence contracts/development/testing.md#independent-expectations Every original layer marks a required station. Midpoint versus chord-average error directly evaluates each claimed band bound, while thinning creates a confirmed excess at the stricter tolerance.
  */
 export function test_engine_geometry_loft_stations(): void {
   const chain: IAutoMovieLoftChain = AutoMovieEngineConstruction.realize(

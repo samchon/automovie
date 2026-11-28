@@ -36,6 +36,10 @@ const SLIDE: number = 0.2;
  *
  * The body is built whole (`humanFixtureBody`): the contact is the foot's
  * lowest sole socket on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names stationary and sliding plants, exclusion of vertical motion and three moving-deck relative speeds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditGround.slip on stored foot bones and authored ground or prop windows, giving framed and unframed readings of the same deck motion.
+ * @evidence contracts/development/testing.md#independent-expectations In one second the 0.2 m/s horizontal slide moves 0.2 m irrespective of sinking. Matching a 1 m/s deck yields zero relative slip, omitting the frame yields 1 m and exceeding its motion by 10 percent yields 0.1 m.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_ground_slip(): Promise<void> {
   // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.

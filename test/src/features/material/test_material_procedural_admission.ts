@@ -28,10 +28,8 @@ import { hasViolation } from "../internal/hasViolation";
  *    `procedural.piece.tile.u`, and a piece material cited by a box primitive,
  *    which has no UV0, is refused at that part's geometry.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `validateModel` on boxes citing each material; an admission that let a field through or reported it at another path fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `validateModel` on boxes citing each material; an admission that let a field through or reported it at another path fails. Each refused model changes one admitted field. The box supplies the missing UV0 case.
  * @evidence contracts/development/testing.md#independent-expectations Every expected refusal is a range or rule the issue and the contract state; the accepted cases satisfy all of them.
- * @evidence contracts/development/testing.md#distinguishing-cases Each malformed case differs from an admitted one in one field, so a refusal cannot come from another field; the box primitive is the case without UV0, and the CPU samples are owned by `test_material_procedural_sample`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_material_procedural_admission`, with in-memory models only.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_procedural_admission(): void {

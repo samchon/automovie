@@ -12,10 +12,8 @@ import type { NodeCanvasTypes as N } from "../../../reference-conics/render/Node
  * 4. Changing only observation evidence leaves the decoded scene body and annotation-free PNG unchanged.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the existing in-process rasterizer and PNG decoder with one literal triangle; different evidence must produce different annotated PNGs while the same scene body remains identical.
- * @evidence contracts/development/testing.md#independent-expectations The capture contract requires displayed stage and run evidence to be independent and visible. Pairwise inequality detects ignored state but does not certify exact words; review reads the actual caption. Literal body pixels and annotation-free counterparts pin the absence of a scene change.
- * @evidence contracts/development/testing.md#distinguishing-cases Same-stage different-run, same-run different-stage, omitted evidence, an actual nonempty triangle and disabled annotations distinguish the caption boundary without Human geometry.
- * @evidence contracts/development/testing.md#execution-ownership This selected fixture uses only in-memory Node Canvas raster and decode calls; it starts no process, viewer, browser, whole-person producer or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Four scenarios state the visible evidence contract, independent scene counterpart and exact-word limitation.
+ * @evidence contracts/development/testing.md#independent-expectations The same literal triangle and camera hold the decoded body constant while displayed stage and mesh-return evidence change. Expected inequalities compare annotation bytes and the annotation-free fixture supplies a passing counterpart.
+ * @evidence contracts/development/common.md#meaningful-documentation Stage, returned-mesh state and omitted diagnostics produce distinguishable annotations on the same triangle, whose decoded body is checked separately.
  */
 export async function test_human_capture_annotation_modes(): Promise<void> {
   const failures: string[] = [];

@@ -27,6 +27,10 @@ const INTEGRAL_ROUNDING: number = 1e-15;
  *    cm holds a longer one to 1 cm along itself; a K_i under 1e-10 zeroes it.
  * 7. `reset` keeps the integral and clears the flag; a new integrator is not stuck
  *    with a zero integral.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines stuck detection, reset by moving plan, leak, integral saturation and the small-gain boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances the integrator over moving and still plans, slow and fast centers, disabled smart integration, leakage, clamping and reset.
+ * @evidence contracts/development/testing.md#independent-expectations At gain 2 and dt 0.01 the first change is 0.02e. A per-second leak of 0.25 halves an existing integral over 0.5 s and clamping limits its norm to 1 cm.
  */
 export function test_engine_physics_physical_angular_momentum_integrator(): void {
   const integrator = AutoMovieEnginePhysicalAngularMomentumIntegrator;

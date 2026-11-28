@@ -7,7 +7,13 @@ import {
 } from "../../../../../packages/motions/src/handling/internal/writeAdmission";
 import { strict as assert } from "node:assert";
 
-/** A carried tool keeps its working point against a separate stable surface. */
+/**
+ * A carried tool keeps its working point against a separate stable surface.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines writing surface admission between a carried tool and a separate stable support, and requires a stationary tip site.
+ * @evidence contracts/development/testing.md#behavioral-verification Admits a pen on paper and a fixed socket, then tries self-reference, a fixed tool input, unstable support and a tip riding a slider.
+ * @evidence contracts/development/testing.md#independent-expectations The independent surface predicate must hold, and the distinct identity alone is insufficient if the tool cannot move. A moving tip uses the `tip` affordance refusal.
+ */
 export function test_motions_handling_write(): void {
   const nib: Pick<IAutoMovieAffordance, "id" | "kind"> = {
     id: "nib",

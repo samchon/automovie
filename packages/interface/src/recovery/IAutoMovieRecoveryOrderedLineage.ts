@@ -1,72 +1,65 @@
-import type { IAutoMovieCubicBezierCurve64 } from "../geometry/IAutoMovieCubicBezierCurve64";
 import type {
   IAutoMovieRecoveryHermiteCurve,
   IAutoMovieRecoverySlabsInput,
 } from "..";
+import type { IAutoMovieCubicBezierCurve64 } from "../geometry/IAutoMovieCubicBezierCurve64";
 
 /**
- * Acquisition owner for ordered source cuts and equality-gated saved-cubic
- * correspondence. Source bytes and stage receipts remain the existing program's
- * responsibility. Both operations return acquisition metadata and never replace
- * generated or saved skin.
+ * Input and target contracts for ordered source recuts and equality-gated saved
+ * cubic replay.
  */
 
 export namespace IAutoMovieRecoveryOrderedLineage {
   /**
-   * Registered immutable mesh and complete saved-plane population for one
-   * source selection. Source identities are compared opaque strings; the
-   * adapter verifies actual bytes.
+   * Supply an immutable selected mesh, complete saved-plane records and a
+   * caller-verified native face mapping.
    */
   export interface Input extends Omit<
     IAutoMovieRecoverySlabsInput,
     "slabPairs"
   > {
     /**
-     * Injective local input face ordinal to complete original native face
-     * ordinal; no vertex remapping is implied.
+     * Complete injective local-triangle-to-native-triangle ordinal map. Supply
+     * nonnegative safe integers in local input order.
      */
     originalTriangleIds: readonly number[];
   }
 
   /**
-   * Explicit saved cubic and its caller-bound original numerical fit policy.
-   * This operation supports the stored cubic basis only, not a reduction of
-   * another degree or rational curve.
+   * Select one saved cubic publication and the numerical policy used for its
+   * replay.
    */
   export interface Target {
-    /** Original physical source plane in registered mm. */
+    /** Signed registered station of the saved fit in millimetres. */
     coordinateMm: number;
 
-    /** Raw contour ordinal, not a fitted loop index. */
+    /** Original raw contour ordinal at the saved station. */
     contourIndex: number;
 
-    /** Verified saved artifact dependency containing the target publication. */
+    /** Verified label of the saved section artifact containing this publication. */
     observationIdentity: string;
 
-    /**
-     * Unchanged saved physical-h cubic in its original Bernstein or Hermite
-     * basis.
-     */
+    /** Original saved physical-width cubic in Bernstein or Hermite form. */
     curve: IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve;
 
     /**
-     * Caller-bound actual historical fitting settings; no inference from output
-     * size.
+     * Caller-attested original fitting tolerance, span cap, corner angle and
+     * material side sign.
      */
     policy: {
-      /** Requested source-polyline correspondence tolerance in mm. */
+      /**
+       * Caller-attested original physical correspondence tolerance in
+       * millimetres.
+       */
       toleranceMm: number;
 
-      /** Original fitter span budget, a positive integer. */
+      /** Caller-attested original positive curve span cap. */
       maxSpans: number;
 
-      /** Declared C0-corner threshold in degrees. */
+      /** Caller-attested original corner classification threshold in degrees. */
       cornerDegrees: number;
 
-      /**
-       * Actual material-side orientation convention, not inferred anatomical
-       * direction.
-       */
+      /** Caller-attested material side sign used to replay contour winding. */
       sourceOrientationSign: 1 | -1;
     };
   }

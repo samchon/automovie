@@ -8,6 +8,7 @@ import { Box3, Frustum, Matrix4, Mesh, Object3D, Plane, Scene, Vector3 } from "t
 
 import { boundCameraSubject } from "./boundCameraSubject";
 import { crossesFrustumPlane } from "./crossesFrustumPlane";
+import { isFloat32Point } from "../isFloat32Point";
 import { listCameraSubjectMeshes } from "./listCameraSubjectMeshes";
 import { sampleCameraOcclusion } from "./sampleCameraOcclusion";
 
@@ -18,12 +19,12 @@ export function observeCameraInspection(
   props: AutoMovieRenderInspectionCamera.IObserveProps,
 ): IAutoMovieCameraInspection.IResult {
   const { camera, scene, target, maxOcclusionRatio, pixels } = props;
-  if (target === undefined || !isDisplayed(scene, target))
-    return AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
-      framing: "unavailable",
-      maxOcclusionRatio,
-      pixels,
+  const unavailable = (): IAutoMovieCameraInspection.IResult =>
+    AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
+      framing: "unavailable", maxOcclusionRatio, pixels,
     });
+  if (target === undefined || !isDisplayed(scene, target))
+    return unavailable();
 
   camera.updateWorldMatrix(true, false);
   target.updateWorldMatrix(true, true);
@@ -41,18 +42,17 @@ export function observeCameraInspection(
     camera.projectionMatrix,
     camera.matrixWorldInverse,
   );
-  if (bounds === undefined)
-    return AutoMovieEngineValidation.classifyAutoMovieCameraInspection({
-      framing: "unavailable",
-      maxOcclusionRatio,
-      pixels,
-    });
+  if (bounds === undefined || !projection.elements.every(Number.isFinite))
+    return unavailable();
 
   const frustum: Frustum = new Frustum().setFromProjectionMatrix(
     projection,
     camera.coordinateSystem,
     camera.reversedDepth,
   );
+  if (frustum.planes.some((plane: Plane): boolean =>
+    !isFloat32Point(plane.normal) || !Number.isFinite(plane.constant) || plane.normal.lengthSq() === 0,
+  )) return unavailable();
   const framing: IAutoMovieCameraInspection.Framing =
     // Three orders the normalized inward planes right, left, bottom, top, far, near.
     outsidePlane(bounds, frustum.planes[5])
@@ -123,7 +123,7 @@ function toBounds(input: IAutoMovieSubjectBox): Box3 | undefined {
  * Rejects empty, inverted and non-finite bounds, while allowing flat bounds.
  */
 function isFiniteBox(box: Box3): boolean {
-  return !box.isEmpty();
+  return !box.isEmpty() && isFloat32Point(box.min) && isFloat32Point(box.max);
 }
 
 /*

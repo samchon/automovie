@@ -5,10 +5,10 @@ import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBo
 /** Shared corner/edge incidence and mutable totals for one atlas emission. */
 export namespace IAutoMovieBicubicAtlasRegistry64 {
   /**
-   * Per-invocation registries created before atlas emission. Maps, sets,
-   * summary and nested receipts remain shared with the emitter; external
-   * mutation while emission is running invalidates its identity and count
-   * assumptions.
+   * Shared per-invocation registries compiled from adaptive patch plans.
+   * Emission borrows and updates these maps, sets and summary counters.
+   * Preserve the registry instances and their entry identities until the last
+   * incident patch is emitted.
    */
   export type IResult = {
     /**
@@ -37,10 +37,9 @@ export namespace IAutoMovieBicubicAtlasRegistry64 {
      */
     occurrences: (IAutoMovieBicubicAtlas64.Occurrence | undefined)[][];
     /**
-     * Compare admitted normalized phase records by exact value, returning -1, 0
-     * or 1. Distinct dyadic keys break equal rounded numeric values. Call only
-     * with canonical keys produced by the boundary owner; this optimized
-     * comparator does not repeat key admission.
+     * Compare admitted normalized phase records and return -1, 0 or 1. Distinct
+     * dyadic keys order equal rounded numeric values. Supply phase identities
+     * already admitted by the boundary owner.
      */
     comparePhase: (
       a: IAutoMovieCanonicalBoundaryPhase64,

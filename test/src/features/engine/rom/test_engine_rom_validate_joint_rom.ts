@@ -68,6 +68,10 @@ const faults: (
  *    twist 999 files exactly the flexion, swing and twist paths; with the
  *    table's gate, a hanging arm turned 170 degrees (past the 135 allowed from
  *    rest) files exactly a twist fault.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names admitted flexion, high and low excess, immobility, excluded zero, multiple faults and both cone policies.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Kinematics.validateJointRom on authored elbow and shoulder poses and compares produced paths, collection length and numeric overshoot.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting the interval limits gives flexion excesses 25 and 10, and a 20-degree move on an immobile axis has excess 20. Orthogonal 90-degree rotations compose to 120, exceeding the cap by 20. The 170-degree gated shoulder twist exceeds its rest allowance.
  */
 export function test_engine_rom_validate_joint_rom(): void {
   TestValidator.equals(

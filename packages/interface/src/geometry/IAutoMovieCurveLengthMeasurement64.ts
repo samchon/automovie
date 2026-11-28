@@ -2,12 +2,10 @@
  * Physical curve-length observation from coarse and doubled-resolution
  * quadrature.
  *
- * The view-section, cubic-curve and arbitrary-piece length readers return the
- * finer integral and its difference from the coarse integral in millimetres.
- * This difference is observed convergence, not an error bound: narrow features
- * may escape both rules and piece errors may cancel. Each producer owns source
- * admission, including whether it reads endpoints. No callback or source data
- * is retained by this newly allocated mutable result.
+ * View-section, cubic and arbitrary-piece readers return the finer integral and
+ * its absolute difference from the coarser one, both in millimetres. The
+ * difference is a numerical observation. Both rules can miss narrow features
+ * and piece errors can cancel. The returned record owns two scalars.
  */
 export type IAutoMovieCurveLengthMeasurement64 = {
   /** K*2-panel integral of original physical speed, mm. */

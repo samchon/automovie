@@ -28,6 +28,10 @@ import { ConstructionSplitFan as F } from "../../internal/construction/Construct
  *    ring's tangent exceeds 0.02 somewhere (0.046).
  * 2. With `square`, every such column leaves square to the ring (cosine at most
  *    1e-6).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the shrinking ellipse, protected arc range and leaning versus orthogonal departure.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes both square settings and computes dot products between band start direction and host ring tangent on the same arc columns.
+ * @evidence contracts/development/testing.md#independent-expectations An orthogonal departure has zero tangent projection outside the corner turn. The leaning baseline supplies a nonzero measured control.
  */
 export function test_engine_geometry_split_fan_square(): void {
   const n: number = F.COLUMNS;

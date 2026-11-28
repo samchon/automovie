@@ -20,9 +20,7 @@ import { softPanel } from "../internal/softFixtures";
  *
  * @evidence contracts/development/testing.md#behavioral-verification The real domain validator decides success and the timestep-path range finding; finite and overflow overshoots catch the skipped-Infinity branch while adjacent admitted inputs preserve the limit's boundary.
  * @evidence contracts/development/testing.md#independent-expectations The existing fixture places two particles exactly 1/4 metre apart. At unit reference speed, dt 1/8 travels half that edge, dt 1/4 equals it, and dt 1/2 exceeds it; the largest finite dt exceeds the same edge independently of a ratio calculation's representability.
- * @evidence contracts/development/testing.md#distinguishing-cases Below/equal/above travel limits and division/product overflow distinguish comparison admission from finiteness of an intermediate; broader lattice, collider and reference cases remain in test_soft_body_validation.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_travel_admission, using the existing softPanel authored-record fixture and actual validator without simulation history, a viewer or a host process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A quarter-metre structural edge admits dt 1/8 and exact-boundary dt 1/4 at reference speed 1.).
+ * @evidence contracts/development/common.md#meaningful-documentation Half-edge and exact-edge steps pass. A finite overshoot and overflow in the division or product each refuse the timestep.
  */
 export function test_soft_body_travel_admission(): void {
   const base: IAutoMovieSoftBodyDomain = softPanel({

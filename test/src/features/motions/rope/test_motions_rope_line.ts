@@ -20,18 +20,20 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON * 4;
 
 /**
- * Read the world line of a staged rope and its oriented contact points.
+ * Check the staged rope line, height interpolation and oriented contact.
  *
  * Scenarios:
  *
- * 1. The prop's quarter turn about +Y maps its bar's local centre to a different
- *    horizontal point. The bar's independent quarter turn about -Z aims +X
- *    downward, so the high end is the opposite end.
- * 2. Height interpolation remains on a sloped line and clamps at both ends. A
- *    horizontal line returns its midpoint instead of dividing by zero.
- * 3. A staged hand uses the normal perpendicular to the rope toward the entering
- *    root. The foot uses up and another prop uses the fallback.
- * 4. Missing bars and externally moved ropes are refused before placement.
+ * 1. Combine the prop's quarter turn and bar's independent turn to locate the
+ *    vertical line in world space.
+ * 2. Interpolate at world height 1 m on a sloped line and clamp outside both
+ *    ends. A horizontal line returns its midpoint.
+ * 3. Read the root-facing hand normal, upward foot normal and alternate-prop
+ *    fallback. Refuse missing bars and moving ropes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the hierarchy, measured frames and refusal conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification The line and aim readers receive typed prop and contact callbacks at the requested film times.
+ * @evidence contracts/development/testing.md#independent-expectations The given rotations and translation fix the endpoints. Similar triangles give the height interpolation and perpendicular projection fixes the hand normal.
  */
 export function test_motions_rope_line(): void {
   const quarter: number = Math.SQRT1_2;

@@ -27,6 +27,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 7. `add` of (0,0,0)-(2,0,0) and 2 x [(0,0,0), (1,0,0), (0,0,0)] is (0,0,0),
  *    (3,0,0), (2,0,0); `addS` of [0,2] and [0,1,0] is [0,2,2]; `scale` of
  *    (1,2,3) by 2 is (2,4,6).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies scalar and vector operations along with endpoint ownership, invalid elevation and explicit polynomial fixtures.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the coefficient algebra for binomial counts, values, derivatives, elevation, products, sums and scaling in memory.
+ * @evidence contracts/development/testing.md#independent-expectations The standard Bernstein basis gives the constant through quartic values. Multiplying a degree-one polynomial by 2 and taking adjacent derivative differences give expected coefficients without invoking the implementation.
  */
 export function test_engine_geometry_bernstein_algebra(): void {
   const p = (x: number, y: number, z: number): AutoMovieVector3Tuple => [

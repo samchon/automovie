@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenario: held 2 s in a neutral manner, the hands are down at 0.75 s, the
  * body inverted at 1.5 s, released at 4.25 s, and the skill ends at 5 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the authored hands-down, inversion, release and finish times of a held gymnastics pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the timetable for a neutral two-second hold and reads its complete cue sequence.
+ * @evidence contracts/development/testing.md#independent-expectations Half of the 1.5 s entry gives hands down at 0.75 s, with inversion at 1.5. Hold and exit fix release at 4.25 and finish at 5 s.
  */
 export function test_motions_sport_gymnastics_timetable(): void {
   const clock: IAutoMovieMotionClock = gymnastics.timetable(

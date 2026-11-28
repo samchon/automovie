@@ -25,6 +25,10 @@ import { nclose } from "../../internal/nclose";
  *    bound 15 by 25. Together they score 40, independently of Euler boxes.
  * 4. Nonfinite gated candidates score Infinity before basis admission. Null
  *    constraints read no coordinate and score zero even for such input.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers prepared box, cone and physical swing/twist scores, live A/B/A inputs and unneeded fields under null constraints.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares scores with the stated constraint and clinical frame, then applies actual candidate angles and rotations repeatedly.
+ * @evidence contracts/development/testing.md#independent-expectations Expected faults are degree distances from the stated endpoints and caps. Swing 60 exceeds 45 by 15 and clinical twist 40 exceeds 15 by 25. Null constraints require zero even when numeric fields are nonfinite.
  */
 export function test_engine_kinematics_joint_rom_overshoot(): void {
   const box: IAutoMovieJointConstraint = {

@@ -1,5 +1,7 @@
 import type { IAutoMoviePlanVideoFramesProps } from "@automovie/interface";
 
+import { videoStreamMap } from "./videoStreamMap";
+
 /*
  * Plan the FFmpeg arguments that extract exactly the given frames of a video
  * file, the file's own pixels, as numbered PNG stills.
@@ -29,9 +31,9 @@ export function planVideoFrames(
   if (props.frames.length === 0)
     throw new Error("A video extraction needs at least one frame");
   for (const frame of props.frames)
-    if (!(frame >= 0))
+    if (!Number.isSafeInteger(frame) || frame < 0)
       throw new Error(
-        `Video frame ${frame} is not a whole number of zero or more`,
+        `Video frame ${frame} is not a nonnegative safe integer`,
       );
 
   // Runs of consecutive indices, in ascending order.
@@ -54,11 +56,14 @@ export function planVideoFrames(
     "-hide_banner",
     "-nostats",
     "-y",
+    ...(props.presentation === true ? ["-copyts"] : []),
     "-i",
     props.file,
+    "-map",
+    videoStreamMap(props.streamIndex),
     "-an",
     "-vf",
-    `select='${terms.join("+")}'`,
+    `select='${terms.join("+")}'${props.presentation === true ? ",showinfo=checksum=0" : ""}`,
     "-fps_mode",
     "passthrough",
     "-pix_fmt",

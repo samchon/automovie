@@ -19,11 +19,9 @@ import { nclose } from "../../internal/nclose";
  * 2. Mutation of the caller's duration, endpoint and pendulum records after
  *    construction cannot rewrite either prepared track.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States both track families, interval/sample domains and the caller-owned input mutation boundary.
- * @evidence contracts/development/testing.md#behavioral-verification Calls public track producers and reads their actual held/interior samples before and after changing only authored input records.
- * @evidence contracts/development/testing.md#independent-expectations Finite endpoints are start=-2 and end=-1 with initial travel5; invalid clocks and nonfinite samples refuse on the corresponding public axis, and a saved interior sample remains equal after input mutation.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers both families, invalid start/duration/end representability, negative clocks, distant samples, every nonfinite sample and independent input/physical-record mutation.
- * @evidence contracts/development/testing.md#execution-ownership One synchronous unit owns its real Builder mechanism and input records, starts no process or renderer and replaces no implementation.
+ * @evidence contracts/development/common.md#meaningful-documentation States the authored clock boundaries, held and interior samples and mutation checks for both track families.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads both public track families at authored and unrepresentable times and repeats the interior sample after changing the caller's input and physical records. Refusal axes distinguish invalid start time, duration, represented end time and sample.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture gives a start of -2, an end of -1 and initial travel 5. Held endpoints provide literal expectations. A stored interior result must survive mutation of the records used to construct the track.
  */
 export function test_archetype_track_clock_numeric(): void {
   const findings: string[] = [];

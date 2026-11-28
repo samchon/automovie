@@ -21,6 +21,10 @@ import { namedFacts } from "../../internal/predicates";
  * 3. Measured size, displacement and entering subjects require their own
  *    framing/re-establishing feedback without duplicate findings.
  * 4. Pacing intent and review-note conversion preserve the analyzer's guidance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify axis and cut findings, readable eyeline alternatives, measured size and displacement and preserved pacing guidance.
+ * @evidence contracts/development/testing.md#behavioral-verification The test submits composed camera and subject observations to the grammar owner, compares each family of diagnostic, and converts current diagnostics into review notes for the authored context.
+ * @evidence contracts/development/testing.md#independent-expectations Independent shot geometry and intent differ one premise at a time. Camera sides and shallow observed cuts trigger distinct findings. Projected screen directions, measured sizes and actor entries supply their own expectations, and the allowed jump-cut intent suppresses only its mapped warning.
  */
 export function test_engine_film_grammar(): void {
   const {

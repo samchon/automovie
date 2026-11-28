@@ -16,6 +16,10 @@ import { createCompiledShotSourceFixture } from "../../internal/createCompiledSh
  *    type; one with shadows off has none.
  * 3. An assessment with no graphics identity is `not-run`, with a reason and no
  *    report, inventory, mask or target.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the default shot target, enabled and disabled environment shadows, and a budget assessment without graphics identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that render settings preserve tone mapping, exposure and selected shadow policy, and that absent renderer identity leaves the budget assessment unrun.
+ * @evidence contracts/development/testing.md#independent-expectations Uses explicit environment options and hand-written expected defaults, then compares the absent-identity assessment to the literal empty-result shape and reason.
  */
 export function test_render_scene_settings_of_shot(): void {
   const settings = (environment: Parameters<typeof createCompiledShotSourceFixture>[0]) =>

@@ -12,11 +12,9 @@ import { vclose } from "../../internal/predicates";
  * 2. Without a seed its mouth stands at mid-ride, level with the belt line, with the belt loop's middle at the origin facing the wearer on `-X`.
  * 3. It declares exactly its two contacts, `socket` and `belt`, and its two parts, `loop` and `pouch`, the pouch hanging the drawn depth below the mouth.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the default holster and reads its serialisation, contacts and colliders; a default that builds another kind, a holster that gains or loses a contact or part, or a mouth moved off the ride is caught.
- * @evidence contracts/development/testing.md#independent-expectations #3485 asks that a call without a kind stay the holster; Safariland's mid-ride puts the butt level with the belt; the facing of the belt is the hook convention, out of the contact toward what hangs from it.
- * @evidence contracts/development/testing.md#distinguishing-cases The default against the named kind, seedless against seeded; the other kinds belong to the carriers' tests.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the default carrier identity, parts, contact names, opening ride height and hook direction.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the public default model and reads its emitted serialization, colliders and contact frames. Separate observations detect a changed default or moved opening.
+ * @evidence contracts/development/testing.md#independent-expectations The original public default selects the mid-ride model. Its stated belt plane and the documented hook outward axis determine the expected contact locations and direction.
  */
 export function test_archetype_weapon_holster_unchanged(): void {
   const findings: string[] = [];

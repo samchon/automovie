@@ -15,6 +15,10 @@ import * as THREE from "three";
  *    fresh one for a string binding.
  * 4. Disposing disposes every issued clone and every source, once, and the
  *    cache then refuses to prime or resolve.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify repeated priming, clone and sharing modes, unknown and closed inputs, and the release boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that repeated priming loads one source, resolves fresh or shared wrappers as appropriate, disposes owned instances once, and refuses operations after closure.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the original loader texture identity, known binding equality, one `wood.png` load and three disposal requests as explicit expectations.
  */
 export async function test_render_scene_texture_cache(): Promise<void> {
   const loaded: THREE.Texture[] = [];

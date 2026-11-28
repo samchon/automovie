@@ -24,6 +24,10 @@ const ROUNDING: number = 1e-6;
  * 2. 0.25 m apart they separate by 0.05 m, yield no record, and the audit reports
  *    the missing contact.
  * 3. A side whose bones declare no colliders is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the overlapping sphere pair, the disjoint pair and refusal of a requested bone set without colliders.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares the physical queries and calls CompositionContact.measure on posed 0.1 m sphere colliders, then passes the present contact to CompositionOutcome.audit.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting the combined 0.2 m radii from centre gaps 0.19 and 0.25 gives -0.01 and 0.05 m to one micrometre. Only the first produces a contact in the required time and region.
  */
 export async function test_engine_composition_measure_contact(): Promise<void> {
   const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();

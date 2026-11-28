@@ -47,6 +47,10 @@ const PROPS: LongToolStroke.IProps = {
  *    reaching nothing; at its contact, 0.35 of the stroke, the line runs from
  *    the hands in front of the hips to the work, the lead hand slid to a tenth
  *    of the tool.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual tool path anchors and contact times for rake, dig and chop animations.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples each prepared stroke's authored start, contact, motion keys and return and reads their tool frame construction.
+ * @evidence contracts/development/testing.md#independent-expectations The rake's endpoints lie 0.25 m either side of the work, the dig reaches 0.15 m into its modeled ground and the chop's contact falls at progress 0.35.
  */
 export function test_motions_tasks_long_tool_stroke(): void {
   const rake: LongToolStroke.IStroke = LongToolStroke(PROPS);

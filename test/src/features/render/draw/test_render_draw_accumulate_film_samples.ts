@@ -19,6 +19,10 @@ import { nclose } from "../../internal/nclose";
  *    at each sample's second.
  * 2. A lens without a shutter places every sample at t, so the recorded placements
  *    are five times 1.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Places shutter samples at equal-stratum midpoints and returns the scene to the frame second.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls accumulation with four shutter samples and a lens-only request, collecting each placement and the resolved camera.
+ * @evidence contracts/development/testing.md#independent-expectations A 180-degree shutter at 24 fps spans 1/48 second. Four known stratum midpoints fix ascending samples, indices and final return.
  */
 export async function test_render_draw_accumulate_film_samples(): Promise<void> {
   const optics: IAutoMovieFilmOptics = {

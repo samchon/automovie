@@ -12,6 +12,10 @@ import * as THREE from "three";
  *    its points on the ground, so one stride is 4 / 2 / 0.5 = 4 m, whatever the
  *    higher track does.
  * 2. No tracks, and a track that stays in one place, give 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the lowest foot track, its four-meter closed path and planted fraction, and two zero-distance controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that stride follows the lowest track and that absent or stationary tracks return zero.
+ * @evidence contracts/development/testing.md#independent-expectations Derives the expected 4 m stride from the fixture's four-meter closed path and half-planted samples, independently of the higher track.
  */
 export function test_render_scene_formation_cycle_stride(): void {
   const point = (x: number, y: number, z: number): THREE.Vector3 =>

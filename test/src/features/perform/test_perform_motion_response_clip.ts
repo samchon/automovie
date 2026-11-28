@@ -16,10 +16,8 @@ import { createSkeleton, makePose } from "../internal/fixtures";
  * 1. Larger and unbalanced inputs increase flexion while staying inside the rig limits.
  * 2. Mirrored signals produce opposite head displacements. A missing rig emits no clip.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads generated clips, validation and resolved head positions.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads generated clips, validation and resolved head positions. The supplied skeleton gives timing, amplitude and mirror cases, and the absent-rig case exercises the separate admission path.
  * @evidence contracts/development/testing.md#independent-expectations A reflected source must reflect displacement across the sagittal plane.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates timing, amplitude, sidedness and absent-rig admission.
- * @evidence contracts/development/testing.md#execution-ownership Uses one small authored skeleton.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the sampled response and directional twin.
  */
 export function test_perform_motion_response_clip(): void {

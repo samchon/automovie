@@ -13,7 +13,11 @@ import { nclose } from "../../internal/nclose";
  *    back the line y = 1 lies 1 off (0, 0): incidence -1 over two unit normals,
  *    so Sampson -1/√2 and a mean line distance 1.
  * 2. The zero matrix gives no lines: null.
- * 3. Unpaired points are refused.
+ * 3. Unrepresentable norms or errors return null. Unpaired points are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names signed Sampson and average symmetric line error with undefined lines.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures a sideways-shift matrix and checks zero lines, overflowing norms and subnormal-normal errors alongside unpaired data.
+ * @evidence contracts/development/testing.md#independent-expectations The shifted pair has incidence −1 and two unit line normals, giving Sampson −1/sqrt(2) and symmetric distance one pixel.
  */
 export function test_recovery_internal_measure_epipolar_errors(): void {
   const [error] = AutoMovieRecoveryCameraGeometry.measureEpipolarErrors(
@@ -37,7 +41,28 @@ export function test_recovery_internal_measure_epipolar_errors(): void {
     ),
     [null],
   );
+  const subnormal: number = Number.MIN_VALUE;
+  TestValidator.equals(
+    "unrepresentable line norms and residuals supply no support",
+    [
+      AutoMovieRecoveryCameraGeometry.measureEpipolarErrors(
+        [0, 0, subnormal, 0, 0, 0, subnormal, 0, 1],
+        [[0, 0]],
+        [[0, 0]],
+      ),
+      AutoMovieRecoveryCameraGeometry.measureEpipolarErrors(
+        [0, 0, 1.5e308, 0, 0, 1.5e308, 1, 0, 0],
+        [[1, 0]],
+        [[0, 0]],
+      ),
+    ],
+    [[null], [null]],
+  );
   TestValidator.error("unpaired points", (): unknown =>
-    AutoMovieRecoveryCameraGeometry.measureEpipolarErrors([0, 0, 0, 0, 0, -1, 0, 1, 0], [], [[0, 0]]),
+    AutoMovieRecoveryCameraGeometry.measureEpipolarErrors(
+      [0, 0, 0, 0, 0, -1, 0, 1, 0],
+      [],
+      [[0, 0]],
+    ),
   );
 }

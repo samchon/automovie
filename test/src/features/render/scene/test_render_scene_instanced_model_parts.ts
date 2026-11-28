@@ -9,6 +9,10 @@ import * as THREE from "three";
  *
  * 1. A group of a mesh, a nested group holding a mesh, and a line lists the two
  *    meshes, parent before child.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenario describes a parent mesh, nested mesh, and line so the model part traversal is reproducible.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that instanced parts retain both meshes in traversal order and exclude the line.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the selected meshes with the two original fixture objects in the expected parent-first order.
  */
 export function test_render_scene_instanced_model_parts(): void {
   const root: THREE.Group = new THREE.Group();

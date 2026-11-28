@@ -16,12 +16,13 @@ import { RecoveryChartFitSystem } from "../observation/internal/RecoveryChartFit
  */
 export namespace AutoMovieRecoveryChartFit {
   /**
-   * Solve one constrained chart with assembled shared-control normal equations.
-   * A positive diagonal congruence scales the original symmetric Gram problem
-   * and its feasible box. The original projected-gradient mapping, not a
-   * transformed residual, determines numerical termination. Each accelerated
-   * step projects unknown coefficients onto the declared box; objective
-   * increase restarts momentum. No geometry is sampled or tessellated here.
+   * Fit a prepared registered bicubic chart to weighted observed positions and
+   * optional physical-gradient rows. Input and returned controls use
+   * millimetres. Supply a finite ordered enclosure, finite fitting and
+   * validation points, valid local UV and patch addresses, and finite positive
+   * fit tolerances with a safe iteration cap. Invalid input throws. Valid
+   * outputs retain residual, rank and projected-gradient diagnostics even when
+   * the chart remains unqualified.
    */
   export function fit(
     input: IAutoMovieRecoveryChartFit.Input,

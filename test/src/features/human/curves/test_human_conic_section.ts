@@ -26,9 +26,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieEngineViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
- * @evidence contracts/development/testing.md#distinguishing-cases A centred symmetric box, an off-centre box with touch offsets and unequal shoulders, a perturbed median that must change one quarter only, a bilateral layout, and an out-of-range share.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_section`, with no reference body, loft or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form or identity it is checked against.
+ * @evidence contracts/development/common.md#meaningful-documentation The sections cover analytic ellipses, subdivision identity, edited medians, guide limits, curvature continuity, feature order, lens geometry and per-arc shoulder floors.
  */
 export function test_human_conic_section(): void {
   const failures: string[] = [];

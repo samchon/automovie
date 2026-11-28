@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/predicates";
  * 4. Boundaries [], [0,1], [0,1,2,0], [0,2,4], [0,1,NaN] and [0,1,-1], and sources
  *    of two indices, a degenerate triangle, index -1, a flipped neighbour and a
  *    three-face edge, are refused ("region").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names oriented connectivity, complement selection, nonseparating cycles and malformed topology.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries index-only annulus, tetrahedron and torus connectivity and compares exact selected ordinals and refusal conditions.
+ * @evidence contracts/development/testing.md#independent-expectations The inner square's edges enclose faces 0 and 1. Reversing the tetrahedron loop selects the complement. The torus loop cannot separate a patch.
  */
 export function test_engine_geometry_select_triangle_region(): void {
   const indices: number[] = [

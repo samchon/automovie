@@ -46,6 +46,10 @@ function goals(
  * 2. Differing only in the left hand's height, 1 against 2: −1, and reversed 1.
  * 3. Differing in the root: ordered by the root before the joints.
  * 4. A rotation's records are fresh and equal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines deterministic ordering of paired limb inputs and fresh identity for rotation records.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares equivalent reordered joints, reversed goal heights and differing roots, and creates two rotation records.
+ * @evidence contracts/development/testing.md#independent-expectations Sorted joint names make insertion order irrelevant. Goal heights 1 and 2 give opposite comparison signs, while root precedence and new record identity follow independently.
  */
 export function test_motions_posture_limb_pair_compare(): void {
   const root: IAutoMovieTransform = {

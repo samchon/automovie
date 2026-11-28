@@ -9,15 +9,11 @@ import { extractRecoveryMeshSections } from "../geometry/internal/extractRecover
 /** Automatic section extraction and source-independent cubic publication. */
 export namespace AutoMovieRecoveryMeshSections {
   /**
-   * Extract every section component with automatic stations, feature corners
-   * and PL critical brackets. Physical ties remain explicit; cutting and PL
-   * topology share one immutable scalar chart. The optional progress observer
-   * reports completed plane and slab populations without changing geometry. An
-   * explicit sectionLimit publishes an incomplete sorted-station prefix;
-   * coverage records the full omission. The optional lineage observer receives
-   * copied incident face IDs per contour, including local failures and
-   * degenerate contacts; callback exceptions escape the local fitting catch and
-   * fail extraction.
+   * Extract automatically placed sections from one registered mesh in
+   * millimetres. An optional station limit publishes a sorted prefix and
+   * reports incomplete coverage. Progress reports completed work. An optional
+   * source-lineage observer receives copied original face addresses even for
+   * isolated or locally failed contours.
    */
   export function extract(
     input: IAutoMovieRecoveryInput,

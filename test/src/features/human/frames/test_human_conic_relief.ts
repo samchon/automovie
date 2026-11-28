@@ -20,9 +20,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `mirrored`, `twin`, `list` and `stored` of `AutoMovieHumanConicRelief`.
  * @evidence contracts/development/testing.md#independent-expectations Every expected height is the closed form of its row and column, written here and not computed by the helper.
- * @evidence contracts/development/testing.md#distinguishing-cases Heights that differ in every row and column tell a column reversal from a row reversal and the middle column from its neighbours; an asymmetric 5 by 6 net tells a twin from its original.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_relief`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
+ * @evidence contracts/development/common.md#meaningful-documentation A half net expands symmetrically, a twin reverses columns, two reflections restore the net, and unresolved or malformed references are refused.
  */
 export function test_human_conic_relief(): void {
   const failures: string[] = [];

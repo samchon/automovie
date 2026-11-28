@@ -85,18 +85,15 @@ const bathFloor: (
  * that domain's declared drains, at the lattice cells they stand over. A floor
  * gully's sill is the bed of its own cell, which is what a floor gully is.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs wet-zone admission and actual drainage lowering; identity/reference/coverage/grade/slope/drain findings and emitted ordered fluid sources/drains expose incorrect waterproofing joins or hydraulic projection.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls wet-zone admission and drainage lowering. Located identity, reference, coverage and drain findings exercise admission, including one finding per malformed scalar in dry and wet grades. Emitted sources and drains expose hydraulic projection.
  * @evidence contracts/development/testing.md#independent-expectations Authored room boundaries and grade order define diagnostic paths/counts; floor(x), floor(z) give valve (3,1), basin (1,1), gully (2,3), authored rates .0002/.0006 and bed .125 provide numerical expectations through nclose. Success allows warnings, grade comparison checks ids only, and lattice preservation checks only the original weak grid-identity-or-four-columns condition.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all eleven groups, unresolved-space early exit, missing/duplicate/foreign membrane and foreign threshold, equal versus immersed/wet grades, dry versus tanked slope/drain obligations, stranded system references, lattice edges and source/drain id collisions; no fluid trajectory, continuous drainage or unasserted full-object identity is claimed.
- * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit runs zone cases directly and calls assertWetZoneDrainageLowering with the original clean/immersed networks and floor constructor for the later groups; the helper registers no extra test and starts no native fluid solver, browser or GPU.
  *
  * Scenarios:
  *
  * 1. The fixture's wet room and damp plant room validate successfully together.
- * 2. Identity and the two ratios are checked: a duplicate, and a negative upturn
- *    and slope. One
- *    space may carry only one zone, because a second answers "is the far side
- *    drier" a second way.
+ * 2. Identity and scalar checks refuse duplicate zones, negative values and
+ *    nonfinite values. Each malformed scalar has one finding in a dry or
+ *    tanked zone. One space carries at most one zone.
  * 3. A zone on a space that does not resolve stops there rather than reporting
  *    every obligation it could not evaluate.
  * 4. Unknown, duplicate and foreign membrane citations are refused, as is a
@@ -121,7 +118,7 @@ const bathFloor: (
  *     node off the lattice on either side, and a derived
  *     id that would shadow an authored source or drain.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The fixture's wet room and damp plant room validate successfully together.).
+ * @evidence contracts/development/common.md#meaningful-documentation Membrane, threshold and drain obligations depend on grade. Negative and nonfinite scalars exercise distinct format findings. Fluid source and gully placement check cell mapping, order, copied flow and bad references.
  */
 export function test_service_wet_zone_drainage(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();
@@ -183,6 +180,38 @@ export function test_service_wet_zone_drainage(): void {
       oneZonePerSpace: true,
     },
   );
+  for (const grade of ["dry", "wet"] as const)
+    for (const scalar of [NaN, Infinity, Number.NEGATIVE_INFINITY, -1]) {
+      const invalid: IAutoMovieValidation = refuse(
+        withZone(
+          clean,
+          "bath-zone",
+          (zone: IAutoMovieWetZone): IAutoMovieWetZone => ({
+            ...zone,
+            grade,
+            upturn: scalar,
+            slope: scalar,
+          }),
+        ),
+      );
+      const at: string[] =
+        invalid.success === true
+          ? []
+          : invalid.violations
+              .filter(
+                (item: IAutoMovieConstraintViolation): boolean =>
+                  item.kind === "range" &&
+                  (item.path === "$input.zones[0].upturn" ||
+                    item.path === "$input.zones[0].slope"),
+              )
+              .map((item: IAutoMovieConstraintViolation): string => item.path);
+      TestValidator.equals(
+        `${grade} zone locates each malformed scalar once at ${scalar}`,
+        at,
+        ["$input.zones[0].upturn", "$input.zones[0].slope"],
+      );
+    }
+
   const nowhere: IAutoMovieValidation = refuse(
     withZone(
       clean,

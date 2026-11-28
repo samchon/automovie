@@ -14,9 +14,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the missing terminal endpoint, exact-hit and deterministic-tie cases and their observable phases and miss receipts.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual piece/join/find API and checks returned phases, sampled across positions and miss messages; the old segment-start-only fallback fails the terminal-endpoint case.
- * @evidence contracts/development/testing.md#independent-expectations A unit horizontal segment occupies half the ring, so its endpoint is pi and its midpoint pi/2. One-coordinate distance to the endpoint from x=2 is one millimetre. The 1e-12 tolerance covers floating arithmetic on these unit-scale inputs without admitting the old pi phase error.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes an exterior miss, an interior crossing, an exact final endpoint, a constant-across exact hit and tied nearest vertices. Inputs are valid positive-length polylines; admission of malformed pieces is outside this endpoint-query regression.
- * @evidence contracts/development/testing.md#execution-ownership Portable synchronous unit test over in-memory piece arrays; test_human_foot_sectors_endpoints is the discoverable entry and starts no viewer, process or graphics host.
+ * @evidence contracts/development/testing.md#independent-expectations A unit horizontal segment occupies half the ring, so its endpoint is pi and its midpoint pi/2. One-coordinate distance to the endpoint from x=2 is one millimetre. The 1e-12 tolerance covers floating arithmetic on these unit-scale inputs without admitting the old pi phase error. The unit ring separates a miss from an interior, terminal or constant-across hit. Equal nearest gaps retain the first vertex.
  */
 export function test_human_foot_sectors_endpoints(): void {
   const misses: string[] = [];

@@ -1,29 +1,39 @@
-/** Consumed scene work, including failed and rolled-back transactions. */
+/**
+ * Cumulative scene work charged across seed-component construction and
+ * camera-extension attempts. Charges remain when a detached transaction is
+ * refused.
+ */
 export interface IAutoMovieRecoverySceneWork {
-  /** Camera transactions begun, including failures. */
+  /** Number of registration transactions admitted to the attempt ledger. */
   cameraAttempts: number;
 
-  /** Six-point proposals actually started. */
+  /**
+   * Six-point proposals charged before evaluation across candidate
+   * registrations.
+   */
   resectionTrials: number;
 
-  /**
-   * Original point designs actually attempted, including refused/retried
-   * tracks.
-   */
+  /** New-point designs charged during landmark growth, including retries. */
   triangulations: number;
 
-  /** Attempted point designs that returned no qualified point. */
+  /** Attempted point designs that returned no qualified finite point. */
   triangulationRefusals: number;
 
-  /** Joint fits actually begun, including rolled-back fits. */
+  /**
+   * Detached joint-fit calls charged, including seed completion and repeated
+   * closure fits.
+   */
   jointFits: number;
 
-  /** Joint iteration attempts, including gradient-stop checks. */
+  /**
+   * Joint refinement checkpoints charged, including a check that can stop on
+   * convergence.
+   */
   jointIterationAttempts: number;
 
   /**
-   * Charged dimension-sweep units before point/joint work, not actual
-   * scalar-operation counts.
+   * Charged model units for point and joint work and applicable diagnostics and
+   * checkpoints.
    */
   linearWork: number;
 }

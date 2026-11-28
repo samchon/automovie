@@ -11,23 +11,24 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeLecternData } from "./internal/AutoMovieArchetypeLecternData";
 
-/** Constructs the lectern archetype from its recipe. */
+/**
+ * Constructs a floor lectern with a sloped reading plane and lower-edge contact.
+ */
 export namespace AutoMovieArchetypeLectern {
 /**
- * A floor lectern: a cabinet under a reading surface that slopes down toward
- * the speaker.
+ * Build a wooden lectern centred at the floor origin.
  *
- * The lectern stands on the floor at the origin, the speaker on its `+Z` side
- * facing `-Z`. Its reading surface's back edge is the maker's height and its
- * front edge lower by the surface's depth at the maker's slope. `top` is the
- * reading surface, its `+Y` the tilted normal; `front` its lower front edge, a
- * ledge the hands rest on and a book stops against.
+ * The speaker stands on the `+Z` side. The 23 by 15.75 inch reading
+ * surface slopes 15 degrees down toward that side. The surface's rear
+ * edge is 46 inches above the floor.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The lectern.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Optional object ID and finite fixed values in the bands.
+ *   The ID defaults to `lectern`.
+ * @param seed Numeric seed for omitted settings. Without it, the mass
+ *   defaults to 22.5 kilograms.
+ * @returns A lectern with a sloped `top` frame and a `front` ledge contact
+ *   at the lower edge of the reading surface.
+ * @throws {AutoMovieArchetypeRefusal} If a fixed dimension is outside its band.
  */
 export function create(
   params: AutoMovieArchetypeLectern.IParams = {},
@@ -101,24 +102,20 @@ export function create(
 }
 
   /**
-   * The affordance ids:
-   *
-   * - `top`: the sloping reading surface.
-   * - `front`: its lower front edge, a ledge along `X`.
+   * Names `top` on the reading plane and `front` along its lower X edge. Both share the reading plane's upward normal.
    */
   export type Affordance = "top" | "front";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`, `depth`: the reading surface across and up its slope.
-   * - `height`: the surface's back edge above the floor.
-   * - `slope`: the surface's fall toward the speaker, degrees.
-   * - `mass`: kilograms.
+   * Surface width across X and depth along the slope, in metres. `height`
+   * gives the rear edge above the floor. `slope` is in degrees and `mass`
+   * is in kilograms.
    */
   export type Dimension = "width" | "depth" | "height" | "slope" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /**
+   * Uses metres for geometry, degrees for the reading slope and kilograms for body mass.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -129,13 +126,17 @@ export function create(
     mass: "kg",
   };
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /**
+   * Optional scene object ID and fixed values from the Safco lectern's applicable bands.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `lectern` when absent. */
+    /** Scene object ID, defaulting to `lectern`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /**
+   * Fixed reading width, depth, rear height and slope, with a provisional empty mass interval.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.metres(
       23 * AutoMovieArchetypeUnits.INCH,

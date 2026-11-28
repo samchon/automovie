@@ -28,6 +28,10 @@ const CHECKED: IAutoMovieInspectionDiagnostics.ICoverage = {
  *    unsupported rows stay distinct from confirmed errors and missing required
  *    coverage.
  * 5. Unordered samples and conflicting repeats are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the sample clocks, episode boundaries, coverage and failure states that the assertions distinguish.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public reducer with prepared repeated cells, overlapping shot scopes, off-grid witnesses and explicit coverage rows. Checks both the retained observations and their audit outcome.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture specifies six native indices, one repeated cell, a checked-clear break and later separated scopes. The independently chosen confirmed rank, earliest tie, missing indices and nonblocking optional rules define the expected ranges and release booleans.
  */
 export function test_render_scene_reduce_inspection_episodes(): void {
   const repeated: IAutoMovieInspectionDiagnostics = frame(
@@ -225,6 +229,19 @@ export function test_render_scene_reduce_inspection_episodes(): void {
   TestValidator.error("decreasing film seconds are refused", (): void => {
     AutoMovieRenderInspectionMarks.reduceEpisodes([frame(1), frame(0)]);
   });
+  for (const time of [
+    { filmSeconds: NaN, outputFrame: 0 },
+    { filmSeconds: Infinity, outputFrame: 0 },
+    { filmSeconds: 0, outputFrame: NaN },
+    { filmSeconds: 0, outputFrame: 0.5 },
+  ])
+    TestValidator.error("invalid observation address cannot cover a frame", () =>
+      AutoMovieRenderInspectionMarks.reduceEpisodes([{ ...frame(0), time }], 1),
+    );
+  for (const expected of [NaN, Infinity, 1.5])
+    TestValidator.error("expected schedule count is a positive safe integer", () =>
+      AutoMovieRenderInspectionMarks.reduceEpisodes([frame(0)], expected),
+    );
   TestValidator.error(
     "changed evidence at the same scoped sample is refused",
     (): void => {

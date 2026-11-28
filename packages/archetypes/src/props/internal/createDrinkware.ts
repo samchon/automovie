@@ -58,7 +58,7 @@ export function createDrinkware(
     AutoMovieArchetypeDrinkware.KINDS,
   );
   const fill: number = params.fill ?? 0;
-  if (!(fill >= 0 && fill <= 1))
+  if (!(Number.isFinite(fill) && fill >= 0 && fill <= 1))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "drinkware",
@@ -164,7 +164,7 @@ export function createDrinkware(
       kind: "handle",
       symmetry: "none",
       frame: AutoMovieArchetypeFrame.facing(
-        AutoMovieEngineVector3.create(reach, height / 2, 0),
+        AutoMovieEngineVector3.create(reach, (low + high) / 2, 0),
         AutoMovieEngineVector3.create(1, 0, 0),
         AutoMovieEngineVector3.create(0, 1, 0),
       ),

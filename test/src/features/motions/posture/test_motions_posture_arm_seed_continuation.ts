@@ -34,6 +34,10 @@ const POSITION_ROUNDING: number = 4 * Number.EPSILON;
  *    first target moves by 0.005 m and the last reaches the requested site.
  *    The corrector's first coordinate increments by one each time.
  * 2. A corrector refusing its second target ends the continuation there.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fixed-step contact continuation, reuse of the prior correction and termination on first refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Moves one 0.25 m target via a recording corrector and repeats with a corrector refusing its second call.
+ * @evidence contracts/development/testing.md#independent-expectations Fifty increments of 0.005 m reach the site, and each returned coordinate increases by one before reuse. The rejecting fixture stops on its second target.
  */
 export async function test_motions_posture_arm_seed_continuation(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

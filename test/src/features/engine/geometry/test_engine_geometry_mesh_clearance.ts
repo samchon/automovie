@@ -31,6 +31,10 @@ type Gap = { triangle: number; minimum: number };
  * 5. Short positions, two indices, index 3 and index -1 refuse ("triangle
  *    buffers"); coordinates 1e308 overflow the projected area, depths +-1e308
  *    the arithmetic, and two 1e308-wide slivers the clipping.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names least signed overlapping depth, crossed-edge extremum, empty projections and numeric refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures depth over actual triangle pairs along each axis and over spaced patches, observing empty, contact and error results.
+ * @evidence contracts/development/testing.md#independent-expectations The sloped overlap reaches x = −4/3 at its clipped corner. Parallel planes differ by 1 minus lift. The authored slab depths fix every patch result.
  */
 export function test_engine_geometry_mesh_clearance(): void {
   const mesh = (points: number[][], indices: number[] | null = null): IAutoMovieMesh => ({

@@ -27,9 +27,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the tool module on made families and reads the stations, bases, runs and places it returns.
  * @evidence contracts/development/testing.md#independent-expectations The bellies' places are the made radius's closed-form maxima and the fields' symmetries; the run places are their definition.
- * @evidence contracts/development/testing.md#distinguishing-cases One run and two, a maximum and a minimum at a joint, a site, a site out of range and an early end; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous arithmetic on made field tables; no stored family, reference, fit or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made families and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation Sinusoidal tube and limb profiles give exact knot stations and run shares. Tool arguments, excluded exterior sites and a shorter requested domain have separate checks.
  */
 export function test_human_landmark_knots(): void {
   const failures: string[] = [];

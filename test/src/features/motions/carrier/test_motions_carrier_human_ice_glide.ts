@@ -10,17 +10,18 @@ import { TestValidator } from "@nestia/e2e";
 const LEG = { thigh: 0.45, shank: 0.42 };
 
 /**
- * `HumanIceGlide.admit` admits a skate's own requests before its glide is
- * planned: an edge within 90 degrees either way, and a step whose window opens
- * at or after 0 s and closes within the glide, whose offset lies within the
- * leg's 0.87 m and whose clearance is above 0 and within it.
+ * Check admission of an ice edge and step before the glide is planned.
  *
- * Scenarios, a 2 s glide:
+ * Scenarios:
  *
- * 1. A 30 degree edge with a step over 0.5 to 1 s, 0.2 m aside and 0.05 m clear,
- *    is admitted.
- * 2. A 120 degree edge, a window closing at 3 s, an offset 1 m aside and no
- *    clearance are refused on their own axes.
+ * 1. In a two-second glide, admit a 30-degree edge and a step from 0.5 to 1
+ *    s, with 0.2 m of offset and 0.05 m of clearance.
+ * 2. Change one field at a time to a 120-degree edge, a 3 s end, a 1 m
+ *    lateral offset and zero clearance. Each refusal names that field.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify the glide interval, step geometry and individual refusal fields.
+ * @evidence contracts/development/testing.md#behavioral-verification The admitted fixture and its four variants cover timing, angle, leg reach and clearance.
+ * @evidence contracts/development/testing.md#independent-expectations The glide duration and measured 0.87 m leg provide direct boundaries for the authored step fields.
  */
 export function test_motions_carrier_human_ice_glide(): void {
   const pivots = { left: { x: 0, y: 0, z: 0 }, right: { x: 0, y: 0, z: 0 } };

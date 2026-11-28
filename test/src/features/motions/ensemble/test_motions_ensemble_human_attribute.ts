@@ -113,17 +113,19 @@ namespace part_human_attribute_effect {
 }
 
 /**
- * `HumanAttribute`'s unit contract: its draws and effects.
+ * Check seeded attribute draws and interpolation of an attribute's effect.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `human_attribute_draw`: `HumanAttribute.draw` gives one member's value of a
- *   quantity from the group's distribution, clipped to [0, 1]:
- * - `human_attribute_effect`: `HumanAttribute.effect` reads an effect linearly
- *   between its value at the attribute's low end and its high end, `low +
- *   (high
+ * 1. Read the mean with zero spread. Repeat one keyed draw, bound the uniform
+ *    spread and clip draws to [0, 1]. Refuse a mean of 1.5 or a spread of
+ *    -0.1.
+ * 2. An effect from 0.8 to 1.2 reads 0.8, 1.2 and 0.9 at attributes 0, 1 and
+ *    0.25. A missing attribute uses the neutral input 0.5 and reads 1.
  *
- *   - Low) x`, an absent attribute read at the neutral value.
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the draw distribution, refusal inputs and neutral effect.
+ * @evidence contracts/development/testing.md#behavioral-verification The draw and effect functions are checked separately with keyed controls and literal endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The draw bounds follow the stated uniform spread and clipping. The effect uses the straight line through 0.8 and 1.2.
  */
 export async function test_motions_ensemble_human_attribute(): Promise<void> {
   part_human_attribute_draw.verify();

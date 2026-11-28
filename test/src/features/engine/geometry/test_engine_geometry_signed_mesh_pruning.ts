@@ -24,6 +24,10 @@ import { nclose } from "../../internal/predicates";
  *    the triangle the query names lies at that same minimum.
  * 2. A walk of 60 points along a line, which keeps the previous feature as the
  *    starting bound, agrees as well.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exhaustive comparison, hierarchy and leaf pruning, reported ordinal and retained starting bound.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries a voxel slab on a fixed lattice and a continuous walk, then checks distances and named triangles against exhaustive closest-point calculations.
+ * @evidence contracts/development/testing.md#independent-expectations Scanning every independent triangle result gives the true minimum. The returned triangle must itself attain it, including when a previous hit seeds the search.
  */
 export function test_engine_geometry_signed_mesh_pruning(): void {
   const cells: number[][] = [];

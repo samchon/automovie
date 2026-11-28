@@ -2,21 +2,21 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type WornPropDraw } from "./internal/WornPropDraw";
 import { createWatch as createWatchImplementation } from "./internal/createWatch";
 
-/** Public operations for Auto Movie Archetype Watch. */
+/** Constructs a wristwatch laid flat with an upward readable dial. */
 export namespace AutoMovieArchetypeWatch {
   /**
-   * Wristwatch resting dial up with a straight band.
+   * Build a wristwatch resting dial up with its straight strap along Z.
    *
-   * The band runs along model Z. The dial's 12 o'clock lies toward model `-Z`, so
-   * `face` reads with model `-Z` as its top.
+   * The dial's 12 o'clock lies toward model `-Z`. The `hold` pinches the
+   * case sideways and `wear` is the downward socket below the strap.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * @param params Optional ID and finite case width and thickness, strap length or mass
+   *   admitted by the bands. The default ID is `wearable`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.0367 metres case width,
+   *   0.0085 metres case thickness and a 0.22 metre strap.
+   * @returns The flat watch with the case hold, dial plane and wrist socket.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     WornPropDraw.IParams,
@@ -26,13 +26,11 @@ export namespace AutoMovieArchetypeWatch {
   }
 
   /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
+   * Side case `hold`, upward readable `face` and a downward wrist `wear` socket.
    */
   export type Affordance = "face" | "hold" | "wear";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Case width and thickness, and strap length along Z, in metres. Mass is in kilograms.
    */
   export type Dimension = "depth" | "height" | "mass" | "width";}

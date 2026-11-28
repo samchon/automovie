@@ -1,18 +1,20 @@
 /**
- * One closed ring's span inside a region's shared canonical point list.
+ * Contiguous span occupied by one canonical planar ring in the shared point
+ * array.
  *
- * `canonicalRegion` lays the rings out contiguously in declaration order, outer
- * ring first at index zero and each hole after the previous ring, so the spans
- * tile the point list without gaps. Ear clipping bridges holes along these
- * spans, and region extrusion and loft walk them to emit side walls.
+ * The canonical span order tiles the region point array. Ear clipping consumes
+ * these spans to bridge holes and extrusion follows them to emit boundaries.
  */
 export interface IAutoMovieRegionRing {
   /**
-   * First index the ring owns in {@link IAutoMovieRegionTriangulation.points};
-   * zero for the outer ring.
+   * Zero-based point ordinal in the canonical region. The outer boundary starts
+   * at zero.
    */
   start: number;
 
-  /** How many points the ring owns, at least three. */
+  /**
+   * Number of listed vertices in the ring span, at least three. Closure uses
+   * the first point again by index.
+   */
   count: number;
 }

@@ -1,26 +1,19 @@
-/**
- * Union original triangle incidence at every sampled contour vertex or crossed
- * source edge. The resulting support can include adjacent faces and is not a
- * semantic region or an exact generating patch.
- */
+/** Callable broad original face support for a raw plane-cut contour. */
 
 export namespace IAutoMovieRecoveryContourFaceSupportCollectionOperation {
   /**
-   * Union original triangle incidence at every sampled contour vertex or
-   * crossed source edge. The resulting support can include adjacent faces and
-   * is not a semantic region or an exact generating patch.
+   * Collect the union of original faces incident to each observed source vertex
+   * or edge address. Use the caller's prepared unordered edge key and face
+   * maps.
    */
 
   export type Operation = (
     points: readonly {
-      /**
-       * Original first endpoint index of this source edge, in the paired source
-       * vertex array.
-       */
+      /** First original point incidence endpoint used to resolve broad support. */
       a: number;
       /**
-       * Original second endpoint index of this source edge, in the paired
-       * source vertex array.
+       * Second original point incidence endpoint, equal to the first for a
+       * vertex hit.
        */
       b: number;
     }[],

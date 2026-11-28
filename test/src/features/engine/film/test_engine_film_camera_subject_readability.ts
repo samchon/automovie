@@ -108,6 +108,10 @@ const readable: (
  *    on the far plane, at a framing that otherwise reads.
  * 5. Horizontal segments at body height and far above the frame distinguish
  *    intersection from unconditional acceptance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios describe four shot sizes, displaced subjects, ground-point controls, depth planes and a horizontal above-frame contrast.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles actual cameras, checks frame intersections against authored subject segments and separately projects their ground points. It uses explicit near and far violations and an above-view segment.
+ * @evidence contracts/development/testing.md#independent-expectations A medium or close frame may include part of a body with its ground point outside. A subject displaced 1,000 metres off the original aim is a negative at every framing. The behind, beyond-far and above-view controls independently distinguish intersection from blanket acceptance.
  */
 export function test_engine_film_camera_subject_readability(): void {
   const framings: readonly ["wide", "full", "medium", "close"] = [

@@ -1,13 +1,14 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * Sampled saved ring viewed by slab correspondence. The planner reads these
- * borrowed points and signed winding without changing their order.
+ * Borrowed saved-ring samples for correspondence. The planner uses the samples
+ * for geometric separation scoring and compares declared winding. Retaining a
+ * refused ring preserves the saved section's loop ordinals.
  */
 export interface IAutoMoviePlanContourSlabs64Ring {
   /**
-   * Cyclic samples in the common model millimetre frame; admitted usable rings
-   * support source-curve separation scoring.
+   * Cyclic model-millimetre samples in their saved order. Supported ring pairs
+   * use these samples to score separation.
    */
   points: AutoMovieVector3Tuple[];
 

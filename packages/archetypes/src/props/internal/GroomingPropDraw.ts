@@ -11,12 +11,10 @@ import {
 import { CARE_ITEM_BANDS } from "../constants/CARE_ITEM_BANDS";
 import { GroomingPropDrawData } from "./GroomingPropDrawData";
 
-/*
- * The seeded recipes originally published as `createCareItem`.
- */
+/** Admits personal-care measurements and builds the shared handle and head. */
 export namespace GroomingPropDraw {
-  /*
-   * The kinds.
+  /**
+   * Saved selectors for the tissue, comb, toothbrush, tube, razor and lipstick.
    */
   export type Kind =
     | "tissue"
@@ -26,9 +24,7 @@ export namespace GroomingPropDraw {
     | "razor"
     | "lipstick";
 
-  /*
-   * Every kind, for a caller that reads one at run time.
-   */
+  /** Accepted selectors shared by replay, named producers and gallery order. */
   export const KINDS: readonly Kind[] = [
     "tissue",
     "comb",
@@ -38,64 +34,36 @@ export namespace GroomingPropDraw {
     "lipstick",
   ];
 
-  /*
-   * The shape of CARTRIDGE.
-   */
+  /** Metric footprint of the authored razor cartridge. */
   export interface ICartridge {
-    /*
-     * The `width` entry.
-     */
+    /** Cartridge span across model X, in metres. */
     width: number;
 
-    /*
-     * The `depth` entry.
-     */
+    /** Cartridge extent along model Z, in metres. */
     depth: number;
   }
 
-  /*
-   * A razor's cartridge across and from front to back, metres: an estimate; the
-   * razors' pages read do not give it.
-   */
+  /** Estimated 0.04 by 0.015 metre XZ footprint of the razor cartridge. */
   export const CARTRIDGE: Readonly<ICartridge> = {
     width: 0.04,
     depth: 0.015,
   };
 
-  /*
-   * A lipstick's bullet out of its case, metres: an estimate; the cases read
-   * give its 12.1 mm across but not how far it stands out.
-   */
+  /** Estimated exposed Z length of the lipstick bullet, 0.015 metres. */
   export const BULLET: number = 0.015;
 
-  /*
-   * The affordance ids:
-   *
-   * - `grip`: the hold: a tissue pinched at its middle, a comb's spine held
-   *   sideways, a toothbrush's or a razor's handle, a tube's body, a lipstick's
-   *   case.
-   * - `face`: the working end: a tissue's upper side, the line of a comb's teeth
-   *   facing down, a toothbrush's bristles and a razor's blades facing up, a
-   *   tube's mouth facing along it, a lipstick's bullet's tip.
-   * - `cap`: a tube's cap, a knob turned two turns to open (the turn is an
-   *   estimate).
+  /**
+   * Holds and working faces shared across the care items, plus the tube's cap.
    */
   export type Affordance = "grip" | "face" | "cap";
 
-  /*
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`: along `+Z`.
-   * - `width`: a tissue's or a comb's width, a toothbrush's or a razor's
-   *   handle's, a tube's or a lipstick's diameter.
-   * - `thickness`: a tissue's or a comb's thickness.
-   * - `mass`: kilograms.
+  /**
+   * Length follows Z. Width measures a span or diameter depending on the
+   * kind. Geometry uses metres and mass uses kilograms.
    */
   export type Dimension = "length" | "width" | "thickness" | "mass";
 
-  /*
-   * Each dimension's unit, which its band and any model's figure for it share.
-   */
+  /** Units used consistently in applicable bands and complete model records. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -105,35 +73,27 @@ export namespace GroomingPropDraw {
     mass: "kg",
   };
 
-  /*
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+  /**
+   * Saved kind and optional scene ID, finite band settings and applicable model.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /*
-     * Which item.
-     */
+    /** Selects the prop builder and its admitted measurement records. */
     kind: Kind;
 
-    /*
-     * A tube's diameter or a razor's model; drawn from the seed when absent.
+    /**
+     * Selects a tube diameter or whole razor model when that kind owns a catalogue.
      */
     model?: Model;
 
-    /*
-     * The model's id, unique in a scene; `careItem` when absent.
-     */
+    /** Scene object ID, defaulting to `careItem`. */
     id?: string;
   }
 
-  /*
-   * A model's read figures, by dimension.
-   */
+  /** Tube width or correlated razor length and mass from one selected model. */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /*
-   * The models read: Alltub's ten laminate tube diameters, and Edwin Jagger's
-   * and Gillette's Mach3 razors.
+  /**
+   * Recorded Alltub diameter identifiers and the Edwin Jagger and Gillette Mach3 model identifiers.
    */
   export type Model =
     | "alltub13_5"
@@ -149,15 +109,13 @@ export namespace GroomingPropDraw {
     | "edwinJagger"
     | "gilletteMach3";
 
-  /*
-   * Each kind's models whole, the default first. A tube's diameter (`width`) is
-   * one of Alltub's ten
-   * (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf),
-   * its length drawn in that diameter's own range (`TUBE_LENGTHS`). A razor's
-   * length and mass: Edwin Jagger's Mach3, 129 mm and 87 g
-   * (https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html),
-   * and Gillette's Mach3, 5.4 in and 35 g
-   * (https://www.toolsofmen.com/?p=46812).
+  /**
+   * Recorded Alltub widths and paired razor lengths and masses. Each
+   * kind uses its first row when model and seed are omitted.
+   *
+   * @see https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf
+   * @see https://www.edwinjagger.co.uk/edwin-jagger-grey-chrome-mach-3-razor.html
+   * @see https://www.toolsofmen.com/?p=46812
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Partial<Record<Model, Figures>>>>>
@@ -183,9 +141,8 @@ export namespace GroomingPropDraw {
     },
   };
 
-  /*
-   * Each Alltub tube diameter's own range of lengths, metres, from the data
-   * sheet.
+  /**
+   * Metre-valued length bands indexed by the selected Alltub diameter model.
    */
   export const TUBE_LENGTHS: Readonly<
     Partial<Record<Model, IAutoMovieArchetypeBand>>
@@ -242,38 +199,37 @@ export namespace GroomingPropDraw {
     ),
   };
 
-  /*
-   * The band of each free dimension, by kind.
+  /**
+   * Applicable free measurements by kind. A selected tube model supplies the length band.
    */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CARE_ITEM_BANDS;
 
-  /*
-   * What prepare prepares for its caller.
-   */
+  /** Builder and admitted dimensions derived from the same draw. */
   export interface IPrepareResult<Id extends Affordance> {
-    /*
-     * The prepared `builder` this call returns.
+    /**
+     * Empty geometry builder with the saved ID, material and draw provenance.
      */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /*
-     * The prepared `d` this call returns.
+    /**
+     * Finite applicable values from the model and dimensions admitted for the selected kind.
      */
     d: Partial<Record<Dimension, number>>;
   }
 
-  /*
-   * Prepare an empty builder and the previously recorded careItem dimensions.
-   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
-   * ID, and a model where the saved recipe has one.
-   * Parameter seed: The seed that draws the saved dimensions and model, or
-   * undefined for the original defaults.
-   * Parameter kind: The saved kind whose recipe is used.
-   * Returns: The builder and dimensions the named producer reads.
-   * When the model or a fixed parameter
-   * lies outside its admitted recipe.
+  /**
+   * Admit one personal-care record and return its ready geometry builder.
+   *
+   * The tube model sets width and selects a compatible length band. A
+   * razor model specifies its length and mass together.
+   *
+   * @param kind Selector whose measurement tables apply.
+   * @param params Optional ID, applicable finite measurements and model.
+   * @param seed Numeric seed for omitted values and model choice.
+   * @returns A builder carrying the same provenance as the returned measurements.
+   * @throws {AutoMovieArchetypeRefusal} If a model or fixed value is inadmissible.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
@@ -312,57 +268,44 @@ export namespace GroomingPropDraw {
     return { builder, d };
   }
 
-  /*
-   * The contact ids addHead builds or reads.
+  /**
+   * The two contacts supplied by the shared toothbrush and razor head builder.
    */
   export type AddHeadContact = "grip" | "face";
 
-  /*
-   * A grooming prop's handle and head size.
-   */
+  /** Metric geometry for the cylindrical handle and flat working head. */
   export interface IHead {
-    /*
-     * The whole prop length, metres.
-     */
+    /** Entire tool length along Z, in metres. */
     length: number;
 
-    /*
-     * The handle diameter, metres.
-     */
+    /** Cylindrical handle diameter and grip aperture, in metres. */
     width: number;
 
-    /*
-     * The head length, metres.
-     */
+    /** Extent of the working head along Z, in metres. */
     head: number;
 
-    /*
-     * The head width, metres.
-     */
+    /** Working-head span across X, in metres. */
     across: number;
   }
 
-  /*
-   * A grooming prop's two finishes.
-   */
+  /** Separate finish colours for the handle cylinder and rectangular head. */
   export interface IHeadColors {
-    /*
-     * The handle colour.
-     */
+    /** Cylinder colour for the gripped handle. */
     handle: string;
 
-    /*
-     * The head colour.
-     */
+    /** Block colour for the working head. */
     head: string;
   }
 
-  /*
-   * Add the handle and flat head of a grooming tool.
-   * Parameter builder: The grooming prop under construction.
-   * Parameter dimensions: The overall length, handle diameter, and head dimensions,
-   * in metres.
-   * Parameter colors: The body and head colors.
+  /**
+   * Construct a cylindrical handle and flat rectangular working head.
+   *
+   * The butt lies at Z zero and the head ends at the overall Z length.
+   * The handle grip and working face both point toward `+Y`.
+   *
+   * @param builder The prepared prop with its adopted measurement record.
+   * @param dimensions Overall length, handle diameter and head size in metres.
+   * @param colors Independent colours for the handle and working head.
    */
   export function addHead(
     builder: AutoMovieArchetypeBuilder<AddHeadContact, Dimension>,

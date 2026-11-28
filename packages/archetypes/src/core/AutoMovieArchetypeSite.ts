@@ -9,9 +9,7 @@ import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * The contact sites of an affordance: the places along or across its extent
- * where a hand, a foot or a body may meet it, each as a frame in the
- * affordance's own convention.
+ * Reads frames at normalized positions on an affordance's actual extent.
  *
  * A site is named by one or two coordinates from 0 to 1 over the extent the
  * affordance's kind reads:
@@ -27,18 +25,20 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
  *
  * A site keeps the affordance's rotation, except on a `wheel`, where it is a
  * grip on the rim: `+X` along the rim in the turning sense and `+Y` out from
- * the centre, so a hand takes it as it takes a `bar`. A kind without an extent,
- * or an affordance that leaves the dimension out, has the one site of its own
- * frame.
+ * the centre, so a hand takes it as it takes a `bar`. An omitted extent
+ * component contributes zero offset along its axis. A point contact uses
+ * its frame origin.
  */
 export namespace AutoMovieArchetypeSite {
   /**
-   * A site of an affordance.
+   * Resolves a normalized contact position within the current affordance.
    *
    * @param archetype The name a refusal carries.
    * @param affordance The affordance, at its current frame.
-   * @param u The first coordinate, 0 to 1; the middle when absent.
-   * @param v The second coordinate, 0 to 1; the middle when absent.
+   * @param u The first finite numeric coordinate from zero to one.
+   *   Defaults to 0.5.
+   * @param v The second finite numeric coordinate from zero to one.
+   *   Defaults to 0.5.
    * @returns The site's frame in the space the affordance's frame is in.
    * @throws {AutoMovieArchetypeRefusal} When a coordinate is not finite or lies
    *   outside 0 to 1.
@@ -53,7 +53,7 @@ export namespace AutoMovieArchetypeSite {
       ["u", u],
       ["v", v],
     ] as const)
-      if (!(value >= 0 && value <= 1))
+      if (!(Number.isFinite(value) && value >= 0 && value <= 1))
         throw new AutoMovieArchetypeRefusal({
           kind: "site",
           archetype,
@@ -61,7 +61,7 @@ export namespace AutoMovieArchetypeSite {
           value,
           feasible: { kind: "range", minimum: 0, maximum: 1, unit: "" },
           reason: `site coordinate ${name} of "${affordance.id}" is ${value}`,
-          fix: "give a site coordinate from 0 to 1",
+          fix: "give a numeric site coordinate from 0 to 1",
         });
     const frame: IAutoMovieTransform = affordance.frame;
     const offset = (local: IAutoMovieVector3): IAutoMovieTransform => ({

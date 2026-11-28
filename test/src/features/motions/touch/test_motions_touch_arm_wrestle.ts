@@ -12,16 +12,19 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * A wrestling pad receives the posed elbow exterior at zero clearance.
+ * Check elbow seating and the paired arm-wrestle request.
  *
  * Scenarios:
  *
- * 1. A vertical 4 cm capsule axis with a 2 cm radius reaches the pad when it is
- *    centred 6 cm above the surface. Lifting and sinking by 5 mm change the
- *    signed clearance by the same amount.
- * 2. A center beyond the pad and radius cannot bear on it.
- * 3. The mutual plan forwards each side's actual pad and keeps the declared table,
- *    winner, and pin values.
+ * 1. A capsule centred 6 cm above the pad has zero clearance. Move it 5 mm up
+ *    or down and observe the matching signed gap. Move it past the pad and
+ *    see no bearing.
+ * 2. The paired result forwards each side's pad and the authored table,
+ *    winner and pin.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases give the tested capsule clearances and the forwarded scene fields.
+ * @evidence contracts/development/testing.md#behavioral-verification The seat helper reads a finite pad, and the mutual plan composes two action inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The axis length and radius give the 6 cm tangent height and the signed changes follow the imposed offsets.
  */
 export function test_motions_touch_arm_wrestle(): void {
   const frame: IAutoMovieRigidTransform = {

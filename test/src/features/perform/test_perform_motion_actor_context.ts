@@ -81,10 +81,8 @@ function gaitPeriod(): void {
  *    carries its staged heading.
  * 3. A missing actor or gait omits the clip; duplicate gait names refuse lookup.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Examines generated channels, world frame and gaze.
+ * @evidence contracts/development/testing.md#behavioral-verification Examines generated channels, world frame and gaze. The two actor records separate actor-only travel, world and actor-relative gaze, and missing or duplicate gait inputs.
  * @evidence contracts/development/testing.md#independent-expectations Five metres at unit speed gives five seconds, and a quarter turn transforms local Z to world X.
- * @evidence contracts/development/testing.md#distinguishing-cases Actor-only travel, two gaze frames and missing or duplicate gaits separate ownership.
- * @evidence contracts/development/testing.md#execution-ownership Compiles two small actor records.
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the timing and coordinate observations.
  */
 export function test_perform_motion_actor_context(): void {

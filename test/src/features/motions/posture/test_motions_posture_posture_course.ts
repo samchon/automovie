@@ -52,6 +52,10 @@ function posture(
  * 2. At the middle the root and the goal are halfway (the minimum-jerk path is
  *    symmetric), and the heading and the twist are 180: the short way.
  * 3. A limb only one knot sets is taken from the last knot at or before.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines minimum-jerk interpolation of continuous posture coordinates, angle unwrapping and last-held limb metadata.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares two authored poses with opposite angle signs and samples exact knots, midpoint and a limb set only by one pose.
+ * @evidence contracts/development/testing.md#independent-expectations Quintic symmetry gives midpoint root 1 m and hand goal 1.1 m. The shortest +170° to −170° rotation passes through 180°.
  */
 export function test_motions_posture_posture_course(): void {
   const course: (seconds: number) => IAutoMovieMotionHumanPosture =

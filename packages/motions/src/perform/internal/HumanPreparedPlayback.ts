@@ -90,6 +90,22 @@ export namespace HumanPreparedPlayback {
   }
 
   /*
+   * Record a native ground stand's exact writer and body. The writer only
+   * sets arm joint angles and planted leg goals throughout its span.
+   */
+  export function groundedStand(plan: Plan, body: IBody): void {
+    GROUND_STANDS.set(plan.posture, body);
+  }
+
+  /*
+   * Read that declaration through plan copies and the placement's forwarding
+   * wrapper. An opaque replacement reader has no declared limb coverage.
+   */
+  export function isGroundedStand(plan: Plan, body: IBody): boolean {
+    return GROUND_STANDS.get(plan.posture) === body;
+  }
+
+  /*
    * Connect placement's posture wrapper to this exact native authoring.
    * Parameter plan: The placed plan.
    * Parameter original: The reader placement wrapped.
@@ -102,6 +118,8 @@ export namespace HumanPreparedPlayback {
     installed: Reader,
     where: Where,
   ): void {
+    const standing: IBody | undefined = GROUND_STANDS.get(original);
+    if (standing !== undefined) GROUND_STANDS.set(installed, standing);
     const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
       plan.playback;
     if (binding?.original !== original) return;
@@ -191,6 +209,12 @@ export namespace HumanPreparedPlayback {
       : phase.sample(...args);
   }
 }
+
+/*
+ * The grounded stand declaration lasts as long as the exact native writer
+ * or the wrapper placement installed for it.
+ */
+const GROUND_STANDS: WeakMap<Reader, HumanPreparedPlayback.IBody> = new WeakMap();
 
 /*
  * The prepared interval index belongs to the attached phase records.

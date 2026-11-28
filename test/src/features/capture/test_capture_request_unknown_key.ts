@@ -15,9 +15,7 @@ import { throwsError } from "../internal/throwsError";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Parses unknown and repeated keys through both host mappings and observes the refusal and its message; a reader that ignored unknown keys or took the first of two values fails.
  * @evidence contracts/development/testing.md#independent-expectations The refused names are options the scaffold's page and command read before the shared grammar (`film`, `view`, `w`, `paths`), which issue #3300 removes; the expected message fragment is the key itself.
- * @evidence contracts/development/testing.md#distinguishing-cases Unknown against known keys, unknown beside a malformed known value, a repeated key, and the accepted control. Malformed values of known keys are owned by `test_capture_request_malformed_value`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_request_unknown_key`; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Unknown and repeated keys are refused on the applicable host. An unknown key takes precedence over reading a malformed known value, and the known-only control reads.
  */
 export function test_capture_request_unknown_key(): void {
   // 1. Old host-only options, through both hosts.

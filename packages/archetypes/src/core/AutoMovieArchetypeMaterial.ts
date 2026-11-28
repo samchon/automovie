@@ -2,16 +2,14 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeMaterialData } from "./internal/AutoMovieArchetypeMaterialData";
 
 /**
- * Physical materials and their cited contact measurements, independent of the
- * flat optical colours a producer draws.
+ * Resolves physical material names, measured friction and authored restitution.
  *
- * Friction belongs to a material pair. Restitution references also retain their
- * specimen and speed: a material name alone does not establish a coefficient
- * for every collision. An explicit authored coefficient is admitted as such;
- * without an explicit coefficient, it remains absent.
+ * Friction is a property of an admitted pair. Normal restitution defaults to
+ * unknown. An author can supply a finite ratio for the intended contact.
+ * Use the separate restitution catalogue to inspect specimen measurements.
  */
 export namespace AutoMovieArchetypeMaterial {
-  /** A body's physical contact material or an explicitly mixed construction. */
+  /** Names the physical material declared by a model or surface. */
   export type Kind =
     | "rubber"
     | "wood"
@@ -40,9 +38,9 @@ export namespace AutoMovieArchetypeMaterial {
     | "composite"
     | "felt";
 
-  /** One measured pair's static and kinetic friction. */
+  /** The dimensionless coefficients and source conditions for one pair. */
   export interface IFriction {
-    /** Dimensionless static coefficient or observed minimum and maximum. */
+    /** Static coefficient or range. The source describes any estimate. */
     readonly static: number | readonly [number, number];
 
     /** Dimensionless kinetic coefficient or range; null when unmeasured. */
@@ -52,7 +50,7 @@ export namespace AutoMovieArchetypeMaterial {
     readonly source: string;
   }
 
-  /** Cited friction pairs, keyed by alphabetically ordered material names. */
+  /** Immutable cited friction pairs keyed by their sorted material names. */
   export const FRICTION: Readonly<Record<string, IFriction>> = {
     "concrete/felt": {
       static: 0.65,
@@ -187,12 +185,12 @@ export namespace AutoMovieArchetypeMaterial {
   Object.freeze(FRICTION);
 
   /**
-   * Admit the material explicitly named by a producer.
+   * Requires a recognized physical material name.
    *
    * @param material The producer's physical reference material.
    * @param archetype The producer named by a refusal.
    * @returns The admitted physical material.
-   * @throws {AutoMovieArchetypeRefusal} When no known material was declared.
+   * @throws {AutoMovieArchetypeRefusal} When the name is absent or unrecognized.
    */
   export function admit(material: Kind | undefined, archetype: string): Kind {
     if (material !== undefined && AutoMovieArchetypeMaterialData.KINDS.includes(material)) return material;
@@ -208,11 +206,10 @@ export namespace AutoMovieArchetypeMaterial {
   }
 
   /**
-   * Admit an explicitly authored or calibrated normal restitution.
+   * Accepts a finite normal restitution ratio or returns null for omission.
    *
-   * Published specimen measurements remain in AutoMovieArchetypeRestitution
-   * with their material pair, speed and geometry. None becomes a body-wide
-   * coefficient merely because the producer names the same material.
+   * The caller chooses the applicable ratio. The material name identifies a
+   * refusal and leaves the ratio unknown when the caller omits it.
    *
    * @param material The admitted physical material, named in a refusal.
    * @param explicit An authored normal speed ratio; absence means unknown.
@@ -227,7 +224,8 @@ export namespace AutoMovieArchetypeMaterial {
     archetype: string,
   ): number | null {
     if (explicit === undefined) return null;
-    if (explicit >= 0 && explicit <= 1) return explicit;
+    if (Number.isFinite(explicit) && explicit >= 0 && explicit <= 1)
+      return explicit;
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
@@ -240,14 +238,13 @@ export namespace AutoMovieArchetypeMaterial {
   }
 
   /**
-   * Read the friction of two physical surfaces in either order.
+   * Finds the catalogued friction for two surfaces in either order.
    *
    * @param a One physical surface.
    * @param b The other physical surface.
    * @param archetype The producer named by an unsupported-pair refusal.
-   * @returns The borrowed immutable measured pair.
-   * @throws {AutoMovieArchetypeRefusal} When no source in this catalogue
-   *   measured the pair.
+   * @returns The borrowed immutable coefficients and their source conditions.
+   * @throws {AutoMovieArchetypeRefusal} When the catalogue lacks that pair.
    */
   export function friction(a: Kind, b: Kind, archetype: string): IFriction {
     const key: string = a < b ? `${a}/${b}` : `${b}/${a}`;

@@ -35,6 +35,10 @@ import { nclose } from "../../internal/nclose";
  *    notification receives the actual Euclidean chart increment and matching
  *    original robust costs once per selected update, including the curved SOC
  *    case.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the constrained minima, explicit caps and expected KKT outcomes.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs baseline and accelerated refinement on independently authored scalar, planar and disk-constrained cases, plus abnormal and exhausted cases.
+ * @evidence contracts/development/testing.md#independent-expectations Constraint boundaries give x=2, the planar optimum (0,1), and the authored disk optimum. A singleton with abnormal zero duals cannot claim normal convergence.
  */
 export function test_recovery_internal_refine_feasible_state_feasible_nonlinear(): void {
   const specifications: IRecoveryFeasibleSpecification[] = [

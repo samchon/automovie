@@ -49,9 +49,7 @@ const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls composeScene on parent-local nodes and explicit overrides, observing world coefficients and graph refusals rather than checking source arrangement.
  * @evidence contracts/development/testing.md#independent-expectations A root translation gives world x=1, and parent x=10 plus overridden child x=2 gives12 independently of composeScene output; these translation-only examples do not establish rotated/scaled/sheared hierarchies or arbitrary depth/overflow behavior.
- * @evidence contracts/development/testing.md#distinguishing-cases Existing hierarchy/order and override neighbors accompany root defaults, cycles, duplicated ids and missing parents; standalone decomposition and world-driver updates have separate owning tests.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test_resolve_compose_scene entry invokes the real matrix graph owner synchronously on portable records; no GPU or Human inspection application runs here.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A lone root with no overrides composes from its own rest transform: a +1).
+ * @evidence contracts/development/common.md#meaningful-documentation An unoverridden root keeps its rest transform. A child listed before its parent still receives the parent's world composition.
  */
 export function test_resolve_compose_scene(): void {
   // 1. lone root, no overrides

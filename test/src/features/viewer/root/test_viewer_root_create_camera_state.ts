@@ -22,6 +22,10 @@ type IViewerCropWindow = NonNullable<AutoMovieViewerDisplay.ICameraStateSnapshot
  *    changing the resident state; disabled and absent views remain supported.
  * 3. Manual matrix ownership, parenting, custom projection and an unsupported
  *    camera class refuse capture or restore.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Transfers native perspective and orthographic state, including integer crops, transforms and layers, with atomic refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls native capture and restore on CPU camera objects with supported and independently invalid classes, transforms and projection ownership.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit lens, crop, transform and layer values give coordinate-level expectations. The resident state comparison catches any mutation after refusing an invalid restore.
  */
 export async function test_viewer_root_create_camera_state(): Promise<void> {
   for (const camera of [

@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    reach.
  * 2. Another shade, a part or hide pattern, a mark, a trail, a colour, a label,
  *    a section and x-ray each make it not plain.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Admits requests that leave the beauty picture plain and identifies inspection options that alter it.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the plain-beauty predicate for an absent request, stroke and reach changes, and each authored visual modifier.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit input and boolean list distinguishes every visual change from the absent or layout-only requests.
  */
 export function test_render_draw_is_plain_beauty_request(): void {
   const request = (

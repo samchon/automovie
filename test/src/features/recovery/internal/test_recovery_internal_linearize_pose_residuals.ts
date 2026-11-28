@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  * 2. A derivative equal to F changes only the scale, so its Jacobian entry is
  *    zero; the derivative E33 gives (1) / sqrt(2).
  * 3. Unpaired points, or other than five derivatives, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the pixel residual, five derivative dimensions and malformed inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Linearizes one explicit image pair with scale and E33 variation, then submits mismatched pairs and derivative count.
+ * @evidence contracts/development/testing.md#independent-expectations The sideways skew model gives residual −1/sqrt(2). An increment proportional to F changes only scale and has zero derivative.
  */
 export function test_recovery_internal_linearize_pose_residuals(): void {
   const F: number[] = [0, 0, 0, 0, 0, -1, 0, 1, 0];

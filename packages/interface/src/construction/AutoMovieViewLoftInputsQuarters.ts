@@ -1,10 +1,10 @@
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
- * Call-local reader of four dimensionless shoulder shares or departures at a
- * physical station in millimetres. The order follows the four +u/+v/-u/-v
- * quarter intervals. Missing authored departures produce [0,0,0,0]; a failed
- * declared outline reports and yields NaN in its own slot.
+ * Read four raw dimensionless shares at a physical station in millimetres, in
+ * +u, +v, −u, −v quarter order. Each call produces a fresh array. Missing
+ * departures produce four zeros. A rejected read of a prepared outline reports
+ * its source name and returns NaN in the corresponding slot.
  */
 export type AutoMovieViewLoftInputsQuarters = (
   station: number,

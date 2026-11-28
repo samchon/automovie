@@ -210,6 +210,10 @@ const chairRing: (props: IFilmChairRingInput) => IFilmChairRing = (
  * 8. Twelve chairs authored as one seeded loop validate and reproduce serialized
  *    records across repeated calls; changing the seed changes the placements
  *    and leaves them valid.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify occupancy and clearance transforms, strict overlap, containment, passage and frame resolution, bearing and deterministic repeated placement.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the individual placement predicates with the room's prepared geometry and compares their results and valid repeated seeded placement. It gives direct contrary controls for unavailable frames, missing faces and disjoint probes.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's own corners and placements determine each bound. A shared face has no positive overlap. The plane or ramp height defines signed bearing, and a cited face absent from the supplied data supplies no measured height. Equal seeds must yield identical serialized records.
  */
 export function test_engine_film_prop_placement_utility(): void {
   const environment: IAutoMovieBuiltEnvironment = propEnvironment();

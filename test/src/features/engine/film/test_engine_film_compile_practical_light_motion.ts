@@ -26,6 +26,10 @@ import { throwsError } from "../../internal/throwsError";
  *
  * The dyadic coordinates are exact before the turn. The unit rotation's vector
  * and normalization arithmetic fit a 32-ulp bound at unit scale.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the local emitter, independently started transform channels, exact switch edges, flame modulation and invalid sample inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles the real practical-light clip and reads its keyed placement, aim, intensity, times and target identities across channel starts and flame variants. It also calls the same compiler with bad intervals and sample sets.
+ * @evidence contracts/development/testing.md#independent-expectations Half a metre on local Y becomes one metre under scale two. A positive Z quarter-turn takes that offset and beam toward negative X. The authored quarter and three-quarter starts determine when each channel affects the emitted track.
  */
 export function test_engine_film_compile_practical_light_motion(): void {
   const identity: IAutoMovieTransform = {

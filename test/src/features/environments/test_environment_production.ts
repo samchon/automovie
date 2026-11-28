@@ -41,11 +41,9 @@ import { railShuttle } from "./railShuttle";
  * 4. One coaster carries an enacted rider through a banked lap. The same course
  *    and boarding producer moves a rail carriage between two platforms.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the scenario and the stage, motion and topographic facts it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Compiles an authored café, trail, multilevel building and ride, checking terrain and floor support, stage prop motion, performer endpoints and rail station positions. Exercises the transition from open terrain through a walkway, threshold and interior.
  * @evidence contracts/development/testing.md#behavioral-verification Compiles the same authored configuration served by the native capture module. Observes the returned scene support, prop channels, frame targets and closing performer placement.
  * @evidence contracts/development/testing.md#independent-expectations The expected grade, quarter-turn, occupied floor levels, course endpoints and rail station positions follow from dimensions and schedules in the authored examples.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks ground away from the pad, walkway, threshold and interior rather than only a seed snapshot, and distinguishes the opening leaf from the static shell and furnishings.
- * @evidence contracts/development/testing.md#execution-ownership Runs CPU compiles through the normal engine API. The separate capture subjects use these same authored values in the browser.
  */
 export function test_environment_production(): void {
   const input: compileEnvironmentExample.IInput = hillsideStop();

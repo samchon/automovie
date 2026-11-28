@@ -24,6 +24,10 @@ const THIGH: number = 0.08;
  * 1. The lift is `(0.45 * 0.19 / 2)^2 / (2 * 0.08) = 0.011422 m`.
  * 2. The palm's half breadth lies within the thigh's radius, so the lift is under
  *    half of it: h < r gives h^2 / (2 r) < h / 2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A braced palm is raised from the thigh tangent by its breadth and surface radius.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the palm-placement geometry on a prepared stock body and thigh radius.
+ * @evidence contracts/development/testing.md#independent-expectations Checks the sagitta approximation using half the palm breadth, the independently read hand length, and the thigh radius.
  */
 export async function test_motions_everyday_brace(): Promise<void> {
   const lift: number = palmSagitta({

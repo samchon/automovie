@@ -46,6 +46,10 @@ interface ICall {
  *    evaluation beyond the six starting knots, though `accept` never holds.
  * 5. Refinement only adds knots: the knots of one refinement pass include every
  *    knot of none, on a step `tanh(20 (t − 0.3))`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains predecessor seed ownership, extra acceptance, sweep budget and unhalvable intervals.
+ * @evidence contracts/development/testing.md#behavioral-verification Records predecessor payloads for sine and forced nonacceptance, then compares neighboring doubles and one refinement pass.
+ * @evidence contracts/development/testing.md#independent-expectations The full sweep sizes are 6 + 5 + 10 = 21 knots. Sine values bound interpolation error and no new float fits between adjacent clocks.
  */
 export function test_motions_posture_adaptive_knots_seeded(): void {
   // 1. The seeding order.

@@ -2,16 +2,23 @@ import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieConstructionPolyline } from "../render/IAutoMovieConstructionPolyline";
 
 /**
- * Source-free model, coefficient-derived construction and circular-to-cubic
- * approximation bound.
+ * Result of compiling a saved aligned-ellipse recipe into an open bicubic
+ * lateral surface. Its construction lines sample the same generated atlas used
+ * in the model.
  */
 export interface IAutoMovieRecoveryImageRealization {
-  /** Source-free generated model, in model metres. */
+  /** Generated model with one open bicubic lateral part in metres. */
   model: IAutoMovieModel;
 
-  /** Lines evaluated from the same generating coefficients. */
+  /**
+   * Sampled section loops and meridians in metres, evaluated from the same
+   * atlas as the model.
+   */
   construction: IAutoMovieConstructionPolyline.IMutable[];
 
-  /** Circular-to-cubic approximation bound, metres. */
+  /**
+   * Upper bound in metres for the quarter-circle cubic approximation after
+   * scaling by the largest horizontal radius.
+   */
   arcDeviationBoundMeters: number;
 }

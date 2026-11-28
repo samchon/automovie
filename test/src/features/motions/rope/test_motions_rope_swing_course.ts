@@ -15,15 +15,19 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON * 7;
 
 /**
- * A stage pendulum preserves its radius and reaches both extreme marks at rest.
+ * Check a staged swing's mirrored endpoints and midpoint tangent.
  *
  * Scenarios:
  *
- * 1. The −30 degree start 2 m from the anchor reaches the reflected extreme after
- *    π√(2/g) s. The world +X coordinate stays at the anchor's x.
- * 2. Halfway between those times the figure lies directly below the anchor and has
- *    a purely forward tangent of (π/6)√(2g) m/s. Reading the later extreme
- *    first does not change an earlier query.
+ * 1. Start at -30 degrees on a two-metre radius. Reach the reflected extreme
+ *    after `pi * sqrt(2 / g)` seconds, with both extremes at rest.
+ * 2. At half that time the point lies below the anchor with forward tangent
+ *    speed `(pi / 6) * sqrt(2 * g)` . Read the earlier values after the later
+ *    one.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases give radius, endpoint order and centre-crossing velocity.
+ * @evidence contracts/development/testing.md#behavioral-verification The swing course supplies position and velocity at the two extremes and the middle.
+ * @evidence contracts/development/testing.md#independent-expectations The specified harmonic swing gives the half-period. Its angular amplitude times angular frequency and radius gives the tangent.
  */
 export function test_motions_rope_swing_course(): void {
   const anchor: IAutoMovieVector3 = { x: 3, y: 4, z: 5 };

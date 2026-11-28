@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanMoles } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanMoles. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Mole and beauty mark input for a typia validator or schema. Count is an
+ * expected population over the body. Diameter is a maximum in rest-surface
+ * millimetres, and contrast is a darkness fraction.
+ */
 export type IAutoMovieHumanMolesSchema = IAutoMovieHumanMoles & {
   /** Expected number of marks over the whole body, 0 to 200; palms, soles and lips take none. */
   count: number & tags.Minimum<0> & tags.Maximum<200>;

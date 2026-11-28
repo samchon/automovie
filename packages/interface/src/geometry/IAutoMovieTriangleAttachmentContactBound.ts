@@ -1,35 +1,34 @@
 /**
- * Bound on every possible contact of an anchored fan with one support face,
- * returned by `boundTriangleAttachmentContact`.
+ * Conservative extent of contact between a complete anchored fan and one
+ * support triangle.
  *
- * When `proved` is true, any contact lies within `cap` metres of the fan's
- * registered root. `cornerGap` and `rootDeficit` are the outward-rounded slab
- * quantities s and delta behind that cap, projected on the support's stored
- * face direction scaled so its largest component is one; they are therefore
- * metres times a norm in [1, sqrt(3)], and only their ratio enters the cap. A
- * collapsed support reports all zeros, and a nonpositive corner gap leaves the
- * proof false with the measured gap and deficit kept for diagnosis.
+ * The support's stored face direction is scaled to a maximum component
+ * magnitude of one. Corner gap and root deficit use the resulting projection
+ * unit. A collapsed support returns a failed proof with zero quantities. A
+ * nonpositive resolved gap retains the measured gap and deficit for diagnosis.
  */
 export interface IAutoMovieTriangleAttachmentContactBound {
-  /** Whether the cap bounds every contact of the complete fan with the support. */
+  /**
+   * True when the slab gap proves that the reported cap encloses every possible
+   * fan contact on the support.
+   */
   proved: boolean;
 
   /**
-   * Upper bound, in metres, on a contact point's distance from the root; zero
-   * when unproved.
+   * Outward upper distance bound in metres from the root to any possible
+   * contact. The zero in an unproved receipt carries no contact bound.
    */
   cap: number;
 
   /**
-   * Outward-rounded smallest height of the two non-root corners above the
-   * support slab's top, s, in the scaled projection unit; zero for a collapsed
-   * support.
+   * Outward lower enclosure of the smaller non-root corner height above the
+   * slab top, in scaled projection units.
    */
   cornerGap: number;
 
   /**
-   * Nonnegative depth of the root below the support slab's top, delta, in the
-   * same scaled projection unit.
+   * Outward upper enclosure of the nonnegative deficit from the root to the
+   * slab top, in the same scaled projection units.
    */
   rootDeficit: number;
 }

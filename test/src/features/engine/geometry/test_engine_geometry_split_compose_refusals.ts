@@ -22,6 +22,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  * 3. Children that do not lean, so their skins never part: `never enters`.
  * 4. A host whose ring, of half extents 34 and 16 mm, stands farther from the
  *    composed outline than the rail: `from the composed outline`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names independent crossing, plane, leaning and host-reach failure cases and host preservation.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes each altered fixture and reads the resulting named diagnostic and retained host.
+ * @evidence contracts/development/testing.md#independent-expectations The separated children cannot intersect at radius 9, nonleaning parallel skins cannot enter the needed valley, and the widened host exceeds the prescribed rail's reach.
  */
 export function test_engine_geometry_split_compose_refusals(): void {
   const refused = (o: C.IOptions, word: string, why: string): void => {

@@ -8,18 +8,17 @@ import type {
 } from "..";
 
 /**
- * Triangulate one new track using only already registered camera observations.
- * The original 2k-by-4 homogeneous design uses calibrated world-to-camera rows;
- * its finite point remains in the common seed gauge, not a new pair unit
- * gauge.
+ * Callable calibrated track triangulation in the scene's current
+ * unit-seed-baseline gauge.
  */
 
 export namespace IAutoMovieRecoverySceneTrackTriangulationOperation {
   /**
-   * Triangulate one new track using only already registered camera
-   * observations. The original 2k-by-4 homogeneous design uses calibrated
-   * world-to-camera rows; its finite point remains in the common seed gauge,
-   * not a new pair unit gauge.
+   * Use at least two distinct registered observations and their supplied
+   * inverse charts to form a two-row-per-view, four-column homogeneous design.
+   * Check its work and rank limits, then qualify the resulting point against
+   * all retained projections. A recognized design or geometry refusal returns a
+   * null candidate with reasons.
    */
 
   export type Operation = (

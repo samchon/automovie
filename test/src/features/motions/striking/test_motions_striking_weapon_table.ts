@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenario: a solve handing back seeds returns its ends with those very seeds;
  * one handing none returns empty seeds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the virtual limb table reader's preservation of optional caller-owned solve seeds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the reader on one solve carrying seeds and another solve with only endpoint positions.
+ * @evidence contracts/development/testing.md#independent-expectations The returned endpoints keep the stated seed identity when supplied, and an omitted evaluation seed yields the empty value.
  */
 export function test_motions_striking_weapon_table(): void {
   const seeds: ReturnType<StrikingWeaponTable.IRead>["seeds"] = {};

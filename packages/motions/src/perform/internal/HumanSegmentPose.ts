@@ -1,4 +1,8 @@
-import { AutoMovieEngineHingedArmSwivel, AutoMovieEngineKinematics, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineHingedArmSwivel,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -321,7 +325,14 @@ export namespace HumanSegmentPose {
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
       if (decay !== undefined) {
-        pose = clamp(decay(Math.max(0, seconds - transition.cut), pose));
+        pose = clamp(
+          HumanSegmentPlant.preserveBearingToes(
+            body,
+            posture.limbs,
+            pose,
+            decay(Math.max(0, seconds - transition.cut), pose),
+          ),
+        );
         plain = false;
       }
     }
@@ -386,7 +397,8 @@ export namespace HumanSegmentPose {
       seeds.set(`planted:${limb}`, seed ?? null);
     return {
       pose:
-        placed?.(seconds - segment.start, planted.pose, observed) ?? planted.pose,
+        placed?.(seconds - segment.start, planted.pose, observed) ??
+        planted.pose,
       seeds,
     };
   }
@@ -411,31 +423,35 @@ export namespace HumanSegmentPose {
     side: ContinuedSide,
     rig: IAutoMoviePoseRig,
     duration: number,
-    prepared?: Parameters<typeof AutoMovieEngineMotionSampling.samplePoseVelocity>[6],
+    prepared?: Parameters<
+      typeof AutoMovieEngineMotionSampling.samplePoseVelocity
+    >[6],
   ): IContinued {
-    const tolerance: number = AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(STEP, duration);
+    const tolerance: number =
+      AutoMovieEngineMotionSampling.samplePoseVelocityTolerance(STEP, duration);
     let fits: IFits;
     const samples: IAutoMoviePose[] = [];
-    const state: IAutoMoviePoseState = AutoMovieEngineMotionSampling.samplePoseVelocity(
-      (t: number): IAutoMoviePose => {
-        const instant: ISeeded = read(t);
-        fits = instant.seeds;
-        return instant.pose;
-      },
-      seconds,
-      STEP,
-      side,
-      rig,
-      (t: number): IAutoMoviePose => {
-        const sample: IAutoMoviePose = read(t, {
-          seeds: fits,
-          tolerance,
-        }).pose;
-        samples.push(sample);
-        return sample;
-      },
-      prepared,
-    );
+    const state: IAutoMoviePoseState =
+      AutoMovieEngineMotionSampling.samplePoseVelocity(
+        (t: number): IAutoMoviePose => {
+          const instant: ISeeded = read(t);
+          fits = instant.seeds;
+          return instant.pose;
+        },
+        seconds,
+        STEP,
+        side,
+        rig,
+        (t: number): IAutoMoviePose => {
+          const sample: IAutoMoviePose = read(t, {
+            seeds: fits,
+            tolerance,
+          }).pose;
+          samples.push(sample);
+          return sample;
+        },
+        prepared,
+      );
     return {
       state,
       samples: samples as [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose],

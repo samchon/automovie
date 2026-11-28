@@ -21,9 +21,7 @@ import { nclose } from "../../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production volume, projection and mound on made mounds.
  * @evidence contracts/development/testing.md#independent-expectations The hemisphere's volume is the solid's closed form, not the formula under test; the exponent is recomputed from the published means; each grown mound is checked by putting it back into the volume and by inequalities against the similar solid and the plain ratio.
- * @evidence contracts/development/testing.md#distinguishing-cases Growth and shrinkage, bounded and unbounded bases, the inverse, the exponent's source and four refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States each scenario with its closed form.
+ * @evidence contracts/development/common.md#meaningful-documentation A hemisphere, inverted projection, recorded exponent, wider and narrower volumes, a fixed radius and physically impossible requests provide distinct checks.
  */
 export function test_human_mound_law(): void {
   const failures: string[] = [];

@@ -9,111 +9,101 @@ import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource";
 
 /**
- * Principal layers and explicit source owners of one lofted chain.
- *
- * View lofts, fitted sections and continuation operators publish this record
- * for AutoMovieEngineLoftChain and AutoMovieEngineLoftJet. A published chain and its nested
- * arrays/source records must remain unchanged while readers retain it: point
- * and jet caches key preparations by chain identity and physical station.
- * Copies with equal numeric data retain source bindings; changing values
- * requires the owning operator to re-express or remove those bindings. The
- * interface does not freeze or validate storage; construction operators own
- * admission, and readers reject stale explicit owners when reached.
+ * Principal sections, chart conventions and explicit generating sources for a
+ * lofted surface chain. Keep the chain and nested source data stable while
+ * point and jet readers retain them. After changing a bound layer, re-express
+ * or release the binding through its owning operation. Construction admits the
+ * principal station order; a retained original cap can extend the readable
+ * domain.
  */
 export interface IAutoMovieLoftChain {
-  /** Stable chain name used for part ids and diagnostics. */
+  /**
+   * Stable identifier used when reporting the loft chain and naming its
+   * generated parts.
+   */
   name: string;
 
   /**
-   * Section basis. `spline`: uniform periodic cubic B-spline, see
-   * {@link AutoMovieEngineSplineCurve}; absent: truncated Fourier series, see
-   * {@link AutoMovieEngineHarmonicCurve}.
+   * Section coefficient basis. Explicit spline selects the uniform periodic
+   * cubic B-spline. Omit it for the truncated Fourier basis.
    */
   basis?: "spline";
 
   /**
-   * Size of every section's basis: the highest harmonic K, or the number of
-   * control points N of a spline chain.
+   * Highest retained harmonic for the Fourier basis, or number of controls per
+   * local coordinate for the spline basis.
    */
   order: number;
 
-  /** Phase correspondence rule; see {@link AutoMovieEngineLoftParameter}. */
+  /**
+   * Polygon correspondence used to assign phases to section and inherited ring
+   * vertices.
+   */
   rule: IAutoMovieLoftParameter.Rule;
 
   /**
-   * Whether the chain bounds a hole, such as the pocket under an ear's helix.
-   *
-   * A hole's sections run clockwise (front toward -Z), so its own rings face
-   * into the hole, which is outward from the body there. Phases of a hole's
-   * sections, in the fitter and for vertices it inherits, are taken from the
-   * outline mirrored as (x, z) -> (x, -z), which makes them increase along the
-   * clockwise ring order the zipper expects. Absent means an ordinary tube.
+   * Mark a hole boundary whose rings progress clockwise. Its correspondence
+   * uses the outline with local v negated. Omit the flag for the ordinary tube
+   * convention.
    */
   mirrored?: boolean;
 
   /**
-   * Explicit outward sign of `S_station x S_phase`, when the producer knows the
-   * oriented boundary it continues (a join's blend). Absent, a tube's radial
-   * direction and mirrored flag decide it. This sign takes precedence over
-   * mirrored. Reversing one chart coordinate or reflecting world space reverses
-   * it; orientation-preserving rigid motion and translation keep it. The
-   * producer still owns regularity of the connected surface: a sign is not a
-   * certificate that its chart has no degenerate or folded point.
+   * Explicit outward sign of the station-by-phase cross product, taking
+   * precedence over mirrored. Choose the sign for the oriented boundary being
+   * continued. Coordinate reversal or world reflection reverses the sign; rigid
+   * orientation-preserving motion retains it.
    */
   orientation?: 1 | -1;
 
   /**
-   * Number of vertices in the chain's own rings, a positive integer chosen by
-   * the producer. Without phases the vertices use uniform correspondence
-   * angles; with phases this is the required list length. It is separate from
-   * the section basis order and does not itself certify a geometric spacing
-   * tolerance.
+   * Positive integer ring vertex count. It fixes the length of an explicit
+   * phases list or the number of uniform phases. The section basis order is
+   * independent.
    */
   samples: number;
 
   /**
-   * The phases of the chain's own rings, radians, strictly increasing within
-   * one turn from the first, `samples` of them, when they are not uniform: a
-   * section that turns fast over a few phases, as a sole's edge does, takes its
-   * rings' vertices closer there. Absent, the `samples` uniform phases `2 pi k
-   * / samples`.
+   * Optional ring vertex phases in radians, in strictly increasing order within
+   * one turn from the first phase. Supply exactly samples entries. Omission
+   * uses 2πk/samples for k from zero through samples minus one.
    */
   phases?: number[];
 
   /**
-   * At least two principal layers in strictly increasing physical station, mm.
-   * This is world height only for horizontal unframed sections; construction
-   * owns minimum-gap admission.
+   * At least two principal layers in increasing physical station millimetres.
+   * The layer station also gives world height for an unframed horizontal
+   * section.
    */
   layers: IAutoMovieLoftChain.ILayer[];
 
   /**
-   * Original plain scalar field and independent compatibility-row bindings.
-   * Present data owns points/phase/jets; stale or broken data throws. Absence
-   * retains the legacy basis. Finite values do not imply physical source2
-   * availability.
+   * Original prepared scalar data with independent compatibility bindings. When
+   * present it owns native point and derivative reads on its valid intervals;
+   * the reader rejects stale bindings. Omission leaves the legacy basis
+   * available.
    */
   nativeSource?: IAutoMovieLoftSectionSource.ISource;
 
   /**
-   * Complete generating laws on spans changed by continuation; other spans keep
-   * their original source. Immutable copies preserve these laws and coefficient
-   * rewrites must re-express their bindings.
+   * Explicit generating laws on station intervals changed by continuation.
+   * Intervals outside these spans keep their original ownership. Rebind a span
+   * when its contributing layer data change.
    */
   sectionSpans?: IAutoMovieLoftSectionConnect.ISpan[];
 
   /**
-   * Features written as heights over this chain's surface (the nose and lips
-   * over the face, the breasts over the thorax); see
-   * {@link IAutoMovieLoftRelief}. Absent means none.
+   * Height fields composed over the base chain in their respective station and
+   * phase windows. Omit the list for a bare surface.
    */
   reliefs?: IAutoMovieLoftRelief[];
 
   /**
-   * Pole of a cap: the point every section shrinks to at the chain's end
-   * station on the cap's side (the angle 0 from the pole axis), where the skin
-   * closes by a fan from the ring next to it. Absent for a chain without a
-   * cap.
+   * Closed end and its collapsed [x, y, z] world-millimetre point. The optional
+   * retained source supplies an original cap beyond the nearest principal
+   * layer. Omit the field for an open primary end. The source retains a
+   * callable axis and must be rebuilt from authored data after JSON
+   * serialization.
    */
   pole?: {
     /** The chain's end the pole closes. */
@@ -134,10 +124,9 @@ export interface IAutoMovieLoftChain {
   };
 
   /**
-   * The pole of the other end of a chain closed at both (a foot from heel to
-   * forefoot cap), as `pole`; the solid tessellation
-   * (`AutoMovieHumanBodySurfaceSolids`) closes both ends, the ring loft only
-   * `pole`'s. Absent for a chain open at its other end.
+   * Second closed end of a chain with two caps, with the same world pole and
+   * optional retained-source layout as pole. Omit it when the other end is
+   * open.
    */
   opposite?: {
     /** The chain's end the pole closes, the other than `pole`'s. */
@@ -163,155 +152,139 @@ export interface IAutoMovieLoftChain {
  */
 export namespace IAutoMovieLoftChain {
   /**
-   * A principal section value and its explicit station/source interpolation
-   * data.
+   * One principal section at a physical station, with coefficients, frame and
+   * optional derivatives or retained source records. Coefficients and slopes
+   * use the selected chain basis in the same order. Changing a value covered by
+   * a retained source requires updating its binding.
    */
   export interface ILayer {
     /**
-     * Station of the layer along the chain in mm, strictly increasing over the
-     * chain's layers. For a layer without a frame it is the world height of its
-     * horizontal section.
+     * Layer station in physical millimetres along the chain. For an unframed
+     * horizontal section this is its world height.
      */
     y: number;
 
-    /** Section plane of the layer; absent means horizontal at height `y`. */
+    /**
+     * Section origin and world directions for this layer. Omission uses a
+     * horizontal frame at height y.
+     */
     frame?: IAutoMovieLoftSectionFrame;
 
     /**
-     * Actual immutable axis and independent value/station-jet snapshot.
-     * Equal-value copies preserve it; a changed datum must explicitly remove or
-     * re-express it. Callable source records cannot be restored by JSON;
-     * rebuild them from the authored tree. Null station jets preserve finite
-     * source values but do not qualify that boundary for a regular solid
-     * 2-jet.
+     * Actual view axis and independent frame snapshot bound to this layer.
+     * Retain the callable source and unchanged snapshot for analytic reads. A
+     * null station jet allows a frame value without second-order station
+     * derivatives. Rebuild the callback from authored axis data after JSON
+     * serialization.
      */
     frameSource?: IAutoMovieLoftFrameSource.ISource;
 
     /**
-     * Direct coefficient derivatives in a common closing root/angle coordinate,
-     * with finite virtual zero-pole data. The existing coefficients remain the
-     * values; absent/different maps select the ordinary station-Hermite
-     * boundary. This is a new principal-coefficient interpolant, not a
-     * guarantee of original scalar/fullness fidelity between layers.
+     * Coefficient slopes and curvatures in a shared closing root or angle
+     * coordinate, with virtual closed endpoints. Missing or differing maps
+     * leave the interval on ordinary physical-station Hermite interpolation.
      */
     coefficientSource?: IAutoMovieLoftCoefficientSource.ISource;
 
     /**
-     * Complete actual endpoint family, oriented into this station/phase chart
-     * and independently bound to these numeric rows. Its physical source2 is a
-     * C2 construction premise, separate from ordinary finite Point0.
+     * Actual native or basis endpoint family expressed in this layer's station
+     * and phase chart and bound to its independent coefficient snapshot.
      */
     sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
 
     /**
-     * Section coefficients in mm, in the layout of the chain's basis
-     * ({@link AutoMovieEngineHarmonicCurve} or {@link AutoMovieEngineSplineCurve}).
+     * Local section coefficients in millimetres in the order required by the
+     * chain's basis.
      */
     coefficients: number[];
 
     /**
-     * First physical-station derivative of every coefficient, mm/mm, in the
-     * same basis layout and shared by both adjacent intervals. These are not
-     * slopes per normalized interval or pole coordinate.
+     * First physical-station derivative of each coefficient, in millimetres per
+     * millimetre and in coefficient order.
      */
     slopes: number[];
 
     /**
-     * Out-of-plane displacement of a spline section along the frame normal `v x
-     * u` (up for a horizontal layer), one value per control point in mm,
-     * interpolated over phase by the same B-spline and over station by the same
-     * Hermite rule as the coefficients.
-     *
-     * A fitted specimen's sections lie in their planes, so its layers omit it;
-     * a shape law that moves an anatomical point across its station (see
-     * `AutoMovieHumanBodyLaw`) writes it. Absent means zero.
+     * Spline control heights in millimetres along v × u, the frame normal. Use
+     * one height per spline control. Phase and station interpolate the heights;
+     * omission means zero lift.
      */
     lift?: number[];
 
     /**
-     * Station derivative of every `lift` value in mm per mm; present exactly
-     * when `lift` is.
+     * First physical-station derivative of each lift control, in millimetres
+     * per millimetre. Supply this row with lift.
      */
     liftSlopes?: number[];
 
     /**
-     * Second physical-station derivative of every `lift` value, 1/mm. When both
-     * layers of an interval carry it, the lift takes the quintic rule as the
-     * coefficients do with `curvatures`; absent, the cubic Hermite of values
-     * and slopes.
+     * Second physical-station derivatives of lift controls in inverse
+     * millimetres. Values at both interval endpoints select quintic lift
+     * interpolation; otherwise lift interpolates its values and slopes
+     * cubically.
      */
     liftCurvatures?: number[];
 
     /**
-     * Second physical-station derivative of every coefficient, 1/mm. Without
-     * common explicit coefficientSource data, when both layers of an interval
-     * carry it, the interval is the quintic Hermite of their values, slopes and
-     * these (`AutoMovieEngineStationHermite`); absent, the cubic Hermite of values
-     * and slopes.
+     * Second physical-station coefficient derivatives in inverse millimetres.
+     * Without a shared explicit coefficient source, use quintic Hermite
+     * interpolation when both endpoints carry curvature and cubic values and
+     * slopes otherwise.
      */
     curvatures?: number[];
 
     /**
-     * First physical-station derivatives of the layer's plane component by
-     * component: origin in mm/mm, axes in 1/mm. These derivative triples are
-     * not positions or unit axes. Matching actual frameSource records own the
-     * intermediate frame instead. Otherwise, when both interval layers carry
-     * them, the plane is the Hermite of the two planes' components, its axes
-     * not renormalised. Shared values and slopes give C1 continuity with the
-     * cubic rule; consistent shared frameCurvatures select the quintic rule and
-     * give C2 continuity. Without frameSlopes, the rotation Hermite of
-     * `AutoMovieEngineLoftFrame.interpolate`.
+     * First physical-station derivatives of the frame components. Origin is in
+     * millimetres per millimetre and axes in inverse millimetres. A common
+     * retained axis takes precedence; otherwise slopes at both ends allow
+     * component Hermite interpolation. Component interpolation preserves the
+     * calculated axes without renormalizing them.
      */
     frameSlopes?: IAutoMovieLoftSectionFrame;
 
     /**
-     * Second physical-station derivatives of the plane: origin in 1/mm and axes
-     * in 1/mm². Together with both endpoints' frameSlopes, these select the
-     * quintic component rule when no common actual-axis source owns the
-     * interval.
+     * Second physical-station derivatives of the frame components. Origin is in
+     * inverse millimetres and axes in inverse squared millimetres. With slopes
+     * at both ends, these enable quintic component interpolation where no
+     * common axis owns the frame.
      */
     frameCurvatures?: IAutoMovieLoftSectionFrame;
 
     /**
-     * The view box and shoulders the view-to-section operator
-     * (`AutoMovieEngineViewLoft`) drew this layer from; present exactly on layers it
-     * emitted from a four-quarter section (a touch/split conic chain's layer
-     * has none). The section touches the box at the guide phases 0, `pi / 2`,
-     * `pi` and `3 pi / 2`: the point there is the outline's value on its chart
-     * axis (a knot of the section's B-spline), so an audit reads the
-     * guide-touch rule on the layers that carry it.
+     * Original box, shoulder and guide-curvature values retained by ViewLoft
+     * for a layer generated from a four-quarter section. Touch or split chains
+     * use their own preparation.
      */
     view?: IAutoMovieLoftChain.IView;
   }
 
-  /** The raw view-section inputs retained for a generated layer. */
+  /**
+   * Inputs underlying a four-quarter ViewLoft layer. The cyclic values
+   * correspond to guide phases zero, π/2, π and 3π/2 and to their following
+   * quarters.
+   */
   export interface IView {
     /**
-     * Half extents of the box from the axis along `+u`, `+v`, `-u` and `-v`,
-     * mm, positive.
+     * Positive half-extents in chart millimetres along +u, +v, −u and −v in
+     * that order.
      */
     extents: [number, number, number, number];
 
     /**
-     * Each quarter's conic shoulder, quarter `q` from guide `q` to guide `q +
-     * 1`; `sqrt(2) - 1` the ellipse.
+     * Dimensionless conic shoulder values in quarter order, each from its guide
+     * to the next. A share of √2 − 1 gives the ellipse convention.
      */
     shoulders: [number, number, number, number];
 
-    /** The shared curvature of the section at each guide, 1 per mm. */
+    /** Section curvature at each guide in cyclic order, in inverse millimetres. */
     curvatures: [number, number, number, number];
   }
 
   /**
-   * World point and phase tangent reader prepared at one physical-mm station.
-   *
-   * T is the chain's correspondence phase in radians, not time or a normalized
-   * turn. LoftChain delegates to LoftPoint; the returned closure retains
-   * immutable chain/source data and one station's frame/lift preparation until
-   * released. Each call returns fresh mutable vectors, includes relief
-   * contributions and propagates native source or callback errors; nonfinite
-   * requested outputs throw. No station derivative is required, including at a
-   * phase-constant admitted pole.
+   * Read world position and phase tangent repeatedly at one prepared physical
+   * station. The input is the chain correspondence phase in radians. The
+   * returned vectors are fresh and include frame, applicable lift and relief.
+   * The capability retains its station preparation while it is in use.
    */
   export type IPhaseSamplerResult = (t: number) => IAutoMovieLoftPhaseReading;
 }

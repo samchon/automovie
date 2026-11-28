@@ -12,10 +12,14 @@ import { nclose, throwsError } from "../../internal/predicates";
  * Scenarios:
  *
  * 1. No target gives a copy of the centre.
- * 2. A landmark name gives a copy of that landmark.
+ * 2. A landmark name gives its world coordinates.
  * 3. Bearing 0 at share 0.5 moves 2 along +Z: (10, 0, 22); bearing pi / 2 at share
  *    1 moves 4 along +X: (14, 0, 20).
  * 4. An unknown zone, an unknown landmark and a share of 2 are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies centre, landmark and bearing targets and unknown names and share refusal, including the centre copy check.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls CompositionZone.resolve with a single authored zone and its landmark, then checks the coordinates, centre identity and malformed lookups.
+ * @evidence contracts/development/testing.md#independent-expectations Midradius along +Z adds 2 m to z = 20, and full radius along +X adds 4 m to x = 10. These axis-aligned cases distinguish the bearing convention, and the literal landmark pin fixes its world coordinates.
  */
 export function test_engine_composition_resolve_zone(): void {
   const zones: IAutoMovieZone[] = [

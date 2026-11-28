@@ -24,41 +24,17 @@ import { AutoMovieHumanPreparedKinematics as Kinematics } from "./AutoMovieHuman
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
 /**
- * Lightweight posable skeleton of the generated Human, the stickman mode, and
- * its forward kinematics under `params.pose`.
- *
- * Joint centres come from {@link AutoMovieHumanJointCentres}, scaled with the
- * body exactly as `AutoMovieHuman.generate` scales the skin (resolved stature
- * over calibration stature, millimetres to metres), so the rest skeleton
- * overlays the neutral skin. Bones use the engine's humanoid names where the
- * vocabulary has one; the scapula, atlas, subtalar, midfoot and per-toe bones
- * are the Human's own, because the shared humanoid vocabulary lacks them.
- *
- * Three postures stay apart. The bind is the achieved posture the skin was
- * generated in, and `bones` hold it. Neutral is the standing body clinical
- * angles are measured from, and {@link AutoMovieHumanNeutral} reaches it from
- * the bind. A pose is a further turn of neutral: every field at zero, or
- * omitted, gives the neutral body, so `{}` is neutral and not the bind. Each
- * placement's rotation runs from the bind, because that is what a skin reads.
- *
- * Every bone declares three orthonormal clinical axes in the registered frame
- * (forward +X, up +Y, left +Z) from its neutral direction d: flexion turns d
- * toward the joint's flexion direction, abduction toward the side away from the
- * midline (the figure's right for midline bones), twist runs along d. The foot
- * bones evert about their long axis; the eyes and the scapula use fixed body
- * axes. Each pose field maps onto one bone axis through
- * the canonical channel table, clamped to its range of motion.
- *
- * The skin's binding and the engine's pose come from these placements through
- * {@link AutoMovieHumanRig}.
+ * Lightweight Human forward kinematics in a +X forward, +Y up and +Z
+ * anatomical-left frame. The bind supplies the rest bones a skin follows.
+ * Clinical values start at anatomical neutral, and exported placement
+ * rotations are relative to the bind.
  */
 export namespace AutoMovieHumanSkeleton {
   /**
-   * Derive the skeleton and pose it by `params.pose`.
-   *
-   * @param params Public input; resolved anatomy and `pose` are read.
-   * @param clamp Clamp each field into its range of motion; false applies requests as given, for comparison.
-   * @returns Rest bones, posed placements and the clamped fields.
+   * Derive one lightweight Human skeleton and apply its supplied pose. Omitted
+   * pose fields use anatomical neutral. Bounds are applied by default. Pass
+   * false to evaluate the requested scalars directly. Returns bind bones,
+   * posed placements and the changed clamp requests.
    */
   export function generate(
     params: IAutoMovieHumanParameters,
@@ -68,20 +44,11 @@ export namespace AutoMovieHumanSkeleton {
   }
 
   /**
-   * Prepare one fixed body's joints, clinical axes and mm-to-metre scales once.
-   * The returned evaluator reuses the existing channel/clamp/FK code and owns
-   * joint arrays/maps, compiled canonical readers and one private local/world
-   * placement cache, optional exterior neck data and scales. Its optional project
-   * capability compiles requested bones and their ancestors for numerical trials,
-   * retaining all channel clamps while omitting rest/exterior snapshot copies. Each evaluation
-   * reads all current scalar values; identical applied local controls and parent
-   * placement reuse exact branch arithmetic. Public tuples/arrays are copied,
-   * so caller mutation and later evaluations cannot change earlier snapshots.
-   * The calibration and input are not retained. Recreate when the body changes.
-   * Exterior admission runs only when requested; ordinary skeleton generation does not depend on it. Foot courses are deeply frozen once and shared, rather than copied during every numerical FK evaluation.
-   * @param params Fixed body input; each evaluation supplies its own public pose.
-   * @param options Explicit exterior-display admission; omitted by one-shot generation.
-   * @returns Reusable clinical evaluator with independent output arrays and optional neck snapshots.
+   * Prepare a reusable pose evaluator for one fixed Human body. Uses the
+   * supplied calibration or calibrates that body and returns metre placements.
+   * Optional foot or neck surfaces are prepared only when requested. Full
+   * snapshots copy mutable placements. Projected evaluation returns selected
+   * bones and clamp records.
    */
   export function prepare(
     params: IAutoMovieHumanParameters,

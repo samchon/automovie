@@ -1,8 +1,9 @@
 import type { IAutoMovieBernsteinCurvePiece64 } from "./IAutoMovieBernsteinCurvePiece64";
 
 /**
- * Piecewise Bernstein positions in millimetres, preserving each piece degree
- * and the enclosing positive-width phase partition.
+ * Piecewise Bernstein geometry in millimetres with one declared phase chart.
+ * Each piece retains its own degree and coefficient representation. The
+ * enclosing chart assigns one positive width to each piece.
  */
 export interface IAutoMovieBernsteinCurve64 {
   /**
@@ -11,15 +12,12 @@ export interface IAutoMovieBernsteinCurve64 {
    */
   type: "bernstein";
 
-  /**
-   * Stable semantic course identifier carried into actual inspection and source
-   * attribution.
-   */
+  /** Nonblank course identity used in source attribution and inspection. */
   name: string;
 
   /**
-   * Declared closure topology; this flag alone is not a periodicity, regularity
-   * or nonintersection proof.
+   * Authored closure flag. Establish continuity, periodicity and regularity
+   * when the consuming operation requires them.
    */
   closed: boolean;
 
@@ -36,8 +34,8 @@ export interface IAutoMovieBernsteinCurve64 {
   phaseUnit: "turn" | "mm" | "normalized";
 
   /**
-   * Ordered positive widths of every actual piece; cumulative values retain the
-   * parameter chart for derivatives and joins.
+   * One positive finite width per piece, in order. Cumulative values must
+   * increase in binary64 and set the phase locations of joins.
    */
   phaseIntervals: readonly number[];
 

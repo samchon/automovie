@@ -21,6 +21,10 @@ const BLEND_ROUNDING: number = 16 * Number.EPSILON;
  *    end holds all.
  * 2. Halfway out the elbow is halfway to the hint; all the way back it is at the
  *    guard; halfway back from halfway out it is at (0.25, 0.5, 0).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes clamped held-arm progress and ordered elbow interpolation from launch through return.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes multiple independent out and return shares to both animated arm helpers.
+ * @evidence contracts/development/testing.md#independent-expectations A difference of 0.7 − 0.2 gives 0.5. Reverse travel clamps at zero, forward excess at one, and nested halfway interpolations yield (0.25, 0.5, 0).
  */
 export function test_motions_striking_punch_compose(): void {
   TestValidator.predicate(

@@ -12,11 +12,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 2. For three seeds, a ball's and a shot's lowest point is at the origin, and a bolt's or an arrow's `nock` and `tip` are its two ends.
  * 3. The 12-pdr.'s shot is 4.52 in across and weighs 12.3 lb, and the 6-pdr.'s 3.58 in and 6.1 lb.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each projectile for 200 seeds and measures its collider, pinch width and mass; a calibre other than the citation's, a seed that does not vary it, a pinch that is not the ball's width, or a ball off the floor is caught.
- * @evidence contracts/development/testing.md#independent-expectations The excavated balls' .66 to .72 in and the service count of fourteen to the pound; the Mary Rose and Westminster Abbey arrows in Aston and Spencer's study; the two museum bolts; Roberts' shot table, each calibre with its own weight; NMM 11461's ash shaft and steel pyramid head; the M67's Army data sheet.
- * @evidence contracts/development/testing.md#distinguishing-cases Each kind built; the kinds that wait for sources have no rows.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies scenic prop variant extents, masses, grip aperture and rest contact with the floor.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each public prop across seeded variants and measures colliders and contact records. Correlated size and mass must follow each whole record.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal museum and historical reference measurements. A round model's pinch aperture is its measured width, and its lowest collider point lies on the floor.
  */
 export function test_archetype_weapon_projectile_bands(): void {
   const row: (

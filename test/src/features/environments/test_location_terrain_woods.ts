@@ -59,9 +59,7 @@ const PATH: IAutoMovieTerrainRecipe.IPath = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds environments through the public `createTerrain` and `createEnvironment` entry and reads the emitted instance set, its prototype models and the engine's own slot regeneration, which catches trunks closer than the spacing, a path that refuses the wood or leaves a trunk on it, a single-species set, a silent count overflow, an unseeded or nondeterministic layout and trees off the ground.
  * @evidence contracts/development/testing.md#independent-expectations The 4 m spacing, the corridor's 1 m half width and the trunk radius read from the prototype's own trunk cylinder come from the recipe and the drawn model; heights come from the terrain rule through the engine's `surfaceHeightAt`, not from the woods module.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs the wood with and without its path, one and two species, a count above and below the accepted number, two seeds, and three malformed recipes; `test_location_terrain` and `test_environment_production` keep the tree disks' own cases.
- * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory recipes; it starts no renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks seeded tree instances, trunk spacing, corridor clearance and regenerated tree heights. Exercises one or two species, an optional path, admissible and excessive counts, and malformed stand recipes.
  */
 export function test_location_terrain_woods(): void {
   const build: (

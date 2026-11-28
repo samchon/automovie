@@ -56,10 +56,9 @@ import {
  *   dt · √(g · referenceDepth) · √(1/dx² + 1/dz²) ≤ 1
  * ```
  *
- * `fluidCourantNumber` evaluates this expression directly. The validator's
- * greater-than comparison misses derived NaN, and sources can raise depths
- * beyond referenceDepth without another check, so passing admission does not
- * prove stability throughout replay.
+ * `fluidCourantNumber` scales extreme operands before evaluating the bound.
+ * Admission checks the authored design depth. Sources can raise the simulated
+ * depth beyond that value during replay.
  *
  * ## Determinism
  *

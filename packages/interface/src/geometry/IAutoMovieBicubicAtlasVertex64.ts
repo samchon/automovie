@@ -25,11 +25,10 @@ export namespace IAutoMovieBicubicAtlasVertex64 {
    * position/normal tuples; callers must preserve plans throughout use. Errors
    * propagate to patch emission, which records local unprocessed work.
    */
-  export type IJet = (
-    p: number,
-    u: number,
-    v: number,
-  ) => {
+  export type IJet = (p: number, u: number, v: number) => IJetSample;
+
+  /** Analytic position and normal returned by the prepared patch query. */
+  export type IJetSample = {
     /**
      * Analytic root-grid position in model millimetres, before the vertex owner
      * converts to metres or substitutes a canonical shared position.

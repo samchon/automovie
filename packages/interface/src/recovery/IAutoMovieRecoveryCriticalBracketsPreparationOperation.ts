@@ -3,10 +3,15 @@ import type {
   IAutoMovieRecoveryMeshSections,
 } from "..";
 
-/** Prepare critical physical brackets and retain explicit unresolvable gaps. */
+/** Callable preparation of physical observation brackets for original PL events. */
 
 export namespace IAutoMovieRecoveryCriticalBracketsPreparationOperation {
-  /** Prepare critical physical brackets and retain explicit unresolvable gaps. */
+  /**
+   * Bracket each observed event within its neighboring signed source levels and
+   * nominal station step. Amend the supplied station set and accumulate
+   * diagnostics and topology gaps. Return all measured brackets and the
+   * unsupported original vertices.
+   */
 
   export type Operation = (
     criticals: ReturnType<IAutoMovieMeshCriticalPoints.Operation>,
@@ -17,23 +22,23 @@ export namespace IAutoMovieRecoveryCriticalBracketsPreparationOperation {
     topologyGaps: IAutoMovieRecoveryMeshSections["topologyGaps"],
   ) => {
     /**
-     * Original critical vertex ordinals for which no admitted physical bracket
-     * was found.
+     * Original source vertices with unresolved precision or unsupported
+     * critical links.
      */
     unsupportedVertices: Set<number>;
 
-    /** Critical events with admitted lower and upper physical scalar stations. */
+    /**
+     * Physically measured before and after brackets for events with an admitted
+     * offset.
+     */
     bracketed: {
-      /**
-       * Observed source critical vertex with its original scalar and link
-       * classifications.
-       */
+      /** Original observed critical vertex and its link witnesses. */
       event: ReturnType<IAutoMovieMeshCriticalPoints.Operation>[number];
 
-      /** Lower admitted bracketing scalar coordinate, in millimetres. */
+      /** Lower signed bracket coordinate in millimetres. */
       before: number;
 
-      /** Upper admitted bracketing scalar coordinate, in millimetres. */
+      /** Upper signed bracket coordinate in millimetres. */
       after: number;
     }[];
   };

@@ -102,11 +102,9 @@ const reform: (
  *    designed in the target layout.
  * 6. A second layout cue starts from the previous completed arrangement, holds it in the gap and carries its new arrangement through a later layout-free cue.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Samples real formation cues and places actual slots through formationSlotPosition; asserts endpoint/retention, interpolation, heading consistency and target dressing, then rejects sequential cues that restart at the original design.
- * @evidence contracts/development/testing.md#independent-expectations Sequential slot 6 has line coordinates (1,3), column coordinates (0,6), and the final line at doubled lateral/one-metre depth has (2,1); the second midpoint must be (1,3.5). Existing endpoint consistency calls cover blending/dressing only and do not independently validate every layout formula or distinguish equivalent fixed-yaw world/local interpolation.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers before/start/midpoint/end/after, every final slot, turned-unit consistency, dressed target, gap before second cue, second-cue start/midpoint/end and later layout-free retention. Ground-admission consequences belong to production reform-ground tests.
- * @evidence contracts/development/testing.md#execution-ownership The exported portable test_engine_space_formation_reform owns synchronous numerical layout sampling/placement cases, with no Human assets, renderer, browser or dynamic case registration; visual crowd-motion quality is not asserted.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Before the cue starts, the selected member stands where the design put it: a).
+ * @evidence contracts/development/common.md#meaningful-documentation Names the source layout, target layout, cue interval, fixed-heading consistency, target dressing, and the retention of completed layouts through later cues.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples typed layout cues with `sampleFormationMotion` and applies their reform to `formationSlotPosition`. It verifies every slot at the first endpoint, compares the dressed endpoint with a design in the same layout, and reads a second reform before, within, and after its window.
+ * @evidence contracts/development/testing.md#independent-expectations Slot 6 occupies (1, 3) in the first line, (0, 6) in the column, and (2, 1) in the final line. The second midpoint must be (1, 3.5) within 1e-12 m. Direct layout calls supply comparison points for the first blend and its dressing, and a quarter turn of the unturned midpoint checks heading consistency.
  */
 export function test_engine_space_formation_reform(): void {
   const cues: IAutoMovieFormationMotion[] = [reform(column)];

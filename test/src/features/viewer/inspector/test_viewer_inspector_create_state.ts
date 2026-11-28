@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. "at=1&parts=a" opens on that request with no error.
  * 2. "colour=1" opens on the empty request with an error.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the valid opening address and the default state after refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the state constructor with literal address text and checks the returned request and error.
+ * @evidence contracts/development/testing.md#independent-expectations The address requests second one and path a. The ordinary address reader provides the comparison request, while a separately invalid colour key independently requires a refusal and the empty request.
  */
 export function test_viewer_inspector_create_state(): void {
   TestValidator.equals(

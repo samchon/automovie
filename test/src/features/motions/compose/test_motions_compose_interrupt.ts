@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Each window opens where it names.
  * 2. Each blend is its seconds, the row inertialized at entry 0.
  * 3. A table of a walk from the stroke, smoothly, and anything deliberately.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names each named interruption window and blend, inertialized entry and mapping by next action.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads all emitted rows through HumanInterrupt.row and builds a two-entry table through HumanInterrupt.table.
+ * @evidence contracts/development/testing.md#independent-expectations The four literal window starts and blend times of 0.08, 0.1, 0.15 and 0.3 s supply the expected records. Each row begins its next action at zero under inertialization.
  */
 export function test_motions_compose_interrupt(): void {
   // 1. Windows.

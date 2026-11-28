@@ -1,20 +1,32 @@
 /**
- * Counts of observations and emitted coefficient populations in a section
- * publication.
+ * Measurements from automatic section extraction and its fitted curve
+ * collection.
  */
 export interface IAutoMovieRecoverySectionSummary {
-  /** Number of physical observations supplied to curve fitting. */
+  /**
+   * Number of physical points supplied to successful contour fits across
+   * retained sections.
+   */
   observations: number;
 
-  /** Total emitted cubic span count. */
+  /**
+   * Number of cubic spans emitted by retained contour fits, including open
+   * fits.
+   */
   spans: number;
 
-  /** Number of retained physical sections. */
+  /** Number of cached and retained automatic section stations. */
   sections: number;
 
-  /** Number of declared reconstruction events. */
+  /**
+   * Number of bracketed reconstruction event candidates before partitioning
+   * into declared and unconsumed events.
+   */
   events: number;
 
-  /** Number of exact source-position aliases retained by extraction. */
+  /**
+   * Number of redundant exact-coordinate vertices accounted for by the selected
+   * alias policy.
+   */
   aliases: number;
 }

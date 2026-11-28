@@ -17,9 +17,7 @@ import { hasViolation } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the real environment validator and requires located range violations for overflowing norms, catching the former silent usable-direction skip.
  * @evidence contracts/development/testing.md#independent-expectations Two Number.MAX_VALUE components have an unrepresentable Euclidean norm; vertical finite rescaling preserves the sign of solar elevation. Expected paths follow the public validator contract.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers all three direction owners, nonzero positive beam, representable large positive and negative sun, and a valid rescaled ground normal. Existing context tests own component NaN and zero-length admission.
- * @evidence contracts/development/testing.md#execution-ownership The portable entry constructs local site records and invokes the validator without external weather, a renderer or a host.
- * @evidence contracts/development/common.md#meaningful-documentation Names each overflow path and the accepted/rejected finite twins.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks overflow at site north, ground up and instant sun paths. Compares large representable directions above and below the horizon while the beam remains positive.
  */
 export function test_analysis_environment_norm_overflow(): void {
   for (const field of ["north", "ground", "sun"] as const) {

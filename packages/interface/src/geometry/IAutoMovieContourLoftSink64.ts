@@ -1,15 +1,14 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * Synchronous destination for one source-free contour kernel invocation.
- * Callback exceptions propagate unchanged and never become a numerical partial.
- * The sink owns capacity admission, storage and any file lifecycle it
- * acquires.
+ * Synchronous destination for generated contour positions, faces and
+ * construction. The sink owns storage, capacity and any acquired files. A
+ * callback exception aborts generation and propagates unchanged.
  */
 export interface IAutoMovieContourLoftSink64 {
   /**
-   * Consume one original indexed position in millimetres before any face uses
-   * it.
+   * Consume one position in millimetres at its assigned output index before any
+   * face references it. Copy the tuple to retain independent storage.
    */
   vertex: (index: number, pointMm: Readonly<AutoMovieVector3Tuple>) => void;
 
@@ -20,8 +19,9 @@ export interface IAutoMovieContourLoftSink64 {
   triangle: (a: number, b: number, c: number) => void;
 
   /**
-   * Consume one actual closed generating ring. Positions and phase lookup are
-   * borrowed synchronously; position inputs remain in millimetres.
+   * Consume one generating ring in millimetres after face delivery. The phase
+   * reader uses the supplied point objects. Borrow the ring and reader only
+   * during the callback.
    */
   construction: (
     id: string,

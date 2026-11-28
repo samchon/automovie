@@ -1,12 +1,10 @@
+import { AutoMovieEngineSolidVector } from "@automovie/engine";
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/*
- * Scales a vector by a scalar without changing its frame.
- */
-export const mul: (
+/* Scale a physical tuple in its own Cartesian frame. */
+export function mul(
   a: AutoMovieVector3Tuple,
   scale: number,
-) => AutoMovieVector3Tuple = (
-  a: AutoMovieVector3Tuple,
-  scale: number,
-): AutoMovieVector3Tuple => [a[0] * scale, a[1] * scale, a[2] * scale];
+): AutoMovieVector3Tuple {
+  return AutoMovieEngineSolidVector.scale(a, scale);
+}

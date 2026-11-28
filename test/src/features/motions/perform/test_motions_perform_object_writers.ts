@@ -42,6 +42,10 @@ const TRAVEL: number = 1e-12;
  * 5. `admit` passes these drives; it refuses a mirror drive from 1 s overlapping
  *    a hinge drive to 1.2469 s, offering from 1.247 s, the first's end rounded
  *    up to the millisecond, and a drive to 200 degrees, past the hinge's 100.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names clipped drives, the prop track and its leader, prepared writer identity, travel and posed-point reads, and the two admission refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls writer collection, state, point, pose and admission on a typed door fixture with actor drives and a prop track. It reads explicit windows and travel, checks prepared-array identity, tests through the reader, and observes `AutoMovieMotionHumanRefusal` fields for overlapping and out-of-range drives.
+ * @evidence contracts/development/testing.md#independent-expectations The first normalized drive gives 1 + 2·[0.25, 0.75] = [1.5, 2.5] s. The later drive clips to 4.2–4.6 s. The mirror track advances -0.2 degrees by 5.2 s and holds -0.5. An overlap ending at 2·0.62345 s moves the next feasible start up to 1.247 s.
  */
 export async function test_motions_perform_object_writers(): Promise<void> {
   const { self, door, box } = await drivenDoorState([

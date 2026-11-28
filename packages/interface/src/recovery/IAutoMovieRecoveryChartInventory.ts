@@ -1,28 +1,23 @@
 /**
- * Unfitted chart population reported by inventory-only atlas observation.
- * Chart/component identities and vertex, triangle and boundary-observation
- * counts describe the candidate population; feature distinguishes
- * crease-derived candidates. Counts require producer validation.
+ * Unfitted source chart inventory with observed component and population
+ * counts.
  */
 export type IAutoMovieRecoveryChartInventory = {
-  /** Stable identity of the observed or prepared chart. */
+  /** Candidate chart ID in the source observation inventory. */
   chart: string;
 
-  /** One observed source-cell component with independent topology qualification. */
+  /** Parent chart name derived from source interval and component identity. */
   component: string;
 
-  /** Actual vertex population of this generated run or observed component. */
+  /** Source vertex count for the candidate chart. */
   vertices: number;
 
-  /** Actual triangle population of this generated run or observed component. */
+  /** Source triangle count for the candidate chart. */
   triangles: number;
 
-  /** Number of source-boundary point observations assigned to the chart. */
+  /** Sum of ordered side observation counts, including repeated corners. */
   boundaryObservations: number;
 
-  /**
-   * Whether this inventory entry represents a chart split along an admitted
-   * source crease.
-   */
+  /** Whether an admitted crease supplied this chart candidate. */
   feature: boolean;
 };

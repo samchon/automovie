@@ -25,6 +25,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  * 3. Consecutive traced points stand at equal chords round the loop, each within 1
  *    percent of their mean.
  * 4. Both rails stand 6 mm from the curve (within 1e-6 of the beam's radius).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies common-surface seam placement, arclength spacing, declared rail chords and a wider-beam control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the intersecting post and beam with the arc parameter and reads their traced seam and both rails.
+ * @evidence contracts/development/testing.md#independent-expectations The analytic cylinder equations independently place the seam on both surfaces. Its successive chords approximate uniform arclength within the stated relative bound. Each authored rail is 6 mm from the curve.
  */
 export function test_engine_geometry_construction_join_arc(): void {
   const R: number = 0.03;

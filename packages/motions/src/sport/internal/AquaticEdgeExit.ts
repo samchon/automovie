@@ -1,4 +1,8 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -11,7 +15,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
+import { motionHumanElbowPlace } from "../../compose/internal/motionHumanElbowPlace";
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
@@ -57,24 +64,25 @@ export namespace AquaticEdgeExit {
         fix: "exit by a ladder or a lower edge, or be lifted out",
       });
 
-    // Places on the deck, behind the edge.
+    // The swimmer faces into the deck from the water. Their left hand is on
+    // the negative side of the edge's transverse axis.
     const on = (back: number, side: number): IAutoMovieVector3 =>
       AquaticEdge.at(edge, -back, side, 0);
     const palms: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-      left: on(PALM_BACK, PALM_SIDE),
-      right: on(PALM_BACK, -PALM_SIDE),
+      left: on(PALM_BACK, -PALM_SIDE),
+      right: on(PALM_BACK, PALM_SIDE),
     };
     const stand: IAutoMovieVector3 = on(STAND_BACK, 0);
-    const hipsAt: ReturnType<typeof AquaticPosture.markers> =
-      AquaticPosture.markers(body, ["hips"]);
-    const hips0: IAutoMovieVector3 = hipsAt(entry.posture).get(
+    const markers: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["hips", "leftLowerLeg", "rightLowerLeg"]);
+    const hips0: IAutoMovieVector3 = markers(entry.posture).get(
       "hips",
     )!.worldPosition;
     const press: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
       ExerciseKey.from(
         body,
-        { pitch: 35, neck: -10 },
+        { pitch: 15, neck: -10 },
         { hip: 40, knee: 30, shoulder: 20, raise: 15, elbow: 5 },
       ),
     );
@@ -82,8 +90,8 @@ export namespace AquaticEdgeExit {
       entry.posture,
       ExerciseKey.from(
         body,
-        { pitch: 40 },
-        { hip: 95, knee: 120, shoulder: 30, raise: 15, elbow: 15 },
+        { pitch: 78 },
+        { hip: 121, knee: 125, shoulder: 30, raise: 15, elbow: 15 },
       ),
     );
     const upright: IAutoMovieMotionHumanPosture = AquaticPosture.key(
@@ -100,24 +108,76 @@ export namespace AquaticEdgeExit {
       kneel,
     );
 
-    // The hips' path: at the wall below the deck, over the edge just above
-    // the deck, above the knee on the deck.
-    const pressed: IAutoMovieVector3 = AutoMovieEngineVector3.add(on(-0.05, 0), {
+    // Slide toward the edge at the entry depth before the palms bear.
+    const staged: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      hips0,
+      AutoMovieEngineVector3.scale(
+        out,
+        -Math.max(
+          0,
+          AutoMovieEngineVector3.dot(
+            AutoMovieEngineVector3.subtract(hips0, lip),
+            out,
+          ) - Math.max(body.measure.chestDepth, body.measure.footLength * 0.85),
+        ),
+      ),
+    );
+    const pressed: IAutoMovieVector3 = AutoMovieEngineVector3.add(on(-0.2, 0), {
       x: 0,
       y: 0.05,
       z: 0,
     });
-    const kneeling: IAutoMovieVector3 = AutoMovieEngineVector3.add(on(0.3, 0), {
-      x: 0,
-      y: 0.45,
-      z: 0,
-    });
+    const kneesOf = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieVector3 => {
+      const posed = markers(posture);
+      return AutoMovieEngineVector3.lerp(
+        posed.get("leftLowerLeg")!.worldPosition,
+        posed.get("rightLowerLeg")!.worldPosition,
+        0.5,
+      );
+    };
+    const shift = (
+      posture: IAutoMovieMotionHumanPosture,
+      point: IAutoMovieVector3,
+      to: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanPosture =>
+      AquaticPosture.translate(
+        posture,
+        AutoMovieEngineVector3.add(
+          posture.root,
+          AutoMovieEngineVector3.subtract(to, point),
+        ),
+      );
     const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-      hipsAt(posture).get("hips")!.worldPosition;
-    const kneelPlaced: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
-      kneel,
-      AutoMovieEngineVector3.add(kneel.root, AutoMovieEngineVector3.subtract(kneeling, hipsOf(kneel))),
+      markers(posture).get("hips")!.worldPosition;
+    const firstKnee: IAutoMovieVector3 = kneesOf(
+      shift(press, hipsOf(press), pressed),
     );
+    const restedKnee: IAutoMovieVector3 = AutoMovieEngineVector3.add(
+      on(0.16, 0),
+      {
+        x: 0,
+        y: body.measure.shankRadius,
+        z: 0,
+      },
+    );
+    // The knees clear the lip on the water side before crossing it.
+    const raisedKnee: IAutoMovieVector3 = {
+      ...firstKnee,
+      y: restedKnee.y + 0.035,
+    };
+    const kneelPlaced: IAutoMovieMotionHumanPosture = shift(
+      kneel,
+      kneesOf(kneel),
+      restedKnee,
+    );
+    const armRest = AquaticPosture.markers(body, [
+      "leftHand",
+      "rightHand",
+      "leftLowerArm",
+      "rightLowerArm",
+    ]);
     const rise: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
       kneelPlaced,
       upright,
@@ -136,7 +196,7 @@ export namespace AquaticEdgeExit {
         (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
           part: `${side}Foot`,
           kind: "plant",
-          from: 0.95,
+          from: STANCE,
           to: 1,
           support,
         }),
@@ -150,13 +210,15 @@ export namespace AquaticEdgeExit {
       palms.right,
       out,
     );
+    const feet: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["leftFoot", "rightFoot"]);
+    const nominal: ReturnType<typeof feet> = feet(upright);
     if (deck !== undefined) {
       const opening: HumanMaterialContact.IFace = deck.at(
         context.start + PLACE * DURATION,
       );
       const end: HumanMaterialContact.IFace = deck.at(context.start + DURATION);
-      const posed: ReturnType<ReturnType<typeof AquaticPosture.markers>> =
-        AquaticPosture.markers(body, ["leftFoot", "rightFoot"])(upright);
+
       for (const side of HumanHand.SIDES) {
         const goal: IAutoMovieHumanLimbGoal = (side === "left" ? left : right)(
           1,
@@ -174,7 +236,7 @@ export namespace AquaticEdgeExit {
             ),
         );
         AquaticEdge.admit(edge, opening, palm, `${side} palm`);
-        const ankle: IAutoMovieResolvedBone = posed.get(`${side}Foot`)!;
+        const ankle: IAutoMovieResolvedBone = nominal.get(`${side}Foot`)!;
         AquaticEdge.admit(
           edge,
           end,
@@ -186,11 +248,70 @@ export namespace AquaticEdgeExit {
         );
       }
     }
-    const arms = (u: number): IAutoMovieMotionHumanPosture["limbs"] => {
+
+    // The feet arrive at their standing sockets before the plant opens and
+    // retain those places as the hips finish rising.
+    const landFeet = (
+      posture: IAutoMovieMotionHumanPosture,
+      progress: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const shown = feet(posture);
+      const settled: boolean = progress >= 1;
+      const transfer: number =
+        AutoMovieEngineMotionSampling.minimumJerkShare(progress);
+      const limbs = { ...posture.limbs };
+      for (const side of HumanHand.SIDES) {
+        const name = side === "left" ? "leftFoot" : "rightFoot";
+        const from = shown.get(name)!;
+        const finish = nominal.get(name)!;
+        limbs[side === "left" ? "leftLeg" : "rightLeg"] =
+          AutoMovieMotionHumanLeg.goal(
+            body,
+            posture,
+            side,
+            settled
+              ? { ankle: finish.worldPosition, rotation: finish.worldRotation }
+              : AutoMovieMotionHumanLeg.arc(
+                  { ankle: from.worldPosition, rotation: from.worldRotation },
+                  {
+                    ankle: finish.worldPosition,
+                    rotation: finish.worldRotation,
+                  },
+                  body.measure.footLength * 0.2,
+                  transfer,
+                ),
+            settled,
+          );
+      }
+      return { ...posture, limbs };
+    };
+    const arms = (
+      u: number,
+      posture?: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture["limbs"] => {
       const reach: number = Math.min(1, u / PLACE);
+      const aim = (
+        side: AutoMovieHumanSide,
+        target: IAutoMovieHumanLimbGoal,
+      ): IAutoMovieHumanLimbGoal => {
+        // The hand can roll about its palm once the body transfers forward
+        // toward the raised knees. Keep the wider pad contact during the press.
+        const frame = u > PRESS ? { ...target, limits: undefined } : target;
+        return posture === undefined || u < PLACE || u > KNEE
+          ? frame
+          : motionHumanElbowPlace(body, posture, side, frame, () =>
+              AutoMovieEngineVector3.add(
+                out,
+                AutoMovieEngineVector3.scale(
+                  edge.across,
+                  side === "left" ? -0.8 : 0.8,
+                ),
+              ),
+            );
+      };
       return {
-        leftArm: left(reach),
-        rightArm: right(reach),
+        leftArm: aim("left", left(reach)),
+        rightArm: aim("right", right(reach)),
       };
     };
     const plan: IAutoMovieMotionHumanActionPlan = {
@@ -204,37 +325,81 @@ export namespace AquaticEdgeExit {
       ],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const u: number = Math.max(0, Math.min(1, seconds / DURATION));
-        const shaped: IAutoMovieMotionHumanPosture =
-          u < PRESS
-            ? up(Math.max(0, (u - PLACE) / (PRESS - PLACE)))
-            : u < KNEE
-              ? over((u - PRESS) / (KNEE - PRESS))
-              : rise((u - KNEE) / (1 - KNEE));
-        if (u >= KNEE)
-          return u > LET_GO
-            ? shaped
-            : { ...shaped, limbs: { ...shaped.limbs, ...arms(u) } };
-        const target: IAutoMovieVector3 =
-          u < PRESS
-            ? AutoMovieEngineVector3.lerp(
-                hips0,
-                pressed,
-                Math.max(0, (u - PLACE) / (PRESS - PLACE)),
-              )
-            : AutoMovieEngineVector3.lerp(pressed, kneeling, (u - PRESS) / (KNEE - PRESS));
-        const hips: IAutoMovieVector3 = hipsOf(shaped);
-        const posture: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
-          shaped,
-          AutoMovieEngineVector3.add(shaped.root, AutoMovieEngineVector3.subtract(target, hips)),
-        );
-        return { ...posture, limbs: { ...posture.limbs, ...arms(u) } };
+        const plant = (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture =>
+          u < STANCE_PREP
+            ? posture
+            : landFeet(
+                posture,
+                Math.min(1, (u - STANCE_PREP) / (STANCE - STANCE_PREP)),
+              );
+        if (u >= KNEE) {
+          const shaped = rise((u - KNEE) / (1 - KNEE));
+          if (seconds > LET_GO * DURATION) return plant(shaped);
+          if (seconds === LET_GO * DURATION) {
+            const shown = armRest(shaped);
+            const neutral = (
+              side: AutoMovieHumanSide,
+            ): IAutoMovieHumanLimbGoal => ({
+              point: shown.get(side === "left" ? "leftHand" : "rightHand")!
+                .worldPosition,
+              rotation: shown.get(side === "left" ? "leftHand" : "rightHand")!
+                .worldRotation,
+              bend: shown.get(
+                side === "left" ? "leftLowerArm" : "rightLowerArm",
+              )!.worldPosition,
+            });
+            return plant({
+              ...shaped,
+              limbs: { leftArm: neutral("left"), rightArm: neutral("right") },
+            });
+          }
+          return plant({ ...shaped, limbs: { ...shaped.limbs, ...arms(u) } });
+        }
+        let posture: IAutoMovieMotionHumanPosture;
+        if (u <= PRESS) {
+          const advance = AutoMovieEngineMotionSampling.minimumJerkShare(
+            Math.min(1, u / PLACE),
+          );
+          const load = Math.max(0, (u - PLACE) / (PRESS - PLACE));
+          const shaped = up(load);
+          const hips =
+            u < PLACE
+              ? AutoMovieEngineVector3.lerp(hips0, staged, advance)
+              : AutoMovieEngineVector3.lerp(
+                  staged,
+                  pressed,
+                  AutoMovieEngineMotionSampling.minimumJerkShare(load),
+                );
+          posture = shift(shaped, hipsOf(shaped), hips);
+        } else {
+          const overDeck = (u - PRESS) / (KNEE - PRESS);
+          const shaped = over(Math.min(1, 2 * overDeck));
+          const knee =
+            overDeck < 0.5
+              ? AutoMovieEngineVector3.lerp(
+                  firstKnee,
+                  raisedKnee,
+                  AutoMovieEngineMotionSampling.minimumJerkShare(2 * overDeck),
+                )
+              : AutoMovieEngineVector3.lerp(
+                  raisedKnee,
+                  restedKnee,
+                  AutoMovieEngineMotionSampling.minimumJerkShare(
+                    2 * overDeck - 1,
+                  ),
+                );
+          posture = shift(shaped, kneesOf(shaped), knee);
+        }
+        return { ...posture, limbs: { ...posture.limbs, ...arms(u, posture) } };
       },
     };
 
     // Each arm reaches from the entered arm onto the deck as one admitted
     // course, bears there until the knee is down, and returns to the
     // rising key's arm by `LET_GO` (`courseArmGoal`).
-    return courseArmGoal({
+    const course = courseArmGoal({
       context,
       plan,
       side: "left",
@@ -252,6 +417,29 @@ export namespace AquaticEdgeExit {
         end: LET_GO * DURATION,
       },
     });
+    const leftFingers = AutoMovieMotionHumanHand.prepareFingers("left", "flat");
+    const rightFingers = AutoMovieMotionHumanHand.prepareFingers(
+      "right",
+      "flat",
+    );
+    return {
+      ...course,
+      posture: (...args): IAutoMovieMotionHumanPosture => {
+        const posture = course.posture(...args);
+        const [seconds, channels] = args;
+        const u = seconds / DURATION;
+        if (u <= 0 || u >= LET_GO) return posture;
+        const weight = AutoMovieEngineMotionSampling.minimumJerkShare(
+          Math.max(0, Math.min(1, u / PLACE, (LET_GO - u) / (LET_GO - KNEE))),
+        );
+        const joints = { ...posture.joints };
+        if (channels === undefined || channels.includes("leftHand"))
+          Object.assign(joints, leftFingers(0, weight));
+        if (channels === undefined || channels.includes("rightHand"))
+          Object.assign(joints, rightFingers(0, weight));
+        return { ...posture, joints };
+      },
+    };
   }
 
   /*
@@ -279,16 +467,33 @@ export namespace AquaticEdgeExit {
     );
 
     // The elbow bends back toward the water, behind the pressing hand.
+    const lateral = AutoMovieEngineVector3.scale(
+      AutoMovieEngineVector3.cross(out, { x: 0, y: 1, z: 0 }),
+      (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth * 0.8,
+    );
     const bend: IAutoMovieVector3 = AutoMovieEngineVector3.add(
       wrist,
-      AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(out, 0.25), { x: 0, y: 0.05, z: 0 }),
+      AutoMovieEngineVector3.add(
+        AutoMovieEngineVector3.add(AutoMovieEngineVector3.scale(out, 0.25), {
+          x: 0,
+          y: 0.05,
+          z: 0,
+        }),
+        lateral,
+      ),
     );
+    const pad = (region: "thumbPad" | "indexPad" | "littlePad") => ({
+      contact: HumanHand.offset(body, side, region, "flat").point,
+      bound: 0.01,
+    });
+    const limits = [pad("thumbPad"), pad("indexPad"), pad("littlePad")];
     return (reach: number): IAutoMovieHumanLimbGoal => {
       const lift: number = LIFT * (1 - reach);
       return {
         point: { ...wrist, y: wrist.y + lift },
         rotation: { ...rotation },
         contact: { ...frame.point },
+        ...(reach < 1 ? {} : { limits }),
         bend: { ...bend, y: bend.y + lift },
       };
     };
@@ -311,6 +516,8 @@ const KNEE: number = 0.75;
  * The share by which the hands have left the deck for the rising key's arms.
  */
 const LET_GO: number = 0.88;
+const STANCE_PREP: number = 0.83;
+const STANCE: number = 0.95;
 
 /*
  * The highest deck above the water a swimmer presses out over unaided, metres:

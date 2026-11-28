@@ -1,93 +1,85 @@
-import { assertAnalysisSolids as assertAnalysisSolidsImplementation } from "./internal/assertAnalysisSolids";
-import { assertAnalysisTargets as assertAnalysisTargetsImplementation } from "./internal/assertAnalysisTargets";
+import type {
+  AutoMovieAnalysisComparison,
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricInput,
+  IAutoMovieAnalysisReport,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSolid,
+  IAutoMovieAnalysisTarget,
+  IAutoMovieAnalyzeAcoustics,
+  IAutoMovieAnalyzeDaylight,
+  IAutoMovieAnalyzeEnvelope,
+  IAutoMovieAnalyzeSpaceAir,
+  IAutoMovieDaylightRequest,
+  IAutoMovieEnvelopeRequest,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieResolveDaylightRequest,
+  IAutoMovieSealAnalysisRun,
+  IAutoMovieSkyIlluminance,
+  IAutoMovieSummarizeAnalysis,
+  IAutoMovieValidateAnalysisRun,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+  IAutoMovieViolationCollector,
+  IAutoMovieWarnAnalysisTargetKeys,
+} from "@automovie/interface";
+
+import { analysisMetric as analysisMetricImplementation } from "./internal/analysisMetric";
 import { analysisRunDigest as analysisRunDigestImplementation } from "./internal/analysisRunDigest";
 import { analysisSettingsTargets as analysisSettingsTargetsImplementation } from "./internal/analysisSettingsTargets";
 import { analysisTargetMet as analysisTargetMetImplementation } from "./internal/analysisTargetMet";
+import { analyzeAcoustics } from "./internal/analyzeAcoustics";
+import { analyzeDaylight } from "./internal/analyzeDaylight";
+import { analyzeEnvelope } from "./internal/analyzeEnvelope";
+import { analyzeSpaceAir } from "./internal/analyzeSpaceAir";
+import { assertAnalysisSolids as assertAnalysisSolidsImplementation } from "./internal/assertAnalysisSolids";
+import { assertAnalysisTargets as assertAnalysisTargetsImplementation } from "./internal/assertAnalysisTargets";
 import { resolveDaylightRequest as resolveDaylightRequestImplementation } from "./internal/resolveDaylightRequest";
 import { resolveEnvelopeRequest as resolveEnvelopeRequestImplementation } from "./internal/resolveEnvelopeRequest";
 import { sealAnalysisRun as sealAnalysisRunImplementation } from "./internal/sealAnalysisRun";
+import { skyIlluminance as skyIlluminanceImplementation } from "./internal/skyIlluminance";
 import { summarizeAnalysis as summarizeAnalysisImplementation } from "./internal/summarizeAnalysis";
 import { validateAnalysisRun as validateAnalysisRunImplementation } from "./internal/validateAnalysisRun";
 import { validateAnalysisRunContents as validateAnalysisRunContentsImplementation } from "./internal/validateAnalysisRunContents";
 import { validateSolidPlanes as validateSolidPlanesImplementation } from "./internal/validateSolidPlanes";
 import { warnAnalysisTargetKeys as warnAnalysisTargetKeysImplementation } from "./internal/warnAnalysisTargetKeys";
-import { analysisMetric as analysisMetricImplementation } from "./internal/analysisMetric";
-import type {
-  IAutoMovieAnalysisMetric,
-  IAutoMovieAnalysisMetricInput,
-  IAutoMovieAnalysisRun,
-  IAutoMovieAnalyzeAcoustics,
-  IAutoMovieAnalyzeDaylight,
-  IAutoMovieAnalyzeEnvelope,
-  IAutoMovieAnalyzeSpaceAir,
-  IAutoMovieAnalysisSolid,
-  IAutoMovieAnalysisTarget,
-  AutoMovieAnalysisComparison,
-  IAutoMovieResolveDaylightRequest,
-  IAutoMovieDaylightRequest,
-  IAutoMovieEnvironmentInstant,
-  IAutoMovieEnvelopeRequest,
-  IAutoMovieSealAnalysisRun,
-  IAutoMovieAnalysisReport,
-  IAutoMovieSummarizeAnalysis,
-  IAutoMovieValidation,
-  IAutoMovieValidateAnalysisRun,
-  IAutoMovieViolationCollector,
-  IAutoMovieHalfSpacePlane,
-  IAutoMovieWarnAnalysisTargetKeys,
-  IAutoMovieSkyIlluminance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-
-
-import { analyzeAcoustics } from "./internal/analyzeAcoustics";
-import { analyzeDaylight } from "./internal/analyzeDaylight";
-import { analyzeEnvelope } from "./internal/analyzeEnvelope";
-import { analyzeSpaceAir } from "./internal/analyzeSpaceAir";
-import { skyIlluminance as skyIlluminanceImplementation } from "./internal/skyIlluminance";
-
-/** Deterministic analyses for declared acoustic, daylight, envelope and air studies. */
+/**
+ * Deterministic analyses for declared acoustic, daylight, envelope and air
+ * studies.
+ */
 export namespace AutoMovieEngineAnalysis {
-  /** Build one metric, resolving its authored target or recording its absence. */
-  export function analysisMetric(props: IAutoMovieAnalysisMetricInput.IProps): IAutoMovieAnalysisMetric {
+  /**
+   * Build a finite measured metric or record a measurement gap.
+   *
+   * Null requires a reason and remedy and defaults to not-run. A measured value
+   * requires a finite number and an absent gap. Pass admitted targets. The
+   * first matching key with the same unit determines the verdict. A unit
+   * mismatch appends a warning and yields an untargeted metric.
+   */
+  export function analysisMetric(
+    props: IAutoMovieAnalysisMetricInput.IProps,
+  ): IAutoMovieAnalysisMetric {
     return analysisMetricImplementation(props);
   }
 
   /**
-   * Solve one room for reverberation, equipment noise and partition performance.
+   * Solve a room's broadband reverberation, receiver levels and partition
+   * transmission.
    *
-   * Three closed forms, each stated so a reader can check the arithmetic:
+   * The Sabine time is 0.161 times the room volume divided by the sum of
+   * surface area times absorption. At each receiver, direct and diffuse energy
+   * add before conversion to decibels. Partition transmission uses
+   * area-weighted power, so a weaker panel can dominate the result.
    *
-   * - The Sabine absorption `A = sum(S * alpha)` and `T60 = 0.161 * V / A`;
-   * - The room constant `R = A / (1 - alpha_mean)`, and at each receiver `Lp = 10 *
-   *   log10(sum over sources of 10^(Lw/10) * (Q / (4*pi*r^2) + 4/R))`, the direct
-   *   field plus the diffuse field;
-   * - The composite transmission loss `R_c = -10 * log10(sum(tau * S) / sum(S))`
-   *   with `tau = 10^(-R/10)`, which is why one weak panel dominates a strong
-   *   wall.
+   * A room with zero or complete absorption cannot supply a diffuse-field
+   * measurement. The level metrics and receiver samples are unavailable when
+   * any receiver's energy underflows or overflows. Speech transmission index is
+   * unsupported. A run with available levels has one sample per receiver.
    *
-   * The exclusions are stated as loudly as the results. A single broadband
-   * absorption coefficient cannot produce a speech transmission index, which
-   * needs a modulation transfer function over an impulse response, so that metric
-   * is `unsupported` rather than estimated.
-   *
-   * The reverberation time, the room constant and the receiver level are all
-   * statements about a diffuse field, so all three gap wherever there is none: a
-   * room that absorbs nothing rings forever, and a room that absorbs everything
-   * never rings at all. Neither extreme is reported as a number. The second is
-   * the one worth naming, because Sabine does not diverge there but keeps
-   * returning `0.161 * V / A`, a positive decay time for an anechoic chamber,
-   * which is the arithmetic of the model rather than a property of the room.
-   *
-   * A receiver whose energy underflows to zero or overflows to infinity in double
-   * precision has no level, so the level metrics gap with a reason naming which
-   * bound was crossed.
-   *
-   * Throws on a malformed request (see {@link IAutoMovieAcousticRequest}), on a
-   * receiver within `1e-12` m of a source, and when the sealed run would fail
-   * validation; otherwise the run is always `solved`, with one sound-pressure
-   * sample per receiver when a level exists.
+   * Malformed requests throw. A receiver at most 1e-12 metres from any source
+   * also throws.
    */
   export function acoustics(
     props: IAutoMovieAnalyzeAcoustics.IProps,
@@ -96,37 +88,21 @@ export namespace AutoMovieEngineAnalysis {
   }
 
   /**
-   * Measure one workplane under one declared instant, one set of shades and one
-   * set of luminaires.
+   * Measure direct sun, isotropic sky and point luminaires on one workplane.
    *
-   * The governing model is stated and bounded rather than implied:
+   * Beam illuminance projects direct normal illuminance onto the plane. Sky
+   * illuminance scales diffuse horizontal illuminance by the visible fraction
+   * of cosine-weighted hemispherical directions. A luminaire contributes
+   * intensity times the incident cosine divided by squared distance. Shades can
+   * block each path.
    *
-   * - Beam illuminance is `DNI * max(0, dot(n, s))`, zeroed when any solid stops
-   *   the ray to the sun;
-   * - Sky illuminance is the isotropic vault `DHI * V`, where `V` is the fraction
-   *   of a cosine-weighted hemisphere that reaches the sky unobstructed and above
-   *   the reference ground. An unobstructed ground-facing-up plane has V=1;
-   *   tilted or shaded planes retain sampling error;
-   * - Each luminaire contributes `I * max(0, dot(n, d)) / r^2`, zeroed when a solid
-   *   stands between the fitting and the point;
-   * - Ground-reflected light is **not** modelled, and says so as an `unsupported`
-   *   metric rather than being quietly folded into the sky term.
+   * An unobstructed upward-facing plane sees the full sky. A tilted or shaded
+   * plane uses the requested sampling count. Ground reflection is unsupported.
+   * An unsupported sky model yields an unsupported run, and a study with
+   * neither a named instant nor a fitting yields a not-run result.
    *
-   * Anything the solver cannot answer is reported rather than approximated. A sky
-   * model it does not implement returns an `unsupported` run; a study with
-   * neither a sun nor a fitting returns `not-run`; a contrast ratio over a plane
-   * with a dark point returns a gap, because `max / 0` is not a large number, it
-   * is not a number.
-   *
-   * Settings text covers the declared study fields and preserves list order;
-   * equivalent covered JSON values repeat the digest, while ignored fields,
-   * signed zero and possible hash collisions limit identity claims.
-   *
-   * The cosine-weighted sky estimate is exact only for an unobstructed plane
-   * whose hemisphere lies wholly above the reference ground; a tilted or shaded
-   * plane's sky term depends on `diffuseSamples`. This identity is mathematical:
-   * binary64 light products and summation can overflow, and nonfinite computed
-   * metrics throw even when scalar inputs were admitted.
+   * A dark minimum leaves the contrast undefined. Computed numeric overflow can
+   * throw even for finite admitted inputs.
    */
   export function daylight(
     props: IAutoMovieAnalyzeDaylight.IProps,
@@ -135,40 +111,22 @@ export namespace AutoMovieEngineAnalysis {
   }
 
   /**
-   * Solve one envelope for heat and for surface condensation, as two runs.
+   * Estimate steady-state heat transfer and surface condensation as two runs
+   * with the same settings.
    *
-   * Two runs rather than one because heat and moisture are two domains a report
-   * rolls up separately: a wall may be warm enough and still wet, and one merged
-   * verdict would let either fact hide the other. Both read the same inputs and
-   * carry the same settings digest, so they are provably about the same
-   * envelope.
+   * Series resistance adds the two films and every layer's thickness divided by
+   * conductivity. The indoor-outdoor temperature difference multiplies the sum
+   * of assembly area divided by resistance and bridge length times linear
+   * transmittance. The surface temperature follows the interior film drop.
    *
-   * The governing model is the one-dimensional steady-state network, stated
-   * exactly:
+   * An interior surface at or below the indoor Magnus dew point is at risk of
+   * condensation. At zero humidity the dew point is unavailable. Solar gain and
+   * interstitial condensation are unsupported. Without an outdoor design
+   * temperature, both runs have status `not-run`.
    *
-   * - `R = Rsi + sum(t / lambda) + Rse`, and `U = 1 / R`;
-   * - The interior surface sits at `Tsi = Ti - U * Rsi * (Ti - Te)`, so the
-   *   temperature factor `fRsi = (Tsi - Te) / (Ti - Te)` reduces exactly to `1 -
-   *   U*Rsi` and needs no temperatures at all;
-   * - Fabric loss is `sum(U * A) * dT` and linear bridges add `sum(psi * L) * dT`;
-   * - The dew point comes from `calculateDewPoint`, the Magnus form, and surface
-   *   condensation is `Tsi <= Td`.
-   *
-   * What it does not do, it says. Condensation inside the build-up, which needs
-   * vapour diffusion, and solar gain through glazing each appear as an
-   * `unsupported` metric with the exact reason, because an envelope study that
-   * quietly omitted them would read as a complete answer. Transient storage is
-   * excluded by the steady-state model itself, which the solver's model text
-   * states.
-   *
-   * Without an exterior boundary condition there is no answer at all, and both
-   * runs come back `not-run` naming the missing input rather than assuming a
-   * temperature nobody declared.
-   *
-   * The Magnus coefficients are fitted over roughly -45 to 60 degC, and an indoor
-   * temperature outside that range is not refused. Throws on malformed requests
-   * or a nonfinite computed metric; finite positive fields alone do not prevent
-   * resistance/temperature overflow, underflow or dew-point singularities.
+   * Malformed input and nonfinite computed measurements throw. The Magnus
+   * approximation can extrapolate outside its fit, and finite admitted inputs
+   * can still exceed the arithmetic range.
    */
   export function envelope(
     props: IAutoMovieAnalyzeEnvelope.IProps,
@@ -177,31 +135,20 @@ export namespace AutoMovieEngineAnalysis {
   }
 
   /**
-   * Solve one space for ventilation, and refuse to pretend it solved the air.
+   * Estimate ventilation and steady-state carbon dioxide for a well-mixed zone.
    *
-   * What a well-mixed zone model can answer, it answers exactly: the air change
-   * rate `n = 3600 * Q / V`, the outdoor air per person `1000 * Q / N`, and the
-   * steady-state contaminant balance `C = Co + 1e6 * N * G / Q`. Those are
-   * closed-form and are checked against hand arithmetic.
+   * The air change rate is 3,600 times supply flow divided by room volume.
+   * Outdoor flow per person is 1,000 times supply flow divided by occupancy.
+   * Steady-state parts per million add outdoor concentration to one million
+   * times total occupant generation divided by supply flow.
    *
-   * What it cannot answer, it refuses to. Air stagnation and a velocity field are
-   * properties of a flow solution, and no amount of zone arithmetic produces one,
-   * so both are `unsupported` metrics naming exactly what is missing. This is the
-   * whole point of the contract: the honest answer to "where does the air sit
-   * still" is that this host does not know, and a number invented here would be
-   * indistinguishable from one that was computed.
+   * Missing supply flow leaves a gap in flow-dependent measurements, and zero
+   * occupancy leaves per-person flow undefined. At zero flow, the concentration
+   * gap distinguishes ongoing generation from no unique steady state.
+   * Stagnation and velocity fields are unsupported. The run has no spatial
+   * samples.
    *
-   * A zero supply flow leaves the steady-state concentration a gap whose reason
-   * depends on the generation `N * G`: with occupants generating carbon dioxide
-   * it rises without bound, and with none it stays wherever it starts, so no
-   * steady state is unique either way.
-   *
-   * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
-   * returned run is always `solved` and carries no spatial samples.
-   *
-   * Finite admitted inputs can still overflow or underflow intermediate
-   * arithmetic; a nonfinite metric throws through the shared builder instead of
-   * becoming a fabricated measurement.
+   * Malformed input or nonfinite computed measurements throw.
    */
   export function spaceAir(
     props: IAutoMovieAnalyzeSpaceAir.IProps,
@@ -210,305 +157,235 @@ export namespace AutoMovieEngineAnalysis {
   }
 
   /**
-   * Refuse malformed blocker identifiers and half-space fields.
+   * Validate half-space fields and unique IDs within one list of analysis
+   * blockers.
    *
-   * The rule is {@link validateSolidPlanes}, raised to a throw: an adapter reading
-   * an authored shading solid has no honest result to return for a solid with no
-   * faces, so it stops rather than producing one. Sharing the rule is what keeps
-   * a neighbour's mass and the building's own canopy held to one standard.
-   *
-   * Throws an `Error` at the first id repeated within `solids`, or the first
-   * plane violation of a solid, naming that solid and the violation path. `label`
-   * names the kind of solid in every message and path, and ids need to be unique
-   * only within this one list.
-   *
-   * Plane count and finite fields do not prove the intersection bounded or
-   * nonempty; validateSolidPlanes deliberately leaves those geometric properties
-   * unchecked.
-   *
-   * @param solids Authored convex blockers, checked in list order.
-   * @param label Kind of solid named in messages and paths, such as `shading
-   *   solid`.
+   * Solids are checked in order. A repeated ID or the first plane violation
+   * throws with the supplied label and field path. Half-space field admission
+   * leaves geometric boundedness and feasibility to the caller.
    */
-  export function assertAnalysisSolids(solids: readonly IAutoMovieAnalysisSolid[], label: string): void {
+  export function assertAnalysisSolids(
+    solids: readonly IAutoMovieAnalysisSolid[],
+    label: string,
+  ): void {
     assertAnalysisSolidsImplementation(solids, label);
   }
 
   /**
-   * Check the targets a production declares before any solver reads them.
+   * Admit a study's declared target list before solving.
    *
-   * Targets are the one input that can turn a correct measurement into a wrong
-   * verdict, so they are refused at the door rather than negotiated later: a
-   * blank key, a blank unit, a non-finite value, an unknown direction, or two
-   * targets fighting over the same key are all authoring mistakes with no sane
-   * interpretation.
-   *
-   * Throws an `Error` naming the first offending target in list order. Whether a
-   * key names a metric the study reports is not checked here;
-   * `warnAnalysisTargetKeys` reports that after the metrics exist.
-   *
-   * @param targets Targets one study declares, in authored order.
+   * Each target requires a nonblank key and unit, a finite value, and at-least
+   * or at-most comparison. Keys must be unique. The first offending declaration
+   * throws in authored order.
    */
-  export function assertAnalysisTargets(targets: readonly IAutoMovieAnalysisTarget[]): void {
+  export function assertAnalysisTargets(
+    targets: readonly IAutoMovieAnalysisTarget[],
+  ): void {
     assertAnalysisTargetsImplementation(targets);
   }
 
   /**
-   * The digest that seals one run's contents.
+   * Compute the automovie.analysis-run.v1 SHA-256 digest of supplied run
+   * contents.
    *
-   * Exported because a run that arrived as JSON has to be checkable by the same
-   * rule that produced it, and because a second implementation of the canonical
-   * form would be a second answer to what a run says.
+   * The input is an already shaped analysis record. Encoding uses fixed-field
+   * JSON-array lines: the header, then metrics, samples and warnings in stored
+   * order for a solved outcome, or reason and remedy for a refused outcome. An
+   * existing digest field is ignored.
    *
-   * The digest is a `sha256:` lowercase hex string over a canonical text with one
-   * JSON array per line: the header (protocol, version, id, domain, subject,
-   * input revision, the three solver fields, settings digest and outcome status),
-   * then one line per metric, sample and warning in their stored order, or one
-   * line holding a refused outcome's reason and remedy. JSON escapes every
-   * newline and separator inside a string, so two runs that differ in any covered
-   * encoded JSON value produce different text. JSON normalizes signed zero and
-   * writes nonfinite numbers as null; hash collisions are possible. Reordering
-   * distinct metrics, samples or warnings changes the digest.
-   *
-   * @param run Run contents; a `digest` field, if present, is not read.
-   * @returns The `sha256:` digest of the canonical text.
+   * The result has the `sha256:` prefix followed by lowercase hexadecimal
+   * digits. JSON scalar spelling is part of the archive, including a single
+   * spelling for signed zero.
    */
-  export function analysisRunDigest(run: Omit<IAutoMovieAnalysisRun, "digest">): IAutoMovieAnalysisRun["digest"] {
+  export function analysisRunDigest(
+    run: Omit<IAutoMovieAnalysisRun, "digest">,
+  ): IAutoMovieAnalysisRun["digest"] {
     return analysisRunDigestImplementation(run);
   }
 
   /**
-   * The declared targets as they enter an analyzer's settings text.
+   * Project admitted targets into the analyzer's settings record.
    *
-   * Each target is copied to exactly its four contract fields, `key`, `unit`,
-   * `value` and `comparison`, in that order and in list order. Extra runtime
-   * properties and original property order are ignored; changes to covered JSON
-   * values change the settings text, while signed zeros share an encoding and a
-   * digest is not a collision-free identity proof.
-   *
-   * @param targets Targets the study declares, already checked.
-   * @returns New records holding only the four contract fields.
+   * Return new records containing key, unit, value and comparison in that field
+   * order. The authored target-list order is preserved.
    */
-  export function analysisSettingsTargets(targets: readonly IAutoMovieAnalysisTarget[]): IAutoMovieAnalysisTarget[] {
+  export function analysisSettingsTargets(
+    targets: readonly IAutoMovieAnalysisTarget[],
+  ): IAutoMovieAnalysisTarget[] {
     return analysisSettingsTargetsImplementation(targets);
   }
 
   /**
-   * Whether a measured value satisfies a target in the declared direction.
+   * Compare a finite measured value with a finite target in the same unit.
    *
-   * `at-least` holds when `value >= target` and `at-most` when `value <= target`,
-   * so a value exactly on the target meets it either way. Both numbers are in the
-   * same unit; no conversion or tolerance is applied.
-   *
-   * @param value Finite measured value.
-   * @param target Finite target value in the same unit.
-   * @param comparison Direction the target is judged in.
-   * @returns `true` for `meets`, `false` for `misses`.
+   * At-least means value ≥ target. At-most means value ≤ target. Equality meets
+   * either comparison.
    */
-  export function analysisTargetMet(value: number, target: number, comparison: AutoMovieAnalysisComparison): boolean {
+  export function analysisTargetMet(
+    value: number,
+    target: number,
+    comparison: AutoMovieAnalysisComparison,
+  ): boolean {
     return analysisTargetMetImplementation(value, target, comparison);
   }
 
   /**
-   * Refuse a daylight request no honest study can be made from, and resolve the
-   * instant and the workplane frame it names.
+   * Validate a daylight request and return its named instant and workplane
+   * frame.
    *
-   * Authoring mistakes throw rather than becoming an `unsupported` run: an
-   * unsupported run is a true statement about the host's capability, and using it
-   * for a degenerate grid would turn a bug report into a capability claim. The
-   * refused inputs are those {@link IAutoMovieDaylightRequest} lists, checked in
-   * field order, and the first one throws an `Error` naming it.
+   * The frame contains normalized in-plane axes and their normalized
+   * right-handed cross product. Axes must have finite components and form a
+   * nondegenerate plane. Workplane sizes must be finite and positive, grid and
+   * diffuse counts must be positive safe integers, and the grid must fit a
+   * run's sample bound.
    *
-   * The returned axes are the normalized workplane axes, and the normal is their
-   * normalized right-handed cross product, the face the study measures. The
-   * instant is the context's own record, or `null` when the request names none.
-   *
-   * @param request Daylight or artificial-light study to check.
-   * @returns The resolved instant and the unit frame of the workplane.
+   * The named instant is the context's own record, or null when the request
+   * leaves it unset. Duplicate light IDs, nonfinite or negative intensities,
+   * malformed shades and invalid targets throw alongside invalid context and
+   * workplane fields.
    */
-  export function resolveDaylightRequest(request: IAutoMovieDaylightRequest): IAutoMovieResolveDaylightRequest.IResult {
+  export function resolveDaylightRequest(
+    request: IAutoMovieDaylightRequest,
+  ): IAutoMovieResolveDaylightRequest.IResult {
     return resolveDaylightRequestImplementation(request);
   }
 
   /**
-   * Refuse an envelope request no honest study can be made from, and resolve the
-   * instant it names.
+   * Validate an envelope request and return the selected context instant, or
+   * null when none is named.
    *
-   * The refused inputs are those {@link IAutoMovieEnvelopeRequest} lists, checked
-   * in field order: header strings, the context, the instant, the indoor air, the
-   * assemblies with their films, area, position and layers, the bridges, and the
-   * targets. The first one throws an `Error` naming it. Ids must be unique within
-   * their own list, and a bridge must run along a declared assembly.
+   * Indoor relative humidity must be in the closed interval from zero to one.
+   * Assembly areas, film resistances, layer thicknesses and conductivities, and
+   * bridge lengths must be finite and positive. Linear transmittance must be
+   * finite and nonnegative.
    *
-   * @param request Envelope study to check.
-   * @returns The context's own instant record, or `null` when the request names
-   *   none.
+   * IDs are unique within each list and each bridge must reference a declared
+   * assembly. Invalid context, instant, header, assembly, bridge or target
+   * fields throw at admission.
    */
-  export function resolveEnvelopeRequest(request: IAutoMovieEnvelopeRequest): IAutoMovieEnvironmentInstant | null {
+  export function resolveEnvelopeRequest(
+    request: IAutoMovieEnvelopeRequest,
+  ): IAutoMovieEnvironmentInstant | null {
     return resolveEnvelopeRequestImplementation(request);
   }
 
   /**
-   * Seal one run: digest the settings, check the record, and digest it only once
-   * it is known to validate.
+   * Seal a typed run with its settings digest and content digest.
    *
-   * Building and checking are the same call on purpose. A builder that can hand
-   * back an invalid artifact is a hole in exactly the contract this module exists
-   * to hold, so the seal applies the same contents rules a deserialized run faces
-   * (`validateAnalysisRunContents`) and throws on the first violation
-   * rather than shipping it. The error names the run id and the first violation's
-   * path and expectation. The digest it then writes is the one
-   * `validateAnalysisRun` recomputes, so the sealed run validates.
-   *
-   * The settings text is kept only as its SHA-256 digest. The returned run holds
-   * the caller's `solver` and `outcome` objects by reference rather than copying
-   * them, so editing a covered field after sealing generally breaks digest
-   * agreement; unencoded extra fields and numerically equivalent signed zeros do
-   * not change the canonical text, and a digest is not a collision-free identity
-   * proof.
+   * Hash the settings text and admit the run contents before sealing. A refused
+   * run throws with its ID and first field finding. The returned run borrows
+   * solver and outcome records, so editing a covered field can invalidate its
+   * seal.
    */
-  export function sealAnalysisRun(props: IAutoMovieSealAnalysisRun.IProps): IAutoMovieAnalysisRun {
+  export function sealAnalysisRun(
+    props: IAutoMovieSealAnalysisRun.IProps,
+  ): IAutoMovieAnalysisRun {
     return sealAnalysisRunImplementation(props);
   }
 
   /**
-   * Roll every run of one design revision into one bounded verdict.
+   * Roll up sealed analysis runs for one design revision.
    *
-   * The report cannot be cleared by silence. A required domain nobody submitted a
-   * run for becomes a gap of its own; a run that read a superseded revision is
-   * counted as stale rather than as an answer; a metric that produced no value
-   * carries its reason up. Only when every required domain answered against this
-   * revision, every metric produced a value, and every judged metric met its
-   * target does the status read `meets`.
+   * Supply a nonblank revision and at least one required domain. An invalid or
+   * repeated run throws. Stale, unavailable or unmeasured results become gaps,
+   * as do missing required domains. A missed target takes precedence over gaps,
+   * and gaps yield incomplete when there are no misses.
    *
-   * Declaring at least one required domain is mandatory, which is what removes
-   * the last way to pass: a report over nothing would otherwise clear
-   * everything.
-   *
-   * Gaps come from every submitted run, whether or not its domain is required.
-   * Any `misses` metric makes the status `misses`; otherwise any gap makes it
-   * `incomplete`. Gaps are ordered by run and by metric within a run, then by
-   * missing required domain in domain-table order; the first `maxGaps` of that
-   * list are listed and the rest only counted. The digest is SHA-256 over one
-   * JSON array per line (header, each rollup, each listed gap, then the omitted
-   * count), so it covers the listed gaps and that count but not the text of the
-   * omitted ones.
-   *
-   * Throws on a blank revision, a gap bound that is not a positive safe integer,
-   * an empty required domain, a run that fails validation, and a run id reported
-   * twice.
+   * The gap maximum defaults to 16 and must be a positive safe integer. The
+   * report lists gaps in run and metric order before missing domains in
+   * domain-table order, counts omitted gaps and seals the listed report.
    */
-  export function summarizeAnalysis(props: IAutoMovieSummarizeAnalysis.IProps): IAutoMovieAnalysisReport {
+  export function summarizeAnalysis(
+    props: IAutoMovieSummarizeAnalysis.IProps,
+  ): IAutoMovieAnalysisReport {
     return summarizeAnalysisImplementation(props);
   }
 
   /**
-   * Validate one analysis run as evidence.
+   * Check a typed analysis run, its content seal and an optional revision.
    *
-   * The contents follow `validateAnalysisRunContents`: an absent
-   * measurement must stay visibly absent, and a spatial sample may only field a
-   * metric that produced a value. On top of that the digest is recomputed, so a
-   * run whose outcome was edited after sealing fails here rather than being read
-   * as a measurement.
-   *
-   * Passing `revision` additionally asks whether the run is still about the
-   * current design. A run that read an older revision is reported as stale: it
-   * was a real measurement of a building that no longer exists.
-   *
-   * Every violation is returned rather than thrown, with paths rooted at
-   * `$input`: the contents first, then the digest, then staleness. The rules are
-   * semantic: the run must already have the declared shape, because nested fields
-   * such as `solver.id` are read without a guard, so a JSON value missing one
-   * throws a `TypeError` instead of producing a violation.
+   * Findings are rooted at $input. The operation checks run contents, then the
+   * lowercase SHA-256 digest and its match, then the optional revision. A
+   * revision mismatch reports the record as stale.
    */
-  export function validateAnalysisRun(props: IAutoMovieValidateAnalysisRun.IProps): IAutoMovieValidation {
+  export function validateAnalysisRun(
+    props: IAutoMovieValidateAnalysisRun.IProps,
+  ): IAutoMovieValidation {
     return validateAnalysisRunImplementation(props);
   }
 
   /**
-   * Check every field of one analysis run except its seal.
+   * Append semantic findings for the contents of a typed analysis run.
    *
-   * The rules all defend the same line: an absent measurement must stay visibly
-   * absent. A metric without a value must carry a reason and a remedy and may not
-   * carry a target; a metric with a value may not carry a gap and must agree with
-   * its own verdict; a spatial sample may only be a field of a metric that
-   * actually produced a value, so no overlay can be drawn for a computation
-   * nobody ran.
+   * The caller owns the collector and checks the run seal separately. The
+   * header, settings and outcome are checked in field order. Measured values,
+   * judged targets, sample positions and sample values must be finite. A null
+   * metric value requires a gap and carries no target.
    *
-   * Violations are appended to `out` with paths rooted at `$input`, in field
-   * order: header, solver, settings digest, then the outcome. The `digest` field
-   * and its agreement with the contents are left to the caller:
-   * `validateAnalysisRun` checks them for a run that arrived from
-   * elsewhere, while `sealAnalysisRun` calls this before it computes the
-   * digest, so a seal never hashes a record it will refuse.
-   *
-   * Resident metric, sample and warning slots are visited by index and an absent
-   * record is refused at its slot; judged comparisons must be `at-least` or
-   * `at-most`. Other nested fields must already have the declared shape: reading
-   * a missing `solver.id` container or sample position can throw a `TypeError`,
-   * so this is not a total unknown-JSON schema validator.
-   *
-   * @param run Run contents to check, with or without a digest.
-   * @param out Caller-owned sink the violations are appended to.
+   * A solved run requires a metric and at most 4,096 samples. Each sample names
+   * a measured metric from the same run. Use the enclosing schema gate to admit
+   * the nested record shape first.
    */
-  export function validateAnalysisRunContents(run: Omit<IAutoMovieAnalysisRun, "digest">, out: IAutoMovieViolationCollector): void {
+  export function validateAnalysisRunContents(
+    run: Omit<IAutoMovieAnalysisRun, "digest">,
+    out: IAutoMovieViolationCollector,
+  ): void {
     validateAnalysisRunContentsImplementation(run, out);
   }
 
   /**
-   * Check the half-spaces of one convex blocker.
+   * Append field violations for the planes of one convex blocker to the
+   * caller's sink.
    *
-   * Shared by the context validator and by every adapter that accepts an authored
-   * shading solid, so a neighbour's mass and the building's own canopy are held
-   * to exactly the same standard.
+   * Each plane represents dot(normal, point) at or below offset. The array must
+   * contain at least AutoMovieEngineAnalysisMinSolidPlanes slots. Each slot
+   * must hold a record with a finite offset and a finite normal length above
+   * 1e-12.
    *
-   * Violations are appended to `out` under `path` and worded with `label`;
-   * resident plane slots are visited by index and missing records are refused at
-   * their slot. The plane-array and other nested vector shapes remain a caller
-   * premise; this helper does not validate arbitrary container types. The checks
-   * are a plane count of at least `AutoMovieEngineAnalysisMinSolidPlanes`, finite
-   * normals longer than `1e-12`, and finite offsets. Whether the planes enclose a
-   * non-empty, bounded region is not checked, so four or more planes describing
-   * an unbounded or empty set pass.
-   *
-   * @param planes Half-spaces whose intersection is the solid; a point is inside
-   *   one when `dot(normal, point) <= offset`.
-   * @param path Violation path of the plane array, such as
-   *   `$input.occluders[0].planes`.
-   * @param label Kind of solid named in every message, such as `occluder`.
-   * @param out Caller-owned sink the violations are appended to.
+   * Findings use the supplied path and label. This field validation leaves
+   * geometric feasibility and boundedness to the caller.
    */
-  export function validateSolidPlanes(planes: readonly IAutoMovieHalfSpacePlane[], path: string, label: string, out: IAutoMovieViolationCollector): void {
+  export function validateSolidPlanes(
+    planes: readonly IAutoMovieHalfSpacePlane[],
+    path: string,
+    label: string,
+    out: IAutoMovieViolationCollector,
+  ): void {
     validateSolidPlanesImplementation(planes, path, label, out);
   }
 
   /**
-   * Report every declared target that names no metric the study reports.
+   * Append a target-key-unknown warning for each unmatched target, in declared
+   * order.
    *
-   * A target nobody can apply is the quietest way a report reads `meets`.
-   * `analysisMetric` already reports a target stated in the wrong unit
-   * as a `target-unit-mismatch` warning for exactly this reason, and a mistyped
-   * or hopeful key is the same fault with the same consequence: the author
-   * believes a requirement is enforced, every metric is measured, no gap is
-   * recorded, and the verdict comes back clean over a rule that was never
-   * checked. So an inapplicable target is stated either way, here as a
-   * `target-key-unknown` warning appended to `warnings` in declared order, one
-   * per unmatched target.
-   *
-   * A target that names a metric which produced no value is **not** reported
-   * here. That metric already carries its own reason and reaches the report as a
-   * gap, so the requirement is visibly unanswered rather than silently dropped.
-   *
-   * `keys` is the whole set the study reports, which for a solver that emits more
-   * than one run is the union across them: a moisture target is not unmatched
-   * merely because the thermal run has no such metric.
+   * Supply every metric key the study reports, including metrics with no
+   * measured value and keys from each run of a multi-run study. A matched gap
+   * remains visible in its own metric.
    */
-  export function warnAnalysisTargetKeys(props: IAutoMovieWarnAnalysisTargetKeys.IProps): void {
+  export function warnAnalysisTargetKeys(
+    props: IAutoMovieWarnAnalysisTargetKeys.IProps,
+  ): void {
     warnAnalysisTargetKeysImplementation(props);
   }
-  /** Prepare the isotropic sky term and measure it at world points. */
-  export function skyIlluminance(props: IAutoMovieSkyIlluminance.IProps): (point: IAutoMovieVector3) => number {
+  /**
+   * Prepare an isotropic sky contribution and return a function that measures
+   * it at a world point.
+   *
+   * The function scales diffuse horizontal illuminance by the fraction of all
+   * sampled directions that are above the reference ground and remain
+   * unobstructed. Every direction counts in the denominator. An unobstructed
+   * upward-facing plane sees the full sky, while tilted and shaded planes use a
+   * finite estimate.
+   *
+   * If multiplying a finite illuminance by the visible count overflows, the
+   * function multiplies by the visible fraction instead.
+   *
+   * Direction count and plane normal follow the hemisphere sampler's input
+   * domain.
+   */
+  export function skyIlluminance(
+    props: IAutoMovieSkyIlluminance.IProps,
+  ): (point: IAutoMovieVector3) => number {
     return skyIlluminanceImplementation(props);
   }
-
 }

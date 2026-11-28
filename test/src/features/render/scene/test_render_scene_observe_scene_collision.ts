@@ -11,6 +11,10 @@ import * as THREE from "three";
  *
  * 1. Two unit boxes 3 m apart give no finding, and the work spent is reported.
  * 2. Two unit boxes 0.5 m apart give at least one finding.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the same unit meshes at a separating offset and an intersecting offset.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that placed collision measurement reports no finding for separated boxes, accounts for work, and emits at least one finding when they overlap.
+ * @evidence contracts/development/testing.md#independent-expectations Uses 3 m and 0.5 m center separations relative to the boxes' unit dimensions to establish the expected separation and intersection.
  */
 export async function test_render_scene_observe_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =

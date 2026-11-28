@@ -20,6 +20,10 @@ import { InspectionScene } from "../../internal/InspectionScene";
  * 3. A bare `curve` selects every curve kind and a bare `section` the section
  *    kind, under the path grammar.
  * 4. With no `marks` pattern nothing supplied is drawn, and no kind is checked.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names incomplete mark-kind selection, conditionally available sliver, path matching and omission.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies requests with supplied kinds on an in-memory scene. Reads the unknown-kind diagnostic, the remaining scene state and drawn selection for recognized short forms and disabled marks.
+ * @evidence contracts/development/testing.md#independent-expectations The test's two supplied kinds join the default measured defect kinds in the refusal. Sliver is admitted only after the test provides its limit. A short curve request selects its hierarchy, and omitting marks draws none of the supplied data.
  */
 export function test_render_scene_apply_inspection_mark_kind_unknown(): void {
   const stage: THREE.Scene = InspectionScene.scene(

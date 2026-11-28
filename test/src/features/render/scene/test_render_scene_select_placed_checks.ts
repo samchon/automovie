@@ -16,6 +16,10 @@ import * as THREE from "three";
  * 3. A custody schedule picks the latest entry at or before the second; the
  *    holder is the named holder the prop sits under, `null` when it sits under
  *    the scene only, and left out when it sits elsewhere.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe half-open support windows, time-dependent grip and custody evidence in three scene hierarchies.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that only active placed checks are selected with their key, requirement and paths, that grip uses the sample time, and that custody distinguishes a holder, scene root and outside hierarchy.
+ * @evidence contracts/development/testing.md#independent-expectations Uses fixed phase edges at 1 and 2 seconds, literal custody rows and known parent identities to specify each expected selected check.
  */
 export function test_render_scene_select_placed_checks(): void {
   const scene: THREE.Group = new THREE.Group();

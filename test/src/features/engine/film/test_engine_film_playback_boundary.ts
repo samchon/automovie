@@ -57,6 +57,10 @@ function relates(
  * 3. A doubled playback rate maps each output step to two shot-local steps.
  * 4. A declared break owns the half-open interval ending at its second.
  * 5. Reversed and post-runtime instants are unavailable.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish continuous contiguous playback, cuts and dissolves, retimed clocks, declared breaks and unavailable intervals.
+ * @evidence contracts/development/testing.md#behavioral-verification The test classifies authored pairs after laying out their public sequence timelines, then inspects the relation and both local times with trim, rate and break variants.
+ * @evidence contracts/development/testing.md#independent-expectations Inside one play, two output samples share its source clock. A contiguous hard cut resumes that clock at the stopped source time on the incoming entry. A gap, another shot or overlap changes the edit relation. At rate two a unit output change advances two local units.
  */
 export function test_engine_film_playback_boundary(): void {
   const shots: IAutoMovieShot[] = [shot("walk", 4), shot("close", 2)];

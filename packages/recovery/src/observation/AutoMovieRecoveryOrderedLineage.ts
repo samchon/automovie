@@ -15,14 +15,12 @@ import { observeRecoveryOrderedCuts } from "../geometry/internal/observeRecovery
  */
 export namespace AutoMovieRecoveryOrderedLineage {
   /**
-   * Reobserve requested saved planes without reading or fitting a coefficient.
-   * The caller verifies native and saved artifact bytes; this function compares
-   * their declared source/selection/frame identities and rechecks complete raw
-   * populations, closure and broad/exact face sets through the official binder.
-   * Binary64 cutting is not certified exact arithmetic. No aggregate metadata
-   * byte ceiling or cancellation hook is provided; the synchronous caller
-   * bounds its selected mesh and saved-plane request and keeps borrowed inputs
-   * immutable.
+   * Reobserve requested saved sections in their original registered millimetre
+   * frame. Pass byte-verified artifact identities and source selection. The
+   * operation compares declared identities and exact raw contour provenance.
+   * Supply one unique nonnegative safe-integer native face ordinal per input
+   * triangle. Keep input arrays immutable for the synchronous call. Invalid
+   * maps, mismatched frames or mismatched contour populations throw.
    */
   export function observeCuts(
     input: IAutoMovieRecoveryOrderedLineage.Input,
@@ -31,17 +29,11 @@ export namespace AutoMovieRecoveryOrderedLineage {
   }
 
   /**
-   * Recover a new pointwise correspondence for explicitly requested saved
-   * cubics. The caller byte-verifies cuts, target publications and their actual
-   * policies. The original section fitter replays each target once; conversion
-   * to the saved cubic basis must reproduce its JSON numeric geometry and
-   * physical h exactly. A per-target failure retains completed milestones and
-   * any obtained replay quality, but returns unavailable without samples or
-   * replacement coefficients. Source/physical-frame admission failures throw
-   * before targets. Historical accepted parameters, independent control effects
-   * and surface transverse jets are not qualified. This synchronous call has no
-   * cancellation hook or aggregate byte budget beyond the caller's finite
-   * targets/fit budgets.
+   * Recover pointwise correspondence for selected saved cubics. Supply
+   * verified cut and target identities and the original fit policy. A target
+   * qualifies only if replay reproduces the saved numeric coefficients and
+   * widths. Local failures retain their milestones, and source or frame
+   * conflicts throw before fitting.
    */
   export function bindSavedFits(
     input: IAutoMovieRecoveryOrderedLineage.Input,

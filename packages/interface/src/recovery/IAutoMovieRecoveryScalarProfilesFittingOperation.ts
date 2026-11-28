@@ -1,59 +1,40 @@
 /**
- * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
- * Unpivoted Householder QR acts on the original design and all right-hand
- * sides; the diagonal ratio is an operational rank test, not a certified
- * condition. Endpoint values and derivatives convert each polynomial interval
- * exactly to Bernstein controls before binary64 rounding. Input
- * coordinates/values use millimetres; returned physical intervals and controls
- * use metres.
+ * Callable fitting of co-charted physical scalar observations into cubic span
+ * controls.
  */
 
 export namespace IAutoMovieRecoveryScalarProfilesFittingOperation {
   /**
-   * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
-   * Unpivoted Householder QR acts on the original design and all right-hand
-   * sides; the diagonal ratio is an operational rank test, not a certified
-   * condition. Endpoint values and derivatives convert each polynomial interval
-   * exactly to Bernstein controls before binary64 rounding. Input
-   * coordinates/values use millimetres; returned physical intervals and
-   * controls use metres.
+   * Fit every value column on the same clamped uniform cubic spline design.
+   * Give increasing Y stations and finite field values in millimetres, a
+   * positive span count, and a rank threshold in (0, 1). Return intervals and
+   * Bernstein controls in metres. A weak design or nonrepresentable solve
+   * raises an error.
    */
 
   export type Operation = (
     samples: readonly {
-      /**
-       * Vertical observation station in the declared registered millimetre
-       * chart.
-       */
+      /** Registered physical Y station in millimetres. */
       yMm: number;
       /**
-       * Observed scalar profile values in the declared physical chart, aligned
-       * with the station.
+       * Finite scalar observation values in the caller's field order and
+       * millimetres.
        */
       values: readonly number[];
     }[],
     spans: number,
     minimumRankRatio: number,
   ) => {
-    /** Fitted cubic scalar spans in increasing physical station order. */
+    /** Fitted cubic spans in ascending physical Y order. */
     spans: {
-      /**
-       * Ordinal of the adjacent saved-plane interval in the complete
-       * observation sequence.
-       */
+      /** Lower and upper span endpoints in metres. */
       interval: [number, number];
 
-      /**
-       * Cubic Bernstein scalar controls in profile order, each with four
-       * coefficients.
-       */
+      /** Four Bernstein controls in metres for each field, in input field order. */
       profiles: [number, number, number, number][];
     }[];
 
-    /**
-     * Dimensionless observed design singular ratio for the fitted
-     * scalar/profile system.
-     */
+    /** Smallest-to-largest magnitude of the spline QR diagonal. */
     rankRatio: number;
   };
 }

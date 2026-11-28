@@ -15,6 +15,10 @@ import { nclose } from "../../internal/predicates";
  *    native unit-rate sample reads.
  * 2. Both one-sample phase directions preserve the final reachable sample and
  *    silence beyond either the source trim or presentation span.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the rational picture rate, literal native audio ticks and both directions of a one-sample trim mismatch.
+ * @evidence contracts/development/testing.md#behavioral-verification The test renders the same ramp at the two phase placements through the public mixer, measuring sample values at cue start, the last available sample and the adjacent silent tick.
+ * @evidence contracts/development/testing.md#independent-expectations At 48 kHz, nearest rounding of 30000/1001 frames per second gives boundaries 0, 1602, 3203 and 4805. Film frame one spans 1601 samples while frame zero spans 1602. Swapping presentation and source intervals independently limits the last legal unit-rate read.
  */
 export function test_engine_film_production_sound_ntsc_phase(): void {
   const {

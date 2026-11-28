@@ -21,6 +21,10 @@ const ANGLE_ROUNDING: number = 16 * Number.EPSILON;
  *    straight path has no lean.
  * 2. A 90-degree bank under a 90-degree yaw multiplies the two half-angle
  *    quaternions in vehicle order while keeping the original location.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines signed turn balance and vehicle-local banking under an authored yaw.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual forward, reverse and straight lean values and the posed bank transform. Compares rotation, translation and scale.
+ * @evidence contracts/development/testing.md#independent-expectations At 2 m/s, curvature `g/4` gives lateral acceleration `g` and a 45 degree lean. The bank and yaw are separate quarter turns, so their half-angle quaternions fix the expected composition.
  */
 export function test_archetypes_internal_course_lean(): void {
   const state: course.IState = {

@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  *    across, it closes `1 - sqrt(0.05)`; 0.4 m across it is out of reach.
  * 2. Folded 90 degrees from +Z toward +Y the forearm runs +Y; 135 degrees, (0, sin
  *    135, cos 135); a plane leaning along the arm folds the same.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes articulated virtual reach and forearm direction projected into its posed plane.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the reach and fold planners using a one-metre goal, lateral offsets and plane directions with the same posed upper arm.
+ * @evidence contracts/development/testing.md#independent-expectations The horizontal component is √(0.3² − 0.2²), so close distance is 1 − √0.05. The 0.4 m lateral goal is unreachable and orthogonal folding gives the stated vector.
  */
 export function test_motions_striking_close_strike_reach(): void {
   const shoulder = { x: 0, y: 1, z: 0 };

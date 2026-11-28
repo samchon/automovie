@@ -28,6 +28,10 @@ const SCALED_AGM_TOLERANCE: number = 4 * AGM_TOLERANCE;
  *    lies strictly between its first geometric and arithmetic iterates,
  *    2 and 2.5. It rounds to 2 in either input order.
  * 5. A zero, negative, or infinite argument is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ordinary arithmetic-geometric means, scale and order invariance, subnormal rounding and invalid values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual AGM at known values and compares reversed and scaled pairs, an extreme pair and three refusal cases.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal known Gauss means. For least-value-scaled arguments 1 and 4 the first iterates enclose the result strictly between 2 and 2.5, so it rounds to two scale units.
  */
 export function test_archetypes_core_track_agm(): void {
   const agm = AutoMovieArchetypeTrack.agm;

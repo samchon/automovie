@@ -54,10 +54,8 @@ function same(
  * 5. Every mark of an affordance is named `<path>/affordance/<id>` and grouped as `affordance/<kind>`, and the marks of a list come in the list's order.
  * 6. Under a placement every drawn place is the placement applied to the unplaced one.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Asks for the marks of produced archetypes' affordances and reads their shapes, paths and kinds; a missing or extra outline, an arrow along the wrong axis or of the wrong length, an outline that is not the extent a site reads, a wrong name or group, or a placement applied to the arrow but not the outline is caught.
- * @evidence contracts/development/testing.md#independent-expectations The outlines are held against the archetype's own sites and articulation, which `AutoMovieArchetypeSite` and `AutoMovieArchetypeArticulation` own and their tests pin, never against the marks' arithmetic: a grip's ends, a seat's corners, a drawer's frame at full travel. The arrow is the frame convention's `+Y` out of the contact; the naming is the inspection path grammar `AutoMovieArchetypeMarks` states; a placed point is a rotation and a shift worked here.
- * @evidence contracts/development/testing.md#distinguishing-cases One affordance of each outline shape the task of drawing distinguishes: a line, a rectangle, a run, none; an asked against the default arrow length; placed against unplaced. A rim's circle and a crank's spoke follow the same sites and are left to `test_archetype_contract_site`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host and draws nothing.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads generated marks from real affordances in memory. Compares mark shapes, coordinates, paths and groups before and after placement.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the actual site endpoints, seat corners and articulated drawer to set the outlines. The hinge supplies a point with no outline. Arrow direction, length and placement follow the contact frame and caller's request.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_contract_marks(): void {

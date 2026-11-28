@@ -1,9 +1,9 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * Shared sampled source ring read and refined before any contour surface
- * resolves. The caller's generic subtype retains source-knot ownership beyond
- * this view.
+ * Shared sampled source ring for pre-emission refinement. Keep the ring object
+ * shared across its incident groups. Its caller-owned subtype can retain the
+ * registered source knots.
  */
 export interface IAutoMoviePrepareContourBoundaries64Ring {
   /**
@@ -12,9 +12,8 @@ export interface IAutoMoviePrepareContourBoundaries64Ring {
    */
   id: string;
   /**
-   * Mutable cyclic boundary samples in millimetres. Refinement inserts
-   * source-derived points into this same array; callers must share ring
-   * identity across incident groups.
+   * Mutable cyclic boundary samples in millimetres. Refinement splices
+   * source-derived points into this same array and registers their knots.
    */
   points: AutoMovieVector3Tuple[];
   /**
@@ -23,9 +22,8 @@ export interface IAutoMoviePrepareContourBoundaries64Ring {
    */
   winding: number;
   /**
-   * Local reason this ring cannot participate in supported boundary
-   * preparation. Absence permits refinement; presence propagates to its
-   * incident group rather than fabricating geometry.
+   * Reason to skip preparation of an incident group. Preparation copies it to
+   * the group when no prior reason is present.
    */
   unsupported?: string;
 }

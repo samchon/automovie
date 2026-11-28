@@ -7,7 +7,13 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
-/** Normalize one bounded convex form and intersect its exposed side. */
+/**
+ * Normalize one bounded convex form and intersect its exposed side.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the centered diameter, ground facet, top and side intersections, scale and seed variation.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual convex forms and inspects their vertices and hull planes. Checks all point pairs horizontally, reads physical boundary positions and compares alternate size and seed outputs.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit radius is half the requested diameter. A base plane at Y zero has downward normal, an exposed contact has zero signed plane separation, and uniform doubling yields eight times the volume.
+ */
 export function test_archetypes_nature_irregular_rock_form(): void {
   const seed: string = "8b3702c591f41a6d";
   const diameter: number = 0.5;

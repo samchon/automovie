@@ -1,41 +1,30 @@
 /**
- * Address of the observation represented by a source port. The discriminator
- * requires section/curve, section/contact observation, or named-boundary
- * identity for its actual variant. Numeric ordinals are dimensionless and their
- * range belongs to the supplying observation.
+ * Typed source-free address of a saved observation or named boundary associated
+ * with a port.
  */
 export type IAutoMovieRecoverySourcePortReference =
   | {
-      /**
-       * Closed representation discriminator selecting the corresponding
-       * observation or result arm.
-       */
+      /** Saved closed loop or open report fit address. */
       kind: "closed" | "open";
-      /** Saved-section ordinal in the input observation sequence. */
+      /** Original saved section index containing this closed or open curve. */
       section: number;
-      /** Curve ordinal in the addressed saved closed/open section population. */
+      /** Index in the indicated closed or open output curve population. */
       curve: number;
     }
   | {
-      /**
-       * Closed representation discriminator selecting the corresponding
-       * observation or result arm.
-       */
+      /** Saved contact observation address. */
       kind: "contact";
-      /** Saved-section ordinal in the input observation sequence. */
+      /** Original saved section index containing this contact. */
       section: number;
-      /** Contact-observation ordinal in the addressed saved section. */
+      /** Index in that section's recorded contact population. */
       observation: number;
     }
   | {
       /**
-       * Closed representation discriminator selecting the corresponding
-       * observation or result arm.
+       * Caller-defined boundary observation without a saved curve or contact
+       * index.
        */
       kind: "boundary";
-      /**
-       * Caller-assigned stable semantic identity retained in generated
-       * coefficient and observation records.
-       */
+      /** Caller-assigned name of the observed boundary. */
       name: string;
     };

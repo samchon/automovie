@@ -15,11 +15,9 @@ const MM: number = 1e-3;
  * 1. The lectern's reading surface is 23 in wide and 15 3/4 in deep, its back edge 46 in up, sloping 15 degrees down toward `+Z`; its `front` lies on the surface's lower edge.
  * 2. The high chair is 56 x 59 cm on the floor and 90 cm high, its 25 x 22 cm seat 54 cm up, its `seat` on the seat's front edge.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a surface off its slope or a seat off its height is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are Safco's and IKEA's restated here; the front edge's height follows from the slope over the depth.
- * @evidence contracts/development/testing.md#distinguishing-cases A tilted surface and a level seat.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the lower front edge of the lectern and the front-edge seat frame of the high chair with their source dimensions.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each producer directly and measures surface extents, inclination, floor footprint and the corresponding contact height. The cases distinguish the reading plane's incline from the level seat.
+ * @evidence contracts/development/testing.md#independent-expectations Uses Safco's 23 by 15.75 inch reading surface at 15 degrees and the IKEA seat and footprint dimensions. The lectern's lower contact height follows from the stated depth and slope.
  */
 export function test_archetype_lectern_high_chair(): void {
   const findings: string[] = [];

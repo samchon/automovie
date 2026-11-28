@@ -24,9 +24,7 @@ import type { IAutoMovieHumanF1NativeLaw } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the resolver on every row of the production table against made fields and reads the fields it returns.
  * @evidence contracts/development/testing.md#independent-expectations Each expected number is the made base's value times the row's own ratio; the counts are the table's structure (sites by measures by percentiles).
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind of row, a site with and without a caliper, the base's immutability and the unresolved reasons; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous arithmetic on a made field record; no native assembly, artifact file or figure.
- * @evidence contracts/development/common.md#meaningful-documentation States the made base and each scenario.
+ * @evidence contracts/development/common.md#meaningful-documentation The synthetic fields exercise all 109 declared rows. Field and length edits, baseline identity, row-specific refusal and fresh result ownership have distinct expectations.
  */
 export function test_human_body_case_resolve(): void {
   const failures: string[] = [];

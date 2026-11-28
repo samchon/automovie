@@ -22,6 +22,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. A clockwise outer ring has no ear ("could not find a valid ear"); a hole
  *    outside the outer ring has no visible bridge ("could not find a visible
  *    hole bridge").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names deterministic ear order, holes, collinear corners, noncanonical winding and absent bridge cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Ear-clips admitted planar rings and measures actual oriented triangles and enclosed area, then tries the two invalid ring configurations.
+ * @evidence contracts/development/testing.md#independent-expectations An outer area 16 minus the hole's area 4 leaves 12. The canonical square's first ear follows corner order. A straight corner cannot form a positive-area ear.
  */
 export function test_engine_geometry_triangles_of(): void {
   const ring = (...xy: number[]): IAutoMovieProfilePoint[] =>

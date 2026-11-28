@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. 0.1234564 rounds down and 0.1234566 rounds up at the sixth decimal.
  * 2. A tiny negative value rounds to a positive zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names down and up rounding on different page axes and the normalization of small negative output to positive zero.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.roundAutoMovieDrawingPoint on fixed pairs, comparing both coordinates and testing signed zero using Object.is.
+ * @evidence contracts/development/testing.md#independent-expectations The points straddle the sixth-decimal midpoint, so the pair rounds to (0.123456, 0.123457). At -1e-9 the nearest grid coordinate is zero, whose sign the contract fixes.
  */
 export function test_engine_drawing_round_point(): void {
   TestValidator.equals(

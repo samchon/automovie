@@ -3,16 +3,23 @@ import type { IAutoMovieConstructionPolyline } from "../render/IAutoMovieConstru
 import type { IAutoMovieRecoverySupportRealizationMetrics } from "./IAutoMovieRecoverySupportRealizationMetrics";
 
 /**
- * Source-free convex-support model, construction and numerical generation
- * diagnostics.
+ * Result of compiling an edited convex-support recipe into a lateral mesh. It
+ * includes sampled construction lines and numerical diagnostics from the same
+ * Engine realization.
  */
 export interface IAutoMovieRecoverySupportRealization {
-  /** Source-free generated model, in model metres. */
+  /** Generated model with one open convex-support mesh part in metres. */
   model: IAutoMovieModel;
 
-  /** Lines evaluated from the same generating coefficients. */
+  /**
+   * Sampled section loops and boundary curves from the realized support
+   * surface.
+   */
   construction: IAutoMovieConstructionPolyline.IMutable[];
 
-  /** Actual numerical generation counts and qualifications. */
+  /**
+   * Counts and numerical qualification of the edited loft, including its face
+   * chord bound and boundary defect in metres.
+   */
   generation: IAutoMovieRecoverySupportRealizationMetrics;
 }

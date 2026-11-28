@@ -27,11 +27,9 @@ const PITCH: number = IN / 10;
  * 4. As the screw turns from its reverse to its travel, the muzzle's direction rises monotonically, and the handle's travel and reverse are its turns at the elevation's ends, 12 up and 8 down.
  * 5. Every pose from 8 down to 12 up is an admitted model, either input gives the same muzzle and travels, and setting both inputs is refused. The launch consumer accepts the screw directly.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Drives the screw at every degree of the gun's field of fire and reads the elevation, translation, handle frame and muzzle; compares the existing elevation input and launches from the screw. A reversed coupling, a stationary handle, a changed launch or duplicate inputs admitted is caught.
- * @evidence contracts/development/testing.md#independent-expectations The ring's fall is worked here from the 1862 manual's tube dimensions and the rotation about the trunnions; the pitch is Mordecai's, restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases Depression and elevation, every whole degree between, both ends, both input directions, the launch consumer and refused duplicate inputs; non-invertible generic rules belong to contract_reversible.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the authored animation controls, coupled and original elevation paths, contact frames and conflicts between duplicate inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Articulates the generated scene model through its control and reads both the posed geometry and the existing contact consumers. It checks translation direction, carried handle pose and refusal of duplicate mechanism inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The authored fixture's rigid pivot and screw motion determine the expected positions and travel. An equal posed model made through the direct elevation path supplies a second comparison.
  */
 export function test_archetype_cannon_elevation(): void {
   const findings: string[] = [];

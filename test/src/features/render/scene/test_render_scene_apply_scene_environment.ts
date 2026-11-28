@@ -27,6 +27,10 @@ const COLOR_TOLERANCE: number = 0;
  * 2. An unsigned-byte texture supplies both environment and background. A repeated
  *    call with its unchanged mapping does not retire or upload again.
  * 3. Clearing the environment removes both published references.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names linear fallback, shared environment and background texture, rotation, reuse and clearing.
+ * @evidence contracts/development/testing.md#behavioral-verification Publishes a typed environment on a real Three.js scene before loading a texture, with its decoded texture and again with the same mapping. Reads both native references, rotations and upload changes, then clears it.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree yaw becomes π/2 on the Y axis. Before decode, the specified fallback supplies color and environment is absent. Once decoded, the same supplied texture appears in both references, with no further upload for identical publication. Clearing removes both.
  */
 export function test_render_scene_apply_scene_environment(): void {
   const scene: Scene = new Scene();

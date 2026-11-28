@@ -25,8 +25,7 @@ export function generateSupportCurve64(
   if (
     props.harmonics.length === 0 ||
     props.harmonics.length > 17 ||
-    props.harmonics[0]!.sine !== 0 ||
-    props.harmonics[0]!.cosine <= 0 ||
+    !Number.isSafeInteger(props.spans) ||
     props.spans < 4 ||
     props.spans > 4096 ||
     (props.spans & (props.spans - 1)) !== 0
@@ -34,31 +33,49 @@ export function generateSupportCurve64(
     throw new Error(
       "Millimetre support harmonics and a bounded power-of-two partition required",
     );
-  const coefficients: { cosine: number; sine: number }[] = props.harmonics.map(
-    (pair: {
-      cosine: number;
-      sine: number;
-    }): { cosine: number; sine: number } => ({ ...pair }),
-  );
+  const coefficients: IAutoMovieGenerateSupportCurve64.IHarmonic[] = [];
+  for (const pair of props.harmonics) {
+    if (
+      pair === undefined ||
+      pair === null ||
+      !Number.isFinite(pair.cosine) ||
+      !Number.isFinite(pair.sine)
+    )
+      throw new Error("Support harmonic coefficient pairs must be finite");
+    coefficients.push({ cosine: pair.cosine, sine: pair.sine });
+  }
+  if (coefficients[0]!.sine !== 0 || coefficients[0]!.cosine <= 0)
+    throw new Error(
+      "Support needs a positive zeroth cosine and zero zeroth sine",
+    );
+
   const perimeter: number = 2 * Math.PI * coefficients[0]!.cosine;
-  let radiusLipschitz: number = 0;
-  let fourthDerivativeBound: number = Math.abs(coefficients[0]!.cosine);
-  for (let n: number = 1; n < coefficients.length; ++n) {
+  const width: number = (2 * Math.PI) / props.spans;
+  const maximumSamples: number = 4096;
+  const errorFactor: number = (Math.SQRT2 * width ** 4) / 384;
+  let radiusRemainder: number = 0;
+  let error: number = coefficients[0]!.cosine * errorFactor;
+  for (let n: number = 2; n < coefficients.length; ++n) {
     const amplitude: number = Math.hypot(
       coefficients[n]!.cosine,
       coefficients[n]!.sine,
     );
-    radiusLipschitz += n * Math.abs(1 - n * n) * amplitude;
+    radiusRemainder +=
+      amplitude * ((Math.PI / maximumSamples) * n * Math.abs(1 - n * n));
     // In complex coordinates X=(h+i*h')*exp(i*theta), the two frequencies
     // contributed by harmonic n are n+1 and 1-n. Translation (n=1) vanishes.
-    fourthDerivativeBound +=
-      (amplitude / 2) *
-      (Math.abs(1 - n) * (n + 1) ** 4 + (n + 1) * Math.abs(1 - n) ** 4);
+    const majorantFactor: number =
+      (Math.abs(1 - n) * (n + 1) ** 4 + (n + 1) * Math.abs(1 - n) ** 4) / 2;
+    error += amplitude * (errorFactor * majorantFactor);
   }
-  const width: number = (2 * Math.PI) / props.spans;
-  const error: number = (Math.SQRT2 * fourthDerivativeBound * width ** 4) / 384;
+  if (
+    !Number.isFinite(perimeter) ||
+    !Number.isFinite(error) ||
+    !Number.isFinite(radiusRemainder)
+  )
+    throw new Error("Support curve qualifications must remain finite");
   let lower: number = -Infinity;
-  for (let count: number = 16; count <= 4096; count *= 2) {
+  for (let count: number = 16; count <= maximumSamples; count *= 2) {
     let minimum: number = Infinity;
     for (let i: number = 0; i < count; ++i) {
       const angle: number = (2 * Math.PI * i) / count;
@@ -70,10 +87,10 @@ export function generateSupportCurve64(
             coefficients[n]!.sine * Math.sin(n * angle));
       minimum = Math.min(minimum, radius);
     }
-    lower = minimum - (radiusLipschitz * Math.PI) / count;
+    lower = minimum - radiusRemainder * (maximumSamples / count);
     if (lower > 0) break;
   }
-  if (lower <= 0)
+  if (!Number.isFinite(lower) || lower <= 0)
     throw new Error(
       "Positive curvature radius remains unresolved for this support family",
     );
@@ -99,6 +116,7 @@ export function generateSupportCurve64(
     points.push([h * c - derivative * s, 0, h * s + derivative * c]);
     tangents.push([-radius * s, 0, radius * c]);
   }
+  const handleScale: number = width / 3;
   const spans: AutoMovieCubicBezierControls3[] = points.map(
     (
       a: Readonly<AutoMovieVector3Tuple>,
@@ -108,20 +126,27 @@ export function generateSupportCurve64(
       const b: Readonly<AutoMovieVector3Tuple> = points[next]!;
       const da: Readonly<AutoMovieVector3Tuple> = tangents[i]!;
       const db: Readonly<AutoMovieVector3Tuple> = tangents[next]!;
-      return [
+      const controls: AutoMovieCubicBezierControls3 = [
         a,
         [
-          a[0] + (width * da[0]) / 3,
-          a[1] + (width * da[1]) / 3,
-          a[2] + (width * da[2]) / 3,
+          a[0] + handleScale * da[0],
+          a[1] + handleScale * da[1],
+          a[2] + handleScale * da[2],
         ],
         [
-          b[0] - (width * db[0]) / 3,
-          b[1] - (width * db[1]) / 3,
-          b[2] - (width * db[2]) / 3,
+          b[0] - handleScale * db[0],
+          b[1] - handleScale * db[1],
+          b[2] - handleScale * db[2],
         ],
         b,
       ];
+      if (
+        controls.some((point: Readonly<AutoMovieVector3Tuple>): boolean =>
+          point.some((value: number): boolean => !Number.isFinite(value)),
+        )
+      )
+        throw new Error("Support curve controls must remain finite");
+      return controls;
     },
   );
   return {

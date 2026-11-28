@@ -11,6 +11,10 @@ import { softPanel } from "../../internal/softFixtures";
  *
  * 1. A 3 × 2 panel spaced 0.5 along u and 0.25 along v: 0.25.
  * 2. A single particle has no edge: Infinity.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineSoftBody.shortestRestLength on a rectangular rest panel and a single-particle rest lattice, then checks both scalars.
+ * @evidence contracts/development/testing.md#independent-expectations The 3-by-2 panel's authored edges are 0.5 m and 0.25 m, so 0.25 m is the minimum. A single particle has no edge and returns the Infinity sentinel.
+ * @evidence contracts/development/common.md#meaningful-documentation Unequal horizontal and vertical spacing exercises the shortest-edge choice. The singleton exercises the empty edge set.
  */
 export function test_engine_soft_shortest_rest_length(): void {
   TestValidator.equals(

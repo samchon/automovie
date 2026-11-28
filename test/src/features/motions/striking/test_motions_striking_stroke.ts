@@ -54,6 +54,10 @@ const INPUT: IAutoMovieMotionHumanStrikingStroke.IInput = {
  *    after the 15 ms dwell.
  * 4. A fixed recovery reads the same free path and stopped path at the same
  *    seconds in reverse order, without asking for the return point again.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual path delivery, peak-rate share, optional via and recoil behavior with a resolved stop and stable seeks.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses normalized peak cases, speed-limited and via-point delivery, then samples free and stopped recovery in reversed time order.
+ * @evidence contracts/development/testing.md#independent-expectations Solving 16u²(1 − u)² gives the stated full and quarter-speed shares. Independent clip endpoints, cap timing and the 15 ms dwell expose a shifted or re-planned return.
  */
 export function test_motions_striking_stroke(): void {
   const quarter: number = StrikingStroke.impactShare(0.25);

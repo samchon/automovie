@@ -24,6 +24,10 @@ import { throwsError } from "../../internal/throwsError";
  * 4. One knot is constant; two open knots are their straight segment.
  * 5. No knot, a missing value, knots not increasing and a knot at the period are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the zero-tension natural case, limited overshoot, periodic and endpoint cases, and invalid knots.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares public tension spline reads with natural spline or written values and samples every segment against its allowed span.
+ * @evidence contracts/development/testing.md#independent-expectations The written step overshoots under a natural cubic, so a scan succeeding within 0.1 is a meaningful difference. Linear and constant cases have direct values.
  */
 export function test_engine_geometry_tension_spline(): void {
   const near = (a: number, b: number, e: number = 1e-12): boolean =>

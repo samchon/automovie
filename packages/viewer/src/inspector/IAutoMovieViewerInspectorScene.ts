@@ -1,6 +1,7 @@
 import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
+  IAutoMovieInspectionTrail,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
 import type { IAutoMovieRenderApplyInspectionProps } from "@automovie/render";
@@ -124,6 +125,9 @@ export namespace IAutoMovieViewerInspectorScene {
 
       /** CSS pixels from the canvas's top edge. */
       top: number;
+
+        /** Width of the admitted paint box in CSS pixels. */
+        width: number;
     }[];
 
     /**
@@ -137,6 +141,9 @@ export namespace IAutoMovieViewerInspectorScene {
      * or fall outside the picture.
      */
     dropped: number;
+
+      /** Paths of the requested labels omitted from this picture. */
+      droppedPaths?: readonly string[];
   }
 
   /**
@@ -170,6 +177,15 @@ export namespace IAutoMovieViewerInspectorScene {
      * provides diagnostics.
      */
     diagnostics?(packet: IAutoMovieInspectionDiagnostics): void;
+
+    /**
+     * Source-backed trails for the latest painted selection and its exact film
+     * second. An empty list clears a prior report.
+     */
+    motionTrails?(
+      trails: readonly IAutoMovieInspectionTrail[],
+      seconds: number,
+    ): void;
 
     /**
      * Console evidence from the current mount's confirmed diagnostic

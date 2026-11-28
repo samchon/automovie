@@ -8,10 +8,8 @@ import { FamilyConicOwnershipPaths } from "../../../reference-conics/FamilyConic
  * 2. A filename without a JSON suffix is refused before it can alias both outputs.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads both actual path results and the non-JSON refusal; reproduces the legacy same-path overwrite without touching disk.
- * @evidence contracts/development/testing.md#independent-expectations Literal sibling filenames specify the independent expected paths; Windows path equality ignores case.
- * @evidence contracts/development/testing.md#distinguishing-cases A working lowercase name accompanies uppercase and missing-suffix cases, with all findings gathered before failure.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous string-only CPU unit with no filesystem, reference, constructor or process.
- * @evidence contracts/development/common.md#meaningful-documentation Names the overwrite condition and the two numbered input cases.
+ * @evidence contracts/development/testing.md#independent-expectations Literal sibling filenames specify the expected companion paths. The comparison treats JSON suffix case consistently on Windows.
+ * @evidence contracts/development/common.md#meaningful-documentation Uppercase and lowercase JSON names receive distinct companion paths. A filename without a JSON suffix exercises refusal before an overwrite.
  */
 export function test_human_ownership_paths(): void {
   const failures: string[] = [];

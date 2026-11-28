@@ -34,6 +34,10 @@ const NATIVE_DISTANCE: number = 1e-7;
  *    an explicit sufficient prediction.
  * 4. Query inputs remain unchanged, and a negative prediction is refused rather
  *    than measured.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies exact convex tangency, explicit separated-pair prediction, native witnesses and invalid prediction refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries direct and transformed sphere, capsule and box placements at zero distance and a representable gap, and submits a negative prediction.
+ * @evidence contracts/development/testing.md#independent-expectations True tangency has native distance zero. Positive gap is absent by default and admitted only with sufficient explicit prediction, keeping its positive distance and geometric impulse null.
  */
 export async function test_engine_physics_prepare_physical_geometry_boundary(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();

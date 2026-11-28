@@ -15,11 +15,9 @@ import { TestValidator } from "@nestia/e2e";
  * 6. A bolt's centre of mass lies ahead of its middle, toward its steel head, the reason it flies point first. An arrow's head is not drawn, no read giving its size and mass, so its balance waits for that source.
  * 7. A cartridge, loaded and never launched, carries no drag and no contact.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces every projectile and reads its model body and mass properties; a kind missing the datum its outcome needs, a coefficient, a depth or a restitution other than its source's, a drag on the wrong area, an invented bolt drag, a shot's depth swapped between calibres, or a bolt balanced behind its middle is caught.
- * @evidence contracts/development/testing.md#independent-expectations The attitudes and outcomes are the issue's table, and the coefficients, depths and restitution the cited figures, all written here; the cross-section is worked here from the drawn diameter; the balance is read from the mass properties against the length.
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind and every read round shot, the sticking, bouncing and rolling outcomes, the unread bolt and the unlaunched cartridge.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the simulated object's body data, per-kind motion records, cross-sectional area and centre-of-mass checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each public scenic model and reads actual body and physical properties. The assertions distinguish each model's assigned simulation metadata and check area and balance against observed geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal reference categories and coefficients. A circular section uses the observed diameter and its ordinary area formula. Centre-of-mass comparisons use the body's measured longitudinal span.
  */
 export function test_archetype_projectile_flight_data(): void {
   const findings: string[] = [];

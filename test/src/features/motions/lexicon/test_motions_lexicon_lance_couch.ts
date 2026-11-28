@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    degree one is tried first and missed, then the 20 degree one is taken.
  * 2. When every tried carriage misses, none is taken and the least miss is kept.
  * 3. A carriage that would reach but lies past the twelfth turn is not tried.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fictional held-prop pose selection by increasing turn, bounded attempts and the measured best miss.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies synthetic carriage choices and endpoint errors, then tests all misses and a reachable candidate beyond the search budget.
+ * @evidence contracts/development/testing.md#independent-expectations Given turn order 10°, 20°, then 30°, the miss at 10° leaves the zero-error 20° pose selected. A thirteenth choice is outside the cap.
  */
 export function test_motions_lexicon_lance_couch(): void {
   const miss: Record<string, number> = { a: 0.2, b: 0.05, c: 0 };

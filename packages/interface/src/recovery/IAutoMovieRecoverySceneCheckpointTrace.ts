@@ -5,29 +5,38 @@ import type {
 } from "..";
 
 /**
- * Owned diagnostic snapshot on either side of one detached joint fit. These
- * states include every proposed observation, including points later refused by
- * final qualification. They are not accepted scene checkpoints.
+ * Owned snapshot delivered to an optional observer immediately before or after
+ * a detached joint fit. A snapshot contains all proposed observations and may
+ * precede a later refusal.
  */
 export interface IAutoMovieRecoverySceneCheckpointTrace {
-  /** Boundary of the actual numerical joint call, before final qualification. */
+  /** Side of the joint call at which the snapshot was made. */
   phase: "before-joint" | "after-joint";
 
-  /** Zero-based closure fit; a later pass requires actual population growth. */
+  /**
+   * Zero-based closure pass. Later passes follow observed growth of the
+   * retained population.
+   */
   pass: number;
 
-  /** Input-source index for each compact pose and observation view index. */
+  /**
+   * Original source index for each compact pose and compact observation view
+   * index.
+   */
   activeViews: number[];
 
-  /** Compact active world-to-camera poses in the original seed gauge. */
+  /**
+   * Active world-to-camera poses in compact order, using the original seed
+   * gauge.
+   */
   poses: IAutoMovieRecoveryMapPose[];
 
   /**
-   * Complete proposed points and compact-indexed observations, without
-   * filtering.
+   * Complete fitter point and measurement population with compact observation
+   * view indices.
    */
   landmarks: IAutoMovieRecoveryMapLandmark[];
 
-  /** Actual completed fit report after fitting, otherwise null. */
+  /** Completed fit report for `after-joint`, or null for `before-joint`. */
   joint: IAutoMovieRecoveryMapJointFit | null;
 }

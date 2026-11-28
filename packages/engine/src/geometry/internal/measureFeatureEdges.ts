@@ -44,16 +44,27 @@ export function measureFeatureEdges(
 ): IAutoMovieMeasureFeatureEdges.IResult {
   const { positions, indices, reach }: IAutoMovieMeasureFeatureEdges.IProps =
     props;
-  if (reach <= 0)
+  if (!Number.isFinite(reach) || reach <= 0)
     throw new Error("feature edge reach must be finite and above zero");
-  const vertexCount: number = Math.floor(positions.length / 3);
-  const triangleCount: number = Math.floor(indices.length / 3);
+  if (positions.length % 3 !== 0 || indices.length % 3 !== 0)
+    throw new Error(
+      "Feature edge positions and indices must be complete triples.",
+    );
+  const vertexCount: number = positions.length / 3;
+  const triangleCount: number = indices.length / 3;
 
   // 1. Weld exactly equal positions.
   const welded: number[] = new Array<number>(vertexCount);
   const ids: Map<string, number> = new Map();
   for (let v: number = 0; v < vertexCount; ++v) {
-    const key: string = `${positions[3 * v]},${positions[3 * v + 1]},${positions[3 * v + 2]}`;
+    const x: number = positions[3 * v]!,
+      y: number = positions[3 * v + 1]!,
+      z: number = positions[3 * v + 2]!;
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
+      throw new Error(
+        "Feature edge positions must contain finite XYZ coordinates.",
+      );
+    const key: string = `${x},${y},${z}`;
     let id: number | undefined = ids.get(key);
     if (id === undefined) {
       id = v;
@@ -76,7 +87,12 @@ export function measureFeatureEdges(
       indices[3 * t + 1]!,
       indices[3 * t + 2]!,
     ];
-    if (vs.some((v: number): boolean => !(v >= 0 && v < vertexCount)))
+    if (
+      vs.some(
+        (v: number): boolean =>
+          !Number.isSafeInteger(v) || v < 0 || v >= vertexCount,
+      )
+    )
       throw new Error(`feature edge triangle ${t} has an index out of range`);
     const [a, b, c]: [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] =
       vs.map(point) as [

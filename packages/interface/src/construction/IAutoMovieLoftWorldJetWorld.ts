@@ -1,48 +1,42 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 
 /**
- * World point and all partials through total order two after frame placement.
- *
- * loftWorldJet computes P = origin + local.u * frame.u + local.v *
- * frame.v from local derivatives and three physical-station frame rows. Station
- * uses millimetres. Phase retains the caller's clock: radians for a loft/view,
- * or the normalized piece coordinate after ConstructionProfileSurface applies
- * its clock scale. The operator returns six fresh mutable vectors, mutates no
- * input and throws AutoMovieEngineLoftAdmissionError for nonfinite outputs; malformed
- * input/getter errors propagate. Lift and relief are added separately by the
- * loft owner.
+ * World position and complete partials after the frame product rule. The six
+ * vectors use physical station in millimetres and the caller's unchanged phase
+ * clock. The operation returns fresh vectors. Lift and relief are composed by
+ * their owning loft reader after placement.
  */
 export type IAutoMovieLoftWorldJetWorld = {
   /**
-   * Surface point in the publishing frame's world millimetres, freshly
-   * allocated by the frame product rule.
+   * Surface position in world millimetres after applying the origin and both
+   * local basis axes.
    */
   p: AutoMovieVector3Tuple;
 
   /**
-   * First physical-station partial in millimetres per millimetre; includes
-   * frame motion and local station derivatives.
+   * First physical-station partial in millimetres per millimetre. It includes
+   * motion of the origin and axes as well as local station change.
    */
   s: AutoMovieVector3Tuple;
 
   /**
-   * First phase partial in millimetres per caller clock unit; the original or
-   * explicitly re-expressed phase clock is preserved.
+   * First phase partial in millimetres per phase clock unit. Frame axes are
+   * fixed at the queried station for this derivative.
    */
   t: AutoMovieVector3Tuple;
 
   /**
    * Second physical-station partial in inverse millimetres, including the frame
-   * product-rule cross terms.
+   * and local product-rule terms.
    */
   ss: AutoMovieVector3Tuple;
 
-  /** Mixed station/phase partial in inverse caller clock units. */
+  /**
+   * Mixed station and phase partial in inverse phase clock units. Local phase
+   * change is also differentiated through moving frame axes.
+   */
   st: AutoMovieVector3Tuple;
 
-  /**
-   * Second phase partial in millimetres per squared caller clock unit; not an
-   * arc-length curvature vector.
-   */
+  /** Second phase partial in millimetres per squared caller phase clock unit. */
   tt: AutoMovieVector3Tuple;
 };

@@ -1,11 +1,14 @@
-/** Unsupported open-curve component across two adjacent saved sections. */
+/**
+ * A retained unresolved open-arc incidence group across adjacent saved
+ * stations.
+ */
 export interface IAutoMovieRecoveryOpenCurveGroup {
-  /** Involved open-curve ordinals in the preceding section; may be empty. */
+  /** Saved open-curve ordinals on the earlier live cut, possibly empty. */
   before: number[];
 
-  /** Involved open-curve ordinals in the following section; may be empty. */
+  /** Saved open-curve ordinals on the later live cut, possibly empty. */
   after: number[];
 
-  /** Why no supported ordinary correspondence was published. */
+  /** Reason ordinary open transport was unresolved for this group. */
   reason: string;
 }

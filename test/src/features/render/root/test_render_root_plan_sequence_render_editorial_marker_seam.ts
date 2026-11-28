@@ -23,6 +23,10 @@ import { nclose } from "../../internal/predicates";
  * 4. A retimed span whose source end rounds back to its start keeps the opening
  *    point and projects a covering range across the entire second. Neighboring
  *    points and a range ending at the opening stay excluded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Assigns each exact source marker to the correct cut or replay occurrence and handles rounded spans.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sequence planning on adjacent decimal markers, a replayed tail, and a retimed span with indistinguishable source endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The explicitly adjacent source doubles and output-time divisions determine admissible identities and multiplicity. A covering range spans the full output second of the collapsed source interval.
  */
 export function test_render_root_plan_sequence_render_editorial_marker_seam(): void {
   const before: number = 0.29999999999999993;

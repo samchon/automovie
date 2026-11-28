@@ -22,6 +22,10 @@ import { vertexColourMesh } from "../../internal/vertexColourFixture";
  *    bare merge carry no colours.
  * 3. A deformation lifting z by 0.1 inside radius 2 moves the first vertex up and
  *    keeps its RGB.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names source color correspondence through mirrored placement, mixed merging and deformation.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies the three geometry owners to a literal textured or bare triangle and examines color array ownership and alignment with positions.
+ * @evidence contracts/development/testing.md#independent-expectations A geometric mirror changes winding while leaving vertex slots fixed. Bare members beside colored ones get white, and displacement changes only geometry.
  */
 export function test_engine_geometry_vertex_colour(): void {
   const coloured: IAutoMovieMesh = vertexColourMesh();

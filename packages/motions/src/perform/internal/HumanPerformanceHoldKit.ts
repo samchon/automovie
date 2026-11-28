@@ -1,14 +1,21 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceHold,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSharedCarry,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceCustody } from "./HumanPerformanceCustody";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -81,6 +88,11 @@ export function HumanPerformanceHoldKit(
       handed !== undefined &&
       handed !== w &&
       (handed.mount !== undefined || handed.bone !== undefined);
+    const episodes = self.sharedCarry?.get(subject);
+    const afterSharedCarry: boolean =
+      w.bone === undefined &&
+      w.mount === undefined &&
+      episodes?.some((episode) => episode.to <= w.from) === true;
     const earlier: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
       w.bone !== undefined ||
       w.mount !== undefined ||
@@ -95,7 +107,13 @@ export function HumanPerformanceHoldKit(
               g.subject === w.subject &&
               g.side === w.side &&
               g.from < w.from &&
-              g.to >= w.from - 1e-6,
+              g.to >= w.from - 1e-6 &&
+              !episodes?.some(
+                (episode) =>
+                  episode.to <= w.from &&
+                  episode.from <= g.from &&
+                  g.from < episode.to,
+              ),
           );
     if (earlier !== undefined) return inHand(earlier, earlier.to);
 
@@ -103,10 +121,12 @@ export function HumanPerformanceHoldKit(
     const before: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
       self,
       subject,
-      w.capture === undefined ? w.from - 1e-6 : w.from,
+      w.capture === undefined && !afterSharedCarry ? w.from - 1e-6 : w.from,
     );
     const hand: IAutoMovieRigidTransform = carrier(w, w.from);
-    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      hand.rotation,
+    );
     return {
       position: AutoMovieEngineQuaternion.rotateVector(
         inverse,
@@ -142,11 +162,19 @@ export function HumanPerformanceHoldKit(
     const socketed: IAutoMovieRigidTransform = {
       position: AutoMovieEngineVector3.add(
         receiving.position,
-        AutoMovieEngineQuaternion.rotateVector(receiving.rotation, set.position),
+        AutoMovieEngineQuaternion.rotateVector(
+          receiving.rotation,
+          set.position,
+        ),
       ),
-      rotation: AutoMovieEngineQuaternion.multiply(receiving.rotation, set.rotation),
+      rotation: AutoMovieEngineQuaternion.multiply(
+        receiving.rotation,
+        set.rotation,
+      ),
     };
-    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(hand.rotation);
+    const inverse: IAutoMovieQuaternion = AutoMovieEngineQuaternion.inverse(
+      hand.rotation,
+    );
     const k: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (at - w.from) / (w.to - w.from))),
     );
@@ -196,6 +224,87 @@ export function HumanPerformanceHoldKit(
  * The readers of HumanPerformanceHoldKit.
  */
 export namespace HumanPerformanceHoldKit {
+  /* Admit the declared path against the realized segments and their custody. */
+  export function admitSharedCarry(
+    self: IAutoMovieMotionHumanPerformanceState,
+  ): void {
+    if (self.sharedCarry === undefined) return;
+    const segments: IAutoMovieMotionHumanSegment[] = [
+      ...self.people.values(),
+    ].flatMap((person) => [...person.segments, ...person.overlays]);
+    for (const episodes of self.sharedCarry.values())
+      for (const episode of episodes) {
+        for (const role of episode.roles) admitRole(self, episode, role);
+        const grips: IAutoMovieMotionHumanPerformanceState.IGrip[] =
+          HumanPerformanceRead.grips(self, episode.prop);
+        if (
+          grips.some(
+            (grip) =>
+              grip.from < episode.to &&
+              grip.to > episode.from &&
+              (grip.bone !== undefined ||
+                grip.mount !== undefined ||
+                grip.inHand !== undefined ||
+                !episode.roles.some(
+                  (role) =>
+                    role.subject === grip.subject &&
+                    role.hand === grip.side &&
+                    role.from <= grip.from + SHARED_CLOCK &&
+                    grip.to <= role.to + SHARED_CLOCK,
+                )),
+          )
+        )
+          sharedRefusal(
+            episode,
+            "remove the conflicting carrier from the shared interval",
+          );
+        if (
+          segments.some((segment) =>
+            segment.plan.launches?.some((launch) => {
+              const seconds: number = segment.start + launch.seconds;
+              return (
+                launch.prop === episode.prop &&
+                segment.entryTime <= seconds &&
+                seconds <= segment.end &&
+                episode.from <= seconds &&
+                seconds < episode.to
+              );
+            }),
+          )
+        )
+          sharedRefusal(
+            episode,
+            "place the prop's launch outside the shared interval",
+          );
+        const previous: IAutoMovieRigidTransform = HumanPerformanceHold.prop(
+          self,
+          episode.prop,
+          episode.from,
+        );
+        const first: IAutoMovieRigidTransform = episode.frame(episode.from);
+        if (
+          AutoMovieEngineVector3.distance(previous.position, first.position) >
+            1e-6 ||
+          AutoMovieEngineQuaternion.angle(previous.rotation, first.rotation) >
+            0.001
+        )
+          sharedRefusal(
+            episode,
+            "begin the prepared path at the prop's displayed closure frame",
+          );
+      }
+  }
+
+  export function sharedRefusal(episode: Episode, reason: string): never {
+    throw new AutoMovieMotionHumanRefusal({
+      kind: "parameter",
+      axis: `sharedCarry.${episode.prop}`,
+      value: episode.prop,
+      reason,
+      fix: "prepare the same rigid episode and place its declared material roles",
+    });
+  }
+
   /*
    * Active samples on one socket path. Each subject is indexed by film second.
    */
@@ -283,7 +392,10 @@ function socket(
   return {
     position: AutoMovieEngineVector3.add(
       frame.position,
-      AutoMovieEngineQuaternion.rotateVector(frame.rotation, at.frame.translation),
+      AutoMovieEngineQuaternion.rotateVector(
+        frame.rotation,
+        at.frame.translation,
+      ),
     ),
     rotation: AutoMovieEngineQuaternion.normalize(
       AutoMovieEngineQuaternion.multiply(frame.rotation, at.frame.rotation),
@@ -295,3 +407,82 @@ function socket(
  * The record of `ISocketMount`'s site.
  */
 type ISocketMount = { prop: string; point: string };
+
+/* Use the realized segment and its named material grip, not a nominal event. */
+function admitRole(
+  self: IAutoMovieMotionHumanPerformanceState,
+  episode: Episode,
+  role: IAutoMovieMotionHumanSharedCarry.IPreparedRole,
+): void {
+  const person = HumanPerformanceRead.person(self, role.subject);
+  const matches: IAutoMovieMotionHumanSegment[] = [
+    ...person.segments,
+    ...person.overlays,
+  ].filter((segment) => segment.id === role.anchor);
+  const segment: IAutoMovieMotionHumanSegment | undefined = matches[0];
+  if (
+    matches.length !== 1 ||
+    segment === undefined ||
+    segment.plan.verifyDisplayed === undefined ||
+    role.from < segment.entryTime - SHARED_CLOCK ||
+    role.to > segment.end + SHARED_CLOCK
+  )
+    HumanPerformanceHoldKit.sharedRefusal(
+      episode,
+      "play each named role through its complete grip and displayed verification",
+    );
+  const contacts = segment.plan.contacts.filter(
+    (contact) =>
+      contact.kind === "grip" &&
+      contact.part === `${role.hand}Hand` &&
+      contact.support.kind === "prop" &&
+      contact.support.carries !== false &&
+      contact.support.subject === episode.prop &&
+      contact.support.point === role.handle &&
+      sameSharedSecond(
+        Math.max(
+          segment.entryTime,
+          segment.start + contact.from * segment.plan.duration,
+        ),
+        role.from,
+      ) &&
+      sameSharedSecond(
+        Math.min(
+          segment.end,
+          segment.start + contact.to * segment.plan.duration,
+        ),
+        role.to,
+      ),
+  );
+  const cues = [
+    ["gripClosed", role.from],
+    ["settled", episode.settled],
+    ["release", role.to],
+  ] as const;
+  if (
+    contacts.length !== 1 ||
+    cues.some(
+      ([name, seconds]) =>
+        segment.plan.events.filter(
+          (event) =>
+            event.name === name &&
+            sameSharedSecond(
+              segment.start + event.share * segment.plan.duration,
+              seconds,
+            ),
+        ).length !== 1,
+    )
+  )
+    HumanPerformanceHoldKit.sharedRefusal(
+      episode,
+      "match the played hand, handle and closure, settle and release seconds",
+    );
+}
+
+/* Placed event shares and grip shares use the same film clock tolerance. */
+function sameSharedSecond(a: number, b: number): boolean {
+  return Math.abs(a - b) <= SHARED_CLOCK;
+}
+
+type Episode = IAutoMovieMotionHumanSharedCarry.IPreparedEpisode;
+const SHARED_CLOCK: number = 1e-9;

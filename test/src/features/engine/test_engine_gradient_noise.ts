@@ -32,9 +32,7 @@ type Sampler = (point: readonly number[]) => number;
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public engine noise samplers and observes their values: repetition, seed sensitivity, range, lattice zeros, step continuity, the 256-cell difference and the named refusals catch a table-driven period, a missing normalization, a non-interpolating blend, a signed-index failure and silent acceptance of bad parameters.
  * @evidence contracts/development/testing.md#independent-expectations The range [-1, 1], zeros on the lattice, the octave and roughness domains and the domain bounds 2^25 and 2^16 are the documented contract; 1e-4 per 1e-6 step allows a slope of 100 lattice units, far above any quintic-blended unit-gradient octave sum of four; 0.1 mean difference over 64 off-lattice points separates an aperiodic lattice from a 256-periodic table, which gives zero.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers both dimensions, single and fractal forms, positive and negative coordinates, points on and across the zero planes, a lattice point, the bound and one cell past it, and each refused parameter; terrain and rock consumers own their own shapes.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit over in-memory numbers; it starts no host, file or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Fixed seeds exercise repeat and changed samples. Integer lattice zeros, sampled bounds, local changes, lattice seams, long offsets and invalid coordinates or parameters distinguish the tested noise behavior.
  */
 export function test_engine_gradient_noise(): void {
   const seed: string = AutoMovieEngineRandom.deriveSeed("noise", "a");

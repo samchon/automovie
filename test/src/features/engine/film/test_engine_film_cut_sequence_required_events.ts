@@ -20,6 +20,10 @@ import { nclose } from "../../internal/predicates";
  *    borrow it from the second.
  * 2. The second trim retains the handoff at 1.5 output seconds and passes.
  * 3. Two retained events with the required id in one play are ambiguous and fail.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify one occurrence's lost and retained handoff and the ambiguous duplicate that cannot satisfy a required event.
+ * @evidence contracts/development/testing.md#behavioral-verification The test runs cutSequence with a required event on each occurrence in turn, then projects the admitted timeline. It checks the required occurrence and the duplicate-id rejection using the actual edited shots.
+ * @evidence contracts/development/testing.md#independent-expectations A handoff at the shared source boundary belongs to the second half-open play. The independent fixture puts that occurrence at 1.5 output seconds. Two events with the same ID in one play provide no unique witness for that requirement.
  */
 export function test_engine_film_cut_sequence_required_events(): void {
   const handoff: IAutoMovieInteractionEvent = {

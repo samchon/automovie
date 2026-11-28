@@ -1,16 +1,19 @@
 import type { AutoMovieVector3Tuple } from "../index";
 
-/** Right-handed physical cutting frame: u cross v = n, all axes unit. */
+/** Right-handed physical cutting frame with a plane origin and three unit axes. */
 export interface IAutoMoviePlaneFrame {
-  /** Physical point on the plane in the source Cartesian frame. */
+  /**
+   * Physical point on the cutting plane in the source Cartesian frame. The
+   * constructor reuses the caller's tuple.
+   */
   origin: AutoMovieVector3Tuple;
 
-  /** Unit normal whose direction fixes the orientation convention. */
+  /** Unit oriented plane normal in the source Cartesian frame. */
   n: AutoMovieVector3Tuple;
 
-  /** First unit in-plane axis; u cross v equals n. */
+  /** First unit in-plane axis, chosen so u cross v agrees with n. */
   u: AutoMovieVector3Tuple;
 
-  /** Second unit in-plane axis, orthogonal to u and n. */
+  /** Second unit in-plane axis aligned with the normalized projected reference. */
   v: AutoMovieVector3Tuple;
 }

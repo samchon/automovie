@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  *    to the first entry are fixed, |s| = 1 / √37, and the inverse composes with
  *    the matrix to the identity times s^2 up to scale.
  * 2. Fewer than four pairs are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fitted translation, inverse and minimum four correspondences.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits and composes the two matrices of a displaced square and submits three paired points.
+ * @evidence contracts/development/testing.md#independent-expectations The authored shift is five pixels in x and three in y. Its homogeneous matrix has Frobenius norm sqrt(37) before normalization.
  */
 export function test_recovery_internal_fit_homography(): void {
   const first: [number, number][] = [

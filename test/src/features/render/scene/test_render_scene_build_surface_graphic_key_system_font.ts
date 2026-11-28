@@ -100,6 +100,10 @@ const text: (
  *    and ownership.
  * 4. A named layer asks for its font by id, so a font the shot does not list
  *    refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names texture raster sizing, system and named font routes, refusals, order and resources.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the graphic key owner through a controlled canvas and texture host. Reads texture dimensions, row orientation, layer order, ownership and requested font IDs for normal, repeated and refused builds.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's box and em map 96 pixels to 0.125 of the authored extent, yielding raster 768 by 384. An unnamed layer makes no font request, while the named layer asks for the literal serif key. Empty extent and missing canvas each refuse.
  */
 export function test_render_scene_build_surface_graphic_key_system_font(): void {
   withCanvas((): void => {

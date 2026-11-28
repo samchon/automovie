@@ -23,6 +23,7 @@ import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanBoneGroups } from "./HumanBoneGroups";
 import { HumanLimbFit } from "./HumanLimbFit";
+import { HumanLimbVanishedRefusal } from "./HumanLimbVanishedRefusal";
 import type { HumanLimbView } from "./HumanLimbView";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { compareHumanLimbPair } from "./compareHumanLimbPair";
@@ -112,17 +113,22 @@ export namespace HumanLimbPair {
     if (compareHumanLimbPair(pose, goals, mirrored, image) <= 0)
       return solved(body, pose, goals, near, readResolution, assess);
     // The image's left arm is this pose's right arm, solved alike.
-    const out: IFitted = solved(
-      body,
-      mirrored,
-      image,
-      {
-        ...(near.right === undefined ? {} : { left: near.right }),
-        ...(near.left === undefined ? {} : { right: near.left }),
-      },
-      readResolution,
-      assess,
-    );
+    let out: IFitted;
+    try {
+      out = solved(
+        body,
+        mirrored,
+        image,
+        {
+          ...(near.right === undefined ? {} : { left: near.right }),
+          ...(near.left === undefined ? {} : { right: near.left }),
+        },
+        readResolution,
+        assess,
+      );
+    } catch (error) {
+      throw HumanLimbVanishedRefusal.reflected(error);
+    }
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
       seeds: { left: out.seeds.right, right: out.seeds.left },

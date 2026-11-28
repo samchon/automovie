@@ -17,40 +17,22 @@ import {
 import "./constants/ADA_RANGES";
 import { AutoMovieArchetypeWindowData } from "./internal/AutoMovieArchetypeWindowData";
 
-/** Constructs the window archetype from its recipe. */
+/** Constructs a composite window with a movable glazed sash and fixed sill. */
 export namespace AutoMovieArchetypeWindow {
 /**
-   * The kinds of window: a side-hung casement, a vertically sliding hung sash,
-   * a horizontally sliding sash.
-   */
+ * Selects a hinged casement, vertically hung sash or horizontally sliding sash.
+ */
   export type Kind = "casement" | "hung" | "sliding";
 
   /**
-   * The affordance ids:
-   *
-   * - `sash`: the sash's articulation: a casement's hinge on its `+X` edge
-   *   swinging it out, a hung sash's slide up, a sliding sash's run toward
-   *   `-X`.
-   * - `handle`: the sash's handle on its room face, which rides the sash: a
-   *   casement's on its `-X` stile, away from the hinge, at `handleHeight`; a
-   *   sliding sash's on its `+X` stile, the edge that leaves the jamb, at
-   *   `handleHeight`; a hung sash's at the middle of its bottom rail, just
-   *   above the sill.
-   * - `sill`: the ledge under the opening, facing into the room.
-   * - `aperture`: the opening, passed through from the room toward `-Z`.
+   * Movable `sash`, its riding `handle`, fixed `sill` ledge and
+   * fixed frame `aperture`.
    */
   export type Affordance = "sash" | "handle" | "sill" | "aperture";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`, `height`: the opening.
-   * - `sillHeight`: the sill above the floor.
-   * - `handleHeight`: a casement's or a sliding sash's handle above the floor; a
-   *   hung sash has none, its handle following the sill.
-   * - `swing`: how far a casement opens, degrees.
-   * - `travel`: how far a sliding sash runs.
-   * - `mass`: the window with its piece of wall, kilograms.
+   * Opening width and height, sill height, applicable handle height and
+   * linear travel in metres. `swing` is in degrees and mass in kilograms.
    */
   export type Dimension =
     | "width"
@@ -62,44 +44,35 @@ export namespace AutoMovieArchetypeWindow {
     | "mass";
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+   * Required sash kind, optional scene ID, applicable finite measurements and optional pane fracture calibration.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which window. */
+    /** Selects the sash structure, travel axis and applicable bands. */
     kind: Kind;
 
-    /** The model's id, unique in a scene; `window` when absent. */
+    /** Scene object ID, defaulting to `window`. */
     id?: string;
 
     /**
-     * An explicit specimen or authored pane-failure calibration, joules, finite
-     * and positive; absent means unknown and does not enable fracture.
+     * Optional finite positive scene-specific parameter for simulated pane fracture, in joules.
      */
     fractureEnergy?: number;
   }
 
   /**
- * A window in a piece of wall: a casement that swings out, or a sash that
- * slides up or sideways.
- *
- * The window stands in the `XY` plane, its wall's foot at the origin and the
- * room on the `+Z` side. Four sash rails surround a separate pane and carry the
- * handle: a casement's and a sliding sash's on the stile that leaves the frame,
- * at the drawn handle height, and a hung sash's on its bottom rail. They move
- * together on `sash`. The `sill` is the ledge under the opening and the
- * `aperture` is the opening itself. Only an explicitly authored
- * `fractureEnergy` enables breakage: the pane leaves as one `shards` fragment
- * while the rails, handle and their articulation remain. Without that
- * calibration the pane's failure energy is unknown.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The window.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
- *   a nonpositive or non-finite fracture calibration.
- */
+   * Build a casement, hung or sliding window above its floor-level base.
+   *
+   * A casement turns about its right edge on the `-Y` hinge axis.
+   * A hung sash slides along `+Y`, and a sliding sash moves along `-X`.
+   * The `handle` travels with the sash. The `sill` and `aperture` stay fixed.
+   *
+   * @param params Required kind, optional scene ID, applicable finite
+   *   measurements and optional simulated pane fracture calibration.
+   * @param seed Numeric seed for omitted measurements. With no seed,
+   *   the frame opening is 0.9 metres wide by 1.05 metres high.
+   * @returns The window with its sash, moving handle, sill and aperture.
+   * @throws {AutoMovieArchetypeRefusal} If a kind, fixed value or fracture calibration is inadmissible.
+   */
 export function create(
   params: AutoMovieArchetypeWindow.IParams,
   seed?: number,
@@ -292,13 +265,10 @@ export function create(
 }
 
   /**
-   * Historical bag-impact reference, joules: 25 ft-lbf was the first drop
-   * breaking through two of five new annealed panes in Meshulam's IIBEC 2019
-   * test
-   * (https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/).
-   * It is neither a universal glass threshold nor a sash-release measurement,
-   * and is never applied automatically; `fractureEnergy` is an independent
-   * authored calibration.
+   * Historical pane-test reference energy, in joules. A simulated pane
+   * uses the scene's independently authored `fractureEnergy` calibration.
+   *
+   * @see https://iibec.org/publication-post/on-the-weakening-of-weathered-window-glass-and-its-effect-on-human-impact-resistance-two-fatality-case-studies/
    */
   export const BREAKING: number =
     25 *
@@ -306,10 +276,10 @@ export function create(
     AutoMovieArchetypeUnits.POUND *
     AutoMovieEngineGravity.STANDARD;
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** The three accepted sash kinds in casement, hung and sliding order. */
   export const KINDS: readonly Kind[] = ["casement", "hung", "sliding"];
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Units used for window sizes, sash motion and assembled mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -322,7 +292,9 @@ export function create(
     mass: "kg",
   };
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * Applicable dimensions by sash kind. Casements draw a swing angle and sliding kinds draw a linear travel.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

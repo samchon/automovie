@@ -17,8 +17,6 @@ import { createDialogueReceiptFixture } from "../internal/createDialogueReceiptF
  * @evidence contracts/development/common.md#meaningful-documentation Lists the tone, the measured band and the 60 dB requirement, the repeat and the length.
  * @evidence contracts/development/testing.md#behavioral-verification Runs ingest's public decoder on WAVE bytes and measures the output spectrum. Linear interpolation leaves the 14 kHz image of a 10 kHz tone about 20 dB down, so it fails.
  * @evidence contracts/development/testing.md#independent-expectations The 60 dB bound and the 12 kHz edge come from the requirement; the spectrum is a direct DFT under a 4-term Blackman-Harris window, whose −92 dB sidelobes keep the tone's own leakage below the bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates the passband tone from any image or alias above the source Nyquist frequency; same-rate decoding is owned by the decoder's other tests.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_ingest_audio_bandlimited_rate`; it starts no process.
  */
 export function test_ingest_audio_bandlimited_rate(): void {
   const tone: Float32Array = Float32Array.from(

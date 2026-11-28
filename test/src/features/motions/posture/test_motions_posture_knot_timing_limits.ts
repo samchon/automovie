@@ -60,6 +60,10 @@ function reads(timed: HumanKnotTiming.ITimed): { v: number; a: number }[] {
  *    knot: the stations are the chords over their limits, 0, 1 and 5; the piece
  *    takes at least 1 / 1 + 1 / 0.25 = 5 s; at the middle knot, a gridpoint,
  *    the speed is within 0.1, and past it within 0.25 by the overshoot.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes rate-only and acceleration-only bounds and the distinct authority of interval and knot limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Times one metre under each active bound and a two-interval course with separate second interval and middle knot limits.
+ * @evidence contracts/development/testing.md#independent-expectations Bang-bang and minimum-jerk bounds enclose duration for acceleration. Rate alone requires at least length/speed, and interval clocks fix at least 5 s for the mixed fixture.
  */
 export function test_motions_posture_knot_timing_limits(): void {
   // 1. The acceleration alone.

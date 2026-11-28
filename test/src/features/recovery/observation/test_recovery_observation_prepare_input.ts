@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Explicit applied registration prepares a small triangle and borrows its
  *    arrays unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the applied registration and borrowed source lifetime.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares one indexed triangle and checks references, registration and coordinate preservation.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies one explicitly registered triangle and its original geometry identities. A second transform would change those known coordinates.
  */
 export function test_recovery_observation_prepare_input(): void {
   type Input = Parameters<typeof AutoMovieRecoveryObservation.prepareInput>[0];

@@ -14,8 +14,6 @@ import {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public inspection result.
  * @evidence contracts/development/testing.md#independent-expectations Each numbered source child has its next index as parent.
- * @evidence contracts/development/testing.md#distinguishing-cases Interior nodes, root and animated leaf are independently identified.
- * @evidence contracts/development/testing.md#execution-ownership Inspects one resident glTF byte stream.
  * @evidence contracts/development/common.md#meaningful-documentation Names depth, target and sampled rotation.
  */
 export function test_ingest_motion_node_hierarchy(): void {

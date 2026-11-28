@@ -39,6 +39,10 @@ const PROFILE: IAutoMovieProfile = {
  *
  * 1. The limit gives "a", the copy adds "b" ("a" is already listed), and the
  *    driven output adds "c" while its pointer source adds nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names first-appearance order, repeated node elimination, and omission of pointer channels.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `profileSemanticKeys` on a typed profile with a limit, copy driver, and pointer-driven output, checking the complete returned ordered array.
+ * @evidence contracts/development/testing.md#independent-expectations The limit introduces a. The copy adds b and repeats a. The pointer-driven output adds c while the pointer introduces no semantic node. The resulting order is a, b, c.
  */
 export function test_engine_resolve_profile_semantic_keys(): void {
   TestValidator.equals("ordered distinct nodes", AutoMovieEngineResolve.profileSemanticKeys(PROFILE), [

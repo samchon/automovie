@@ -34,6 +34,10 @@ const FLEXION: number = 30;
  * 2. The instants both feet are planted resolve no pose.
  * 3. Planted throughout, neither foot is read, whether the left foot is planted on
  *    the ground or on a prop that bears it (a stirrup).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the first unloaded-left reading, the omitted covered poses and grounded and stirrup plants.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditRange.unloaded with a counted posture reader and typed support windows, checking overshoot, first instant, share and exact posture-read seconds.
+ * @evidence contracts/development/testing.md#independent-expectations At four Hz the left plant includes 0.5 s and leaves only 0.75 and 1 s, two fifths of the grid. Thirty degrees exceeds the unloaded ceiling by ten, and the same angles produce no reading when both feet bear.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_range_unloaded(): void {
   const read: number[] = [];

@@ -14,9 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Formats parsed requests with the public writer and parses the result again; a writer that dropped a key, wrote a number that reads differently, or wrote both `passes` and `shade` fails.
  * @evidence contracts/development/testing.md#independent-expectations The expectation is the request the reader itself returned from hand-written text, the round-trip property the writer documents; the empty request and the pass encoding are written by hand from the documented rules.
- * @evidence contracts/development/testing.md#distinguishing-cases An empty request against requests touching every key family, one pass against several, and the address form against a plain map. Host equality is owned by `test_capture_request_host_parity`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_request_round_trip`; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation The writer round-trips every represented request family through a map and address, preserves an empty request and chooses the documented single- or multiple-pass field.
  */
 export function test_capture_request_round_trip(): void {
   const read: (pairs: [string, string][]) => IAutoMovieCapturePlanRequest = (

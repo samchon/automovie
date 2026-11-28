@@ -8,16 +8,20 @@ import type { IAutoMovieRecoveryChartFitRows } from "@automovie/interface";
  * target is restricted to the position enclosure. Row mass is measured in the
  * same arithmetic so a solver can translate position coordinates without
  * subtracting its origin from an unscaled derivative target.
+ * A malformed position or derivative throws when its row is requested.
+ * Previously yielded valid rows and their target references stay unchanged.
  */
 export function* RecoveryChartFitRows(
   sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
   if (
+    !Number.isFinite(sample.u) ||
     sample.u < 0 ||
     sample.u > 1 ||
+    !Number.isFinite(sample.v) ||
     sample.v < 0 ||
     sample.v > 1 ||
-    sample.pointMm.length !== 3
+    !finiteTuple(sample.pointMm)
   )
     throw new Error("Finite unit-chart position observations are required");
   const basis: (t: number) => number[] = (t: number): number[] => [
@@ -50,13 +54,16 @@ export function* RecoveryChartFitRows(
     ),
   };
   if (sample.physicalJet) {
-    if (sample.physicalJet.directions.length !== 2)
+    if (sample.physicalJet.directions?.length !== 2)
       throw new Error(
         "A physical tangent frame requires exactly two directional observations",
       );
     for (const direction of sample.physicalJet.directions) {
       if (
-        direction.targetMm.length !== 3 ||
+        !direction ||
+        !finiteTuple(direction.targetMm) ||
+        !Number.isFinite(direction.du) ||
+        !Number.isFinite(direction.dv) ||
         (direction.du === 0 && direction.dv === 0)
       )
         throw new Error(
@@ -64,19 +71,37 @@ export function* RecoveryChartFitRows(
         );
       const coefficients: number[] = Array.from(
         { length: 16 },
-        (_: unknown, id: number): number =>
-          direction.du * du[id % 4]! * v[Math.floor(id / 4)]! +
-          direction.dv * u[id % 4]! * dv[Math.floor(id / 4)]!,
+        (_: unknown, id: number): number => {
+          const coefficient: number =
+            direction.du * du[id % 4]! * v[Math.floor(id / 4)]! +
+            direction.dv * u[id % 4]! * dv[Math.floor(id / 4)]!;
+          if (!Number.isFinite(coefficient))
+            throw new Error("Physical directional row is unrepresentable");
+          return coefficient;
+        },
       );
+      const mass: number = coefficients.reduce(
+        (sum: number, value: number): number => sum + value,
+        0,
+      );
+      if (!Number.isFinite(mass))
+        throw new Error("Physical directional row mass is unrepresentable");
       yield {
         kind: "physical-gradient",
         coefficients,
         targetMm: direction.targetMm,
-        mass: coefficients.reduce(
-          (sum: number, value: number): number => sum + value,
-          0,
-        ),
+        mass,
       };
     }
   }
+}
+
+/* Indexed reads detect holes even when the tuple has nominal length three. */
+function finiteTuple(point: readonly number[]): boolean {
+  return (
+    point?.length === 3 &&
+    Number.isFinite(point[0]) &&
+    Number.isFinite(point[1]) &&
+    Number.isFinite(point[2])
+  );
 }

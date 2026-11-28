@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/predicates";
  *    minus the square root of two; the step x < 0.3 over [0, 1] to 1e-9 returns
  *    a point in [0.3, 0.3 + 1e-9]; a bracket of width 1e-10 with tolerance 1e-9
  *    returns high with no reading.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers directed yes-or-no brackets, narrow exits, zero tolerance and the bisection read budget.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes predicates and directed endpoints to bracketedBisection. Callback counters distinguish interior sampling from endpoint or already-narrow reads.
+ * @evidence contracts/development/testing.md#independent-expectations The analytic thresholds are 2, plus and minus sqrt(2), and 0.3. Halving width 2 until it is at most 1e-12 requires 41 readings. A narrow bracket already has its chosen endpoint.
  */
 export function test_engine_math_bracketed_bisection(): void {
   const up: number = AutoMovieEngineMath.bracketedBisection(

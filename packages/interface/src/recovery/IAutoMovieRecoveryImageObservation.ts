@@ -1,25 +1,29 @@
 import type { IAutoMovieRecoveryImageObservationView } from "./IAutoMovieRecoveryImageObservationView";
 
 /**
- * Recorded foreground support intervals in supplied camera charts. Row support
- * is a silhouette envelope, never a persistent material-edge track. The initial
- * family requires one opaque interval per occupied row and one eight-connected
- * component; holes, disconnected support, clipped foreground and missing
- * interior rows refuse.
+ * Record the measured foreground support of every supplied view. Each view
+ * has one contiguous interval per occupied row and one unclipped
+ * eight-connected component. Support rows describe the silhouette in the
+ * supplied camera, with no inferred material correspondence between views.
  */
 export interface IAutoMovieRecoveryImageObservation {
-  /** Same fixed-object capture identity. */
+  /** Identity of the fixed object asserted by the acquisition caller. */
   objectId: string;
 
-  /** Common supplied right-handed metric-frame identity. */
+  /**
+   * Identity of the common right-handed millimetre frame supplied at capture.
+   */
   frame: string;
 
-  /** Acquisition cohort remains separate through fitting and evaluation. */
+  /** Evidence category retained from acquisition. */
   cohort: "analytic" | "photograph" | "inconsistent-stress";
 
-  /** Automatically applied foreground method. */
+  /** Foreground rule applied to obtain these support intervals. */
   method: "fixed-background-channel-distance-v1";
 
-  /** Fixed-image and supplied-camera provenance per view. */
+  /**
+   * Measured views in the input order, with copied chart data and their owned
+   * support rows.
+   */
   views: IAutoMovieRecoveryImageObservationView[];
 }

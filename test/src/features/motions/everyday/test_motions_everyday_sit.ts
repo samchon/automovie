@@ -23,6 +23,10 @@ const ROUNDING: number = 1e-12;
  * 1. The band's ends are the chords at the range table's knee flexion and at
  *    `lowerHumanPosture.KNEE`.
  * 2. 190 turns to -170, -190 to 170, 180 stays 180 and -180 becomes 180.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Seated knee limits bound the hip-to-ankle chord, and seated turns wrap into the named heading interval.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the seated reach-band and heading owners with known lengths, clinical limits, and turns.
+ * @evidence contracts/development/testing.md#independent-expectations The law-of-cosines chord bounds reach. Equivalent headings differ by complete turns and the selected interval determines which value remains.
  */
 export async function test_motions_everyday_sit(): Promise<void> {
   const t: number = 0.45;

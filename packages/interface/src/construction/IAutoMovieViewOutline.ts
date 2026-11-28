@@ -5,85 +5,126 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** Data and callback contracts shared by the ViewOutline operations. */
 export namespace IAutoMovieViewOutline {
-  /** Closing stations in millimetres; absent ends remain open. */
+  /**
+   * Requested closing stations for a length-valued view outline. Supply each
+   * declared tip in millimetres. A missing side remains open. Closing requires
+   * that side's limiting source knot at the tip with absolute value at most
+   * 0.005 times the largest absolute source-knot value.
+   */
   export interface IEnds {
-    /** Bottom closing station, when present. */
+    /** Closing bottom station in millimetres, when requested. */
     bottom?: number;
 
-    /** Top closing station, when present. */
+    /** Closing top station in millimetres, when requested. */
     top?: number;
   }
 
-  /** An admitted source curve, independent of any emitted section. */
+  /**
+   * Prepared outline with the original named knots and their scalar
+   * interpolation. Retain the preparation to read values or derivative
+   * capabilities at physical stations. Natural interpolation is the default.
+   * Authored knot jets or range constraints select a prepared quintic.
+   */
   export interface IOutline {
-    /** Named source knots, copied at admission. */
+    /**
+     * Original named source knots copied during preparation, in increasing
+     * station order.
+     */
     knots: readonly IAutoMovieViewPart.IKnot[];
 
-    /** First and last source knot stations, millimetres. */
+    /**
+     * First and last source knot stations in millimetres. These bounds describe
+     * the knot span.
+     */
     domain: readonly [number, number];
 
-    /** Closing stations, copied at admission. */
+    /** Copied physical stations of declared radial tips in millimetres. */
     ends: Readonly<IAutoMovieViewOutline.IEnds>;
 
     /**
-     * Admitted scalar interpolation parameter; its endpoints need not have zero
-     * values unless ends separately closes the part.
+     * Prepared station-to-root or station-to-angle map with kernel-millimetre
+     * endpoints. Undefined uses station directly.
      */
     parameter: IAutoMovieConstructionOutlineParameter | undefined;
 
-    /** Natural spline in the admitted parameter. */
+    /**
+     * Natural cubic interpolation of the source values in the prepared source
+     * coordinate.
+     */
     spline: IAutoMovieNaturalCubicSpline;
 
     /**
-     * Optional explicitly requested shared-jet/range quintic preparation;
-     * absent keeps the original natural cubic unchanged.
+     * Prepared shared-knot quintic used for authored jets or range admission.
+     * Omit it for a natural cubic read.
      */
     hermite?: IAutoMovieViewHermite.ICurve;
   }
 
-  /** A source premise that failed before a spline could be prepared. */
+  /**
+   * Source admission refusal before outline preparation succeeds. The
+   * diagnostic preserves the category and producer's numeric detail.
+   */
   export interface IFailure {
-    /** Existing construction diagnostic contract. */
+    /**
+     * Category of source refusal, selected from outline, pole knot and pole
+     * parameter.
+     */
     contract: "outline" | "pole knot" | "pole parameter";
 
-    /** The original premise and its input numbers. */
+    /**
+     * Producer's explanation of the refused premise, including the relevant
+     * source values.
+     */
     detail: string;
   }
 
   /**
-   * An admission's result: the admitted curve, or the failed premise (with
-   * `detail`).
+   * Result of preparing an original outline. A prepared value includes knots
+   * and interpolation data. A refusal carries detail and its diagnostic
+   * category.
    */
   export type IResult =
     | IAutoMovieViewOutline.IOutline
     | IAutoMovieViewOutline.IFailure;
 
-  /** A finite source value and its explicitly qualified derivatives. */
+  /**
+   * Original scalar outline value and derivative information at a physical
+   * station. The parameter jet uses the source interpolation coordinate. The
+   * station jet uses millimetres and can be absent at singular or
+   * unrepresentable conversions. The status explains why.
+   */
   export interface IReading {
-    /** Requested station, millimetres. */
+    /** Requested physical station in millimetres. */
     station: number;
 
-    /** Station itself by default, otherwise the selected root/angle parameter. */
+    /**
+     * Mapped interpolation coordinate of the query. With the default mapping
+     * this equals station.
+     */
     parameter: number;
 
-    /** Source scalar, with the outline's own units. */
+    /**
+     * Source scalar in the containing outline's units. A declared collapsed
+     * pole reads zero.
+     */
     value: number;
 
     /**
-     * First and second derivatives in the spline parameter, including at a
-     * pole.
+     * First and second derivative in the interpolation coordinate, retained at
+     * parameter endpoints.
      */
     parameterJet: readonly [number, number];
 
     /**
-     * First and second derivatives in station, absent at a singular parameter
-     * endpoint or when their magnitude cannot be represented finitely.
+     * First and second derivatives with respect to millimetre station, or null
+     * when a station-coordinate conversion is unavailable.
      */
     stationJet: readonly [number, number] | null;
 
     /**
-     * Why the station jet is present or absent; a finite source point is not
-     * discarded for an unrepresentable derivative.
+     * Regular when both station derivatives are available. Otherwise reports a
+     * closing pole, other singular parameter endpoint or unrepresentable
+     * station derivatives.
      */
     stationJetStatus:
       | "regular"
@@ -92,8 +133,8 @@ export namespace IAutoMovieViewOutline {
       | "nonfinite";
 
     /**
-     * Knot-span location, parameter-tangent extension, radial closing pole, or
-     * a nonclosing singular parameter endpoint.
+     * Physical source location as interior, knot endpoint, tangent extension,
+     * closed pole or another singular parameter endpoint.
      */
     location:
       | "interior"

@@ -5,6 +5,7 @@ import type {
   IAutoMovieDrawResult,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
+  IAutoMovieInspectionTrail,
   IAutoMovieInspectionView,
 } from "@automovie/interface";
 import * as THREE from "three";
@@ -307,6 +308,7 @@ async function drawCall(
   // 4. The second itself, once the subject is ready: the shown layer, placed
   // by `seekShot` when it is a transition's outgoing shot.
   let diagnostics: IAutoMovieInspectionDiagnostics | undefined;
+  let motionTrails: readonly IAutoMovieInspectionTrail[] | undefined;
   const handle: IAutoMovieRenderInspectionHandle = await placement.inspect(
     { ...call.request, stroke: call.request.stroke * factor },
     call.seconds,
@@ -319,6 +321,10 @@ async function drawCall(
         picture.byShot,
       );
       scene.beforeDraw?.(renderer, call.seconds);
+    },
+    (trails): void => {
+      const sourceTrails = trails.filter((trail) => trail.motion !== undefined);
+      if (sourceTrails.length !== 0) motionTrails = sourceTrails;
     },
   );
 
@@ -352,6 +358,7 @@ async function drawCall(
     resolved,
     shade,
     diagnostics,
+    motionTrails,
     mouths: placement.mouths(),
   });
 }

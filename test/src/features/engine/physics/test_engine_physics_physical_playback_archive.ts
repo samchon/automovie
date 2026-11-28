@@ -22,6 +22,10 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
  *    refuse.
  * 5. Recovery histories require chronological steps, landings and handoffs; early
  *    cancellation remains distinct from early claimed landing/failure.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains archived performance identity, causal contact and recovery history, owned bytes and refusal boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Encodes an actual simulation, seeks it at sampled and fractional times, mutates the input bytes, and submits bad identity, sizes and causal records.
+ * @evidence contracts/development/testing.md#independent-expectations Live reads are the exact transport reference. The fixture's newest valid landing retains its endpoint offset, while stale, truncated, excessive and temporally invalid archives fail.
  */
 export async function test_engine_physics_physical_playback_archive(): Promise<void> {
   const input: IAutoMoviePhysicalSimulationInput.IInput =

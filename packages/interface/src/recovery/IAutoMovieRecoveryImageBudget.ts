@@ -1,15 +1,17 @@
 /**
- * Explicit population limits for synchronous image observation. These are
- * caller-supplied counts, not physical dimensions or image resampling
- * settings.
+ * Bound one resident silhouette observation with positive safe integer
+ * counts. Pixel and view admission precede raster scans. The row limit counts
+ * occupied support rows as they are measured.
  */
 export interface IAutoMovieRecoveryImageBudget {
-  /** Maximum total width times height across all views; positive safe integer. */
+  /** Maximum total raster area across all views, counted in pixels. */
   maxPixels: number;
 
-  /** Maximum number of view records; positive safe integer. */
+  /** Maximum number of supplied view records. */
   maxViews: number;
 
-  /** Maximum total retained foreground-support rows; positive safe integer. */
+  /**
+   * Maximum total number of retained foreground-support rows across the views.
+   */
   maxRows: number;
 }

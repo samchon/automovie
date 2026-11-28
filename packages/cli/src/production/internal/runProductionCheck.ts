@@ -3,17 +3,17 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { AutoMovieCliProduction } from "../AutoMovieCliProduction";
 import { AutoMovieCliCapture } from "../../capture/AutoMovieCliCapture";
 import { hashFileContents } from "../../file/internal/hashFileContents";
+import { readErrorCode } from "../../file/internal/readErrorCode";
+import type { AutoMovieCliProduction } from "../AutoMovieCliProduction";
 import { createProductionCheckInputScope } from "./createProductionCheckInputScope";
 import { createProductionCheckMediaHash } from "./createProductionCheckMediaHash";
 import { inspectProductionCheckCapture } from "./inspectProductionCheckCapture";
 import { inspectProductionCheckDelivery } from "./inspectProductionCheckDelivery";
 import { inspectProductionCheckReview } from "./inspectProductionCheckReview";
-import { writeProductionCheckReceipt } from "./writeProductionCheckReceipt";
-import { readErrorCode } from "../../file/internal/readErrorCode";
 import { readRevisionImplementation } from "./readRevisionImplementation";
+import { writeProductionCheckReceipt } from "./writeProductionCheckReceipt";
 
 /*
  * Evaluate selected targets in declaration order. A status read uses available
@@ -199,6 +199,14 @@ type AutoMovieProductionCheckInputScope = ReturnType<
 const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
 
 /*
+ * Failed criterion admission or a nonfinite measured value.
+ */
+const INVALID_MEASUREMENT_OUTCOME: IOutcome = {
+  state: "failed",
+  message: "Provide a finite measurement, unit and ordered finite bounds.",
+};
+
+/*
  * Read a check's owning evidence or produce an explicit local or capture run.
  */
 async function evaluate(props: {
@@ -216,11 +224,7 @@ async function evaluate(props: {
 }): Promise<IOutcome> {
   const { root, check }: typeof props = props;
   if (check.kind === "delivery")
-    return inspectProductionCheckDelivery(
-      check,
-      root,
-      props.hashMedia,
-    );
+    return inspectProductionCheckDelivery(check, root, props.hashMedia);
   if (check.kind === "review")
     return inspectProductionCheckReview(check, root, props.hashMedia);
   if (check.kind !== "measure" && check.kind !== "capture")
@@ -279,11 +283,13 @@ async function evaluate(props: {
         evidence: path.relative(root, file),
       };
     }
-    let outcome: IOutcome;
+    let outcome: IOutcome = INVALID_MEASUREMENT_OUTCOME;
     let measurement: number | undefined;
     try {
-      measurement = await check.measure(root);
-      outcome = measured(check, measurement);
+      if (validMeasurementCriterion(check)) {
+        measurement = await check.measure(root);
+        outcome = measured(check, measurement);
+      }
     } catch (error) {
       outcome = {
         state: "failed",
@@ -462,25 +468,31 @@ function admitCaptureTime(
 }
 
 /*
+ * Admit the criterion independently of any observed value.
+ */
+function validMeasurementCriterion(
+  check: IAutoMovieProductionCheck.IMeasurement,
+): boolean {
+  const { minimum, maximum }: IAutoMovieProductionCheck.IMeasurement = check;
+  return (
+    check.unit.trim().length !== 0 &&
+    (minimum !== undefined || maximum !== undefined) &&
+    (minimum === undefined || Number.isFinite(minimum)) &&
+    (maximum === undefined || Number.isFinite(maximum)) &&
+    (minimum ?? -Infinity) <= (maximum ?? Infinity)
+  );
+}
+
+/*
  * Derive the status of an actual finite measurement under inclusive limits.
  */
 function measured(
   check: IAutoMovieProductionCheck.IMeasurement,
   value: number,
 ): IOutcome {
+  if (!Number.isFinite(value) || !validMeasurementCriterion(check))
+    return INVALID_MEASUREMENT_OUTCOME;
   const { minimum, maximum }: IAutoMovieProductionCheck.IMeasurement = check;
-  if (
-    !Number.isFinite(value) ||
-    !check.unit.trim() ||
-    (minimum === undefined && maximum === undefined) ||
-    (minimum !== undefined && !Number.isFinite(minimum)) ||
-    (maximum !== undefined && !Number.isFinite(maximum)) ||
-    (minimum ?? -Infinity) > (maximum ?? Infinity)
-  )
-    return {
-      state: "failed",
-      message: "Provide a finite measurement, unit and ordered finite bounds.",
-    };
   return {
     state:
       value < (minimum ?? -Infinity) || value > (maximum ?? Infinity)

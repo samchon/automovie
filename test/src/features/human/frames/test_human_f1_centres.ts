@@ -37,9 +37,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production centre generator, offset law and inventory, and reads the production course's own jets.
  * @evidence contracts/development/testing.md#independent-expectations Stored centres are the comparison for f1; the moved centres are a stored offset through the stored frames; the turn's end and peak curvatures are the closed form of the quintic smoothstep angle.
- * @evidence contracts/development/testing.md#distinguishing-cases Identity, one scaled length beside an untouched limb, a moved anchor beside an unanchored course, and every turn's two ends and middle, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on stored tables and course jets; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each input and its expected centres or jets.
+ * @evidence contracts/development/common.md#meaningful-documentation Stored centre identity, local effects of a longer thigh or moved shoulder, turn jets and the inventory of centre owners are checked separately.
  */
 export function test_human_f1_centres(): void {
   const failures: string[] = [];

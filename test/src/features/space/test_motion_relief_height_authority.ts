@@ -130,10 +130,8 @@ const stateless: IAutoMovieSurface = {
  *   fallbacks through staging.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads public terrain, formation and staged space APIs.
- * @evidence contracts/development/testing.md#independent-expectations Height on the lattice is its slope times the clamped abscissa.
- * @evidence contracts/development/testing.md#distinguishing-cases Flat, ramp and absent declarations produce different elevations.
- * @evidence contracts/development/testing.md#execution-ownership Uses static world and space fixtures.
- * @evidence contracts/development/common.md#meaningful-documentation States where ground clamps and when fallback applies.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's known slope times its clamped x coordinate supplies lattice and slot heights. Explicit planes supply the flat and ramp expectations, and the declared fallback covers an off-surface probe.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks terrain and formation height at lattice points, within cells, at clamped edges and past them. Exercises explicit flat and ramp definitions and fallback when staging has no applicable surface.
  */
 export function test_motion_relief_height_authority(): void {
   const world = terrain(),

@@ -17,11 +17,20 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING_METRES: number = 8 * Number.EPSILON;
 
 /**
- * A one-second flight touching halfway through has quarter-second ramps
- * around a plateau of one eighth of a second. Each ramp uses two previously
- * resolved endpoints, so interleaved playback reads the flight at the
- * requested seconds alone. At each ramp midpoint the wrist is halfway from
- * its moving local reference to the contact, by minimum-jerk symmetry.
+ * Check a prepared wire-flight touch against moving playback.
+ *
+ * Scenarios:
+ *
+ * 1. Resolve the rail point once at film second 3.5 and read the four
+ *    authored ramp endpoints. The left hand is planted from local second
+ *    0.4375 through 0.5625.
+ * 2. Query the two ramp midpoints out of order, then the plateau and a
+ *    repeated midpoint. Each hand position and base read matches the
+ *    requested second.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish film observation, local contact window and repeatable ramp reads.
+ * @evidence contracts/development/testing.md#behavioral-verification The test distinguishes touchdown, visible release and the preparation budget for the contact.
+ * @evidence contracts/development/testing.md#independent-expectations The expected midpoint positions average the moving local wrist with the offset rail point, using minimum-jerk symmetry at half progress.
  */
 export async function test_motions_reaction_wire_flight_touches(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

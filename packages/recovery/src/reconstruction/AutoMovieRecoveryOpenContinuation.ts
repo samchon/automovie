@@ -16,19 +16,19 @@ import type {
 import { AutoMovieRecoveryOpenSlabGraph as O } from "../geometry/AutoMovieRecoveryOpenSlabGraph";
 import { AutoMovieRecoveryScalarIndex as S } from "../geometry/AutoMovieRecoveryScalarIndex";
 import { critical } from "../geometry/internal/critical";
-import { prepareCutExact } from "../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "../geometry/internal/planeFrame";
-import { prepareRecoveryOpenSlabGraph as prepareSlabGraphImplementation } from "./internal/prepareRecoveryOpenSlabGraph";
+import { prepareCutExact } from "../internal/mesh-observations/prepareCutExact";
 
-/**
- * Source observation of open-curve continuation without repeating numerical
- * fitting.
- */
+/** Observes open-curve continuation for previously fitted sections. */
 export namespace AutoMovieRecoveryOpenContinuation {
   /**
-   * Reobserve automatically saved stations, preserving their complete cubic
-   * coefficients. The command caller must bind both the fixed source bytes and
-   * the original bundle hash.
+   * Measures adjacent open-arc transport at the saved stations.
+   *
+   * Supply the same registered source and fitting policy as the section bundle.
+   * The command caller binds the source bytes and original bundle hash. Reports
+   * and physical stations must align. Saved cubic coefficients remain the
+   * authority for open curves. The sidecar records pair direction, unqualified
+   * groups and material orientation by saved indices.
    */
   export function observe(
     input: IAutoMovieRecoveryInput,
@@ -305,10 +305,13 @@ export namespace AutoMovieRecoveryOpenContinuation {
     }
     return output;
   }
-  /** Prepare source-backed open-slab transport queries for continuation observation. */
+  /**
+   * Prepare source-backed open-slab transport queries for continuation
+   * observation.
+   */
   export function prepareSlabGraph(
     source: IAutoMovieRecoveryOpenSlabGraph.Source,
   ): ReturnType<IAutoMovieRecoveryOpenSlabGraph.Prepare> {
-    return prepareSlabGraphImplementation(source);
+    return O.prepare(source);
   }
 }

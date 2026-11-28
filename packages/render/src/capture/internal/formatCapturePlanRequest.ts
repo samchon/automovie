@@ -41,19 +41,25 @@ export function formatCapturePlanRequest(
   if (request.subject !== null) values.push(["subject", request.subject]);
 
   // Seconds: explicit, or an even sampling against the reader's own defaults.
-  if (request.sampling.kind === "at")
-    values.push(["at", request.sampling.seconds.map(String).join(",")]);
-  else {
-    const fallback: IAutoMovieCaptureSampling = absent.sampling;
-    if (fallback.kind !== "even" || request.sampling.from !== fallback.from)
-      values.push(["from", String(request.sampling.from)]);
-    if (request.sampling.to !== null)
-      values.push(["to", String(request.sampling.to)]);
-    if (fallback.kind !== "even" || request.sampling.rate !== fallback.rate)
-      values.push(["rate", String(request.sampling.rate)]);
+  if (request.cue !== undefined) {
+    values.push(["cue", request.cue.id]);
+    if (request.cue.entry !== undefined)
+      values.push(["entry", String(request.cue.entry)]);
+  } else {
+    if (request.sampling.kind === "at")
+      values.push(["at", request.sampling.seconds.map(String).join(",")]);
+    else {
+      const fallback: IAutoMovieCaptureSampling = absent.sampling;
+      if (fallback.kind !== "even" || request.sampling.from !== fallback.from)
+        values.push(["from", String(request.sampling.from)]);
+      if (request.sampling.to !== null)
+        values.push(["to", String(request.sampling.to)]);
+      if (fallback.kind !== "even" || request.sampling.rate !== fallback.rate)
+        values.push(["rate", String(request.sampling.rate)]);
+    }
+    if (request.events.length !== 0)
+      values.push(["events", request.events.map(String).join(",")]);
   }
-  if (request.events.length !== 0)
-    values.push(["events", request.events.map(String).join(",")]);
   if (request.window !== absent.window)
     values.push(["window", String(request.window)]);
   if (request.threshold !== absent.threshold)

@@ -16,7 +16,10 @@ export namespace IAutoMovieFootprintInteriorPoint {
    * area centroid or the whole footprint's centroid; height is deliberately
    * absent.
    */
-  export type IResult = {
+  export type IResult = IAnchor | null;
+
+  /** Plan coordinates of a vertex-mean anchor on the selected convex piece. */
+  export type IAnchor = {
     /**
      * Fresh anchor's world X coordinate in metres, the arithmetic mean of the
      * chosen convex piece's vertex x values.
@@ -28,5 +31,5 @@ export namespace IAutoMovieFootprintInteriorPoint {
      * be evaluated by the surface owner.
      */
     z: number;
-  } | null;
+  };
 }

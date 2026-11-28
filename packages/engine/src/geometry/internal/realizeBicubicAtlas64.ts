@@ -6,8 +6,8 @@ import type {
   IAutoMovieRealizeBicubicAtlas64,
 } from "@automovie/interface";
 
-import { admitBicubicAtlas } from "./admitBicubicAtlas";
 import { AutoMovieEngineCurve } from "../AutoMovieEngineCurve";
+import { admitBicubicAtlas } from "./admitBicubicAtlas";
 
 /*
  * Realize the public metre-valued bicubic recipe through its owning engine. The
@@ -35,6 +35,13 @@ export function realizeBicubicAtlas64(
   input: IAutoMovieBicubicAtlasGeometry,
   options: IAutoMovieRealizeBicubicAtlas64.IOptions = {},
 ): IAutoMovieRealizeBicubicAtlas64.IResult {
+  if (
+    (options.retainPatchCoefficients !== undefined &&
+      typeof options.retainPatchCoefficients !== "boolean") ||
+    (options.retainTriangleParameters !== undefined &&
+      typeof options.retainTriangleParameters !== "boolean")
+  )
+    throw new Error("Atlas retention flags must be boolean when supplied");
   let patchCoefficients: IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"] =
     options.retainPatchCoefficients ? [] : undefined;
   const admitted: IAutoMovieAdmitBicubicAtlas.IResult =
@@ -49,23 +56,9 @@ export function realizeBicubicAtlas64(
     skin: null,
     physicalVertices: { sources: [], vertices: [] },
   };
-  const primitiveRanges: {
-    patch: string;
-    firstTriangle: number;
-    triangleCount: number;
-    u0: number;
-    u1: number;
-    v0: number;
-    v1: number;
-    approximationBoundMm: number;
-  }[] = [];
+  const primitiveRanges: IAutoMovieRealizeBicubicAtlas64.IPrimitiveRange[] = [];
   const diagnostics: string[] = [...admitted.diagnostics];
-  const counts: {
-    retainedCoarseCells: number;
-    omittedZeroAreaTriangles: number;
-    unresolvedVertexNormals: number;
-    maxErrorBoundMm: number;
-  } = {
+  const counts: IAutoMovieRealizeBicubicAtlas64.IResultCounts = {
     retainedCoarseCells: 0,
     omittedZeroAreaTriangles: 0,
     unresolvedVertexNormals: 0,
@@ -225,7 +218,8 @@ export function realizeBicubicAtlas64(
       if (patchCoefficients !== undefined) {
         const retained: Set<string> = new Set(
           primitiveRanges.map(
-            (range: (typeof primitiveRanges)[number]): string => range.patch,
+            (range: IAutoMovieRealizeBicubicAtlas64.IPrimitiveRange): string =>
+              range.patch,
           ),
         );
         patchCoefficients = (result.value.patchCoefficients ?? []).filter(

@@ -1,17 +1,14 @@
-/**
- * One point of a code-authored 2D construction profile, in metres.
- *
- * The consumer maps the axes: extrusion and region faces place `x` and `y` in
- * local XY with depth along Z, revolution reads `x` as radius and `y` as height
- * around local Y, and sweep and loft read `x` along the path frame's right and
- * `y` along its up. Each builder refuses a non-finite coordinate by the point's
- * label. The shape matches the interface's `IAutoMoviePlanarPoint`, so
- * `AutoMovieEnginePlanarRegion.failure` validates profile rings directly.
- */
+/** One local metre coordinate pair for authored construction profiles. */
 export interface IAutoMovieProfilePoint {
-  /** First profile coordinate in metres, mapped by the consuming builder. */
+  /**
+   * First finite profile coordinate in metres, interpreted as local X,
+   * section-axis distance or radius by the consumer.
+   */
   x: number;
 
-  /** Second profile coordinate in metres, mapped by the consuming builder. */
+  /**
+   * Second finite profile coordinate in metres, interpreted as local Y,
+   * section-axis distance or height by the consumer.
+   */
   y: number;
 }

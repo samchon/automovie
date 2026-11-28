@@ -47,6 +47,10 @@ const FIRST_ORDER: number = 2e-5;
  *    change the linear model as native signed distance changes.
  * 4. A slide that removes the overlap exposes the frozen witness as local only;
  *    re-linearizing at the new pose follows native distance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes linearized separation at clear, tangent and deeply overlapping shape pairs and the local validity of frozen witnesses.
+ * @evidence contracts/development/testing.md#behavioral-verification Probes sphere, capsule and box pairs under rigid translations and rotations, then relinearizes after a slide clears overlap.
+ * @evidence contracts/development/testing.md#independent-expectations Clear pairs keep a zero row. A closed-form capsule-axis distance less radius resolves near tangency, and native signed distance gives the comparison for local derivatives.
  */
 export async function test_engine_physics_physical_separation_derivative(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();

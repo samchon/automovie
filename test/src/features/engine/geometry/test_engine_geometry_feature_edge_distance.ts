@@ -26,6 +26,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. On the outer face x = 2, 0.02 m below the top rim, the convex distance is
  *    0.02 and the concave one is capped at the reach.
  * 4. A triangle index past the mesh throws.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the L-prism crease classes, nearest sign-aware distances and invalid triangle address.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures real mesh feature edges and queries distance at known offsets on inner and outer faces, then submits an out-of-range index.
+ * @evidence contracts/development/testing.md#independent-expectations The reflex corner at (1, 1) generates the sole concave edge. The rim and outer corners supply convex edges. The declared offsets are 0.01 and 0.02, with distant classes capped at reach.
  */
 export function test_engine_geometry_feature_edge_distance(): void {
   const profile: [number, number][] = [

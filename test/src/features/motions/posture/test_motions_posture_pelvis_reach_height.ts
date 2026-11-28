@@ -37,6 +37,10 @@ const ROUNDING: number = 1e-9;
  *    joint comes down to exactly the reach above it.
  * 3. With it 0.3 m ahead of its hip: the hip lies at √(reach² − 0.3²) above it.
  * 4. With it farther ahead than the reach: the height is the one asked.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines root-height correction only for geometrically reachable ankles under near-straight leg length.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a posed rig with no ankle, a vertical ankle, a 0.3 m forward ankle and a horizontally unreachable one.
+ * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives vertical reach √(reach² − 0.3²), while directly below uses the full specified reach and an out-of-range horizontal offset leaves height unchanged.
  */
 export async function test_motions_posture_pelvis_reach_height(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

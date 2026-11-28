@@ -39,6 +39,10 @@ const foot = (
  *    to 82 %.
  * 2. A retreat moves the right foot first.
  * 3. A shift past 0.23 of the stature is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the rig's forward and backward stage-step ordering and support windows from a fixed authored profile.
+ * @evidence contracts/development/testing.md#behavioral-verification Schedules an advance and a retreat for the same posed performer, then submits an over-limit shift.
+ * @evidence contracts/development/testing.md#independent-expectations The 1.75 m fixture multiplies by the 0.14 profile to produce displacement. The stated foot windows and reversed leading order distinguish the two directions.
  */
 export function test_motions_lexicon_stage_blade_footwork(): void {
   const feet: Pick<IAutoMovieMotionHumanEntryState["feet"], "left" | "right"> =

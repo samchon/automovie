@@ -1,8 +1,17 @@
-/** Conditional rank diagnostics for the two supplied-camera designs. */
+/**
+ * Numeric rank ratios for the two camera-direction designs in an
+ * aligned-ellipse fit. Each divides the smaller singular value by the larger.
+ */
 export interface IAutoMovieRecoveryImageDirectionRank {
-  /** Squared-radius support design singular-value ratio. */
+  /**
+   * Singular-value ratio of the two squared horizontal direction columns used
+   * to solve for squared ellipse radii.
+   */
   radii: number;
 
-  /** Centre-projection design singular-value ratio. */
+  /**
+   * Singular-value ratio of the two signed horizontal direction columns used to
+   * solve for section centers.
+   */
   centres: number;
 }

@@ -1,7 +1,12 @@
 import type { IAutoMovieHumanBodyAnatomy } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanBodyAnatomy. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Optional body observations for typia validation. Lengths, girths, depths and
+ * landmark heights use millimetres. Spinal angles use degrees and body fat
+ * uses percentage points. Human resolves omitted values from the supplied
+ * measurements and its reference tables.
+ */
 export type IAutoMovieHumanBodyAnatomySchema = IAutoMovieHumanBodyAnatomy & {
   /** Stature: the vertex above the standing surface, standing erect (ISO 7250-1 6.1.2; ANSUR II). ANSUR II: 1628.5 (64.2) and 1756.2 (68.6). */
   stature?: number & tags.Minimum<400> & tags.Maximum<2500>;

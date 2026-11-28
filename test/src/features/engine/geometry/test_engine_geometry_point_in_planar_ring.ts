@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    -0.5) outside.
  * 2. The L (0,0), (2,0), (2,1), (1,1), (1,2), (0,2): (0.5, 1.5) and (1.5, 0.5)
  *    inside, (1.5, 1.5) in the notch outside.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the off-edge condition and both winding orders, plus the concave notch case.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the actual ring classifier on inside and outside points for the square and on the arms and notch of an L.
+ * @evidence contracts/development/testing.md#independent-expectations The unit square's coordinate bounds classify its three points. Each arm of the L contains its probe, while (1.5,1.5) lies in the removed upper corner.
  */
 export function test_engine_geometry_point_in_planar_ring(): void {
   const ring = (...xy: number[]): IAutoMoviePlanarPoint[] =>

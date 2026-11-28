@@ -24,6 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  *    this order removes.
  * 3. The stop rule implies no edit for a playing snapshot or for a snapshot that
  *    was already stopped.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names selection, seek, pause and restoration behavior when revealing a finding.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the finding reveal operation using controlled request and playhead snapshots, then reads the changed and restored state.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied witness second and affected paths determine the paused target and labels. The order and original playhead state determine whether a previous paused second can be restored.
  */
 export function test_viewer_inspector_show_inspector_finding(): void {
   const paths: string[] = ["actor", "actor/arm", "bed", "bed/base"];

@@ -25,6 +25,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 3. Without its first face, with its first face reversed, or with that face
  *    repeated it is refused ("paired oppositely wound"); touching its copy at
  *    x = 2 at one vertex it is pinched ("disconnected surface fans").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names disconnected solids, lower ordinal ties, implicit welding and invalid boundary or vertex links.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and queries octahedra with indexed and unindexed buffers, then rejects removed, reversed, duplicated and pinched configurations.
+ * @evidence contracts/development/testing.md#independent-expectations The midpoint between the two disjoint solids is 0.5 from each. Coincident repeated corners of one unindexed solid weld. A point-only join gives disconnected vertex fans.
  */
 export function test_engine_geometry_signed_mesh_topology(): void {
   const left: IAutoMovieMesh = createSignedOctahedron();

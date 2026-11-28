@@ -18,12 +18,19 @@ export function admitBicubicAtlas(
   if (
     input.type !== "bicubic-atlas" ||
     !input.topologyDomain.trim() ||
-    !(input.tolerance > 0) ||
+    !Number.isFinite(input.tolerance) ||
+    !Number.isFinite(input.tolerance * 1000) ||
+    input.tolerance <= 0 ||
+    !Number.isSafeInteger(input.maxCells) ||
     input.maxCells < 1 ||
-    input.maxVertices < 3
+    !Number.isSafeInteger(input.maxVertices) ||
+    input.maxVertices < 3 ||
+    (input.cellBudgetPolicy !== undefined &&
+      input.cellBudgetPolicy !== "retain-coarse" &&
+      input.cellBudgetPolicy !== "omit-unresolved")
   )
     throw new Error(
-      "A named bicubic atlas needs finite tolerance and positive cell/vertex budgets",
+      "A named bicubic atlas needs positive finite millimetre tolerance, safe cell and vertex budgets and a recognized work policy",
     );
   const invalid: Set<number> = new Set(),
     diagnostics: string[] = [],
@@ -36,7 +43,10 @@ export function admitBicubicAtlas(
   if (input.sourceFit !== undefined) {
     const fit: NonNullable<IAutoMovieBicubicAtlasGeometry["sourceFit"]> =
       input.sourceFit;
-    if (fit.maximumResidual !== null && !(fit.maximumResidual >= 0))
+    if (
+      fit.maximumResidual !== null &&
+      (!Number.isFinite(fit.maximumResidual) || fit.maximumResidual < 0)
+    )
       diagnostics.push(
         "Malformed source-fit qualification metadata; finite structural geometry remains displayable",
       );
@@ -49,10 +59,17 @@ export function admitBicubicAtlas(
         );
     }
   }
+  const representableInMillimetres = (value: number): boolean =>
+    Number.isFinite(value) && Number.isFinite(value * 1000);
   for (let i: number = 0; i < input.controls.length; i++) {
     const point: IAutoMovieBicubicAtlasGeometry["controls"][number] =
       input.controls[i]!;
-    if (!point) {
+    if (
+      !point ||
+      !representableInMillimetres(point.x) ||
+      !representableInMillimetres(point.y) ||
+      !representableInMillimetres(point.z)
+    ) {
       invalid.add(i);
       diagnostics.push(
         `Unrepresentable model-metre coefficient at controls[${i}]`,
@@ -73,7 +90,10 @@ export function admitBicubicAtlas(
         (_: unknown, k: number): number => patch.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          id < 0 || id >= input.controls.length || invalid.has(id),
+          !Number.isSafeInteger(id) ||
+          id < 0 ||
+          id >= input.controls.length ||
+          invalid.has(id),
       )
     ) {
       diagnostics.push(`Omitted structurally invalid patch at patches[${i}]`);
@@ -98,7 +118,10 @@ export function admitBicubicAtlas(
         (_: unknown, k: number): number => authority.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          id < 0 || id >= input.controls.length || invalid.has(id),
+          !Number.isSafeInteger(id) ||
+          id < 0 ||
+          id >= input.controls.length ||
+          invalid.has(id),
       )
     ) {
       diagnostics.push(
@@ -127,8 +150,10 @@ export function admitBicubicAtlas(
       !authorities.has(binding.authority) ||
       !binding.normalFan.trim() ||
       bindings.has(key) ||
+      !Number.isFinite(binding.start) ||
       binding.start < 0 ||
       binding.start > 1 ||
+      !Number.isFinite(binding.end) ||
       binding.end < 0 ||
       binding.end > 1 ||
       binding.start === binding.end

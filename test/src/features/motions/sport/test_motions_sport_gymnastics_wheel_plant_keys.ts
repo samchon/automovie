@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *    its exact final knot.
  * 2. Late, early, exact and repeated reads add no solves. A window with no elapsed
  *    time takes one solve and returns it on every read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines preparation of fixed stance-contact knots and interpolation using actual final interval width.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a finite half-second grid and a zero-length interval with a recording solve, then seeks each in shuffled order.
+ * @evidence contracts/development/testing.md#independent-expectations The shortened interval ends at 2.25 s, so the exact solve times are 1, 1.5, 2 and 2.25 s. No read performs another solve and zero length owns one knot.
  */
 export function test_motions_sport_gymnastics_wheel_plant_keys(): void {
   const requests: number[] = [];

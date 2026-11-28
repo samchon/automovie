@@ -29,6 +29,10 @@ const PLACE: number = 1e-3;
  * 2. Feet: each foot's endpoint lies at the response's place for it within a
  *    millimetre: the swing foot on its curve, the stance foot where it stands.
  * 3. Planted: the stance foot's endpoint does not move through the swing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reconstructed joint anchors and planned support endpoints during a prepared push response.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a pushed four-support model standing on diagonal feet and checks each sampled joint and support through its swing.
+ * @evidence contracts/development/testing.md#independent-expectations Both transformed joint anchors must meet within 1 mm, and the planned swing and planted goal set the foot coordinates independently of the generated chain.
  */
 export function test_engine_physics_physical_span_pose(): void {
   const subject: PhysicalDisturbance.ISubject = PhysicalDisturbance.planted(

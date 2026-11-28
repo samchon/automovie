@@ -28,6 +28,10 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  * 3. Missing shot, event, or asset references, duplicate ids, and invalid source
  *    or film spans refuse.
  * 4. Gain and fades follow the audio cue bounds even when the event is trimmed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the exclusive out and included in, signed cue lead, repeated placement, preserved legacy tracks and addressed admission failures.
+ * @evidence contracts/development/testing.md#behavioral-verification The test plans a prepared picture twice, without and with one adopted event cue. It compares placed event frames, audio identity and trim, fixed cues and semantic events, then changes individual references and cue spans to exercise refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The authored occurrence windows retain the contact at film frames 4 and 16 and exclude the occurrence whose tail is exclusive. Each retained sound placement carries the same source trim and its authored signed lead. Fixed cues have the same original records in both plans.
  */
 export function test_engine_film_production_sound_event_foley(): void {
   const timeline: IAutoMovieFilmTimeline = productionSoundTimeline();

@@ -125,6 +125,10 @@ const plant = (
  *    pole, and bent mid-swing.
  * 5. A `sqrt(2)` m sphere about a grip 1 m above x = 2 meets a 4 m segment along
  *    +X farthest at (3, 0, 0); a 0.5 m one misses it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines elastic virtual pole placement and swing, interval reading, shape bending and farthest grip crossing.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the takeoff and swing on typed pole and energy inputs, samples one interval, poses jointed sections and queries reachable and missed grip spheres.
+ * @evidence contracts/development/testing.md#independent-expectations The declared plant model gives 490 J lost and speed √50 m/s, and a sphere of radius √2 intersects the given segment farthest at (3, 0, 0).
  */
 export function test_motions_sport_pole_vault(): void {
   // 1. The take-off angle.

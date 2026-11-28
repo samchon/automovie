@@ -53,8 +53,6 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs actual network validation and directional load measurement over selected header, identity, medium/unit, stub, capacity, root, spatial, operating-state and numeric defects; kind/path, selected exact counts and overshoots expose missing or unrelated findings.
  * @evidence contracts/development/testing.md#independent-expectations Authored graph references and schema tables supply diagnostic paths; inlet .0002, waste outlet .001 and capacities .01/.0005 yield independent load/overshoot expectations through nclose. Presence-only assertions permit additional findings where no count is asserted.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all fifteen numbered groups, both data/control tables, supply/drain direction and branch deletion; clean-network admission and detailed run/seal geometry belong to adjacent service tests.
- * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertServiceNetworkSpatialDefects for the original later groups with the same clean network and refusal closure; no extra registration, renderer, native host or hydraulic/electrical simulation runs.
  *
  * Scenarios:
  *
@@ -90,7 +88,7 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
  * 15. Negative or zero numbers are refused wherever a demand or a section is
  *     required.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The record's own header is checked: the environment it claims to serve.).
+ * @evidence contracts/development/common.md#meaningful-documentation Exercises malformed service headers, IDs, units, roots, capacities, placement and operating states. Checks path-specific findings and supply or drainage load after changing eligible demand or dropping a branch.
  */
 export function test_service_network_defects(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();

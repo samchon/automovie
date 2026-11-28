@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Report "a:b,c.txt" at threshold 10: the option escapes ":" to "a:b,c.txt" and
  *    the graph escapes "" and "," to "a:b,c.txt".
  * 2. Thresholds -1 and 101 are refused; 0 and 100 are not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names filter-path escaping, threshold limits and selected stream mapping.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public scene-cut planner and compares its ordered FFmpeg arguments and threshold refusals.
+ * @evidence contracts/development/testing.md#independent-expectations FFmpeg filter options require escaping the colon and filter graphs also require escaping a comma. Stream mapping addresses the explicit input index when present.
  */
 export function test_render_capture_plan_video_scene_cuts(): void {
   TestValidator.equals(
@@ -25,6 +29,8 @@ export function test_render_capture_plan_video_scene_cuts(): void {
       "-nostats",
       "-i",
       "film.mp4",
+      "-map",
+      "0:v:0",
       "-an",
       "-vf",
       "scdet=threshold=10,metadata=mode=select:key=lavfi.scd.time,metadata=mode=print:file=a\\\\:b\\,c.txt",
@@ -44,6 +50,8 @@ export function test_render_capture_plan_video_scene_cuts(): void {
         AutoMovieRenderCapture.planVideoSceneCuts({ file: "f", report: "r", threshold })
           .length,
     ),
-    [10, 10],
+    [12, 12],
   );
+  const selected = AutoMovieRenderCapture.planVideoSceneCuts({ file: "f", report: "r", threshold: 10, streamIndex: 3 });
+  TestValidator.equals("explicit stream", selected[selected.indexOf("-map") + 1], "0:3");
 }

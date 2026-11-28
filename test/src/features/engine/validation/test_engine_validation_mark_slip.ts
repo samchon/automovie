@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. With a 5 cm limit it is unflagged; a foot risen 10 cm straight up has no
  *    horizontal travel and draws nothing.
  * 3. A negative limit is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers flagged and allowed horizontal slip, vertical-only motion and invalid slip limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the marker with explicit plants, positions and horizontal limits, then checks the returned mark or error.
+ * @evidence contracts/development/testing.md#independent-expectations Three centimetres of planar travel exceeds two and stays within five. A purely vertical displacement has zero XZ travel and needs no slip segment.
  */
 export function test_engine_validation_mark_slip(): void {
   const foot = (at: IAutoMovieVector3, limit: number) => ({

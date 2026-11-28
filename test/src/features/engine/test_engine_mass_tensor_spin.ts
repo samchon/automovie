@@ -43,8 +43,6 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Derives the physical box, rational rotation/tensor/spin, parallel-axis term, eigenvector sign freedom and existing numerical bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public assembly, direct spin and principal reduction, reads all tensor entries and actual eigenvectors, and probes current input and returned-data isolation plus invalid-data propagation.
  * @evidence contracts/development/testing.md#independent-expectations Uniform-box moments, the explicit rational orthogonal matrix, its hand-multiplied tensor and spin, the parallel-axis theorem and T v=lambda v give expectations without the production component kernel or a second eigensolver.
- * @evidence contracts/development/testing.md#distinguishing-cases Nonzero off-diagonals in all planes, an offset with mixed signs, explicit versus saved rotation, changed calls and owned outputs, dense versus no-rotation Jacobi, eigenvector sign freedom, zero tensor refusal and nonfinite zero-speed propagation distinguish the optimized paths.
- * @evidence contracts/development/testing.md#execution-ownership One deferred CPU unit owns one physical part and small numeric matrices, mutates only its own records and starts no process, renderer or foreign method replacement.
  */
 export function test_engine_mass_tensor_spin(): void {
   const findings: string[] = [];

@@ -20,7 +20,12 @@ import { readRecoveryEventCurveParent } from "./internal/readRecoveryEventCurveP
  * topology and material correspondence.
  */
 export namespace AutoMovieRecoveryEventCurve {
-  /** Derive an occurrence from its original coefficient owner. */
+  /**
+   * Return four millimetre Bernstein controls for the occurrence's oriented
+   * interval of its native cubic. Optional native endpoint evaluation preserves
+   * the compiler's shared endpoint policy. The source must retain one admitted
+   * native cubic.
+   */
   export function controls(
     piece: IAutoMovieRecoveryEventCurvePiece,
     nativeEndpoints: boolean = false,
@@ -28,14 +33,21 @@ export namespace AutoMovieRecoveryEventCurve {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
-  /** Read the original complete Bernstein coefficient owner. */
+  /**
+   * Read the sole native Bernstein control net of a supplied millimetre event
+   * occurrence. Require one positive finite original phase width and four
+   * finite control triples. Use a basis conversion upstream for Hermite input.
+   */
   export function fullparentControls(
     source: IAutoMovieRecoveryEventCurveSource,
   ): AutoMovieCubicBezierControls3 {
     return readRecoveryEventCurveParent(source);
   }
 
-  /** Compare three coefficient components exactly, accepting either signed zero. */
+  /**
+   * Compare three millimetre coefficient components exactly. Opposite signed
+   * zeros are equal, so a stored zero can share either representation.
+   */
   export const same: (
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
@@ -45,8 +57,10 @@ export namespace AutoMovieRecoveryEventCurve {
   ): boolean => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
   /**
-   * Admit saved cubic continuity and retain its original native controls and
-   * names.
+   * Admit one named Bernstein path in millimetres and preserve original span
+   * authorities and widths. By default use the curve's name as authority.
+   * Adjacent spans and a closed seam must meet exactly. Keep borrowed native
+   * controls unchanged while using the returned arc.
    */
   export function fromCurve(
     curve: IAutoMovieRecoveryEventCurveCoefficients,
@@ -59,13 +73,6 @@ export namespace AutoMovieRecoveryEventCurve {
       throw new Error(
         "Named cubic spans and widths must have equal positive cardinality",
       );
-    for (let i: number = 1; i < curve.spans.length; i++)
-      if (!same(curve.spans[i - 1]![3], curve.spans[i]![0]))
-        throw new Error(
-          "Stored curve has conflicting C0 endpoint coefficients",
-        );
-    if (curve.closed && !same(curve.spans[0]![0], curve.spans.at(-1)![3]))
-      throw new Error("Stored periodic curve has conflicting seam endpoints");
     const arc: IAutoMovieRecoveryEventCurveArc = {
       id: authority,
       closed: curve.closed,
@@ -99,33 +106,43 @@ export namespace AutoMovieRecoveryEventCurve {
         ? { canonicalKnots: [...curve.canonicalKnots] }
         : {}),
     };
+    for (const piece of arc.pieces) {
+      if (!piece) throw new Error("Every native curve span must be present");
+      fullparentControls(piece.source);
+    }
+    for (let i: number = 1; i < curve.spans.length; i++)
+      if (!same(curve.spans[i - 1]![3], curve.spans[i]![0]))
+        throw new Error(
+          "Stored curve has conflicting C0 endpoint coefficients",
+        );
+    if (curve.closed && !same(curve.spans[0]![0], curve.spans.at(-1)![3]))
+      throw new Error("Stored periodic curve has conflicting seam endpoints");
     knots(arc);
     return arc;
   }
 
   /**
-   * Return the retained normalized partition or normalize the supplied positive
-   * widths.
+   * Return an owned normalized partition from zero to one. Copy a valid
+   * supplied canonical partition. Otherwise normalize positive finite piece
+   * widths. Invalid, nonfinite or collapsed partitions throw.
    */
   export function knots(arc: IAutoMovieRecoveryEventCurveArc): number[] {
-    if (
-      !arc.pieces.length ||
-      arc.pieces.some(
-        (p: IAutoMovieRecoveryEventCurvePiece): boolean => !(p.width > 0),
-      )
-    )
+    if (!arc.pieces.length)
       throw new Error("An arc requires positive finite piece widths");
+    for (const p of arc.pieces)
+      if (!p || !Number.isFinite(p.width) || !(p.width > 0))
+        throw new Error("An arc requires positive finite piece widths");
     if (arc.canonicalKnots) {
       const q: number[] = arc.canonicalKnots;
-      if (
-        q.length !== arc.pieces.length + 1 ||
-        q[0] !== 0 ||
-        q.at(-1) !== 1 ||
-        q.some((u: number, i: number): boolean => i > 0 && u <= q[i - 1]!)
-      )
+      if (q.length !== arc.pieces.length + 1 || q[0] !== 0 || q.at(-1) !== 1)
         throw new Error(
           "Canonical arc knots must be strictly increasing from zero to one",
         );
+      for (let i: number = 1; i < q.length; i++)
+        if (!(q[i]! > q[i - 1]!))
+          throw new Error(
+            "Canonical arc knots must be strictly increasing from zero to one",
+          );
       return [...q];
     }
     const total: number = arc.pieces.reduce(
@@ -133,6 +150,10 @@ export namespace AutoMovieRecoveryEventCurve {
         sum + p.width,
       0,
     );
+    if (!Number.isFinite(total))
+      throw new Error(
+        "Positive widths must retain a representable strict partition",
+      );
     const q: number[] = [0];
     let sum: number = 0;
     for (const p of arc.pieces) {
@@ -147,14 +168,24 @@ export namespace AutoMovieRecoveryEventCurve {
     return q;
   }
 
-  /** Resolve an oriented occurrence endpoint to its exact native P0 or P3 name. */
+  /**
+   * Resolve the chosen oriented occurrence endpoint to its exact native P0 or
+   * P3 identity. A valid interior endpoint returns null. Invalid endpoint
+   * phase, missing identity or a mismatch with the original coefficient
+   * throws.
+   */
   export function endpointAuthority(
     piece: IAutoMovieRecoveryEventCurvePiece,
     endpoint: 0 | 1,
   ): string | null {
     const parameter: number =
       endpoint === 0 ? piece.source.start : piece.source.end;
-    if ((endpoint !== 0 && endpoint !== 1) || parameter < 0 || parameter > 1)
+    if (
+      (endpoint !== 0 && endpoint !== 1) ||
+      !Number.isFinite(parameter) ||
+      parameter < 0 ||
+      parameter > 1
+    )
       throw new Error(
         "An occurrence endpoint needs a normalized finite native parameter",
       );
@@ -175,8 +206,9 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Restrict a nonempty chart interval while retaining oriented native
-   * provenance.
+   * Restrict a path to a finite increasing interval within its normalized
+   * chart. The returned open portion preserves each oriented native source and
+   * its restricted native interval. Empty or invalid requests throw.
    */
   export function portion(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -211,8 +243,9 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Reverse path occurrence order and native intervals without renaming parent
-   * endpoints.
+   * Reverse path order and the orientation of every native occurrence. Retain
+   * the arc's identity and closure. A retained canonical partition is reflected
+   * into the new chart and must remain strictly increasing.
    */
   export function reverse(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -243,7 +276,11 @@ export namespace AutoMovieRecoveryEventCurve {
     return out;
   }
 
-  /** Return exactly one original-span occurrence for a declared chart cell. */
+  /**
+   * Read one native-span occurrence for a nonempty interval of an arc's
+   * normalized chart. A request crossing a native knot throws. The returned
+   * piece keeps its oriented original interval.
+   */
   export function piece(
     arc: IAutoMovieRecoveryEventCurveArc,
     a: number,
@@ -256,8 +293,9 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Evaluate one declared phase using the maintained Bernstein endpoint
-   * contract.
+   * Evaluate the arc at one normalized phase from zero to one. Return a
+   * position in millimetres, including exact supplied endpoints at chart
+   * boundaries. An out-of-range phase throws.
    */
   export function evaluate(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -286,8 +324,9 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Concatenate exactly meeting paths while preserving every native piece
-   * boundary.
+   * Join nonempty arcs under the requested name in input order. Neighboring
+   * pieces must meet at exactly equal physical endpoints. The result is an open
+   * composite whose original native occurrences remain available.
    */
   export function concatenate(
     arcs: readonly IAutoMovieRecoveryEventCurveArc[],
@@ -317,14 +356,18 @@ export namespace AutoMovieRecoveryEventCurve {
     };
   }
 
-  /** Construct a named straight cubic between two explicit physical endpoints. */
+  /**
+   * Create one named straight millimetre cubic between two explicit points. Its
+   * phase width is their positive representable Euclidean separation. Equal
+   * points or unrepresentable length throw.
+   */
   export function line(
     a: Readonly<AutoMovieVector3Tuple>,
     b: Readonly<AutoMovieVector3Tuple>,
     id: string,
   ): IAutoMovieRecoveryEventCurveArc {
     const width: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-    if (!(width > 0))
+    if (!Number.isFinite(width) || !(width > 0))
       throw new Error("A named line needs positive representable length");
     const ma: AutoMovieVector3Tuple = V.clone(a),
       mb: AutoMovieVector3Tuple = V.clone(b);
@@ -340,8 +383,9 @@ export namespace AutoMovieRecoveryEventCurve {
   }
 
   /**
-   * Move a closed path's chart origin to an existing knot without altering
-   * native owners.
+   * Move a closed path's normalized phase origin to an existing knot. Retain
+   * its original native coefficients and authorities. An open path or invalid
+   * knot index throws.
    */
   export function rotateAtKnot(
     arc: IAutoMovieRecoveryEventCurveArc,

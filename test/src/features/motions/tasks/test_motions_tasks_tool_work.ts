@@ -46,6 +46,10 @@ const POT: HumanToolWork.IStir = {
  *    work point (1, 0.92, 1.95).
  * 2. A spoon of 0.08 m, short of the 0.1 m depth, or an inside of no width, is
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the virtual stirring circle within container depth and limb and width bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls stir placement with a fixed pot and spoon, then tries an undersized spoon and zero-width interior.
+ * @evidence contracts/development/testing.md#independent-expectations Halfway between floor and rim gives the point at y = 0.92 m. Interior width bounds radius to 0.05 m and a 0.08 m spoon cannot span 0.1 m depth.
  */
 export function test_motions_tasks_tool_work(): void {
   const work: HumanToolWork.IWork = HumanToolWork.stir(POT);

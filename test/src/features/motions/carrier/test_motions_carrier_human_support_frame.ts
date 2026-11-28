@@ -180,15 +180,22 @@ namespace part_human_support_frame_floor {
 }
 
 /**
- * `HumanSupportFrame`'s unit contract: its board and floor frames.
+ * Check support declarations, floor height and relative boarding speed.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `human_support_frame_board`: `HumanSupportFrame.board` refuses stepping from
- *   the ground onto a prop that moves faster at the action's start than the
- *   gait can match, naming the prop's speed and the feasible range up to the
- *   gait's;
- * - `human_support_frame_floor`: `HumanSupportFrame`'s entry readings:
+ * 1. At a gait of 1.2 m/s admit a prop 1 mm/s slower. The faster prop refuses
+ *    on `on` with its measured speed and feasible range, unless the entry
+ *    already bears on it.
+ * 2. Read ground for undeclared contact and the cart for the declared
+ *    left-foot plant.
+ * 3. Raise the standing entry by 0.5 m and raise its floor by the same
+ *    amount. With both feet lifted, use zero. Read the ground frame at the
+ *    origin with zero velocity and acceleration.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify gait speed, boarding state, floor height and ground-frame reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Separate fixtures exercise the boarding gate and the entry's actual feet and support records.
+ * @evidence contracts/development/testing.md#independent-expectations The prop transforms prescribe both speeds directly, and a constant 0.5 m root translation shifts both posed soles by that amount.
  */
 export async function test_motions_carrier_human_support_frame(): Promise<void> {
   part_human_support_frame_board.verify();

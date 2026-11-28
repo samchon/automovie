@@ -20,6 +20,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    name, lands on its own position within 3e-11 (1e-9 of the beam's radius).
  * 2. The right-grouped assembly at 1.001 times the size does not read as the
  *    left-grouped one, so the agreement above is not vacuous.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names equivalent merge trees, bidirectional surface agreement and the scaled negative control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes left- and right-grouped assemblies and evaluates each side's owned vertices on the corresponding surface of the other.
+ * @evidence contracts/development/testing.md#independent-expectations The two join trees describe the same beam, post, finger and nail at the same scale. Every sampled point must agree in the owner's chart. Scaling one tree by 1.001 breaks that correspondence.
  */
 export function test_engine_geometry_construction_nesting(): void {
   const realize = (

@@ -25,11 +25,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *    report names a declared source; without an intent it names the EBU R 128
  *    default.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the worked lines, their levels as placed, the gains and the refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation Gain follows the measured line and target, excessive correction refuses, and stereo makeup and a short line exercise the measurement path. A dialogue target overrides the integrated target.
  * @evidence contracts/development/testing.md#behavioral-verification Mixes 1 kHz lines through `renderProductionSound` and reads the gain it reports and applies. A mixer that keeps a fixed gain, measures the line as mono, or ignores `dialogueLufs` reports a different gain.
  * @evidence contracts/development/testing.md#independent-expectations A 1 kHz sine of peak amplitude a reads 20 log10 a LUFS on both stereo channels (EBU Tech 3341 test signal 1) and 3.01 LU less as mono, so the amplitudes are set from the worked levels in closed form. The 240-sample edge fade changes a 3 s line by under 0.01 LU, inside the 0.02 dB tolerance; the levelled line's own loudness is re-measured independently of the reported gain.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs an accepted and a refused gain, a mono and a dual-mono measure, a line shorter than a gating block and a declared versus default target; the meter's reference signals belong to `test_engine_sound_loudness_meter`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_dialogue_levelling`; it starts no process.
  */
 export function test_engine_sound_dialogue_levelling(): void {
   const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;

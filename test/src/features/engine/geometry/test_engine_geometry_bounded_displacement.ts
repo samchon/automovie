@@ -32,6 +32,10 @@ type Condition = { row: IAutoMovieQuadraticRow; group: number };
  *    requiring 0 it gives zeros.
  * 7. Tolerances 0 and -1, budgets 0 and -1, masses (0, 1) and (-1, 1), one cap,
  *    a negative cap and index 2 refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes grouped contact iteration, feasible least travel, independent coordinates and distinct admission or solve failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves small bounded systems and verifies actual travel, row residuals, round count, zero coordinates and source preservation.
+ * @evidence contracts/development/testing.md#independent-expectations Axis bounds and the diagonal y = x determine the smallest nonnegative travel. An upper cap below a required lower bound is infeasible. A coordinate with no coupling stays at zero.
  */
 export function test_engine_geometry_bounded_displacement(): void {
   const solve = AutoMovieEngineMath.solveBoundedDisplacement;

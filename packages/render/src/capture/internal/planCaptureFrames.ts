@@ -5,16 +5,18 @@ import type {
   IAutoMovieCaptureWindow,
 } from "@automovie/interface";
 
+import { countEncodedFrames } from "../../timing/internal/countEncodedFrames";
+
 /*
  * Plan the instants a capture draws, for a drawn scene and for a video file
  * alike: an even sampling or explicit seconds, merged with every frame within
  * `window` frames of each event and each cut.
  *
- * The subject's frames are the indices `0` to `N - 1` with `N =
- * ceil(durationSeconds × fps)`, frame `i` showing second `i / fps`. An even
+ * The subject's frames are the indices `0` to `N - 1` on the encoded grid,
+ * frame `i` showing second `i / fps`. An even
  * sample is moved to the nearest frame, so every still is a frame the subject
  * encodes, and stops before `to`. An explicit second is kept as written. The
- * frame nearest an event or a cut is `round(seconds × fps)`, and its window
+ * frame nearest an event or a cut is clamped to the grid, and its window
  * runs `window` frames to each side at the frame rate, cut at the first and
  * last frame. The result is in time order with every frame once, and each
  * window is listed with whether the bounds cut it.
@@ -40,17 +42,19 @@ export function planCaptureFrames(
   props: IAutoMovieCaptureFramePlanProps,
 ): IAutoMovieCaptureFramePlan {
   const { durationSeconds, fps, sampling, window } = props;
-  if (!(fps > 0))
-    throw new Error(`A capture's frame rate ${fps} is not positive`);
-  if (!(durationSeconds > 0))
+  if (!Number.isFinite(fps) || fps <= 0)
+    throw new Error(`A capture's frame rate ${fps} is not positive and finite`);
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0)
     throw new Error(
-      `A capture's duration ${durationSeconds} s is not positive`,
+      `A capture's duration ${durationSeconds} s is not positive and finite`,
     );
-  if (!(window >= 0))
+  if (!Number.isSafeInteger(window) || window < 0)
     throw new Error(
-      `A capture window of ${window} frames is not a whole number`,
+      `A capture window of ${window} frames is not a nonnegative safe integer`,
     );
-  const count: number = Math.ceil(durationSeconds * fps - ON_GRID);
+  const count: number = countEncodedFrames(fps, durationSeconds);
+  if (count === 0 && (sampling.kind === "even" || props.events.length !== 0 || props.cuts.length !== 0))
+    throw new Error("The subject's clock supplies no encoded capture frames");
   const inside: (seconds: number) => boolean = (seconds: number): boolean =>
     seconds >= 0 && seconds <= durationSeconds;
 
@@ -72,14 +76,30 @@ export function planCaptureFrames(
     }
   else {
     const to: number = sampling.to ?? durationSeconds;
-    if (!(sampling.from < durationSeconds && to <= durationSeconds))
+    if (!(inside(sampling.from) && inside(to) && sampling.from < to))
       throw new Error(
         `A capture sampling of ${sampling.from}-${to} s does not lie within the subject's 0-${durationSeconds} s`,
       );
-    for (let sample: number = 0; ; sample++) {
-      const seconds: number = sampling.from + sample / sampling.rate;
-      if (seconds >= to) break;
-      addFrame(Math.min(count - 1, Math.round(seconds * fps)));
+    if (!Number.isFinite(sampling.rate) || sampling.rate <= 0)
+      throw new Error("A capture's sampling rate must be positive and finite");
+    const samples: number = Math.max(1, Math.ceil((to - sampling.from) * sampling.rate));
+    if (!Number.isSafeInteger(samples))
+      throw new Error("A capture's sampling count exceeds the safe integer range");
+    if (sampling.rate >= fps) {
+      // Consecutive requests are at most one frame apart. Jump directly to
+      // their distinct native indices instead of revisiting each frame.
+      const first: number = Math.min(count - 1, Math.round(sampling.from * fps));
+      let final: number = sampling.from + (samples - 1) / sampling.rate;
+      if (final >= to && samples > 1)
+        final = sampling.from + (samples - 2) / sampling.rate;
+      const last: number = Math.min(count - 1, Math.round(final * fps));
+      for (let frame: number = first; frame <= last; frame++) addFrame(frame);
+    } else {
+      for (let sample: number = 0; sample < samples; sample++) {
+        const seconds: number = sampling.from + sample / sampling.rate;
+        if (seconds >= to) break;
+        addFrame(Math.min(count - 1, Math.round(seconds * fps)));
+      }
     }
   }
 
@@ -94,7 +114,8 @@ export function planCaptureFrames(
         throw new Error(
           `Capture ${kind} at ${seconds} s lies outside 0-${durationSeconds} s`,
         );
-      const frame: number = Math.round(seconds * fps);
+      const ideal: number = Math.round(seconds * fps);
+      const frame: number = Math.min(count - 1, ideal);
       const first: number = Math.max(0, frame - window);
       const last: number = Math.min(count - 1, frame + window);
       for (let index: number = first; index <= last; index++) addFrame(index);
@@ -104,7 +125,7 @@ export function planCaptureFrames(
         frame,
         first,
         last,
-        clipped: first !== frame - window || last !== frame + window,
+        clipped: ideal !== frame || first !== frame - window || last !== frame + window,
       });
     }
 

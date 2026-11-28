@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Duplicated identity, unknown node, missing emitter, inadmissible sizes and
  *    competing emission produce located findings in cue order.
  * 3. At the compiled boundary, the bound id must name a retained light clip.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers authored flame binding and cue faults, and the retained compiled light-clip requirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls appendFlamesArtifact with typed cue rows and a model/emitter context, then supplies a compiled context with an empty light set.
+ * @evidence contracts/development/testing.md#independent-expectations The valid id names the same node, socket and interval. The deliberately repeated id, absent model or emitter, invalid size and competing emission each have their own authored path. A missing compiled clip can only fault the cue's light field.
  */
 export function test_engine_validation_flames_artifact(): void {
   const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

@@ -65,6 +65,10 @@ const drape: (step: number) => ReturnType<typeof AutoMovieEngineSoftBody.softBod
  *    transfer to a fresh geometry and retire its predecessor once.
  * 8. Failed old-geometry retirement preserves its cause, blocks another update and
  *    cannot skip independent current-geometry/default-material close.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names CPU attributes and bounds, status, same-size reuse, resize and failed retirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the projection from typed Engine surface and status values. Reads native geometry, attachments, visibility and resource events across updates, shape replacement and an injected disposal error.
+ * @evidence contracts/development/testing.md#independent-expectations The Engine's literal surface arrays and bounds supply the buffer and sphere reference. Same-sized data preserves array identity, and changed shape replaces it. Missing triangle data yields empty geometry or hidden cord. The original injected error survives and independent current resources still close.
  */
 export function test_render_scene_build_soft_body_object(): void {
   const surface: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> = drape(64);

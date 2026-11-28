@@ -16,9 +16,13 @@ import { InspectionScene } from "../../internal/InspectionScene";
  *    colours, then `edge` and the four defect kinds other than `defect/sliver`,
  *    with the documented labels and colours.
  * 2. With a sliver limit `defect/sliver` follows the other defect kinds; with a
- *    trail `trail` and `trail/now` close the list.
+ *    trail the sampled, current and authored-route kinds close the list.
  * 3. A supplied kind with an inspection kind's name is listed once, with the
  *    supplied label and colour.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The examples describe how supplied marks, built-in defects, and optional sliver and trail kinds populate the ordered choices.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that optional kinds appear only when their settings are present and that a supplied kind takes precedence on a kind-name collision.
+ * @evidence contracts/development/testing.md#independent-expectations Compares with manually ordered kind records and the fixture's explicit label and color for the colliding kind.
  */
 export function test_render_scene_list_inspection_kinds(): void {
   const supplied = [
@@ -101,6 +105,7 @@ export function test_render_scene_list_inspection_kinds(): void {
         label: "trail at the drawn second",
         color: 0x1e90ff,
       },
+      { kind: "trail/route", label: "Authored route", color: 0x4fc5bb },
     ],
   );
 

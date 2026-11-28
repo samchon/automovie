@@ -187,6 +187,8 @@ Options:
   --backend       capture, render: software (SwiftShader, the default) or gpu.
   --timeout-ms    capture, render: budget per browser navigation, subject
                   preparation or draw call (default 120000 ms).
+  --checkpoint-dir       render: retain and verify native draw frames here.
+  --checkpoint-identity  render: paired lowercase SHA-256 of the exact inputs.
   --out           capture: the folder; default media/capture/<subject>.
                   render: default media/automovie/<subject>/videos.
                   review: default media/automovie/review.

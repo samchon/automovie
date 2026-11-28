@@ -23,6 +23,10 @@ const ROUNDING: number = 1e-12;
  * Evaluate the four tool cycles from a fixed grip and a known local face.
  * Check their face at contact, the saw's excursion, the hammer's windup,
  * the screwdriver's axis, and the spoon's path halfway up the vessel.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fixed-grip tool pose cycles and the resulting world working point or orientation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the prepared cycle for hammer, saw, screwdriver and spoon, reading lead-in, contact, directional extrema and the vessel circle.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit 70° windup and 30° twist fix hammer and screwdriver results. The saw travels a quarter forearm each side and the spoon's traced circle stays inside the authored vessel.
  */
 export function test_motions_tasks_tool_cycle(): void {
   const held: useToolCycle.IPrepared["pose"] = {

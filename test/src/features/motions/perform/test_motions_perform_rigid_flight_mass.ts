@@ -38,7 +38,12 @@ const SUM: number = 1e-9;
  *    gains theirs, and the total is unchanged.
  * 4. Without the carrier's frame nothing is prepared.
  * 5. The pose itself matches; a fixed joint's flexion changed, a joint dropped or
- *    two joints swapped do not; a moving joint's change does.
+ *    two joints swapped do not. If the fixture has a moving hip channel,
+ *    changing it preserves the prepared mass model's eligibility.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names unchanged moving mass, full-body and one-branch folding, a missing carrier, and rejection of changed fixed coordinates or joint order.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `prepareRigidFlightMass` on an archived stance with selected moving bones. It compares total mass and segment identities, tests a withheld carrier frame, and calls the returned pose predicate on altered joint arrays.
+ * @evidence contracts/development/testing.md#independent-expectations The whole body's expected center is the weighted mean of the segment centers expressed in the hips frame, with source segment masses summed directly. The left forearm gains the sum of the folded hand branch while all other kept segments and total mass agree.
  */
 export async function test_motions_perform_rigid_flight_mass(): Promise<void> {
   const { context } = await standingPerformanceState();

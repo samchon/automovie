@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. 30 and 24 are whole rates over 1.
  * 2. 29.97 is 2997/100, and 0.5 is 1/2.
  * 3. A rate beyond FFmpeg's largest term is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Converts numeric frame rates to FFmpeg rational strings and refuses an out-of-range term.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls frame-rate formatting on two integers, decimal 29.97, one-half, and an oversized rate.
+ * @evidence contracts/development/testing.md#independent-expectations The literal ratios 30/1, 24/1, 2997/100 and 1/2 distinguish rational formatting from rounding the decimal to NTSC.
  */
 export function test_render_delivery_auto_movie_video_frame_rate(): void {
   TestValidator.equals("thirty", AutoMovieRenderVideo.frameRate(30), [30, 1]);

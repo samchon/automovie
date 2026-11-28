@@ -2,18 +2,24 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createHandSaw as createHandSawImplementation } from "./internal/createHandSaw";
 
-/** Public operations for Auto Movie Archetype Hand Saw. */
+/**
+ * Constructs a hand-saw proxy with a heel grip and a full-length tooth edge.
+ */
 export namespace AutoMovieArchetypeHandSaw {
   /**
-   * Hand saw with a blade ledge and a grip across its heel.
+   * Build a hand saw with its blade running along model `+Y`.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * The heel `grip` faces `+X`. Its handle axis lies across the line to
+   * the teeth. The straight tooth ledge faces `+Z`.
+   * Two heel cheeks join the transverse handle to the blade root.
+   *
+   * @param params Optional ID, finite overall and blade length, grip diameter
+   *   and mass in their bands. The ID defaults to `tool`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.615 metres overall, a
+   *   0.525 metre blade and a 0.035 metre grip diameter.
+   * @returns The saw's heel grasp and tooth ledge.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     HandToolDraw.IParams,
@@ -22,14 +28,10 @@ export namespace AutoMovieArchetypeHandSaw {
     return createHandSawImplementation(params, seed);
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Power `grip` across the heel and positive-Z tooth ledge as `face`. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Overall and blade lengths along Y, and grip diameter in metres. Mass is in kilograms.
    */
   export type Dimension = "blade" | "gripDiameter" | "length" | "mass";}

@@ -1,51 +1,51 @@
-import type * as THREE from "three";
-import { hideSurfaceGraphics as hideSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/hideSurfaceGraphics";
-import { type IAutoMovieRenderSurfaceGraphicsObject } from "./IAutoMovieRenderSurfaceGraphicsObject";
-import { type IAutoMovieRenderPrepareSurfaceGraphicsProps } from "./IAutoMovieRenderPrepareSurfaceGraphicsProps";
-import { prepareSurfaceGraphics as prepareSurfaceGraphicsImplementation } from "./surfaceGraphic/internal/prepareSurfaceGraphics";
+﻿import type * as THREE from "three";
 
-/** Public operations for Auto Movie Render Surface Graphic. */
+import type { IAutoMovieRenderPrepareSurfaceGraphicsProps } from "./IAutoMovieRenderPrepareSurfaceGraphicsProps";
+import type { IAutoMovieRenderSurfaceGraphicsObject } from "./IAutoMovieRenderSurfaceGraphicsObject";
+import { hideSurfaceGraphics } from "./surfaceGraphic/internal/hideSurfaceGraphics";
+import { prepareSurfaceGraphics } from "./surfaceGraphic/internal/prepareSurfaceGraphics";
+
+/** Mount surface graphics and control their pass visibility. */
 export namespace AutoMovieRenderSurfaceGraphic {
   /**
-   * Hide every currently visible surface graphic root in a scene and return the
-   * restore that shows them again.
+   * Hide the visible graphic roots for a pass that omits surface graphics.
    *
-   * The depth, normal, outline, pose and albedo passes leave surface graphics
-   * out: the prop's own surface beneath already draws there, and a control
-   * channel carries no lettering or overlay. Only roots that were visible are
-   * hidden, so a key group that the per-frame applier hid stays hidden after
-   * restore.
+   * The returned function restores those roots. Hidden roots and selected keys
+   * retain their previous state.
+   *
+   * @param scene The scene containing the mounted graphics.
+   * @returns The restore function for this pass.
    */
   export function hide(scene: THREE.Scene): () => void {
-    return hideSurfaceGraphicsImplementation(scene);
+    return hideSurfaceGraphics(scene);
   }
 
   /**
-   * Build a shot's surface graphics once, before any frame is drawn, and mount
-   * each on its prop.
+   * Mount the graphics of one shot and prepare their key playback.
    *
-   * Every track becomes one group named `surface-graphic:<node>/<surface>`,
-   * marked for the render-mode boundary, parented to the node's model object at
-   * the surface affordance's frame and lifted half a millimetre along `+Y`. It
-   * holds one group per key, built by `buildSurfaceGraphicKey` and
-   * clipped to the surface's `outline` when it declares one, of which the
-   * returned `apply` shows only the key in force. Because the graphic rides the
-   * model object, it follows the node's placement, its object motion and its
-   * carriage at every sample time, and two props sharing one model show their own
-   * graphics.
+   * Each track mounts a named group half a millimetre above its surface. A
+   * fixed surface rides the mounted model root. An articulated surface rides
+   * its built rigid part, keeping the authored model-rest reading frame even
+   * when that part is already posed.
    *
-   * The shot's font sources decode here first, all of them, so a source the
-   * decoder refuses rejects with its diagnostic before anything is built; a text
-   * layer then sets its glyphs from the decoded font it names. If a text layer
-   * omits its font, the key builder draws it with the system UI font. Images
-   * decode here too, once per distinct image: an id the node's model carries
-   * decodes from its PNG bytes, any other id loads through `loadImage`. Every
-   * texture is decoded as sRGB and sampled with the first image row at the face's
-   * top. A node without a mounted object, a surface that is not a sized `surface`
-   * affordance of its model, or an image that resolves nowhere rejects naming the
-   * track, after releasing everything already made.
+   * Each root holds one group per key, clipped to a declared outline. Use the
+   * returned `apply` to select the key at a shot-local second. Each placed prop
+   * keeps its own key state.
+   *
+   * Listed fonts decode before graphics are built. Text with no font uses the
+   * system UI font. Images carried by the model decode from their PNG bytes.
+   * Other images use the supplied loader. Textures use sRGB and start with the
+   * image's top row at the face's top.
+   *
+   * @param props The shot, scene, model registry and mounted model lookup.
+   * @returns A shot-owned graphics handle. Dispose it when the shot retires.
+   * @throws When a listed font cannot decode or a track lacks its mounted
+   *   model, a sized surface, its rigid carrier or a required image. Resources
+   *   already created are released on refusal.
    */
-  export function prepare(props: IAutoMovieRenderPrepareSurfaceGraphicsProps): Promise<IAutoMovieRenderSurfaceGraphicsObject> {
-    return prepareSurfaceGraphicsImplementation(props);
+  export function prepare(
+    props: IAutoMovieRenderPrepareSurfaceGraphicsProps,
+  ): Promise<IAutoMovieRenderSurfaceGraphicsObject> {
+    return prepareSurfaceGraphics(props);
   }
 }

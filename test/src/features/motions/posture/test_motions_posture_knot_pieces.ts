@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Five knots, the third with a dwell: pieces 0 to 2 and 2 to 4.
  * 2. Dwells on the first and the last knot only: one piece.
  * 3. Two knots make one piece and one knot none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines piece partition at internal dwells and the behavior of boundary-only and short knot sequences.
+ * @evidence contracts/development/testing.md#behavioral-verification Splits five knots with an internal hold, adds end-only dwells and repeats for one and two knots.
+ * @evidence contracts/development/testing.md#independent-expectations The third knot divides index ranges 0–2 and 2–4. End holds add no pieces and one knot has no interval.
  */
 export function test_motions_posture_knot_pieces(): void {
   const knot = (dwell: number): HumanKnot.IKnot => ({ position: [0], dwell });

@@ -1,100 +1,76 @@
-/**
- * Bound one declared affine row over a common independent-coefficient box.
- * Duplicate original IDs first combine in input order using binary64 addition.
- * The resulting floating-point coefficients, constants, bounds and target are
- * then interpreted as exact dyadic numbers. Endpoint arithmetic and the strict
- * squared-distance comparison against tolerance are exact for that row.
- * Returned endpoints round outward. minimumDistanceMm is an approximate number
- * view; only infeasibleAtTolerance uses the exact comparison. A false decision
- * does not establish that several observations can be fitted simultaneously.
- * Row identities do not identify source vertices, and this box is not generated
- * geometry, continuous source support or a closest-surface distance
- * certificate. Nonfinite input, conflicting bounds, invalid IDs, exhausted raw
- * term budgets, nonfinite duplicate sums or nonrepresentable number views throw
- * atomically.
- */
-
+/** Contracts for bounding one affine row over an independent-control box. */
 export namespace IAutoMovieAffineBoxBound {
   /**
-   * Bound one declared affine row over a common independent-coefficient box.
-   * Duplicate original IDs first combine in input order using binary64
-   * addition. The resulting floating-point coefficients, constants, bounds and
-   * target are then interpreted as exact dyadic numbers. Endpoint arithmetic
-   * and the strict squared-distance comparison against tolerance are exact for
-   * that row. Returned endpoints round outward. minimumDistanceMm is an
-   * approximate number view; only infeasibleAtTolerance uses the exact
-   * comparison. A false decision does not establish that several observations
-   * can be fitted simultaneously. Row identities do not identify source
-   * vertices, and this box is not generated geometry, continuous source support
-   * or a closest-surface distance certificate. Nonfinite input, conflicting
-   * bounds, invalid IDs, exhausted raw term budgets, nonfinite duplicate sums
-   * or nonrepresentable number views throw atomically.
+   * Bound the row image and compare its exact squared target distance with the
+   * squared tolerance.
+   *
+   * Repeated control IDs combine in input order with binary64 addition. The
+   * calculation then uses the resulting finite values as exact dyadic numbers.
+   * The result describes this row alone. Invalid fields, reversed bounds,
+   * exhausted budgets or an unrepresentable numeric result throw.
    */
+  export type Operation = (input: IInput) => IResult;
 
-  export type Operation = (input: {
-    /** Constant part of the substituted position row, millimetres. */
+  /** A finite three-dimensional affine row and its shared control bounds. */
+  export type IInput = {
+    /** Constant part of the substituted position row, in millimetres. */
     constantMm: readonly [number, number, number];
 
     /**
-     * Original independent IDs and dimensionless weights; repeated IDs combine
-     * in input order.
+     * Independent control IDs and signed weights. Repeated IDs combine in input
+     * order and each supplied term counts toward the budget.
      */
-    terms: readonly {
-      /**
-       * Zero-based ordinal in this record's owning cell, component or control
-       * registry; it is not a source coordinate.
-       */
-      id: number;
-      /**
-       * Dimensionless signed affine coefficient; neither positivity nor
-       * convexity is inferred.
-       */
-      weight: number;
-    }[];
+    terms: readonly ITerm[];
 
-    /** Common independent-control lower bounds, millimetres. */
+    /** Common independent-control lower bounds in millimetres. */
     lowerMm: readonly [number, number, number];
 
-    /** Common independent-control upper bounds, millimetres. */
+    /** Common upper bounds in millimetres, at or above the lower bounds. */
     upperMm: readonly [number, number, number];
 
-    /**
-     * One private positional observation, millimetres; it need not be inside
-     * the box.
-     */
+    /** Target observation in millimetres, within or outside the box. */
     targetMm: readonly [number, number, number];
 
-    /** Positive millimetre tolerance; exact equality is not infeasible. */
+    /** Positive finite threshold in millimetres. Exact equality is feasible. */
     toleranceMm: number;
 
-    /**
-     * Positive safe cap on supplied terms, including repeated and canceled
-     * addresses.
-     */
+    /** Positive safe integer cap on supplied terms, including repetitions. */
     maxTerms: number;
-  }) => {
-    /** Outward-rounded lower endpoints, millimetres. */
+  };
+
+  /** One signed coefficient assigned to an independent control. */
+  export type ITerm = {
+    /** Nonnegative safe integer ordinal in the owning control registry. */
+    id: number;
+
+    /** Finite dimensionless coefficient for this control. */
+    weight: number;
+  };
+
+  /** Numeric views of the single row's exact image and its distance decision. */
+  export type IResult = {
+    /** Outward-rounded lower endpoints in millimetres. */
     lowerMm: [number, number, number];
 
-    /** Outward-rounded upper endpoints, millimetres. */
+    /** Outward-rounded upper endpoints in millimetres. */
     upperMm: [number, number, number];
 
-    /** Approximate distance to the exact row image, millimetres. */
+    /** Approximate finite distance to the row image, in millimetres. */
     minimumDistanceMm: number;
 
-    /** Exact strict distance-squared comparison for the combined binary64 row. */
+    /** True when the squared row distance strictly exceeds squared tolerance. */
     infeasibleAtTolerance: boolean;
 
-    /** Binary64 sum of combined weights, in first-address order. */
+    /** Finite binary64 sum of combined weights in first-address order. */
     weightSum: number;
 
-    /** Binary64 sum of absolute combined weights, in first-address order. */
+    /** Finite sum of absolute combined weights in first-address order. */
     absoluteWeightSum: number;
 
-    /** Unique original addresses, including exact-zero cancellations. */
+    /** Count of unique original IDs, including controls whose weight cancels. */
     terms: number;
 
-    /** Predicate scope and diagnostic precision qualification. */
+    /** Message describing which decision is exact and which values are views. */
     diagnostic: string;
   };
 }

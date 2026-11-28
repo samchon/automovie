@@ -1,3 +1,4 @@
+import { AutoMovieEngineScheduleWalk } from "@automovie/engine";
 import type { IAutoMovieScheduleCue } from "@automovie/interface";
 import { AutoMovieMotionHumanCue } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -20,8 +21,8 @@ const ROUNDING: number = 1e-12;
  * 2. Without `from` and `meter` the track starts at 0 s in four.
  * 3. A meter of one makes every beat a downbeat.
  * 4. A single beat is one downbeat and one beat at the first second.
- * 5. A tempo, a count or a meter of 0 is refused. Whether a count is whole is the
- *    caller's: the function admits only its sign.
+ * 5. Fractional tempo is valid. Count and meter must be positive safe integers.
+ * 6. Invalid seconds and tracks that exceed array capacity refuse before emission.
  */
 function scenario_test_motions_perform_human_cue_beats(): void {
   const matches: (
@@ -94,6 +95,55 @@ function scenario_test_motions_perform_human_cue_beats(): void {
     ["a meter of 0", () => AutoMovieMotionHumanCue.beats({ bpm: 90, count: 4, meter: 0 })],
   ] as const)
     TestValidator.predicate(`${label} is refused`, throwsError(task));
+
+  const shifted: IAutoMovieScheduleCue[] = AutoMovieMotionHumanCue.beats({
+    bpm: 7.5,
+    count: 3,
+    from: -1,
+    meter: 2,
+  });
+  TestValidator.equals(
+    "a finite fractional tempo keeps phase and cue order",
+    shifted,
+    [
+      { name: "downbeat", seconds: -1 },
+      { name: "beat", seconds: -1 },
+      { name: "beat", seconds: 7 },
+      { name: "downbeat", seconds: 15 },
+      { name: "beat", seconds: 15 },
+    ],
+  );
+  TestValidator.equals(
+    "indexed beat and downbeat readers consume the emitted track",
+    [
+      AutoMovieEngineScheduleWalk.instant("pulse", shifted, "beat", 1, undefined),
+      AutoMovieEngineScheduleWalk.instant("pulse", shifted, "downbeat", 1, undefined),
+    ],
+    [7, 15],
+  );
+  TestValidator.equals(
+    "a single beat needs no representable inter-beat interval",
+    AutoMovieMotionHumanCue.beats({ bpm: Number.MIN_VALUE, count: 1, from: 3 }),
+    [
+      { name: "downbeat", seconds: 3 },
+      { name: "beat", seconds: 3 },
+    ],
+  );
+  for (const [input, field] of [
+    [{ bpm: Infinity, count: 3 }, "tempo"],
+    [{ bpm: NaN, count: 3 }, "tempo"],
+    [{ bpm: 60, count: 1.5 }, "count"],
+    [{ bpm: 60, count: 3, meter: 2.5 }, "meter"],
+    [{ bpm: 60, count: Infinity }, "count"],
+    [{ bpm: 60, count: 3, meter: Infinity }, "meter"],
+    [{ bpm: 60, count: 2 ** 32 - 1, meter: Number.MAX_SAFE_INTEGER }, "array capacity"],
+    [{ bpm: 60, count: 3, from: NaN }, "first second"],
+    [{ bpm: Number.MIN_VALUE, count: 2 }, "last second"],
+  ] as const)
+    TestValidator.predicate(
+      `the beat track refuses invalid ${field}`,
+      throwsError(() => AutoMovieMotionHumanCue.beats(input), field),
+    );
 }
 
 /** The cues' names and seconds, in order. */
@@ -181,7 +231,15 @@ function scenario_test_motions_perform_human_cue_tracks(): void {
   );
 }
 
-/** HumanCue, the cue beats and tracks a performance reads, each scenario below. */
+/**
+ * Cue constructors produce ordered recurring beats, section arrivals, commands,
+ * clock instants and dialogue accents. The scenarios also exercise malformed
+ * timings, invalid beat domains, and indexed consumption of a generated track.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Timed beat, wave, command, clock, and dialogue tracks exercise both ordered output and malformed declarations.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the cue owners with explicit tempos, sections, orders, instants and dialogue. The test reads an emitted beat track by both beat and downbeat index, checks rejects for invalid timing, count, meter and capacity, and compares complete cue order.
+ * @evidence contracts/development/testing.md#independent-expectations At 90 BPM beats are 2/3 s apart. At 7.5 BPM the interval is 8 s, so starting at -1 s gives beat index 1 at 7 s and downbeat index 1 at 15 s for meter 2. A capacity of 2^32-1 cannot hold that many beats plus one downbeat. The authored wave reaches sections at 2, 3.5 and 7 s.
+ */
 export function test_motions_perform_human_cue(): void {
   scenario_test_motions_perform_human_cue_beats();
   scenario_test_motions_perform_human_cue_tracks();

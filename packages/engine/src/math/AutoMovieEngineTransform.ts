@@ -17,22 +17,16 @@ import { AutoMovieEngineQuaternion } from "./AutoMovieEngineQuaternion";
  * they are given and must never alias one shared record.
  */
 export namespace AutoMovieEngineTransform {
-  /**
-   * A new identity transform: no translation, no rotation and the unit scale.
-   *
-   * @returns The transform.
-   */
+  /** Create a transform with zero translation, identity rotation and unit scale. */
   export const identity: () => IAutoMovieTransform = (): IAutoMovieTransform =>
     of({ x: 0, y: 0, z: 0 }, AutoMovieEngineQuaternion.identity());
 
   /**
-   * A new transform of a translation and a rotation, and a scale that is the
-   * unit scale when absent.
+   * Assemble a transform from existing translation, rotation and optional scale
+   * records.
    *
-   * @param translation World or parent-frame metres.
-   * @param rotation A unit quaternion.
-   * @param scale Per-axis factors, strictly positive; `(1, 1, 1)` when absent.
-   * @returns The transform.
+   * The supplied records are retained by reference. An omitted scale creates a
+   * fresh vector of ones.
    */
   export function of(
     translation: IAutoMovieVector3,

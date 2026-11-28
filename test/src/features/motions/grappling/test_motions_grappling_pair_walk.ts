@@ -30,22 +30,18 @@ const plant = (
 });
 
 /**
- * A grappling pair's walk: steps of at most `PairWalk.STEP` (0.3 m) alternating
- * from the left, the last closing the trailing foot, the window split evenly;
- * each foot planted outside its steps, and lifted `PairWalk.LIFT` at a step's
- * middle on a minimum-jerk share.
- *
- * The feet stand 0.2 m apart; the pair walks 0.5 m back (-Z) over 3 s.
+ * Check the timed foot placements for a walking pair.
  *
  * Scenarios:
  *
- * 1. Two strides and a closing step: the left halfway, the right all the way, the
- *    left closing, each 1 s, each from where that foot last landed.
- * 2. Each foot plants outside its steps up to the end: the left between its steps
- *    and from its closing landing at the end, the right before and after its
- *    own.
- * 3. Half a second in, the left ankle is midway along its first step and lifted
- *    the whole `LIFT`, not planted, while the right stands where it was.
+ * 1. Walk 0.5 m backward in three seconds from feet 0.2 m apart. Place the
+ *    left foot halfway, the right at full distance and close with the left.
+ * 2. Read the planted windows around each swing. At 0.5 s the left ankle is
+ *    midway and lifted while the right stays planted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify stride order, direction, contact windows and the lifted ankle.
+ * @evidence contracts/development/testing.md#behavioral-verification The planning and posture functions read authored feet and travel to produce steps, contacts and a midpoint pose.
+ * @evidence contracts/development/testing.md#independent-expectations Two 0.25 m strides respect the 0.3 m cap and the third beat closes. Each beat is one second and the midpoint follows symmetric easing.
  */
 export function test_motions_grappling_pair_walk(): void {
   const entry: Pick<IAutoMovieMotionHumanEntryState, "feet"> = {

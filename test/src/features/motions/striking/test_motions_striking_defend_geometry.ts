@@ -39,6 +39,10 @@ const TIMING = {
  * 5. Checking with the right, the left plants throughout and the right until the
  *    start and at the end; after a step landing at 0.3 s and released at 0.4 s,
  *    the right plants from 0.3 to 0.4.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies animation envelope, trunk geometry, side selection and contact windows.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls geometric helpers for six phase times, normalized headings, center and side targets, and support before and after a step.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.3 m displacement over a 0.6 m trunk yields asin(0.5) = 30 degrees. Phase midpoints and authored contact boundaries fix weight and plants.
  */
 export function test_motions_striking_defend_geometry(): void {
   const w = (t: number): number => defendGeometry.weight(TIMING, t);

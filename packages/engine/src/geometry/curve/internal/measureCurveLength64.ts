@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieEngineCurveLengthQuadrature64 } from "../../AutoMovieEngineCurveLengthQuadrature64";
-import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /*
  * Measure original three-dimensional source derivatives by composite
@@ -34,18 +33,29 @@ export function measureCurveLength64(
   pieces: IAutoMovieMeasureCurveLength64.IPieces,
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
-  if (subdivisions < 1 || subdivisions > 1024)
+  if (
+    !Number.isSafeInteger(subdivisions) ||
+    subdivisions < 1 ||
+    subdivisions > 1024
+  )
     throw new Error("Curve length subdivisions must be an integer in [1,1024]");
   if (pieces.length === 0)
     throw new Error("Curve length needs an original piece");
 
   // Closed finite derivative charts are admitted before either numerical observation.
   for (const piece of pieces) {
+    if (!piece || !piece.domain || typeof piece.derivative !== "function")
+      throw new Error("Curve length needs complete original derivative pieces");
     const {
       start: a,
       end: b,
     }: IAutoMovieMeasureCurveLength64.IPieces[number]["domain"] = piece.domain;
-    if (!(b > a) || overflowsBinary64(b - a))
+    if (
+      !Number.isFinite(a) ||
+      !Number.isFinite(b) ||
+      !(b > a) ||
+      !Number.isFinite(b - a)
+    )
       throw new Error(
         "Curve length needs finite increasing representable domains",
       );
@@ -64,7 +74,7 @@ export function measureCurveLength64(
     throw new Error(
       "Curve speed integration contribution is not representable",
     );
-  if ([measured.coarseMm, measured.fineMm].some(overflowsBinary64))
+  if (!Number.isFinite(measured.coarseMm) || !Number.isFinite(measured.fineMm))
     throw new Error("Curve speed integration overflow");
   return {
     lengthMm: measured.fineMm,

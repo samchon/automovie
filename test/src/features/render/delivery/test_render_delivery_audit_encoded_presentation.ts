@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    starting at 0 and lasting exactly 3 s, pass.
  * 2. A different width, another audio rate, a nonzero start, an inexact
  *    duration and a missing audio stream are each refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Checks delivered video and audio probe streams against commissioned dimensions, rates, start times and duration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls encoded-presentation auditing with a matching typed video/audio pair and independently changed width, rate, start, duration or stream presence.
+ * @evidence contracts/development/testing.md#independent-expectations Both streams' known three-second duration and zero starts give a separate oracle for each refusal.
  */
 export function test_render_delivery_audit_encoded_presentation(): void {
   const video = (patch: Record<string, string | number>) => ({

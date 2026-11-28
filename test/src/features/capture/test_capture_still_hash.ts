@@ -21,9 +21,7 @@ import { createHash } from "node:crypto";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Hashes real pictures through the public function and compares against an independent SHA-256 and against altered pictures; a hash over compressed bytes, over alpha, without the size, or with a padding error fails.
  * @evidence contracts/development/testing.md#independent-expectations Node's `crypto` SHA-256 over the documented message (big-endian width and height, then RGB rows) is the oracle; a message of 56 bytes or more is where SHA-256 padding needs a second block.
- * @evidence contracts/development/testing.md#distinguishing-cases Padding boundaries and multi-block messages, equal pixels through an encoder, alpha-only differences that must not count, and one-channel and shape differences that must. Hashes in a capture's record are owned by `test_capture_run_order` and `test_capture_round_comparison`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_still_hash`; Node's crypto is the oracle only.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Selected image sizes exercise SHA-256 padding and multiple blocks. Decode and alpha controls, changed RGB and changed shape have separate results.
  */
 export async function test_capture_still_hash(): Promise<void> {
   const picture: (

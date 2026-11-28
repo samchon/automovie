@@ -214,6 +214,10 @@ namespace part_human_breath_state {
  *   posture:
  * - `human_breath_state`: `HumanBreath` draws a resting respiratory rate and
  *   reads the breathing state at a second:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Breathing layers preserve the root and limbs, choose the expected sigh branch, and respond to exertion and recovery.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the layer and state readers with bounded times, prepared breath state, and controlled random draws.
+ * @evidence contracts/development/testing.md#independent-expectations The written endpoints, the authored sigh probability, and equal seeded samples establish the distinct expected pulse, branch, and replay behavior.
  */
 export async function test_motions_everyday_human_breath(): Promise<void> {
   part_human_breath_add.verify();

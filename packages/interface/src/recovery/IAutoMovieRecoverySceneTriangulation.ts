@@ -1,8 +1,14 @@
-/** A candidate original-design point, withheld on any geometry refusal. */
+/**
+ * Qualified calibrated point candidate from a registered track, with available
+ * refusal reasons.
+ */
 export interface IAutoMovieRecoverySceneTriangulation {
-  /** Qualified point in common seed-baseline units, null on refusal. */
+  /**
+   * Qualified world point in the common unit-seed-baseline gauge, or null when
+   * withheld.
+   */
   point: [number, number, number] | null;
 
-  /** Available reasons for withholding the candidate. */
+  /** Design or geometry diagnostics for a withheld candidate. */
   reasons: string[];
 }

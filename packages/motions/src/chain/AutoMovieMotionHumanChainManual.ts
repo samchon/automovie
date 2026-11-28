@@ -96,12 +96,21 @@ export class AutoMovieMotionHumanChainManual extends AutoMovieMotionHumanChainPo
   }
 
   /**
-   * Perform a hand-to-face task of daily living: drink, eat, phone, read or
-   * groom.
+   * Append a hand-to-face task such as drinking, eating, reading or grooming.
+   * Arrival cues such as `atMouth` mark the end of the approach. `taskEnd`
+   * marks the end of the stroke, and `relax` opens the return.
    *
-   * @param params The task, the hand, the count and the time.
-   * @param anchor An optional anchor id.
-   * @returns The chain.
+   * When supplied, `prop` must already be held in the acting hand and have the
+   * requested contact. Drinking from a prop requires a grip prepared for use
+   * at the mouth. The performance refuses an incompatible grip when it plans
+   * the action.
+   *
+   * @param params The task or supplied row, acting hand, repetitions and hold.
+   * @param anchor The optional id used to align this action to other actions.
+   * @returns The chain carrying the appended action.
+   * @example
+   * actor.handToFace({ kind: "drink" })
+
    */
   public handToFace(
     params: IAutoMovieMotionHumanHandToFace.IParams,

@@ -28,6 +28,10 @@ import { TestValidator } from "@nestia/e2e";
  *    coplanar 0), without it nothing; floor, hinge and fan in one part touch
  *    only; floor and the flat overlap in one part count coplanar 2; a self
  *    entry precedes its part's pairs; a single triangle never crosses itself.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names between-part and self crossings, transforms, contact-only cases, coplanarity and skipped primitive parts.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures several literal model part configurations, reading pair order, exact counts and changes after placement.
+ * @evidence contracts/development/testing.md#independent-expectations A blade crosses its known floor plane through the triangle interior. Raised geometry, hinges and shared corners do not pierce it. The flat overlapping face supplies the distinct coplanar case.
  */
 export function test_engine_geometry_model_crossings(): void {
   const part = (id: string, triangles: number[][][]): IAutoMovieModelPart => ({

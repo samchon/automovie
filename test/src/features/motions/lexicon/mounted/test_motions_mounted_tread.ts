@@ -30,6 +30,10 @@ import { nclose } from "../../../internal/nclose";
  * ball and ankle relation. A 90 mm opening and an off-plate depth refuse.
  * The original 660 mm equine drop and measured classic iron profile also
  * admit the recorded material-local left ball interval in the actual iron.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines support placement using the rig's body footprint, finite stirrup aperture and permitted heel overhang.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives candidates for synthetic widths, exact contact requests and the actual classic stirrup, including off-plate and penetrating geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Stored neutral footprint reaches −33.152189578 and 90.803873460 mm in the lateral frame. Subtracting those from the opening faces yields the admitted ball interval.
  */
 export async function test_motions_mounted_tread(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

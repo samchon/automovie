@@ -16,9 +16,7 @@ import { AutoMovieHumanLandmarkSurface as L } from "@automovie/human";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanLandmarkSurface.create` and reads its origin, normal and side. It catches a normal left unoriented, an origin left at the centre, a surface that misses a landmark and a refusal that does not happen.
  * @evidence contracts/development/testing.md#independent-expectations A plane's signed distance and the statement that an interpolating graph is zero at its nodes are written here without the module's spline.
- * @evidence contracts/development/testing.md#distinguishing-cases A flat set against a lifted one, both orientations, and three refusals with distinct causes.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_landmark_surface`; it builds made points in process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios with their inputs and bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation A planar landmark set checks orientation and signed distance. Moving one landmark exercises interpolation, while malformed landmark arrangements must refuse.
  */
 export function test_human_landmark_surface(): void {
   const failures: string[] = [];

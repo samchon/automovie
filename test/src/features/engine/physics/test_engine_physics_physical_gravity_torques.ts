@@ -27,6 +27,10 @@ const TORQUE: number = 1e-5;
  * 2. A 90 degree frame rotation maps that moment onto the declared local z axis.
  * 3. The fixed distal attachment contributes to its ancestor without a separate
  *    actuator.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents posed subtree gravity in the motor frame, including force application and load from a fixed distal carrier.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes feed-forward for a link with payload in a rotated joint frame and reads both local torque and root counter-moment.
+ * @evidence contracts/development/testing.md#independent-expectations The 1 kg at 0.5 m and 2 kg at 1 m give 24.525 N·m. The 90-degree frame maps that moment to the declared motor axis.
  */
 export async function test_engine_physics_physical_gravity_torques(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();

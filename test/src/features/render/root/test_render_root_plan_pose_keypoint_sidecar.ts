@@ -23,6 +23,10 @@ const shot = (id: string, duration: number): IAutoMovieShot => ({
  *    frames: the first four are beat `a`, the last four beat `b`, the target is
  *    the sequence id, and a shot with no staged scene has no actors.
  * 2. A frame rate of zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Labels pose-keypoint frames with their active beat and supports shots with no actors.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sidecar planning for a two-shot fixture at four fps and for an invalid zero rate.
+ * @evidence contracts/development/testing.md#independent-expectations Two one-second shots give eight frames, four per beat. The empty staged scenes give empty actors at every frame.
  */
 export function test_render_root_plan_pose_keypoint_sidecar(): void {
   const sequence: IAutoMovieSequence = {

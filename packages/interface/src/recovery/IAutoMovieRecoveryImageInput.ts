@@ -3,43 +3,45 @@ import type { IAutoMovieRecoveryImageBudget } from "./IAutoMovieRecoveryImageBud
 import type { IAutoMovieRecoveryImageView } from "./IAutoMovieRecoveryImageView";
 
 /**
- * Resident RGB observations of one caller-declared fixed rigid object. Known
- * orthographic cameras look horizontally through the common XZ plane. Pixel
- * centres are (column + 0.5, row + 0.5); positive image U projects cos(azimuth)
- * X + sin(azimuth) Z and positive image V projects negative Y. Supplied
- * calibration fixes metric scale and object frame, not estimated cameras.
+ * Capture one caller-asserted fixed object in supplied horizontal
+ * orthographic views. Use a common right-handed millimetre frame, exact
+ * resident RGB8 views, one background rule and explicit observation limits.
+ * Keep the view records and their pixel arrays stable until synchronous
+ * observation returns.
  */
 export interface IAutoMovieRecoveryImageInput {
-  /** Identity of the same fixed rigid object in all views. */
+  /** Nonempty identity for the fixed object common to every view. */
   objectId: string;
 
-  /** Caller assertion; structural admission cannot verify physical rigidity. */
+  /** Caller assertion that the object remains fixed throughout the capture. */
   rigidity: "asserted-fixed";
 
   /**
-   * Keep analytic truth, actual photographs and inconsistent-input results
-   * separate.
+   * Evidence category for analytic input, photographs or inconsistent-input
+   * controls.
    */
   cohort: "analytic" | "photograph" | "inconsistent-stress";
 
-  /** Common right-handed metric-frame identity. */
+  /**
+   * Nonempty identity of the shared right-handed millimetre coordinate frame.
+   */
   frame: string;
 
   /**
-   * Fixed sRGB byte background; a maximum absolute channel distance at least
-   * the positive threshold, at most 255, marks foreground.
+   * Shared RGB byte reference and channel-distance threshold for foreground
+   * classification.
    */
   background: IAutoMovieRecoveryImageBackground;
 
   /**
-   * Borrowed row-major RGB8 arrays, stable until synchronous observation
-   * returns.
+   * Ordered calibrated resident RGB8 captures with unique view identities. Keep
+   * them stable until observation returns.
    */
   views: IAutoMovieRecoveryImageView[];
 
   /**
-   * Positive integer total-pixel, view and retained-row limits checked before
-   * scans.
+   * Positive safe integer limits on views, total pixels and retained support
+   * rows.
    */
   budget: IAutoMovieRecoveryImageBudget;
 }

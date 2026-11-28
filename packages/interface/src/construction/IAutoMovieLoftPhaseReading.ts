@@ -1,22 +1,19 @@
 /**
- * World point and phase tangent at one fixed physical station.
- *
- * LoftChain, LoftPoint and LoftCapRead phase readers include their actual frame
- * and relief terms. Each successful read returns fresh mutable vectors. At an
- * admitted collapsed tip p is the retained pole and t is zero; this does not
- * admit a physical station derivative. Nonfinite readings throw from the owning
- * reader, as does relief that destroys a collapsed cap.
+ * World-space point and phase derivative at one fixed physical station. The
+ * reader applies the actual frame and any admitted relief and returns fresh
+ * vectors. At a collapsed tip, the point is the retained pole and the phase
+ * derivative is zero. Physical-station derivatives use a separate contract.
  */
 export type IAutoMovieLoftPhaseReading = {
   /**
-   * Surface point [x,y,z] in world millimetres, including admitted relief
-   * displacement.
+   * Surface point [x, y, z] in world millimetres, after frame placement and
+   * admitted relief.
    */
   p: [number, number, number];
 
   /**
-   * Partial derivative of p with respect to phase, mm/radian; its magnitude is
-   * retained rather than normalized to a unit tangent.
+   * Partial derivative of the world point with respect to phase, in millimetres
+   * per radian. Its magnitude belongs to the derivative.
    */
   t: [number, number, number];
 };

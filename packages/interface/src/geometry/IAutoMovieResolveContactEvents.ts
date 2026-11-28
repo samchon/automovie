@@ -38,22 +38,29 @@ export namespace IAutoMovieResolveContactEvents {
     at(seconds: number): number;
   }
 
-  /**
-   * Physical knowledge of this initial episode; absence keeps initial
-   * reporting.
-   */
-  export type Departure =
-    | {
-        /** No new entry occurs before this genuinely separated instant. */
-        kind: "clearance";
+  /** A physical certificate for the departure of one initially touching pair. */
+  export type Departure = IDepartureFields<IClearance | INoEntry>;
 
-        /** Strictly later in-span second whose actual pair gap is positive. */
-        seconds: number;
-      }
-    | {
-        /** The physical model rules out a new entry over this search span. */
-        kind: "no-entry";
-      };
+  /**
+   * Certify a separated instant before any new entry of the pair.
+   *
+   * The resolver checks that this instant lies after the initial query and
+   * within the remaining search. It measures the actual gap at that instant and
+   * requires a positive value.
+   */
+  export interface IClearance {
+    /** Selects a separation witness within the search span. */
+    kind: "clearance";
+
+    /** Certified second in the same clock as the search. */
+    seconds: number;
+  }
+
+  /** Certify that this initially touching pair has no new entry in the search. */
+  export interface INoEntry {
+    /** Selects suppression for this pair during the rest of the search. */
+    kind: "no-entry";
+  }
 
   /**
    * The seconds one search reads: `from + k * step` for k = 0, 1, 2, ..., the
@@ -307,3 +314,8 @@ export namespace IAutoMovieResolveContactEvents {
     seconds: number;
   }
 }
+
+// Preserve assignment of each public variant to an unknown-valued dictionary.
+type IDepartureFields<Certificate> = {
+  [Key in keyof Certificate]: Certificate[Key];
+};

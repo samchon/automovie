@@ -3,18 +3,22 @@ import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
 
-/** The canonical producer and authoring contract for a smartphone. */
+/**
+ * Constructs an upright smartphone case with front screen and rear lens contacts.
+ */
 export namespace AutoMovieArchetypePhone {
   /**
-   * A smartphone with an upright touchscreen and a rear lens.
+   * Build the phone upright on its bottom edge, facing model `+Z`.
    *
-   * The model stands on its bottom edge at the origin with its front toward `+Z`.
+   * The front `screen` frame covers 94 percent of each case-face dimension.
+   * The rear `lens` frame lies at 90 percent of the model height.
    *
-   * @param params The identifier, fixed outside dimensions and mass.
-   * @param seed The seed for the device's remaining choices.
-   * @returns The device and its named contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
-   *   input.
+   * @param params Optional scene ID and finite dimensions in the phone bands.
+   *   The ID defaults to `device`.
+   * @param seed Numeric seed for omitted dimensions. Omit it for band
+   *   midpoints, including case height 0.14745 metres.
+   * @returns A case with rear `grip` and bottom `pinch` plus `screen` and `lens`.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed dimension or model selection is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypePhone.IParams = {},
@@ -68,20 +72,25 @@ export namespace AutoMovieArchetypePhone {
 
   /* The parameters and affordance identifiers of {@link AutoMovieArchetypePhone}. */
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Upright case height, width and thickness in metres and mass in kilograms.
    */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
-  /** The identifiers of contacts built by this producer. */
+  /**
+   * Rear `grip`, lower lateral `pinch`, centred front `screen` and rear `lens`.
+   */
   export type Affordance = "grip" | "lens" | "pinch" | "screen";
 
-  /** Parameters for this smartphone. */
+  /**
+   * Optional scene ID and fixed finite case dimensions or mass from the phone bands.
+   */
   export interface IParams extends Omit<
     HandheldDevice.IParams,
     "kind" | "model"
   > {
-    /** This smartphone has no manufacturer model selector. */
+    /**
+     * Keep this field absent. The phone takes its dimensions from the bands.
+     */
     model?: never;
   }
 }

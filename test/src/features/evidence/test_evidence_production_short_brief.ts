@@ -30,8 +30,6 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public short configuration through native Evidence, changes the brief, disables the closed brief stage and removes the actual dependency annotation; checks complete reports and stale-review and missing-acknowledgement diagnostics.
  * @evidence contracts/development/testing.md#independent-expectations The authored one-scene fixture supplies its real brief dependency and current fingerprints; removing that edge or changing reviewed brief bytes must produce native errors, while a closed brief turned back to disabled must not break the running screenplay, as the evidence README promises for a finished layer.
- * @evidence contracts/development/testing.md#distinguishing-cases Complete, changed-brief, closed-brief and missing-citation cases distinguish relationship coverage, review freshness and stage independence on the short route.
- * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation The numbered scenarios identify the short's required layers, review freshness, source coverage and the first study that activates research.
  */
 export async function test_evidence_production_short_brief(): Promise<void> {

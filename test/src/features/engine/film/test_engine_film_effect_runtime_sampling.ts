@@ -27,6 +27,10 @@ import { resealFilmEffect } from "../../internal/resealFilmEffect";
  *    identities.
  * 3. Refuse invalid versions, clocks, intervals, digests and canonical data while
  *    accepting an unchanged reseal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify half-open cue support, seek independence, stale identities and malformed sealed/runtime fields.
+ * @evidence contracts/development/testing.md#behavioral-verification The test samples a materialized film at direct frame positions and compares the resulting effects with known individual samples. It varies owner identity, frame, distance, schema, bounds and digest fields while exercising a valid reseal.
+ * @evidence contracts/development/testing.md#independent-expectations The authored frame intervals include their first frame and exclude their tail. Equal accepted data can be resealed without changing which cues own a frame. The independent requested owner identity and timeline clock distinguish stale data from malformed field shapes.
  */
 export function test_engine_film_effect_runtime_sampling(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

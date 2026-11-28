@@ -1,4 +1,8 @@
-import { AutoMovieEngineMatrix3, AutoMovieEngineVector3, AutoMovieEngineMath } from "@automovie/engine";
+import {
+  AutoMovieEngineMath,
+  AutoMovieEngineMatrix3,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraPointTriangulationOperation,
   IAutoMovieVector3,
@@ -22,10 +26,10 @@ export function triangulateRecoveryCameraPoint(
   minimumDesignRatio: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[5],
   maxSweeps: Parameters<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation>[6],
 ): ReturnType<IAutoMovieRecoveryCameraPointTriangulationOperation.Operation> {
-  const ray1: [number, number, number] = AutoMovieEngineMatrix3.apply(first.inverse, [
-    ...firstPoint,
-    1,
-  ]);
+  const ray1: [number, number, number] = AutoMovieEngineMatrix3.apply(
+    first.inverse,
+    [...firstPoint, 1],
+  );
   const ray2: [number, number, number] = AutoMovieEngineMatrix3.apply(
     second.inverse,
     [...secondPoint, 1],
@@ -54,12 +58,13 @@ export function triangulateRecoveryCameraPoint(
       ray2[1] * t[2]! - t[1]!,
     ],
   ];
-  const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
-    AutoMovieEngineMath.decomposeSingularMatrix(rows, {
-      maxEntries: 16,
-      maxSweeps,
-      orthogonalityTolerance: 1e-12,
-    });
+  const factors: ReturnType<
+    typeof AutoMovieEngineMath.decomposeSingularMatrix
+  > = AutoMovieEngineMath.decomposeSingularMatrix(rows, {
+    maxEntries: 16,
+    maxSweeps,
+    orthogonalityTolerance: 1e-12,
+  });
   const ratio: number = factors.singularValues[2]! / factors.singularValues[0]!;
   if (factors.singularValues[0] === 0 || ratio < minimumDesignRatio)
     return null;
@@ -70,7 +75,10 @@ export function triangulateRecoveryCameraPoint(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
-  const rotated: [number, number, number] = AutoMovieEngineMatrix3.apply(r, point);
+  const rotated: [number, number, number] = AutoMovieEngineMatrix3.apply(
+    r,
+    point,
+  );
   const inSecond: [number, number, number] = [
     rotated[0] + t[0]!,
     rotated[1] + t[1]!,
@@ -78,9 +86,8 @@ export function triangulateRecoveryCameraPoint(
   ];
   // A near-zero homogeneous weight overflows the point it divides.
   if (
-    [...point, ...inSecond].some(
-      (value: number): boolean => value === Infinity || value === -Infinity,
-    ) ||
+    !point.every(Number.isFinite) ||
+    !inSecond.every(Number.isFinite) ||
     point[2] === 0 ||
     inSecond[2] === 0
   )
@@ -101,7 +108,10 @@ export function triangulateRecoveryCameraPoint(
     projection2[0] - secondPoint[0],
     projection2[1] - secondPoint[1],
   );
-  if (firstReprojectionPx === Infinity || secondReprojectionPx === Infinity)
+  if (
+    !Number.isFinite(firstReprojectionPx) ||
+    !Number.isFinite(secondReprojectionPx)
+  )
     return null;
   return {
     point,

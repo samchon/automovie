@@ -15,11 +15,9 @@ import { nclose } from "../../internal/nclose";
  * Each scenario is one predicate whose values must match within `nclose`'s
  * tolerance; any other dimension fails it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three models' scenarios with each expected dimension in metres and the shared tolerance.
- * @evidence contracts/development/testing.md#behavioral-verification Reads each model's affordances, the places a rally is played across.
- * @evidence contracts/development/testing.md#independent-expectations The expected numbers are the ITTF Laws', the WSF court specification's and the FIP rules' own, written here as the documents give them.
- * @evidence contracts/development/testing.md#distinguishing-cases Each model's height and length are read separately, so a swapped axis or a dimension of another sport fails.
- * @evidence contracts/development/testing.md#execution-ownership Builds the models in memory.
+ * @evidence contracts/development/common.md#meaningful-documentation States the table, squash and padel dimensions and the named rally features measured on each.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the built models' table or court contacts for the net, back and front boundaries, squash tin and T. The observations exercise the three separate sets of regulation geometry.
+ * @evidence contracts/development/testing.md#independent-expectations The ITTF table is 2.74 m long with its playing surface at 76 cm. WSF supplies the 9.75 m squash court and 48 cm tin. FIP supplies the 20 metre padel court and 0.88 metre net.
  */
 export function test_archetype_racket_courts(): void {
   const table: ReturnType<typeof AutoMovieArchetypeTableTennisTable.create> =

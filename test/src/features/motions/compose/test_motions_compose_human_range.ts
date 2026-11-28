@@ -32,6 +32,10 @@ const ROUNDING: number = 1e-12;
  * 4. Explicit degrees past the limit, or with no source, and a motion the joint
  *    has no range in, are refused.
  * 5. A half lean is half the lean limit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names level shares, scaled and explicit signed degrees, invalid scale or range, and the lean limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the range operations with each declared level, two motion directions, explicit degrees, named lean and malformed values.
+ * @evidence contracts/development/testing.md#independent-expectations The level table is checked against five literal shares. The neck limits supply expected signed degrees by multiplication. An explicit ten-degree extension gives -10, and half lean takes half its supplied range.
  */
 export function test_motions_compose_human_range(): void {
   // 1. Shares.

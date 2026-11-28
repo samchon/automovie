@@ -6,11 +6,16 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The `disarm` law's lever (`disarm.leverTime`): 0.5 s by default, and
- * positive.
+ * Check admission and defaulting of the disarm lever interval.
  *
- * Scenario: nothing asked levers 0.5 s, 0.8 asked levers 0.8 s, and none is
- * refused.
+ * Scenarios:
+ *
+ * 1. Default to 0.5 s and preserve an authored 0.8 s.
+ * 2. Refuse a zero-second lever interval.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases name seconds, the default and the invalid boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification The lever-time helper is called with omitted, positive and zero duration.
+ * @evidence contracts/development/testing.md#independent-expectations The literal default and declared input supply distinct expectations.
  */
 export function test_motions_grappling_disarm(): void {
   TestValidator.equals(

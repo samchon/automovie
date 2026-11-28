@@ -63,6 +63,10 @@ const TO: IAutoMovieMotionHumanPosture = {
  * 3. The left arm's goal a quarter of the way at x = 0.25, still planted as `from`
  *    holds it; the right leg and right arm kept as their one side has them.
  * 4. The turn a quarter of the way to 90 degrees, 22.5 degrees about +X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines linear posture fields, shared and single-source limb goals, clipped endpoints and whole-body rotation blend.
+ * @evidence contracts/development/testing.md#behavioral-verification Blends two authored postures at one-quarter and both clipped extremes, with partially shared joints and goals.
+ * @evidence contracts/development/testing.md#independent-expectations Direct quarter interpolation gives root (0.25, 0.875, 0.5). Rotation follows the 90° input by 22.5°, and the shared goal retains source planting.
  */
 export function test_motions_posture_mix_posture(): void {
   // 1. The ends.

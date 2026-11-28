@@ -1,6 +1,5 @@
 /**
- * The unit of a band and of the dimension it bounds: `m`, `kg`, `degrees`, `N`,
- * `m/s` for a speed, `s` for a time, or empty for a ratio or a count.
+ * Units used by archetype bands, catalogue figures and derived dimensions. Use the empty string for counts and ratios.
  */
 export type AutoMovieArchetypeBandUnit =
   | "m"

@@ -7,47 +7,33 @@ import type {
 } from "..";
 
 /**
- * Fit a boundary collar with affine hanging-control constraints against private
- * PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and
- * local coordinates preserve the physical-area polynomial objective. Adaptive
- * attempts split residual-marked leaves at their observed UV locations and
- * close opposed interface intervals. Exhausted or incompatible attempts retain
- * the previous field. Returned edge identities are coefficient relations, not
- * source topology or G1 claims. Optional physical-gradient observations change
- * the declared fitting objective. Their millimetre exchange length scales with
- * physical units. Refinement retains the preceding candidate unless the
- * combined objective improves without worsening its original physical-area
- * position RMS. Every attempt reuses the initial coefficient enclosure;
- * restricting a boundary cubic cannot silently shrink the feasible box. Point
- * fallback supplies no gradient fit.
+ * Prepared private leaf fitting input, generated coefficients and qualification
+ * diagnostics.
  */
 
 export namespace IAutoMovieRecoveryChartLeafFit {
   /**
-   * Input observations and explicit numerical policy for RecoveryChartLeafFit.
-   * Stable chart identity retained by the fitted patch family.
+   * Supply a registered source chart, shared boundary curves, knot layout,
+   * physical tolerance and explicit limits for fitting and refinement.
    */
 
   export type Input = {
-    /** Stable chart identity retained by the fitted patch family. */
+    /** Stable chart identity used for local generated patch names. */
     name: string;
 
-    /** Private physical chart observations in millimetres. */
+    /** Original source vertex positions in registered millimetres. */
     verticesMm: readonly Readonly<AutoMovieVector3Tuple>[];
 
-    /** Original private triangle incidence used by physical-area integration. */
+    /** Oriented index triples into those source vertices. */
     triangles: readonly (readonly [number, number, number])[];
 
-    /** Chart-local UV coordinates aligned with the private vertices. */
+    /** Global normalized [u, v] values aligned with original vertices. */
     parameters: readonly (readonly number[])[];
 
-    /** Complete fitted boundary cubic results, one per chart side. */
+    /** Retained exterior cubic boundary authorities in chart-side order. */
     curves: readonly IAutoMoviePolylineFit[];
 
-    /**
-     * Four increasing normalized phase partitions for the authoritative side
-     * cubics.
-     */
+    /** Initial normalized shared boundary partition coordinates. */
     knots: readonly [
       readonly number[],
       readonly number[],
@@ -55,177 +41,115 @@ export namespace IAutoMovieRecoveryChartLeafFit {
       readonly number[],
     ];
 
-    /**
-     * Requested correspondence residual in millimetres, independent of
-     * embedding.
-     */
+    /** Physical sampled position tolerance in millimetres. */
     toleranceMm: number;
 
-    /** Positive maximum retained leaf patches in one fit attempt. */
+    /** Maximum patches after initial and propagated refinement splits. */
     maxPatches: number;
 
-    /** Positive numerical solver iteration limit per attempted fit. */
+    /** Maximum projected solve iterations per attempted layout. */
     maxIterations: number;
 
-    /** Explicit maximum physical-area observation rows per attempt. */
+    /** Maximum observed area rows in one attempted layout. */
     maxObservationRows: number;
 
-    /** Maximum residual-driven refinement waves after the initial fit. */
+    /** Maximum residual refinement rounds. */
     maxRefinements: number;
 
     /**
-     * Optional nonnegative millimetre exchange length for physical-gradient
-     * rows; zero or omission disables the gradient objective.
+     * Optional positive millimetre exchange length for physical gradient
+     * fitting.
      */
     physicalGradientLengthMm?: number;
   };
 
   /**
-   * Returned coefficient or observation state from RecoveryChartLeafFit. Patch
-   * populations attempted in each recorded refinement round.
+   * Fitted leaf coefficient registry, shared-boundary layout and sampled
+   * numerical qualification. Independent area and refinement diagnostics
+   * describe the attempted work.
    */
 
   export type Result = {
-    /**
-     * Returned complete millimetre coefficient registry with fixed boundary
-     * authority.
-     */
+    /** Fitted registered millimetre control registry. */
     controlsMm: Readonly<AutoMovieVector3Tuple>[];
 
-    /** Fitted leaf identities and row-major sixteen-control registry references. */
+    /** Generated leaf patch nets addressed by the fitted control registry. */
     patches: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Stable generated leaf patch identifier. */
       id: string;
-      /**
-       * Indices into the shared control registry; bicubic nets use sixteen IDs
-       * with u varying fastest.
-       */
+      /** Sixteen registry control IDs in U-fastest Bernstein order. */
       controlIds: number[];
     }[];
 
-    /**
-     * Combined numerical and declared observation acceptance, without an
-     * embedding claim.
-     */
+    /** Whether available area observation and joint numerical gates pass. */
     qualified: boolean;
 
     /**
-     * Joint fit diagnostics with coefficients owned by controlsMm instead of
-     * duplicated here.
+     * Complete joint fit and sampled qualification report of the returned
+     * layout.
      */
     joint: Omit<IAutoMovieRecoveryChartFit.Result, "controls">;
 
-    /** Retained leaves, shared edges and physical boundary-control bindings. */
+    /** Retained chart leaf identity and canonical edge topology. */
     leafLayout: {
-      /**
-       * Current normalized chart leaves with stable identities and disjoint
-       * interiors covering the declared domain.
-       */
+      /** Generated rectangles at the returned refinement state. */
       leaves: ReturnType<IAutoMovieRecoveryChartCollar.Operation>["leaves"];
 
-      /**
-       * Undirected edge-incidence registry with the actual incident faces or
-       * master-control bindings.
-       */
+      /** Master edge definitions used by the generated leaves. */
       edges: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["edges"];
 
-      /**
-       * Normalized chart-side intervals bound to their corresponding shared
-       * master edges.
-       */
+      /** Mappings from leaf sides into master edge authority. */
       bindings: ReturnType<IAutoMovieRecoveryChartLeafControls.Operation>["bindings"];
     };
 
-    /**
-     * Physical source-area quadrature population and its independent
-     * qualification.
-     */
+    /** Measured area observation and integration outcomes for this fit. */
     areaObservation: {
-      /**
-       * Combined numerical and declared observation acceptance, without an
-       * embedding claim.
-       */
+      /** Whether area construction completed for the returned layout. */
       qualified: boolean;
 
-      /** Actual quadrature row population retained for the current chart solve. */
+      /** Actual weighted area sample count used by the layout. */
       rows: number;
 
-      /** Area of the supplied physical source triangles, in square millimetres. */
+      /** Physical original chart area in square millimetres when measured. */
       sourceAreaMm2: number;
 
-      /**
-       * Minimum row population needed to integrate the complete current chart
-       * partition.
-       */
+      /** Lower quadrature row estimate derived from the known source population. */
       quadratureMinimumRows: number;
 
-      /**
-       * Area represented by accepted quadrature, in square millimetres; null
-       * means unavailable.
-       */
+      /** Physical integrated clipped area in square millimetres when available. */
       integratedAreaMm2: number | null;
 
-      /**
-       * Largest dimensionless relative mismatch between source and integrated
-       * child area; null means unavailable.
-       */
+      /** Largest reported relative area-accounting discrepancy, if measured. */
       maximumRelativeAreaDiscrepancy: number | null;
 
-      /**
-       * Actual termination or qualification reason; null, where allowed, means
-       * no local failure was recorded.
-       */
+      /** Observed area or fit refusal reason when available. */
       reason: string | null;
     };
 
-    /** Actual refinement history, residuals and attempted patch populations. */
+    /** Measured refinement history and local stopping reason. */
     refinement: {
-      /**
-       * Number of refinement rounds actually attempted; zero means the initial
-       * layout was sufficient or refused.
-       */
+      /** Number of refinement rounds performed. */
       rounds: number;
 
-      /**
-       * Actual termination or qualification reason; null, where allowed, means
-       * no local failure was recorded.
-       */
+      /** Observed reason that further refinement terminated. */
       reason: string;
 
-      /**
-       * Per-round maximum observation discrepancies, in millimetres, preserving
-       * attempted round order.
-       */
+      /** Series of measured maximum position residuals in millimetres. */
       residualsMm: number[];
 
-      /**
-       * Per-round area-weighted position residual RMS in millimetres; null
-       * entries mean quadrature was unavailable.
-       */
+      /** Series of measured area-weighted position RMS values in millimetres. */
       areaRmsMm: (number | null)[];
 
-      /** Patch populations attempted in each recorded refinement round. */
+      /** Patch counts considered during refinement attempts. */
       attemptedPatches: number[];
     };
   };
 
   /**
-   * Fit a boundary collar with affine hanging-control constraints against
-   * private PL observations. Each leaf is an axis-aligned UV rectangle, so
-   * clipping and local coordinates preserve the physical-area polynomial
-   * objective. Adaptive attempts split residual-marked leaves at their observed
-   * UV locations and close opposed interface intervals. Exhausted or
-   * incompatible attempts retain the previous field. Returned edge identities
-   * are coefficient relations, not source topology or G1 claims. Optional
-   * physical-gradient observations change the declared fitting objective. Their
-   * millimetre exchange length scales with physical units. Refinement retains
-   * the preceding candidate unless the combined objective improves without
-   * worsening its original physical-area position RMS. Every attempt reuses the
-   * initial coefficient enclosure; restricting a boundary cubic cannot silently
-   * shrink the feasible box. Point fallback supplies no gradient fit.
+   * Prepare a leaf registry and anchored boundary controls, assemble
+   * area-weighted fitting rows, and solve each candidate layout. Refine
+   * residual-marked leaves under the configured closure and patch limits.
+   * Return fitted coefficients and available area and refinement measurements.
    */
 
   export type Operation = (

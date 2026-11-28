@@ -1,4 +1,7 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -6,6 +9,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupportAim,
@@ -36,13 +40,19 @@ export function HumanSupportCarry(
   const first: IAutoMovieRigidTransform = frame(start);
   const now: IAutoMovieRigidTransform = frame(seconds);
   const turn: IAutoMovieQuaternion = AutoMovieEngineQuaternion.normalize(
-    AutoMovieEngineQuaternion.multiply(now.rotation, AutoMovieEngineQuaternion.inverse(first.rotation)),
+    AutoMovieEngineQuaternion.multiply(
+      now.rotation,
+      AutoMovieEngineQuaternion.inverse(first.rotation),
+    ),
   );
   return {
     point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
       AutoMovieEngineVector3.add(
         now.position,
-        AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(p, first.position)),
+        AutoMovieEngineQuaternion.rotateVector(
+          turn,
+          AutoMovieEngineVector3.subtract(p, first.position),
+        ),
       ),
     turn,
     yaw: yawOf(turn),
@@ -98,7 +108,10 @@ export namespace HumanSupportCarry {
       point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
         AutoMovieEngineVector3.add(
           carriedAnchor,
-          AutoMovieEngineQuaternion.rotateVector(turn, AutoMovieEngineVector3.subtract(p, anchor)),
+          AutoMovieEngineQuaternion.rotateVector(
+            turn,
+            AutoMovieEngineVector3.subtract(p, anchor),
+          ),
         ),
       turn,
       yaw: yawOf(turn),
@@ -133,7 +146,10 @@ export namespace HumanSupportCarry {
                 ? {}
                 : {
                     rotation: AutoMovieEngineQuaternion.normalize(
-                      AutoMovieEngineQuaternion.multiply(carry.turn, goal.rotation),
+                      AutoMovieEngineQuaternion.multiply(
+                        carry.turn,
+                        goal.rotation,
+                      ),
                     ),
                   }),
             };
@@ -156,24 +172,29 @@ export namespace HumanSupportCarry {
    * walk on the bed at rest, not already walking at 2 m/s, or the carry would
    * add the wagon's motion a second time.
    * Parameter context: The action's context.
-   * Parameter prop: The prop the action is planned on.
+   * Parameter bearing: The prop identifier or the already measured bearing frame.
    * Returns: The entry relative to the prop's motion.
    */
   export function entry(
     context: Pick<IAutoMovieMotionHumanActionContext, EntryContext>,
-    prop: string,
+    bearing: string | IAutoMovieMotionHumanSupportFrame.IFrame,
   ): IAutoMovieMotionHumanEntryState {
     const support: IAutoMovieMotionHumanSupportFrame.IFrame =
-      HumanSupportFrame.at(context, context.start, {
-        kind: "prop",
-        subject: prop,
-      });
+      typeof bearing === "string"
+        ? HumanSupportFrame.at(context, context.start, {
+            kind: "prop",
+            subject: bearing,
+          })
+        : bearing;
     const entered: IAutoMovieMotionHumanEntryState = context.entry;
     const foot = (
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanEntryState.IFoot => ({
       ...entered.feet[side],
-      velocity: AutoMovieEngineVector3.subtract(entered.feet[side].velocity, support.velocity),
+      velocity: AutoMovieEngineVector3.subtract(
+        entered.feet[side].velocity,
+        support.velocity,
+      ),
       acceleration: AutoMovieEngineVector3.subtract(
         entered.feet[side].acceleration,
         support.acceleration,
@@ -183,7 +204,10 @@ export namespace HumanSupportCarry {
       ...entered,
       velocity: {
         ...entered.velocity,
-        linear: AutoMovieEngineVector3.subtract(entered.velocity.linear, support.velocity),
+        linear: AutoMovieEngineVector3.subtract(
+          entered.velocity.linear,
+          support.velocity,
+        ),
       },
       acceleration: AutoMovieEngineVector3.subtract(
         entered.acceleration,
@@ -200,6 +224,7 @@ export namespace HumanSupportCarry {
    * Parameter context: The action's context.
    * Parameter plan: The plan made in the world at the start.
    * Parameter prop: The prop the body stands or walks on.
+   * Parameter site: Its named bearing frame, or the whole prop frame when omitted.
    * Returns: The carried plan with its plants on the prop. The prop frame does
    * not certify a stationary window in world coordinates.
    */
@@ -207,9 +232,19 @@ export namespace HumanSupportCarry {
     context: Pick<IAutoMovieMotionHumanActionContext, OnContext>,
     plan: IAutoMovieMotionHumanActionPlan,
     prop: string,
+    site?: string,
   ): IAutoMovieMotionHumanActionPlan {
-    const frame = (seconds: number): IAutoMovieRigidTransform =>
-      context.prop(prop).frame(seconds);
+    const support: IAutoMovieMotionHumanContactWindow.Support = {
+      kind: "prop",
+      subject: prop,
+      ...(site === undefined ? {} : { point: site }),
+    };
+    const frame = (seconds: number): IAutoMovieRigidTransform => {
+      const reader: ReturnType<typeof context.prop> = context.prop(prop);
+      return site === undefined
+        ? reader.frame(seconds)
+        : (reader.site?.(site, seconds) ?? reader.frame(seconds));
+    };
     const { still: _still, legsStill: _legsStill, ...moving } = plan;
     return {
       ...moving,
@@ -218,7 +253,7 @@ export namespace HumanSupportCarry {
           c: IAutoMovieMotionHumanActionPlan["contacts"][number],
         ): IAutoMovieMotionHumanActionPlan["contacts"][number] =>
           c.kind === "plant" && c.support.kind === "ground"
-            ? { ...c, support: { kind: "prop" as const, subject: prop } }
+            ? { ...c, support }
             : c,
       ),
       posture: (
@@ -378,11 +413,14 @@ const LIMBS: readonly AutoMovieHumanLimb[] = [
  * Read the turn's heading in degrees around world up.
  */
 function yawOf(turn: IAutoMovieQuaternion): number {
-  const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(turn, {
-    x: 0,
-    y: 0,
-    z: 1,
-  });
+  const ahead: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    turn,
+    {
+      x: 0,
+      y: 0,
+      z: 1,
+    },
+  );
   return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
 }
 

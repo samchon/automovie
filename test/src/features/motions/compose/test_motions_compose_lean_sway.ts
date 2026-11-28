@@ -50,6 +50,10 @@ const FEET: readonly AutoMovieHumanoidBone[] = ["leftFoot", "rightFoot"];
  * 3. Both feet stay within a millimetre of their plants; the limb goals and joints
  *    are the given ones.
  * 4. Facing 90 degrees, a 5 cm shift ahead moves the hips 5 cm along +X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the affected channels and write time, horizontal shift, vertical fit over two plants and heading-relative motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanLean.sway with counted pose inputs, evaluates stored-body foot bones before and after the write, and inspects the retained goals and joint payloads.
+ * @evidence contracts/development/testing.md#independent-expectations The authored displacements are 0.15 m in X and 0.02 m in Z, with a bounded height drop and -6 degree roll. Both feet must stay within their stated slip bound. At 90 degrees, a forward 0.05 m input adds 0.05 m to X.
  */
 export async function test_motions_compose_lean_sway(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

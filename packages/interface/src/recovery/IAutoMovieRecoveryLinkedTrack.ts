@@ -1,10 +1,10 @@
 import type { IAutoMovieRecoveryMapObservation } from "..";
 
-/** Nonconflicting appearance component before geometric point qualification. */
+/** One nonconflicting connected component of reciprocal appearance measurements. */
 export interface IAutoMovieRecoveryLinkedTrack {
-  /** Deterministic minimum global feature-node index in the linked component. */
+  /** Stable component identity in the current feature linkage. */
   id: number;
 
-  /** Owned original-pixel observations with at most one feature per input view. */
+  /** Original pixel observations in the component, with distinct source views. */
   observations: IAutoMovieRecoveryMapObservation[];
 }

@@ -3,32 +3,35 @@ import type { IAutoMovieRecoveryDimensionScales } from "./IAutoMovieRecoveryDime
 import type { IAutoMovieRecoverySupportLoftCoverage } from "./IAutoMovieRecoverySupportLoftCoverage";
 
 /**
- * Source-independent finite-view support approximation with editable
- * dimensions. Cubic support offsets and oriented planes generate a convex
- * section hull; they do not establish that the observed physical sections were
- * convex. Fitting and pixel uncertainty mean this is not a certified outer
- * enclosure. Width/depth scale X/Z about the frame origin; height scales about
- * the first Y.
+ * Open convex-support lateral recipe with fixed horizontal half-plane
+ * directions and longitudinal cubic offsets. Compilation applies independent X
+ * and Z scales about the frame origin and Y about the first saved station.
  */
 export interface IAutoMovieRecoverySupportLoft {
-  /** Explicit section representation, without a physical convexity assertion. */
+  /** Select the finite-view convex-support representation for sections. */
   family: "finite-view-convex-support";
 
-  /** Fixed-object identity without an acquisition address. */
+  /** Recovered object identifier used in the generated model. */
   objectId: string;
 
-  /** Supplied metric-frame provenance. */
+  /** Supplied metric frame in which the coefficients were fitted. */
   frame: string;
 
-  /** Fixed support planes and cubic offsets in metres. */
+  /**
+   * Fixed oriented planes and unedited longitudinal span intervals and offsets
+   * in metres.
+   */
   loft: IAutoMovieConvexSupportLoft;
 
-  /** Independent finite scale ratios in [0.25,4], at the documented anchors. */
+  /**
+   * Width, depth, and height factors, each in [0.25, 4]. Width and depth scale
+   * about the X/Z origin, and height about the first saved Y endpoint.
+   */
   dimensions: IAutoMovieRecoveryDimensionScales;
 
   /**
-   * Conditional inference remains distinct from measured or visible physical
-   * shape.
+   * Required declaration of inferred convex sections and unresolved physical
+   * regions.
    */
   coverage: IAutoMovieRecoverySupportLoftCoverage;
 }

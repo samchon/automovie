@@ -32,8 +32,9 @@ import { supportViewOutline } from "./construction/internal/supportViewOutline";
  */
 export namespace AutoMovieEngineViewOutline {
   /**
-   * Prepare the original knots, returning a named premise failure rather than a
-   * replacement curve.
+   * Prepare copied original knots with finite station, value and authored
+   * derivatives. A refused source premise or nonrepresentable interpolation
+   * returns its diagnostic.
    */
   export function create(
     outline: IAutoMovieViewPart.IOutline,
@@ -45,9 +46,29 @@ export namespace AutoMovieEngineViewOutline {
         ...(k.jet === undefined ? {} : { jet: { ...k.jet } }),
       }),
     );
-    const xs: number[] = knots.map(
-      (k: IAutoMovieViewPart.IKnot): number => k.station,
-    );
+    const xs: number[] = [];
+    for (const [index, knot] of knots.entries()) {
+      if (knot === undefined)
+        return {
+          contract: "outline",
+          detail: `source knot ${index} is missing`,
+        };
+      if (!Number.isFinite(knot.station) || !Number.isFinite(knot.value))
+        return {
+          contract: "outline",
+          detail: `source knot ${knot.site}@${knot.station}=${knot.value} needs a finite station and value`,
+        };
+      const { first, second } = knot.jet ?? {};
+      if (
+        (first !== null && first !== undefined && !Number.isFinite(first)) ||
+        (second !== null && second !== undefined && !Number.isFinite(second))
+      )
+        return {
+          contract: "outline",
+          detail: `source knot ${knot.site}@${knot.station} needs finite authored derivatives`,
+        };
+      xs.push(knot.station);
+    }
     const gap: number = AutoMovieEngineLoftContract.splineGap(xs);
     if (
       knots.length < 2 ||
@@ -145,11 +166,17 @@ export namespace AutoMovieEngineViewOutline {
           detail: `source interval ${i} has unrepresentable cubic derivative coefficients`,
         };
     }
-    const spline: IAutoMovieNaturalCubicSpline = AutoMovieEngineNaturalSpline.create(
-      parameters,
-      knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-    );
+    const spline: IAutoMovieNaturalCubicSpline =
+      AutoMovieEngineNaturalSpline.create(
+        parameters,
+        knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
+      );
 
+    if (!spline.curvatures.every(Number.isFinite))
+      return {
+        contract: "outline",
+        detail: "source has unrepresentable natural cubic coefficients",
+      };
     const requested: boolean =
       outline.range !== undefined ||
       knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);

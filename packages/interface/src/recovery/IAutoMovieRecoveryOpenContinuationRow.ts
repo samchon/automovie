@@ -1,16 +1,22 @@
 import type { IAutoMovieRecoveryOpenArcIncidence } from "./IAutoMovieRecoveryOpenArcIncidence";
 
-/** Transient source support for one saved open-section row. */
+/**
+ * One observed section's matched open incidence and unmatched saved curve
+ * addresses.
+ */
 export interface IAutoMovieRecoveryOpenContinuationRow {
-  /** Observed open arcs with private source support. */
+  /** Endpoint and face incidence for raw cuts bound to saved open arcs. */
   arcs: IAutoMovieRecoveryOpenArcIncidence[];
 
-  /** Saved coefficient ordinal corresponding to each observed arc. */
+  /** Saved open-curve ordinal for each corresponding arcs entry. */
   ordinals: number[];
 
-  /** Saved open-curve ordinals lacking an identical endpoint-bound observation. */
+  /**
+   * Saved open-curve indices without an identical endpoint-bound source
+   * observation.
+   */
   missing: number[];
 
-  /** Private source face groups that prevent ordinary slab admission. */
+  /** Original source face sets for unsupported raw contours. */
   defects: Set<number>[];
 }

@@ -14,9 +14,7 @@ import type { IAutoMovieHumanSegmentJoint } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual boundary owner and observes returned identity and refusals for every malformed graph, without building a person.
  * @evidence contracts/development/testing.md#independent-expectations Three literal name/parent pairs define the graph; changing membership or one parent is a graph mismatch by definition.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains the valid offset change beside four independent malformed inputs and collects every finding before failing.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on three made records; it reads no reference, loft or whole figure and launches no process.
- * @evidence contracts/development/common.md#meaningful-documentation States the accepted variation and the numbered graph admission scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Changing offsets retains the supplied topology object. Missing, extra, duplicate and reparented joints fail against the same three-joint reference graph.
  */
 export function test_human_chain_topology(): void {
   const reference: IAutoMovieHumanSegmentJoint[] = [

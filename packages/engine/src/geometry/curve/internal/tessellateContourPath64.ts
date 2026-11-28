@@ -4,13 +4,12 @@ import type {
   IAutoMovieTessellateContourPath64,
 } from "@automovie/interface";
 
+import { binary64SumProductsSign } from "../../../math/internal/binary64SumProductsSign";
+
 /*
- * Generate an indexed surface from saved physical polygon identities and P/Q
- * paths. P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
- * and increasing Y stations give outward winding on an ordinary exterior slab.
- * This operation validates the path, not its optimization or geometric
- * embedding. Finite positive-area faces survive incidence warnings; collapsed
- * faces are counted.
+ * Emit the saved strip using the input's physical vertex order. Each step
+ * advances one ring. Incidence diagnostics qualify the generated topology
+ * separately from the face emission.
  */
 export function tessellateContourPath64(
   input: IAutoMovieTessellateContourPath64.IInput,
@@ -22,33 +21,32 @@ export function tessellateContourPath64(
     if (
       !polygon.id ||
       polygons.has(polygon.id) ||
-      polygon.pointsMm.length < 3 ||
-      polygon.pointsMm.some(
-        (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.length !== 3 || point[1] !== polygon.stationMm,
-      )
+      !Number.isFinite(polygon.stationMm) ||
+      polygon.pointsMm.length < 3
     )
       throw new Error("Unique finite Y-plane polygons are required");
-    const origin: Readonly<AutoMovieVector3Tuple> = polygon.pointsMm[0]!;
-    const area: number = polygon.pointsMm.reduce(
-      (
-        sum: number,
-        point: Readonly<AutoMovieVector3Tuple>,
-        i: number,
-      ): number => {
-        const next: Readonly<AutoMovieVector3Tuple> =
-          polygon.pointsMm[(i + 1) % polygon.pointsMm.length]!;
-        if (point.every((x: number, k: number): boolean => x === next[k]))
-          throw new Error("A polygon has a collapsed boundary edge");
-        return (
-          sum +
-          (point[0] - origin[0]) * (next[2] - origin[2]) -
-          (next[0] - origin[0]) * (point[2] - origin[2])
-        );
-      },
-      0,
-    );
-    if (!(area > 0))
+    for (const point of polygon.pointsMm)
+      if (
+        !Array.isArray(point) ||
+        point.length !== 3 ||
+        !Number.isFinite(point[0]) ||
+        point[1] !== polygon.stationMm ||
+        !Number.isFinite(point[2])
+      )
+        throw new Error("Unique finite Y-plane polygons are required");
+
+    // Only the sign of twice the projected area is needed. Keep the
+    // products in the saved coordinates so that neither translating the
+    // ring nor rounding its area can change its admitted winding.
+    const products: [number, number][] = [];
+    for (const [i, point] of polygon.pointsMm.entries()) {
+      const next: Readonly<AutoMovieVector3Tuple> =
+        polygon.pointsMm[(i + 1) % polygon.pointsMm.length]!;
+      if (point[0] === next[0] && point[2] === next[2])
+        throw new Error("A polygon has a collapsed boundary edge");
+      products.push([point[0], next[2]], [-next[0], point[2]]);
+    }
+    if (binary64SumProductsSign(products) !== 1)
       throw new Error("Polygons require a common positive projected XZ order");
     polygons.set(polygon.id, polygon);
   }
@@ -64,15 +62,18 @@ export function tessellateContourPath64(
       !p ||
       !q ||
       !(p.stationMm < q.stationMm) ||
+      !Number.isSafeInteger(pair.startP) ||
       pair.startP < 0 ||
       pair.startP >= p.pointsMm.length ||
+      !Number.isSafeInteger(pair.startQ) ||
       pair.startQ < 0 ||
       pair.startQ >= q.pointsMm.length ||
       /[^PQ]/.test(pair.steps) ||
       pair.steps.length !== p.pointsMm.length + q.pointsMm.length ||
       [...pair.steps].filter((step: string): boolean => step === "P").length !==
         p.pointsMm.length ||
-      !(pair.objectiveAreaMm2 >= 0)
+      !Number.isFinite(pair.objectiveAreaMm2) ||
+      pair.objectiveAreaMm2 < 0
     )
       throw new Error(
         "A complete finite path must advance each saved boundary exactly once",
@@ -88,7 +89,8 @@ export function tessellateContourPath64(
     physicalVertices: { sources: [], vertices: [] },
   };
   const offsets: Map<string, number> = new Map(),
-    construction: { id: string; points: [number, number, number][] }[] = [];
+    construction: IAutoMovieTessellateContourPath64.IConstructionPolygon[] =
+      [];
   for (const polygon of input.polygons) {
     offsets.set(polygon.id, mesh.positions.length / 3);
     const points: [number, number, number][] = polygon.pointsMm.map(
@@ -107,15 +109,7 @@ export function tessellateContourPath64(
     }
     construction.push({ id: polygon.id, points: [...points, points[0]!] });
   }
-  const reports: {
-    id: string;
-    firstTriangle: number;
-    triangles: number;
-    omittedTriangles: number;
-    areaMm2: number;
-    objectiveDiscrepancyMm2: number;
-    diagnostics: string[];
-  }[] = [];
+  const reports: IAutoMovieTessellateContourPath64.IPairResult[] = [];
   const edges: Map<string, { uses: number; orientation: number }> = new Map(),
     faces: Set<string> = new Set(),
     diagnostics: string[] = [];
@@ -124,7 +118,7 @@ export function tessellateContourPath64(
       q: (typeof input.polygons)[number] = polygons.get(pair.qId)!;
     const po: number = offsets.get(pair.pId)!,
       qo: number = offsets.get(pair.qId)!;
-    const report: (typeof reports)[number] = {
+    const report: IAutoMovieTessellateContourPath64.IPairResult = {
       id: pair.id,
       firstTriangle: mesh.indices!.length / 3,
       triangles: 0,
@@ -152,12 +146,16 @@ export function tessellateContourPath64(
         u[2]! * v[0]! - u[0]! * v[2]!,
         u[0]! * v[1]! - u[1]! * v[0]!,
       ];
-      const length: number = Math.hypot(...normal);
-      if (!(length > 0)) {
+      // The norm is twice the area in square metres.
+      const areaMm2: number = Math.hypot(...normal) * 500_000;
+      if (!Number.isFinite(areaMm2) || areaMm2 <= 0) {
         report.omittedTriangles++;
         continue;
       }
-      report.areaMm2 += length * 500_000;
+      const pairAreaMm2: number = report.areaMm2 + areaMm2;
+      if (!Number.isFinite(pairAreaMm2))
+        throw new Error(`Contour pair "${pair.id}" area must remain finite`);
+      report.areaMm2 = pairAreaMm2;
       mesh.indices!.push(...ids);
       report.triangles++;
       for (const id of ids)
@@ -196,7 +194,7 @@ export function tessellateContourPath64(
       mesh.normals![i + 1]!,
       mesh.normals![i + 2]!,
     );
-    if (length > 0)
+    if (Number.isFinite(length) && length > 0)
       for (let k: number = 0; k < 3; k++) mesh.normals![i + k] /= length;
     else {
       mesh.normals![i] = 0;

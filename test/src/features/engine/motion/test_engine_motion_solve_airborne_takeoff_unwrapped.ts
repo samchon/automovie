@@ -25,6 +25,10 @@ const MIRROR: number = 1e-3;
  *    opposite within a thousandth of their size, and the same somersault: the
  *    metamorphic relation of a sagittally symmetric body (Yeadon 1993 Part III,
  *    twist from asymmetric arm action).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the observed tilt and twist from raising one arm and the reflection relation obtained by raising the other arm.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the airborne integrator and unwrapped orientation reader on two prescribed arm histories of the same archived humanoid fixture. Both use the stated momentum and flight duration.
+ * @evidence contracts/development/testing.md#independent-expectations Sagittal symmetry predicts that left and right versions have opposite tilt and twist with the same somersault. Each tilt and twist must exceed one degree for the relation to be measurable, and the mirrored residuals are bounded relative to the observed left-side magnitudes.
  */
 export async function test_engine_motion_solve_airborne_takeoff_unwrapped(): Promise<void> {
   const person: IHumanFixture = await humanFixture("m-average");

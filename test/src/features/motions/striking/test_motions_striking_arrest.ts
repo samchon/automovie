@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/throwsError";
  *    after, leaving at 2 per second, and arriving at rest.
  * 2. Unmoved, 1 at 2 per second over 0.5 s rests at 1.5.
  * 3. A span of none is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines how a quintic blend carries initial velocity, arrives at rest and refuses zero span.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads authored settle and free-arrest paths at endpoints and at nearby times to verify rates.
+ * @evidence contracts/development/testing.md#independent-expectations From 1 at 2 units/s the commanded path ends at 3 after 0.5 s. Free arrest travels half the velocity-span product and ends at 1.5.
  */
 export function test_motions_striking_arrest(): void {
   const at = (t: number): number => StrikingArrest.settle(1, 2, 3, 0.5, t);

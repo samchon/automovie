@@ -33,6 +33,10 @@ import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan"
  *
  * The body is built whole (`humanFixtureBody`): the checks read its colliders,
  * soles, tangle model and mass model.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a clean held stance and the resulting slip finding when the same planted stance travels 0.1 m.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs HumanVerdicts on prepared stored-body performances with no displacement and with an authored horizontal slide.
+ * @evidence contracts/development/testing.md#independent-expectations A planted foot travels 0.1 m over the moving fixture's second, exceeding the 0.005 m limit. The literal action id stand fixes the expected location of its slip finding.
  */
 export async function test_motions_audit_human_verdicts(): Promise<void> {
   // Runs every check: every collider, the tangle model, the soles and the mass model, a whole-body read.

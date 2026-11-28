@@ -26,6 +26,10 @@ const ROUNDING: number = 1e-12;
  *    `sin(1.5π)` = −1.
  * 3. At u = ⅛, half way through the growth, `s(½)` = ½ times `sin(π/2)` = 1.
  * 4. The prepared reader reads the same; a count of 0 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two-cycle wave's zeros, full-amplitude trough, rise midpoint, prepared read and zero-cycle refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieMotionWave.sample and its prepared reader on a linear clock and checks fixed phases along with an invalid cycle count.
+ * @evidence contracts/development/testing.md#independent-expectations At phase 3/8, sin(3π/2) is -1 after the rise. At phase 1/8 the sine is 1 and the rise's midpoint weight is 0.5. The phase endpoints and midpoint have zero excursion.
  */
 export function test_motions_compose_motion_wave(): void {
   const clock: IAutoMovieMotionClock = linearMotionClock(2, [

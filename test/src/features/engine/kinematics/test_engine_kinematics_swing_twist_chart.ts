@@ -36,6 +36,10 @@ import { TestValidator } from "@nestia/e2e";
  *    to the bound.
  * 5. Blending two inside rotations meets each end at shares 0 and 1, charts to the
  *    midpoint at 0.5, and the prepared blend equals the blend.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers frame lookup, radius interpolation, chart placement, swing and twist projection and prepared blending.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public SwingTwistRange chart and region methods on a default gated stock frame, using named chart places and bounded twist distances.
+ * @evidence contracts/development/testing.md#independent-expectations At a ray midpoint the radius is the mean of neighbouring stored rays. The trial's authored place and twist are its round-trip targets. Excess 10 or 7 clamps to its stated endpoint, and blending takes the exact coordinate midpoint.
  */
 export function test_engine_kinematics_swing_twist_chart(): void {
   const gated = (b: AutoMovieHumanoidBone): boolean => {

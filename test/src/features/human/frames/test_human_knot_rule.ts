@@ -18,9 +18,7 @@ import { nclose } from "../../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production rule on made outlines and reads the returned stations and their bases.
  * @evidence contracts/development/testing.md#independent-expectations Each extremum's station is the closed form of the made sine or cosine; the thinning's expectation is the stated distance against the stated share of the stated reach.
- * @evidence contracts/development/testing.md#distinguishing-cases A maximum, a minimum, a run end between two outlines' stretches, a site beside an extremum on either side of the spacing, a flat outline, a duplicate and four refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic on made functions; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States each scenario with its closed form.
+ * @evidence contracts/development/common.md#meaningful-documentation Known extrema, preferred sites, duplicate and constant outlines, and malformed run arrays distinguish knot placement from its spacing policy.
  */
 export function test_human_knot_rule(): void {
   const failures: string[] = [];

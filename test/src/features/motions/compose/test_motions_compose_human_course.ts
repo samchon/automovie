@@ -45,6 +45,10 @@ const CLAMP_TOLERANCE: number = 0;
  * 6. With hips that carry the centre 1.1 times as far, each correction reduces the
  *    remaining centre error tenfold.
  * 7. An instant-long course holds its starting position at every read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names closed-form relaxation at knots, endpoint reads, cubic interpolation and clipping, midpoint-held targets and a zero span.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves a prepared hip course on the stored body, then reads constant, ramp and geared target trajectories and counts which target reads occur before the clipped course is queried.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit exponential solution determines every constant-target knot independently. A midpoint target gives the exact exponential recurrence for each ramp step. Hermite evaluation at half distance fixes the cubic midpoint and the zero span holds 0.125 m.
  */
 export async function test_motions_compose_human_course(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

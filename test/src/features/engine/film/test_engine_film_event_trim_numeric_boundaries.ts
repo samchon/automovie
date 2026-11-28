@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A source duration of 1e-17 follows source second 1 and plays for one output
  *    second at rate 1e-17. The source start event belongs to output second zero
  *    even though the numeric end rounds to that same source time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the representable decimal boundary and the nearly collapsed retimed source span, with the event each must retain.
+ * @evidence contracts/development/testing.md#behavioral-verification The test cuts at both numeric spans and checks runtime and projected event identity on the returned sequence using the public event timeline.
+ * @evidence contracts/development/testing.md#independent-expectations Binary64 inputs 0.7 and 0.1 sum to a representable end distinct from 0.8, so the reconstructed boundary cannot acquire the adjacent event. A duration of 1e-17 divided by the same retime rate is one output second and the source start maps to output zero even when the rounded source end equals that start.
  */
 export function test_engine_film_event_trim_numeric_boundaries(): void {
   const anchor: IAutoMovieInteractionEvent = {

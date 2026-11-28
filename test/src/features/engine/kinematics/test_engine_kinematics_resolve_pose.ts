@@ -81,6 +81,10 @@ const pose: (
  *    about +Y, (0, sin 20, 0, cos 20); without it, about +X.
  * 5. A 90 degree twist of the spine about +Y carries its child's offset (0.2, 0,
  *    0) to (0, 0, -0.2), so the arm sits at (0, 1.5, -0.2).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers root and parent transforms, unavailable topology and the difference between default and supplied clinical axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolvePose on a literal skeleton with rest, translated, twisted and rootless variants, and uses the supplied humanoid axis table.
+ * @evidence contracts/development/testing.md#independent-expectations Rest offsets add in order. A +Y quarter turn sends the child's +X offset to -Z. The supplied basis makes the upper arm's 40-degree turn use Y while the default uses X.
  */
 export function test_engine_kinematics_resolve_pose(): void {
   const rest: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(pose(null, []), SKELETON);

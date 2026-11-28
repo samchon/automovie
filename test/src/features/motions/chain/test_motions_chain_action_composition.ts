@@ -9,14 +9,18 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * Build the authoring tree for a cut carrier and its synced overlay.
+ * Check the authoring tree for a cut carrier and synchronized overlay.
  *
  * Scenarios:
  *
- * 1. Add a cut to the last intent, mark only the overlay, then time the parallel
- *    group to the requested event with latency on the carrier.
- * 2. The original carrier is immutable. A second sync, or a cut applied after
- *    syncing, refuses before action planning.
+ * 1. Cut the last carrier intent, mark only the overlay and synchronize the
+ *    parallel group to the event using latency on the carrier.
+ * 2. Keep the original carrier. Refuse a second synchronization and a cut
+ *    authored after synchronization.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the selected intent, cue, latency and invalid orderings.
+ * @evidence contracts/development/testing.md#behavioral-verification The immutable composition builder's node structure is inspected before any action is planned.
+ * @evidence contracts/development/testing.md#independent-expectations The expected sequence and timing fields are written directly from the requests and compared with the original carrier.
  */
 export function test_motions_chain_action_composition(): void {
   const original: IAutoMovieMotionHumanChain = AutoMovieMotionHumanChain.subject("lead").stand(

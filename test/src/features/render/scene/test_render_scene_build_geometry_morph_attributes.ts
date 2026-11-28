@@ -32,6 +32,10 @@ function deltasMatch(
  *
  * The glTF morph model adds each target's delta. This raw triangle verifies
  * the uploaded attributes and relative flag before any shader execution.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names relative morph positions and the zero-filled or absent normal channel.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds native geometry for a triangle with two typed morph targets, then a positions-only variant. Reads the native morph attributes and relative flag before shader work.
+ * @evidence contracts/development/testing.md#independent-expectations The two literal position deltas arrive unchanged. The first normal delta is supplied, and its paired target with no normal delta uses a zero row. With no declared normal deltas at all the normal channel remains absent.
  */
 export function test_render_scene_build_geometry_morph_attributes(): void {
   const mesh: IAutoMovieMesh = {

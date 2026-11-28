@@ -1,5 +1,7 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import type * as Render from "@automovie/render";
+import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
@@ -68,18 +70,36 @@ export async function renderProduction(
     load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
       loadProductionModule<AutoMovieFfmpegStaticPath>(root, id),
   });
+  const checkpoint = options.checkpoint === null
+    ? undefined
+    : {
+        ...options.checkpoint,
+        rendererIdentity: createHash("sha256")
+          .update(JSON.stringify([options.module, options.backend, props.env.CHROME_PATH ?? null]))
+          .update(await fs.readFile(createRequire(path.join(root, "package.json")).resolve("@automovie/render")))
+          .digest("hex"),
+      };
 
-  const host: AutoMovieCliCaptureHost = await AutoMovieCliCaptureHost.open({
-    root,
-    module: options.module,
-    backend: options.backend,
-    timeout: options.timeout,
-    env: props.env,
-  });
+  // Open the host within the attempt so build and launch failures can leave a
+  // report when the output folder is known.
+  const owner: { host?: AutoMovieCliCaptureHost } = {};
+  let nextFrameMessage: number = 0;
   try {
     const written: Awaited<ReturnType<typeof renderVideoImplementation>> =
       await renderVideoImplementation({
-        host,
+        host: {
+          render,
+          async session(sessionProps) {
+            owner.host = await AutoMovieCliCaptureHost.open({
+              root,
+              module: options.module,
+              backend: options.backend,
+              timeout: options.timeout,
+              env: props.env,
+            });
+            return owner.host.session(sessionProps);
+          },
+        },
         root,
         subject: request.subject,
         props: data,
@@ -87,15 +107,33 @@ export async function renderProduction(
         ffmpeg,
         passes,
         background: options.background,
+        ...(checkpoint === undefined ? {} : { checkpoint }),
+        observe: (activity): void => {
+          if (activity.type !== "requested") return;
+          if (activity.stage === "draw-frame") {
+            const now: number = performance.now();
+            if (now < nextFrameMessage) return;
+            nextFrameMessage = now + 1_000;
+            process.stderr.write(
+              `render: drawing frame ${activity.frame! + 1}/${activity.frameCount} at ${activity.seconds} s\n`,
+            );
+          } else if (
+            activity.stage === "mount" ||
+            activity.stage === "encode" ||
+            activity.stage === "audit" ||
+            activity.stage === "publish"
+          )
+            process.stderr.write(`render: ${activity.stage}\n`);
+        },
       });
     process.stdout.write(
-      `render: ${written.frames} frames into ${written.video}\nbackend ${host.backend}\n${written.report}\n` +
+      `render: ${written.frames} frames into ${written.video}\nbackend ${written.backend}\n${written.report}\n` +
         (written.controls === null
           ? ""
           : `controls ${passes.join(",")} in ${written.controls}\n`),
     );
     return 0;
   } finally {
-    await host.close();
+    await owner.host?.close();
   }
 }

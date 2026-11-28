@@ -32,6 +32,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
 import { prepareSurfaceSwimTransfer } from "./prepareSurfaceSwimTransfer";
+import { planSwimSurfacePaddle } from "./planSwimSurfacePaddle";
 
 /*
  * Swimming on a declared water plane: treading water and the front crawl. There
@@ -164,11 +165,14 @@ export namespace swim {
       { name: "relax", seconds: duration },
     ]);
   }
-  /*
-   * Plan a swim.
-   * Parameter context: The action's context.
-   * Returns: The plan.
-   * When the cycle count is not a positive whole number.
+  /**
+   * Plan one surface action from its displayed entry on a horizontal plane.
+   * A dog paddle advances along its course. A falter dips and reaches a
+   * breathing cue before a separately chosen recovery.
+   *
+   * @param context The body, entry state, water height and action parameters.
+   * @returns Timed postures and played stroke or recovery cues. Contacts are empty.
+   * @throws {AutoMovieMotionHumanRefusal} For an invalid cycle count or turn.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwim.IParams>,
@@ -176,7 +180,18 @@ export namespace swim {
     const p: IAutoMovieMotionHumanSwim.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const cycles: number = HumanBound.whole("count", p.count ?? 3);
+    const cycles: number = HumanBound.whole(
+      "count",
+      p.count ?? (p.kind === "falter" ? 1 : 3),
+    );
+    if (p.kind === "falter") HumanBound.within("count", cycles, 1, 1);
+    const courseTurn: number = HumanBound.within(
+      "turn",
+      p.turn ?? 0,
+      p.kind === "dogPaddle" ? -90 : 0,
+      p.kind === "dogPaddle" ? 90 : 0,
+      "deg",
+    );
     const modifiers: IAutoMovieMotionManner.IModifiers = motionManner(
       context,
       p.manner,
@@ -187,6 +202,18 @@ export namespace swim {
     );
     const water: number = p.water ?? entry.root.y + m.chestHeight;
 
+    if (p.kind === "dogPaddle" || p.kind === "falter")
+      return connect(
+        planSwimSurfacePaddle({
+          body,
+          entry,
+          water,
+          cycles,
+          tempo: modifiers.tempo,
+          turn: courseTurn,
+          falter: p.kind === "falter",
+        }),
+      );
     // The strokes written as keyed postures are planned by their own table.
     if (p.kind !== "treadWater" && p.kind !== "frontCrawl")
       return connect(

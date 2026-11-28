@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  *
  * 1. It is a fixture with rungs `rung1` to `rung10`, rung k 0.3 k m up.
  * 2. Each rung faces -Z and holds a 30 mm power grip 0.41 m long.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ladder fixture rung names, vertical spacing, contact length, aperture and facing.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual climb fixture and reads all ten affordance frames and dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Authored rung k belongs at 0.3k m. The fixture faces each rung toward −Z and independently declares 30 mm aperture and 0.41 m length.
  */
 export function test_motions_executable_climb_case_ladder(): void {
   const ladder: IAutoMovieMotionHumanProp = climbCaseLadder();

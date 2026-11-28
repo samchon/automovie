@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. A nonblank clip id adds no violation.
  * 2. An empty or whitespace-only id adds a type violation at its clip field.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify a nonblank external clip reference and the invalid authored clip field.
+ * @evidence contracts/development/testing.md#behavioral-verification The test sends enact choices through the public stage-action gate and observes the recorded type violations for valid, empty and whitespace identifiers.
+ * @evidence contracts/development/testing.md#independent-expectations The host receives the literal admitted ID. A string with visible characters can address a clip, while an empty string or a string stripped to empty cannot. The authored action index fixes the reported field.
  */
 export function test_engine_film_enact_clip_gate(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

@@ -12,18 +12,18 @@ import { AutoMovieArchetypeSqueezeTube } from "./AutoMovieArchetypeSqueezeTube";
 import { AutoMovieArchetypeTissue } from "./AutoMovieArchetypeTissue";
 import { AutoMovieArchetypeToothbrush } from "./AutoMovieArchetypeToothbrush";
 
-/** Constructs the care item archetype from its recipe. */
+/** Replays six saved personal-care recipes through their named producers. */
 export namespace AutoMovieArchetypeCareItem {
 /**
- * Read a saved grooming prop recipe and call the producer for its kind.
+ * Build the personal-care prop selected by a saved recipe.
  *
- * @param params The saved kind, fixed values, optional identifier and model
- *   when applicable.
- * @param seed The seed that draws the saved dimensions and model, or undefined
- *   for the original defaults.
- * @returns The selected prop in its original frame.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * @param params A saved kind, optional scene ID and applicable fixed
+ *   measurements. Only tube and razor recipes use the model field.
+ * @param seed Numeric seed for omitted values and models. Without it
+ *   the default tube is `alltub13_5` and the default razor is `edwinJagger`.
+ * @returns The named prop with its measured dimensions and local contacts.
+ *   The default scene ID is `careItem`.
+ * @throws {AutoMovieArchetypeRefusal} If the kind, chosen model or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeCareItem.IParams,
@@ -59,48 +59,65 @@ export function create(
 }
 
   /* Compatibility tables and types for saved grooming prop recipes. */
-  /** The original kind for the saved grooming prop recipe. */
+  /**
+   * Saved selectors for tissues, combs, toothbrushes, tubes, razors and lipstick.
+   */
   export type Kind = GroomingPropDraw.Kind;
 
-  /** The original kinds for the saved grooming prop recipe. */
+  /** The six accepted saved selectors in gallery order. */
   export const KINDS: typeof GroomingPropDraw.KINDS = GroomingPropDraw.KINDS;
 
-  /** The original cartridge for the saved grooming prop recipe. */
+  /** Estimated razor head size in metres, 0.04 across X and 0.015 along Z. */
   export const CARTRIDGE: typeof GroomingPropDraw.CARTRIDGE =
     GroomingPropDraw.CARTRIDGE;
 
-  /** The original bullet for the saved grooming prop recipe. */
+  /** Exposed length of the lipstick bullet in metres, 0.015. */
   export const BULLET: typeof GroomingPropDraw.BULLET = GroomingPropDraw.BULLET;
 
-  /** The original affordance for the saved grooming prop recipe. */
+  /**
+   * Grips and working faces for all six props, plus a turning cap for the tube.
+   */
   export type Affordance = GroomingPropDraw.Affordance;
 
-  /** The original dimension for the saved grooming prop recipe. */
+  /**
+   * Length follows Z. Width and thickness use the selected prop's
+   * construction frame. Lengths use metres and mass uses kilograms.
+   */
   export type Dimension = GroomingPropDraw.Dimension;
 
-  /** The original units for the saved grooming prop recipe. */
+  /** Units for the saved recipe's dimensions and model figures. */
   export const UNITS: typeof GroomingPropDraw.UNITS = GroomingPropDraw.UNITS;
 
-  /** The original iparams for the saved grooming prop recipe. */
+  /**
+   * Saved selector, optional scene ID, applicable finite measurements and tube or razor model.
+   */
   export type IParams = GroomingPropDraw.IParams;
 
-  /** The original figures for the saved grooming prop recipe. */
+  /** Recorded tube diameter or correlated razor length and mass. */
   export type Figures = GroomingPropDraw.Figures;
 
-  /** The original model for the saved grooming prop recipe. */
+  /**
+   * Ten Alltub diameter IDs and the Edwin Jagger and Gillette Mach3 razor IDs.
+   */
   export type Model = GroomingPropDraw.Model;
 
-  /** The original models for the saved grooming prop recipe. */
+  /**
+   * Tube diameters and whole razor measurements, with the default record first for each kind.
+   */
   export const MODELS: typeof GroomingPropDraw.MODELS = GroomingPropDraw.MODELS;
 
-  /** The original tube length ranges for the saved grooming prop recipe. */
+  /** Allowed length bands in metres for each Alltub diameter. */
   export const TUBE_LENGTHS: typeof GroomingPropDraw.TUBE_LENGTHS =
     GroomingPropDraw.TUBE_LENGTHS;
 
-  /** The original bands for the saved grooming prop recipe. */
+  /**
+   * Dimensions by saved kind. The selected tube diameter supplies its own length band.
+   */
   export const BANDS: typeof GroomingPropDraw.BANDS = GroomingPropDraw.BANDS;
 
-  /** The named producer selected by each saved kind. */
+  /**
+   * Factory map from saved selectors to the corresponding narrow named constructors.
+   */
   export const PRODUCERS = {
     tissue: AutoMovieArchetypeTissue.create,
     comb: AutoMovieArchetypeComb.create,

@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/predicates";
  *    fewer than 20 evaluations (bisection needs about 40).
  * 5. The steep and flat exp(8x) - 2 on [-1, 1] returns ln 2 / 8 within 1e-11.
  * 6. Ends of one sign, and a zero tolerance, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers reversible brackets, endpoint roots, nonlinear convergence, and invalid root conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes continuous scalar functions directly to bracketedRoot and records calls at endpoint and cubic cases. The two invalid inputs are exercised at the same entry.
+ * @evidence contracts/development/testing.md#independent-expectations The square, linear and exponential roots come from sqrt(2), 3, and ln(2)/8. The cosine and cubic have fixed numerical references. Endpoint equality and the cubic read budget distinguish failed convergence and redundant sampling.
  */
 export function test_engine_math_bracketed_root(): void {
   const close = (a: number, b: number, tolerance: number): boolean =>

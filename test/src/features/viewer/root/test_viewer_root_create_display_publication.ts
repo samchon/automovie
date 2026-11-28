@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Repeated staging copies only the latest bitmap; activation reuses it.
  * 3. Active changes and direct commitments copy before starting their identity.
  * 4. Candidate rejection disposes once and forbids every later publication.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Stages the newest bitmap, activates it once, and publishes only admitted active frame generations.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the publication controller through supplied bitmap ports, including refused copies, staged and direct commits, and disposal.
+ * @evidence contracts/development/testing.md#independent-expectations The ordered callback log pins frame generation and bitmap identity. Exact copy and disposal counts catch upload before activation, redundant recopy and repeated rejection cleanup.
  */
 export function test_viewer_root_create_display_publication(): void {
   let accepts: boolean = false;

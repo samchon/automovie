@@ -8,6 +8,10 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * A long episode cannot borrow a later impulse to fulfill an earlier screenplay
  * contact or contradict an earlier deliberate miss.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains that a contact promise or deliberate miss may use only impulse observed inside its own time window.
+ * @evidence contracts/development/testing.md#behavioral-verification Audits one contact episode with early and late samples, changing the screenplay action between early contact, early miss and later contact.
+ * @evidence contracts/development/testing.md#independent-expectations The episode's later positive impulse cannot satisfy an earlier contact or disprove an earlier miss. Including its actual time gives a satisfied contact.
  */
 export function test_engine_physics_audit_physical_outcomes(): void {
   const receipt: Receipt = {

@@ -25,6 +25,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. `local` of the world point (4, 2.5, 3) is (4, 3); the ring at phases 0 and pi
  *    lies in y = 2.5; no layer lifts, so `lift` is null.
  * 4. `section` of a spline chain is `AutoMovieEngineSplineCurve.evaluate`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names Hermite coefficients, bracket, world frame, axis, local projection, ring and section results.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls each chain reader on two authored horizontal layers and evaluates points in their encoded station coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations The given endpoint slopes make the Hermite interpolant linear. At 2.5 mm it is one quarter of the change, so the centre and section frame are known independently.
  */
 export function test_engine_geometry_loft_chain_reads(): void {
   const a: number[] = [3, 1, -1, 1, 3, 5, 3, 1];

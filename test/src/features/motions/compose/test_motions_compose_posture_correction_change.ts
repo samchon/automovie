@@ -56,6 +56,10 @@ const STILL: IAutoMovieMotionHumanPosture = {
  *    spine (10, 1, 0): x stays 7, the root rises 5 cm to 0.95 m, the heading
  *    reads 32 and the spine (15, 1, 0), at every tenth of a second in the
  *    window.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names distinct forced marks and the root, yaw and spine deltas applied to a different input posture.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a correction on one posture and samples it against a different posture every tenth of a second. Also calls the marks helper with internal and excluded events.
+ * @evidence contracts/development/testing.md#independent-expectations The written corrections add 0.05 m to 0.9, 2 degrees to heading 30 and 5 degrees to spine flexion 10, preserving the x coordinate and other two spine axes. Literal times determine the sorted unique marks.
  */
 export function test_motions_compose_posture_correction_change(): void {
   // 1. The forced knots.

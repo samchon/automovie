@@ -21,6 +21,10 @@ import { primitivePart } from "../../internal/primitivePart";
  *    placement.
  * 2. Explicit segment replacement changes total mass by its declared difference.
  * 3. A four-support primitive assembly has analytic total mass and neutral centre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents profile mass and neutral center from primitives and joint placement, plus explicit mass replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives a profile for the catalog stickman, overrides a complete segment and uses a four-support assembly with rotated and unbound parts.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture sums primitive masses and applies neutral transforms independently. Replacing a segment changes total mass by the declared difference.
  */
 export function test_engine_physics_derive_physical_profile(): void {
   const { model, profile }: ReturnType<typeof Fixtures.stickman> =

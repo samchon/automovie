@@ -41,6 +41,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * 6. Hands at one point leave the blended turn.
  * 7. `frame` reads a worn span's bone frame, and a hand's grip socket placed on
  *    its bone with the bone's turn, the left hand's on the left socket.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The bar fixture covers aligned, crossed, swapped, rolled and coincident hands, offset grip points, and bone-relative grip and wear frames.
+ * @evidence contracts/development/testing.md#behavioral-verification The fit owner receives paired local contacts and world socket frames. The test reads the fitted origin and basis directions, and compares `frame` with the archived body's bone and left grip socket.
+ * @evidence contracts/development/testing.md#independent-expectations Centered grips at ±0.3 m put the origin at the socket midpoint. Swapping sockets reverses +X while keeping +Y. Sharing a quarter roll gives an eighth turn with up components (0, √½, √½). An off-center grip midpoint at X 0.4 needs origin X -0.4.
  */
 export async function test_motions_perform_prop_hold(): Promise<void> {
   const hand = (

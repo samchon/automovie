@@ -33,6 +33,10 @@ interface IBox extends IAutoMovieMeshQueryHierarchy.IEntry {
  *    the root spanning [-2, 23] in z.
  * 5. Refitting the 13-box tree with every box moved +10 in x keeps the partition
  *    with recomputed boxes, the root now [8, 21] in x.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names median partition, axis and centre ties, leaf size, enclosure and refit ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds small slab hierarchies along each axis, compares whole topology records and refits moved boxes without repartitioning.
+ * @evidence contracts/development/testing.md#independent-expectations Sorted centres fix the 6/7 split of 13 entries. A declared tie uses x before y. A translation by 10 changes the enclosing x interval from [−2, 11] to [8, 21].
  */
 export function test_engine_geometry_mesh_query_hierarchy(): void {
   const box = (id: number, axis: number): IBox => {

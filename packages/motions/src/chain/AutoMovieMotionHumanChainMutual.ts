@@ -22,8 +22,9 @@ import { AutoMovieMotionHumanChainStriking } from "./AutoMovieMotionHumanChainSt
  */
 export class AutoMovieMotionHumanChainMutual extends AutoMovieMotionHumanChainStriking {
   /**
-   * Shake hands with a partner standing within reach; `AutoMovieMotionHumanChain.pair` appends
-   * both partners' handshakes together.
+   * Shake hands with a partner standing within reach;
+   * `AutoMovieMotionHumanChain.pair` appends both partners' handshakes
+   * together.
    *
    * @param params The partner, the hand and the pump count.
    * @param anchor An optional anchor id.
@@ -109,8 +110,8 @@ export class AutoMovieMotionHumanChainMutual extends AutoMovieMotionHumanChainSt
   }
 
   /**
-   * Take a prop a giver holds out; `AutoMovieMotionHumanChain.pair` appends both roles
-   * together.
+   * Take a prop a giver holds out; `AutoMovieMotionHumanChain.pair` appends
+   * both roles together.
    *
    * @param params The prop, the giver, the grip and the hands.
    * @param anchor An optional anchor id.
@@ -154,13 +155,23 @@ export class AutoMovieMotionHumanChainMutual extends AutoMovieMotionHumanChainSt
   }
 
   /**
-   * Catch a real ball another performer's anchored action launched, at its
-   * realized flight.
+   * Catch a launched ball at an interception on its realized flight.
    *
-   * @param params The launching anchor, the ball, the hands and the
-   *   interception's seconds.
+   * Name the launching action's anchor in `partner`. An explicit `intercept` is
+   * the number of seconds after release. Otherwise the catch uses the ordinary
+   * throw's approach. Begin the action at least 0.1 seconds before contact.
+   * Performance planning can extend the hands' movement windows to fit the
+   * speed bound while keeping contact on the flight clock.
+   *
+   * The fitted hand must meet the ball on that flight. Other contacts can
+   * redirect the ball before the interception and refuse the catch. In an
+   * ungloved two-hand catch over a ground gait, the distal thumbs open as the
+   * secured ball comes toward the chest and return during the hold.
+   *
+   * @param params Launch anchor, prop id, catching hands and optional
+   *   release-relative interception in seconds.
    * @param anchor An optional anchor id.
-   * @returns The chain.
+   * @returns A new chain with the staged catch appended.
    */
   public stageCatch(
     params: IAutoMovieMotionHumanCatchObject.IStageParams,

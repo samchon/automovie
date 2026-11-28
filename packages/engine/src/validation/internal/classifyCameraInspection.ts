@@ -17,6 +17,8 @@ export function classifyCameraInspection(
 
   if (
     pixels !== undefined &&
+    Number.isSafeInteger(pixels.isolated) &&
+    Number.isSafeInteger(pixels.visible) &&
     pixels.visible >= 0 &&
     pixels.visible <= pixels.isolated
   ) {
@@ -25,6 +27,7 @@ export function classifyCameraInspection(
     const ratio: number = (pixels.isolated - pixels.visible) / pixels.isolated;
     const status: "measured" | "within-limit" | "above-limit" =
       maxOcclusionRatio === undefined ||
+      !Number.isFinite(maxOcclusionRatio) ||
       maxOcclusionRatio < 0 ||
       maxOcclusionRatio > 1
         ? "measured"
@@ -37,7 +40,10 @@ export function classifyCameraInspection(
   return {
     framing,
     occlusion:
-      witnesses !== undefined && (witnesses.blocked > 0 || witnesses.clear > 0)
+      witnesses !== undefined &&
+      Number.isSafeInteger(witnesses.blocked) && witnesses.blocked >= 0 &&
+      Number.isSafeInteger(witnesses.clear) && witnesses.clear >= 0 &&
+      (witnesses.blocked > 0 || witnesses.clear > 0)
         ? { status: "witnesses", samples: witnesses }
         : { status: "unmeasured" },
   };

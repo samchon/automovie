@@ -12,28 +12,21 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 1e-12;
 
 /**
- * `HumanPhysics` is the balance correction a grounded law may supply: `shift`
- * takes each field of the caller's request where given, else the law's own
- * recommendation, weight 1 and no ramps by default, and refuses a request
- * without a part or bounds or with a weight outside [0, 1]; `fixed` refuses a
- * positive request to a law that cannot move that part; a resolved window's
- * weight rises and falls over its ramps on the minimum-jerk share and is none
- * outside it or its support phase (`weightAt`), and `during` limits it to a
- * phase; `supportOffset` is the least move along a direction that brings the
- * centre onto its support hull.
+ * Check admission, envelope and support correction for a grounded law.
  *
  * Scenarios:
  *
- * 1. No request is no shift; a request of the hips over a law recommending its
- *    bounds and a weight of 0.5 takes the law's bounds and weight.
- * 2. A request with no bounds anywhere, or a weight of 1.5, is refused; a law that
- *    cannot move the part refuses a positive weight and accepts zero.
- * 3. A window over 1 to 3 s at weight 0.8 with half-second ramps weighs 0.8 s(½)
- *    at 1.25 and 2.75 s, 0.8 in between and none outside; limited to the phase
- *    1.5 to 2.5 s, none at 1.25 s.
- * 4. Against the 0.2 m square about the origin, a centre at (0.3, 0) moves 0.2 m
- *    along −X, one inside moves none, and one whose line misses the square has
- *    no move.
+ * 1. Use the law's recommended bounds with an explicit 0.5 request. Refuse
+ *    missing bounds, invalid weight and a positive request on an immobile
+ *    part. Admit zero there.
+ * 2. Sample a weight of 0.8 over 1 to 3 s with half-second ramps, then
+ *    restrict it to a narrower support phase.
+ * 3. Project a centre against the 0.2 m square along the chosen direction.
+ *    Compare an outside correction, an inside centre and a line that misses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the defaulted fields, timing and support footprint.
+ * @evidence contracts/development/testing.md#behavioral-verification Shift, fixed, envelope and support-offset routines receive distinct small typed fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Minimum-jerk symmetry gives half weight at each ramp midpoint. The square's edge at 0.1 m gives a 0.2 m correction from x = 0.3.
  */
 export function test_motions_law_human_physics(): void {
   // 1. The request merged with the law's recommendation.

@@ -13,6 +13,10 @@ import { recoveryStereoChart as chart } from "./recoveryStereoChart";
  *    the quarter-turn and the two inverse charts. All entries are exact dyadic
  *    fractions for this fixture.
  * 2. A translation away from unit gauge is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the five local derivatives, translation tangent order and unit-gauge requirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the pose model under two calibrated charts and a quarter-turn, and rejects a nonunit translation.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied translation along x has y and z tangents. Multiplication using the dyadic inverse charts and skew matrices yields the expected entries.
  */
 export function test_recovery_internal_create_pose_model(): void {
   const model: ReturnType<typeof AutoMovieRecoveryCameraMap.createPoseModel> =

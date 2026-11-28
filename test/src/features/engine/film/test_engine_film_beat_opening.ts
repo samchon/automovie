@@ -83,6 +83,10 @@ const shot: IAutoMovieShot = {
  *    0.
  * 2. The same beat's end (duration 0.5) sits at x = 1.0, distinguishing the
  *    opening instant from the closing state.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the starting versus ending sample of the same walk, including the opening clock, clip and gait phase.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves the opening and ending through the public beat owners and observes position, local time, motion identity and phase in the returned actor records.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's displacement is x = 2t from the staged origin. The opening at local time zero stays at x = 0 and the half-second ending reaches x = 1, so exchanging those instants fails.
  */
 export function test_engine_film_beat_opening(): void {
   const opening: IAutoMovieBeatEndActorState = AutoMovieEngineFilm.resolveBeatOpening({

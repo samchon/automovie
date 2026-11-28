@@ -22,6 +22,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    growth at landing.
  * 3. Admit the lower and upper endpoints and refuse illegal sizes at
  *    materialization.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify seeded particle size, staggered age growth, stopped stain growth, replay and admitted endpoint limits.
+ * @evidence contracts/development/testing.md#behavioral-verification The test materializes localized effects and samples their actual particles at different ages and in varying seek order. It contrasts omitted and explicit expansion endpoints and probes refused sizes at the materializer.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture onset and age difference imply different sizes for staggered particles. The seeded fixed size is 0.1 without an endpoint. A landed stain holds its authored 0.4 extent at both queried times, independently of subsequent elapsed time.
  */
 export function test_engine_film_effect_particle_expansion(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0 };

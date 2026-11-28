@@ -13,11 +13,9 @@ import { nclose } from "../../internal/nclose";
  *    measured horse gait, while the generic phase reader accepts lateral pairs.
  * 3. Existing measured two-row horse timing remains ordinary interpolation.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the independently authored time units, exact singleton domain, lateral-pair phase law and unchanged equine vocabulary.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the shared public timing/range/phase readers on an authored experimental point and the actual horse species, checking finite numeric outputs and refusals rather than reproducing private interpolation.
- * @evidence contracts/development/testing.md#independent-expectations One0.6s cycle with0.3s fore/0.24s hind support has duties1/2 and2/5. Lateral pace contacts are both left at0 and both right at1/2; the horse still declares exactly walk/trot/canter/gallop. The known horse walk means at1 and1.5m/s give midpoint stride(1.121+0.904)/2 and stance(0.733+0.540)/2.
- * @evidence contracts/development/testing.md#distinguishing-cases Singleton versus two distinct rows, exact versus adjacent inadmissible speed, separate hind stance, lateral versus diagonal contacts and species-specific refusal distinguish the extension from NaN output or an invented horse row.
- * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit owns literal input data and normal horse construction; no registry mutation, method patch, renderer, process or compiler is used.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines one authored gait point, lateral pace phases, adjacent speed refusals and the established horse walk interpolation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public timing, range and phase readers on a synthetic experiment and the horse record. It checks a newly admitted gait, refusal just outside its speed and the original gait set.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.6 second cycle and 0.3 and 0.24 second support times give duty factors 1/2 and 2/5. A lateral pace places the paired left and right contacts half a cycle apart. The horse midpoint is the average of the two cited walk rows.
  */
 export function test_archetype_animal_gait_data(): void {
   const findings: string[] = [];

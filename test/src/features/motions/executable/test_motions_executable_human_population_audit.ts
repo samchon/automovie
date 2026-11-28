@@ -27,25 +27,13 @@ import { nclose } from "../../internal/nclose";
 const RAMANUJAN: number = (Math.PI * 15 * (1 / 9) ** 3) / 256;
 
 /**
- * The capture population's audit of a person's inputs: each surveyed range and
- * population relation once per side of a paired input, each relation's band its
- * sex's ANSUR 1988 mean plus and minus three deviations; the anchors carrying
- * unsurveyed courses; and the perimeters it reads.
+ * Exercise the stock population's measurement audit, bilateral input coverage and the unsurveyed thumb anchor. Compare the reference woman's waist-to-hip row with the survey band, count the rows with and without extremities, and check the ellipse approximation used for perimeters.
  *
- * The reference woman `f1` gives both hands, feet and ears; her natural waist
- * is 673.627 mm and her hip 991.406 mm; women's waist over hip is 0.7503 (SD
- * 0.0431).
+ * The waist-to-hip band uses the ANSUR 1988 women's mean of 0.7503 and standard deviation of 0.0431. The upper endpoint passes and a value 0.001 past it fails. The ellipse with 10 mm and 5 mm semi-axes checks the circumference independently of the approximation.
  *
- * Scenarios:
- *
- * 1. Her waist-over-hip row reads her own ratio against the women's band, and the
- *    row passes on its bound and fails just outside it.
- * 2. Two hands, two feet and two ears give 34 range rows and 32 relation rows;
- *    without extremities 24 and 20 remain.
- * 3. The thumb rides the hand length by the reference women's mean thumb over hand
- *    length.
- * 4. The 10 by 5 mm ellipse's perimeter is `40 E(sqrt(3) / 2)` = 48.4422411 mm
- *    within Ramanujan's truncation error.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the ratio and its adjacent boundary, the presence and absence of paired inputs, the thumb reference and the perimeter approximation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the stock audit on the reference woman's published Human input and a clone with extremities removed. Reads the reported row and range/relation counts, calls the audit's pass predicate at and past the upper bound, then reads the thumb anchor and ellipse perimeter at their owners.
+ * @evidence contracts/development/testing.md#independent-expectations Divide the reference waist by hip and use the survey mean plus and minus three deviations for the row endpoints. The enabled input families specify 34 range and 32 relation rows with extremities, and 24 and 20 without them. The two reference women's own thumb-to-hand ratios independently give the anchor mean. The complete elliptic integral gives 48.4422411 mm, with a tolerance based on Ramanujan's truncation bound.
  */
 export function test_motions_executable_human_population_audit(): void {
   // 1. A relation row.

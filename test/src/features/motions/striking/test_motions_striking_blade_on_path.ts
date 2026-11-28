@@ -41,6 +41,10 @@ const path = (
  * 2. Advancing, with the shoulder at (0, 1.5, 0.3) and the borne one running from
  *    (0, 1.5, 0) to (0, 1.5, 0.4), at 0.25 progress the borne shoulder is at
  *    (0, 1.5, 0.2), so the hand moves 0.1 m along +Z to (0.25, 0, 0.1).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes a held virtual hand path after its stop and how follow-through and shoulder displacement compose.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a virtual tool path with a stopped phase and fixed follow, then reads a prepared path under shoulder advance.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.5 path stop holds (0.5, 0, 0). At progress 0.25 the actual-minus-borne shoulder adds exactly 0.1 m in z.
  */
 export function test_motions_striking_blade_on_path(): void {
   const shoulderOf = (): IAutoMovieVector3 => ({ x: 0, y: 1.5, z: 0.3 });

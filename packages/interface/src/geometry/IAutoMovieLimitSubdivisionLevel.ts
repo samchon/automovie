@@ -2,10 +2,9 @@
  * Limit positions and face-varying normal indices for an admitted subdivision
  * level.
  *
- * Positions retain local metres; normal triples are unitless and cornerNormals
- * indexes the normal population rather than vertices. The caller supplies
- * admitted or refined topology; semi-sharpness is exhausted before limit masks,
- * and undefined or nonfinite limit normals refuse.
+ * Positions retain local metres and corner normals index unit triples. Supply
+ * an admitted or refined level. Each ring spends remaining semi-sharpness
+ * before evaluation. Undefined or nonfinite normals cause evaluation to fail.
  */
 export namespace IAutoMovieLimitSubdivisionLevel {
   /**
@@ -25,9 +24,8 @@ export namespace IAutoMovieLimitSubdivisionLevel {
    * Normals are numbered vertex by vertex, sector by sector in fan order, and
    * each corner names the normal of the sector its face belongs to.
    *
-   * All three arrays are newly allocated. The caller supplies a level from cage
-   * admission or maintained refinement; no independent connectivity gate runs
-   * here, and numerical normal refusal propagates.
+   * All three arrays are newly allocated. Topology comes from the supplied
+   * level. Normal failures propagate from local ring evaluation.
    */
   export type IResult = {
     /**

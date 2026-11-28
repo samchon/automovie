@@ -19,9 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public placement frame factory with a made chain and reads descendant frames; ignoring the invocation chain or applying its rotation twice fails.
  * @evidence contracts/development/testing.md#independent-expectations The expected translations follow a right-angle rotation of [3,0,0] to [0,3,0], added to the stated parent and root offsets; no generated figure supplies expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Compares reference rotations with an explicit identity pose on the same chain and observes a grandchild, so moving a parent alone cannot pass.
- * @evidence contracts/development/testing.md#execution-ownership Pure unit discovered as test_human_f1_chain_input; it builds three made joint records, no person, surface, reference or realization.
- * @evidence contracts/development/common.md#meaningful-documentation States invocation ownership and the two numbered geometric scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation A three-joint chain checks invocation ownership by applying the supplied root and parent pose to one grandchild frame exactly once.
  */
 export function test_human_f1_chain_input(): void {
   const chain: IAutoMovieHumanSegmentJoint[] = [

@@ -20,9 +20,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the stored cutter through the public `AutoMovieHumanF1.CUTTERS` and places each knot's front extreme on its own course and chart, so a section fitted to the floor fails.
  * @evidence contracts/development/testing.md#independent-expectations The limit is the reference nostril's front at its closed levels (a recorded level scan) plus the cutter's stated hull error; the plane's heights follow from the course's direction alone.
- * @evidence contracts/development/testing.md#distinguishing-cases The made defect restores the floor-fitted mouth (front extreme 8.24 mm) and must be reported, while the stored canal sections at 11 and 13 mm stand within 0.1 mm of the loop's front.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit over one stored family and its two course points, reached by `--include human_f1_nostril_mouth`; it builds no person, surface or reference.
- * @evidence contracts/development/common.md#meaningful-documentation States the anatomical observation, the tolerance's source and both scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation The stored cutter and a modified mouth are tested against the same recorded nostril limit. The modified knot must specifically be detected at 9 mm.
  */
 export function test_human_f1_nostril_mouth(): void {
   const stored: IAutoMovieHumanConicLoft.IFamily | undefined = AutoMovieHumanF1.CUTTERS.map(

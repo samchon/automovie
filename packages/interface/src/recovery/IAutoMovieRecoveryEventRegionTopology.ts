@@ -4,14 +4,15 @@ import type { IAutoMovieRecoveryEventRegionSource } from "./IAutoMovieRecoveryEv
 import type { IAutoMovieRecoverySourceHalfedge } from "./IAutoMovieRecoverySourceHalfedge";
 
 /**
- * Observe component incidence, orientation parity, links and boundary cycles in
- * one query.
+ * Callable connected-source topology and directed boundary annotation for a
+ * clipped query.
  */
 
 export namespace IAutoMovieRecoveryEventRegionTopology {
   /**
-   * Observe component incidence, orientation parity, links and boundary cycles
-   * in one query.
+   * Join dimension-two clipped cells through source-relative edge incidence.
+   * Assign components, orientation and qualified boundary cycles. Return
+   * indexed edge and vertex facts for subsequent port attachment.
    */
 
   export type Operation = (
@@ -19,31 +20,19 @@ export namespace IAutoMovieRecoveryEventRegionTopology {
     prepared: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation>,
     work: ReturnType<IAutoMovieRecoveryEventRegionCells.Operation>,
   ) => {
-    /**
-     * Undirected edge-incidence registry with the actual incident faces or
-     * master-control bindings.
-     */
+    /** Declared edge incidence keys and their directed source occurrences. */
     edges: Map<string, IAutoMovieRecoverySourceHalfedge[]>;
 
-    /**
-     * Cell ordinal to its directed halfedge occurrences; occurrences retain
-     * source-face ownership.
-     */
+    /** Directed occurrence population indexed by owning clipped cell ID. */
     cellOccurrences: Map<number, IAutoMovieRecoverySourceHalfedge[]>;
 
-    /**
-     * Declared vertex incidence to the set of incident two-cell component
-     * ordinals.
-     */
+    /** Dimension-two components touching each selected node identity. */
     vertexComponents: Map<string, Set<number>>;
 
-    /** Declared vertex incidence to the set of incident cell ordinals. */
+    /** Clipped reference cells touching each selected node identity. */
     vertexCells: Map<string, Set<number>>;
 
-    /**
-     * Selects raw source addresses or caller-declared canonical connectivity;
-     * equal coordinates alone do not select an equivalence.
-     */
+    /** Translate a raw clipping node ID to its prepared incidence key. */
     incidence: (raw: string) => string;
   };
 }

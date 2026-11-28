@@ -19,6 +19,10 @@ const EXACT_DYADIC_TOLERANCE: number = 0;
  *    v/16 − 9/16. Both matrices are exact.
  * 2. A principal offset of 2⁶⁰ elides a one-pixel difference and refuses. A zero
  *    focal length cannot be inverted and also refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the skewed calibration, exact inverse and unrepresentable pixel steps.
+ * @evidence contracts/development/testing.md#behavioral-verification Constructs a calibrated chart and submits an invalid focal length and an unresolvable principal offset.
+ * @evidence contracts/development/testing.md#independent-expectations Solving v=8y−1 then u=4x+2y+2 gives the independently checked inverse coefficients.
  */
 export function test_recovery_internal_create_camera_chart(): void {
   const view: IAutoMovieRecoveryCameraView = {

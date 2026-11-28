@@ -31,6 +31,10 @@ import { TestValidator } from "@nestia/e2e";
  *    10–25, idle 15 s, its zero-length cuts adding nothing.
  * 3. The moving union 10–25 is half the runtime; two cuts are 4 per minute.
  * 4. An empty schedule of no duration measures zero throughout.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rates, the default combination gap, subject presence and idle time, camera span union and zero-duration results.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Schedule.measure with an in-memory classified schedule and an empty schedule, then compares the returned totals and per-subject records.
+ * @evidence contracts/development/testing.md#independent-expectations Three actions and two cuts over 30 s give rates 6 and 4 per minute. One of three actions combines. The overlapping camera spans have union length 15 s, and subject b is idle for 10 minus 4 s with lateral distance one quarter of its total.
  */
 export function test_engine_composition_measure_schedule(): void {
   let index: number = 0;

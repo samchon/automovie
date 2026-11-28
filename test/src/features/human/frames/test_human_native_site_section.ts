@@ -33,9 +33,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production site section on made field vectors and measures the solved section through the production tape.
  * @evidence contracts/development/testing.md#independent-expectations Every moved coordinate is hand arithmetic on the made sections stated above; the girth's expectation is the asked tape; the untouched fields are compared with the given literals.
- * @evidence contracts/development/testing.md#distinguishing-cases The identity, a girth alone, tissue with bone, a breadth alone and a one-sided depth on two layouts, with what must move and what must stay in each, and three refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic on made field vectors; no family, person, native assembly or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made sections and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation The cases separate unchanged section ownership, girth-only edits, tissue scaling over bone, directional width and depth and incompatible reflected inputs.
  */
 export function test_human_native_site_section(): void {
   const failures: string[] = [];

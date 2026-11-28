@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A preview of 640 by 360 is 8-bit straight-alpha sRGB RGBA, square,
  *    upright and not interlaced.
  * 2. A preview without a size and a guide frame of zero width are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Resolves the required 8-bit straight-alpha preview profile and refuses missing or nonpositive dimensions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls PNG profile resolution on a 640 × 360 preview, a missing preview size and a zero-width guide.
+ * @evidence contracts/development/testing.md#independent-expectations The complete expected raster profile pins channels, orientation, color and interlace fields, and the two invalid dimensions identify refusal.
  */
 export function test_render_delivery_resolve_production_png_profile(): void {
   TestValidator.equals(

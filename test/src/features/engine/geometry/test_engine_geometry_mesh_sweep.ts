@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/predicates";
  * 2. The bent sweep rebuilds to the same numbers.
  * 3. A one-point path ("needs at least two points") and two coincident points
  *    ("points 0 and 1 coincide") are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a bent and a vertical sweep, deterministic mesh and invalid paths.
+ * @evidence contracts/development/testing.md#behavioral-verification Sweeps procedural square sections along actual paths, inspecting volume and comparing the repeated result and short or coincident refusals.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 by 2 square on a straight 2 m path encloses a prism of volume 8. A one-point or zero-length path has no valid sweep segment.
  */
 export function test_engine_geometry_mesh_sweep(): void {
   const sweep = (

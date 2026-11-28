@@ -16,6 +16,10 @@ import { nclose } from "../../internal/predicates";
 /**
  * Observe a placed native scene and separately declared contact and continuity
  * evidence at exact film seconds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The case describes the native scene observation and separately supplied checks at named film time and shot time.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that native and authored facts keep their own coverage, that support receipts and grip distances stay measurable, and that a future contact receipt is excluded from earlier observation.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the placed sole, support and lantern transforms to expect a 0.125 m support gap and a 0.25 m grip distance, and checks explicit impulse and continuity endpoints.
  */
 export function test_render_scene_observe_placed_scene(): void {
   const scene = new Scene();

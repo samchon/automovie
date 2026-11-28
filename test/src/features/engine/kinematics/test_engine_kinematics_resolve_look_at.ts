@@ -56,6 +56,10 @@ const DEGREE: number = Math.PI / 180;
  *    joint.
  * 7. The default range of motion admits a horizontal gaze on the eyes' twist and
  *    refuses an eye roll on their abduction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers per-eye horizontal and vertical gaze, intensity, overrides, expression ownership, bypass and default ROM.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveLookAt on a synthetic eye rig and tests the resulting clinical joints and resolved directions. It also checks expression preservation and the validator's gaze/roll decisions.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's asymmetric bounds and authored intensities fix the independent eye angles. Cardinal axes establish movement signs. A channel override replaces its own weight only, while a bypass returns the original sample.
  */
 export function test_engine_kinematics_resolve_look_at(): void {
   // 1. look left: left eye outward 30, right eye inward 20, both to +X

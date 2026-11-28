@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/throwsError";
  *    0.4 s, runs 2.8 s, cued `hippodrome:0` at 0.8 s and `seat:1` at 2.4 s; at
  *    0.4 s the stand is half transferred, at 2 s the seat has begun.
  * 2. A ride not ending in the seat is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines transfer-hold sequencing, normalized transfer state and a final seated requirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Schedules two mounted figures from authored durations, reads intermediate transfer shares and tries an ending that remains stood.
+ * @evidence contracts/development/testing.md#independent-expectations Time sums yield 2.8 s total and figure arrivals at 0.8 and 2.4 s. Half of the first transfer is at 0.4 s and a non-seated ending refuses.
  */
 export function test_motions_lexicon_trick(): void {
   const stand: IAutoMovieMotionHumanTrick.IFigure = {

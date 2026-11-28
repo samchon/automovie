@@ -34,6 +34,10 @@ import { nclose } from "../../internal/predicates";
  *    authored source gap keeps both its adjacent events in their own plays.
  * 9. A numeric sum that rounds past the next trim's 0.3-second source start
  *    partitions at 0.3 when the incoming play is retimed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name symbolic event bounds, duplicate or missing identities, improper spans, conflicting trim forms and boundary cases on original and retimed clocks.
+ * @evidence contracts/development/testing.md#behavioral-verification The test cuts the supplied shots using symbolic and numeric trims, then projects realized event times through the returned cut. It checks findings by bound path and compares immediately adjacent source events through rate changes and handoff cuts.
+ * @evidence contracts/development/testing.md#independent-expectations Authored source timestamps determine the boundary and rate determines output duration, so the shared anchor belongs once to the incoming play. An adjacent representable event outside an exact trim remains outside. A deliberate source gap owns each of its bounding events separately.
  */
 export function test_engine_film_cut_sequence_event_trim(): void {
   const start: IAutoMovieInteractionEvent = {

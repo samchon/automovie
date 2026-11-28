@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/throwsError";
  * 4. The zero matrix has values (0, 0), rank 0 and no sweep.
  * 5. Ragged rows, a zero sweep budget, too few entries, and a single sweep for a
  *    matrix that needs a rotation, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers sorted factors, sign ties, reconstruction, numerical rank and malformed or exhausted work budgets.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls decomposeSingularMatrix on diagonal, tall, repeated-row and zero matrices. Direct calls also exercise malformed rows and entry or sweep limits.
+ * @evidence contracts/development/testing.md#independent-expectations The tall fixture has Gram eigenvalues three and one with explicit orthogonal directions. Multiplying the returned factors must rebuild the inputs within 1e-12. The diagonal, dependent and zero matrices have independently known ranks.
  */
 export function test_engine_math_singular_matrix(): void {
   const budget: IAutoMovieSingularMatrixBudget = {

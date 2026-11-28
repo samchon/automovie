@@ -33,6 +33,10 @@ const ROUNDING: number = 1e-12;
  * 4. A warp of (0.3, 0, −0.2) and 30 degrees over 0.5 to 1.5 s: at its end the
  *    root is at (1.3, 0, 1.8) turned 30 degrees, before it unchanged, after it
  *    held, still at both ends; an empty window is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the windowed noise spectrum, deferred deterministic stream reads, seed replay, parameter refusals, and the held root warp.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the noise evaluator with an indexed recording stream, then four seeded streams, and samples the public root warp at and near its boundaries. It checks zero width and invalid spectrum inputs separately.
+ * @evidence contracts/development/testing.md#independent-expectations Draw i/8 fixes the four analytic phase and frequency pairs, and the quartic window gives literal expectations at 1/4 and 3/4. The warp adds (0.3, 0, -0.2) to (1, 0, 2) and turns the root 30 degrees. Its minimum-jerk endpoints bound movement near the interval ends.
  */
 export function test_engine_motion_seeded_warp(): void {
   // 1. The spectrum.

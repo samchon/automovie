@@ -23,6 +23,10 @@ const ROUNDING: number = 1e-9;
  * 2. The centre distance in the YZ section minus the two radii is the inner
  *    diagonal. Increasing the requested diagonal increases only separation in
  *    Z. Each grip stays on its physical centre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States rail endpoints, top heights, centre separation and grip positions for two authored diagonals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both public rail fixtures and measures their actual collider axes, clear diagonal and named grip frames. Increasing diagonal spacing must change Z separation while preserving authored heights.
+ * @evidence contracts/development/testing.md#independent-expectations The centre distance in the YZ section minus both radii gives inner clearance. Each top is one radius above its centre and each grip aperture equals the rail diameter.
  */
 export function test_archetypes_gym_uneven_bars_axes(): void {
   const lowHeight: number = 1.74;

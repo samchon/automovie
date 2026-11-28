@@ -38,6 +38,10 @@ const SPEC: IAutoMovieRenderSpec = {
  * 4. An odd raster, 1281 wide, is refused, and so is a blank soundtrack path.
  * 5. NTSC and decimal 29.97 fps keep different exact clocks in both FFmpeg rate
  *    arguments, and both timescales are the exact rate's numerator.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Plans exact FFmpeg video arguments with optional soundtrack and rejects invalid clocks, rasters and paths.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls encoding planning with silent and audio requests, exact decimal and NTSC rates, and separate invalid inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Full literal vectors fix frame and audio mapping, output duration and color tags. Distinct rational numerators determine track timescales independently.
  */
 export function test_render_delivery_plan_video_encoding(): void {
   const base: string[] = [

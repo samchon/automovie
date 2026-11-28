@@ -14,6 +14,10 @@ import * as THREE from "three";
  * 2. A legacy void producer can expose a fresh matching or untimed record.
  * 3. Explicit completion is not duplicated; mismatched clocks and original refusal
  *    reject.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Accepts fresh matching completion from original redraw and refuses stale records and wrong clocks.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls redraw with retained and new timed or untimed records, explicit completion, mismatched time, and a throwing producer.
+ * @evidence contracts/development/testing.md#independent-expectations The known requested and completed seconds and event counts distinguish independent fresh work from retained pixels. One explicit completion must not produce a duplicate event.
  */
 export function test_viewer_root_redraw_completed_frame(): void {
   const scene: THREE.Scene = new THREE.Scene();

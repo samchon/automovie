@@ -6,39 +6,48 @@ import type {
   IAutoMovieRecoveryTensorReport,
 } from "..";
 
-/** Combined source-free contour, tensor and analytic reconstruction output. */
+/**
+ * Source-independent generated model, construction and reports from saved
+ * contour, tensor and analytic coefficients.
+ */
 
 export interface IAutoMovieRecoveryReconstruction {
-  /** Generated model containing each retained operator's parts. */
+  /**
+   * Generated model with parts retained by the contour, tensor and analytic
+   * owners.
+   */
   model: IAutoMovieModel;
 
-  /** Actual generated construction in model metres; tensor phases are optional. */
+  /** Actual generated construction coordinates in model metres. */
   construction: IAutoMovieRecoveryTensorConstruction[];
 
-  /** Combined saved observation and engine diagnostics. */
+  /** Ordered saved-observation and generation diagnostics. */
   diagnostics: string[];
 
-  /** Actual undelegated contour incidence that remains unresolved. */
+  /** Contour incidences that remain unresolved after selecting delegated owners. */
   unresolved: IAutoMovieContourLoft64.IResult["unresolved"];
 
-  /** Numerical and topology observations on generated contour strips. */
+  /** Numerical and topology diagnostics for the realized contour strips. */
   stripObservations: NonNullable<
     IAutoMovieContourLoft64.IResult["stripObservations"]
   >;
 
-  /** Retained contour triangles and generating interval/group addresses. */
+  /**
+   * Retained generated contour primitive ranges associated with their source
+   * interval and group.
+   */
   primitiveRanges: NonNullable<
     IAutoMovieContourLoft64.IResult["primitiveRanges"]
   >;
 
-  /** Observed interactions among retained contour strips. */
+  /** Observed interactions between realized contour strips. */
   interactionObservations: NonNullable<
     IAutoMovieContourLoft64.IResult["interactionObservations"]
   >;
 
-  /** Actual tensor-family ownership and numerical results. */
+  /** Per-family tensor fit, ownership and realization reports. */
   tensorReports: IAutoMovieRecoveryTensorReport[];
 
-  /** Actual analytic ownership, observation and numerical results. */
+  /** Per-domain analytic ownership, qualification and numerical reports. */
   analyticReports: IAutoMovieRecoveryAnalyticReport[];
 }

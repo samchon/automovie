@@ -61,6 +61,10 @@ interface ICase {
  *    size; the range contains the stated extrema, and for a constant derivative
  *    its width is at most 65536 epsilon of its size; bounding leaves the
  *    prepared curve unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the constant, positive, negative and mixed derivative enclosures, encoded width and input ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the Hermite derivative-range owner on scalar source spans and checks actual bounds, sampled derivatives and source preservation.
+ * @evidence contracts/development/testing.md#independent-expectations Differentiating the closed polynomials gives extrema and sample values. The equal-height quintic has derivative −7/8 at its midpoint, distinguishing mixed speed from positive endpoint derivatives alone.
  */
 export function test_engine_geometry_hermite_derivative_range(): void {
   const epsilon: number = 65536 * Number.EPSILON;

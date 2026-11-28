@@ -27,6 +27,10 @@ import { vclose } from "../../internal/vclose";
 /**
  * The free foot inherits the actual contact pose at either swing boundary. In
  * the middle of flight, its original goal and toes stay unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Swing boundaries inherit the achieved stance foot, while unconstrained flight retains its incoming goal and toes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls swing seam preparation with an out-of-axis leg goal at both endpoints and the middle share.
+ * @evidence contracts/development/testing.md#independent-expectations Forward kinematics supplies an independently adjusted ankle and knee for the boundaries. At the middle, the original point, bend, rotation and toes must retain their identity.
  */
 export function test_motions_actions_walk_swing_seams(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");

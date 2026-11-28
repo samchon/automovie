@@ -16,6 +16,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    the largest render order.
  * 2. Without `xray` both materials test and write depth, are opaque, and their
  *    objects keep render order zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names depth testing, depth writes, transparency and draw order for line and dot marks.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs inspection on the same two mark shapes with each setting and reads the actual generated object and material flags before restoration.
+ * @evidence contracts/development/testing.md#independent-expectations The x-ray pair should use false depth-test and depth-write flags, true transparency and the maximum render order. The ordinary pair should reverse those flags and use order zero.
  */
 export function test_render_scene_apply_inspection_mark_xray(): void {
   const read = (xray: boolean): (boolean | number)[][] => {

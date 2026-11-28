@@ -13,16 +13,17 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `composeHumanSlowDanceSway` stages a slow dance's sway as weight shifts: over
- * the left foot and back, then the right and back, `count` times, each shift
- * `by` metres taking half a beat out and half back; a count below one is
- * refused.
+ * Check how a sway request expands into alternating weight shifts.
  *
- * Scenarios, on a chain for subject `a`:
+ * Scenarios:
  *
- * 1. Two sways of 0.04 m to a 1 s beat append four shifts, by 0.04, -0.04, 0.04
- *    and -0.04, each 0.5 s out and 0.5 s back.
- * 2. A count of 0 is refused on `count`.
+ * 1. Two counts of 0.04 m on a one-second beat append four alternating signed
+ *    shifts. Each shift has a half-second outward and return interval.
+ * 2. Refuse a count of zero on `count` .
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify count, displacement, tempo and the invalid count.
+ * @evidence contracts/development/testing.md#behavioral-verification The chain's actual appended intents are compared in order and its count gate is exercised.
+ * @evidence contracts/development/testing.md#independent-expectations Two sides per count and two half beats per shift determine the sequence and timing.
  */
 export function test_motions_touch_compose_human_slow_dance_sway(): void {
   const intents = (node: IAutoMovieComposition): IAutoMovieIntent[] => {

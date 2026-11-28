@@ -7,14 +7,19 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The `perturb` law's recovery step (`perturb.stepTime`): a push within 45
- * degrees of the heading is caught by a forward step, within 45 degrees of
- * behind by a backward step, and otherwise by a side step, each at `stagger`'s
- * step time (0.238, 0.193 and 0.1755 s).
+ * Check which recovery step duration a push selects relative to the body
+ * heading.
  *
- * Scenario: heading +Z, pushes along +Z, -Z and +X take the forward, backward
- * and side steps; heading 90, a push along +X is a forward one; no push steps
- * forward.
+ * Scenarios:
+ *
+ * 1. At heading zero, pushes along +Z, -Z and +X select forward, backward and
+ *    sideways step times respectively.
+ * 2. At heading 90 degrees, +X selects the forward clock. A zero push selects
+ *    it at heading zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the push directions and the heading used to classify them.
+ * @evidence contracts/development/testing.md#behavioral-verification The test exercises forward, backward, sideways and zero-push choices, including a turned root.
+ * @evidence contracts/development/testing.md#independent-expectations World-axis alignment gives each expected direction independently, and the public step-time table supplies the corresponding durations.
  */
 export function test_motions_reaction_perturb(): void {
   TestValidator.equals(

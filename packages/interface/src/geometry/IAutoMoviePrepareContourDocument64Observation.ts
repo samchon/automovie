@@ -1,15 +1,13 @@
 import type { IAutoMovieCubicBezierCurve64 } from "./IAutoMovieCubicBezierCurve64";
 
 /**
- * Borrowed cubic generating boundary and its declared signed winding at one
- * saved physical section. Preparation preserves the curve reference and
- * winding; later curve sampling owns geometric admission.
+ * One borrowed cubic boundary and its authored winding at a saved section.
+ * Sampling owns geometric qualification after document preparation.
  */
 export interface IAutoMoviePrepareContourDocument64Observation {
   /**
-   * Original cubic boundary in the curve contract's millimetre frame; preserve
-   * it throughout this loft invocation because preparation does not clone
-   * coefficient storage.
+   * Original cubic boundary in millimetres. Keep its coefficient storage stable
+   * through sampling.
    */
   curve: IAutoMovieCubicBezierCurve64;
   /**

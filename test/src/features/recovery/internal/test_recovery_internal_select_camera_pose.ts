@@ -13,6 +13,10 @@ import { recoveryStereoChart as chart } from "./recoveryStereoChart";
  * 2. An observation at infinity cannot separate the four branches by score. Its
  *    summary has no positive-point parallax and no unique winner.
  * 3. Absent pairing refuses before calibration or triangulation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes cheirality, unresolved ties and finite parallax qualification.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs a calibrated front point, an infinite observation and a mismatched pair.
+ * @evidence contracts/development/testing.md#independent-expectations The stereo fixture prescribes the finite physical branch. Parallel rays lack a front-point parallax and cannot break the tie.
  */
 export function test_recovery_internal_select_camera_pose(): void {
   const select = (

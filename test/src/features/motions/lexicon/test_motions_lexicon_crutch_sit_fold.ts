@@ -23,6 +23,10 @@ const ROUNDING: number = 32 * Number.EPSILON * 2;
  * 2. At the midpoint of the correction band the integrated quintic supplies 5/32
  *    of the disc radius. Outside the band the original frame is returned.
  * 3. A wrist directly underneath the shoulder uses the authored outward side.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines planar crutch translation at an inner wrist shell, blend-band limits and fallback direction at zero horizontal reach.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies the fold correction at a fixed wrist offset, samples the transition band and supplies the zero-span projection.
+ * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives √(16² − 8²) cm horizontal reach. The midpoint correction uses 5/32 of the disc radius and every prop point shares the shift.
  */
 export function test_motions_lexicon_crutch_sit_fold(): void {
   const frame: IAutoMovieRigidTransform = {

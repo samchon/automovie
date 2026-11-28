@@ -20,6 +20,10 @@ import { TestValidator } from "@nestia/e2e";
  *    forward and reverse seeks, keeping the opening height and radius.
  * 3. The framer reads the unmeasured subjects' fallback rigs during opening fit
  *    and never requests either rig from its changing-time function.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the initial union fit, later center sampling, paired transform authority and the fallback rig read count.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the group framer on prepared subjects and samples its opening and live positions in both orders. A counted reader observes whether fallback rigs are fetched during live reads.
+ * @evidence contracts/development/testing.md#independent-expectations Two subjects six metres apart have half-span three and authored stand-in height 1.7. Translation alone cannot supply the baked frame before its paired rotation starts. The opening dimensions stay fixed while the current union center follows the later authored positions.
  */
 export function test_engine_film_subject_framer_group(): void {
   const moving: IAutoMovieClip = {

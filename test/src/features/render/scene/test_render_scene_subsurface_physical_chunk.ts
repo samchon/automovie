@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The target text is replaced by the lookup with one table read per RGB
  *    channel, and the text around it is kept.
  * 2. An empty chunk and one without the target are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the physical diffuse anchor, one lookup per RGB channel, and incompatible source chunks.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that replacing the diffuse expression emits the expected table reads, keeps surrounding text, and refuses a missing anchor.
+ * @evidence contracts/development/testing.md#independent-expectations Uses explicit surrounding source fragments and channel-specific lookup snippets, together with empty and unrelated shader controls.
  */
 export function test_render_scene_subsurface_physical_chunk(): void {
   const before: string = "reflectedLight.directSpecular += specular;\n";

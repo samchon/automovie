@@ -29,6 +29,10 @@ import { throwsError } from "../../internal/throwsError";
  *    unframed owner's plane is the horizontal plane at its station; an owner
  *    without jets is refused.
  * 4. `flat` and `unflat` are inverse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names natural spline derivatives, protected layers, signed frame copying and flattened values.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes the station derivatives, reapplies them to authored layers and tests the reverse direction, absent jets and data conversion.
+ * @evidence contracts/development/testing.md#independent-expectations The four stated knots give natural end curvatures zero and interior values ±3.75. Reversing coordinate direction changes first-derivative sign and preserves second derivatives.
  */
 export function test_engine_geometry_seam_station(): void {
   const t: number[] = [0, 1, 3, 4];

@@ -17,6 +17,10 @@ import { vclose } from "../../internal/vclose";
  * 2. Elevation 90° points up.
  * 3. Azimuth 0, elevation 45°: (0, √½, −√½).
  * 4. North along up refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines azimuth and elevation in an explicit north-up basis, including invalid parallel axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes east, zenith and raised north with known vectors and tries coincident north and up.
+ * @evidence contracts/development/testing.md#independent-expectations Crossing −Z north with +Y up yields +X east. A 45° elevated north splits unit magnitude equally between +Y and −Z.
  */
 export function test_engine_analysis_sun_direction(): void {
   const context: IAutoMovieSunDirection.IProps["context"] = {

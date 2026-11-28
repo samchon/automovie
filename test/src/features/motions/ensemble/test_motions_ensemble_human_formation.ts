@@ -214,14 +214,21 @@ namespace part_human_formation_slot {
 }
 
 /**
- * `HumanFormation`'s unit contract: its path and slots.
+ * Check formation route timing and its rigid slot lattice.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `human_formation_path`: `HumanFormationPath.lay` lays a path frame out on the
- *   film clock:
- * - `human_formation_slot`: `HumanFormation.prepare(...).slot` places a line's
- *   members on its lattice:
+ * 1. On a route of two 4 m legs, the 1 m/s cruise reaches the corner at 4.5 s
+ *    and 45 degrees and stops at 9 s facing +X. Compare fixed heading and
+ *    timed speed marks.
+ * 2. Reject a single corner, missing speed and a terminal mark that cannot
+ *    stop on the remaining path.
+ * 3. Place two ranks of two files at their lattice points. Check the dressing
+ *    bound and preserve pair distances after translation and rotation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify speed, heading, route admission, lattice spacing and dressing.
+ * @evidence contracts/development/testing.md#behavioral-verification The route and slot readers are each exercised at typed boundary times and frames.
+ * @evidence contracts/development/testing.md#independent-expectations Piecewise speed area determines timing, and prescribed file and rank spacing determines the original lattice. Rigid motion preserves its distances.
  */
 export async function test_motions_ensemble_human_formation(): Promise<void> {
   part_human_formation_path.verify();

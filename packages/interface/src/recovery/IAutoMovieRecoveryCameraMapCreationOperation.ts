@@ -7,20 +7,17 @@ import type {
 } from "..";
 
 /**
- * Build one conditional three-camera map from automatic shared observations.
- * Only qualified seed pairs create 3D points. Third-image observations cannot
- * influence those points before resection, preventing circular registration.
- * Joint fitting subsequently uses only seed observations and resection
- * inliers.
+ * Callable contract for fitting a conditional three-camera map from already
+ * observed ordered features and admitted camera charts.
  */
 
 export namespace IAutoMovieRecoveryCameraMapCreationOperation {
   /**
-   * Build one conditional three-camera map from automatic shared observations.
-   * Only qualified seed pairs create 3D points. Third-image observations cannot
-   * influence those points before resection, preventing circular registration.
-   * Joint fitting subsequently uses only seed observations and resection
-   * inliers.
+   * Build seed evidence from views zero and one using their direct matches,
+   * link features across the observed pairs, and triangulate only
+   * seed-supported landmarks. Resection uses those points and eligible
+   * third-view matches. The candidate reports triad, seed-only, or refused
+   * qualification after the bounded fitting stages.
    */
 
   export type Operation = (

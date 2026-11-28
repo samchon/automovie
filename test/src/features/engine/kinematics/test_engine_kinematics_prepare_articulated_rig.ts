@@ -27,6 +27,10 @@ type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
  * 3. Explicit degree boxes include endpoints and reject an overshoot or an
  *    immobile-axis turn. Malformed trees, scales, rotations, axes and intervals
  *    refuse without a substitute pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers unordered named forward kinematics, prepared ownership, live joint values and axis, graph or range admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a code-authored three-link rig and resolves it under explicit root and joint changes. The same owner receives malformed definitions and out-of-range queries.
+ * @evidence contracts/development/testing.md#independent-expectations The neutral links lie along +X. A base quarter turn maps both offsets to +Y, while a link turn changes only its descendant. Exact range endpoints and graph structure distinguish valid poses from admission refusals.
  */
 export function test_engine_kinematics_prepare_articulated_rig(): void {
   const findings: string[] = [];

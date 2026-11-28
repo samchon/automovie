@@ -3,38 +3,47 @@ import type { IAutoMovieConstructionProfileLoop } from "./IAutoMovieConstruction
 import type { IAutoMovieConstructionProfileRegion } from "./IAutoMovieConstructionProfileRegion";
 
 /**
- * An original section family assembled from oriented curve pieces in one
- * physical plane.
- *
- * This declaration references actual functions in an invocation-owned engine
- * source. Loops are closed contours; their pieces can be open intervals and may
- * be nonconvex. Hole orientation and branch identities remain explicit. The
- * record alone certifies neither simple loops nor regularity, continuity or
- * successful skin generation.
+ * Original section family built from oriented curve intervals in one physical
+ * frame. Each loop names its own retained station interval and ordered source
+ * pieces. A realization matches this declaration to the actual curve and frame
+ * functions supplied for the current invocation.
  */
 export interface IAutoMovieConstructionProfile {
-  /** Stable generating-family identity, independent of logical anatomical names. */
+  /**
+   * Stable name of this generating family used to resolve its invocation source
+   * and identify its retained surfaces.
+   */
   name: string;
 
-  /** Actual retained physical station interval, metres, finite and increasing. */
+  /**
+   * Finite increasing physical station interval in metres. Each retained loop
+   * must lie inside it.
+   */
   domain: [number, number];
 
-  /** Common physical plane/frame owner key in the runtime source. */
+  /** Key of the common physical section frame in the invocation source. */
   plane: string;
 
   /**
-   * Closed components or holes, each valid on its own physical station
+   * Ordered original contours and holes, each with its own retained station
    * interval.
    */
   loops: IAutoMovieConstructionProfileLoop[];
 
-  /** Original guides at explicit curve clocks, never observed display polylines. */
+  /** Named original piece-clock addresses used to locate station-varying guides. */
   guides: IAutoMovieConstructionProfileGuide[];
 
-  /** Logical selections and material/binding addresses of actual source pieces. */
+  /**
+   * Logical selections, material and binding addresses on retained piece
+   * charts.
+   */
   regions: IAutoMovieConstructionProfileRegion[];
 
-  /** Actual dependency identities; an edit supplies a new source instance. */
+  /**
+   * Source-function, constraint and topology revision identities used to
+   * distinguish the original dependency set. Author a new identity when the
+   * corresponding dependency changes.
+   */
   revisions: {
     /** Identity of the original source-function revision. */
     source: string;

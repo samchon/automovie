@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *    second, playback rate 1.
  * 3. Cue "c" at 0 s for 1 s has ended.
  * 4. A cue of an unknown asset throws.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Schedules still-sounding and future cues under transport rate and refuses unknown assets.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls playback planning on two live or future cues, one ended cue and an unknown source, with transport beginning at second two at double speed.
+ * @evidence contracts/development/testing.md#independent-expectations Source offset, elapsed cue time and the two effective playback rates give the literal delay, start offset and durations. The ended cue cannot contribute a start.
  */
 export function test_viewer_audio_plan_playback(): void {
   TestValidator.equals(

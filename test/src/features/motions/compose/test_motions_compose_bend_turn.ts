@@ -33,6 +33,10 @@ const ROUNDING: number = 1e-12;
  *    (line × up), the foot kept.
  * 2. Turned 360 degrees, the hint is back; turned −30 then 30, it is back.
  * 3. A hint on the line is returned.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names quarter and full turns, inverse turns, radius preservation and a hint on the rotation line.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motionHumanBendTurn on radial and axial hints in the stored arm rig and compares the returned points and radius.
+ * @evidence contracts/development/testing.md#independent-expectations The positively directed +Z line rotates a +Y radius of 0.2 m to -X in 90 degrees. A full revolution and opposite turns restore the initial point, and an axial point is fixed.
  */
 export async function test_motions_compose_bend_turn(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

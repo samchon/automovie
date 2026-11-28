@@ -22,6 +22,10 @@ const TRAVEL: number = 0.375;
  *    m; an authored 0.125 m is kept.
  * 2. A rise of 0.375 m from 0.125 m would end at 0.5 m, past the travel, and a
  *    zero rise, and a slider already at the top, are refused on `rise`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines default rise from remaining wheel travel, authored positive rise and slider limit refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a wheel with fixed travel and present position, requests a default and explicit rise and tries out-of-range, zero and already full cases.
+ * @evidence contracts/development/testing.md#independent-expectations Travel 0.375 minus initial 0.125 gives 0.25 m remaining. A 0.375 m request would end at 0.5 and falls outside the allowed displacement.
  */
 export function test_motions_handling_throw_pottery(): void {
   TestValidator.equals(

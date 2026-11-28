@@ -18,14 +18,17 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON;
 
 /**
- * Read a scenic wall's horizontal plane from the displayed prop frame.
+ * Check a fixed scenic wall face from its prop frame.
  *
  * Scenarios:
  *
- * 1. A translated, quarter-turned wall yields a centre on the floor, world +X
- *    normal, world −Z length axis and half its named width.
- * 2. A named element with an empty width, a missing name or a moving element has
- *    no fixed face.
+ * 1. Translate and quarter-turn a five-metre wall. Read its floor-level
+ *    centre, +X normal, -Z length axis and 2.5 m half width.
+ * 2. Refuse a zero-width named element, missing name and moving element.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the named element, world frame and missing fixed-face conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification The face reader consumes typed element and prop callbacks at the staged start.
+ * @evidence contracts/development/testing.md#independent-expectations The given rotation maps both local axes independently, and halving the authored width gives the extent.
  */
 export function test_motions_cover_wall_face(): void {
   const frame: IAutoMovieRigidTransform = {

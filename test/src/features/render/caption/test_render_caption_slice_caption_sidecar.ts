@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A window past the end is clamped to the sidecar's frames.
  * 3. A negative start, an empty window and a start at or beyond the frame count
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Clips caption intervals to a frame window, renumbers retained frames and refuses invalid windows.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sidecar slicing over three fixed cue spans, a window past the end and three boundary refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Intersecting the authored spans with frames 2–6 yields local intervals 0–2 and 2–4. The known frame count fixes clamping at the end.
  */
 export function test_render_caption_slice_caption_sidecar(): void {
   const span = (

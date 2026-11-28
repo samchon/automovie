@@ -4,23 +4,14 @@ import type { QuadrupedChange } from "./quadruped/QuadrupedChange";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
- * The timing of a quadruped's gaits: how long a stride lasts and how much of it
- * each foot is on the ground at a speed, and when in the stride each foot
- * lands, read from its species' declared observed, derived or authored table
- * and scaled to the animal's height by dynamic similarity.
- *
- * A species' `ITable` gives its gaits in order of speed, each with declared
- * stride and stance durations by speed, whose owner states observed, derived or
- * authored provenance, the phase at which each foot lands, how it is changed
- * into from the gait below, and the ranges the ride poses with. Unless the
- * table declares absolute clocks, another height uses the table's stated
- * reference and provisional dynamic similarity (`scale`): read at the speed of
- * equal Froude number and multiplied by the square root of the height ratio. A
- * stride starts when the left fore foot lands; a leaded gait is given on the
- * left lead, and the right lead is its mirror image.
+ * Reads stride periods, stance fractions and touchdown phases from
+ * species tables.
  */
 export namespace AutoMovieArchetypeQuadrupedGait {
-  /** The gaits. */
+  /**
+   * Closed names for gait clocks, from walking to leaded, ambling and
+   * collected gaits. A species supplies only the clocks it supports.
+   */
   export type Gait =
     | "walk"
     | "trot"
@@ -36,18 +27,12 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     | "passage"
     | "piaffe";
 
-  /**
-   * The gaits that have a lead, whose right lead mirrors the left: the canter
-   * and the gallop; the walk and the trot are symmetric.
-   */
+  /** Gaits with separate mirrored leads, `canter` and `gallop`. */
   export const LEADED: readonly Gait[] = ["canter", "gallop"];
 
   /**
-   * How many times a stride the trunk sinks: twice in the symmetric walk, trot,
-   * pace, ambling stepping gaits (`AutoMovieArchetypeEquineGaitedProfile`),
-   * passage and piaffe, and once in the canter and gallop. The tölt uses the
-   * same two-cycle coarse carriage proxy as the walk. Species supply the
-   * oscillation range.
+   * Trunk oscillation cycles per stride. Canter and gallop use one cycle.
+   * Every other declared gait uses two.
    */
   export const BEATS: Readonly<Record<Gait, number>> = {
     walk: 2,
@@ -65,206 +50,185 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     piaffe: 2,
   };
 
-  /** The sides a leaded gait leads on. */
+  /** Left or right lead of a canter or gallop. */
   export type Lead = "left" | "right";
 
-  /** One stride's gait and lead. */
+  /** Names a gait and its lead for a query of one stride. */
   export interface IStride {
-    /** The gait. */
+    /** Gait to read from the species table. */
     gait: Gait;
 
-    /** The lead, read in a leaded gait. */
+    /** Side used to mirror phases for a canter or gallop. */
     lead: Lead;
   }
 
   /**
-   * One declared SI clock point: speed, period, timing spread and contact
-   * durations; its table owner identifies observed, derived or authored
-   * values.
+   * Clock measurements at one speed. The table owner records whether each
+   * value is observed, derived or authored.
    */
   export interface IRow {
-    /** Speed, metres per second. */
+    /** Speed at this clock point in metres per second. */
     speed: number;
 
-    /**
-     * Declared stride period, seconds; an observed mean, derived representative
-     * period or authored clock as the table owner states.
-     */
+    /** Duration of one complete stride in seconds. */
     stride: number;
 
-    /**
-     * Declared stride-time spread, seconds: the table owner identifies an
-     * empirical SD or authored amplitude; zero means deterministic timing
-     * without claiming zero biological variance.
-     */
+    /** Stride-time spread in seconds. Zero gives deterministic timing. */
     deviation: number;
 
-    /**
-     * Declared fore-foot contact duration, seconds, with provenance stated by
-     * the table owner.
-     */
+    /** Fore-foot ground contact time in seconds. */
     stance: number;
 
     /**
-     * Optional declared hind-foot contact duration, seconds. Absent retains the
-     * existing common fore/hind timing approximation for that row.
+     * Optional hind-foot ground contact time in seconds. An omitted row uses
+     * that row's fore contact time during interpolation.
      */
     hindStance?: number;
   }
 
-  /**
-   * One declared gait of a species: its clock rows, its footfalls, how it is
-   * changed into, and the ranges the ride poses with.
-   */
+  /** Clock rows, touchdown phases, transition and pose inputs for one gait. */
   export interface IGait {
     /**
-     * Declared clock rows in strictly increasing speed order; the source table
-     * states their provenance.
+     * Nonempty clock points in strictly increasing speed order. One row
+     * defines one admitted speed.
      */
     rows: readonly IRow[];
 
     /**
-     * When each foot lands, as a fraction of the stride from the left fore's
-     * landing, on the left lead for a leaded gait.
+     * Touchdown fractions in [0, 1) from left fore contact. Supply left-lead
+     * values for a gait whose phases depend on its lead.
      */
     phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>;
 
     /**
-     * How the gait is changed into from the one below it in `ITable.order`;
-     * absent for the slowest.
+     * Rule for entry from the preceding automatic gait. Omit it for the
+     * slowest automatic gait and for explicit-only gaits.
      */
     change?: QuadrupedChange.Rule;
 
-    /**
-     * How far the trunk rises and falls in a stride, as a fraction of the
-     * height at the withers.
-     */
+    /** Trunk rise and fall range as a fraction of the withers height. */
     bob: number;
 
     /**
-     * The head's pitch range in a stride, degrees, and when in the stride it is
-     * nose-down: `support`, the nose highest as each fore lifts off; `bob`,
-     * nose-down as the trunk sinks; `lead`, lowest at the leading fore's
-     * landing.
+     * Head pitch range in degrees. `support` makes the head highest on fore
+     * lift-off, `bob` links it to the trunk cycle and `lead` makes it lowest
+     * at the leading fore foot's landing.
      */
     nod: Readonly<{ range: number; timing: "support" | "bob" | "lead" }>;
 
-    /** The peak fold of the carpus and of the hock in the swing, degrees. */
+    /** Peak carpus and hock fold during fore and hind swing, in degrees. */
     fold: Readonly<{ fore: number; hind: number }>;
 
     /**
-     * How high a swinging foot rises at the middle of its swing, fore and hind,
-     * as a fraction of the height at the withers.
+     * Mid-swing clearance as a fraction of withers height for each foot pair.
      */
     lift: Readonly<{ fore: number; hind: number }>;
 
     /**
-     * Optional landmark elevation replacing `lift`: the swinging toe rises to
-     * this coordinate along the supporting limb's own neutral cannon, 0 at the
-     * fetlock and 1 at the carpus or hock.
+     * Optional swing targets along the supporting cannons. When present these
+     * take the place of withers-relative `lift`.
      */
     elevation?: IElevation;
   }
 
   /**
-   * A swing height named by the limb's own anatomical landmarks rather than by
-   * a share of the withers height.
+   * Swing height targets measured along the supporting fore and hind
+   * cannons.
    */
   export interface IElevation {
-    /**
-     * Fore toe height along the fore cannon, 0 at the fetlock and 1 at the
-     * carpus.
-     */
+    /** Fore toe target from 0 at the fetlock to 1 at the carpus. */
     fore: number;
 
-    /**
-     * Hind toe height along the hind cannon, 0 at the fetlock and 1 at the
-     * hock.
-     */
+    /** Hind toe target from 0 at the fetlock to 1 at the hock. */
     hind: number;
   }
 
-  /** A species' gaits. */
+  /** A species' admitted gait vocabulary, clock data and ride settings. */
   export interface ITable {
-    /** The species' automatically selected gaits, slowest first. */
+    /**
+     * Automatic gait order by increasing minimum speed. Adjacent gait ranges
+     * can overlap.
+     */
     order: readonly Gait[];
 
-    /** Optional gait names available only when the take names them. */
+    /** Gaits available only when named in the take. */
     explicit?: readonly Gait[];
 
     /**
-     * Explicit gaits collected out of an ordered gait: while decelerating into
-     * one from its parent's speeds, its clock holds its fastest declared row.
+     * Maps a named collected gait to its automatic parent. When the course
+     * is above the collected range but still within the parent range, the
+     * ride uses the collected gait's fastest clock row.
      */
     collected?: Readonly<Partial<Record<Gait, Gait>>>;
 
-    /** The declared automatic and explicit-only gait rows. */
+    /** One definition for each listed automatic or explicit gait. */
     gaits: Readonly<Partial<Record<Gait, IGait>>>;
 
     /**
-     * Declared reference withers height, metres, for the table's stated
-     * dynamic-similarity assumption. With absolute scaling this is only the
-     * default query height and no measured-height claim is implied.
+     * Reference withers height in metres. An absolute table uses it as the
+     * default query height.
      */
     reference: number;
 
     /**
-     * `absolute` keeps declared speed/time clocks unscaled without inferring an
-     * unmeasured reference height. Absent uses the existing provisional
-     * dynamic-similarity rule.
+     * Use `absolute` to keep recorded speeds and times. Omit it to scale
+     * speeds and times by the square root of the height ratio.
      */
     scaling?: "absolute";
 
     /**
-     * How far past a change point the speed must go before the gait changes,
-     * metres per second at the declared reference height, scaled with the
-     * gait's speeds.
+     * Speed offset around an automatic change point, in metres per second at
+     * the table's reference height.
      */
     hysteresis: number;
 
-    /**
-     * The share of a foot's fore-and-aft travel that its top joint follows,
-     * fore and hind.
-     */
+    /** Fractions of fore and hind foot travel followed by each top joint. */
     follow: Readonly<{ fore: number; hind: number }>;
   }
 
-  /** The species identity and gait table read by the clock and phase laws. */
+  /**
+   * Species identity for refusals and the gait table for clock and phase
+   * queries.
+   */
   export type ClockSource = Pick<
     AutoMovieArchetypeQuadruped.ISpecies,
     "archetype" | "table"
   >;
 
-  /** The timing of a gait at a speed. */
+  /**
+   * Stride period, timing spread and planted fractions at a requested
+   * speed.
+   */
   export interface ITiming {
-    /** Stride time, seconds. */
+    /**
+     * Stride duration in seconds, after tempo displacement and height
+     * scaling.
+     */
     stride: number;
 
-    /**
-     * Declared timing spread at that speed, seconds; the owner identifies
-     * empirical SD, authored amplitude or deterministic zero without a
-     * measured-variance claim.
-     */
+    /** Height-scaled stride-time spread in seconds. */
     deviation: number;
 
-    /** Fore duty factor; also used for hind feet when hindDuty is absent. */
+    /**
+     * Fore-foot stance time divided by the interpolated period before tempo.
+     */
     duty: number;
 
     /**
-     * Hind-foot stance fraction when separately declared in the bracketed rows;
-     * absent uses duty for every foot, preserving legacy tables.
+     * Hind-foot stance fraction when either bracket row has an explicit hind
+     * contact duration. When absent, use `duty`.
      */
     hindDuty?: number;
   }
 
   /**
-   * A species' gait, refused when the species has none of that name.
+   * Looks up one gait's table.
    *
-   * @param species The species.
-   * @param gait The gait.
-   * @returns The gait's table.
-   * @throws {AutoMovieArchetypeRefusal} When the species has no such gait,
-   *   listing those it has.
+   * @param species Species identity and admitted gait table.
+   * @param gait Name of the gait to find.
+   * @returns The stored gait definition.
+   * @throws {AutoMovieArchetypeRefusal} If the gait is absent. The refusal
+   *   lists the automatic gait alternatives.
    */
   export function of(species: ClockSource, gait: Gait): IGait {
     const found: IGait | undefined = species.table.gaits[gait];
@@ -282,25 +246,13 @@ export namespace AutoMovieArchetypeQuadrupedGait {
   }
 
   /**
-   * The factor for stride times and speeds: square-root height similarity, or
-   * one when the table explicitly preserves an absolute declared interval.
+   * Computes the speed and time scale for a query at a given height.
    *
-   * Animals of one build move in a dynamically similar way at equal Froude
-   * number, the speed squared over gravity times leg length (Alexander and
-   * Jayes 1983, J Zool 201:135; Alexander 1984, Int J Robotics Res 3:49): their
-   * stride lengths are then the same multiple of leg length, so at speeds in
-   * the ratio of the square roots of their leg lengths their stride times are
-   * in that ratio too. Height at the withers stands for leg length, the two
-   * being proportional across animals of one build. Neither paper was read at
-   * its source, and for the horse the rule under-corrects against measured
-   * warmbloods (it gives 0.99 s for a 1.6 m/s walk and 0.63 s for a 4.0 m/s
-   * trot at 1.615 m, against the 1.09 s and 0.67 s of Back, Schamhardt and
-   * Barneveld 1996, Vet Q 18:79): provisional.
-   *
-   * @param species The species.
-   * @param withers The animal's height at the withers, metres.
-   * @returns The factor; 1 at the declared reference height, and at every
-   *   height for absolute tables.
+   * @param species Clock source with its declared scaling and reference height.
+   * @param withers Withers height in metres.
+   * @returns One for absolute scaling. Otherwise the square root of the
+   *   query height divided by reference height. This is a provisional
+   *   similarity based on withers height.
    */
   export function scale(species: ClockSource, withers: number): number {
     if (species.table.scaling === "absolute") return 1;
@@ -308,15 +260,14 @@ export namespace AutoMovieArchetypeQuadrupedGait {
   }
 
   /**
-   * The declared speed domain of a gait for an animal of a height: the rows'
-   * range at the dynamically similar speeds.
+   * Reads a gait's inclusive speed interval at the supplied height.
    *
-   * @param species The species.
-   * @param gait The gait.
-   * @param withers The animal's withers height in metres; the table's declared
-   *   reference when absent.
-   * @returns The least and greatest speed, metres per second.
-   * @throws {AutoMovieArchetypeRefusal} When the species has no such gait.
+   * @param species Species identity and admitted clock table.
+   * @param gait Name of the gait to query.
+   * @param withers Withers height in metres. Defaults to the table reference.
+   * @returns Minimum and maximum metres per second. Both are the same for
+   *   a single-point clock.
+   * @throws {AutoMovieArchetypeRefusal} If the gait is absent.
    */
   export function range(
     species: ClockSource,
@@ -332,26 +283,23 @@ export namespace AutoMovieArchetypeQuadrupedGait {
   }
 
   /**
-   * The timing of a gait at a speed, for an animal of a height.
+   * Samples the admitted clock at a speed within its inclusive range.
    *
-   * @param species The species.
-   * @param gait The gait.
-   * @param speed The speed, metres per second, inside the gait's range for that
-   *   height.
-   * @param tempo Coordinate of the table's declared timing spread, from -1 to
-   *   1; zero when absent. It denotes standard deviations only when that source
-   *   reports an SD.
-   * @param withers The animal's withers height, metres; the declared reference
-   *   when absent. Absolute tables preserve their clocks without a
-   *   measured-height claim.
-   * @returns Declared stride time, timing spread and fore duty, with separate
-   *   hind duty when supplied. Duties are ratios of interpolated contact
-   *   durations to period, not a claim to reproduce independently averaged
-   *   biological statistics. Height similarity remains provisional as `scale`
-   *   states.
-   * @throws {AutoMovieArchetypeRefusal} When the species has no such gait, the
-   *   speed lies outside the gait's range for that height, giving the range,
-   *   the tempo lies outside -1 to 1, or the height is not positive.
+   * Interpolates the bracketing rows at equivalent reference speed and scales
+   * the resulting stride and spread. `tempo` changes period by its share of
+   * that spread. Both duty factors still use the period before that change.
+   *
+   * @param species Species identity and admitted clock table.
+   * @param gait Name of the gait to query.
+   * @param speed Speed in metres per second within the height-scaled range.
+   * @param tempo Displacement from −1 to 1 through the declared timing spread.
+   *   Defaults to zero.
+   * @param withers Positive finite withers height in metres. Defaults to the
+   *   table's reference height.
+   * @returns The clock and planted fractions. A bracket without hind contact
+   *   readings omits the separate hind duty.
+   * @throws {AutoMovieArchetypeRefusal} For an unknown gait, invalid speed,
+   *   tempo or height, or a period or spread outside the finite clock range.
    */
   export function timing(
     species: ClockSource,
@@ -381,8 +329,15 @@ export namespace AutoMovieArchetypeQuadrupedGait {
         fix: `give a ${axis} inside its range`,
       });
     }
-    if (!(withers > 0))
-      refuse("withers", withers, 0, null, "m", "a height is positive");
+    if (!Number.isFinite(withers) || withers <= 0)
+      refuse(
+        "withers",
+        withers,
+        0,
+        null,
+        "m",
+        "a height is finite and positive",
+      );
     if (!(tempo >= -1 && tempo <= 1))
       refuse(
         "tempo",
@@ -399,7 +354,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
       gait,
       withers,
     );
-    if (!(speed >= minimum && speed <= maximum))
+    if (!Number.isFinite(speed) || !(speed >= minimum && speed <= maximum))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: species.archetype,
@@ -429,9 +384,29 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     }
     const deviation: number = mix(low.deviation, high.deviation);
     const stride: number = mix(low.stride, high.stride);
+    const period: number = (stride + tempo * deviation) * by;
+    const spread: number = deviation * by;
+    if (!Number.isFinite(period) || period <= 0)
+      refuse(
+        "stride",
+        period,
+        0,
+        null,
+        "s",
+        "the adjusted stride must be finite and positive",
+      );
+    if (!Number.isFinite(spread))
+      refuse(
+        "deviation",
+        spread,
+        0,
+        null,
+        "s",
+        "the scaled timing spread must be finite",
+      );
     return {
-      stride: (stride + tempo * deviation) * by,
-      deviation: deviation * by,
+      stride: period,
+      deviation: spread,
       duty: mix(low.stance, high.stance) / stride,
       ...(low.hindStance === undefined && high.hindStance === undefined
         ? {}
@@ -446,15 +421,16 @@ export namespace AutoMovieArchetypeQuadrupedGait {
   }
 
   /**
-   * When a foot lands in a stride, as a fraction of it from the left fore's
-   * landing: the gait's phases on the left lead, and their mirror on the
-   * right.
+   * Reads a foot's touchdown as a fraction of the stride.
    *
-   * @param species The species.
-   * @param stride The stride's gait and lead.
-   * @param limb The foot.
-   * @returns The phase, 0 to 1.
-   * @throws {AutoMovieArchetypeRefusal} When the species has no such gait.
+   * Right lead mirrors the four leaded offsets, then restarts the clock at
+   * left fore touchdown. Other gaits use the stored offsets for both leads.
+   *
+   * @param species Species identity and admitted timing table.
+   * @param stride Gait and lead being evaluated.
+   * @param limb Foot to read.
+   * @returns Touchdown phase from zero up to one, excluding one.
+   * @throws {AutoMovieArchetypeRefusal} If the gait is absent.
    */
   export function phase(
     species: ClockSource,

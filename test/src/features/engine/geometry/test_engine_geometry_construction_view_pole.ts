@@ -27,6 +27,10 @@ type V3 = [number, number, number];
  *    of the skin has its reverse.
  * 2. The vertices pushed 1 mm outward read past the bound, and the skin with one
  *    triangle dropped has an open edge.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the ellipsoid sampling, closed directed edges and the displaced-vertex and dropped-face controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a polar view part and checks populated skin positions against the ellipsoid and paired directed edges around its closed surface.
+ * @evidence contracts/development/testing.md#independent-expectations The ellipsoid's implicit equation and independently bounded pole and periodic spline errors constrain positions. Every directed edge of a closed surface must have its reverse.
  */
 export function test_engine_geometry_construction_view_pole(): void {
   const frame: ConstructionShapes.IFrame = ConstructionShapes.DOWN;

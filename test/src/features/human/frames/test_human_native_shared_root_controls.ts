@@ -22,9 +22,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual root, fan and source-scope owners that production will consume; all failures are collected in one tiny round.
  * @evidence contracts/development/testing.md#independent-expectations Literal vector additions, diagonal scales, two-to-one chord arithmetic and original address increments supply expectations without evaluating the implementation twice.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes positive/negative wall edits, unchanged controls, a wrapped phase, invalid ratios/chords and original-versus-production cap scope.
- * @evidence contracts/development/testing.md#execution-ownership Uses two made controls and a three-knot conic definition only; no person, reference, loft, mesh, rendering or process.
- * @evidence contracts/development/common.md#meaningful-documentation Separates target controls, actual source scope, mm along/depth and radian phase.
+ * @evidence contracts/development/common.md#meaningful-documentation The controls distinguish a held clock, independent breadth and depth, small authored increments across a phase cut, and separate arm and web sampling scope.
  */
 export function test_human_native_shared_root_controls(): void {
   const failures: string[] = [];

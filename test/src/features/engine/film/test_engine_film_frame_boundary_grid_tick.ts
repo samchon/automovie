@@ -16,6 +16,10 @@ import { throwsError } from "../../internal/throwsError";
  *    2, floor gives 1.
  * 3. Frame 0 is tick 0.
  * 4. A negative frame and a zero clock are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the source-to-destination clock conversion and demonstrate floor, ceiling, nearest, tie and refused inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls productionFrameBoundaryToGridTick for the prescribed clocks and rounding modes and checks exact tick integers and admission errors.
+ * @evidence contracts/development/testing.md#independent-expectations The independent ratio for NTSC frame one at 48 kHz is 1601.6, whose floor and ceiling are 1601 and 1602. At two fps on a three-hertz clock the first frame is exactly 1.5 ticks and nearest sends the half upward. Frame zero maps to tick zero.
  */
 export function test_engine_film_frame_boundary_grid_tick(): void {
   const ntsc = { numerator: 30000, denominator: 1001 };

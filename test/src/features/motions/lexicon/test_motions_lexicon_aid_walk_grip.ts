@@ -30,6 +30,10 @@ const ROUNDING: number = 1e-12;
  *    the axis +X, the normal +Z, the radius 1.5 cm.
  * 2. With no offset and no turn the point is the grip's own, (1.1, 0.9, 2), and
  *    the normal +Y.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual grip placement from prop transform, local rod offset, approach angle and aperture.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves a walker rotated 90° about y with explicit longitudinal offset and approach, then repeats with both omitted.
+ * @evidence contracts/development/testing.md#independent-expectations The local +Z rod transforms to world +X. A 0.05 m offset moves x from 1.1 to 1.15, a quarter turn carries the normal to +Z, and aperture 3 cm gives radius 1.5 cm.
  */
 export function test_motions_lexicon_aid_walk_grip(): void {
   const world: IAutoMovieRigidTransform = {

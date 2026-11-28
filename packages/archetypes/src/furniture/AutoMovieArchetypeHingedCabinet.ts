@@ -2,17 +2,28 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createHingedCabinet as createHingedCabinetImplementation } from "./internal/createHingedCabinet";
 import { type AutoMovieArchetypeStorage } from "./AutoMovieArchetypeStorage";
 
-/** Public operations for Auto Movie Archetype Hinged Cabinet. */
+/** Constructs wardrobes with movable leaves and lockers with resting hinges. */
 export namespace AutoMovieArchetypeHingedCabinet {
   /**
-   * A wardrobe with movable leaves or a locker with a resting hinge frame.
+   * Build a wardrobe or a single-tier locker.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * A wardrobe carries a grip on each hinged leaf. A locker exposes a
+   * resting hinge and an interior hat shelf. Its door has no authored
+   * opening range.
+   *
+   * @param params Cabinet kind, optional scene ID, fixed dimensions and
+   *   optional hinge or body-size choice. Defaults to ID `storage`.
+   * @param seed Numeric seed for free dimensions and the model choice.
+   *   Omit it for band midpoints, a 95 degree wardrobe hinge or a 12
+   *   by 12 inch locker body.
+   * @returns The cabinet with its assembled geometry and local contacts.
+   * @throws {AutoMovieArchetypeRefusal} If the kind, a model choice or
+   *   a fixed dimension is inadmissible.
+   * @example
+   *   const wardrobe = AutoMovieArchetypeHingedCabinet.create({
+   *     kind: "wardrobe", model: "CLIP top 110"
+   *   });
+   *   const open = wardrobe.articulate({ leftDoor: 90 });
    */
   export function create(params: AutoMovieArchetypeHingedCabinet.IParams, seed?: number): AutoMovieArchetype<
   AutoMovieArchetypeHingedCabinet.Affordance,
@@ -22,8 +33,7 @@ export namespace AutoMovieArchetypeHingedCabinet {
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Cabinet size, locker leg length and wardrobe pull height in metres, empty mass in kilograms and wardrobe swing in degrees.
    */
   export type Dimension =
     | "depth"
@@ -34,7 +44,9 @@ export namespace AutoMovieArchetypeHingedCabinet {
     | "swing"
     | "width";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * The common `push` and `top`, paired wardrobe door and pull contacts, or a locker's `door` and `shelf1`.
+   */
   export type Affordance =
     | "door"
     | "leftDoor"
@@ -45,13 +57,13 @@ export namespace AutoMovieArchetypeHingedCabinet {
     | `shelf${number}`
     | "top";
 
-  /** The admitted settings and optional model ID. */
+  /** Selects wardrobe hinge geometry or locker body size. */
   export type IParams = IWardrobeParams | ILockerParams;
 
-  /** The read hinge angles a wardrobe may carry. */
+  /** Blum CLIP top models with 95 or 110 degrees of wardrobe door travel. */
   export type Hinge = "CLIP top 95" | "CLIP top 110";
 
-  /** The read locker body sizes, width by depth in inches. */
+  /** Paired width and depth of a Lyon single-tier locker body in inches. */
   export type LockerSize =
     | "12x12"
     | "12x15"
@@ -60,33 +72,41 @@ export namespace AutoMovieArchetypeHingedCabinet {
     | "18x18"
     | "18x21";
 
-  /** The settings both hinged cabinets share. */
+  /** Optional scene ID, body height in metres and empty mass in kilograms. */
   export type IBaseParams = Pick<
     AutoMovieArchetypeStorage.IParams,
     "id" | "height" | "mass"
   >;
 
-  /** A wardrobe with its choice of hinge. */
+  /**
+   * Wardrobe options including dimensions and a catalogue hinge controlling both door travels.
+   */
   export interface IWardrobeParams
     extends
       IBaseParams,
       Pick<AutoMovieArchetypeStorage.IParams, "width" | "depth" | "pullHeight"> {
-    /** A wardrobe. */
+    /** Selects the two-leaf wardrobe. */
     kind: "wardrobe";
 
-    /** The read hinge angle, drawn from the seed when absent. */
+    /**
+     * Selects the two doors' shared travel. Defaults to the 95 degree hinge without a seed.
+     */
     model?: Hinge;
   }
 
-  /** A steel locker with its choice of body size. */
+  /**
+   * Single-tier steel locker options. Body width and depth come together from the catalogue size.
+   */
   export interface ILockerParams
     extends IBaseParams, Pick<AutoMovieArchetypeStorage.IParams, "legs"> {
-    /** A steel locker. */
+    /** Selects the single-tier locker. */
     kind: "locker";
 
-    /** The read width by depth designation in inches, drawn when absent. */
+    /**
+     * Selects body width by depth in inches. Defaults to the 12 by 12 inch body without a seed.
+     */
     model?: LockerSize;
   }
 
-  /** Legacy selectors for this construction, in gallery order. */
+  /** Lists the two kind values accepted by `create`. */
   export const KINDS: readonly IParams["kind"][] = ["wardrobe", "locker"];}

@@ -7,27 +7,37 @@ import type { Document } from "@gltf-transform/core";
 import { humanoidSkeleton as buildHumanoidSkeleton } from "./internal/humanoidSkeleton";
 import { ingestDocument as mapDocument } from "./internal/ingestDocument";
 
-/**
- * Converts a parsed glTF document and its humanoid skins into AutoMovie's
- * document and skeleton contracts.
- */
+/** Maps parsed glTF documents to AutoMovie nodes, clips and humanoid bones. */
 export namespace AutoMovieIngestDocument {
   /**
-   * Map a parsed glTF document to AutoMovie nodes and animation clips.
-   * @param doc Parsed document; it is only read.
-   * @returns New node and clip records.
+   * Maps a parsed glTF document to new node and animation records.
+   *
+   * Nodes retain their parent and local translation, rotation and scale. Tracks
+   * retain the source interpolation and key times in seconds. The mapper
+   * decodes normalized accessor values. Supply a valid parsed document with
+   * internally consistent node and resource references.
+   *
+   * @param doc Parsed document, borrowed for the mapping.
+   * @returns Owned graph and clip records.
+   * @throws On an unsupported or malformed animation channel or sampler.
    */
-  export function ingestDocument(
-    doc: Document,
-  ): IAutoMovieIngestResult {
+  export function ingestDocument(doc: Document): IAutoMovieIngestResult {
     return mapDocument(doc);
   }
 
   /**
-   * Map parsed glTF skin joints to the normalized humanoid skeleton.
-   * @param doc Parsed document; it is only read.
-   * @param skeletonId Id copied to the returned skeleton.
-   * @returns The skeleton, or `null` when no skin joint maps to hips.
+   * Maps named skin joints onto the humanoid skeleton slots.
+   *
+   * The first joint claiming a slot in document order wins. Each bone's rest is
+   * relative to its nearest mapped ancestor, including any intervening helper
+   * transforms. A root retains its own local transform. Supply finite input
+   * transforms with unit quaternions. The result uses TRS and drops shear
+   * caused by noncommuting scales and rotations.
+   *
+   * @param doc Parsed document, borrowed for the mapping.
+   * @param skeletonId Returned skeleton id, defaults to `"skeleton"`.
+   * @returns The mapped skeleton or `null` when no joint maps to hips.
+   * @throws On a cycle encountered while searching mapped ancestors.
    */
   export function humanoidSkeleton(
     doc: Document,

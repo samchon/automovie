@@ -29,6 +29,10 @@ const ROUNDING: number = 1e-9;
  * 3. A spin of 720 degrees a second about +X turns +Y back on itself in 1 s and a
  *    quarter turn in 0.125 s, its centre that of a velocity attitude, whose +Z
  *    points along the velocity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers a projectile's time-sampled position, velocity and attitude under no drag, quadratic drag and explicit spin.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads closed-form fixtures and a physical drag shot at many times, then compares both attitude modes without changing the launch.
+ * @evidence contracts/development/testing.md#independent-expectations Constant acceleration gives the 1 s position (5, 5, 0) and the vertical apex at 5 m. Drag reduces speed and range, while 720 degrees/s gives the stated quarter-turn and full-turn states.
  */
 export function test_engine_physics_projectile_at(): void {
   // 1. The closed form.

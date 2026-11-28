@@ -56,6 +56,10 @@ const STRETCH: readonly [number, number] = [0, 1];
  * The body is built whole (`humanFixtureBody`): the carry resolves the whole
  * posture and clears the arm against the body's colliders, reading its pose
  * rig, limb chains, ROM projection and collider bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names prepared knots, wrist-goal ownership at both ends and the carrier's transition from cold posing to the prepared course.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a joint course for one supported arm reach and queries it at its endpoints and an interior knot, comparing direct carry and the carrier's prepared read.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit held shoulder angles fix the start and the supplied posture fixes terminal identity. The midpoint comparison exercises shared carry behavior at a knot, and the absent wrist goal proves the prepared joint pose owns that sample.
  */
 export async function test_motions_compose_arm_joint_course(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

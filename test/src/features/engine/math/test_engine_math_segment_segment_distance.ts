@@ -15,6 +15,10 @@ import { nclose } from "../../internal/predicates";
  * 4. Collinear segments with a gap of 2 are 2 apart.
  * 5. A segment collapsed at the origin lying on the x-axis segment (-1..1) is 0
  *    away; collapsed at (0, 2, 0) it is 2 away, finite and exact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers distance for parallel, skew, crossing, collinear and collapsed segments.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls segmentSegmentDistance directly with typed segment endpoints for each arrangement.
+ * @evidence contracts/development/testing.md#independent-expectations The parallel and skew fixtures have one-unit perpendicular gaps, crossing gives zero and the collinear endpoints leave a gap of two. A collapsed segment acts as its single point.
  */
 export function test_engine_math_segment_segment_distance(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({

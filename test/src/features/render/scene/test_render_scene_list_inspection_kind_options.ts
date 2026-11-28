@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The sliver defect is listed only when a sliver limit is requested, and
  *    trail kinds only when a trail is requested.
  * 3. A declared kind that is not already listed is added without a colour.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The examples describe the ordering and color provenance of observed, measured, and declared inspection choices.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that a mark contributes its reported color, a declared kind stays available without a color, and the sliver and trail kinds follow their request switches.
+ * @evidence contracts/development/testing.md#independent-expectations Checks literal choice names, the supplied `0x123456` color, and the expected presence or absence of optional choices.
  */
 export function test_render_scene_list_inspection_kind_options(): void {
   const mark = {

@@ -88,6 +88,10 @@ const MOTION: IAutoMovieMotion = {
  *    endpoint paths; collision emits no events or response.
  * 3. An absent foot reports must-exist rather than not-reachable, and a connected
  *    rig succeeds for footskate and balance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers detached endpoint reachability, absent bones and connected controls in four physics validators.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls foot skate, balance support, self-intersection and body collision on rigs whose relevant named bones are detached or unspecified.
+ * @evidence contracts/development/testing.md#independent-expectations A bone with no path from a root has no resolved frame despite being declared. That differs from an undeclared bone and from a connected control. Missing collision endpoints cannot witness a contact or response.
  */
 export function test_engine_validation_detached_bone_totality(): void {
   // footskate: a contact on the detached bone reports, does not crash.

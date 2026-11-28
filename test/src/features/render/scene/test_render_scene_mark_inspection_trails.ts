@@ -20,6 +20,10 @@ const POINT_TOLERANCE: number = 0;
  *    seconds the samples at zero and one are equally near.
  * 2. A stationary root yields one unanchored tick and its highlight, with a plain
  *    `trail` path and no line.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the tick sequence for a moving subject, the equal-distance time tie, and a stationary root.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that motion marks retain sample order, the earlier equidistant sample gets the highlight, and a stationary root emits ticks without a line.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal sample positions and the 0.5 second midpoint of samples at zero and one to specify the highlighted tick.
  */
 export function test_render_scene_mark_inspection_trails(): void {
   const trails: IAutoMovieInspectionTrail[] = [

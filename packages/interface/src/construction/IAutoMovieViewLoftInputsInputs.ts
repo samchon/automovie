@@ -2,53 +2,45 @@ import type { AutoMovieViewLoftInputsQuarters } from "./AutoMovieViewLoftInputsQ
 import type { AutoMovieViewLoftInputsScalar } from "./AutoMovieViewLoftInputsScalar";
 
 /**
- * Prepared raw scalar readers used by ViewLoft admission and cap-ring density.
- *
- * Every argument is physical station in millimetres. The factory reuses
- * retained direct outline preparations or prepares generic-girth outlines once;
- * closures keep those preparations and the report callback alive until
- * released. They do not mutate the prepared sources, which must remain
- * unchanged. A failed read calls report with source identity and returns NaN,
- * while exceptions from report propagate. Quarter calls return fresh mutable
- * four-entry arrays. These are values before sign conversion and effective cap
- * shoulder adjustment, not physical derivative capabilities.
+ * Raw signed lengths and fullness readers prepared for ViewLoft and cap-ring
+ * spacing. Pass physical station in millimetres. Preserve the prepared sources
+ * while the callbacks use them. A source read failure reports its identity and
+ * returns NaN. Quarter readers return fresh arrays.
  */
 export interface IAutoMovieViewLoftInputsInputs {
   /**
-   * Raw front-positive u coordinate in local millimetres, before box admission;
-   * the reader preserves the authored sign and declared pole closure.
+   * Front-positive u outline in chart millimetres, with its source sign and
+   * declared pole coordinate.
    */
   lateral: AutoMovieViewLoftInputsScalar;
 
   /**
-   * Raw front-negative u coordinate in local millimetres, normally negative;
-   * ViewLoft negates it to obtain the positive -u half extent. Declared pole
-   * closure is retained.
+   * Front-negative u outline in chart millimetres. ViewLoft negates this raw
+   * value to obtain the −u box extent.
    */
   medial: AutoMovieViewLoftInputsScalar;
 
   /**
-   * Raw side-positive v coordinate in local millimetres before box admission,
-   * retaining the original outline's pole parameter.
+   * Side-positive v outline in chart millimetres, with its original pole
+   * coordinate.
    */
   ahead: AutoMovieViewLoftInputsScalar;
 
   /**
-   * Raw side-negative v coordinate in local millimetres, normally negative;
-   * ViewLoft negates it to obtain the positive -v half extent.
+   * Side-negative v outline in chart millimetres. ViewLoft negates the signed
+   * value to obtain the −v box extent.
    */
   behind: AutoMovieViewLoftInputsScalar;
 
   /**
-   * Original girth in millimetres for girth mode, dimensionless common shoulder
-   * share for shoulder mode, and constant zero for top mode where quarters own
-   * fullness directly.
+   * Original girth in millimetres in girth mode, common dimensionless share in
+   * shoulder mode, or zero in top mode. Top mode uses its four direct shares.
    */
   owner: AutoMovieViewLoftInputsScalar;
 
   /**
-   * Four dimensionless top shoulders or common-shoulder departures in
-   * increasing quarter order; absent departures produce four exact zeros.
+   * Four direct top shares or shared-law departures, in cyclic quarter order.
+   * Omitted departures read as four zeros.
    */
   shoulders: AutoMovieViewLoftInputsQuarters;
 }

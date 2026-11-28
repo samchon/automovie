@@ -23,6 +23,10 @@ const ASPECT_TOLERANCE: number = 16 * Number.EPSILON;
  *    film placement refreshes world matrices and is omitted for a shot seek.
  * 3. Another film second, another frame, or a frame on an off-grid sample is
  *    refused. A subject without a producer has no observation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Uses the placed sample's camera and exact output index, refreshes native matrices and refuses inconsistent clocks.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls placed observation at a delivered sample, off-grid and end samples, a shot seek, mismatched packets and absent observation support.
+ * @evidence contracts/development/testing.md#independent-expectations At four fps a half-second is output frame 2. Off-grid and end samples lack an index, and independent camera and matrix fixtures identify the projection and placement owner.
  */
 export function test_render_draw_observe_placed_inspection(): void {
   const scene: Scene = new Scene();

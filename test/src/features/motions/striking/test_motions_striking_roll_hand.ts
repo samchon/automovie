@@ -18,6 +18,10 @@ import { vclose } from "../../internal/vclose";
  *    the axis along -X; untilted it stays along +Z.
  * 3. A cone of none searches 12 rolls; 15 degrees adds one tilt of 96; 20 adds
  *    two, 204 in all, each a [tilt, around, turn] in range.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines perpendicular frame construction, tilted orientation and discrete grid counts within the cone.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls axis and orientation helpers for vertical and horizontal tools and enumerates cones of zero, 15 and 20 degrees.
+ * @evidence contracts/development/testing.md#independent-expectations A 30-degree roll increment gives 12 base samples. Each nonzero tilt adds eight azimuths times 12 rolls, giving 204 total at two tilts.
  */
 export function test_motions_striking_roll_hand(): void {
   const z = { x: 0, y: 0, z: 1 };

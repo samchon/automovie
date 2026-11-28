@@ -1,6 +1,7 @@
 import { AutoMovieIngestExternalModel } from "@automovie/ingest";
 import type { IAutoMovieExternalMotionAdoptionDecision } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import assert from "node:assert/strict";
 
 import { test12MotionFixture } from "../internal/test12Motion/test12MotionFixture";
 import { test12MotionInspect } from "../internal/test12Motion/test12MotionInspect";
@@ -8,16 +9,19 @@ import { test12MotionSkeleton } from "../internal/test12Motion/test12MotionSkele
 import { throwsError } from "../internal/throwsError";
 
 /**
- * Adoption produces a canonical, detached receipt for the selected native or retarget handoff.
+ * Adoption produces a canonical, detached receipt for the selected native or
+ * retarget handoff.
  *
  * Scenarios:
- * 1. Both modes retain provenance and map order while nested clinical data and track samples remain independently mutable.
- * 2. Retarget keeps its declared scale and target. Malformed provenance and an unbound track refuse adoption.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the returned handoff and mutates its nested records in both directions.
- * @evidence contracts/development/testing.md#independent-expectations The author supplies the source byte count, map, rig axes and clinical range.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts native with retarget and absence with a declared range.
- * @evidence contracts/development/testing.md#execution-ownership Adopts a small resident motion document.
+ * 1. Both modes retain provenance and map order while nested clinical data and
+ *    track samples remain independently mutable.
+ * 2. Retarget keeps its declared scale and target. Malformed provenance and an
+ *    unbound track refuse adoption.
+ * 3. A native input with a target or scale refuses instead of discarding it.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Adopts the resident fixture through the public owner, mutates the returned handoff and original independently, and calls the same owner as an untyped consumer to test native option admission.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies the byte count, map, rig axes and reach range. Native use replays the source rig and each retarget-only option must be absent, while retarget use preserves its authored identity and scale.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the copied records and public refusals.
  */
 export function test_ingest_motion_adoption_receipt(): void {
@@ -54,7 +58,11 @@ export function test_ingest_motion_adoption_receipt(): void {
             target: "actor/main",
           };
     const adopt = () =>
-      AutoMovieIngestExternalModel.adoptMotion({ inspection, source, decision });
+      AutoMovieIngestExternalModel.adoptMotion({
+        inspection,
+        source,
+        decision,
+      });
     const receipt = adopt(),
       copied = receipt.handoff.sourceRig.bones[1]!;
     TestValidator.equals(
@@ -118,4 +126,21 @@ export function test_ingest_motion_adoption_receipt(): void {
       ),
     );
   }
+  const native: IAutoMovieExternalMotionAdoptionDecision = {
+    mode: "native",
+    take: "clip_0",
+    sourceRig: test12MotionSkeleton(),
+    mapping,
+  };
+  for (const [field, value] of [
+    ["target", "actor/main"],
+    ["translationScale", 1.25],
+  ] as const)
+    assert.throws(
+      () =>
+        Reflect.apply(AutoMovieIngestExternalModel.adoptMotion, undefined, [
+          { inspection, source, decision: { ...native, [field]: value } },
+        ]),
+      new RegExp(field, "u"),
+    );
 }

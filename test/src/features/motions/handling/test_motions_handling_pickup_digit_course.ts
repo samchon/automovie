@@ -28,7 +28,13 @@ const SWEEP = 480;
 const ERROR = 0.001;
 const CONTACT = 0.002;
 
-/** Check an embedded power grip across the actual approach, loaded lift and later seeks. */
+/**
+ * Check an embedded power grip across the actual approach, loaded lift and later seeks.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines displayed digit approach, closure, five contact witnesses, stable held offset and replay for a staged bottle pickup.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes actual playback for three stored rigs and two seeds, reads 481 approach samples and tests grip, loaded lift and fresh out-of-order playback.
+ * @evidence contracts/development/testing.md#independent-expectations The 81 mm opening peaks in [0.6, 0.7]. Independent capsule distance bounds penetration and contact at all five fingers, and the hand-local bottle offset stays within 1 mm during lift.
+ */
 export function test_motions_handling_pickup_digit_course(): void {
   for (const population of ["f-small", "m-average", "m-tall"]) {
     const { body } = FamilyCaseKit.body(population);

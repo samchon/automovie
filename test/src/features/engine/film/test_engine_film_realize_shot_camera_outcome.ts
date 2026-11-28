@@ -55,6 +55,10 @@ const CAMERA: IAutoMovieCamera = {
  *    though some of the box remains within the frustum in either case.
  * 7. A boxing failure between two readable subjects leaves their combined
  *    depth range intact and counts its resolved placement.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify live versus locked camera geometry, required-subject placement, frustum and depth outcomes and the remaining combined range after a box failure.
+ * @evidence contracts/development/testing.md#behavioral-verification The test evaluates the shot camera outcome at prepared instants, then compares measured placement, counts and addressed failed conditions across models, depth windows and absent inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The crate's two-metre depth radius spans eight through twelve metres from the staged camera and thirteen through seventeen when the camera reaches z = 15. The canopy's authored height is outside the level view and the ghost has no placement. The supplied clip and bit limits independently refuse inadequate depth.
  */
 export function test_engine_film_realize_shot_camera_outcome(): void {
   const box = (lift: number): IAutoMovieSubjectBox => ({

@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The stops 0, 0.25, 0.5, 0.75 and 1 give blue, blue-green, green,
  *    green-red and red.
  * 2. Positions below 0 and above 1 clamp to the end stops.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the ramp's channel order, half-way colors and clamped endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public ramp on scalar positions at both endpoints, both interpolated halves, the center stop and positions outside the domain.
+ * @evidence contracts/development/testing.md#independent-expectations The blue, green and red stops occur at 0, 0.5 and 1. Their adjacent channel averages give the expected quarter positions. Inputs −3 and 7 must return the literal endpoint colors.
  */
 export function test_render_scene_analysis_ramp_color(): void {
   type Rgb = Pick<IAutoMovieColor, "r" | "g" | "b">;

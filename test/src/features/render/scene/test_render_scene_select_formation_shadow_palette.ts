@@ -12,6 +12,10 @@ import * as THREE from "three";
  * 1. Group 0 selects the first material, groups 1 and 2 the second.
  * 2. No group, and a group the geometry does not hold, select the first.
  * 3. A group whose index the palette lacks is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases state geometry group indices, available palette entries, absent groups and a missing palette index.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that shadow draws select the indexed material for actual groups, use the first material for the absent group cases, and refuse a group without a valid material.
+ * @evidence contracts/development/testing.md#independent-expectations Compares original material identities against the fixture's explicit group indices 0, 1 and 1 and an out-of-range group.
  */
 export function test_render_scene_select_formation_shadow_palette(): void {
   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();

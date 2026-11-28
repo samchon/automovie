@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. No drive, no place and no take, and an empty drive list alike, are refused on
  *    `drive`.
  * 3. A move over 0 s is refused on `duration`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a positive-duration work operation with at least one drive, move or take.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls admission with move-only and take-only work and submits absent or empty work and a zero-duration move.
+ * @evidence contracts/development/testing.md#independent-expectations The valid operations independently satisfy the content requirement. Empty declarations report `drive`, and duration zero reports `duration`.
  */
 export function test_motions_handling_work_held(): void {
   const at: IAutoMovieMotionHumanHeldWork.IPlace = {

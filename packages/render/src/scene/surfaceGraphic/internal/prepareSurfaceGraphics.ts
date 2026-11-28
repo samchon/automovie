@@ -1,27 +1,34 @@
-import { AutoMovieEngineRenderTexture, AutoMovieEngineRenderNode, AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  AutoMovieEngineAffordanceArticulation,
+  AutoMovieEngineFilm,
+  AutoMovieEngineRenderNode,
+  AutoMovieEngineRenderTexture,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieFilmOptics,
   IAutoMovieFont,
   IAutoMovieImage,
   IAutoMovieModel,
+  IAutoMovieModelPart,
   IAutoMovieSurfaceGraphicLayer,
   IAutoMovieSurfaceGraphicTrack,
+  IAutoMovieTransform,
 } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieRenderTypography } from "../../../typography/AutoMovieRenderTypography";
+import { AutoMovieRenderFilmResponseStage } from "../../AutoMovieRenderFilmResponseStage";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
+import { AutoMovieRenderSurfaceGraphicKey } from "../../AutoMovieRenderSurfaceGraphicKey";
 import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind";
-import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject";
+import type { IAutoMovieRenderFilmResponseRenderer } from "../../IAutoMovieRenderFilmResponseRenderer";
 import type { IAutoMovieRenderMaterialShaderPatch } from "../../IAutoMovieRenderMaterialShaderPatch";
 import type { IAutoMovieRenderMaterialShaderSource } from "../../IAutoMovieRenderMaterialShaderSource";
-import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial";
-import { decodeImage } from "../../internal/decodeImage";
-import { AutoMovieRenderFilmResponseStage } from "../../AutoMovieRenderFilmResponseStage";
-import type { IAutoMovieRenderFilmResponseRenderer } from "../../IAutoMovieRenderFilmResponseRenderer";
-import { AutoMovieRenderSurfaceGraphicKey } from "../../AutoMovieRenderSurfaceGraphicKey";
-import type { IAutoMovieRenderSurfaceGraphicsObject } from "../../IAutoMovieRenderSurfaceGraphicsObject";
+import type { IAutoMovieRenderModelObject } from "../../IAutoMovieRenderModelObject";
 import type { IAutoMovieRenderPrepareSurfaceGraphicsProps } from "../../IAutoMovieRenderPrepareSurfaceGraphicsProps";
+import type { IAutoMovieRenderSurfaceGraphicsObject } from "../../IAutoMovieRenderSurfaceGraphicsObject";
+import { decodeImage } from "../../internal/decodeImage";
 import { buildSurfaceGraphicKey } from "./buildSurfaceGraphicKey";
 import { createSurfaceGraphicMaterial } from "./createSurfaceGraphicMaterial";
 
@@ -30,14 +37,13 @@ import { createSurfaceGraphicMaterial } from "./createSurfaceGraphicMaterial";
  * each on its prop.
  *
  * Every track becomes one group named `surface-graphic:<node>/<surface>`,
- * marked for the render-mode boundary, parented to the node's model object at
+ * marked for the render-mode boundary, parented to its model or rigid carrier at
  * the surface affordance's frame and lifted half a millimetre along `+Y`. It
  * holds one group per key, built by `buildSurfaceGraphicKey` and
  * clipped to the surface's `outline` when it declares one, of which the
- * returned `apply` shows only the key in force. Because the graphic rides the
- * model object, it follows the node's placement, its object motion and its
- * carriage at every sample time, and two props sharing one model show their own
- * graphics.
+ * returned `apply` shows only the key in force. The graphic follows the
+ * carrier's pose independently of key playback. Two props sharing one model
+ * keep separate graphic groups.
  *
  * The shot's font sources decode here first, all of them, so a source the
  * decoder refuses rejects with its diagnostic before anything is built; a text
@@ -102,10 +108,11 @@ export async function prepareSurfaceGraphics(
               : { readAsset: props.readFontAsset }),
           });
     for (const track of tracks) {
-      const label: string = AutoMovieEngineRenderNode.autoMovieSurfaceGraphicNodeName(
-        track.node,
-        track.surface,
-      );
+      const label: string =
+        AutoMovieEngineRenderNode.autoMovieSurfaceGraphicNodeName(
+          track.node,
+          track.surface,
+        );
       const model: IAutoMovieModel | undefined = models.get(
         modelOfNode.get(track.node) ?? "",
       );
@@ -128,6 +135,23 @@ export async function prepareSurfaceGraphics(
           `Surface graphic "${label}" names no sized "surface" affordance of model "${model.id}"`,
         );
 
+      const carrier: IAutoMovieModelPart | undefined =
+        AutoMovieEngineAffordanceArticulation.surfaceCarrier(
+          surface,
+          model.affordances,
+          model.parts,
+        );
+      const parent: THREE.Object3D | undefined =
+        surface.rides === undefined
+          ? object.object
+          : carrier === undefined
+            ? undefined
+            : object.parts.get(carrier.id);
+      if (parent === undefined)
+        throw new Error(
+          `Surface graphic "${label}" has no built rigid carrier for articulation "${surface.rides}"`,
+        );
+
       // Decode each distinct image the track's layers name, model-scoped for
       // carried images, path-scoped for project assets.
       for (const key of track.keys)
@@ -141,6 +165,8 @@ export async function prepareSurfaceGraphics(
       const { translation, rotation }: typeof surface.frame = surface.frame;
       root.position.set(translation.x, translation.y, translation.z);
       root.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+      if (carrier !== undefined && carrier.transform !== null)
+        bindReadingFrame(root, carrier.transform);
       const lifted: THREE.Group = new THREE.Group();
       lifted.position.y = LIFT;
       root.add(lifted);
@@ -217,7 +243,7 @@ export async function prepareSurfaceGraphics(
           return group;
         },
       );
-      object.object.add(root);
+      parent.add(root);
       roots.push(root);
       keyGroups.push(groups);
     }
@@ -235,7 +261,10 @@ export async function prepareSurfaceGraphics(
         );
       tracks.forEach(
         (track: IAutoMovieSurfaceGraphicTrack, index: number): void => {
-          const shown: number = AutoMovieEngineFilm.sampleSurfaceGraphicKey(track, seconds);
+          const shown: number = AutoMovieEngineFilm.sampleSurfaceGraphicKey(
+            track,
+            seconds,
+          );
           keyGroups[index]!.forEach((group: THREE.Group, key: number): void => {
             group.visible = key === shown;
           });
@@ -325,6 +354,39 @@ export async function prepareSurfaceGraphics(
 const LIFT: number = 0.0005;
 
 /*
+ * Convert the model-rest reading frame into the carrier's rest frame before
+ * attaching it. The carrier can already be posed when a new shot is built.
+ * Keep the matrix product intact for carriers with nonuniform scale.
+ */
+function bindReadingFrame(
+  root: THREE.Group,
+  carrier: IAutoMovieTransform,
+): void {
+  const frame: THREE.Matrix4 = new THREE.Matrix4().compose(
+    new THREE.Vector3(
+      carrier.translation.x,
+      carrier.translation.y,
+      carrier.translation.z,
+    ),
+    new THREE.Quaternion(
+      carrier.rotation.x,
+      carrier.rotation.y,
+      carrier.rotation.z,
+      carrier.rotation.w,
+    ),
+    new THREE.Vector3(carrier.scale.x, carrier.scale.y, carrier.scale.z),
+  );
+  const determinant: number = frame.determinant();
+  if (!Number.isFinite(determinant) || determinant === 0)
+    throw new Error(
+      `Surface graphic "${root.name}" has a non-invertible carrier rest transform`,
+    );
+  root.updateMatrix();
+  root.matrix.premultiply(frame.invert());
+  root.matrixAutoUpdate = false;
+}
+
+/*
  * The decoded-texture key of an image id as a node of `model` resolves it.
  */
 function imageKey(model: IAutoMovieModel, asset: string): string {
@@ -407,7 +469,9 @@ interface IFeed {
  * encoded for a display, so the screen's white is the graphic's luminance. At 0
  * the target holds the scene's linear light and is read as it is.
  */
-function decodeFeedPatch(encoded: { value: number }): IAutoMovieRenderMaterialShaderPatch {
+function decodeFeedPatch(encoded: {
+  value: number;
+}): IAutoMovieRenderMaterialShaderPatch {
   return {
     key: "automovie-surface-feed-decode",
     apply: (shader: IAutoMovieRenderMaterialShaderSource): void => {

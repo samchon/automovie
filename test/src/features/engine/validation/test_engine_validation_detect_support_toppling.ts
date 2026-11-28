@@ -35,6 +35,10 @@ import {
  *    `.margin`.
  * 6. A unit-square stack-top 0.5 above a parent at (3, 0, 2) supports a centre at
  *    (3, 1, 2); 0.7 m along +x it overhangs and falls toward +x.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers support hull stability, overhang, intent and moving a stack-top footprint into world coordinates.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls detectSupportToppling with literal points and centres, then uses affordanceSupportContacts to form a placed unit-square support for two centres.
+ * @evidence contracts/development/testing.md#independent-expectations The square's far edge at x = 2 gives the outward +X tip and an overhang one before allowance. Crossing input order leaves the convex hull unchanged. Moving 0.7 beyond a unit-square centre leaves its half-metre extent.
  */
 export function test_engine_validation_detect_support_toppling(): void {
   const v = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });

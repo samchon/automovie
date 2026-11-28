@@ -37,6 +37,10 @@ const row: (
  * 3. The oculus row is 0.6 x 0.6 (its circle's extent), from its profile.
  * 4. The vent has no size and is unmeasured.
  * 5. The same environment gives the same digest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the door, circular oculus and profile-free vent alongside schedule identity, counts and repeated digest.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives the opening schedule from the prepared atelier and inspects each returned opening row's dimensions and measurement basis.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.9 by 2.1 m rectangle provides the door's dimensions, and each diameter of the 0.3 m oculus is 0.6 m. The remaining opening has no authored size and returns null dimensions with basis unmeasured.
  */
 export function test_engine_drawing_derive_schedule(): void {
   const schedule: IAutoMovieDrawingSchedule =

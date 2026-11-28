@@ -22,6 +22,10 @@ import { nclose } from "../../internal/predicates";
  *    read at frame 11 (6 mm) and then frame 12 (12 mm) records 12 mm.
  * 4. Changing a returned or reported weight leaves the record unchanged.
  * 5. `clear` empties the record before the next placement.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Records the last jaw or viseme read per actor and keeps a clean record for each placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the mouth recorder for initial, repeated and cleared reads, and mutates viseme weights from both returned records.
+ * @evidence contracts/development/testing.md#independent-expectations Known frame 11 and frame 12 inputs give different jaw openings. The final record must retain the last value and be independent of external mutation.
  */
 export function test_render_draw_dialogue_mouth_recorder(): void {
   const track: IAutoMovieDialogueMouthTrack = {

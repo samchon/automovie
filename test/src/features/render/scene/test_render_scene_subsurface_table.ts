@@ -18,6 +18,10 @@ const ROW_TOLERANCE: number = 1e-12;
  * 2. Row 0 has no blur, so entry `i` is `max(0, 2i/(n-1) - 1)`.
  * 3. Every entry lies in `[0, 1]`, and a blurred row lights the dark side: its
  *    first entry (the cosine of -1) is above 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe row and column dimensions, unblurred cosine values, value bounds and a blurred dark-side sample.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks table dimensions, independently evaluates the zero-blur row, bounds every entry and requires visible spread into the darkest sample.
+ * @evidence contracts/development/testing.md#independent-expectations Uses `max(0, 2i/(n-1) - 1)` for each unblurred cosine and the known dark-side cosine of -1 for the spread check.
  */
 export function test_render_scene_subsurface_table(): void {
   const table: number[][] = subsurfaceTable();

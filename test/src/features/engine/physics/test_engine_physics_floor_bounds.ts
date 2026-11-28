@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. At the origin the sphere spans [-1, 1]: inside.
  * 2. At x = 1 it touches the edge exactly (spans [0, 2]): inside.
  * 3. At x = 1.5 it reaches 2.5: outside. At z = -1.5 it reaches -2.5: outside.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States that the full horizontal sphere footprint must fit and that equality on a boundary is admitted.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the floor-bounds predicate with one typed radius-one sphere at the origin, the edge and beyond each of two horizontal axes.
+ * @evidence contracts/development/testing.md#independent-expectations Comparing the center plus or minus 1 against the authored ±2 limits gives true for [0, 2] and false when either extent reaches ±2.5.
  */
 export function test_engine_physics_floor_bounds(): void {
   const shape: IAutoMoviePhysicalShape = {

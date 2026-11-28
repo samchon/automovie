@@ -25,6 +25,10 @@ const ROTATION_ROUNDOFF: number = 32 * Number.EPSILON;
  *    fit. The paired-volume limit distinguishes the two products
  *    because each box can occupy exactly 2^1023 cubic metres, while two
  *    such boxes cannot. The builder stays untouched in either case.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States ordinary bilateral ear plates, equivalent extreme direction and atomic refusal when scale or total volume overflows.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the physical ear profile, enumerates real plates and their axes and compares the builder before and after both refusal cases.
+ * @evidence contracts/development/testing.md#independent-expectations The authored two-metre profile gives a paired volume of 1/512. Scaling a direction preserves its normalized axis. Two solids of `2^1023` cubic metres each exceed binary64 capacity.
  */
 export function test_archetypes_animals_ear_plate_extent(): void {
   const head: Pick<

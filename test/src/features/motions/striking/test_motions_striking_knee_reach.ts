@@ -35,6 +35,10 @@ const solve = (target: IAutoMovieVector3): ReturnType<typeof KneeReach.solve> =>
  *    end.
  * 4. A shank down -Y heading +Z points the toes (0, -sqrt ½, sqrt ½) and the
  *    instep (0, sqrt ½, sqrt ½).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies virtual knee reach status, leg direction interpolation and the local pitched foot basis.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls reach for near, far and high goals and samples between orthogonal and parallel pose directions.
+ * @evidence contracts/development/testing.md#independent-expectations Segment lengths and range yield geometric reference positions and distinguish reached, short and jammed. The right-angle midpoint components have magnitude √(1/2).
  */
 export function test_motions_striking_knee_reach(): void {
   const r: number = Math.SQRT1_2;

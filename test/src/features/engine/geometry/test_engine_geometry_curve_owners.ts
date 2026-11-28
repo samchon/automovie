@@ -21,6 +21,10 @@ import { throwsError } from "../../internal/throwsError";
  * 4. Primitive coefficients and complete boundary fullJ fields reject NaN.
  * 5. A context clones and freezes its publication and rejects copied tokens.
  * 6. Large finite geometry never publishes NaN normals after overflowed crosses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names snapshot ownership, extrapolation policy, numeric budget checks, boundary admission and finite output.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls PCHIP and curve owners before and after input mutation, then observes frozen copies, copied-token refusal and geometry under extreme finite input.
+ * @evidence contracts/development/testing.md#independent-expectations The linear supports give independent exact samples and extrapolation. A copied boundary token has no owner identity. Nonfinite coefficients and invalid work limits violate their declared input domains.
  */
 export function test_engine_geometry_curve_owners(): void {
   const xs: number[] = [0, 1, 2];

@@ -2,12 +2,12 @@ import type { IAutoMovieBicubicAtlasGeometry } from "../model/IAutoMovieBicubicA
 import type { IAutoMovieEllipticLoft } from "../model/IAutoMovieEllipticLoft";
 
 /**
- * Elliptic section coefficients and the bicubic atlas generated from them.
+ * Open lateral bicubic geometry from cubic elliptic-section profiles.
  *
- * Profiles and the circular-arc deviation bound use model-local metres; angular
- * U runs clockwise and V follows increasing Y. The producer checks finite
- * positive radii, adjacent intervals and exact shared endpoints; C1 continuity,
- * source fit and end caps are not inferred.
+ * Profiles and the circular-arc bound use model-local metres. Angular U runs
+ * clockwise and V follows increasing Y. The producer validates finite centres,
+ * positive finite radii, adjacent stations and exact shared endpoints. The
+ * caller owns C1 continuity, source fit and end caps.
  */
 export namespace IAutoMovieCreateEllipticLoftAtlas {
   /**
@@ -26,9 +26,9 @@ export namespace IAutoMovieCreateEllipticLoftAtlas {
    */
   export type IInput = {
     /**
-     * Borrowed cubic centre/radius profiles in model-local metres, ordered
-     * along Y; the producer validates nonempty adjacent spans, positive radius
-     * controls and exact endpoint agreement.
+     * Borrowed cubic centre and radius profiles in model-local metres. Supply
+     * increasing adjacent Y spans and exact shared endpoint controls. The
+     * constructed Y rows preserve both source station endpoints.
      */
     loft: IAutoMovieEllipticLoft;
 
@@ -52,9 +52,9 @@ export namespace IAutoMovieCreateEllipticLoftAtlas {
     maxCells: number;
 
     /**
-     * Positive safe-integer vertex budget forwarded to tessellation; later
-     * atlas admission requires at least three, which this producer does not
-     * check.
+     * Positive safe integer preserved in the generated recipe. The producer
+     * accepts one and two. Model atlas admission before realization requires at
+     * least three.
      */
     maxVertices: number;
   };
@@ -75,9 +75,9 @@ export namespace IAutoMovieCreateEllipticLoftAtlas {
     geometry: IAutoMovieBicubicAtlasGeometry;
 
     /**
-     * Metre bound 0.000273 times the largest radius Bernstein control, bounding
-     * the circular-cubic section approximation separately from tessellation and
-     * source fitting.
+     * Metre bound 0.000273 times the largest radius Bernstein control, with a
+     * minimum of `Number.MIN_VALUE`. It bounds the circular-cubic section
+     * approximation independently of tessellation and source fitting.
      */
     arcDeviationBound: number;
   };

@@ -30,6 +30,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  * 3. Without x-ray the line shader is patched to lead both ends toward the eye
  *    after they reach view space, and the points shader after its projection;
  *    with x-ray neither is patched.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names world-space mark geometry, stroke sizing, malformed shape refusals and view-depth shader behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Draws supplied shape variants through the inspection owner. Reads actual line endpoints, colors, point size and line resolution. Exercises malformed typed requests and reads compiled line and point shaders with x-ray off and on.
+ * @evidence contracts/development/testing.md#independent-expectations Three authored polyline vertices give two open sides or three closed sides. Two segment pairs give two independent lines. The length-two arrow gives four head lines reaching 0.5 behind and 0.25 from its tip axis. Four-pixel strokes give 12-pixel dots. Invalid element counts must refuse without adding scene children.
  */
 export function test_render_scene_apply_inspection_mark_shapes(): void {
   // 1. Every shape.

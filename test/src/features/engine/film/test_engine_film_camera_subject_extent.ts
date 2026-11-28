@@ -135,6 +135,10 @@ const model: () => IAutoMovieModel = (): IAutoMovieModel => ({
  * 4. A model with no skeleton still measures, since a prop is framed too.
  * 5. A model with no parts measures nothing and returns null, leaving the caller's
  *    own fallback in charge instead of inventing a height.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish measured joint span, portable visible height, the implied framing band, a prop and missing parts.
+ * @evidence contracts/development/testing.md#behavioral-verification The test reads skeleton and model-rest measurements directly and computes an illustrative band from the returned sizes. It repeats the extent calculation for a skeletonless prop and empty parts.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture places floor and crown at zero and 1.72 metres while joints cover 0.24 through 0.92 of that height. Their 0.68 fraction must differ from visible height. Substituting each into the public framing fractions determines the illustrative floor and crown coverage.
  */
 export function test_engine_film_camera_subject_extent(): void {
   const jointSpan: number = AutoMovieEngineFilm.computeRestHeight(skeleton());

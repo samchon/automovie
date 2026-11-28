@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A zero-radius site keeps all three Cartesian components at its centre.
  * 4. A radius-`2 sqrt(2)` disc holds a square whose corners have coordinates `±2`
  *    mm. Moving the hard contact inside that square can clear a collider.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes radius-constrained contact point selection and its exact three linearized equality rows.
+ * @evidence contracts/development/testing.md#behavioral-verification Projects a typed site outside and inside a disc, tries zero radius and solves a rectangular free-contact region.
+ * @evidence contracts/development/testing.md#independent-expectations A 3/−4 mm offset has norm 5 mm, so a 2.5 mm disc halves it. A square with ±2 mm coordinates fits the supplied radius 2√2 mm.
  */
 export function test_motions_posture_arm_site_equalities(): void {
   const error: Parameters<typeof HumanArmTrajectorySiteError.equalities>[0] = {

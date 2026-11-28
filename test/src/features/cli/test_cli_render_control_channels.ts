@@ -39,11 +39,9 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
  *    and `controls/` byte for byte and installs a `blocked` report whose
  *    `source.sha256` differs from the kept film's.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the CLI render with render's real composer and validators over a fake draw session and FFmpeg boundary and reads the published folder; channels left in staging, a record bound to another film, digests of other bytes or a blocked attempt that replaced the channels fails.
- * @evidence contracts/development/testing.md#independent-expectations Digests are recomputed with Node's SHA-256 over the published files; the default folder is the documented `media/automovie/<film>/videos`; the blocked file differs from the conforming one only in the colour range the profile check reads.
- * @evidence contracts/development/testing.md#distinguishing-cases An explicit and a default folder, a published and a blocked attempt, and admitted against refused pass lists; drawing order and conventions are owned by `test_draw_drawn_video_passes`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_render_control_channels`; it owns an isolated temporary directory and runs no FFmpeg, browser or device.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes guide-pass admission, default and explicit channel locations, file identity and preservation on blocked delivery.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls guide-pass admission and runs the CLI render with draw and encoder fixtures. Reads the installed channel records and frame files, then checks both old products and the blocked attempt's report after a limited-range refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal ordered pass names, the documented default folder, and SHA-256 computed independently from the written film and frame bytes. A single limited-range header supplies the refusal.
  */
 export async function test_cli_render_control_channels(): Promise<void> {
   // 1. Admission.

@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  *    constant horizontal separation at different depths.
  * 3. Stale output zoom/view offsets are reset; invalid dimensions, source lenses,
  *    manual matrices, parent/scale transforms and collapsed charts refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe paired views, independent projected offsets and the invalid geometry and camera states.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that comparison preserves a common parallel projection at different depths, resets stale camera settings, and refuses unsupported inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Uses matched fixture points at differing depths and fixed screen-right offsets to expect equal vertical pixels and invariant horizontal separation.
  */
 export function test_render_scene_update_comparison_camera(): void {
   const target: THREE.Vector3 = new THREE.Vector3(0.012, 0.05, -0.007);

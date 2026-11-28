@@ -4,15 +4,11 @@ export namespace AutoMovieEngineKeyframeSearch {
   export type Tie = "previous" | "next";
 
   /**
-   * Find the lower index of the segment containing a finite sample time. An
-   * exact interior key selects the preceding or following segment as requested.
-   * Times outside the sequence select the first or last segment.
+   * Find the lower index of the segment around a time on an ordered clock.
    *
-   * @param length Number of strictly increasing finite keys, at least two.
-   * @param timeAt Read a key's position in the same clock as the sample.
-   * @param time Position of the sample on that clock.
-   * @param exactKey Segment to use at an exact interior key.
-   * @returns The lower index of the segment, from zero to length minus two.
+   * Provide at least two strictly increasing finite keys and a finite sample
+   * time. Out-of-range times select the nearest end segment. An exact interior
+   * key uses the preceding or following segment according to exactKey.
    */
   export function segment(
     length: number,

@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanPigmentation } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanPigmentation. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Constitutive skin pigmentation and one iris color shared by both eyes. Use
+ * this type to generate a typia validator or schema for melanin, eumelanin
+ * share and haemoglobin volume fractions.
+ */
 export type IAutoMovieHumanPigmentationSchema = IAutoMovieHumanPigmentation & {
   /**
    * Epidermal melanin volume fraction, dimensionless. Measured melanosome fractions are 0.013 to 0.063 in lightly, 0.11 to 0.16 in moderately and 0.18 to 0.43 in darkly pigmented adults (Jacques 1998, "Skin Optics", Oregon Medical Laser Center News).

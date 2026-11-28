@@ -22,6 +22,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    clips by union and switches the renderer's local clipping on; `restore`
  *    puts back the same plane list, its intersection flag and the renderer's
  *    switch.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names invalid request cases, rollback after partial application and the cut direction and restore state.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the same two quads for failing selection, stroke and mark requests. Checks public inspection errors and original objects after each. Applies and restores a valid cut using a controlled renderer clipping switch.
+ * @evidence contracts/development/testing.md#independent-expectations The quads begin with mask 1 and two original materials. Empty or partial selections and invalid strokes must preserve that state. A +X cut at the origin yields a −X-facing plane with zero constant, and restore must return the very same previous plane list and original clipping flags.
  */
 export function test_render_scene_apply_inspection_refusals(): void {
   // 1. Refused requests.

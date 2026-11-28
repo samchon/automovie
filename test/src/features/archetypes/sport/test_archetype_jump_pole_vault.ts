@@ -20,11 +20,9 @@ const WA: string = "World Athletics Technical Rules 2020";
  * 3. Each standard's inner face stands beyond the bar's end, and each standard's foot is on the runway, within a millimetre.
  * 4. The pole vault declares `bar` and `box`; the high jump, made with no kind, declares only `bar` and has no part below the floor.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces both kinds and measures colliders and contacts; a bar off the rule's length, pegs off their span, a box at the wrong depth or of the wrong shape, a standard through the bar, or a high jump that grew a box fails with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The bands are the rules' numbers written here; the stop board's 0.224 m is the figure's own printed length, not computed by the producer.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds, the default kind unchanged; the high jump's bands and placement belong to `test_archetype_jump_placed`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the vault bar, runway, standards and box geometry and the high-jump bar-only control.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both public variants and measures the actual bar, posts and box colliders and contacts. The measurements distinguish the bar clearance at either standard and a correct runway recess from a box present on the high-jump model.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated TR 26.7 and TR 28 measurements. The vault box socket lies 0.20 m below the runway and the documented stop board measures 0.224 m within the one millimetre allowance.
  */
 export function test_archetype_jump_pole_vault(): void {
   const vault = (seed: number): ReturnType<typeof AutoMovieArchetypeHighJump.create> =>

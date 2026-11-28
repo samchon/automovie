@@ -1,8 +1,11 @@
-/** A finite, strictly increasing interval in a curve's own parameter chart. */
+/**
+ * Closed curve interval with finite increasing endpoints in one parameter
+ * chart.
+ */
 export interface IAutoMovieCurveDomain {
-  /** Inclusive start parameter. */
+  /** Inclusive finite start in the associated source parameter unit. */
   readonly start: number;
 
-  /** Inclusive end parameter, strictly greater than `start`. */
+  /** Inclusive finite end in that unit, strictly above start. */
   readonly end: number;
 }

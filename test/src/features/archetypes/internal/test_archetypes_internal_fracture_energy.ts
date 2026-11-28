@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Energy 6 does not, and the least sufficient energy is exactly 6.25.
  * 3. No momentum always suffices.
  * 4. A nonpositive mass is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States exact energy admission, the insufficient case, zero momentum and invalid mass.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real comparison on the exact threshold and below it, then checks reported minimum energy, a zero-momentum case and refusal of zero mass.
+ * @evidence contracts/development/testing.md#independent-expectations The authored momentum (3, 4, 0) has squared magnitude 25. With mass 2, kinetic energy is exactly 6.25.
  */
 export function test_archetypes_internal_fracture_energy(): void {
   const momentum = { x: 3, y: 4, z: 0 };

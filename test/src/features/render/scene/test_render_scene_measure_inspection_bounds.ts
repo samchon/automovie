@@ -14,6 +14,10 @@ import * as THREE from "three";
  *    transforms.
  * 3. An invisible child adds nothing, and an object that draws nothing has no
  *    bounds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The bounds cases describe transformed drawable geometry, invisibility, and a root that draws nothing.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks world bounds for a scaled cube and transformed point and line data, skipping the invisible child and returning no bounds for an empty group.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the unit cube's half extents after X translation and Y scaling and literal fixture points for the expected bounds.
  */
 export function test_render_scene_measure_inspection_bounds(): void {
   const root: THREE.Group = new THREE.Group();

@@ -30,6 +30,10 @@ const H: number = 1e-6;
  *    difference over a microsecond differs from the slope by `6 (h / D)^2` at
  *    the start, far under the tolerance.
  * 5. A duration of 0 or less is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the initial-velocity basis, peak, endpoint slopes, and non-positive duration refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `carriedRate` with literal durations and elapsed times. Samples across the interval test shape and peak, one-sided differences exercise both slopes, and zero and negative durations exercise refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Factoring the quintic gives Du(1 - u)³(1 + 3u), with its peak 16D/81 at u = 1/3. The finite difference at the start is within 1e-9 of unit slope and the one at the end is within 1e-9 of zero.
  */
 export function test_engine_motion_carried_rate(): void {
   // 1. The factored interior.

@@ -15,6 +15,8 @@ import { readPageTimeout } from "../../page/internal/readPageTimeout";
  * | `--backend <software\|gpu>`         | How the browser draws                                                                                               | `software`                         |
  * | `--background <scene\|transparent>` | `transparent` renders a straight-alpha `film.mov` with no audio into `media/automovie/<subject>/transparent`        | `scene`                            |
  * | `--timeout-ms <milliseconds>`       | Per-call budget for page navigation, draw-function readiness, subject creation and drawing. Integer 1 to 2147483647 | `120000`                           |
+ * | `--checkpoint-dir <directory>`      | Retained native draw data for interrupted or repeated rendering                                                       | No checkpoint                      |
+ * | `--checkpoint-identity <sha256>`    | Exact source inputs and dependencies, including native assets. Used with `--checkpoint-dir`                           | No checkpoint                      |
  *
  * Every other option is left for the request reader, which names the subject as
  * `capture` and the inspector do; a render draws the subject's whole clock
@@ -49,6 +51,12 @@ export function readRenderOptions(
     throw new Error(
       `Render --background "${background}" is not scene or transparent`,
     );
+  const checkpointDir: string | undefined = taken.get("checkpoint-dir");
+  const checkpointIdentity: string | undefined = taken.get("checkpoint-identity");
+  if ((checkpointDir === undefined) !== (checkpointIdentity === undefined))
+    throw new Error("Render needs --checkpoint-dir and --checkpoint-identity together");
+  if (checkpointIdentity !== undefined && !/^[a-f0-9]{64}$/u.test(checkpointIdentity))
+    throw new Error("Render --checkpoint-identity needs 64 lowercase SHA-256 digits");
   return {
     module,
     props: taken.get("props") ?? null,
@@ -57,5 +65,8 @@ export function readRenderOptions(
     timeout: readPageTimeout(taken.get("timeout-ms")),
     request,
     background,
+    checkpoint: checkpointDir === undefined
+      ? null
+      : { directory: checkpointDir, identity: checkpointIdentity! },
   };
 }

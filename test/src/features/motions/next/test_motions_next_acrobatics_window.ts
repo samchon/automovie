@@ -6,12 +6,19 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * A gymnast rises and returns to the launch height under constant gravity.
+ * Check ballistic positions, landing and the descending crossing of a raised
+ * surface.
  *
  * Scenarios:
  *
- * 1. Choosing the launch speed for one second of ascent fixes the apex and the
- *    two-second landing.
+ * 1. With one second of ascent, sample 21 points through flight, including
+ *    apex at 1 s and return to launch height at 2 s.
+ * 2. A raised surface at three quarters of apex height gives the descending
+ *    crossing at 1.5 s. A surface above the apex gives no crossing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases distinguish equality of launch and landing heights from a chosen descent root.
+ * @evidence contracts/development/testing.md#behavioral-verification Public flight functions are called with fixed three-axis velocity and two raised surfaces.
+ * @evidence contracts/development/testing.md#independent-expectations Horizontal position is linear. The height curve around its known apex is `g * (t - 1) ** 2 / 2` below the apex.
  */
 export function test_motions_next_acrobatics_window(): void {
   descendingCrossing();

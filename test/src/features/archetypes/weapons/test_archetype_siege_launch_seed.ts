@@ -14,11 +14,9 @@ const G: number = 9.80665;
  * 2. A later pin second shifts the throw whole: the release second by the same delay, the place and the velocity unchanged.
  * 3. The stone's drag-free flight from the launch by the engine's `projectileAt` is on the ground, and at the closed form's landing, `z0 + vz t` at the root of `y0 + vy t - g t^2 / 2 = 0`, within 1 mm.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs each throw twice and late, and flies its stone; a throw that depends on anything but the pin's second, or a launch whose flight misses its closed form, is caught.
- * @evidence contracts/development/testing.md#independent-expectations The landing is worked here in closed form and compared with the engine's `projectileAt`.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds, three seeds, two pin seconds.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names repeated and delayed simulated events and their expected flight endpoint.
+ * @evidence contracts/development/testing.md#behavioral-verification Repeats the same simulated object event, shifts its authored time and samples the engine's trajectory output at the resulting ground intersection.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's closed-form calculation for an ideal trajectory and the declared time shift. The expected endpoint is computed before reading the engine sample.
  */
 export function test_archetype_siege_launch_seed(): void {
   const findings: string[] = [];

@@ -2,94 +2,112 @@ import type { IAutoMovieConvexSupportLoft } from "../model/IAutoMovieConvexSuppo
 import type { IAutoMovieMesh } from "../model/IAutoMovieMesh";
 import type { IAutoMovieConstructionPolyline } from "../render/IAutoMovieConstructionPolyline";
 
-/**
- * Data and callback contracts shared by the RealizeConvexSupportLoft
- * operations.
- */
+/** Run controls and receipts for numerical support-loft surface generation. */
 export namespace IAutoMovieRealizeConvexSupportLoft {
-  /** Numeric limits shared by Engine realization and Recovery fitting. */
+  /** Numeric admission and work caps for open convex support-loft realization. */
   export interface IControls {
-    /** Finite positive ruled-face interpolation bound in metres. */
+    /**
+     * Finite positive metre limit for ruled-face interpolation within the
+     * numerical event partition.
+     */
     tolerance: number;
-    /** Positive safe-integer cap on support planes. */
+    /**
+     * Positive safe-integer maximum of supplied support planes. The realizer
+     * also requires at least three planes.
+     */
     maxPlanes: number;
-    /** Nonnegative safe-integer cap on interior events; zero is valid. */
+    /**
+     * Nonnegative safe-integer cap on retained feasible interior event
+     * stations. Zero is supported.
+     */
     maxEvents: number;
-    /** Positive safe-integer cap on planned cells. */
+    /** Positive safe-integer cap on ruled-face planning cells. */
     maxCells: number;
-    /** Positive safe-integer cap on emitted vertices. */
+    /**
+     * Positive safe-integer cap on emitted render vertices, checked before
+     * transferring the lateral mesh.
+     */
     maxVertices: number;
-    /** Finite threshold strictly between zero and one. */
+    /**
+     * Finite minimum absolute direction determinant in (0, 1) for unit plane
+     * normals.
+     */
     minimumDirectionSine: number;
   }
 
   /**
-   * Generate a new open lateral mesh from compact cubic support coefficients.
-   * Sections intersect fixed oriented unit half-planes in XZ. Feasible
-   * algebraic boundary events preserve changes in active constraints; they are
-   * not physical branch or cavity observations. Native binary64 root/incidence
-   * classification remains numerical, with explicit refusal for unresolved
-   * charts and budgets. Normals come from the same face equations; caps and
-   * interior are not emitted. The face chord bound covers interpolation within
-   * the numerical partition, separately from uncertified event isolation,
-   * boundary roundoff and source fit.
+   * Authored adjacent cubic support spans, numerical controls and physical
+   * identity domain.
+   *
+   * The direction set encloses a bounded section. Supply unique plane
+   * identities, finite coefficients and an identical endpoint coefficient on
+   * neighbouring spans of each plane.
    */
   export interface IInput extends IControls {
     /**
-     * Complete metre-valued cubic support recipe; the realizer admits unit XZ
-     * normals, enclosing directions, adjacent station spans and exact shared
-     * endpoint coefficients.
+     * Metre-valued cubic offsets over ordered adjacent Y spans, with enclosing
+     * unit XZ directions and exact shared endpoint coefficients.
      */
     loft: IAutoMovieConvexSupportLoft;
     /**
-     * Nonblank physical-instance identity namespace for newly generated
-     * support-loft vertices.
+     * Nonblank physical namespace for the generated loft instance. Stored
+     * physical vertex sources retain the supplied string.
      */
     topologyDomain: string;
   }
 
   /**
-   * Generate a new open lateral mesh from compact cubic support coefficients.
-   * Sections intersect fixed oriented unit half-planes in XZ. Feasible
-   * algebraic boundary events preserve changes in active constraints; they are
-   * not physical branch or cavity observations. Native binary64 root/incidence
-   * classification remains numerical, with explicit refusal for unresolved
-   * charts and budgets. Normals come from the same face equations; caps and
-   * interior are not emitted. The face chord bound covers interpolation within
-   * the numerical partition, separately from uncertified event isolation,
-   * boundary roundoff and source fit.
+   * Open lateral mesh, construction polylines and diagnostic receipts for one
+   * numerical support loft.
+   *
+   * The event marker grades the numeric construction. A face chord bound covers
+   * interpolation within the numerical partition. Boundary agreement and source
+   * fit require separate evidence.
    */
   export interface IResult {
-    /** Open lateral mesh in local metres with analytic unit normals. */
+    /**
+     * Open lateral mesh in local metres with analytic unit normals. End caps
+     * and interior fill are absent.
+     */
     mesh: IAutoMovieMesh;
 
-    /** Sampled boundaries and sections, which can share tuples at stations. */
+    /**
+     * Sampled section and boundary polylines. Different lines may share the
+     * same coordinate tuples at canonical stations.
+     */
     construction: IAutoMovieConstructionPolyline.IMutable[];
 
     /**
-     * Largest disagreement, in metres, between repeated evaluations of a
-     * canonical boundary vertex. This measures numerical roundoff.
+     * Largest measured distance between evaluations of the same canonical
+     * boundary vertex, in metres.
      */
     maximumBoundaryDefectMeters: number;
 
-    /** Proposed triangles omitted because two corners share a physical source. */
+    /**
+     * Count of proposed triangles omitted when two corners share a physical
+     * source identity.
+     */
     omittedCollapsedTriangles: number;
 
     /**
-     * Number of retained feasible interior event stations in the algebraic
-     * plan, excluding span endpoints.
+     * Retained feasible interior event stations across the spans, excluding
+     * endpoints.
      */
     events: number;
-    /** Total adjacent event-station intervals across all polynomial spans. */
+    /**
+     * Total adjacent event-station intervals across all authored polynomial
+     * spans.
+     */
     intervals: number;
     /**
-     * Requested tolerance in metres used to plan ruled-face interpolation; it
-     * excludes event-isolation error, boundary roundoff and source-fit error.
+     * Requested interpolation limit in metres within the numerical partition.
+     * Event isolation, boundary roundoff and source fit have separate
+     * qualifications.
      */
     faceChordBoundMeters: number;
     /**
-     * Explicitly marks event roots and incidence as binary64 numerical
-     * construction, with no certified isolation claim.
+     * Fixed marker for binary64 numerical event root and incidence
+     * classification.
      */
     eventQualification: "binary64-numerical-not-certified";
   }

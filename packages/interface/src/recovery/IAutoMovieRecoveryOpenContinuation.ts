@@ -1,34 +1,34 @@
 import type { IAutoMovieRecoveryOpenContinuationInterval } from "..";
 
 /**
- * Source-free open-curve incidence accompanying one original saved section
- * publication.
+ * Source-backed adjacency evidence and orientation for previously saved open
+ * coefficients.
  */
 export interface IAutoMovieRecoveryOpenContinuation {
   /**
-   * Strict boundary regularity classification used independently of saved
-   * station density.
+   * Versioned physical-boundary critical-point policy used for this
+   * observation.
    */
   criticalPolicy: "boundary-regular-path-v1";
 
-  /** Adjacent saved-section pairs addressing reports[section].open. */
+  /** Ordered adjacency records for every consecutive pair of saved sections. */
   intervals: IAutoMovieRecoveryOpenContinuationInterval[];
 
   /**
-   * Material tangent sign relative to each saved open curve, or null when
-   * unqualified.
+   * Rows of saved open-arc material orientation. Each entry is signed or null
+   * when unresolved.
    */
   orientations: (1 | -1 | null)[][];
 
-  /** Nonblocking orientation warnings and unresolved observation messages. */
+  /** Source material and unresolved-group observations for the collection. */
   diagnostics: string[];
 
   /**
-   * Requested physical sampling spacing, millimetres; not a surface or normal
-   * error bound.
+   * Physical tessellation resolution for eligible reconstructed open runs, in
+   * millimetres.
    */
   resolutionMm: number;
 
-  /** Explicit vertex budget per maximal open run. */
+  /** Safe upper limit on the generated vertices of one ordinary open run. */
   maxVerticesPerRun: number;
 }

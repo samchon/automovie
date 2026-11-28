@@ -31,6 +31,10 @@ import {
  *    cyclic and degenerate outcomes without changing tolerances.
  * 2. A declared contact between `(a, b\u0000c)` remains valid, while its colliding
  *    legacy key must not exempt the separate overlapping pair `(a\u0000b, c)`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the original contact and support boundaries and a pair-key collision between distinct authored pairs containing NUL.
+ * @evidence contracts/development/testing.md#behavioral-verification The test sends each prepared alternative through placement validation and compares exact accepted or refused findings. It varies pair IDs so one explicit contact coexists with a separately overlapping pair.
+ * @evidence contracts/development/testing.md#independent-expectations Retained fixture dimensions and authored tolerances independently determine grazing, support and unmeasurable outcomes. The NUL-containing tuples are distinct despite their old flattened spelling, so declared contact for one cannot exempt the other.
  */
 export function test_engine_film_prop_placement_boundaries(): void {
   const scenario: {

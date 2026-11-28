@@ -63,7 +63,7 @@ export namespace IAutoMovieMotionHumanAidWalk {
     ) => (filmSecond: number) => IAutoMovieRigidTransform;
   }
 
-  /** A floor endpoint and the film time available to reach it. */
+  /** A floor endpoint, the film time to reach it and an optional grounded hold. */
   export interface IStation {
     /** World X displacement from the entry station, in metres. */
     x: number;
@@ -79,5 +79,13 @@ export namespace IAutoMovieMotionHumanAidWalk {
 
     /** Positive film seconds to advance the aid and both feet once. */
     seconds: number;
+
+    /**
+     * Finite, nonnegative film seconds after both feet reach this station. The
+     * aid and both feet stay planted and the chosen hands keep their grips. A
+     * positive hold emits `aidPauseN` and `aidResumeN`, where `N` is the
+     * station number starting at one. The default is zero.
+     */
+    pause?: number;
   }
 }

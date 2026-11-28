@@ -13,12 +13,17 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * The `flinch` law's timetable (`flinch.timetable`): no preparation, the rise
- * to the `stroke` kept at its reflex length, and the return stretched by the
- * manner's tempo.
+ * Check the effect of tempo on the reflex flinch clock.
  *
- * Scenario: twice as slow, the flinch still strikes at its neutral time, and
- * its return after the stroke takes twice the neutral time.
+ * Scenarios:
+ *
+ * 1. Compare neutral with tempo 2. Both start the stroke at entry and reach
+ *    the same positive stroke second.
+ * 2. The time from stroke to end doubles at tempo 2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish stroke timing from the scaled return.
+ * @evidence contracts/development/testing.md#behavioral-verification The test distinguishes the fixed reflex rise from the tempo-scaled return.
+ * @evidence contracts/development/testing.md#independent-expectations The neutral clock is the reference for the unchanged stroke and elapsed return, and the input tempo sets the independent factor of two.
  */
 export function test_motions_reaction_flinch(): void {
   const slow: IAutoMovieMotionManner.IModifiers = {

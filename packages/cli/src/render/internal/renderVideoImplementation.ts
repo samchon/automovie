@@ -18,6 +18,7 @@ import { auditAlphaSamples } from "./auditAlphaSamples";
 import { auditDeliveryProfile } from "../../delivery/internal/auditDeliveryProfile";
 import { AutoMovieCliDelivery } from "../../delivery/AutoMovieCliDelivery";
 import { listReleaseFindings } from "./listReleaseFindings";
+import { openRenderCheckpoint } from "./openRenderCheckpoint";
 import { publishRenderAttempt } from "./publishRenderAttempt";
 import { readRevisionImplementation } from "../../production/internal/readRevisionImplementation";
 import { runFfmpeg } from "../../ffmpeg/internal/runFfmpeg";
@@ -60,11 +61,71 @@ export async function renderVideoImplementation(
   props: AutoMovieCliRender.IRenderVideoInput,
   run: typeof runFfmpeg = runFfmpeg,
 ): Promise<AutoMovieCliRender.IRenderVideoResult> {
-  const session = await props.host.session({
-    subject: props.subject,
-    props: props.props,
-  });
-  const { name, delivery: intent } = session.subject;
+  const started: number = performance.now();
+  const progress: IRenderProgress = {
+    requested: null,
+    acknowledged: null,
+    frameCount: null,
+    elapsedMilliseconds: 0,
+  };
+  let accepting: boolean = true;
+  let frame: number | undefined;
+  const observe = (activity: Render.IAutoMovieRenderDrawActivity): void => {
+    if (!accepting) return;
+    if (activity.frame !== undefined) frame = activity.frame;
+    if (activity.frameCount !== undefined)
+      progress.frameCount = activity.frameCount;
+    const receipt: Render.IAutoMovieRenderDrawActivity =
+      activity.stage === "draw-pass" && frame !== undefined
+        ? { ...activity, frame }
+        : activity;
+    if (receipt.type === "requested") progress.requested = receipt;
+    else progress.acknowledged = receipt;
+    props.observe?.(receipt);
+  };
+  let operationStarted: number = started;
+  const request = (stage: Render.IAutoMovieRenderDrawActivity["stage"]): void => {
+    operationStarted = performance.now();
+    observe({ type: "requested", stage });
+  };
+  const acknowledge = (
+    stage: Render.IAutoMovieRenderDrawActivity["stage"],
+  ): void =>
+    observe({
+      type: "acknowledged",
+      stage,
+      elapsedMilliseconds: performance.now() - operationStarted,
+    });
+
+  let session: Awaited<ReturnType<typeof props.host.session>> | undefined;
+  let mountFailure: unknown;
+  let checkpoint: Awaited<ReturnType<typeof openRenderCheckpoint>> | undefined;
+  request("mount");
+  try {
+    const open = (): ReturnType<typeof props.host.session> =>
+      props.host.session({ subject: props.subject, props: props.props, observe });
+    if (props.checkpoint !== undefined)
+      checkpoint = await openRenderCheckpoint(props, props.checkpoint, SPEC, open);
+    session = checkpoint?.session ?? (await open());
+    acknowledge("mount");
+  } catch (cause) {
+    accepting = false;
+    mountFailure = cause;
+    const opened = session;
+    session = undefined;
+    if (opened !== undefined)
+      await opened.close().catch((closeFailure: unknown): void => {
+        mountFailure = new AggregateError([cause, closeFailure], "Draw session failed while reporting its mount");
+      });
+  }
+  const name: string | null = session?.subject.name ?? props.subject;
+  const intent = session?.subject.delivery;
+  if (
+    session === undefined &&
+    props.out === undefined &&
+    (name === null || name === "" || name === "." || name === ".." || /[\\/:]/u.test(name))
+  )
+    throw mountFailure;
 
   // A transparent layer has its own folder, so its attempts never replace the
   // report of the film in `videos/`.
@@ -76,7 +137,7 @@ export async function renderVideoImplementation(
       path.join(
         "media",
         "automovie",
-        name,
+        name!,
         transparent ? "transparent" : "videos",
       ),
   );
@@ -99,8 +160,10 @@ export async function renderVideoImplementation(
     const attempt: IDeliveryReport = {
       subject: name,
       revision: readRevisionImplementation(props.root),
-      backend: session.backend,
+      backend: session?.backend ?? "unavailable",
       status: "failed",
+      progress,
+      ...(checkpoint === undefined ? {} : { checkpoint: checkpoint.receipt }),
       video: null,
       args: [],
       frames: [],
@@ -118,13 +181,18 @@ export async function renderVideoImplementation(
           }
         : {}),
     };
-    const writeReport = async (): Promise<void> =>
-      fs.writeFile(pendingReport, JSON.stringify(attempt, null, 2) + "\n");
-    let phase = "draw";
+    const writeReport = async (): Promise<void> => {
+      progress.elapsedMilliseconds = performance.now() - started;
+      await fs.writeFile(pendingReport, JSON.stringify(attempt, null, 2) + "\n");
+    };
+    let phase: string = "mount";
     const soundtrack: string | null = transparent
       ? null
       : (intent?.audio?.path ?? null);
     try {
+      if (session === undefined) throw mountFailure;
+      phase = "draw";
+      request("prepare-render");
       const frameRoot = path.join(props.root, ".cache", "render");
       await fs.mkdir(frameRoot, { recursive: true });
       scratch = await fs.mkdtemp(path.join(frameRoot, "frames-"));
@@ -157,6 +225,13 @@ export async function renderVideoImplementation(
           soundtrack === null ? null : path.resolve(props.root, soundtrack),
         write: (file, data) => fs.writeFile(file, data),
         read: async (file) => fs.readFile(path.resolve(props.root, file)),
+        observe,
+        frameWritten: ({ index, seconds, hash }): void => {
+          attempt.frames.push({ index, seconds, hash });
+        },
+        incompleteAudit: (audit): void => {
+          attempt.diagnostics = audit;
+        },
         encode: async (args, drawn) => {
           attempt.args = args;
           // The soundtrack lives in the frame scratch, which is released, so
@@ -173,11 +248,14 @@ export async function renderVideoImplementation(
           attempt.diagnostics = drawn.diagnostics ?? null;
           if (drawn.cut !== undefined) attempt.cut = drawn.cut;
           phase = "encode";
+          request("encode");
           await run(props.ffmpeg, args);
+          acknowledge("encode");
         },
       });
 
       phase = "audit";
+      request("audit");
       const hash = createHash("sha256");
       for await (const chunk of createReadStream(candidate)) hash.update(chunk);
       attempt.source = {
@@ -267,18 +345,20 @@ export async function renderVideoImplementation(
               : [],
         ),
       ];
+      acknowledge("audit");
       if (failures.length > 0) {
         attempt.status = "blocked";
         throw new Error(failures.join(" | "));
       }
 
       phase = "publish";
+      request("publish");
       attempt.status = "published";
       attempt.video = file;
       await writeReport();
       if (controls !== null)
         await writeControlRecord(controls.staged, {
-          film: name,
+          film: session.subject.name,
           revision: attempt.revision,
           backend: attempt.backend,
           clock: {
@@ -311,8 +391,10 @@ export async function renderVideoImplementation(
         report,
         frames: result.frames.length,
         controls: controls === null ? null : controls.installed,
+        backend: session.backend,
       };
     } catch (cause) {
+      accepting = false;
       attempt.video = null;
       if (attempt.status !== "blocked") attempt.status = "failed";
       const message = cause instanceof Error ? cause.message : String(cause);
@@ -333,7 +415,7 @@ export async function renderVideoImplementation(
     }
   } finally {
     await Promise.all([
-      session.close(),
+      ...(session === undefined ? [] : [session.close()]),
       ...(staging === undefined ? [] : [fs.rm(staging, { recursive: true })]),
       ...(scratch === undefined ? [] : [fs.rm(scratch, { recursive: true })]),
       ...(reservationTicket === undefined
@@ -358,7 +440,7 @@ interface IDeliveryReport {
   /*
    * The rendered subject's name.
    */
-  subject: string;
+  subject: string | null;
 
   /*
    * The production's source revision, as `readRevisionImplementation` reads it.
@@ -375,6 +457,12 @@ interface IDeliveryReport {
    * when an audit refused it, `failed` when a phase threw.
    */
   status: "published" | "blocked" | "failed";
+
+  /* Latest requests and acknowledgments observed by the host. */
+  progress: IRenderProgress;
+
+  /* Verified saved source frames visited during this attempt. */
+  checkpoint?: Awaited<ReturnType<typeof openRenderCheckpoint>>["receipt"];
 
   /*
    * The file this attempt published beside the report; null unless published.
@@ -402,7 +490,7 @@ interface IDeliveryReport {
   >[];
 
   /*
-   * The scene inspection over every drawn frame; null until drawing finished.
+   * Available scene inspection, including incomplete coverage on draw failure.
    */
   diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
 
@@ -440,6 +528,13 @@ interface IDeliveryReport {
    * The phase that blocked or failed and its message; absent when published.
    */
   failure?: { phase: string; message: string };
+}
+
+interface IRenderProgress {
+  requested: Render.IAutoMovieRenderDrawActivity.IRequested | null;
+  acknowledged: Render.IAutoMovieRenderDrawActivity.IAcknowledged | null;
+  frameCount: number | null;
+  elapsedMilliseconds: number;
 }
 
 /*

@@ -13,10 +13,10 @@ import type {
 import { fitRecoveryEpipolarConsensus } from "../../geometry/internal/fitRecoveryEpipolarConsensus";
 import { fitRecoveryEpipolarMatrix } from "../../geometry/internal/fitRecoveryEpipolarMatrix";
 import { fitRecoveryHomographyConsensus } from "../../geometry/internal/fitRecoveryHomographyConsensus";
-import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
 import { measureRecoveryEpipolarErrors } from "../../geometry/internal/measureRecoveryEpipolarErrors";
 import { scoreRecoveryCameraResiduals } from "../../geometry/internal/scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "../../geometry/internal/selectRecoveryCameraPose";
+import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
 
 /*
  * Qualify completed automatic observations and assemble owned camera evidence.
@@ -32,12 +32,18 @@ export function createRecoveryCameraEstimate(
   charts: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[3],
   checkpoint: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[4],
 ): ReturnType<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation> {
-  const result: IAutoMovieRecoveryCameraPairEstimate = {
+  const identity: Pick<
+    IAutoMovieRecoveryCameraPairEstimate.IObservations,
+    "schema" | "objectId" | "cohort"
+  > = {
     schema: "automovie-recovery-camera-pair-estimate-v1",
     objectId: input.objectId,
     cohort: input.cohort,
-    status: "refused",
-    refusalReasons: [],
+  };
+  const observations: Omit<
+    IAutoMovieRecoveryCameraPairEstimate.IObservations,
+    keyof typeof identity
+  > = {
     policy: { ...input.policy },
     budget: { ...input.budget },
     sources: input.views.map(
@@ -84,13 +90,17 @@ export function createRecoveryCameraEstimate(
         homographyInlier: false,
       }),
     ),
-    consensus: null,
-    pose: null,
   };
-  if (matches.length < 8) {
-    result.refusalReasons.push("insufficient-appearance-matches");
-    return result;
-  }
+  if (matches.length < 8)
+    return {
+      ...identity,
+      status: "refused",
+      refusalReasons: ["insufficient-appearance-matches"],
+      ...observations,
+      consensus: null,
+      pose: null,
+    };
+  const refusalReasons: string[] = [];
   const first: [number, number][] = matches.map(
     (match: (typeof matches)[number]): [number, number] => match.first,
   );
@@ -111,7 +121,7 @@ export function createRecoveryCameraEstimate(
         checkpoint("epipolar-consensus", completed, total),
     );
   const indices: number[] = epipolar.score.indices;
-  for (const at of indices) result.matches[at]!.epipolarInlier = true;
+  for (const at of indices) observations.matches[at]!.epipolarInlier = true;
   const consensus: NonNullable<
     IAutoMovieRecoveryCameraPairEstimate["consensus"]
   > = {
@@ -149,17 +159,15 @@ export function createRecoveryCameraEstimate(
     allPositiveDepthCounts: [],
     homography: null,
   };
-  result.consensus = consensus;
   if (!epipolar.conditionalTrialTargetMet)
-    result.refusalReasons.push("epipolar-search-budget");
+    refusalReasons.push("epipolar-search-budget");
   if (!epipolar.finalRefinement?.converged)
-    result.refusalReasons.push(
+    refusalReasons.push(
       epipolar.finalRefinement?.refusal ?? "unresolved-final-refinement",
     );
-  if (indices.length < p.minimumInliers)
-    result.refusalReasons.push("inlier-count");
+  if (indices.length < p.minimumInliers) refusalReasons.push("inlier-count");
   if (consensus.inlierFraction < p.minimumInlierFraction)
-    result.refusalReasons.push("inlier-fraction");
+    refusalReasons.push("inlier-fraction");
   const inlierFirst: [number, number][] = indices.map(
     (at: number): [number, number] => first[at]!,
   );
@@ -179,7 +187,7 @@ export function createRecoveryCameraEstimate(
       ).designSingularRatio;
     } catch (error: unknown) {
       if (!isRecoveryCameraNumericalRefusal(error)) throw error;
-      result.refusalReasons.push("final-design-degeneracy");
+      refusalReasons.push("final-design-degeneracy");
     }
     try {
       pose = selectRecoveryCameraPose(
@@ -194,14 +202,14 @@ export function createRecoveryCameraEstimate(
       consensus.positiveDepthFraction = pose.positiveDepthFraction;
       consensus.medianParallaxRadians = pose.medianParallaxRadians;
       consensus.allPositiveDepthCounts = pose.allPositiveDepthCounts.slice();
-      if (!pose.uniqueWinner) result.refusalReasons.push("pose-ambiguity");
+      if (!pose.uniqueWinner) refusalReasons.push("pose-ambiguity");
       if (pose.positiveDepthFraction < p.minimumPositiveDepthFraction)
-        result.refusalReasons.push("cheirality");
+        refusalReasons.push("cheirality");
       if (
         pose.medianParallaxRadians === null ||
         pose.medianParallaxRadians < p.minimumParallaxRadians
       )
-        result.refusalReasons.push("low-parallax");
+        refusalReasons.push("low-parallax");
       const allErrors: ReturnType<IAutoMovieRecoveryEpipolarErrorsMeasurementOperation.Operation> =
         measureRecoveryEpipolarErrors(pose.fundamental, first, second);
       const actualScore: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
@@ -218,11 +226,11 @@ export function createRecoveryCameraEstimate(
           (at: number, index: number): boolean => at === indices[index],
         )
       ) {
-        result.refusalReasons.push("final-essential-support-changed");
+        refusalReasons.push("final-essential-support-changed");
         consensus.finalRefinementConverged = false;
       }
       if (indices.some((at: number): boolean => allErrors[at] === null))
-        result.refusalReasons.push("undefined-final-epipolar-lines");
+        refusalReasons.push("undefined-final-epipolar-lines");
       // Retain every finite final inlier error, including errors above the policy
       // limits. Applying those limits here would conceal the failing tail.
       const statistics: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> =
@@ -241,10 +249,10 @@ export function createRecoveryCameraEstimate(
         statistics.medianPx > p.maximumMedianErrorPx ||
         statistics.p90Px > p.maximumP90ErrorPx
       )
-        result.refusalReasons.push("calibrated-pixel-residual");
+        refusalReasons.push("calibrated-pixel-residual");
     } catch (error: unknown) {
       if (!isRecoveryCameraNumericalRefusal(error)) throw error;
-      result.refusalReasons.push("unresolved-final-pose");
+      refusalReasons.push("unresolved-final-pose");
       pose = null;
     }
     const fractions: number[] = [];
@@ -269,7 +277,7 @@ export function createRecoveryCameraEstimate(
       fractions.push(fraction);
     }
     consensus.inlierImageHullFractions = [fractions[0]!, fractions[1]!];
-  } else result.refusalReasons.push("insufficient-calibrated-support");
+  } else refusalReasons.push("insufficient-calibrated-support");
   if (indices.length >= 4) {
     const homography: ReturnType<IAutoMovieRecoveryHomographyConsensusFittingOperation.Operation> =
       fitRecoveryHomographyConsensus(
@@ -293,22 +301,41 @@ export function createRecoveryCameraEstimate(
       refitRefusals: homography.refitRefusals,
     };
     for (const local of homography.score.indices)
-      result.matches[indices[local]!]!.homographyInlier = true;
+      observations.matches[indices[local]!]!.homographyInlier = true;
     if (homography.forbiddenOverlapFound)
-      result.refusalReasons.push("homography-ambiguity");
+      refusalReasons.push("homography-ambiguity");
     else if (!homography.conditionalTrialTargetMet)
-      result.refusalReasons.push("homography-search-budget");
+      refusalReasons.push("homography-search-budget");
   }
-  if (result.refusalReasons.length === 0 && pose !== null) {
-    result.status = "accepted-relative-pose";
-    result.pose = {
-      gauge: "first-camera-unit-baseline",
-      metricScale: "unknown",
-      rotation: pose.rotation.slice(),
-      translation: [...pose.translation],
-      essentialProjectionDiscrepancy: pose.relativeProjectionDiscrepancy,
+  const [firstRefusal, ...otherRefusals] = refusalReasons;
+  let result: IAutoMovieRecoveryCameraPairEstimate;
+  if (firstRefusal === undefined && pose !== null)
+    result = {
+      ...identity,
+      status: "accepted-relative-pose",
+      refusalReasons: [],
+      ...observations,
+      consensus,
+      pose: {
+        gauge: "first-camera-unit-baseline",
+        metricScale: "unknown",
+        rotation: pose.rotation.slice(),
+        translation: [...pose.translation],
+        essentialProjectionDiscrepancy: pose.relativeProjectionDiscrepancy,
+      },
     };
-  }
+  else
+    result = {
+      ...identity,
+      status: "refused",
+      refusalReasons: [
+        firstRefusal ?? "unresolved-final-pose",
+        ...otherRefusals,
+      ],
+      ...observations,
+      consensus,
+      pose: null,
+    };
   checkpoint("camera-qualification", 1, 1);
   return result;
 }

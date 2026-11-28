@@ -1,4 +1,4 @@
-import {
+﻿import {
   type AutoMovieBodyRegion,
   type AutoMovieClinicalAxis,
   type AutoMovieHumanoidBone,
@@ -12,8 +12,8 @@ import {
   type IAutoMovieArmChainFault,
   type IAutoMovieArticulatedRig,
   type IAutoMovieArticulatedRigReader,
-  type IAutoMovieBodyMomentum,
   type IAutoMovieBodyMeasure,
+  type IAutoMovieBodyMomentum,
   type IAutoMovieBoxExcludedSwivels,
   type IAutoMovieFitDigitDescent,
   type IAutoMovieFitDigitToTarget,
@@ -70,12 +70,11 @@ import { restRelativeConstraint as restRelativeConstraintImplementation } from "
 import { swingConeAngle as swingConeAngleImplementation } from "../rom/internal/swingConeAngle";
 import { swingConeBlend as swingConeBlendImplementation } from "../rom/internal/swingConeBlend";
 import { validateJointRom as validateJointRomImplementation } from "../rom/internal/validateJointRom";
-import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
 import { type AutoMovieEngineDistalEndSwivelReadings } from "./AutoMovieEngineDistalEndSwivelReadings";
 import { type AutoMovieEngineDistalTwistSwivelRange } from "./AutoMovieEngineDistalTwistSwivelRange";
-import { humanoidDigitSurfaces as humanoidDigitSurfacesImplementation } from "./internal/humanoidDigitSurfaces";
+import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
+import { type AutoMovieEngineSwingTwistRange } from "./AutoMovieEngineSwingTwistRange";
 import type { AutoMovieHumanoidNeutralBounds } from "./internal/AutoMovieHumanoidNeutralBounds";
-import { humanoidSurfaceExtents as humanoidSurfaceExtentsImplementation } from "./internal/humanoidSurfaceExtents";
 import { aimRotationImplementation } from "./internal/aimRotationImplementation";
 import { aimYawPitch as aimYawPitchImplementation } from "./internal/aimYawPitch";
 import { alternateRigJointAngles as alternateRigJointAnglesImplementation } from "./internal/alternateRigJointAngles";
@@ -92,6 +91,8 @@ import { fitDigitToTarget as fitDigitToTargetImplementation } from "./internal/f
 import { gazeChainJointsImplementation } from "./internal/gazeChainJointsImplementation";
 import { hingedArmArticulation as hingedArmArticulationImplementation } from "./internal/hingedArmArticulation";
 import { hingedSwivelFeasible as hingedSwivelFeasibleImplementation } from "./internal/hingedSwivelFeasible";
+import { humanoidDigitSurfaces as humanoidDigitSurfacesImplementation } from "./internal/humanoidDigitSurfaces";
+import { humanoidSurfaceExtents as humanoidSurfaceExtentsImplementation } from "./internal/humanoidSurfaceExtents";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 import { indexSkeletonTopology as indexSkeletonTopologyImplementation } from "./internal/indexSkeletonTopology";
 import { indexSkeletonTopologyChildren as indexSkeletonTopologyChildrenImplementation } from "./internal/indexSkeletonTopologyChildren";
@@ -109,20 +110,19 @@ import { preparePoseResolution as preparePoseResolutionImplementation } from "./
 import { reachPose as reachPoseImplementation } from "./internal/reachPose";
 import { reachableBoneNames as reachableBoneNamesImplementation } from "./internal/reachableBoneNames";
 import { readPreparedBendClinical as readPreparedBendClinicalImplementation } from "./internal/readPreparedBendClinical";
-import { resolveBalanceOutcome as resolveBalanceOutcomeImplementation } from "./internal/resolveBalanceOutcome";
-import { resolveBoneRates as resolveBoneRatesImplementation } from "./internal/resolveBoneRates";
 import { resolveAutoMovieCenterOfMass as resolveAutoMovieCenterOfMassImplementation } from "./internal/resolveAutoMovieCenterOfMass";
-import { resolveHumanoidRingModules as resolveHumanoidRingModulesImplementation } from "./internal/resolveHumanoidRingModules";
 import { resolveAutoMovieHumanoidSurfaces as resolveAutoMovieHumanoidSurfacesImplementation } from "./internal/resolveAutoMovieHumanoidSurfaces";
 import { resolveAutoMovieMomentum as resolveAutoMovieMomentumImplementation } from "./internal/resolveAutoMovieMomentum";
-import { resolveMomentumRates as resolveMomentumRatesImplementation } from "./internal/resolveMomentumRates";
+import { resolveBalanceOutcome as resolveBalanceOutcomeImplementation } from "./internal/resolveBalanceOutcome";
+import { resolveBoneRates as resolveBoneRatesImplementation } from "./internal/resolveBoneRates";
+import { resolveHumanoidRingModules as resolveHumanoidRingModulesImplementation } from "./internal/resolveHumanoidRingModules";
 import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
+import { resolveMomentumRates as resolveMomentumRatesImplementation } from "./internal/resolveMomentumRates";
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
 import { skeletonJointAxes as skeletonJointAxesImplementation } from "./internal/skeletonJointAxes";
 import { solveResolvedRate as solveResolvedRateImplementation } from "./internal/solveResolvedRate";
 import { solveTwoBoneIK as solveTwoBoneIKImplementation } from "./internal/solveTwoBoneIK";
 import { validateJointAxesBasis as validateJointAxesBasisImplementation } from "./internal/validateJointAxesBasis";
-import { type AutoMovieEngineSwingTwistRange } from "./AutoMovieEngineSwingTwistRange";
 
 /** Pure forward-kinematics and authored-gaze operations for AutoMovie poses. */
 export namespace AutoMovieEngineKinematics {
@@ -156,31 +156,30 @@ export namespace AutoMovieEngineKinematics {
    * Distribute one solved aim over the gaze chain, `neck` then `head`, so a
    * gaze the rig's declared ranges can hold compiles inside them.
    *
-   * The head takes as much of each axis as its range holds, since its
-   * rotation points the eyes, and the neck takes what remains up to its own
-   * range. An aim the head holds alone therefore compiles to the single
-   * `head` joint, and the neck appears only when it carries something.
-   * Whatever neither range can hold stays on the head unclamped, so the
-   * shot's ROM gate reports the head overshooting by exactly the amount the
-   * whole chain falls short, as an impossible reach does; bending the aim
-   * into range would point the actor somewhere it was never told to look.
+   * The head takes as much of each axis as its range holds, since its rotation
+   * points the eyes, and the neck takes what remains up to its own range. An
+   * aim the head holds alone therefore compiles to the single `head` joint, and
+   * the neck appears only when it carries something. Whatever neither range can
+   * hold stays on the head unclamped, so the shot's ROM gate reports the head
+   * overshooting by exactly the amount the whole chain falls short, as an
+   * impossible reach does; bending the aim into range would point the actor
+   * somewhere it was never told to look.
    *
-   * Splitting relies on the two joints' angles adding along the chain. Both
-   * use the default clinical basis, so this holds exactly for a split on one
-   * axis when the head rests unrotated relative to the neck, as the canonical
+   * Splitting relies on the two joints' angles adding along the chain. Both use
+   * the default clinical basis, so this holds exactly for a split on one axis
+   * when the head rests unrotated relative to the neck, as the canonical
    * humanoid does. Flexion and twist split together compose two non-commuting
    * rotations, so the combined aim then differs slightly from the single-bone
    * aim.
    *
-   * The aim stays on the single `head` joint when there is no rig (`null`;
-   * the perform-shot ROM gate does not run for a rig-less actor), when the
-   * rig declares no `head` or `neck`, or when the head's parent is not the
-   * neck, because rotating a neck the head does not hang from would not move
-   * the head. A missing per-bone constraint falls back to the default
-   * humanoid ROM, as the gate does.
+   * The aim stays on the single `head` joint when there is no rig (`null`; the
+   * perform-shot ROM gate does not run for a rig-less actor), when the rig
+   * declares no `head` or `neck`, or when the head's parent is not the neck,
+   * because rotating a neck the head does not hang from would not move the
+   * head. A missing per-bone constraint falls back to the default humanoid ROM,
+   * as the gate does.
    *
-   * @param props.rig The actor's resolved skeleton, or `null` when it has
-   *   none.
+   * @param props.rig The actor's resolved skeleton, or `null` when it has none.
    * @param props.flexionDeg Sagittal aim in degrees, `+` down, matching the
    *   pose axis.
    * @param props.twistDeg Transverse aim in degrees about the chain's long
@@ -207,28 +206,27 @@ export namespace AutoMovieEngineKinematics {
    *
    *   Defines fixed rig/ROM lifetime, degree signs inherited from
    *   AutoMovieEngineKinematics.gazeChainJoints, lazy first-use admission,
-   *   original fallback and fresh outputs. The same greedy head-first
-   *   capacity and unclamped residual owner distributes every current axis.
-   *   Fixed topology selects the same head/neck/default constraints, with
-   *   null axes immobile and a missing or disconnected chain retaining the
-   *   single-head result. One lazy cervical source preparation feeds the
-   *   shared raw numerical owner; private lazy range snapshots preserve
-   *   first-needed axis/bound order without a second split algorithm.
-   *   Original null/fallback/parent rules, shareOf formulas, residuals,
-   *   nullable neck axes and output order remain. Unused bounds are not
-   *   eagerly read, failed field reads are not retained, and no aim is
-   *   clamped to hide insufficient combined range. Two O(B) bone searches and
-   *   constraint selection run once across Q aims; at most four axis
-   *   references and eight min/max scalar observations are prepared lazily.
-   *   Each query retains fixed scalar arithmetic and fresh output joints,
-   *   with no measured speedup claim. This explicit API requires the
-   *   rig/default cervical metadata to stay unchanged. Only topology and
-   *   first-observed range prerequisites are shared; each flexion/twist
-   *   request is evaluated afresh and no joint, pose, direction, target or
-   *   time answer is reused. The caller owns one reader, its fixed rig and at
-   *   most two constraints/four range snapshots/eight bound scalars until
-   *   release. Queries add no retained aim, output, dynamic workspace or
-   *   growing history.
+   *   original fallback and fresh outputs. The same greedy head-first capacity
+   *   and unclamped residual owner distributes every current axis. Fixed
+   *   topology selects the same head/neck/default constraints, with null axes
+   *   immobile and a missing or disconnected chain retaining the single-head
+   *   result. One lazy cervical source preparation feeds the shared raw
+   *   numerical owner; private lazy range snapshots preserve first-needed
+   *   axis/bound order without a second split algorithm. Original
+   *   null/fallback/parent rules, shareOf formulas, residuals, nullable neck
+   *   axes and output order remain. Unused bounds are not eagerly read, failed
+   *   field reads are not retained, and no aim is clamped to hide insufficient
+   *   combined range. Two O(B) bone searches and constraint selection run once
+   *   across Q aims; at most four axis references and eight min/max scalar
+   *   observations are prepared lazily. Each query retains fixed scalar
+   *   arithmetic and fresh output joints, with no measured speedup claim. This
+   *   explicit API requires the rig/default cervical metadata to stay
+   *   unchanged. Only topology and first-observed range prerequisites are
+   *   shared; each flexion/twist request is evaluated afresh and no joint,
+   *   pose, direction, target or time answer is reused. The caller owns one
+   *   reader, its fixed rig and at most two constraints/four range
+   *   snapshots/eight bound scalars until release. Queries add no retained aim,
+   *   output, dynamic workspace or growing history.
    */
   export function prepareGazeChainJoints(
     rig: IAutoMovieSkeleton | null,
@@ -249,30 +247,29 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * The two maps between a joint's clinical angles and its bone-local
-   * rotation on one rig, for work that must treat a pose's joints as
-   * rotations.
+   * The two maps between a joint's clinical angles and its bone-local rotation
+   * on one rig, for work that must treat a pose's joints as rotations.
    *
-   * A joint's `[flexion, abduction, twist]` is an Euler chart of a rotation:
-   * at the chart's gimbal (a hanging arm on a T-pose rig, where the
-   * shoulder's abduction is 90 degrees from rest) two of the angles turn
-   * about one axis, so nearly equal rotations have far apart triples, and a
-   * difference or blend taken per angle swings the bone through poses neither
-   * side holds. Differences and blends are therefore taken on the rotation,
-   * and the result is lowered to angles once.
+   * A joint's `[flexion, abduction, twist]` is an Euler chart of a rotation: at
+   * the chart's gimbal (a hanging arm on a T-pose rig, where the shoulder's
+   * abduction is 90 degrees from rest) two of the angles turn about one axis,
+   * so nearly equal rotations have far apart triples, and a difference or blend
+   * taken per angle swings the bone through poses neither side holds.
+   * Differences and blends are therefore taken on the rotation, and the result
+   * is lowered to angles once.
    *
    * `rotation` is {@link jointToQuaternion} with the rig's axes (a bone's own
    * declaration before the host table, {@link skeletonJointAxes}) and rest
-   * frame. `angles` is {@link decomposeJointRotation} with the same two and
-   * the bone's effective range of motion ({@link getConstraint}), so of the
+   * frame. `angles` is {@link decomposeJointRotation} with the same two and the
+   * bone's effective range of motion ({@link getConstraint}), so of the
    * equivalent triples it returns the one the range admits best, as the limb
-   * fits do. Without a rig both use the default basis with rest-relative
-   * angles and the principal chart.
+   * fits do. Without a rig both use the default basis with rest-relative angles
+   * and the principal chart.
    *
    * That holds for a joint free about all three axes. A hinge or a two-axis
-   * joint spans a lower-dimensional set of rotations, which a composed
-   * rotation leaves, and its angles have no gimbal inside their range; `ball`
-   * tells the two apart so a caller keeps such a joint on its own angles.
+   * joint spans a lower-dimensional set of rotations, which a composed rotation
+   * leaves, and its angles have no gimbal inside their range; `ball` tells the
+   * two apart so a caller keeps such a joint on its own angles.
    *
    * @param rig The rig the angles are read through; the default basis when
    *   omitted.
@@ -285,9 +282,9 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Own one actual codec across related velocity reads and offset capture.
-   * Keep the rig unchanged through those construction stages. The codec is
-   * made at preparation. No pose, quaternion or angle result is cached.
+   * Own one actual codec across related velocity reads and offset capture. Keep
+   * the rig unchanged through those construction stages. The codec is made at
+   * preparation. No pose, quaternion or angle result is cached.
    *
    * @param rig The same rig both sampled states and the offset use.
    * @returns A one-codec getter.
@@ -348,9 +345,9 @@ export namespace AutoMovieEngineKinematics {
 
   /** Aiming from one unchanged source direction. */
   /**
-   * Prepare the normalized source once and return the reader that turns it
-   * onto each target by the exact shortest-arc solve. A changed source
-   * requires another reader.
+   * Prepare the normalized source once and return the reader that turns it onto
+   * each target by the exact shortest-arc solve. A changed source requires
+   * another reader.
    */
   export function prepareAimRotation(
     from: IAutoMovieVector3,
@@ -363,15 +360,16 @@ export namespace AutoMovieEngineKinematics {
    * facing `facingDeg` about +Y: the angles a head, an eye or a camera turns
    * through to look at a target.
    *
-   * The world direction is rotated by `-facingDeg` into the actor's frame. Yaw is
-   * `atan2(localX, localZ)` in `[-180, 180]`, where 0 is straight ahead and +90
-   * is the actor's left, the direction-target convention. Pitch is `atan2(dy,
-   * horizontal)` in `[-90, 90]`, positive up. A target on `from` has no direction
-   * and answers `{ yawDeg: 0, pitchDeg: 0 }`. The caller maps the pair onto a
-   * rig, such as a head's twist and flexion or a camera's pan and tilt. Heading
-   * is periodic modulo 360 degrees. Finite coordinates are uniformly rescaled
-   * when differences overflow or heading rotation risks overflow or subnormal
-   * precision loss; angles depend on direction rather than distance.
+   * The world direction is rotated by `-facingDeg` into the actor's frame. Yaw
+   * is `atan2(localX, localZ)` in `[-180, 180]`, where 0 is straight ahead and
+   * +90 is the actor's left, the direction-target convention. Pitch is
+   * `atan2(dy, horizontal)` in `[-90, 90]`, positive up. A target on `from` has
+   * no direction and answers `{ yawDeg: 0, pitchDeg: 0 }`. The caller maps the
+   * pair onto a rig, such as a head's twist and flexion or a camera's pan and
+   * tilt. Heading is periodic modulo 360 degrees. Finite coordinates are
+   * uniformly rescaled when differences overflow or heading rotation risks
+   * overflow or subnormal precision loss; angles depend on direction rather
+   * than distance.
    *
    * A non-finite coordinate or facing throws an error naming the field, such as
    * `aimYawPitch to.z must be finite, but was Infinity`.
@@ -393,16 +391,17 @@ export namespace AutoMovieEngineKinematics {
    * The second Euler chart of a joint rotation, in rest-relative (rig) degrees:
    * the other triple that composes to the same rotation.
    *
-   * A distal twist composes `Ry(a)·Rx(f)·Rz(t)`, whose second chart is `(180 −
-   * f, a + 180, t + 180)`; a proximal twist composes `Rz(t)·Ry(a)·Rx(f)`, whose
-   * second chart is `(f + 180, 180 − a, t + 180)`. A left-handed basis is
-   * extracted against `−twist`, so its twist takes `−180` where a right-handed
-   * one takes `+180`, the same rotation by a full turn. No angle is wrapped:
-   * the caller chooses the full-turn alias it needs.
+   * A distal twist composes `Ry(a)쨌Rx(f)쨌Rz(t)`, whose second chart is `(180 ??
+   *
+   * - F, a + 180, t + 180)`; a proximal twist composes `Rz(t)쨌Ry(a)쨌Rx(f)`, whose
+   *   second chart is `(f + 180, 180 ??a, t + 180)`. A left-handed basis is
+   *   extracted against `?뭪wist`, so its twist takes `??80`where a right-handed
+   *   one takes`+180`, the same rotation by a full turn. No angle is wrapped:
+   *   the caller chooses the full-turn alias it needs.
    *
    * @param rig The rest-relative angles of one chart, degrees.
    * @param placement Where the basis places the twist; absent means proximal.
-   * @param handed `1` for a right-handed basis (`flexion × abduction =
+   * @param handed `1` for a right-handed basis (`flexion 횞 abduction =
    *   +twist`), `-1` for a left-handed one.
    * @returns The other chart's rest-relative angles, degrees.
    */
@@ -422,13 +421,13 @@ export namespace AutoMovieEngineKinematics {
    * the charts `decomposeJointRotationOnBasis` chooses between, so that
    * `jointRomOvershoot` scores each of them above zero.
    *
-   * A rotation turned about a fixed axis by `ψ` has a matrix whose every entry
-   * is `a + b cos ψ + c sin ψ` (Rodrigues' formula between two fixed
+   * A rotation turned about a fixed axis by `?` has a matrix whose every entry
+   * is `a + b cos ? + c sin ?` (Rodrigues' formula between two fixed
    * rotations), so every entry the decomposition reads is such a sinusoid,
    * fitted exactly from the rotation at 0, 90 and 180 degrees. Each clinical
    * bound is then a sinusoid's sign, in either chart the decomposition reads
    * (`swivelJointReadings.bounds`). Where one such sinusoid exceeds `MARGIN`,
-   * its exact roots bound an arc of swivels (`φ ± acos((MARGIN - a) / R)`), and
+   * its exact roots bound an arc of swivels (`? 짹 acos((MARGIN - a) / R)`), and
    * a reading is refused on the union of its axes' arcs. An abduction ceiling
    * that rises with flexion (`abductionRange`) couples two axes, so its
    * abduction is refused only past the highest ceiling the coupling reaches,
@@ -441,12 +440,12 @@ export namespace AutoMovieEngineKinematics {
    *
    * Every refusal is certain. A sinusoid above `MARGIN` puts its angle past the
    * bound by more than `MARGIN` radians, the joints' tolerance
-   * (`AutoMovieEngineRomTolerance`, about 1.7e-4), far beyond the rounding of the fit, of the
-   * arc's ends and of the decomposition itself (near 1e-15); and an outer
-   * angle's vector is then longer than `MARGIN`, past the gimbal band
-   * (`sqrt(ε)`, 1.5e-8) inside which the decomposition pins that angle instead.
-   * A joint gated by swing and twist, which the box does not score, is read by
-   * its range instead (`swingTwistExcludedSwivels`) when the frame the
+   * (`AutoMovieEngineRomTolerance`, about 1.7e-4), far beyond the rounding of
+   * the fit, of the arc's ends and of the decomposition itself (near 1e-15);
+   * and an outer angle's vector is then longer than `MARGIN`, past the gimbal
+   * band (`sqrt(琯)`, 1.5e-8) inside which the decomposition pins that angle
+   * instead. A joint gated by swing and twist, which the box does not score, is
+   * read by its range instead (`swingTwistExcludedSwivels`) when the frame the
    * overshoot reads it in is given, and refuses nothing otherwise; an axis
    * without an interval, an outer interval wider than a half turn (whose
    * refusal is an intersection, not a union, of two arcs) and a middle interval
@@ -483,7 +482,7 @@ export namespace AutoMovieEngineKinematics {
    * gives no swivel. An abduction ceiling that rises with flexion is read at
    * the highest ceiling the coupling reaches (`swivelJointReadings.interval`),
    * and a swing cone at the swivel where the joint's twist axis turns least
-   * from rest, the greatest `cos f · cos a` (`swivelJointReadings.cone`).
+   * from rest, the greatest `cos f 쨌 cos a` (`swivelJointReadings.cone`).
    *
    * @param props The joint and its rotation by swivel; `joint` is not read.
    * @returns The swivels, degrees: the cone's and at most one a bound in each
@@ -498,7 +497,7 @@ export namespace AutoMovieEngineKinematics {
 
   /**
    * The squared distance of one joint's clinical angles from the anatomical
-   * neutral, `flexion² + abduction² + twist²`, in square degrees.
+   * neutral, `flexion짼 + abduction짼 + twist짼`, in square degrees.
    *
    * All-zero clinical angles are the standing pose the ROM table is written
    * about, so a smaller value is less articulation. {@link reachPose} sums it
@@ -601,29 +600,29 @@ export namespace AutoMovieEngineKinematics {
    * is projected into the range (`clampJointToSkeleton`) before it is measured.
    * The point counts as reached within the effector's motion for one resolution
    * step of every joint, and a descent stops when its step moves no joint by
-   * more than `AutoMovieEngineRomTolerance`, the resolution to which the engine resolves a
-   * joint's angle. The fit is a continuation: it descends from the pose's own
-   * angles for the digit, so a caller that seeds each fit from the one before
-   * follows a moving target in one basin, its joints moving continuously. Only
-   * when that fit cannot reach the target (the tip farther from it than one
-   * joint resolution of every joint would move it) does it restart from the
-   * middle of every range, where a digit folded the wrong way round its target
-   * is not trapped, keeping the restart only if it comes nearer; it never takes
-   * the better of two starts for a target the continued fit reaches, an argmin
-   * that would switch basins between neighbouring targets. A caller's `rate`
-   * softens the target near full extension, where the exact inverse has an
-   * unbounded derivative: an exponential soft IK. Below the soft band the
-   * target is unchanged; within it, some reach is traded for a bounded radial
-   * extension rate. The band's width comes from the chain's lengths and the
-   * requested rate, not the seed's posture. This controls the full-extension
-   * singularity, not every possible change of basin of a constrained digit. The
-   * result is deterministic for its input: fixed starts, a fixed order of
-   * variables and no random draw. A target outside the digit's workspace is
-   * fitted as nearly as this constrained local solve reaches it. With `rate` it
-   * fits the eased target instead, so its constrained minimum may differ from
-   * the original target's. In either case `residual` reports distance to the
-   * original target, including any reach traded away, so a caller refuses or
-   * accepts by its own bound.
+   * more than `AutoMovieEngineRomTolerance`, the resolution to which the engine
+   * resolves a joint's angle. The fit is a continuation: it descends from the
+   * pose's own angles for the digit, so a caller that seeds each fit from the
+   * one before follows a moving target in one basin, its joints moving
+   * continuously. Only when that fit cannot reach the target (the tip farther
+   * from it than one joint resolution of every joint would move it) does it
+   * restart from the middle of every range, where a digit folded the wrong way
+   * round its target is not trapped, keeping the restart only if it comes
+   * nearer; it never takes the better of two starts for a target the continued
+   * fit reaches, an argmin that would switch basins between neighbouring
+   * targets. A caller's `rate` softens the target near full extension, where
+   * the exact inverse has an unbounded derivative: an exponential soft IK.
+   * Below the soft band the target is unchanged; within it, some reach is
+   * traded for a bounded radial extension rate. The band's width comes from the
+   * chain's lengths and the requested rate, not the seed's posture. This
+   * controls the full-extension singularity, not every possible change of basin
+   * of a constrained digit. The result is deterministic for its input: fixed
+   * starts, a fixed order of variables and no random draw. A target outside the
+   * digit's workspace is fitted as nearly as this constrained local solve
+   * reaches it. With `rate` it fits the eased target instead, so its
+   * constrained minimum may differ from the original target's. In either case
+   * `residual` reports distance to the original target, including any reach
+   * traded away, so a caller refuses or accepts by its own bound.
    *
    * @param input The rig, the posed body, the digit's joints and the effector
    *   and target.
@@ -723,10 +722,11 @@ export namespace AutoMovieEngineKinematics {
    *
    * The angles are clinical, so `validatePose` can compare them with the ROM
    * table directly. The clinical axes and the rest frame are two halves of one
-   * convention: this function applies {@link AutoMovieEngineHumanoidJointAxes} under any axes
-   * the arm bones declare ({@link skeletonJointAxes}) and so defaults
-   * `restFrames` to the matching {@link AutoMovieEngineHumanoidRestFrame}. Pass a table for a
-   * rig with its own rest convention, or `{}` for raw rest-relative angles.
+   * convention: this function applies {@link AutoMovieEngineHumanoidJointAxes}
+   * under any axes the arm bones declare ({@link skeletonJointAxes}) and so
+   * defaults `restFrames` to the matching
+   * {@link AutoMovieEngineHumanoidRestFrame}. Pass a table for a rig with its
+   * own rest convention, or `{}` for raw rest-relative angles.
    *
    * Returns `null` when `side` is not `"left"` or `"right"` (the value arrives
    * from runtime calls), when the upper arm, lower arm or hand is missing, when
@@ -755,14 +755,14 @@ export namespace AutoMovieEngineKinematics {
    * within its base, catches it with capture steps, or falls.
    *
    * The impulse `J` changes the centre of mass's velocity to `v + J / m` and
-   * its angular momentum about the centre by `(p - c) × J`. The body is a
-   * linear inverted pendulum of length `l` with eigenfrequency `ω0 = sqrt(g /
-   * l)`, whose extrapolated centre `ξ = x + v / ω0` must lie within the base of
+   * its angular momentum about the centre by `(p - c) 횞 J`. The body is a
+   * linear inverted pendulum of length `l` with eigenfrequency `?0 = sqrt(g /
+   * l)`, whose extrapolated centre `刮 = x + v / ?0` must lie within the base of
    * support for the body to stay (Hof, Gazendam and Sinke 2005, J Biomech
    * 38:1-8): inside the support polygon, the body absorbs the push.
    *
-   * Outside it, the body steps, the capture point `ξ` diverging from the centre
-   * of pressure as the pendulum does, `d(t) = d0 exp(ω0 t)` (the capture point
+   * Outside it, the body steps, the capture point `刮` diverging from the centre
+   * of pressure as the pendulum does, `d(t) = d0 exp(?0 t)` (the capture point
    * of Pratt, Carff, Drakunov and Goswami 2006, as the stepping literature
    * states it): until the first foot lands, `first` after the impulse, the
    * centre of pressure is held at the base's edge along the lead, so `d0` is
@@ -770,21 +770,24 @@ export namespace AutoMovieEngineKinematics {
    * (a leg length, as `stagger` reaches) beyond the last centre of pressure and
    * catches the capture point within its half length, `margin`; one that falls
    * short moves the centre of pressure to its front edge, `reach + margin` on,
-   * and leaves the rest to diverge over the next swing, `step`: `d_{k+1} = (d_k
-   * - reach - margin) exp(ω0 step)`. The recurrence shrinks to a catch exactly
-   * when the first landing's distance is below its fixed point `d* = (reach +
-   * margin) a / (a - 1)`, `a = exp(ω0 step)`, the infinite-step capture
-   * distance in the framework of Koolen, de Boer, Rebula, Goswami and Pratt
-   * 2012 ("Capturability-based analysis and control of legged locomotion, Part
-   * 1", Int J Robot Res 31(9)); at or past it no number of steps catches the
-   * body and it falls. Both papers are located, not yet read at the source; the
-   * recurrence is derived here from the linear inverted pendulum's divergence.
-   * The steps are laid along the lead from the base's edge.
+   * and leaves the rest to diverge over the next swing, `step`: `d_{k+1} =
+   * (d_k
+   *
+   * - Reach - margin) exp(?0 step)`. The recurrence shrinks to a catch exactly
+   *   when the first landing's distance is below its fixed point `d* = (reach +
+   *   margin) a / (a - 1)`, `a = exp(?0 step)`, the infinite-step capture
+   *   distance in the framework of Koolen, de Boer, Rebula, Goswami and Pratt
+   *   2012 ("Capturability-based analysis and control of legged locomotion,
+   *   Part 1", Int J Robot Res 31(9)); at or past it no number of steps catches
+   *   the body and it falls. Both papers are located, not yet read at the
+   *   source; the recurrence is derived here from the linear inverted
+   *   pendulum's divergence. The steps are laid along the lead from the base's
+   *   edge.
    *
    * The bounds are the impulse magnitudes along the push's horizontal direction
-   * at which the outcome changes: `m ω0 b` to leave the base, with `b` the
+   * at which the outcome changes: `m ?0 b` to leave the base, with `b` the
    * distance from the current extrapolated centre to the base's edge along the
-   * push, and `m ω0 (e + d* exp(-ω0 first) - lead)` to leave the capture
+   * push, and `m ?0 (e + d* exp(-?0 first) - lead)` to leave the capture
    * region, with `e` the centre's distance to the base's edge along the push
    * and `lead` the current extrapolated centre's distance from the centre.
    *
@@ -837,41 +840,27 @@ export namespace AutoMovieEngineKinematics {
       AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
     >,
   ): IAutoMovieBodyMomentum {
-    return resolveMomentumRatesImplementation(
-      model,
-      posed,
-      bones,
-      rates,
-    );
+    return resolveMomentumRatesImplementation(model, posed, bones, rates);
   }
 
   /**
-   * The rigid ring modules of a humanoid body, each a short stack of
-   * eight-sided sections around one joint's segment, from the rest skeleton
-   * alone: joint positions, tips and girth radii.
+   * Build the rigid rest-pose ring modules shared by the polygon body mesh and
+   * its collision solids.
    *
-   * This is the one statement of the body's simple solid form. The polygon
-   * drawing lofts a mesh through each module's rings and the physical profile
-   * takes the convex hull of the same ring points as that segment's collider,
-   * so what is seen and what collides cannot drift apart.
+   * A forward and lower jaw tip shapes the head's lower ring and preserves the
+   * supplied crown. When a foot supplies a heel and a same-side hallux tip,
+   * their horizontal direction aligns the rigid foot and toe rings. Otherwise,
+   * each region follows the joint-based shape. The supplied joints remain the
+   * pivots of the finished modules.
    *
-   * The skeleton is in the Human frame at rest: +X forward, +Y up, +Z left,
-   * metres. The trunk's modules share their boundary rings (pelvis floor, hip,
-   * waist, chest, shoulder, neck base), widened to the hip and shoulder joint
-   * spans; the neck runs from the neck joint to the head joint; the head widens
-   * to its girth and closes on a pole at its tip; a palm runs from the wrist
-   * toward the mean of the four finger roots as far as the farthest of them, so
-   * no knuckle is bare beyond it; a foot is two modules through the subtalar
-   * and midfoot joints to the toe roots; every other segment is three round
-   * rings from its joint to its end, narrowing to the next segment or bevelled
-   * at a leaf. Shoulder, scapula, foot, eye, jaw and atlas joints drive others
-   * and carry no module.
-   *
-   * @param bones The rest joints, parent before child, in the Human frame.
-   * @returns The modules in drawing order: hips, spine, head, chest, neck, each
-   *   side's hand and two foot modules, then every remaining segment in joint
-   *   order.
-   * @throws {Error} When a joint a module is built from is missing.
+   * @param bones Required torso, arm, finger, leg and toe rest joints in
+   *   parent-before-child order. Coordinates and half-dimensions use metres in
+   *   the Human frame, +X forward, +Y up and +Z to the left.
+   * @returns Modules in drawing order, followed by the remaining segments in
+   *   joint order.
+   * @throws {Error} When a required joint or endpoint is missing, a palm has no
+   *   length to its fingers, or a supplied foot outline has zero or nonfinite
+   *   horizontal direction.
    */
   export function resolveAutoMovieHumanoidRingModules(
     bones: readonly IAutoMovieResolveHumanoidRingModules.IBone[],
@@ -890,10 +879,10 @@ export namespace AutoMovieEngineKinematics {
    * digit. Its pad is the palmar face of the same phalanx: where a ray from the
    * middle of the phalanx, between the last joint and the tip, leaves the
    * colliders toward the palm's side. The palm faces -Y in the canonical rest
-   * (`AutoMovieEngineHumanoidRestFrame`), so the palmar direction is -Y made perpendicular
-   * to the phalanx; the rig's thumb lies in the palm's plane with its nail up,
-   * so its pad faces the same side. A profile with no segment for a phalanx
-   * reads the hand's colliders instead, as the index tip did.
+   * (`AutoMovieEngineHumanoidRestFrame`), so the palmar direction is -Y made
+   * perpendicular to the phalanx; the rig's thumb lies in the palm's plane with
+   * its nail up, so its pad faces the same side. A profile with no segment for
+   * a phalanx reads the hand's colliders instead, as the index tip did.
    *
    * Both sides are resolved; the caller replaces each left frame with its right
    * twin's mirror image, as it does for every region.
@@ -942,11 +931,12 @@ export namespace AutoMovieEngineKinematics {
    *
    * A bone that declares axes describes its own rest frame, so its declaration
    * wins over a table the host chose for a whole family of rigs, such as
-   * `AutoMovieEngineHumanoidJointAxes`; every other bone keeps the table's entry, and a bone
-   * in neither falls through to `AutoMovieEngineDefaultJointAxes` where the caller reads it.
-   * Every engine entry that receives both a skeleton and a table, forward or
-   * inverse, reads its table through this or applies the same precedence per
-   * bone, so pose resolution, baking and the solvers agree on one rig.
+   * `AutoMovieEngineHumanoidJointAxes`; every other bone keeps the table's
+   * entry, and a bone in neither falls through to
+   * `AutoMovieEngineDefaultJointAxes` where the caller reads it. Every engine
+   * entry that receives both a skeleton and a table, forward or inverse, reads
+   * its table through this or applies the same precedence per bone, so pose
+   * resolution, baking and the solvers agree on one rig.
    *
    * Returns `jointAxes` itself when no bone declares axes, and a shared frozen
    * empty table when it is also omitted, so the common case allocates nothing;
@@ -971,7 +961,7 @@ export namespace AutoMovieEngineKinematics {
    * `bend` is the interior angle at the mid joint, 180 straight and smaller as
    * the chain folds; `lift` is the angle between the upper segment and the
    * root-to-goal line. The caller orients the chain toward the goal and turns
-   * the mid joint and the root by these angles. A distance below `|upper −
+   * the mid joint and the root by these angles. A distance below `|upper ?? *
    * lower|` or above `upper + lower` is clamped to that bound and `clamped` is
    * set, so the chain fully folds or extends instead of producing `NaN`. When
    * both segments are equal and the goal is at the root, `lift` is 0.
@@ -1082,22 +1072,23 @@ export namespace AutoMovieEngineKinematics {
    * its range, as arcs in closed form.
    *
    * The end joint's two free angles are read off where the mid segment points
-   * in the requested rotation's frame (`AutoMovieEngineDistalEndSwivelReadings` states the
-   * derivation): the abduction by its sine `-d_flexion`, the flexion by the
-   * vector `(d_abduction, d_twist)`, every component a sinusoid of the swivel.
-   * Each bound of the joint's box therefore refuses the arc where its sinusoid
-   * exceeds the margin (`swivelArcs`), as `boxExcludedSwivels` reads a root
-   * joint's box.
+   * in the requested rotation's frame (`AutoMovieEngineDistalEndSwivelReadings`
+   * states the derivation): the abduction by its sine `-d_flexion`, the flexion
+   * by the vector `(d_abduction, d_twist)`, every component a sinusoid of the
+   * swivel. Each bound of the joint's box therefore refuses the arc where its
+   * sinusoid exceeds the margin (`swivelArcs`), as `boxExcludedSwivels` reads a
+   * root joint's box.
    *
    * The arcs say nothing of the mid segment's own twist range: the twist the
    * request leaves it is not a sinusoid of the swivel, though where it meets an
-   * end of its range is (`AutoMovieEngineDistalTwistSwivelRange`), and the swivel chosen is
-   * the caller's to verify.
+   * end of its range is (`AutoMovieEngineDistalTwistSwivelRange`), and the
+   * swivel chosen is the caller's to verify.
    *
    * @param props The end joint, the mid segment's direction by swivel and the
    *   margin.
    * @returns The refused arcs merged over a turn, every swivel, or null when
-   *   the analysis does not apply (`AutoMovieEngineDistalEndSwivelReadings.of`).
+   *   the analysis does not apply
+   *   (`AutoMovieEngineDistalEndSwivelReadings.of`).
    */
   export function distalEndSwivelArcs(
     props: AutoMovieEngineDistalEndSwivelReadings.IProps & {
@@ -1119,18 +1110,20 @@ export namespace AutoMovieEngineKinematics {
    * Whatever twist the mid segment takes and wherever in its box the end joint
    * stands, the rotation the chain shows carries the mid segment's world axis
    * `u` to `d(f, a) = (-sin a, cos a sin f, cos a cos f)` in the end joint's
-   * basis, with `(f, a)` inside the box (`AutoMovieEngineDistalEndSwivelReadings`), while the
-   * requested rotation carries it to `x(s)`, the direction the readings give at
-   * swivel `s`. A rotation by an angle moves no unit vector by more than that
-   * angle, so the angle between the shown and the requested rotation is at
-   * least the angle from `x(s)` to the nearest `d(f, a)` of the box: the
-   * spherical distance from a point to a rectangle of latitudes (abduction) and
-   * longitudes (flexion) about the flexion axis. Inside the rectangle's
-   * longitudes that distance is the abduction's excess past its interval;
-   * outside them the nearest point lies on one of the two bounding meridians,
-   * where the direction's cosine with the meridian point of abduction `a` is
-   * `-x_f sin a + c cos a`, `c = x_a sin e + x_t cos e`, greatest at the
-   * abduction nearest `atan2(-x_f, c)`.
+   * basis, with `(f, a)` inside the box
+   * (`AutoMovieEngineDistalEndSwivelReadings`), while the requested rotation
+   * carries it to `x(s)`, the direction the readings give at swivel `s`. A
+   * rotation by an angle moves no unit vector by more than that angle, so the
+   * angle between the shown and the requested rotation is at least the angle
+   * from `x(s)` to the nearest `d(f, a)` of the box: the spherical distance
+   * from a point to a rectangle of latitudes (abduction) and longitudes
+   * (flexion) about the flexion axis. Inside the rectangle's longitudes that
+   * distance is the abduction's excess past its interval; outside them the
+   * nearest point lies on one of the two bounding meridians, where the
+   * direction's cosine with the meridian point of abduction `a` is `-x_f sin a
+   *
+   * - C cos a`, `c = x_a sin e + x_t cos e`, greatest at the abduction nearest
+   *   `atan2(-x_f, c)`.
    *
    * `x(s)` circles an axis as the swivel turns, on a circle whose radius is the
    * norm of its sinusoids' cosine (or sine) coefficients, so it moves by at
@@ -1138,13 +1131,14 @@ export namespace AutoMovieEngineKinematics {
    * more than its point moves, is bounded over an interval by its value at the
    * middle less the radius times the half width.
    *
-   * The bound is lowered by the joints' tolerance (`AutoMovieEngineRomTolerance`), within
-   * which a projection onto the box may stand past its ends, so it stays below
-   * every miss it bounds.
+   * The bound is lowered by the joints' tolerance
+   * (`AutoMovieEngineRomTolerance`), within which a projection onto the box may
+   * stand past its ends, so it stays below every miss it bounds.
    *
    * @param props The end joint and the mid segment's direction by swivel.
    * @returns The bound over `low` to `high` degrees, never negative; null when
-   *   the analysis does not apply (`AutoMovieEngineDistalEndSwivelReadings.of`).
+   *   the analysis does not apply
+   *   (`AutoMovieEngineDistalEndSwivelReadings.of`).
    */
   export function distalEndSwivelMiss(
     props: AutoMovieEngineDistalEndSwivelReadings.IProps,
@@ -1214,7 +1208,10 @@ export namespace AutoMovieEngineKinematics {
    *   gate, or not exactly one immobile axis, so this analysis does not apply.
    */
   export function immobileAxisSwivels(props: {
-    /** The joint's clinical basis, admitted and normalized (`normalizeJointAxes`). */
+    /**
+     * The joint's clinical basis, admitted and normalized
+     * (`normalizeJointAxes`).
+     */
     basis: IAutoMovieJointAxes;
 
     /**
@@ -1230,8 +1227,8 @@ export namespace AutoMovieEngineKinematics {
     constraint: IAutoMovieJointConstraint | null;
 
     /**
-     * The bone-local rotation demanded of the joint at a swivel, degrees: a fixed
-     * rotation turned about a fixed axis by the swivel.
+     * The bone-local rotation demanded of the joint at a swivel, degrees: a
+     * fixed rotation turned about a fixed axis by the swivel.
      */
     rotation: (swivel: number) => IAutoMovieQuaternion;
   }): number[] | null {
@@ -1242,16 +1239,16 @@ export namespace AutoMovieEngineKinematics {
    * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
    * `null` when it can.
    *
-   * `AutoMovieEngineHumanoidJointAxes` puts the arm's flexion on local +Y because the
-   * canonical humanoid rests in the VRM T-pose with its arms along local ±X. On
-   * a rig whose forearm rests along that flexion axis, such as arms hanging
-   * along −Y, elbow flexion only rolls the forearm about its own length: the
-   * hand never moves, the chain has one reachable radius instead of a shell,
-   * and no reach can be solved. This function reports that rig, naming the
-   * lower arm and both directions in `reason`.
+   * `AutoMovieEngineHumanoidJointAxes` puts the arm's flexion on local +Y
+   * because the canonical humanoid rests in the VRM T-pose with its arms along
+   * local 짹X. On a rig whose forearm rests along that flexion axis, such as
+   * arms hanging along ?뭑, elbow flexion only rolls the forearm about its own
+   * length: the hand never moves, the chain has one reachable radius instead of
+   * a shell, and no reach can be solved. This function reports that rig, naming
+   * the lower arm and both directions in `reason`.
    *
    * The test reads the rig, not a pose name, because a retargeted quadruped's
-   * front legs ride the arm chains and may legitimately rest along −Y. Callers
+   * front legs ride the arm chains and may legitimately rest along ?뭑. Callers
    * therefore ask it only where an arm verb is performed: the perform-shot gate
    * refuses the verb with this reason, and {@link reachPose} returns `null`.
    *
@@ -1263,9 +1260,9 @@ export namespace AutoMovieEngineKinematics {
    *
    * @param skeleton Rig whose arm chain is read; only rest offsets are used.
    * @param side Which arm to test.
-   * @param jointAxes Per-bone clinical axes; defaults to `AutoMovieEngineHumanoidJointAxes`,
-   *   the table every arm computation applies, under any axes the lower arm
-   *   declares itself.
+   * @param jointAxes Per-bone clinical axes; defaults to
+   *   `AutoMovieEngineHumanoidJointAxes`, the table every arm computation
+   *   applies, under any axes the lower arm declares itself.
    */
   export function armChainFault(
     skeleton: IAutoMovieSkeleton,
@@ -1282,27 +1279,27 @@ export namespace AutoMovieEngineKinematics {
    * this into the angles a pose carries.
    *
    * Changing basis by `M = [flexion | abduction | twist]` turns a proximal
-   * twist's `qTwist · qAbduction · qFlexion` into `Rz·Ry·Rx` and a distal
-   * twist's `qAbduction · qFlexion · qTwist` into `Ry·Rx·Rz`. The explicit
-   * clinical order `qFlexion · qAbduction · qTwist` uses `Rx·Ry·Rz`. The
+   * twist's `qTwist 쨌 qAbduction 쨌 qFlexion` into `Rz쨌Ry쨌Rx` and a distal
+   * twist's `qAbduction 쨌 qFlexion 쨌 qTwist` into `Ry쨌Rx쨌Rz`. The explicit
+   * clinical order `qFlexion 쨌 qAbduction 쨌 qTwist` uses `Rx쨌Ry쨌Rz`. The
    * inverse reads each matrix from dot products of the axes with the rotated
-   * axes. At the gimbal (middle angle ±90°), only one combination of the outer
+   * axes. At the gimbal (middle angle 짹90째), only one combination of the outer
    * angles is determined. The inverse pins flexion for a legacy proximal twist,
    * abduction for a legacy distal twist, and twist for the explicit clinical
    * order to zero, preserving the observable combination. The pin holds within
    * a projected cosine of the square root of the unit roundoff, about 1.5e-8,
    * where the two outer angles are otherwise rounding noise and the pinned
    * angles rebuild the rotation within 1e-7 radian. A left-handed basis, such
-   * as the default (`flexion × abduction = −twist`), is extracted against
-   * `−twist` and the twist sign restored, so the round trip holds for any
+   * as the default (`flexion 횞 abduction = ?뭪wist`), is extracted against
+   * `?뭪wist` and the twist sign restored, so the round trip holds for any
    * orthonormal basis.
    *
-   * `frame` lifts the rest-relative angles to clinical ones, `clinical = sign ·
+   * `frame` lifts the rest-relative angles to clinical ones, `clinical = sign 쨌
    * r
    *
    * - Neutral`. A `domain`with a non-null constraint also considers the
-   *   rotation's second Euler chart,`(f + 180, 180 − a, t + 180)`for proximal
-   *   twist and flexion-abduction-twist, and`(180 − f, a + 180, t + 180)` for a
+   *   rotation's second Euler chart,`(f + 180, 180 ??a, t + 180)`for proximal
+   *   twist and flexion-abduction-twist, and`(180 ??f, a + 180, t + 180)` for a
    *   distal one, and the full-turn alias of each angle nearest the
    *   constraint's range. The candidate with the least {@link jointRomOvershoot}
    *   wins, the principal chart on a tie. Every candidate is the same rotation,
@@ -1314,7 +1311,8 @@ export namespace AutoMovieEngineKinematics {
    * matrix, which is only a rotation for a unit quaternion.
    *
    * @param q Bone-local articulation rotation; unit length expected.
-   * @param axes Clinical axis basis; defaults to `AutoMovieEngineDefaultJointAxes`.
+   * @param axes Clinical axis basis; defaults to
+   *   `AutoMovieEngineDefaultJointAxes`.
    * @param frame Rest frame lifting rest-relative angles to clinical ones;
    *   omitted, the angles stay rest-relative.
    * @param domain Bone and resolved ROM that choose among equivalent charts;
@@ -1339,24 +1337,24 @@ export namespace AutoMovieEngineKinematics {
    * `axes.twistPlacement`. A proximal twist, the default, turns the swing axes
    * with it, as the head turns below its nodding joint:
    *
-   *     q = qTwist · qAbduction · qFlexion
+   *     q = qTwist 쨌 qAbduction 쨌 qFlexion
    *
    * A distal twist turns the moved segment about its own long axis before the
    * swing, as the forearm pronates beyond the elbow, so a pose without twist is
    * the same rotation in either placement:
    *
-   *     q = qAbduction · qFlexion · qTwist
+   *     q = qAbduction 쨌 qFlexion 쨌 qTwist
    *
    * A declared flexion-abduction-twist order takes precedence over twist
    * placement and uses the rig's clinical vectors in the ISB hip sequence
    * (https://www.isbweb.org/standards/hip.pdf, Hip Order of Rotation):
    *
-   *     q = qFlexion · qAbduction · qTwist
+   *     q = qFlexion 쨌 qAbduction 쨌 qTwist
    *
    * `axes` lets a rig whose bone frames are not aligned to the clinical planes
    * keep flexion sagittal, such as a T-pose arm that needs flexion about Y. A
    * `null` angle contributes no rotation. With a `frame`, each angle is read as
-   * clinical and mapped to the rig's rest-relative angle, `r = (clinical −
+   * clinical and mapped to the rig's rest-relative angle, `r = (clinical ?? *
    * neutral) / sign`, so one clinical convention serves both sides of a
    * mirrored rig. {@link decomposeJointRotation} is the inverse for the same
    * `axes` and `frame`.
@@ -1365,7 +1363,8 @@ export namespace AutoMovieEngineKinematics {
    * {@link normalizeJointAxes}), or an invalid frame sign or neutral.
    *
    * @param joint Clinical angles in degrees; `null` axes are at rest.
-   * @param axes Clinical axis basis; defaults to `AutoMovieEngineDefaultJointAxes`.
+   * @param axes Clinical axis basis; defaults to
+   *   `AutoMovieEngineDefaultJointAxes`.
    * @param frame Rest frame mapping clinical angles to rest-relative ones;
    *   omitted, the angles are already rest-relative.
    */
@@ -1382,13 +1381,13 @@ export namespace AutoMovieEngineKinematics {
    * repeated over many poses of the same skeleton.
    *
    * `childrenByParent` lists each bone under its parent, in declaration order,
-   * with null-parent roots under `AutoMovieEngineSkeletonRootParent`. `reachableBones` holds
-   * every bone whose parent chain ends at such a root: a bone whose parent is
-   * undeclared, or whose chain is a cycle, is never entered from a root and is
-   * absent. The index is a snapshot; it holds the skeleton's bone objects, so a
-   * caller that later changes `skeleton.bones` must build a new one. Duplicate
-   * bone names throw before traversal because one identity cannot own two
-   * parent links or two rest transforms.
+   * with null-parent roots under `AutoMovieEngineSkeletonRootParent`.
+   * `reachableBones` holds every bone whose parent chain ends at such a root: a
+   * bone whose parent is undeclared, or whose chain is a cycle, is never
+   * entered from a root and is absent. The index is a snapshot; it holds the
+   * skeleton's bone objects, so a caller that later changes `skeleton.bones`
+   * must build a new one. Duplicate bone names throw before traversal because
+   * one identity cannot own two parent links or two rest transforms.
    *
    * @param skeleton Rig to index; read, never modified.
    */
@@ -1434,113 +1433,28 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Two-bone arm IK whose mid joint bends only about its own flexion hinge,
-   * with the chain root's free swivel spent on the rig's range of motion.
+   * Fit a two-bone chain to a world point with its mid joint on its hinge.
    *
-   * The elbow rotates by `θ` about `hinge` alone, so its abduction and twist
-   * decompose to zero, which is what an elbow's immobile axes require, and the
-   * bend plane is the hinge's own plane. Splitting the far segment into the
-   * part along the hinge and the part it swings gives the root-to-effector
-   * span
+   * The root aims the stopped span at the target and swivels about that line
+   * without moving the effector. A cold fit starts with the bend stops that
+   * minimize the geometric shortfall. Candidate scoring prefers zero range
+   * overshoot. Positive overshoots within 1e-9 degrees tie. The caller's
+   * deviation score breaks that tie, with the optional secondary score used
+   * inside one configured deviation bucket.
    *
-   *     |m(θ)|² = k + α·cos θ + β·sin θ
+   * With a continuation, keep the seed's bend branch, using the last available
+   * branch if the two branches met. Refine from its swivel or the supplied
+   * admissible start. A placed pole can choose a legal swivel or the nearest
+   * legal edge. The continuation tolerance is in degrees. Prepared geometry
+   * must describe the same source, world target and hinge range.
    *
-   * So the span equals the target distance where `R·cos(θ − φ) = distance² −
-   * k`, with `R = hypot(α, β)` and `φ = atan2(β, α)`: an arccos whose two roots
-   * are the chain's two bend branches. A target outside the reachable span
-   * takes the fully extended or fully folded root, so the effector stops on the
-   * reachable shell along the line to the target. A root outside the mid
-   * joint's own `range` stops at the nearer limit in the same way, the effector
-   * resting on the legal shell along that line and the result reporting the
-   * `shortfall`; of two branches the one stopping nearer the target is swept,
-   * because a candidate past the hinge's limit would be clamped by the caller
-   * afterwards and land somewhere no candidate was scored at.
-   *
-   * The root joint first aims `m(θ)` at the target, then any extra rotation
-   * about `m(θ)` leaves the effector where it is. The function sweeps that
-   * swivel in `SWIVEL_STEP` increments on each branch, ordering candidates by
-   * the least `overshoot` (legal, zero, ahead of any other exactly; two
-   * positive ones tied within the decomposition's rounding, 1e-9 degree), then
-   * the least `deviation`, both from `score`. Every local minimum of a sweep is
-   * then refined between its neighbouring steps by golden-section search under
-   * the same ordering, and the best of the sweeps and the refinements is
-   * returned. A pass whose two probes tie closes the bracket onto both, so a
-   * request mirrored left to right, whose probes are the same two exchanged,
-   * refines to the mirrored swivel. So the chosen pose follows a moving target
-   * continuously rather than in swivel steps, a legal interval narrower than
-   * one step is still found from the dip it leaves in the sweep, and between
-   * two basins the truly better one wins rather than the one a sample happened
-   * to fall nearer the bottom of. The caller owns the decomposition and the
-   * rig's ROM, so the geometry here holds no rig policy.
-   *
-   * A caller that can certify swivels its score refuses (`excluded`) spares
-   * their scoring, and the pose is still the full sweep's. A step is skipped
-   * when every swivel within two steps of it is refused, and a step whose
-   * bracket, a step either way, is refused is not refined; every other step is
-   * scored and compared with its true neighbours, since a step that is not
-   * skipped and could be refined has both neighbours scored. When the pruned
-   * sweep finds a legal candidate, the full sweep's answer is that candidate: a
-   * refused swivel, a step or a refinement inside a refused bracket, is never
-   * legal, so it can never be ahead of a legal candidate (legality is compared
-   * exactly); every legal candidate of the full sweep is a scored step or the
-   * refinement of a step that is scored with the same neighbours, so it is the
-   * same candidate in both; and the ordering among legal candidates, met in the
-   * same order, is the same. When the pruned sweep finds none, the full sweep
-   * decides, so a chain that cannot reach legally still returns its least
-   * overshoot.
-   *
-   * A cold fit with `closed` candidates and no `tie` or `minimum` scores them
-   * alone and returns the best when it is legal and `met` accepts it: where a
-   * requested term is met only at isolated swivels, those are the whole
-   * admissible set and no search can add to it.
-   *
-   * A cold fit with a `pole` and no `tie` or `minimum` searches locally from it
-   * (`hingedSwivelPole`) and returns a legal result without the sweep, so it
-   * follows the bend hint rather than jumping to a far, marginally better
-   * swivel.
-   *
-   * A cold fit whose caller certifies that no candidate can pass `met`
-   * (`unmet`) skips the pole start, whose result `met` would refuse.
-   *
-   * Each limit of the root joint is a sinusoid of the swivel, so its feasible
-   * swivels are intervals in closed form, and the caller's refusal (`excluded`)
-   * is their complement (Tolani, Goswami and Badler 2000, section 3.2.3). A
-   * cold fit whose refusal covers every swivel of every swept branch has no
-   * legal candidate, and its answer is the least overshoot: on each branch the
-   * best of the swivels at which a limit is least violated (`least`, in closed
-   * form) starts the local search of the full score (`hingedSwivelPole`), and
-   * the better branch result answers, with no sweep. Without `least` the sweep
-   * decides as before.
-   *
-   * A caller continuing a fit of a nearby target (`near`) skips the sweep: a
-   * `closed` candidate less than a step from the seed answers when legal and
-   * met (`hingedSwivelNear`), and otherwise the seed's branch, its swivel
-   * refined within one step either way by the same golden-section search under
-   * the same ordering, to the seed's `tolerance` (`IAutoMovieSwivelNear`).
-   * Every result names its branch and swivel, the seed a nearby fit continues
-   * from. If dividing a positive subnormal tolerance by the initial bracket
-   * width underflows, the difference of logarithms keeps the mathematically
-   * finite refinement count finite; ordinary ratios retain their original
-   * expression. A placed pole (`IProps.placed`, a place the law's own elbow
-   * search chose) answers at the pole where it is legal. Otherwise a continued
-   * fit walks from its seed toward the pole and stops at the edge of the legal
-   * interval the seed lies in, and a cold fit takes the legal swivel nearest
-   * the pole on any branch, walking out from it both ways; each edge is found
-   * by swivel steps and bisection on the candidate's legality. Only where no
-   * swivel is legal does the sweep decide. A continued fit never leaves its
-   * seed's branch: where the branch holds no legal closed-form candidate, the
-   * seed is refined as any other, and its caller's course decides whether that
-   * continuation stands. With certified global score minima and no second key,
-   * the first scored coarse candidate ends a cold search only if its actual two
-   * keys equal both minima exactly. No later candidate can be strictly ahead,
-   * so the original candidate and complete-tie seed are preserved; later coarse
-   * candidates cannot use this shortcut because earlier refinements precede
-   * them.
-   *
-   * Returns `null` for a degenerate chain: a mid or end offset shorter than
-   * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
-   * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that
-   * cannot change the span ({@link armChainFault} reports that rig).
+   * @param props Chain geometry, candidate score and optional search controls.
+   * @returns Bone-local rotations with range overshoot in degrees, geometric
+   *   shortfall in metres, and the chosen branch and swivel. Returns null
+   *   before scoring for a degenerate chain or a nonfinite target distance or
+   *   bend stop.
+   * @throws {Error} When a chain with usable stops has a nonfinite or
+   *   nonpositive continuation tolerance. Exceptions from callbacks propagate.
    */
   export function hingedArmArticulation(
     props: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps,
@@ -1591,36 +1505,28 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Solve the current square differential kinematics J(q) qdot = goalRate. Rows
-   * and the matching goal rate use the same task frame and physical unit; each
-   * column uses its actual coordinate unit, so output is that unit/second.
-   * Positive rowScale divides both sides of each row, for example the current
-   * chain length for metre rows and one for radian rows. It changes neither the
-   * equality nor the coordinate rates and never weights a residual fit. Keep
-   * all supplied numeric rows and vectors unchanged until return.
+   * Solve the current square differential kinematics `J(q) qdot = goalRate`.
+   * Match each task row to the goal derivative's frame and unit. The output
+   * rate of each coordinate is in that coordinate's unit per second. Its
+   * positive physical scale divides the coefficients and goal together. Keep
+   * the supplied matrix and vectors immutable until return.
    *
-   * The caller owns an actual analytic Jacobian and goal derivative on one
-   * smooth branch. Uncontrolled ancestor/root motion must be included in that
-   * Jacobian or subtracted from the goal rate in the same task frame. This
-   * numerical leaf neither samples a pose nor proves that a supplied matrix is
-   * its derivative. Active constraints, changing active sets, rectangular
-   * systems and unsupported charts need the caller's explicit derivative
-   * fallback; no clamped or damped answer is manufactured here.
+   * Supply an analytic Jacobian on a single smooth branch. Include uncontrolled
+   * ancestor and root motion in the Jacobian or subtract it from the desired
+   * rate in the same task frame. Active constraints, changing constraint sets,
+   * rectangular systems and unsupported charts require a derivative fallback.
    *
-   * The existing LU owner's pivot refusal is retained, not interpreted as a
-   * nonsingularity certificate. A solved result reports actual original-unit
-   * residuals, scaled backward errors, an inverse-based infinity condition
-   * estimate and the computed inverse defect. These are numerical diagnostics,
-   * not certified forward-error bounds or a physical acceptance tolerance.
+   * A solved result includes the residual in task units, scaled backward
+   * errors, an infinity condition estimate and the computed inverse defect.
+   * Their magnitudes describe the represented system and its numerical solve.
    *
-   * @param jacobian Current finite nonempty square task-row/coordinate-column
+   * @param jacobian Finite nonempty square task-row and coordinate-column
    *   matrix.
-   * @param goalRate Current finite task derivative, in the same row
-   *   units/second.
-   * @param rowScale Positive finite physical scale for each task row, unchanged
-   *   during the call.
-   * @returns Fresh rates/diagnostics, or an explicit unsupported, pivot-refused
-   *   or unrepresentable result.
+   * @param goalRate Finite task derivative in the corresponding row units per
+   *   second.
+   * @param rowScale Finite positive physical scale for every task row.
+   * @returns Fresh rates and diagnostics, or an unsupported, singular pivot or
+   *   unrepresentable arithmetic result.
    */
   export function solveResolvedRate(
     jacobian: readonly (readonly number[])[],
@@ -1710,10 +1616,10 @@ export namespace AutoMovieEngineKinematics {
    *
    * A ball joint whose constraint declares `swingTwist`, on a bone with axes in
    * its frame (the caller's `rig`, or the humanoid tables' through
-   * `AutoMovieEngineSwingTwistRange.of`), is instead brought into its range as a rotation
-   * (`AutoMovieEngineSwingTwistRange.project`: its direction along its great circle from rest,
-   * its twist clamped) and read back in the reading the three-angle box
-   * prefers; a joint already inside comes back as given.
+   * `AutoMovieEngineSwingTwistRange.of`), is instead brought into its range as
+   * a rotation (`AutoMovieEngineSwingTwistRange.project`: its direction along
+   * its great circle from rest, its twist clamped) and read back in the reading
+   * the three-angle box prefers; a joint already inside comes back as given.
    *
    * @param joint The joint's clinical angles.
    * @param constraint Its resolved range.
@@ -1732,10 +1638,10 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Clamp one joint using its skeleton override, otherwise the humanoid
-   * default table. Unconstrained joints return by identity. This targeted
-   * seam lets derived contact/retarget corrections leave authored neighboring
-   * joints alone.
+   * Clamp one joint using its skeleton override, otherwise the humanoid default
+   * table. Unconstrained joints return by identity. This targeted seam lets
+   * derived contact/retarget corrections leave authored neighboring joints
+   * alone.
    */
   export function clampJointToSkeleton(
     joint: Parameters<
@@ -1759,22 +1665,23 @@ export namespace AutoMovieEngineKinematics {
    * its constraint and frame once, and every incoming joint is projected.
    *
    * An optional axes table must be the complete result of
-   * skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes) for this same operation.
-   * Without it, that merge is made only when a constrained joint first needs
-   * its frame. Axis admission still occurs inside the actual projection.
+   * skeletonJointAxes(skeleton, AutoMovieEngineHumanoidJointAxes) for this same
+   * operation. Without it, that merge is made only when a constrained joint
+   * first needs its frame. Axis admission still occurs inside the actual
+   * projection.
    *
-   * Metadata setup costs O(B+D), followed by the existing projection per
-   * input joint, for B bones and D requested names. The returned function
-   * owns at most B first-bone records, D clamp closures with optional lazy
-   * swing-twist bases and one axes table; release it when the operation ends,
-   * including failure. A later solve creates a new preparation, so no mutable
-   * skeleton identity is cached.
+   * Metadata setup costs O(B+D), followed by the existing projection per input
+   * joint, for B bones and D requested names. The returned function owns at
+   * most B first-bone records, D clamp closures with optional lazy swing-twist
+   * bases and one axes table; release it when the operation ends, including
+   * failure. A later solve creates a new preparation, so no mutable skeleton
+   * identity is cached.
    *
    * @param skeleton The rig, unchanged until the returned clamp is released.
    * @param resolvedAxes Its already resolved canonical axes table, when
    *   available.
-   * @returns A clamp that preserves each unconstrained input joint by
-   *   identity, carrying its angle-taking form (IPrepared.values).
+   * @returns A clamp that preserves each unconstrained input joint by identity,
+   *   carrying its angle-taking form (IPrepared.values).
    */
   export function prepareClampJointToSkeleton(
     skeleton: Parameters<
@@ -1794,8 +1701,8 @@ export namespace AutoMovieEngineKinematics {
 
   /**
    * One bone's clamp under a skeleton, its override or the humanoid table and
-   * its swing-twist frame resolved once, for a caller that clamps the same
-   * bone many times within one solve (a sweep's candidates): each call clamps
+   * its swing-twist frame resolved once, for a caller that clamps the same bone
+   * many times within one solve (a sweep's candidates): each call clamps
    * exactly as `AutoMovieEngineKinematics.clampJointToSkeleton` does with the
    * skeleton as it stood when the clamp was made. Nothing is kept beyond the
    * closure, since a skeleton's contents may change between solves.
@@ -1804,21 +1711,21 @@ export namespace AutoMovieEngineKinematics {
    * @param skeleton The skeleton.
    * @returns The clamp of a joint of that bone.
    *
-   *   States the one-bone closure, fixed-input operation scope, skeleton
-   *   mutation boundary and caller-owned lifetime. Uses the first matching
-   *   bone for override precedence and the shared private constraint gate,
-   *   resolving a current skeleton frame only for an actual swing-twist
-   *   clamp. One first-bone lookup and one shared clamp preparation;
-   *   numerical projection stays in clampJointRom. Missing bones preserve
-   *   default ROM, and an unconstrained bone never resolves a swing-twist
-   *   frame. O(B) lookup and, only for a swing-twist constraint, an O(B) axis
-   *   merge are paid once per closure; box/cone clamps skip unused axes
-   *   metadata and later invocations perform the existing projection only.
-   *   The closure borrows this operation's resolved constraint and frame; a
-   *   new preparation reads current skeleton contents, including axes
-   *   replaced on the same bones list. The caller owns one closure borrowing
-   *   one constraint and frame until its solve ends; no global skeleton
-   *   cache, task or handle is retained.
+   *   States the one-bone closure, fixed-input operation scope, skeleton mutation
+   *   boundary and caller-owned lifetime. Uses the first matching bone for
+   *   override precedence and the shared private constraint gate, resolving a
+   *   current skeleton frame only for an actual swing-twist clamp. One
+   *   first-bone lookup and one shared clamp preparation; numerical projection
+   *   stays in clampJointRom. Missing bones preserve default ROM, and an
+   *   unconstrained bone never resolves a swing-twist frame. O(B) lookup and,
+   *   only for a swing-twist constraint, an O(B) axis merge are paid once per
+   *   closure; box/cone clamps skip unused axes metadata and later invocations
+   *   perform the existing projection only. The closure borrows this
+   *   operation's resolved constraint and frame; a new preparation reads
+   *   current skeleton contents, including axes replaced on the same bones
+   *   list. The caller owns one closure borrowing one constraint and frame
+   *   until its solve ends; no global skeleton cache, task or handle is
+   *   retained.
    */
   export function clampJointToSkeletonOf(
     bone: Parameters<
@@ -1838,34 +1745,34 @@ export namespace AutoMovieEngineKinematics {
 
   /**
    * Prepare the same one-bone clamp from a caller's first matching bone and
-   * frame reader, allowing one pose operation to share its index and axes.
-   * The supplied record must belong to bone; undefined preserves named
-   * default ROM. The frame reader runs only after the joint is constrained.
+   * frame reader, allowing one pose operation to share its index and axes. The
+   * supplied record must belong to bone; undefined preserves named default ROM.
+   * The frame reader runs only after the joint is constrained.
    *
    * @param bone The joint's bone name.
    * @param found The first matching skeleton bone, or undefined when absent.
    * @param readRig The frame resolved from that same unchanged skeleton.
-   * @returns A clamp for joints of bone, borrowing the resolved constraint
-   *   and frame.
+   * @returns A clamp for joints of bone, borrowing the resolved constraint and
+   *   frame.
    *
    *   States lookup provenance, absent-bone default behavior, frame-reader
    *   ordering and the closure's fixed bone and lifetime. getConstraint owns
-   *   override/default precedence; an unconstrained joint returns by
-   *   identity, otherwise the frame is read once and clampJointRom performs
-   *   each actual projection. This shared preparation separates bone lookup
-   *   from the unchanged constraint gate and projection used by standalone
-   *   and full-pose clamps. Does not validate skeleton membership, repair
-   *   axes or cache a clamped answer; the caller supplies the actual first
-   *   matching bone and same-skeleton rig reader. Constant preparation apart
-   *   from the caller's frame reader, then the existing projection for every
-   *   joint; no bone scan is performed here. Reuses this operation's
-   *   constraint/frame and a swing-twist frame's lazy basis while preserving
-   *   every actual projection; no state is shared across solves. One returned
-   *   clamp owns its optional prepared frame, private readers and at most one
-   *   admitted-axis reference and one swing basis plus borrowed
-   *   constraint/axis/frame records, released with the operation; ordinary
-   *   box clamps keep no prepared swing basis and a one-shot swing clamp pays
-   *   the fixed-size wrapper and its three closures.
+   *   override/default precedence; an unconstrained joint returns by identity,
+   *   otherwise the frame is read once and clampJointRom performs each actual
+   *   projection. This shared preparation separates bone lookup from the
+   *   unchanged constraint gate and projection used by standalone and full-pose
+   *   clamps. Does not validate skeleton membership, repair axes or cache a
+   *   clamped answer; the caller supplies the actual first matching bone and
+   *   same-skeleton rig reader. Constant preparation apart from the caller's
+   *   frame reader, then the existing projection for every joint; no bone scan
+   *   is performed here. Reuses this operation's constraint/frame and a
+   *   swing-twist frame's lazy basis while preserving every actual projection;
+   *   no state is shared across solves. One returned clamp owns its optional
+   *   prepared frame, private readers and at most one admitted-axis reference
+   *   and one swing basis plus borrowed constraint/axis/frame records, released
+   *   with the operation; ordinary box clamps keep no prepared swing basis and
+   *   a one-shot swing clamp pays the fixed-size wrapper and its three
+   *   closures.
    */
   export function clampJointToSkeletonResolved(
     bone: Parameters<
@@ -1888,20 +1795,18 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Borrow this owner's exact factory callable for synchronous scratch
-   * inputs. The returned function is the original callable, with no
-   * replacement or extra invocation. Its closure stores only fixed source
-   * metadata and never an input or result joint. Unconstrained projection can
-   * return the input itself; copy a selected/retained result before editing
-   * that scratch again.
+   * Borrow this owner's exact factory callable for synchronous scratch inputs.
+   * The returned function is the original callable, with no replacement or
+   * extra invocation. Its closure stores only fixed source metadata and never
+   * an input or result joint. Unconstrained projection can return the input
+   * itself; copy a selected/retained result before editing that scratch again.
    *
    * The private `owned` mark comes only from of/resolved/prepare production.
    * Unknown, wrapped, proxied or bound callbacks return undefined, so their
    * original fresh-input/callback behavior remains the consumer's fallback.
-   * This lookup certifies no ROM, matching domain, projection outcome or
-   * input validity. It costs constant work, stores no joint and retains no
-   * callable strongly; release the borrowed function with its owning
-   * operation.
+   * This lookup certifies no ROM, matching domain, projection outcome or input
+   * validity. It costs constant work, stores no joint and retains no callable
+   * strongly; release the borrowed function with its owning operation.
    */
   export function borrowClampJoint(
     clamp: Parameters<
@@ -1912,13 +1817,13 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Test whether a genuine one-joint clamp owns the exact borrowed
-   * constraint. All-bone clamps and opaque callbacks have no one-joint
-   * constraint identity.
+   * Test whether a genuine one-joint clamp owns the exact borrowed constraint.
+   * All-bone clamps and opaque callbacks have no one-joint constraint
+   * identity.
    *
    * The same private constructor binds and weakly registers the constraint.
-   * Identity proves the fixed domain without constructing a joint, invoking
-   * the clamp or retaining an input or projection result.
+   * Identity proves the fixed domain without constructing a joint, invoking the
+   * clamp or retaining an input or projection result.
    */
   export function clampJointToSkeletonOwnsConstraint(
     clamp: Parameters<
@@ -1936,9 +1841,9 @@ export namespace AutoMovieEngineKinematics {
 
   /**
    * Return a new pose/joint array by applying effective skeleton ROM to each
-   * joint. Root and unconstrained joint records remain borrowed;
-   * pose/skeleton identity admission and unrestricted multi-turn cone
-   * correctness are separate responsibilities.
+   * joint. Root and unconstrained joint records remain borrowed; pose/skeleton
+   * identity admission and unrestricted multi-turn cone correctness are
+   * separate responsibilities.
    */
   export function clampPose(
     pose: Parameters<typeof AutoMovieEngineClampPose.clampPose>[0],
@@ -1948,16 +1853,16 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Prepare the metadata of repeated full-pose clamps during one operation.
-   * The skeleton and its records must stay unchanged until this function is
+   * Prepare the metadata of repeated full-pose clamps during one operation. The
+   * skeleton and its records must stay unchanged until this function is
    * released; every pose's numerical projection still runs, including when a
    * caller intentionally clamps an earlier clamp's result again.
    *
    * The shared joint owner lazily indexes B bones and prepares D requested
    * names once. Each call still costs O(J) projections and creates a fresh
-   * wrapper and joint array, borrowing its root and unconstrained records.
-   * The caller releases the closure on completion or failure; no pose or
-   * projected result is retained between calls.
+   * wrapper and joint array, borrowing its root and unconstrained records. The
+   * caller releases the closure on completion or failure; no pose or projected
+   * result is retained between calls.
    *
    * @param skeleton The unchanged rig used by every pose of this operation.
    * @returns A full-pose clamp borrowing only operation-scoped rig metadata,
@@ -1971,42 +1876,40 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * Measure one joint against its range of motion and report each fault to
-   * the caller, building no message: the single owner of what counts as a ROM
-   * fault and how far past the limit it lies, read by the pose gate
+   * Measure one joint against its range of motion and report each fault to the
+   * caller, building no message: the single owner of what counts as a ROM fault
+   * and how far past the limit it lies, read by the pose gate
    * ({@link validateJointRom}), which words each fault, and by the solvers'
    * candidate ranking (`jointRomOvershoot`), which only sums them.
    *
    * Faults are reported in axis order (flexion, abduction, twist), then the
-   * combined swing. A `null` angle is rest and reports nothing on its own
-   * axis; `0` reports nothing on an immobile (`null`) axis, whose rest it is,
-   * but is measured against a range that excludes it. A non-finite angle is
-   * reported with an `undefined` overshoot, since it has no distance to a
-   * limit. An angle on an immobile axis overshoots by its whole magnitude,
-   * and one outside its interval by its distance to the nearer bound. The
-   * swing is the coupling of flexion and abduction, a `null` axis
-   * contributing its actual rotation, `0`, and overshoots by what it exceeds
-   * `swingDeg`.
+   * combined swing. A `null` angle is rest and reports nothing on its own axis;
+   * `0` reports nothing on an immobile (`null`) axis, whose rest it is, but is
+   * measured against a range that excludes it. A non-finite angle is reported
+   * with an `undefined` overshoot, since it has no distance to a limit. An
+   * angle on an immobile axis overshoots by its whole magnitude, and one
+   * outside its interval by its distance to the nearer bound. The swing is the
+   * coupling of flexion and abduction, a `null` axis contributing its actual
+   * rotation, `0`, and overshoots by what it exceeds `swingDeg`.
    *
    * A ball joint whose constraint declares `swingTwist` is measured by its
-   * rotation instead (`AutoMovieEngineSwingTwistRange`), in the frame of its bone the
-   * caller's rig resolves (`rig`), or the humanoid tables'
-   * (`AutoMovieEngineSwingTwistRange.of`): a `swing` fault by the degrees its direction lies
-   * past the reach of its flexion and abduction ranges, then a `twist` fault
-   * by the degrees its turn about its own axis lies past `swingTwist.twist`.
-   * A non-finite angle is reported as above and nothing else is measured. A
-   * bone with no axes in that frame keeps the three-angle scan.
+   * rotation instead (`AutoMovieEngineSwingTwistRange`), in the frame of its
+   * bone the caller's rig resolves (`rig`), or the humanoid tables'
+   * (`AutoMovieEngineSwingTwistRange.of`): a `swing` fault by the degrees its
+   * direction lies past the reach of its flexion and abduction ranges, then a
+   * `twist` fault by the degrees its turn about its own axis lies past
+   * `swingTwist.twist`. A non-finite angle is reported as above and nothing
+   * else is measured. A bone with no axes in that frame keeps the three-angle
+   * scan.
    *
-   * @param joint Joint angles in the constraint's degree frame; `null` is
-   *   rest.
-   * @param constraint Finite ordered axis intervals and an optional swing
-   *   cone.
+   * @param joint Joint angles in the constraint's degree frame; `null` is rest.
+   * @param constraint Finite ordered axis intervals and an optional swing cone.
    * @param report Called once per fault with the faulted part, the measured
    *   value in degrees and its overshoot in degrees, `undefined` for a
    *   non-finite value.
    * @param rig The bone's frame as the caller's rig resolves it
-   *   (`AutoMovieEngineSwingTwistRange.of(bone, skeleton)`); the humanoid tables' when
-   *   absent.
+   *   (`AutoMovieEngineSwingTwistRange.of(bone, skeleton)`); the humanoid
+   *   tables' when absent.
    */
   export function scanJointRom(
     joint: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRom>[0],
@@ -2025,8 +1928,8 @@ export namespace AutoMovieEngineKinematics {
   /**
    * Sum the same faults in their report order, without a collector closure.
    * Missing distances are nonfinite faults and add Infinity, never zero. This
-   * entry runs the same full scan with its existing rig admission and owns
-   * only a local number; it retains no joint, constraint or result.
+   * entry runs the same full scan with its existing rig admission and owns only
+   * a local number; it retains no joint, constraint or result.
    *
    * @param joint The actual clinical angles, degrees.
    * @param constraint Their effective admitted ROM.
@@ -2054,25 +1957,23 @@ export namespace AutoMovieEngineKinematics {
 
   /**
    * Prepare numerical scans for one bone's unchanged constraint and clinical
-   * frame. Every input joint must name that bone. The canonical humanoid
-   * frame remains the fallback when no rig is supplied, as in a direct scan.
-   * Creating the scorer admits no axis or angle; the first finite gated
-   * candidate admits its basis at the original composition site. Later
-   * candidates share only that basis and their pure axis factors, while all
-   * finite checks, swing/twist readings and ordered additions still run.
+   * frame. Every input joint must name that bone. The canonical humanoid frame
+   * remains the fallback when no rig is supplied, as in a direct scan. Creating
+   * the scorer admits no axis or angle; the first finite gated candidate admits
+   * its basis at the original composition site. Later candidates share only
+   * that basis and their pure axis factors, while all finite checks,
+   * swing/twist readings and ordered additions still run.
    *
-   * Preparation is constant work. One closure owns one optional prepared
-   * frame and lazy joint composer for this synchronous operation, released
-   * with the scorer. No joint, quaternion result or target history is
-   * cached.
+   * Preparation is constant work. One closure owns one optional prepared frame
+   * and lazy joint composer for this synchronous operation, released with the
+   * scorer. No joint, quaternion result or target history is cached.
    *
    * The same private fault scan evaluates every candidate, with finite checks
    * before any composition. Only the gated frame and composition factors are
    * prepared, without duplicating interval, cone or swing-twist fault rules.
    * Canonical fallback, ordered additions and tolerances remain unchanged.
-   * Exact unchanged bone/constraint/axes/frame inputs justify that
-   * preparation; each candidate still owns its fresh outer product and actual
-   * reading.
+   * Exact unchanged bone/constraint/axes/frame inputs justify that preparation;
+   * each candidate still owns its fresh outer product and actual reading.
    *
    * A caller that read the joint's angles off a rotation, on a basis and rest
    * frame that are the range's own (`readsSwingTwistFrame`), passes that
@@ -2095,20 +1996,19 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
-   * The same overshoot sum for one bone gated by swing and twist, read from
-   * the joint's rotation alone: what `prepare`'s scorer returns for a joint
-   * whose angles were read off that rotation on the range's own basis and
-   * rest frame (`readsSwingTwistFrame`), the gate's swing then twist faults
-   * in their order, with no angles to read. Such angles, read off a finite
-   * rotation, are finite, so the scorer's finite checks on them have nothing
-   * to report; a rotation with a non-finite component is the caller's to
-   * refuse. Null for an unconstrained or ungated bone, whose scan reads the
-   * angles themselves.
+   * The same overshoot sum for one bone gated by swing and twist, read from the
+   * joint's rotation alone: what `prepare`'s scorer returns for a joint whose
+   * angles were read off that rotation on the range's own basis and rest frame
+   * (`readsSwingTwistFrame`), the gate's swing then twist faults in their
+   * order, with no angles to read. Such angles, read off a finite rotation, are
+   * finite, so the scorer's finite checks on them have nothing to report; a
+   * rotation with a non-finite component is the caller's to refuse. Null for an
+   * unconstrained or ungated bone, whose scan reads the angles themselves.
    *
    * @param bone The bone.
    * @param constraint Its effective ROM.
-   * @param rig Its frame as the caller's rig resolves it; the humanoid
-   *   tables' when absent.
+   * @param rig Its frame as the caller's rig resolves it; the humanoid tables'
+   *   when absent.
    * @returns The scorer of a rotation, degrees, or null.
    */
   export function prepareRotatedJointRomScan(
@@ -2132,10 +2032,10 @@ export namespace AutoMovieEngineKinematics {
   /**
    * Convert rig degrees to clinical = sign * rig + neutral. Null rest remains
    * null and an absent frame preserves the angle; an invalid supplied
-   * sign/neutral throws when used. prepare reads the same expression
-   * repeatedly on unchanged frame objects: construction admits nothing, first
-   * nonnull use captures the actual final sign/neutral operands after
-   * original validation and replacement admits anew.
+   * sign/neutral throws when used. prepare reads the same expression repeatedly
+   * on unchanged frame objects: construction admits nothing, first nonnull use
+   * captures the actual final sign/neutral operands after original validation
+   * and replacement admits anew.
    */
   export function toClinicalAngle(
     rig: Parameters<typeof AutoMovieEngineClinicalAngle.toClinicalAngle>[0],
@@ -2146,8 +2046,8 @@ export namespace AutoMovieEngineKinematics {
 
   /**
    * Prepare one lazy reader without reading a frame or angle. Null bypasses
-   * unused frames; each used frame object stays unchanged until replacement
-   * or release, and failed admission leaves any valid prior reading intact.
+   * unused frames; each used frame object stays unchanged until replacement or
+   * release, and failed admission leaves any valid prior reading intact.
    */
   export function prepareToClinicalAngle(): ReturnType<
     typeof AutoMovieEngineClinicalAngle.prepareToClinicalAngle
@@ -2158,9 +2058,9 @@ export namespace AutoMovieEngineKinematics {
   /**
    * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest
    * remains null and an absent frame preserves the angle; an invalid supplied
-   * sign/neutral throws when used. prepare supplies a lazy operation reader
-   * for unchanged frame objects. Null reads admit no frame; the first nonnull
-   * read validates and captures the exact neutral/sign used by the original
+   * sign/neutral throws when used. prepare supplies a lazy operation reader for
+   * unchanged frame objects. Null reads admit no frame; the first nonnull read
+   * validates and captures the exact neutral/sign used by the original
    * expression. Replacing the frame admits it again, while unchanged identity
    * reuses only those affine scalars.
    */
@@ -2184,8 +2084,8 @@ export namespace AutoMovieEngineKinematics {
   }
   /**
    * Borrow a nonnull supplied override, otherwise the default humanoid
-   * constraint, otherwise null. Null override means fallback rather than explicit
-   * disablement; this lookup validates no numerical bounds.
+   * constraint, otherwise null. Null override means fallback rather than
+   * explicit disablement; this lookup validates no numerical bounds.
    */
   export function getConstraint(
     bone: AutoMovieHumanoidBone,
@@ -2312,9 +2212,10 @@ export namespace AutoMovieEngineKinematics {
     return readPreparedBendClinicalImplementation(input);
   }
   /**
-   * Resolve an action's explicit body region, else its gesture-kind default, verb
-   * default, or fullBody. Head-only and whole-body gesture defaults match the
-   * actual reference gesture channels; explicit overrides remain authoritative.
+   * Resolve an action's explicit body region, else its gesture-kind default,
+   * verb default, or fullBody. Head-only and whole-body gesture defaults match
+   * the actual reference gesture channels; explicit overrides remain
+   * authoritative.
    */
   export function actionRegion(
     action: IAutoMovieActionCall,

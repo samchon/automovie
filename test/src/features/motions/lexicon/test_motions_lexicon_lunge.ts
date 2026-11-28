@@ -25,6 +25,10 @@ import { throwsError } from "../../internal/throwsError";
  *    entry; halfway through its swing the left foot has turned half of it, the
  *    right not yet.
  * 3. A bearing a whole twist and more off the feet at once is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the animation's planted pivot sequencing and admission when the moving heading leaves the rig's range.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans fixed and gradually moving mount bearings and tries a discontinuous out-of-range bearing.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied heading first triggers at 0.5 s and the first foot is halfway on its geometric angle by mid-swing. The second foot remains on its former bearing at that time.
  */
 export function test_motions_lexicon_lunge(): void {
   const trigger: number = HumanLungePivot.TRIGGER;

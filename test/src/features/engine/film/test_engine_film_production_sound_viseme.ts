@@ -27,6 +27,10 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  * 2. An empty plan produces three seconds of measurable silence.
  * 3. Planning refuses missing compiled contracts, camera, event declarations and
  *    spatial subjects.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the phoneme-to-viseme mapping, source sample clock, an empty measurable mix and missing picture inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test converts authored phoneme chunks and observes token order and viseme timing. It renders an empty sound plan and separately plans cases with missing or inconsistent picture facts to check errors.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied token sequence and sample intervals determine equal-duration spans and known viseme symbols. Whitespace has no token to time. An empty plan still covers three seconds at the native rate and has no loudness reading. Each negative removes the one authored fact its error names.
  */
 export function test_engine_film_production_sound_viseme(): void {
   const visemes: IAutoMovieProductionViseme[] =

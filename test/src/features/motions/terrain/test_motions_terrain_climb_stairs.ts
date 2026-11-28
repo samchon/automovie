@@ -345,6 +345,10 @@ namespace part_climb_stairs_flight {
  *   between its swings:
  * - `climb_stairs_toes`: `climbStairsToes` courses a stair climb's toe extension:
  * - `climb_stairs_flight`: The flight and crutch clock share the rounded count.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines stair pelvis, planted phases, toe articulation, hand rail and coordinated flight-scale timing.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the individual stair law helpers on a fixed flight, both limb plants, an authored rail and matching crutch and stair phase records.
+ * @evidence contracts/development/testing.md#independent-expectations Fixed riser and tread coordinates supply pelvis and plant reference positions. Toe pivot keeps its ball, the rail samples match its given knots and the two clocks reach the same whole-tread count.
  */
 export async function test_motions_terrain_climb_stairs(): Promise<void> {
   const { surfaces } = await humanFixture("m-average");

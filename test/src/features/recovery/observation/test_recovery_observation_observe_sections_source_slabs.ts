@@ -25,6 +25,10 @@ import { nclose } from "../../internal/nclose";
  * 4. Each actual port's exact support names real source faces.
  * 5. Slab-observer exceptions, cooperative abort and invalid bounds produce
  *    explicit terminal outcomes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names exact source port lineage, saddle and slab terminal cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes a one-to-two closed height-field branch and separate endpoint contact, then exercises thrown, cancelled and invalid slab requests.
+ * @evidence contracts/development/testing.md#independent-expectations The prescribed source has one lower and two upper loops, a central saddle and a genus-zero three-boundary component. The merely touching face cannot emit a contour segment.
  */
 export function test_recovery_observation_observe_sections_source_slabs(): void {
   const vertices: IAutoMovieRecoverySectionsInput["verticesMm"] = [];

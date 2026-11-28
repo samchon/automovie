@@ -40,6 +40,10 @@ const ENTRY: IAutoMovieMotionHumanPosture = {
  *    m ahead and above it.
  * 2. With 0.1 m hip half width and 0.45 m thigh and 0.42 m shank, the seats may
  *    stand 0.2 m to 0.2 + 0.87 m apart.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines posed root, heading and knee hints for a two-platform circus stance and its admissible support span.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a symmetrical pair of fixed seats and computes span for typed thigh, shank and hip dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations The center of the seats plus the stated hip height gives (0, 2.5, 0). The prescribed splay range spans from 0.2 to 1.07 m.
  */
 export function test_motions_lexicon_roman(): void {
   const stance: IAutoMovieMotionHumanPosture = humanRomanStance(

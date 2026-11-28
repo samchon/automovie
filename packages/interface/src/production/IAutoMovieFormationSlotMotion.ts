@@ -28,7 +28,8 @@ export interface IAutoMovieFormationSlotMotion {
   formation: string;
 
   /**
-   * Zero-based slots this exception names, unique and below the unit's count.
+   * Nonempty list of unique zero-based safe integer slot indices below the
+   * compiled formation's count. Each index names an anonymous member.
    *
    * Several slots share one cue when the same thing happens to each of them at
    * the same time; a member that needs its own timing gets its own cue.

@@ -31,6 +31,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. On one side, the two spans' windows join: the left foot from 0.25 to 0.9.
  * 4. Recovering adds both feet planted on the ground from 0.75 to 1.
  * 5. A prop support with no prop named bears on the ground.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Workout contacts follow named phases, switch sides on mirrored work, and plant both feet on recovery.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls contact construction with fixed clock shares, a named bar, alternating sides, shared spans, and an absent support prop.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit openings at one and two seconds give normalized endpoints on the four-second clock. Adjacent same-side contacts merge and recovery begins at share 0.75.
  */
 export function test_motions_exercise_workout_contacts(): void {
   const clock: IAutoMovieMotionClock = motionClock(4, [

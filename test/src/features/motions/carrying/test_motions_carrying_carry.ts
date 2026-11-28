@@ -233,15 +233,20 @@ namespace part_loaded_walk_pace {
 }
 
 /**
- * `carry`'s unit contract: its place, tilt and loaded pace.
+ * Check carrying grips, load-driven lean and pace.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `carry_place`: `carryPlace` is a hand's hold place in the performer's floor
- *   frame:
- * - `carry_tilt`: A carry's closed forms:
- * - `loaded_walk_pace`: `loadedWalkPace` is the share of the unloaded walking
- *   speed kept under a load of a share of the body's mass (Middleton et al.
+ * 1. On a posed body, read the two-hand, push and loaded-hip positions and
+ *    normals. The one-hand mode leaves its free hand without a placed goal.
+ * 2. Compare one-hand, hip, two-hand and push lean for a tenth-body-mass
+ *    load. Check thigh clearance for a hanging arm.
+ * 3. Compare unloaded speed, the transition midpoint and saturated loaded
+ *    pace.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the placed hand frames, load fraction and range of tested pace.
+ * @evidence contracts/development/testing.md#behavioral-verification The placement, lean, hang and pace helpers each receive distinct small fixtures with measured body geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Shoulder and abdominal coordinates give grip positions. Trigonometry gives lean and clearance, and linear interpolation gives the pace between the cited load endpoints.
  */
 export async function test_motions_carrying_carry(): Promise<void> {
   await part_carry_place.verify();

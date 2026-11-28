@@ -28,6 +28,10 @@ import { throwsError } from "../../internal/throwsError";
  *    once round ("once round one sweep at one u"), on the open end's ring and
  *    beside a count-changing band's corners ("not a regular interior vertex"),
  *    and two rings at one u ("share one u") are refused at the medium tier.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shrinkage without a perimeter and incompatible or invalid ring declarations.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the plain elliptic tube and then supplies each malformed perimeter to the real network sampler.
+ * @evidence contracts/development/testing.md#independent-expectations The compiled section's dense perimeter gives an independent source reference. A perimeter needs one complete regular interior sweep ring at a distinct station, not an open or ambiguous control.
  */
 export function test_engine_geometry_sweep_girth_refusals(): void {
   const sweep: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(

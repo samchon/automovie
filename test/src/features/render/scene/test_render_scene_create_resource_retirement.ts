@@ -12,6 +12,10 @@ import { rejects } from "node:assert/strict";
  *    starting. Reentrant and later calls share the original completion.
  * 2. The pending owner's failure arrives after a later failure. The report still
  *    lists the primary failure followed by the owners' declared order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names single retirement, shared reentry, eventual settlement and ordered failure reporting.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes native resource retirement with declared callbacks and a controlled pending promise. Records starts and shared completion before settling the delayed owner, then checks the reported causes.
+ * @evidence contracts/development/testing.md#independent-expectations All declared owners start once before the pending one settles. Reentrant and later calls share the same promise. Declaration order puts the primary error first and determines the owner causes regardless of completion order.
  */
 export async function test_render_scene_create_resource_retirement(): Promise<void> {
   const primary: Error = new Error("primary render failure");

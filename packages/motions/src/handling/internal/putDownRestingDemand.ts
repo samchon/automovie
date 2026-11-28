@@ -1,4 +1,7 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionLaw,
@@ -12,9 +15,7 @@ import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
 /*
- * The pose a put down that lays its prop at an authored resting attitude (a
- * card turned face up) demands of the grip an earlier pick up is choosing: the
- * prop at its place and attitude, held as the candidate grip holds it.
+ * The world destination a put down asks an earlier pickup to plan for.
  *
  * The attitude is the placement's outcome, so the grip must be one the arm can
  * lay it down with (`putDown`'s authored limits hold the same two points to the
@@ -24,20 +25,18 @@ import { StrikingRoll } from "../../striking/internal/StrikingRoll";
  * reach alone leaves a card pinched from above, which the forearm's twist
  * cannot turn face up.
  *
- * The demanded line is the prop's own up axis through its origin, kept for a
- * hand's length: the two points the placement's limits hold, so the demand
- * judges the grip as the placement will.
+ * Keep the mark for a free heading by collapsing the measured line to its
+ * origin. The model's current rotation supplies only the fit's reference.
+ * An authored attitude instead keeps the prop's up axis for a hand's length.
  * Parameter ahead: The put down as known before it is planned, with the candidate
  * grip.
- * Returns: The demanded pose, or none when the placement asks no resting
- * attitude, names a socket or a bone, or is not this grip's.
+ * Returns: The demanded pose, or none for attachments or a different grip.
  */
 export function putDownRestingDemand(
   ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanPutDown.IParams>,
 ): IAutoMovieMotionHumanActionLaw.IDemand | undefined {
   const params: IAutoMovieMotionHumanPutDown.IParams = ahead.params;
   if (
-    params.rotation === undefined ||
     params.to === undefined ||
     params.onto !== undefined ||
     params.on !== undefined ||
@@ -56,11 +55,14 @@ export function putDownRestingDemand(
   });
   if (read.held === undefined) return undefined;
   const inGrip: IAutoMovieRigidTransform = read.held.frame;
-  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(inGrip.rotation, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
+  const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+    inGrip.rotation,
+    {
+      x: 0,
+      y: 1,
+      z: 0,
+    },
+  );
 
   // The line has no edge of its own: its roll about the up axis is the
   // heading the placement leaves free.
@@ -71,16 +73,25 @@ export function putDownRestingDemand(
     tip: inGrip.position,
     axis,
     edge: AutoMovieEngineVector3.normalize(
-      AutoMovieEngineVector3.subtract(across, AutoMovieEngineVector3.scale(axis, AutoMovieEngineVector3.dot(across, axis))),
+      AutoMovieEngineVector3.subtract(
+        across,
+        AutoMovieEngineVector3.scale(
+          axis,
+          AutoMovieEngineVector3.dot(across, axis),
+        ),
+      ),
     ),
     rolls: true,
-    length: ahead.body.measure.hand,
+    length: params.rotation === undefined ? 0 : ahead.body.measure.hand,
     span: null,
   };
   const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
     {
       position: params.to,
-      rotation: AutoMovieEngineQuaternion.normalize(params.rotation),
+      rotation:
+        params.rotation === undefined
+          ? ahead.prop(params.prop).frame(ahead.start).rotation
+          : AutoMovieEngineQuaternion.normalize(params.rotation),
     },
     inGrip,
   );

@@ -49,6 +49,10 @@ const QUARTER: IAutoMovieQuaternion = {
  * 5. A dragged prop carries its drag and its solved flight.
  * 6. Refused: a sphere of no radius, of negative friction, or turning with its
  *    velocity; an aim with drag or in no time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names released and aimed prop variants, the transformed sphere center, orientations and drag, and invalid physical declarations.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the prop launch owner on typed release records and reads the projectile origin, velocity, gravity, attitude and optional flight. It checks typed refusal axes for malformed inputs and admits zero contact friction.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree +Y turn maps the sphere's 0.1 m local +X center to world Z -0.1 m. A 0.5 s launch to (3, 1, 4) from (0, 1, 0) needs velocity (6, 2.4516625, 8) under standard downward acceleration, checked by the displacement equation.
  */
 export function test_motions_perform_launch_prop_projectile(): void {
   const origin: IAutoMovieVector3 = P(0, 1, 0);

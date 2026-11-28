@@ -17,6 +17,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. From 0 to 0.5 s at 3 Hz: 0, ⅓ and the end, 0.5, off the grid.
  * 3. An empty span reads its instant once; the lattice indexes the same points.
  * 4. A rate of zero, a negative rate and a reversed span are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a grid-aligned endpoint, an explicit off-grid endpoint, a one-instant span, corresponding lattice reads and malformed arguments.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditMotion.grid and lattice on authored clock spans and checks the full grid samples and refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Four ticks per second from 1 through 2 give five values. From 0 to 0.5 at three Hz, 1/3 is the only interior tick. The endpoint appears separately in both the list and indexed lattice.
  */
 export function test_motions_audit_motion_grid(): void {
   // 1. On the grid.

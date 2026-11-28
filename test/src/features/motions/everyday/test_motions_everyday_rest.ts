@@ -62,6 +62,10 @@ const ROUNDING: number = 1e-9;
  *    alone.
  * 4. Crossed arms equal `restCrossedArms`; a right hand under the left elbow of a
  *    left chin rest equals `restElbowSupport` on the left fist.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Rest gestures place hands beside the body, on a pocket or flank, under the chin, or on a supported crossing.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the rest-goal owner on a standing stock pose and prepares distinct hand states.
+ * @evidence contracts/development/testing.md#independent-expectations Named region points and specified hand shapes determine the matching hand goal. Side rest belongs to the no-goal branch.
  */
 export async function test_motions_everyday_rest(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -15,20 +15,19 @@ import { humanFixture } from "../../internal/fixtures/humanFixture";
 import { nclose } from "../../internal/nclose";
 
 /**
- * `kickBall.contact` places the kicking foot on the ball: its toes' joint, the
- * middle of the instep, at the back of the ball along the kick at the centre's
- * height, the foot heading along the kick and plantarflexed `kickBall.POINT`
- * (50) degrees so the instep faces the ball (Lees and Nolan 1998).
- *
- * The right ankle rests 0.08 m up and the toes' joint 0.15 m ahead of it and
- * 0.06 m below; a 0.11 m ball lies centred at (0.2, 0.11, 1).
+ * Check the contact goals for two kick directions.
  *
  * Scenarios:
  *
- * 1. Kicked along +Z the toes' joint meets (0.2, 0.11, 0.89): the ankle stands the
- *    rest ankle-to-toes distance from it, above it.
- * 2. The foot heads along the kick and points 50 degrees down.
- * 3. Kicked along +X the foot heads 90 degrees about +Y.
+ * 1. For a 0.11 m ball and a +Z kick, place the toe joint at the back of the
+ *    ball at (0.2, 0.11, 0.89) m, with the ankle above by the measured rest
+ *    geometry.
+ * 2. Read heading zero and the prescribed foot pitch, then change the kick to
+ *    +X and read heading 90 degrees.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the ball centre, foot reference and two directions.
+ * @evidence contracts/development/testing.md#behavioral-verification The contact reader takes measured foot joints and the typed ball fixture to produce points and orientation.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting one radius gives the contact point. The ankle-to-toe distance follows the rest measurements.
  */
 export async function test_motions_ballStrike_kick_ball(): Promise<void> {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map([

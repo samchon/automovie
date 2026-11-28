@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A ready page of 2 s at 24 fps counting 48 frames passes.
  * 2. A page that is not ready, a different duration, a different rate and a
  *    different frame count are each refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Requires capture readiness and a clock matching the commissioned duration, rate and frame count.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the capture-clock owner with one valid page and four fixtures that independently change readiness or one clock field.
+ * @evidence contracts/development/testing.md#independent-expectations Two seconds at 24 fps give 48 frames. Altering one known field at a time identifies every refusal branch.
  */
 export function test_render_delivery_assert_auto_movie_capture_clock(): void {
   const expected: { durationSeconds: number; fps: number } = {

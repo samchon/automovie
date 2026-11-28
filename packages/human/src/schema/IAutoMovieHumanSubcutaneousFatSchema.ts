@@ -1,7 +1,10 @@
 import type { IAutoMovieHumanSubcutaneousFat } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanSubcutaneousFat. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Ten regional subcutaneous fat thicknesses for typia validation, in
+ * millimetres. Measure each site over the named landmark or muscle region.
+ */
 export type IAutoMovieHumanSubcutaneousFatSchema =
   IAutoMovieHumanSubcutaneousFat & {
     /** Over the rectus abdominis, beside and below the navel. */

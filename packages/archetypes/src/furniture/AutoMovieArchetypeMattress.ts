@@ -2,33 +2,34 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createMattress as createMattressImplementation } from "./internal/createMattress";
 import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
-/** Public operations for Auto Movie Archetype Mattress. */
+/** Constructs a loose mattress with a UK catalogue footprint. */
 export namespace AutoMovieArchetypeMattress {
   /**
-   * A loose mattress set directly on its floor with a lying surface and side
-   * contacts.
+   * Build a mattress resting directly on the floor.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * @param params Optional catalogue `size`, scene ID, thickness and mass.
+   *   The ID defaults to `bed`.
+   * @param seed Numeric seed for an omitted catalogue size and band
+   *   values. Omit it for the 0.90 by 1.90 metre single and 0.20 metre
+   *   thickness.
+   * @returns The mattress top surface and two long-edge seats.
+   * @throws {AutoMovieArchetypeRefusal} If a size or fixed dimension is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeMattress.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeMattress.Affordance, AutoMovieArchetypeMattress.Dimension> {
     return createMattressImplementation(params, seed);
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Catalogue width and length and drawn thickness in metres, plus mass in kilograms.
    */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 
-  /** The contact IDs declared by this producer. */
+  /** The upper `surface` and seats facing out from both long edges. */
   export type Affordance = "leftSide" | "rightSide" | "surface";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional ID, UK catalogue size, fixed thickness in metres and mass in kilograms.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeBed.IParams,
     "id" | "size" | "thickness" | "mass"

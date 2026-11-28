@@ -22,6 +22,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. A repeated id ("mesh part id "tread" must be unique") and a member with two
  *    indices ("mesh part "riser" needs triangle indices in threes") are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rigid placement, index ranges for indexed and implicit members, source preservation and malformed members.
+ * @evidence contracts/development/testing.md#behavioral-verification Merges a positioned indexed triangle and implicit triangle and compares resulting positions, group ranges and input values.
+ * @evidence contracts/development/testing.md#independent-expectations Each triangle contributes exactly three indices. The second starts at 3 and its z coordinate is 2 because of its written transform.
  */
 export function test_engine_geometry_merge_mesh_parts(): void {
   const triangle = (indices: number[] | null): IAutoMovieMesh => ({

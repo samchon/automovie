@@ -12,6 +12,10 @@ const DIRECTION_TOLERANCE: number = 1e-9;
  *
  * 1. A pose at (0, 0, 5) aimed at the origin sets the position, field of view,
  *    aspect and clip planes, and the camera's world direction is -Z at once.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the position, direction, perspective and clip fields that change together.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies a typed viewer subject pose to a native perspective camera and reads the parameters and immediate world direction from that camera.
+ * @evidence contracts/development/testing.md#independent-expectations The line from (0, 0, 5) to the origin is −Z. The camera must already point there when read, with the pose's explicit field of view, aspect and clip distances.
  */
 export function test_render_scene_apply_viewer_subject_pose(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();

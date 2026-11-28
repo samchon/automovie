@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanBuildTraits } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanBuildTraits. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Four independent normalized authoring offsets for typia validation. Zero
+ * denotes the requested population reference and the sign gives the direction
+ * of adiposity, muscularity, frame shape and facial proportions.
+ */
 export type IAutoMovieHumanBuildTraitsSchema = IAutoMovieHumanBuildTraits & {
   /** Body fat: positive is fatter, negative leaner. */
   adiposity: number & tags.Minimum<-1> & tags.Maximum<1>;

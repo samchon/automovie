@@ -11,10 +11,8 @@ import { FamilyConicCaseIdentity as Identity } from "../../../reference-conics/F
  * 4. Actual submitted input points convert mm to metres; increasing/decreasing phase order is retained, while missing points, zero steps and direction changes split the sequence without closure or invented seam curves.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the shared transport admission/scope/point boundaries with made metadata, never a field converter, body constructor, solver, renderer or filesystem.
- * @evidence contracts/development/testing.md#independent-expectations Literal1000/2000/3000mm input points require1/2/3m display points; exact ids, byte digests and all changed source addresses distinguish the current observation from the old one.
- * @evidence contracts/development/testing.md#distinguishing-cases The valid selected-object counterpart accompanies independent metadata mismatches, unrestricted/source-only scopes and finite/missing point sequences.
- * @evidence contracts/development/testing.md#execution-ownership No generation or actual source/case artifact is executed; only finite JSON identities and recorded point arrays are observed.
- * @evidence contracts/development/common.md#meaningful-documentation Four numbered scenarios keep transport, source-only scope and sampled operator inputs separate from shape approval.
+ * @evidence contracts/development/testing.md#independent-expectations Source coordinates 1,000, 2,000 and 3,000 mm become 1, 2 and 3 m. Literal case IDs, byte digests and changed source addresses identify which recorded observation the bridge admits.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures cover build and case identity, unrecorded changes, source-only scope, millimetre-to-metre conversion and direction-aware splitting of sampled curves.
  */
 export function test_human_capture_transport(): void {
   // The synthetic receipts identify the source layout at the time of capture.

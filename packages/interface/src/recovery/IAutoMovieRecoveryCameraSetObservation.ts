@@ -3,14 +3,21 @@ import type {
   IAutoMovieRecoveryImageFeaturesExtractionOperation,
 } from "..";
 
-/** Once-observed bounded image-set features and both directed pair populations. */
+/**
+ * Completed feature extraction and pairwise matching for an admitted camera
+ * set. The result keeps source order and counts the descriptor comparisons
+ * actually performed.
+ */
 export interface IAutoMovieRecoveryCameraSetObservation {
-  /** Source-order features, including transient numerical descriptors. */
+  /** One retained feature population per admitted view, in source order. */
   features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[];
 
-  /** One forward/reverse record for each unordered image pair. */
+  /** One record per unordered view pair, with both authored search directions. */
   pairs: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[1][number][];
 
-  /** Actual total oriented descriptor pairs compared. */
+  /**
+   * Total actual descriptor comparisons in eligible directed searches across
+   * the set.
+   */
   descriptorComparisons: number;
 }

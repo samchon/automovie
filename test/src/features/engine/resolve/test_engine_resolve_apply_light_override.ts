@@ -17,17 +17,21 @@ const POINT: IAutoMovieLight = {
 };
 
 /**
- * `applyLightOverride` returns the light with the animated fields replaced and
- * every other field carried.
+ * Light overrides replace selected point light fields and preserve the tested
+ * identity and transform fields.
  *
  * Scenarios:
  *
  * 1. An intensity and range override replace those fields and keep the id, color
  *    and transform records.
- * 2. A position override replaces the translation and keeps rotation and scale.
- * 3. A directional light takes the intensity override and stays directional; it\n
+ * 2. A position override changes the tested Y coordinate and keeps rotation
+ *    and scale.
+ * 3. A directional light receives the intensity override and retains its type
+ *    and identifier when a range also appears in the override.
  *
- *    - Has no range to override.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the observed point-light intensity, range and position overrides, retained transform fields, and directional-light identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `applyLightOverride` with typed point and directional lights. It reads the replaced scalars, the Y coordinate of the replacement position, and retained color, transform, rotation, and scale references where asserted.
+ * @evidence contracts/development/testing.md#independent-expectations The point light receives intensity 0.25 and range 9. A separate position override supplies Y 5 with the same rotation and scale, and a directional light named sun retains its type and ID with intensity 3.
  */
 export function test_engine_resolve_apply_light_override(): void {
   const dimmed: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(POINT, {

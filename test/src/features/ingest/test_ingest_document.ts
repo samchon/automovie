@@ -71,8 +71,6 @@ const makeAnimatedDoc: () => {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls Document ingestion and observes node references, kind precedence, channel interpolation and decoded samples, then checks field-specific refusals for unreplayable channels.
  * @evidence contracts/development/testing.md#independent-expectations The authored graph defines parent relationships, while returned ids are used only to check referential consistency, not their index spelling; accessor values define interpolation vocabulary and sample arity independently. Normalized signed integers define exact decoded zero/one quaternion components; full TRS fidelity, resource-index identity and returned-array independence remain outside these assertions.
- * @evidence contracts/development/testing.md#distinguishing-cases All four reachable node kinds, named/unnamed and empty clips, translation/rotation/scale/weights, missing channel storage, empty arrays, wrong arity and backward times are retained; raw container/profile admission belongs to byte-inspector units.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_document entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Six glTF nodes yield six core nodes; the mesh/camera parents refer to the returned root id and the root is parentless. Decimal id spelling...).
  */
 export function test_ingest_document(): void {

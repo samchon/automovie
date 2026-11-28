@@ -26,6 +26,10 @@ import { namedFacts } from "../../internal/predicates";
  *    opening and connector.
  * 5. Distinguish floating, sinking and off-patch support, a second support, and
  *    the corresponding table-top faults.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify distinct geometry relations, malformed footprints and clearances, containment and overlap, and support outcomes at both floor and tabletop.
+ * @evidence contracts/development/testing.md#behavioral-verification The test validates prepared room variants with modified prop declarations and compares complete addressed geometry findings. It varies physical position and support references without recalculating expected results inside the owner.
+ * @evidence contracts/development/testing.md#independent-expectations The authored footprints and transforms determine containment, clearance and overlap. Positions above, below and horizontally off a declared support produce distinct outcomes. Duplicate occupancy, opening and support relationships are separate authoring conflicts with their own source paths.
  */
 export function test_engine_film_prop_placement_geometry(): void {
   const scenario: {

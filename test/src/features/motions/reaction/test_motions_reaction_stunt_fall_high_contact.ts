@@ -14,15 +14,18 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * A ballistic exterior contacts a named finite face at its own height.
+ * Check the first contact of a falling exterior with a finite, elevated face.
  *
  * Scenarios:
  *
- * 1. The sphere's centre begins at 1.3 m, the pad at 0.2 m, and free fall follows
- *    y = 1.3 - 5t². Its 0.1 m radius first reaches at sqrt(0.2) s.
- * 2. A pad raised to the same height but translated beyond the sphere's path
- *    cannot receive it.
- * 3. Repeating the reads after a later flight query keeps the first witness.
+ * 1. A 0.1 m radius sphere falls from 1.3 m toward a pad at 0.2 m. Observe
+ *    contact at sqrt(0.2) s and pad-local x equal to half that time.
+ * 2. Move the same pad beyond the path and receive no contact. Query the
+ *    aligned pad again and recover the first second.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify the material dimensions, ballistic root and translated-face control.
+ * @evidence contracts/development/testing.md#behavioral-verification The arrival search distinguishes finite overlapping geometry from a same-height face outside the path.
+ * @evidence contracts/development/testing.md#independent-expectations Solving `1.3 - 5 * t ** 2 - 0.1 = 0.2` gives the expected arrival, and the fixture's horizontal speed gives the contact point.
  */
 export function test_motions_reaction_stunt_fall_high_contact(): void {
   const neutral: IAutoMovieRigidTransform = {

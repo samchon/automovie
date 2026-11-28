@@ -599,13 +599,16 @@ export namespace AutoMovieEngineMath {
   }
 
   /**
-   * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback. A
-   * conservative forward-error filter accepts a separated binary64 value.
-   * Uncertain cancellation instead sums the six products of the input doubles as
-   * exact signed binary integers and exponents. Its returned magnitude is rounded
-   * to a representable double; zero is returned only for an exactly zero sum. An
-   * unrepresentable nonzero magnitude refuses rather than becoming zero. This
-   * proves the sign of the supplied doubles, not a physical measurement.
+   * Evaluate the determinant of a finite row-major 3 by 3 matrix.
+   *
+   * The returned binary64 value preserves the sign of the exact determinant of
+   * the supplied numbers. The magnitude is approximate. Zero means exact
+   * cancellation.
+   *
+   * @param matrix Nine finite components in row-major order.
+   * @returns The signed determinant in cubed input units for a common unit.
+   * @throws Error for an incorrect length, nonfinite entries or a nonzero
+   * determinant outside the finite nonzero binary64 range.
    */
   export function determinantMatrix3(matrix: readonly number[]): number {
     return determinantMatrix3Implementation(matrix);
@@ -628,7 +631,9 @@ export namespace AutoMovieEngineMath {
    * The facial basis builder uses this to perform a shape-edited rigid component
    * without allowing expression targets to scale, shear or reflect its geometry.
    * Inputs are flat XYZ buffers in the same units, and a nonempty, unique
-   * selection indexes both. No input is mutated. Apply the returned rotation to a
+   * selection indexes both. Selected coordinates must exist and be finite.
+   * The inputs are read without modification. Unrepresentable centring throws.
+   * Apply the returned rotation to a
    * point minus referenceCenter, then add targetCenter. Centered application
    * avoids cancellation between a large translation and a rotated absolute
    * coordinate.
@@ -663,18 +668,14 @@ export namespace AutoMovieEngineMath {
   }
 
   /**
-   * Encode a linear color as the `#RRGGBB` swatch that displays it.
+   * Encode linear RGB as a six-digit sRGB display label.
    *
-   * The quantized inverse of {@link srgbHexToLinearColor}, and the shared way to
-   * write an `IAutoMovieColor.hex` label or a bare sRGB palette entry from a
-   * triple. Without it the contract's promise that `hex` is derived from the
-   * linear components is an obligation with nothing behind it, which is what left
-   * every label in the product hand-typed and unchecked.
+   * Finite components outside [0, 1] clamp to the display gamut. The result
+   * is the eight-bit quantized inverse of {@link srgbHexToLinearColor}.
    *
-   * Components outside `[0, 1]` are clamped, because a swatch cannot represent
-   * light the display cannot emit and the eight-bit form is the gamut. A
-   * non-finite component is refused instead: it names no color at any exposure,
-   * and rounding it would write `NaN` into a string that reads like a swatch.
+   * @param color Three finite linear RGB components on the normalized scale.
+   * @returns A hash followed by six lowercase hexadecimal digits.
+   * @throws Error for a nonfinite component.
    */
   export function linearColorToSrgbHex(color: Pick<IAutoMovieColor, "r" | "g" | "b">): string {
     return linearColorToSrgbHexImplementation(color);
@@ -1259,6 +1260,9 @@ export namespace AutoMovieEngineMath {
    * signed-zero convention. Larger coordinates use an axis-local exact-coordinate
    * label: adjacent binary64 values there are farther apart than one grid cell,
    * so distinct coordinates cannot weld.
+   *
+   * @param positions Flat XYZ triples in metres.
+   * @returns Owned identity labels and one identity index per source vertex.
    */
   export function weldMeshVertices(positions: readonly number[]): IAutoMovieWeldMeshVertices.IResult {
     return weldMeshVerticesImplementation(positions);

@@ -32,6 +32,10 @@ const reach = (hip: IAutoMovieVector3): KneeReach.ISolution => ({
  * 1. A carriage halving the hip's distance from x = 2 settles on (2, 1, 0) from
  *    (0, 1, 0), its solve read from that hip.
  * 2. One doubling it never settles and is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a virtual hip fixed point and nonconvergent-carriage refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds settle a contractive carriage toward x = 2 and a carriage that doubles its displacement.
+ * @evidence contracts/development/testing.md#independent-expectations Repeated halving converges from (0, 1, 0) to (2, 1, 0) and the final solved pose must use that point. Increasing movement cannot converge under the admission rule.
  */
 export function test_motions_striking_knee_geometry(): void {
   const refuse = (change: number): AutoMovieMotionHumanRefusal =>

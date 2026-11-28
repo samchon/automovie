@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenario: a 70 kg jumper falling 1 m and 2 m deflects the bed to a positive
  * depth balancing that energy, the longer fall deeper.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Trampoline deflection balances the incoming fall energy and grows with a longer fall.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls bed deflection for the same 70 kg jumper falling one and two metres.
+ * @evidence contracts/development/testing.md#independent-expectations Substitutes each returned positive depth back into spring energy and gravitational work, and checks that the higher fall deflects further.
  */
 export function test_motions_exercise_trampoline_bounce(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

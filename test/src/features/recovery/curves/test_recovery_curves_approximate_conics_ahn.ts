@@ -19,6 +19,10 @@ import { nclose } from "../../internal/nclose";
  * 1. Quarter circles and ellipses reproduce their exact conic and analytic locus.
  * 2. A parabola has weight one; a straight source admits a collinear primitive.
  * 3. Reused source tuples cannot alter saved coefficients.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the analytic conics, sampled validity and ownership of copied controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits the ellipse, parabola, line and scratch-tuple source, then evaluates the returned coefficients.
+ * @evidence contracts/development/testing.md#independent-expectations The ellipse identity and quarter-conic middle weight determine the expected locus. A parabola and the explicit line have middle weight one.
  */
 export function test_recovery_curves_approximate_conics_ahn(): void {
   const options: IAutoMovieConicApproximation.IOptions =

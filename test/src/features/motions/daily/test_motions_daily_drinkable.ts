@@ -5,13 +5,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Pin the drink's admission of a grip prepared for the mouth.
+ * Check which declared grip uses admit drinking at a body region.
  *
  * Scenarios:
- * 1. The shorthand mouth and its explicit region admit a lip use, while that
- *    same grip is not a use at the forehead.
- * 2. A grip with no use, a tip with no destination and a reach-ahead use
- *    provide no drinking admission.
+ *
+ * 1. Admit the shorthand mouth and explicit mouth region for the prepared lip
+ *    use. Refuse the same use at the forehead.
+ * 2. A grip without a use, a tip without a destination and a reach-ahead use
+ *    all fail drinking admission.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the receiving region and malformed grip uses.
+ * @evidence contracts/development/testing.md#behavioral-verification The drinkable selector is evaluated directly with exact grip records and destination options.
+ * @evidence contracts/development/testing.md#independent-expectations Keeping lip use fixed while changing region isolates target matching. Each negative record changes the stated use field.
  */
 export function test_motions_daily_drinkable(): void {
   const lip: IAutoMovieMotionHumanGraspUse.IUse = {

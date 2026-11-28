@@ -286,19 +286,28 @@ export namespace receive {
     const duration: number =
       shared.outcome === "decline" ? shared.release : leave + back;
 
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "relaxed",
+    );
+    // Keep the digits outside the fitted grip relaxed through approach, hold,
+    // and carry.
     const closed: IAutoMovieMotionHumanPosture["joints"] = takes
-      ? HumanGrip.close(
-          body,
-          side,
-          shared.target.grip,
-          shared.receiverShown,
-          shared.target.colliders,
-        ).joints
-      : HumanHand.shape(side, "relaxed");
+      ? {
+          ...relaxed,
+          ...HumanGrip.close(
+            body,
+            side,
+            shared.target.grip,
+            shared.receiverShown,
+            shared.target.colliders,
+          ).joints,
+        }
+      : relaxed;
     const open: IAutoMovieMotionHumanPosture["joints"] = HumanPreshape.open(
       body,
       side,
-      takes ? closed : HumanHand.shape(side, "relaxed"),
+      closed,
       shared.target.width,
     ).joints;
     const peak: number = HumanPrehension.peak(context.random("peak"));

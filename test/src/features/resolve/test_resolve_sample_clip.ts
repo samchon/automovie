@@ -91,21 +91,22 @@ const close: (a: number[], b: number[], eps?: number) => boolean = (
  * 9. A looping clip wraps the query time into `[0, duration)`: t=1.25 → 0.25 and a
  *    negative t=−0.25 → 0.75.
  * 10. A non-looping clip clamps past the end (t=5 on a 1s clip → the last value),
- *     and a zero-duration clip normalizes any time to 0.
+ *     and a zero-duration clip normalizes finite times to 0.
  * 11. Fixed-width channels reject tracks whose flattened value width does not match
  *     the channel's declared width, while `weights` remains variable-width.
- * 12. Negative timeline values reject instead of being normalized into a
- *     zero-duration or pre-roll sample.
+ * 12. Negative clip duration and negative authored key times are refused.
  * 13. Tracks on positive-duration clips reject keyframes after the declared clip
  *     end.
  * 14. Duplicate track channel keys reject instead of silently overwriting the
  *     earlier sampled value.
+ * 15. A linear segment between finite extremes on opposite sides of zero
+ *     has a finite midpoint and returns its authored interior key exactly.
+ *     Negative queries distinguish wrapping from holding the first key.
+ * 16. Nonfinite seconds refuse for looping, holding and zero-duration clips.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Samples real clips and observes linear/step/cubic values, rotation norm, key/timeline behavior, variable weights width and refusal of malformed tracks, duplicate channels and invalid clocks.
- * @evidence contracts/development/testing.md#independent-expectations Authored endpoints determine linear means and STEP holds; zero-tangent Hermite gives5 halfway from0 to10, while sine/cosine give the rotation midpoint. That symmetric midpoint alone cannot distinguish slerp from normalized lerp over the whole arc.
- * @evidence contracts/development/testing.md#distinguishing-cases Existing before/at/after keys, singleton/interior segments, wrapped negative/positive queries, zero duration and invalid width/value/time neighbors cover this sampler seam; nonzero cubic tangents and broad quaternion trajectories are outside these examples.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_sample_clip entry owns portable synchronous numerical sampler/refusal cases through direct source imports; no renderer clock, browser or Human asset is created.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 14 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Linear interpolation of a vec3 translation: 0→(10,20,30) at t=0.5 is).
+ * @evidence contracts/development/testing.md#behavioral-verification Samples typed clips to observe linear, step and cubic values, rotational norm, endpoint timing and variable weights width. Direct queries on both loop modes and a zero-duration clip exercise nonfinite-time refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Authored endpoints determine linear means and step holds. Opposite finite extrema cancel at half-time and the interior key gives its literal vector. Zero-tangent Hermite gives 5 between 0 and 10, and trigonometry supplies the tested quaternion midpoint.
+ * @evidence contracts/development/common.md#meaningful-documentation Ordinary interpolation, opposing finite extrema, exact keys, wrap and clamp offsets exercise sampled value and time boundaries. Invalid times, track shapes and duplicate channels exercise refusal.
  */
 export function test_resolve_sample_clip(): void {
   // 1. linear vec3
@@ -445,4 +446,49 @@ export function test_resolve_sample_clip(): void {
       ['track "node:n:rotation"', "value width", "4", "3"],
     ),
   );
+
+  const extreme: number = Number.MAX_VALUE;
+  const opposite: IAutoMovieClip = clip(
+    [
+      track(
+        NODE("translation"),
+        [0, 1, 2],
+        [-extreme, extreme, 0, extreme, -extreme, 4, extreme, -extreme, 4],
+        "linear",
+      ),
+    ],
+    2,
+  );
+  const translation: string = "node:n:translation";
+  TestValidator.predicate(
+    "opposing endpoints have a finite midpoint",
+    close(val(opposite, 0.5, translation), [0, 0, 2], 0),
+  );
+  TestValidator.predicate(
+    "the exact interior time samples the authored endpoint",
+    close(val(opposite, 1, translation), [extreme, -extreme, 4], 0),
+  );
+  TestValidator.predicate(
+    "negative looping seconds wrap to the finite midpoint",
+    close(val({ ...opposite, loop: true }, -1.5, translation), [0, 0, 2], 0),
+  );
+  TestValidator.predicate(
+    "negative nonlooping seconds hold the first key",
+    close(val(opposite, -1.5, translation), [-extreme, extreme, 0], 0),
+  );
+
+  for (const [mode, timed] of [
+    ["hold", opposite],
+    ["loop", { ...opposite, loop: true }],
+    ["zero duration", zero],
+  ] as const)
+    for (const seconds of [NaN, Infinity, Number.NEGATIVE_INFINITY])
+      TestValidator.predicate(
+        `${mode} rejects nonfinite seconds ${seconds}`,
+        throwsError(
+          (): Map<string, IAutoMovieSampledChannel> =>
+            AutoMovieEngineSequence.sampleClip(timed, seconds),
+          ["sampleClip", "seconds must be finite", String(seconds)],
+        ),
+      );
 }

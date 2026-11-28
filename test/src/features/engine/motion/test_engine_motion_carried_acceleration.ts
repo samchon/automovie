@@ -26,9 +26,13 @@ const H: number = 1e-6;
  * 2. The term is zero at both ends and outside them.
  * 3. Its peak is `PEAK = 54 / 3125` squared durations at two fifths of the
  *    duration, higher than its neighbours a hundredth away.
- * 4. Near the cut `2 f(h) / h^2` is the initial acceleration, 1 to within `3 h /
- *    D`, and `f(h) / h` the initial slope, 0 to within `h / 2`.
+ * 4. Near the cut, `2 f(h) / h^2` approximates the initial acceleration of 1
+ *    within `4 h / D`. The quotient `f(h) / h` approximates zero slope within `h`.
  * 5. A duration of 0 or less is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the unit-acceleration basis, its interior and out-of-window values, the peak, its initial derivative behavior, and invalid duration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `carriedAcceleration` and its peak helper directly for three interior fractions, four samples at or beyond the endpoints, two near-peak neighbors, and non-positive durations.
+ * @evidence contracts/development/testing.md#independent-expectations The quintic with unit initial acceleration and zero endpoint displacement and slopes is D²u²(1 - u)³/2. Its maximum at u = 2/5 is 54D²/3125. At a small elapsed time h the computed ratios approach 1 for twice the displacement over h² and 0 for displacement over h.
  */
 export function test_engine_motion_carried_acceleration(): void {
   // 1. The interior.

@@ -20,6 +20,10 @@ import { nclose } from "../../internal/predicates";
  *    (3 - 2u).
  * 3. The rate is near zero just after the start and just before the end, and is
  *    the peak 1.5 x (4 - 2) / 1 = 3 m/s in the middle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify depth in metres, held and moving times, the quarter sample and derivative behavior of the focus pull.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves the active lens through the same staged camera at both holds and throughout the pull. It samples depth and estimates local rates near the endpoints and midpoint.
+ * @evidence contracts/development/testing.md#independent-expectations The two marks at 2 and 4 metres interpolate over one second by u squared times 3 minus 2u. This gives 2.3125 metres at a quarter and 3 metres halfway. The derivative is zero at either end and reaches 3 m/s in the middle.
  */
 export function test_engine_film_lens_pull(): void {
   const intent: IAutoMovieCameraIntent = {

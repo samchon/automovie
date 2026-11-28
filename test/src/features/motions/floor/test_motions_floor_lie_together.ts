@@ -13,14 +13,17 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `lieTogetherShifted` moves a lying posture rigidly by a displacement: the
- * root and each free limb goal's point and bend, a goal attached to something
- * (`on`) left where it is held.
+ * Check how a shared reclining adjustment moves free goals.
  *
- * Scenarios, a posture shifted by (0.1, -0.05, 0.2):
+ * Scenarios:
  *
- * 1. The root and the free left leg's point and bend move by it.
- * 2. The right arm's goal held on the chest stays as it was.
+ * 1. Translate the root, free-leg point and free-leg bend by (0.1, -0.05,
+ *    0.2) m.
+ * 2. Keep the held arm goal object while moving the rest of the posture.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify translated geometry and the arm that remains held.
+ * @evidence contracts/development/testing.md#behavioral-verification The shared adjustment translates free geometry and preserves the external hold.
+ * @evidence contracts/development/testing.md#independent-expectations The expected root and leg positions are direct coordinate sums, and the original held goal supplies the identity check.
  */
 export async function test_motions_floor_lie_together(): Promise<void> {
   const by: IAutoMovieVector3 = { x: 0.1, y: -0.05, z: 0.2 };

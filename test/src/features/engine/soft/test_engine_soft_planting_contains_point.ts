@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The box [0,1]³ contains its corner (1, 1, 1) but not (1.5, 0.5, 0.5).
  * 3. The sphere of radius 1 about the origin contains (0.6, 0.8, 0), on its
  *    surface, but not (1, 1, 0).
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEnginePlanting.plantingContainsPoint with typed unconstrained, box and sphere fixtures, including points on and outside each closed shape.
+ * @evidence contracts/development/testing.md#independent-expectations The box corner satisfies all three upper bounds, while x=1.5 violates one. The squared radii of (0.6, 0.8, 0) and (1, 1, 0) are 1 and 2.
+ * @evidence contracts/development/common.md#meaningful-documentation An unconstrained point is admitted. The box and sphere cases distinguish inclusive boundaries from exterior points.
  */
 export function test_engine_soft_planting_contains_point(): void {
   TestValidator.predicate(

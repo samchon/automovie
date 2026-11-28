@@ -1,22 +1,26 @@
 /**
- * Selects the exact narrative population being authored and reviewed.
+ * Selects the complete narrative or one exact first part of a long narrative.
  *
- * The two narrative axes are selected separately because they are different
- * axes. `treatments` is a flat sequence of event units and never partitions the
- * work for release, so nothing selects it: during a pilot the layer holds only
- * the pilot's events, and after the complete-work reset it holds every event.
- * `scripts` and `screenplay` carry the part and episode partition that
- * `scripts` designs, so a pilot names the one part it authors.
+ * The scope filters scripts and screenplays. Treatments use every event
+ * currently in that layer because treatments have no part folders.
  */
 export type AutoMovieEvidenceNarrativeScope =
-  | {
-      /** Authors and reviews every currently declared narrative part. */
-      mode: "complete-work";
-    }
-  | {
-      /** Authors and reviews only the exact first part named below. */
-      mode: "first-part-pilot";
+  | AutoMovieEvidenceNarrativeScope.ICompleteWork
+  | AutoMovieEvidenceNarrativeScope.IFirstPartPilot;
 
-      /** Selects the one script and screenplay part directory the pilot authors. */
-      part: `001-${string}`;
-    };
+export namespace AutoMovieEvidenceNarrativeScope {
+  /** Selects every authored scene or episode on either narrative route. */
+  export interface ICompleteWork {
+    /** Complete-work scope, the default when no scope is supplied. */
+    mode: "complete-work";
+  }
+
+  /** Selects one exact script and screenplay part on the long route. */
+  export interface IFirstPartPilot {
+    /** Exact first-part scope. */
+    mode: "first-part-pilot";
+
+    /** First-part folder in the form `001-lower-kebab-case`. */
+    part: `001-${string}`;
+  }
+}

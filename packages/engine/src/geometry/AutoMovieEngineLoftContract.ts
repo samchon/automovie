@@ -28,7 +28,7 @@ export namespace AutoMovieEngineLoftContract {
    *
    * @param producer The chain or seam that made them, for the message.
    * @param values Stations, millimetres.
-   * @param least Least rise between two stations, millimetres, positive.
+   * @param least Least rise between two stations, millimetres, positive and finite.
    * @returns The same values, branded.
    * @throws When fewer than two, one is not finite, or one rises by less than
    *   `least`.
@@ -38,9 +38,9 @@ export namespace AutoMovieEngineLoftContract {
     values: readonly number[],
     least: number,
   ): IAutoMovieLoftContract.Stations {
-    if (!(least > 0))
+    if (!(least > 0) || !Number.isFinite(least))
       throw new Error(
-        `${producer}: a station list needs a positive least step, not ${least}`,
+        `${producer}: a station list needs a positive finite least step, not ${least}`,
       );
     if (values.length < 2)
       throw new Error(
@@ -48,6 +48,8 @@ export namespace AutoMovieEngineLoftContract {
       );
     for (let k: number = 0; k < values.length; k++) {
       const v: number = values[k]!;
+      if (!Number.isFinite(v))
+        throw new Error(`${producer}: layer ${k} has nonfinite station ${v}`);
       if (k > 0 && !(v - values[k - 1]! >= least))
         throw new Error(
           `${producer}: layer ${k} stands ${v - values[k - 1]!} mm over layer ${k - 1}; stations must rise by at least ${least} mm`,
@@ -96,10 +98,14 @@ export namespace AutoMovieEngineLoftContract {
   ): IAutoMovieLoftContract.Ring {
     let area: number = 0;
     for (let i: number = 0; i < points.length; i++) {
-      const p: readonly [number, number, number] = points[i]!;
+      const [x, y, z] = points[i]!;
+      if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
+        throw new Error(
+          `${producer}: layer ${layer}'s ring point ${i} needs finite world coordinates`,
+        );
       const q: readonly [number, number, number] =
         points[(i + 1) % points.length]!;
-      area += p[0] * q[2] - q[0] * p[2];
+      area += x * q[2] - q[0] * z;
     }
     if (!(Math.abs(area) > 0))
       throw new Error(

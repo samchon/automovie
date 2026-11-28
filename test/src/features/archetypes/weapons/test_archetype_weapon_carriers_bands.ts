@@ -15,11 +15,9 @@ const FIT: string = "Wulflund, 1.5 cm longer and 2 cm wider than the blade";
  * 2. For ten seeds of each blade a scabbard or a sheath is made to, the four read swords and the sabre, katana, rapier, dagger and knife: one made to that blade, at its read size or at the drawn blade's size with Wulflund's fit, is admitted, is longer than the blade and its throat wider than the blade at its guard.
  * 3. A scabbard's `mouth` is the top of its throat.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each carrier for 200 seeds and measures its colliders and contact frames, then fits scabbards to drawn swords; a band other than the citation's, a seed that does not vary it, a scabbard shorter or narrower than its blade, or a mouth off the scabbard's top is caught.
- * @evidence contracts/development/testing.md#independent-expectations Safariland's ride heights, Wulflund's rule of fit on createSword's blades, the back quivers' depths and weights are written here from their sources; a blade must be shorter and narrower than the scabbard that holds it.
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind; every blade a scabbard or a sheath is made to, read swords whole and banded kinds drawn; slots belong to `test_archetype_weapon_carriers_slots`, the default holster to `test_archetype_weapon_holster_unchanged`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the carrying props, attachment heights, measured capacity dimensions and fit cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds all carrier forms, measures their contact frames and tests actual scene props against the corresponding carrier dimensions. The opening is compared to the measured carrying shell.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal maker dimensions and weights. A carrying space must exceed the length and width of the fitted scene prop.
  */
 export function test_archetype_weapon_carriers_bands(): void {
   const row = (

@@ -215,14 +215,20 @@ namespace part_operate_state {
 }
 
 /**
- * `operate`'s unit contract: its state and long insert.
+ * Check contact readback for an operated part and the course of a long
+ * insertion.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `operate_long_insert_course`: `operateLongInsertCourse` plans a staff driven
- *   down a bore hand over hand:
- * - `operate_state`: `operateState.at` is an operated part's contact at a share
- *   of its stroke:
+ * 1. Read the midpoint of a button press, knob turn, slider translation and
+ *    hinge sweep. Compare a one-way insert with a withdrawing insert.
+ * 2. Drive a staff 0.2 m in one stroke or 0.6 m with a paired regrip, and
+ *    return it when withdrawal is requested. Refuse depth beyond the
+ *    available handle and shoulders outside reach.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases distinguish operated-part movement, reach and successive hand transfers.
+ * @evidence contracts/development/testing.md#behavioral-verification Typed part and bore fixtures exercise the operation-specific reads and inspect the planned segment sequence.
+ * @evidence contracts/development/testing.md#independent-expectations Expected positions follow midpoint progress, rotation by half the authored hinge angle, and the given reach chord and bore clearance.
  */
 export async function test_motions_affordance_operate(): Promise<void> {
   part_operate_long_insert_course.verify();

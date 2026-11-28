@@ -143,8 +143,13 @@ export namespace AutoMovieEngineSpace {
   }
 
   /**
-   * Evaluate the canonical surface height at XZ without checking footprint
-   * membership.
+   * Read surface height in metres at a finite world XZ point.
+   *
+   * Supply an admitted height rule or the legacy anchor and ramp inputs. A
+   * height rule takes precedence when present. The lattice reader interpolates
+   * between stored knots and clamps coordinates outside its extent. If a
+   * lattice sample is missing, it contributes zero to the interpolation.
+   * Use `surfaceContains` separately when the query must lie in a footprint.
    */
   export function surfaceHeightAt(surface: IAutoMovieHeightSurface, x: number, z: number): number {
     return surfaceHeightAtImplementation(surface, x, z);

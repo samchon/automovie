@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Start, simultaneous cues, and the closing instant are admitted.
  * 2. A late cue and a subsequent negative cue report their range, and the latter
  *    also reports moving backward in authored order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify inclusive beat bounds, simultaneous cues and the separate ordered range and chronology findings.
+ * @evidence contracts/development/testing.md#behavioral-verification The test validates explicit anchor sequences and compares the collector's error paths for the late and negative entries in authored order.
+ * @evidence contracts/development/testing.md#independent-expectations Zero and the exact duration bound the closed interval, so the start, simultaneous and closing values are admitted. The authored late and then negative values are both outside that interval, and the negative value also descends from its predecessor.
  */
 export function test_engine_film_validate_blocking_anchors(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

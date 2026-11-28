@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  *    phases are exactly those, which differ from the uniform ones at 14 of 16.
  * 3. The clustered list reversed, and one short: a diagnostic naming the "ring
  *    phases".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names default phase columns, explicit clustered columns and refused reversed or short lists.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a swept tube with absent, clustered and malformed phase sequences, then reads skin vertex phases or diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations The undeclared phases are 2πk/16. Authored columns are the listed distinct increasing phases themselves. Reversal and missing entries violate order or count.
  */
 export function test_engine_geometry_construction_view_phases(): void {
   const outline = (sign: number): IAutoMovieViewPart.IOutline => ({

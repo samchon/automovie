@@ -30,6 +30,10 @@ const CUT: IAutoMoviePlaybackTimeline = {
  *    representable second before the cut. The next layer before its in-point
  *    holds at that in-point.
  * 3. An absent entry refuses rather than placing a different shot.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Uses the correct film or shot clock for each draw layer and reports an absent entry.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls layer placement at an in-point and cut, using available and unavailable shot-local readers.
+ * @evidence contracts/development/testing.md#independent-expectations The stated source start plus retimed play gives shot second four. The outgoing hold immediately precedes the cut, and an incoming hold uses its in-point.
  */
 export async function test_render_draw_place_layer(): Promise<void> {
   const seeks: number[] = [];

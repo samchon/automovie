@@ -20,6 +20,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  *    more than 1 mm.
  * 2. Without `round`, `band.f.1`'s end edge lies on the zero set of the plain
  *    minimum of its three plane distances within 1e-7 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rounded and unrounded plane intersections, between-column samples and an ordinary-station negative control.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the realized children's rails through sampled section points and compares the plane-distance minimum with and without rounding.
+ * @evidence contracts/development/testing.md#independent-expectations The radius-9 cylinder and its declared planes determine the surface and cutting rules. Removing rounding switches the zero set from the smooth minimum to the plain minimum.
  */
 export function test_engine_geometry_split_compose_rails(): void {
   const b: number = C.LEAN;

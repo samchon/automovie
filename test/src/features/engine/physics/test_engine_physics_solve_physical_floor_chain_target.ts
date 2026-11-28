@@ -32,6 +32,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 4. A planted patch without witnesses asked for an endpoint height the box cannot
  *    reach while touching reports its hover gap. A non-planted patch with the
  *    same request treats the plane only as a lower bound.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains feasible landing and residual reporting for unreachable, iteration-limited and hovering sole goals.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits a bounded leg to raised plane goals within and beyond its reach, limits iteration and contrasts planted and interval-only patches.
+ * @evidence contracts/development/testing.md#independent-expectations Whole-patch clearance and original endpoint give independent measured residuals. A feasible solve meets 0.2 mm, and a hovering planted surface owes equality even above the floor.
  */
 export function test_engine_physics_solve_physical_floor_chain_target(): void {
   const profile: IAutoMoviePhysicalProfile = PhysicalModelFixtures.quadrupod();

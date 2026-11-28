@@ -39,9 +39,7 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans through the public reader and planner and runs the capture against an in-memory storage, reading the cells' labels and captions and the record's rows; a planner that ignored the instants, matched them at another resolution, or a run that dropped the label from the record fails.
  * @evidence contracts/development/testing.md#independent-expectations Captions follow the documented form: frame when the second lies on one, the second to the millisecond, the label, then the varying view; the millisecond match is the resolution cells are named at, so 0.6202 and 0.62022 write alike and 0.621 does not.
- * @evidence contracts/development/testing.md#distinguishing-cases Named and unnamed seconds, a match and a near miss at the resolution, a subject without instants, and the plan against the record. Caption forms without instants are owned by `test_capture_plan_cells`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_plan_instants`; storage is in memory and nothing is drawn by a browser.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Named and unnamed seconds exercise caption labels, millisecond ties and near misses, and propagation into the saved row.
  */
 export async function test_capture_plan_instants(): Promise<void> {
   const plan: (

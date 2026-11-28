@@ -17,6 +17,10 @@ import { nclose } from "../../internal/nclose";
  *    at straight + 36.5 pi, it is (x = +36.5, z = +straight / 2).
  * 3. A lane offset of 1.5 widens the radius: (x = -38) at distance 0.
  * 4. A distance of one whole length returns to the start.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the 400 metre track, its straight and two semicircles, lane offset and full-lap wrapping.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public oval constructors and position readers at the start, turn entries and a complete lap. Measures the lane offset and total length.
+ * @evidence contracts/development/testing.md#independent-expectations The turns use `73*pi` metres for radius 36.5, so each straight uses half of `400-73*pi`. Radius and straight vertices determine the stated sample coordinates.
  */
 export function test_archetypes_core_oval_lapped(): void {
   const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(

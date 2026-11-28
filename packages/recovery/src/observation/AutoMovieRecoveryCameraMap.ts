@@ -66,468 +66,576 @@ import { validateRecoveryMapMetricScales as validateMapMetricScalesImplementatio
 /** Public operations for Auto Movie Recovery Camera Map. */
 export namespace AutoMovieRecoveryCameraMap {
   /**
-   * Prepare the three-view map's supplied charts before image allocation. The
-   * seed pair is prepared as a pair, and the third view's chart with the map's
-   * aggregate pixel ceiling, without fitting a pair; the ceiling then bounds all
-   * three views. The declared policy and budgets remain caller assertions.
+   * Admit exactly three fixed RGB8 views with unique identities and supplied
+   * corrected pinhole calibration. Return their charts in input order. Views
+   * zero and one have a separate seed pixel cap within the aggregate cap.
+   * Invalid view metadata, seed or map controls, or chart arithmetic throws
+   * before extraction.
    */
   export function admitCameraMap(input: Parameters<IAutoMovieRecoveryCameraMapAdmissionOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryCameraMapAdmissionOperation.Operation> {
     return admitRecoveryCameraMapImplementation(input);
   }
 
   /**
-   * Prepare the resident pair before any image-sized allocation: the caller's
-   * pixel budget bounds its two views, and their supplied pixel charts are
-   * constructed once for the later numerical phases. Calibration, provenance,
-   * rigidity and the declared policy and budget remain caller assertions.
+   * Admit exactly two fixed RGB8 views with unique identities under one
+   * asserted scene. Return their row-major pinhole matrices and analytic
+   * inverses in source order, with the total pixel count. Invalid provenance,
+   * raster size, policy, budgets or chart arithmetic throws before extraction.
    */
   export function admitCameraPair(input: Parameters<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> {
     return admitRecoveryCameraPairImplementation(input);
   }
 
   /**
-   * Prepare a bounded calibrated image set's supplied charts before observing any
-   * raster: the first three views as the seed map, each later view's chart under
-   * the scene's aggregate pixel ceiling, and the caller's view and pixel budgets
-   * bounding the whole set. The declared policy and budgets remain caller
-   * assertions.
+   * Admit at least three fixed RGB8 views within the scene's view cap, and
+   * return supplied corrected pinhole charts in source order. Views zero and
+   * one define the seed and have a separate pixel cap. Invalid view metadata,
+   * controls, aggregate pixels or chart arithmetic throws before extraction.
    */
   export function admitCameraScene(input: Parameters<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation> {
     return admitRecoveryCameraSceneImplementation(input);
   }
 
   /**
-   * Build a supplied pinhole K and its analytic inverse in the resident pixel
-   * chart. Check pixel-step round trips before any correspondence is normalized.
-   * A large principal offset may destroy pixel differences even when each scalar
-   * is finite. Such a chart refuses rather than being recentered with unknown
-   * provenance.
+   * Construct row-major pinhole calibration and analytic inverse from admitted
+   * focal lengths, skew and principal point in pixels. Integer coordinates
+   * identify pixel centres. Nonpositive focal lengths or pixel increments lost
+   * in the binary64 round trip throw.
    */
   export function createCameraChart(view: Parameters<IAutoMovieRecoveryCameraChartCreationOperation.Operation>[0]): ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation> {
     return createRecoveryCameraChartImplementation(view);
   }
 
   /**
-   * Qualify completed automatic observations and assemble owned camera evidence.
-   * Every independent final gate runs when its required observations exist. A
-   * completed observation artifact may refuse its camera; only a candidate
-   * passing all gates exposes a relative transform. No shape reconstruction is
-   * performed.
+   * Qualify the relative pose of two admitted calibrated views from their
+   * tentative correspondences. The accepted record contains measured consensus
+   * and a transform in the first camera's unit-baseline gauge. A refusal keeps
+   * its reasons and measured observations. Progress callback errors propagate.
    */
   export function createCameraEstimate(input: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[0], features: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[1], matches: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[2], charts: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[3], checkpoint: Parameters<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation>[4]): ReturnType<IAutoMovieRecoveryCameraEstimateCreationOperation.Operation> {
     return createRecoveryCameraEstimateImplementation(input, features, matches, charts, checkpoint);
   }
 
   /**
-   * Build one conditional three-camera map from automatic shared observations.
-   * Only qualified seed pairs create 3D points. Third-image observations cannot
-   * influence those points before resection, preventing circular registration.
-   * Joint fitting subsequently uses only seed observations and resection
-   * inliers.
+   * Initialize a sparse map from three admitted charts and their observed
+   * feature pairs. Views zero and one provide the conditional unit-baseline
+   * seed. Resection uses only seed-supported landmarks. Returns accepted,
+   * seed-only or refused geometry with explicit reasons and fitting
+   * diagnostics.
    */
   export function createCameraMap(input: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[0], features: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[1], charts: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[2], pairs: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[3], descriptorComparisons: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[4], checkpoint: Parameters<IAutoMovieRecoveryCameraMapCreationOperation.Operation>[5]): ReturnType<IAutoMovieRecoveryCameraMapCreationOperation.Operation> {
     return createRecoveryCameraMapImplementation(input, features, charts, pairs, descriptorComparisons, checkpoint);
   }
 
   /**
-   * Register a bounded calibrated image set into one qualified sparse component.
-   * Global conflicting tracks are withheld before even seed geometry. Each new
-   * camera uses only existing points, then proposes registered-view point growth
-   * and common-gauge joint refinement. Only a complete transaction is committed.
-   * Explicit internal feasible options are copied before callbacks and reach both
-   * seed and candidate closure fits; public callers continue omitting them. A
-   * refused seed retains its last completed fit report separately from the
-   * accepted-only joint report, without retaining failed geometry.
+   * Grow one sparse component from globally linked calibrated observations.
+   * Start with source views zero and one. Omit optional feasible settings to
+   * use the default joint fitting route. Each accepted pose, point and
+   * observation shares the unit seed-baseline gauge. Failed candidates retain
+   * the prior component and report why growth stopped.
    */
   export function createCameraScene(input: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[0], features: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[1], charts: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[2], pairs: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[3], descriptorComparisons: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[4], checkpoint: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[5], feasible?: Parameters<IAutoMovieRecoveryCameraSceneCreationOperation.Operation>[6]): ReturnType<IAutoMovieRecoveryCameraSceneCreationOperation.Operation> {
     return createRecoveryCameraSceneImplementation(input, features, charts, pairs, descriptorComparisons, checkpoint, feasible);
   }
 
   /**
-   * Factor a two-column camera-direction design without normal equations.
-   * Reorthogonalized modified Gram-Schmidt supplies the small QR factors; the two
-   * singular values of R give the same direction rank as the original design.
-   * Their ratio is a binary64 diagnostic under the supplied numeric threshold,
-   * not a certified interval bound or uncertainty distribution.
+   * Factor two finite direction columns and return their singular-value ratio
+   * and reusable least-squares solve. Supply the caller's admission ratio. A
+   * weak direction system throws. Each solve takes one value per direction in
+   * the original view order and returns two coordinate coefficients.
    */
   export function createImageDirectionSolver(directions: Parameters<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation>[0], minimumRatio: Parameters<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation>[1]): ReturnType<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation> {
     return createRecoveryImageDirectionSolverImplementation(directions, minimumRatio);
   }
 
   /**
-   * Pixel epipolar model and its five local calibrated-pose derivatives. Rotation
-   * increments act on the left in radians; translation increments use two raw
-   * directions of the admitted near-unit translation. The complete signed Sampson
-   * quotient cancels the positive translation-normalization scale, so its
-   * derivative uses these raw directions even when DN(t)B differs from B. No
-   * camera covariance or global optimum follows.
+   * Build the pixel epipolar matrix and five local derivatives from a
+   * near-unit two-view translation. Rotation acts on the left in radians. The
+   * returned tangent basis gives the two dimensionless translation increments.
+   * Unresolved or nonunit gauge throws.
    */
   export function createPoseModel(pose: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[0], first: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[1], second: Parameters<IAutoMovieRecoveryPoseModelCreationOperation.Operation>[2]): ReturnType<IAutoMovieRecoveryPoseModelCreationOperation.Operation> {
     return createRecoveryPoseModelImplementation(pose, first, second);
   }
 
   /**
-   * Linearize the unchanged robust objective and every unweighted pixel disk.
-   * Physical camera coordinates precede three coordinates for each landmark.
-   * Constraint g=norm(residual)^2/maximumError^2-1 is dimensionless and smooth
-   * even at zero residual; the objective remains in original squared pixels.
+   * Linearize the robust camera-map objective and each retained pixel-error
+   * disk. Camera step coordinates precede three coordinates per landmark. The
+   * objective uses squared pixels; the inequality and its offset are
+   * dimensionless. A nonpositive point depth, unresolved seed tangent or an
+   * already infeasible pixel observation throws.
    */
   export function linearizeFeasibleMap(state: IAutoMovieRecoveryMapState, intrinsics: readonly (readonly number[])[], policy: IAutoMovieRecoveryCameraMapPolicy): IAutoMovieRecoveryFeasibleMapLinearization {
     return linearizeRecoveryFeasibleMapImplementation(state, intrinsics, policy);
   }
 
   /**
-   * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
-   * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each
-   * derivative is de/d - (e/d)_sum((line/d)_(derivativeLine/d)). This
-   * differentiates both the incidence and its pixel normalization; zero/undefined
-   * lines refuse the fit.
+   * Evaluate signed pixel Sampson residuals and their five-coordinate Jacobian
+   * for ordered paired image points. Each row differentiates both epipolar
+   * incidence and normal length. Mismatched pairs, an incompatible model or
+   * undefined epipolar lines throw.
    */
   export function linearizePoseResiduals(model: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[0], first: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[1], second: Parameters<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation>[2]): ReturnType<IAutoMovieRecoveryPoseResidualsLinearizeOperation.Operation> {
     return linearizeRecoveryPoseResidualsImplementation(model, first, second);
   }
 
   /**
-   * Project a finite world point and differentiate the calibrated pixel chart.
-   * Rotation increments act on R alone on the left, while t has an independent
-   * additive camera-frame increment. Point derivatives are in world coordinates.
-   * Nonpositive depth has no supported projection and returns null.
+   * Projects a world point and returns its calibrated pixel Jacobians.
+   *
+   * Supply the world-to-camera pose and row-major camera intrinsics. Columns
+   * of the camera Jacobian describe left rotation in radians and additive
+   * translation in the camera frame. Point columns describe world coordinates.
+   * The result gives camera depth in the same units as the pose and point.
+   * Nonpositive depth returns null. Unrepresentable arithmetic throws.
    */
   export function projectMapPoint(pose: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[0], point: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[1], intrinsic: Parameters<IAutoMovieRecoveryMapPointProjectionOperation.Operation>[2]): ReturnType<IAutoMovieRecoveryMapPointProjectionOperation.Operation> {
     return projectRecoveryMapPointImplementation(pose, point, intrinsic);
   }
 
   /**
-   * Jointly refine calibrated cameras and registered landmarks in one gauge. The
-   * first pose must be identity at the origin and stays fixed; the seed
-   * translation retains its admitted near-unit current radius, and all later
-   * translations have three unrestricted coordinates. Fixed landmark observations
-   * retain the same robust objective throughout every trial. Internal feasible
-   * options select the separately bounded hard-pixel method; ordinary calls
-   * retain this unconstrained local optimizer.
+   * Refine registered cameras and landmarks in one gauge using their fixed
+   * pixel observations. The first pose must be identity. The seed translation
+   * keeps its near-unit radius, and later translations are unrestricted. Omit
+   * feasible options for robust local least squares. Explicit feasible options
+   * select the hard-pixel route. Invalid population, gauge or resident limits
+   * throw.
    */
   export function refineCameraMap(initialPoses: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[0], initialLandmarks: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[1], intrinsics: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[2], policy: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[3], budget: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[4], checkpoint: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[5], charge?: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[6], feasible?: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[7], reportCapacity?: Parameters<IAutoMovieRecoveryCameraMapRefinementOperation.Operation>[8]): ReturnType<IAutoMovieRecoveryCameraMapRefinementOperation.Operation> {
     return refineRecoveryCameraMapImplementation(initialPoses, initialLandmarks, intrinsics, policy, budget, checkpoint, charge, feasible, reportCapacity);
   }
 
   /**
-   * Refine a fixed camera map while retaining every hard pixel observation. This
-   * internal opt-in method uses the same robust objective, seven-freedom gauge,
-   * independent original ranks and actual point qualification. Pixel KKT is
-   * claimed only while nonpixel gates remain strictly interior; other gate
-   * blockage is incomplete, and the coordinator still owns atomic acceptance.
-   * Current-radius models prepay512 extra chart visits and each seed trial256; 64
-   * separate numerical slots cover raw/differentiated chart scratch.
+   * Refine an admitted sparse map under hard pixel-error limits and the
+   * original robust objective. The first camera stays fixed and the seed
+   * translation keeps its current admitted radius. Report whether normal pixel
+   * KKT is qualified and whether another geometry gate blocked the fit.
+   * Request lagged Lagrangian curvature only with SQP acceleration. The caller
+   * decides whether to commit the result.
    */
   export function refineCameraMapFeasible(initialPoses: readonly IAutoMovieRecoveryMapPose[], initialLandmarks: readonly IAutoMovieRecoveryMapLandmark[], intrinsics: readonly (readonly number[])[], policy: IAutoMovieRecoveryCameraMapPolicy, budget: IAutoMovieRecoveryCameraMapBudget, options: IAutoMovieRecoveryFeasibleJointOptions, checkpoint: () => void, charge: (work: number) => void, reportCapacity?: IAutoMovieRecoveryFeasibleReportCapacity): IAutoMovieRecoveryMapJointResult {
     return refineRecoveryCameraMapFeasibleImplementation(initialPoses, initialLandmarks, intrinsics, policy, budget, options, checkpoint, charge, reportCapacity);
   }
 
   /**
-   * Solve a column-scaled original least-squares design with optional damping.
-   * Independent undamped rank is checked first; damping controls a step and never
-   * supplies evidence of local observability. The right side is minus residual.
+   * Solve the caller's original least-squares rows for one camera-coordinate
+   * step. Supply minus residual as the right-hand side and a dimensionless
+   * minimum design ratio. Damping acts in column-normalized coordinates.
+   * Negative damping, unresolved original rank or a linear-budget overrun
+   * throws.
    */
   export function solveMapDesign(design: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[0], right: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[1], minimumRatio: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[2], damping: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[3], budget: Parameters<IAutoMovieRecoveryMapDesignSolutionOperation.Operation>[4]): ReturnType<IAutoMovieRecoveryMapDesignSolutionOperation.Operation> {
     return solveRecoveryMapDesignImplementation(design, right, minimumRatio, damping, budget);
   }
 
   /**
-   * Eliminate independent landmark coordinates from an original bundle design.
-   * Point-local Givens QR retains the caller's gauge-fixed camera columns. This
-   * is orthogonal variable elimination, avoiding the squared conditioning of a
-   * normal-matrix Schur complement. Optional metric retention exposes
-   * inverse/transpose actions from the same damped arrowhead design; the caller
-   * separately admits and charges its factor.
+   * Compute a joint camera and landmark step from bounded original-design
+   * blocks. Supply fixed gauge camera columns and three point columns per
+   * landmark. Damping is nonnegative and cannot admit an unobservable original
+   * design. Request metric retention only when the caller has separately
+   * admitted its storage.
    */
   export function solveMapJointStep(blocks: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[0], minimumRatio: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[1], damping: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[2], budget: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[3], retainMetric?: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[4]): ReturnType<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation> {
     return solveRecoveryMapJointStepImplementation(blocks, minimumRatio, damping, budget, retainMetric);
   }
 
   /**
-   * Apply a five-coordinate local step while retaining a rotation and unit t. The
-   * first three coordinates are a left rotation vector in radians; the final two
-   * are coordinates in the supplied current translation tangent basis.
+   * Applies a five-coordinate update to a relative pose.
+   *
+   * The first three coordinates are a left rotation vector in radians. The
+   * last two move the translation along its supplied tangent basis. The result
+   * owns a fresh row-major rotation and a unit translation. A wrong step or
+   * basis count, or a collapsed translation, throws.
    */
   export function stepRelativePose(pose: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[0], tangent: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[1], step: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[2]): ReturnType<IAutoMovieRecoveryRelativePoseStepOperation.Operation> {
     return stepRecoveryRelativePoseImplementation(pose, tangent, step);
   }
 
   /**
-   * Collect each target's distinct existing-map support once per accepted
-   * revision.
+   * Group current landmark support by target view for one accepted scene
+   * revision. Each retained landmark needs its original linked track. Return
+   * target pairs that refer back to the current landmark order; a missing
+   * track throws.
    */
   export function collectSceneSupport(landmarks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[0], tracks: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[1], viewCount: Parameters<IAutoMovieRecoverySceneSupportCollectionOperation.Operation>[2]): ReturnType<IAutoMovieRecoverySceneSupportCollectionOperation.Operation> {
     return collectRecoverySceneSupportImplementation(landmarks, tracks, viewCount);
   }
 
   /**
-   * Complete a detached scene transaction through growth and full joint geometry.
-   * After each fit, newly admissible points/measurements cause another fit. Only
-   * strict finite population growth repeats; every fit and linear action is
-   * charged. Failure leaves committing or retaining the old checkpoint to caller.
-   * An optional observer receives owned complete compact states before and after
-   * each joint fit. Observer errors propagate, and ordinary calls retain no
-   * trace.
+   * Complete a detached candidate scene seeded by active views zero and one.
+   * Grow admissible points and measurements, then fit the entire retained
+   * component in its fixed gauge. Progress and fit observers can abort by
+   * throwing. Only a qualified result supplies the caller with a commit
+   * candidate.
    */
   export function completeSceneCheckpoint(initialPoses: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[0], initialLandmarks: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[1], tracks: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[2], charts: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[3], policy: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[4], budget: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[5], work: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[6], checkpoint: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[7], onProposal?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[8], onTrace?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[9], feasible?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[10], reportCapacity?: Parameters<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation>[11]): ReturnType<IAutoMovieRecoverySceneCheckpointCompletionOperation.Operation> {
     return completeRecoverySceneCheckpointImplementation(initialPoses, initialLandmarks, tracks, charts, policy, budget, work, checkpoint, onProposal, onTrace, feasible, reportCapacity);
   }
 
   /**
-   * Preserve the last completed initial joint report until seed qualification.
-   * Completion calls this observer before and after each fit; a later before call
-   * carries the preceding report and is distinguished by phase, not nullness. The
-   * private target transfers diagnostics only when the seed is refused.
+   * Create the observer that transfers the latest completed seed fit into the
+   * refusal report target. Setup charges 32 linear visits; each before phase
+   * prepays a further 64. The matching after phase accepts one completed
+   * report by reference without another charge. A failed precharge leaves the
+   * prior report intact.
    */
   export function createSceneSeedReportObserver(target: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[0], work: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[1], budget: Parameters<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation>[2]): ReturnType<IAutoMovieRecoverySceneSeedReportObserverCreationOperation.Operation> {
     return createRecoverySceneSeedReportObserverImplementation(target, work, budget);
   }
 
   /**
-   * Qualify one point against its actual retained registered measurements. At
-   * least one observed camera pair must supply an acute ray angle above the point
-   * threshold. A point need not be visible in either original seed image.
+   * Qualify a proposed landmark in its retained camera gauge. Check positive
+   * depth and maximum reprojection error in pixels for every registered
+   * observation. Qualify the largest acute supporting ray angle in degrees
+   * against the configured parallax threshold. Return reasons for unsupported
+   * observations or deficient geometry.
    */
   export function evaluateScenePoint(point: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[0], observations: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[1], poses: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[2], charts: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[3], policy: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[4], observe?: Parameters<IAutoMovieRecoveryScenePointEvaluationOperation.Operation>[5]): ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> {
     return evaluateRecoveryScenePointImplementation(point, observations, poses, charts, policy, observe);
   }
 
   /**
-   * Propose point and measurement growth using only currently registered poses.
-   * Existing points receive only individually positive-depth pixel-qualified
-   * measurements; new points must pass every available registered observation.
+   * Propose new landmarks and observations from the supplied registered poses.
+   * Existing points receive only new positive-depth observations that meet the
+   * pixel threshold. A new point must satisfy all of its available registered
+   * observations. Duplicate accepted track IDs throw.
    */
   export function growSceneLandmarks(tracks: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[0], initial: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[1], poses: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[2], charts: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[3], policy: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[4], budget: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[5], work: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[6], checkpoint: Parameters<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation>[7]): ReturnType<IAutoMovieRecoverySceneLandmarksGrowthOperation.Operation> {
     return growRecoverySceneLandmarksImplementation(tracks, initial, poses, charts, policy, budget, work, checkpoint);
   }
 
   /**
-   * Build only the original-rank-qualified raw metric a feasible model uses. This
-   * operation does not request an unconstrained LS answer or scaled gradient.
+   * Factor the original-design inverse metric for a gauge-fixed camera and
+   * point population. Supply nonnegative damping and the original rank floor.
+   * Return metric actions in the input's camera-first physical coordinate
+   * order. Unresolved original rank or insufficient capacity throws.
    */
   export function factorMapMetric(blocks: readonly IAutoMovieRecoveryMapJointBlock[], minimumRatio: number, damping: number, budget: IAutoMovieRecoveryCameraMapBudget): IAutoMovieRecoveryMapMetricFit {
     return factorRecoveryMapMetricImplementation(blocks, minimumRatio, damping, budget);
   }
 
   /**
-   * Try nominal physical mixing, then one original-row-supported coefficient. The
-   * numerical branch is not the ideal cubic-rate mixture. Its operation- scaled
-   * margin chooses a new vector, never an allowance on that vector's rows.
+   * Try the nominal physical blend of the untilted and tilted steps. If it
+   * violates an original row, try a larger weight supported by all rows and
+   * return the resulting step or a refusal. Use the objective descent and each
+   * original constraint offset in the caller's chart.
    */
   export function mixFeasibleSqpStep(rows: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[0], sqp: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[1], tilted: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[2], nominal: Parameters<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation>[3]): ReturnType<IAutoMovieRecoveryFeasibleSqpStepMixingOperation.Operation> {
     return mixRecoveryFeasibleSqpStepImplementation(rows, sqp, tilted, nominal);
   }
 
-  /** Admit requested curvature bookkeeping and conservative simultaneous buffers. */
+  /**
+   * Check whether requested curvature scratch and retained factors fit
+   * simultaneously in the declared resident-entry and linear-work bounds.
+   * Return the eligible population size or the fixed fallback and calculated
+   * work. Malformed dimensions or ceilings throw before requesting a curvature
+   * fit.
+   */
   export function admitMapCurvature(cameraWidth: number, points: number, observations: number, baseRetained: number, maxResidentEntries: number, maxLinearEntries: number, charge: (work: number) => void): IAutoMovieRecoveryCurvatureAdmission {
     return admitRecoveryMapCurvatureImplementation(cameraWidth, points, observations, baseRetained, maxResidentEntries, maxLinearEntries, charge);
   }
 
-  /** Assemble lagged fixed-dual local curvature in original-design scaled units. */
+  /**
+   * Assemble the lagged fixed-dual curvature blocks in the original-design
+   * scaled coordinates. Supply the retained point population and the qualified
+   * prior row multipliers. A nonrepresentable local second derivative returns
+   * `null`; mismatched diagnostics or row addresses throw.
+   */
   export function assembleMapCurvature(state: IAutoMovieRecoveryMapState, intrinsics: readonly (readonly number[])[], policy: IAutoMovieRecoveryCameraMapPolicy, seed: IAutoMovieRecoveryUntiltedEstimate, scales: IAutoMovieRecoveryMapMetricScales, damping: number): IAutoMovieRecoveryMapCurvatureBlocks | null {
     return assembleRecoveryMapCurvatureImplementation(state, intrinsics, policy, seed, scales, damping);
   }
 
   /**
-   * Check logical numerical retention before incremental designs are allocated.
-   * The shared joint bound covers copied blocks, reduced factors and landmarks; a
-   * caller adds transient point or resection factors retained during growth.
-   * These scalar slots exclude JS overhead and the separately bounded seed fit.
+   * Check scalar slots for the retained joint design and optional transient
+   * work. Require at least two cameras and nonnegative safe integer counts and
+   * capacity. Equality fits. Malformed or oversized totals throw
+   * `RecoverySceneBudget` before allocating the design.
    */
   export function assertSceneLinearRetention(budget: IAutoMovieRecoveryCameraSceneBudget, cameras: number, observations: number, landmarks: number, transientEntries?: number): void {
     assertRecoverySceneLinearRetentionImplementation(budget, cameras, observations, landmarks, transientEntries);
   }
 
   /**
-   * Project the completed generic fit's fixed diagnostics into JSON-safe values.
-   * Shared camera counts/costs and existing adaptive/curvature reports stay with
-   * their original owner. No geometry or raw numeric input is mutated.
+   * Copy the fixed diagnostic fields of a completed constrained fit into an
+   * owned JSON-safe report. Preserve unavailable fields as null. Represent
+   * each computed nonfinite value with its own string sentinel.
    */
   export function createFeasibleDiagnostics(fit: IAutoMovieRecoveryFeasibleFit<unknown>): IAutoMovieRecoveryFeasibleDiagnostics {
     return createRecoveryFeasibleDiagnosticsImplementation(fit);
   }
 
   /**
-   * Try a complete affine-QP direction and one same-base curvature correction.
-   * Positive baseline weights only propose a working set. Every original affine
-   * row and physical quadratic stationarity still qualify the untilted step. The
-   * mixture is not the pure tilted-QP minimizer or a nonlinear certificate.
+   * Try an affine-QP direction and at most one same-base curvature correction
+   * using an admitted feasible model. Positive baseline weights nominate the
+   * working set. Every original row and the physical stationarity checks still
+   * qualify the result. When auxiliary resources, covector actions or a gate
+   * are unresolved, the receipt names the limiting reason.
    */
   export function createFeasibleSqpArc(model: IAutoMovieRecoveryFeasibleModel, weights: readonly number[], tilted: readonly number[], tolerance: number, options: IAutoMovieRecoverySqpOptions, charge: (work: number) => void): IAutoMovieRecoverySqpArc {
     return createRecoveryFeasibleSqpArcImplementation(model, weights, tilted, tolerance, options, charge);
   }
 
   /**
-   * Retain the upper arrowhead of a consistently scaled point-first bundle QR.
-   * Physical vectors list camera coordinates before the three coordinates per
-   * landmark; elimination internally orders points first. The solve and covector
-   * multiplication actions use the same original global column scales.
+   * Retain the scaled upper arrowhead factor of a point-first bundle QR.
+   * Supply the independent point blocks, reduced camera block and original
+   * column scales in the current chart. Returned actions take camera
+   * coordinates first, then three coordinates per point.
    */
   export function createMapMetric(triangles: readonly (readonly (readonly number[])[])[], reduced: readonly (readonly number[])[], pointScales: readonly (readonly number[])[], cameraScales: readonly number[], budget: IAutoMovieRecoveryCameraMapBudget): IAutoMovieRecoveryMapMetric {
     return createRecoveryMapMetricImplementation(triangles, reduced, pointScales, cameraScales, budget);
   }
 
-  /** Bind one point-first upper factor and original column scales to its actions. */
+  /**
+   * Bind a point-first upper factor and original positive column scales to
+   * physical metric and whitening actions. Vectors put camera coordinates
+   * first. Sparse rows carry ordered original column addresses. Invalid
+   * factors, width mismatches or a requested unresolved action throw. The
+   * optional whitening path can decline an unresolved pivot.
+   */
   export function createMapTriangularMetric(triangles: readonly (readonly (readonly number[])[])[], camera: readonly (readonly number[])[], pointScales: readonly (readonly number[])[], cameraScales: readonly number[]): IAutoMovieRecoveryMapTriangularMetric {
     return createRecoveryMapTriangularMetricImplementation(triangles, camera, pointScales, cameraScales);
   }
 
-  /** Describe all requested views against the final accepted component revision. */
+  /**
+   * Describe every requested view in input order using the final accepted
+   * scene revision and its remaining support lists. Report registered views,
+   * insufficient support, a refusal in the current revision, or a view that
+   * was never attempted against that revision. Copy recorded refusal reasons.
+   */
   export function describeSceneRegistration(result: IAutoMovieRecoveryCameraSceneEstimate, support: readonly (readonly IAutoMovieRecoverySceneCandidate[])[]): IAutoMovieRecoverySceneRegistration[] {
     return describeRecoverySceneRegistrationImplementation(result, support);
   }
 
   /**
-   * Differentiate the map's current-radius pinhole chart at current pixels. A
-   * null tangent denotes six ordinary camera coordinates; an empty tangent
-   * denotes the fixed camera, and two directions denote the seed sphere chart.
+   * Return pixel coordinates, a Jacobian and two Hessians for the current
+   * pinhole map. Use `null` tangent for six ordinary camera coordinates, an
+   * empty tangent for a fixed camera, or two directions for the seed sphere
+   * chart. Rotations use radians, and point coordinates use the map gauge. An
+   * unsupported depth or arithmetic returns `null`.
    */
   export function differentiateMapProjection(pose: IAutoMovieRecoveryMapPose, point: readonly [number, number, number], intrinsic: readonly number[], tangent: readonly (readonly [number, number, number])[] | null): IAutoMovieRecoveryMapLocalCurvature | null {
     return differentiateRecoveryMapProjectionImplementation(pose, point, intrinsic, tangent);
   }
 
-  /** Factor one owned scaled arrowhead and preflight all fixed physical rows. */
+  /**
+   * Factor a scaled camera/point arrowhead and check whether its fixed
+   * physical rows can be whitened. The result reports an admitted metric and
+   * rows, or the unresolved point pivot, camera pivot or row action. Malformed
+   * shapes and capacities throw.
+   */
   export function factorMapCurvature(blocks: IAutoMovieRecoveryMapCurvatureBlocks, cameraScales: readonly number[], pointScales: readonly (readonly number[])[], physicalRows: readonly IAutoMovieSimplexAtom[]): IAutoMovieRecoveryMapCurvatureFit {
     return factorRecoveryMapCurvatureImplementation(blocks, cameraScales, pointScales, physicalRows);
   }
 
-  /** Qualify the original column-normalized design without synthesizing an answer. */
+  /**
+   * Measure independent local observability in a rectangular undamped
+   * least-squares design. Supply finite rows and the paired right-hand side, a
+   * minimum singular ratio and linear limits. Return owned column scales and
+   * the reduced orthogonal factors. Zero or dependent directions and exceeded
+   * budgets throw.
+   */
   export function factorMapDesign(design: readonly (readonly number[])[], right: readonly number[], minimumRatio: number, budget: IAutoMovieRecoveryCameraMapBudget): IAutoMovieRecoveryMapDesignFactor {
     return factorRecoveryMapDesignImplementation(design, right, minimumRatio, budget);
   }
 
-  /** Check the original exact first-pose identity gauge with indexed coefficients. */
+  /**
+   * Test the exact fixed first-camera gauge. Rotation must contain the
+   * row-major identity and translation must contain three zeros.
+   */
   export function isMapIdentityGauge(pose: IAutoMovieRecoveryMapPose): boolean {
     return isRecoveryMapIdentityGaugeImplementation(pose);
   }
 
   /**
-   * Bound stored-dual reconstruction separately from actual returned-row error.
-   * Stored Float64 inputs are exact here. Sequential multiply/add uses gamma(2m),
-   * with an absolute subnormal term, before exact normalization by the weight
-   * sum. All positive bounds and minimum-price endpoints are rounded outward.
+   * Bound how much stored binary64 dual weights can change the reconstructed
+   * physical step and row prices. Supply validated sparse rows, their actual
+   * stored weights and the returned direction. The result gives the outward
+   * aggregate, minimum price and gap. A nonpositive exact simplex mass throws.
    */
   export function measureFeasibleArithmetic(rows: readonly IAutoMovieSimplexAtom[], solution: IAutoMovieSimplexMinimum): IAutoMovieRecoveryFeasibleArithmetic {
     return measureRecoveryFeasibleArithmeticImplementation(rows, solution);
   }
 
   /**
-   * Apply the current undamped weighted original design to an actual increment.
-   * Camera coordinates precede three coordinates for each landmark. The gradient
-   * and blocks use the same current vector soft-L1 weights and physical chart.
+   * Predict decrease for an actual increment in the current undamped robust
+   * model. Coordinates list camera step first and three values per landmark.
+   * Return the negative model change in squared pixel objective units, or null
+   * for unrepresentable arithmetic. Wrong widths or original-design row shape
+   * throw.
    */
   export function predictMapDecrease(blocks: readonly IAutoMovieRecoveryMapJointBlock[], gradient: readonly number[], increment: readonly number[]): number | null {
     return predictRecoveryMapDecreaseImplementation(blocks, gradient, increment);
   }
 
-  /** Acquire a direct checkpoint's report scope after its active-index check. */
+  /**
+   * Reserve reporting capacity for a direct feasible checkpoint. Charge 256
+   * linear visits against the scene ledger and require an exact identity first
+   * pose. Return owned direction options and the reporting cap for the
+   * checkpoint population.
+   */
   export function prepareCheckpointReportCapacity(pose: IAutoMovieRecoveryMapPose, budget: IAutoMovieRecoveryCameraSceneBudget, options: IAutoMovieRecoveryFeasibleJointOptions, work: IAutoMovieRecoverySceneWork): IAutoMovieRecoveryCheckpointReporting {
     return prepareRecoveryCheckpointReportCapacityImplementation(pose, budget, options, work);
   }
 
-  /** Admit original map work, then prepay its complete fixed diagnostic transfer. */
+  /**
+   * Admit a fixed feasible map's work and reserve its complete diagnostic
+   * transfer. Omit report capacity to derive it from the fit's resident cap.
+   * Charges apply through the supplied ledger callback. A malformed reporting
+   * scope or insufficient retained capacity throws before solving.
+   */
   export function prepareFeasibleMapReporting(poses: readonly IAutoMovieRecoveryMapPose[], landmarks: readonly IAutoMovieRecoveryMapLandmark[], intrinsics: readonly (readonly number[])[], budget: IAutoMovieRecoveryCameraMapBudget, options: IAutoMovieRecoveryFeasibleJointOptions, charge: (work: number) => void, capacity?: IAutoMovieRecoveryFeasibleReportCapacity): IAutoMovieRecoveryFeasibleMapReporting {
     return prepareRecoveryFeasibleMapReportingImplementation(poses, landmarks, intrinsics, budget, options, charge, capacity);
   }
 
-  /** Admit fixed-population map work and its separately bounded chart scratch. */
+  /**
+   * Size numerical storage and work for a fixed map with at least two cameras,
+   * six tracked points and a fixed identity first pose. Return original chart
+   * and observation counts plus the declared work estimates. Valid population
+   * pressure can refuse resident capacity, direction entries or direction work
+   * separately.
+   */
   export function prepareFeasibleMapWork(initialPoses: readonly IAutoMovieRecoveryMapPose[], initialLandmarks: readonly IAutoMovieRecoveryMapLandmark[], intrinsics: readonly (readonly number[])[], budget: IAutoMovieRecoveryCameraMapBudget, options: IAutoMovieRecoveryFeasibleJointOptions, charge: (work: number) => void): IAutoMovieRecoveryFeasibleMapWork {
     return prepareRecoveryFeasibleMapWorkImplementation(initialPoses, initialLandmarks, intrinsics, budget, options, charge);
   }
 
-  /** Partition one reporting scope before growth or joint scratch is formed. */
+  /**
+   * Partition a scene and fit resident budget before retaining diagnostic
+   * reports. Each persisted report consumes 512 scalar entries, and one more
+   * report is reserved for the active report. Return the reduced scene and fit
+   * capacity. Malformed limits or an exhausted reserve throw.
+   */
   export function prepareFeasibleReportCapacity(sceneEntries: number, fitEntries: number, persistedReports: number): IAutoMovieRecoveryFeasibleReportCapacity {
     return prepareRecoveryFeasibleReportCapacityImplementation(sceneEntries, fitEntries, persistedReports);
   }
 
-  /** Prepare original point qualification and one current scaled block design. */
+  /**
+   * Prepare bounded original point blocks and the gauge-fixed reduced camera
+   * design. Supply finite observation rows, positive local rank limits and
+   * declared linear capacity. Return original scales and the factored
+   * camera/point inputs. Unresolved original directions or row mismatch throw.
+   */
   export function prepareMapJointBlocks(blocks: readonly IAutoMovieRecoveryMapJointBlock[], minimumRatio: number, budget: IAutoMovieRecoveryCameraMapBudget, measureGradient: boolean): IAutoMovieRecoveryMapJointPreparation {
     return prepareRecoveryMapJointBlocksImplementation(blocks, minimumRatio, budget, measureGradient);
   }
 
-  /** Own one explicit scene method request before any user checkpoint. */
+  /**
+   * Copy one explicit feasible scene request before user checkpoints. Keep
+   * declared budgets for the report and derive an execution budget reserving
+   * 64 resident entries. Charge 256 linear visits. Direction bounds must fit
+   * declared scene ceilings, and lagged curvature requires acceleration.
+   */
   export function prepareSceneFeasibleRouting(budget: IAutoMovieRecoveryCameraSceneBudget, options: IAutoMovieRecoveryFeasibleJointOptions, work: IAutoMovieRecoverySceneWork): IAutoMovieRecoverySceneFeasibleRouting {
     return prepareRecoverySceneFeasibleRoutingImplementation(budget, options, work);
   }
 
-  /** Acquire scene diagnostic retention inside the existing seed transaction try. */
+  /**
+   * Reserve fit-report retention inside an admitted scene seed transaction.
+   * Charge 256 linear visits, then update the supplied routing record with
+   * reporting capacity and a reduced execution budget. A refused reserve
+   * leaves the previous routing assignment untouched.
+   */
   export function prepareSceneReportCapacity(routing: IAutoMovieRecoverySceneFeasibleRouting, work: IAutoMovieRecoverySceneWork): void {
     prepareRecoverySceneReportCapacityImplementation(routing, work);
   }
 
-  /** Apply an independent left SO3 and additive translation resection step. */
+  /**
+   * Applies a six-coordinate update to a camera-map pose.
+   *
+   * The first three coordinates form a left rotation vector in radians.
+   * The last three add translation in the pose's camera frame, using the
+   * current reconstruction units. The method returns a fresh pose and throws
+   * when the update has the wrong coordinate count.
+   */
   export function stepMapPose(pose: IAutoMovieRecoveryMapPose, step: readonly number[]): IAutoMovieRecoveryMapPose {
     return stepRecoveryMapPoseImplementation(pose, step);
   }
 
   /**
-   * Apply the map seed's left rotation and current-radius sphere chart. Its raw
-   * translation coefficients define r*normalize(t+Bz), with r=norm(t) held
-   * constant at this base. Initial poses and points are not rescaled.
+   * Apply a left rotation in radians and two translation coefficients in the
+   * supplied seed tangent basis. Normalize the changed translation to the
+   * current radius and return an owned pose. A collapsed direction or
+   * unresolved seed chart throws.
    */
   export function stepMapSeedPose(pose: IAutoMovieRecoveryMapPose, tangent: readonly (readonly [number, number, number])[], step: readonly number[]): IAutoMovieRecoveryMapPose {
     return stepRecoveryMapSeedPoseImplementation(pose, tangent, step);
   }
 
   /**
-   * React to one selected increment using its undamped computed agreement. The
-   * multiplier is the unclamped reciprocal accepted-radius rule from Ceres
-   * levenberg_marquardt_strategy.cc, blob
-   * 9e25466e61e0cc6a2c1136131c48c841bd365fcc, lines162-168. Radius caps, diagonal
-   * clamps and rejected-step rules are absent. Source:
-   * https://ceres-solver.googlesource.com/ceres-solver/+/master/internal/ceres/levenberg_marquardt_strategy.cc
-   * This rule alone supplies no standard LM or constrained convergence theorem.
+   * Update damping after one selected step using its actual-to-predicted
+   * decrease ratio. A missing usable agreement keeps the previous damping. The
+   * returned receipt records the update and the ratio. Nonpositive current
+   * damping throws.
    */
   export function updateRegularization(damping: number, actualDecrease: number, predictedDecrease: number | null): IAutoMovieRecoveryRegularizationUpdate {
     return updateRecoveryRegularizationImplementation(damping, actualDecrease, predictedDecrease);
   }
 
-  /** Price strict inward margin against the current mixed direction's descent. */
+  /**
+   * Choose strict inward margin for selected affine constraints against the
+   * mixed step's physical objective descent. Return the capped value, row
+   * price and nominal power ceiling. The supplied SQP norm must lie strictly
+   * between zero and one.
+   */
   export function chooseSqpTightening(rows: readonly IAutoMovieSimplexAtom[], selected: readonly number[], multipliers: readonly number[], mixed: readonly number[], sqpNorm: number, mixedNorm: number): IAutoMovieRecoverySqpTightening {
     return chooseRecoverySqpTighteningImplementation(rows, selected, multipliers, mixed, sqpNorm, mixedNorm);
   }
 
-  /** Copy one selected model's borrowed original dual into fit-owned seed storage. */
+  /**
+   * Copy a selected original affine dual estimate into fit-owned storage. A
+   * null estimate returns null. The copy requires the original width, ordered
+   * selected row addresses and nonnegative multipliers. Work is charged before
+   * retaining it.
+   */
   export function copyUntiltedEstimate(estimate: IAutoMovieRecoveryUntiltedEstimate | null, width: number, rowCount: number, charge: (work: number) => void): IAutoMovieRecoveryUntiltedEstimate | null {
     return copyRecoveryUntiltedEstimateImplementation(estimate, width, rowCount, charge);
   }
 
-  /** Construct two raw coefficient directions for an admitted seed translation. */
+  /**
+   * Create two coordinate directions tangent to a near-unit seed translation.
+   * The first is the projection of the least-aligned axis, and the second
+   * completes its orientation. A translation outside the admitted near-unit
+   * gauge throws.
+   */
   export function createMapTangent(t: readonly [number, number, number]): [number, number, number][] {
     return createRecoveryMapTangentImplementation(t);
   }
 
   /**
-   * Differentiate r*normalize(t+Bz) at the unchanged current translation. The
-   * radius r=norm(t) is constant within one local chart. Columns of B are raw
-   * coefficient directions, which need not be exactly tangent or unit.
+   * Differentiate the seed update r·normalize(t+Bz) at its current
+   * translation, holding the base radius fixed. The two supplied B columns are
+   * raw three-component directions. Return two physical derivatives or null
+   * when the chart shape or arithmetic is unresolved.
    */
   export function differentiateMapTangent(translation: readonly [number, number, number], tangent: readonly (readonly [number, number, number])[]): [number, number, number][] | null {
     return differentiateRecoveryMapTangentImplementation(translation, tangent);
   }
 
   /**
-   * Identify declared numerical refusals inside a speculative camera proposal.
-   * Progress callbacks run outside these catches. Foreign errors and unexpected
-   * runtime exceptions propagate so a program failure cannot become an outlier.
+   * Classify an error as a declared numerical refusal when it is a plain Error
+   * with a recognized solver message prefix. Use the result in the numerical
+   * proposal's catch boundary. Progress callbacks keep their own failure
+   * behavior.
    */
   export function isCameraNumericalRefusal(error: unknown): boolean {
     return isRecoveryCameraNumericalRefusalImplementation(error);
   }
 
   /**
-   * Solve a pure tilted feasible-direction model in common metric coordinates.
-   * The first atom is the actual objective gradient with zero offset. Each later
-   * atom is an unweighted inequality gradient with offset minus its feasible g.
-   * Min half ||d||^2+gamma subject to a_i_d-gamma<=offset_i has simplex dual min
-   * half ||sum(lambda_i_a_i)||^2+sum(lambda_i*offset_i).
+   * Solve the tilted direction model in a common metric chart. The first
+   * sparse row is the objective gradient with zero offset. Each other row
+   * supplies an inequality gradient and its original feasible slack. Return
+   * the step and multipliers within the stated simplex entry, iteration and
+   * work limits.
    */
   export function solveFeasibleDirection(width: number, rows: readonly IAutoMovieSimplexAtom[], tolerance: number, budget: IAutoMovieSimplexBudget, charge?: (work: number) => void): IAutoMovieRecoveryFeasibleDirection {
     return solveRecoveryFeasibleDirectionImplementation(width, rows, tolerance, budget, charge);
   }
 
-  /** Charge aggregate scene work before an action, without geometry rollback. */
+  /**
+   * Add a nonnegative safe integer charge to one scene ledger category.
+   * Joint iterations use the product of the fit and per-fit iteration limits,
+   * capped at the largest safe integer. Invalid or excessive charges throw
+   * `RecoverySceneBudget` and keep the prior ledger.
+   */
   export function spendSceneWork(
     work: IAutoMovieRecoverySceneWork,
     budget: IAutoMovieRecoveryCameraSceneBudget,
@@ -537,15 +645,31 @@ export namespace AutoMovieRecoveryCameraMap {
     spendSceneWorkImplementation(work, budget, kind, amount);
   }
 
-  /** Validate every original column scale, including sparse-array holes. */
+  /**
+   * Validate the original finite positive column scales for a physical map
+   * metric. Supply at least one camera scale and three point scales per point.
+   * Missing slots, invalid widths and scales outside the finite positive range
+   * throw.
+   */
   export function validateMapMetricScales(scales: IAutoMovieRecoveryMapMetricScales): void {
     validateMapMetricScalesImplementation(scales.cameraScales, scales.pointScales);
   }
-  /** Validate owned sparse physical-row metadata before optional arithmetic. */
+  /**
+   * Validate a sparse physical row over a positive safe integer width. Supply
+   * strictly increasing in-range integer column indices, one finite value per
+   * index and a finite offset. Malformed widths, coefficients and indices
+   * throw.
+   */
   export function validateMapMetricRow(row: IAutoMovieSimplexAtom, width: number): void {
     validateRecoveryMapMetricRowImplementation(row, width);
   }
-  /** Refine one caller-defined feasible camera state under explicit trial and work limits. */
+  /**
+   * Refine a caller-defined feasible state under bounded full and half trials,
+   * model work and its original gates. Use the caller's evaluation, model,
+   * retraction and commit callbacks. Optional SQP and adaptive reporting use
+   * explicit requests. Termination reports qualified convergence, exhaustion
+   * or refusal, with selected diagnostics.
+   */
   export function refineFeasibleState<State>(
     problem: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[0],
     maxTrials: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[1],
@@ -566,7 +690,12 @@ export namespace AutoMovieRecoveryCameraMap {
     );
   }
 
-  /** Select the best qualified same-base feasible-state trial without asserting convergence. */
+  /**
+   * Select a qualified trial from one unchanged optimization base. Try the
+   * permitted baseline, mixed, corrected and half candidates under the
+   * remaining trial limit. Return the actual chosen increment and gate report.
+   * A selected trial alone carries no convergence claim.
+   */
   export function selectFeasibleTrial<State>(
     problem: IAutoMovieRecoveryFeasibleProblem<State>,
     state: State,

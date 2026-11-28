@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  * 2. A gap `1 - t` scanned over [0, 3] in 0.25 s steps first closes at 1 s; one
  *    closed at the start closes there; one never closing has none; a scan step
  *    of none is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines clamped segment projection, the first gap crossing, and refusal for an invalid scan step.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both geometry operations on a centered segment, endpoint and zero-length segment, then scans crossing, initial-overlap and miss functions.
+ * @evidence contracts/development/testing.md#independent-expectations A segment from x = 0 to 2 clamps an external point to x = 2. The gap 1 − t first closes at 1 s and an already closed gap reports the start.
  */
 export function test_motions_striking_contact(): void {
   const a = { x: 0, y: 0, z: 0 };

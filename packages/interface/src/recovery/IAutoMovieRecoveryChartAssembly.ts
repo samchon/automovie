@@ -5,148 +5,91 @@ import type {
   IAutoMovieRecoveryChartLeafFit,
 } from "..";
 
-/**
- * Assemble fitted chart fields using one canonical boundary coefficient
- * registry. Equal declared boundary intervals share four exact coefficient IDs,
- * including reversal; coincident independent sheets retain distinct IDs.
- * Different edge partitions retain common analytic curves but report unmatched
- * tessellation spans. Physical transverse jets and coarse/fine edge-sample
- * conformity are separate work. Stored oriented knots map directly to their
- * canonical counterparts without a subtraction round trip. Each canonical
- * endpoint has one evaluation owner; its binary64 restriction difference is
- * measured against the fitted field below.
- */
+/** Callable assembly of fitted chart coefficient registries into one atlas. */
 
 export namespace IAutoMovieRecoveryChartAssembly {
   /**
-   * Assemble fitted chart fields using one canonical boundary coefficient
-   * registry. Equal declared boundary intervals share four exact coefficient
-   * IDs, including reversal; coincident independent sheets retain distinct IDs.
-   * Different edge partitions retain common analytic curves but report
-   * unmatched tessellation spans. Physical transverse jets and coarse/fine
-   * edge-sample conformity are separate work. Stored oriented knots map
-   * directly to their canonical counterparts without a subtraction round trip.
-   * Each canonical endpoint has one evaluation owner; its binary64 restriction
-   * difference is measured against the fitted field below.
+   * Merge chart controls and patch references with chart-scoped patch IDs and
+   * explicit boundary orientation. Reconcile matching shared boundary
+   * authorities with canonical bindings, and keep unmatched boundary evidence
+   * visible. Registered controls remain in millimetres.
    */
 
   export type Operation = (
     charts: readonly {
-      /**
-       * Caller-assigned stable semantic identity retained in generated
-       * coefficient and observation records.
-       */
+      /** Stable chart name used to address its generated patches. */
       name: string;
 
-      /**
-       * Bernstein control positions in the common registered millimetre frame,
-       * ordered by control registry ID.
-       */
+      /** Fitted chart-local control positions in registered millimetres. */
       controlsMm: readonly Readonly<AutoMovieVector3Tuple>[];
 
-      /**
-       * Bicubic coefficient patches indexed by the shared control registry,
-       * with u varying fastest within each v row.
-       */
+      /** Local patch nets addressed through the chart's fitted registry. */
       patches: readonly {
-        /**
-         * Stable identity within the owning chart, boundary or occurrence
-         * registry; equal coordinates do not create identity.
-         */
+        /** Local fitted patch identifier within this chart. */
         id: string;
-        /**
-         * Indices into the shared control registry; bicubic nets use sixteen
-         * IDs with u varying fastest.
-         */
+        /** Sixteen local control indices per patch in U-fastest order. */
         controlIds: readonly number[];
       }[];
 
-      /**
-       * Increasing normalized u/v break arrays defining the initial tensor
-       * patch partition.
-       */
+      /** Tensor knot coordinates used to map chart patch and boundary ordinals. */
       partition: {
-        /**
-         * Increasing normalized u-axis partition coordinates spanning the
-         * declared chart domain.
-         */
+        /** Ordered normalized U partition knots. */
         u: readonly number[];
-        /**
-         * Increasing normalized v-axis partition coordinates spanning the
-         * declared chart domain.
-         */
+        /** Ordered normalized V partition knots. */
         v: readonly number[];
       };
 
       /**
-       * Oriented fitted boundary results used by this chart; each refers back
-       * to a shared canonical coefficient authority.
+       * Declared sides and oriented curve spans that supply canonical boundary
+       * authority.
        */
       boundaries: readonly ReturnType<
         ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
       >[];
 
       /**
-       * Conforming refined leaf rectangles with shared-edge/control bindings;
-       * omission means the tensor partition is used.
+       * Optional rectangular leaf registries. Complete leaf layouts select leaf
+       * assembly.
        */
       leafLayout?: ReturnType<IAutoMovieRecoveryChartLeafFit.Operation>["leafLayout"];
     }[],
   ) => {
-    /**
-     * Bernstein control positions in the common registered millimetre frame,
-     * ordered by control registry ID.
-     */
+    /** Combined generated control registry in registered millimetres. */
     controlsMm: Readonly<AutoMovieVector3Tuple>[];
 
-    /**
-     * Bicubic coefficient patches indexed by the shared control registry, with
-     * u varying fastest within each v row.
-     */
+    /** Combined patch list addressing the returned registry. */
     patches: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Generated patch id scoped to its source chart. */
       id: string;
-      /**
-       * Indices into the shared control registry; bicubic nets use sixteen IDs
-       * with u varying fastest.
-       */
+      /** Sixteen combined control indices in U-fastest Bernstein order. */
       controlIds: number[];
     }[];
 
-    /**
-     * Observed admission failures and qualification limits in production order;
-     * an empty array adds no extra certificate.
-     */
+    /** Available unmatched-span, boundary and numerical assembly findings. */
     diagnostics: string[];
 
     /**
-     * Largest discrepancy from canonical shared-boundary restriction, in
-     * millimetres.
+     * Largest measured difference between canonical restriction and fitted
+     * boundary positions, in millimetres.
      */
     maximumCanonicalRestrictionDifferenceMm: number;
 
-    /**
-     * Count of coefficient spans participating in admitted shared boundary
-     * authorities.
-     */
+    /** Number of retained spans that share a declared boundary authority. */
     sharedBoundarySpans: number;
 
-    /** Count of supplied boundary spans without a matching chart binding. */
+    /**
+     * Number of observed spans with no matching retained partition on the
+     * opposite authority use.
+     */
     unmatchedBoundarySpans: number;
 
     /**
-     * Canonical shared-boundary coefficient authorities consumed by engine
-     * atlas admission.
+     * Canonical boundary curve authorities emitted by the applicable assembly
+     * route.
      */
     boundaryAuthorities?: IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"];
 
-    /**
-     * Chart-side intervals referring to the canonical boundary authorities,
-     * retaining direction and phase bounds.
-     */
+    /** Oriented patch-side bindings into the canonical authorities. */
     boundaryBindings?: IAutoMovieBicubicAtlasGeometry["boundaryBindings"];
   };
 }

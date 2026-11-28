@@ -98,6 +98,10 @@ function shift(a: IFloor, b: IFloor): IFloor {
  * 4. Standing from the hold to a target over 0.25 s: the Hermite cubic from the
  *    held point, at `(z0 + z1) / 2 + T (v0 - v1) / 8` halfway, at the target
  *    with its rate at 0.25 s and at rest after, done from 0.25 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents recovery swing corner chaining, planted-foot slip, postlanding hold, and the cubic transition to standing.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a 0.6 s single-support plan across its cubic, then reads holds and a standing transition with and without sole slip.
+ * @evidence contracts/development/testing.md#independent-expectations The analytic relation ξ − ξ′/ω identifies entry and exit pivots. Both endpoint rates and the Hermite midpoint predict the standing transition, and fixed decay sets the post-swing rate.
  */
 export function test_engine_physics_physical_icp_planner(): void {
   // 1. Single support.

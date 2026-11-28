@@ -1,16 +1,11 @@
-/**
- * Collect finite absolute residuals within an inclusive pixel threshold.
- * Returned indices preserve observation order; quantiles use linear
- * interpolation at (N-1)*q. Empty support has null diagnostics, never a perfect
- * zero error.
- */
+/** Callable inclusive scoring of finite absolute pixel residuals. */
 
 export namespace IAutoMovieRecoveryCameraResidualsScoreOperation {
   /**
-   * Collect finite absolute residuals within an inclusive pixel threshold.
-   * Returned indices preserve observation order; quantiles use linear
-   * interpolation at (N-1)*q. Empty support has null diagnostics, never a
-   * perfect zero error.
+   * Require a finite positive threshold in pixels. Return original input
+   * indices for finite magnitudes at or below it and the median and ninetieth
+   * percentile of that accepted population. An empty population has null
+   * statistics.
    */
 
   export type Operation = (
@@ -18,18 +13,18 @@ export namespace IAutoMovieRecoveryCameraResidualsScoreOperation {
     thresholdPx: number,
   ) => {
     /**
-     * Original correspondence ordinals passing the declared residual gate, in
-     * stable input order.
+     * Indices of finite residuals within the inclusive threshold, in original
+     * order.
      */
     indices: number[];
     /**
-     * Median accepted residual in pixels, or null for an empty accepted
-     * population.
+     * Median accepted residual magnitude in pixels, or null when support is
+     * empty.
      */
     medianPx: number | null;
     /**
-     * Ninetieth-percentile accepted residual in pixels, or null for an empty
-     * accepted population.
+     * Linearly interpolated 90th percentile of accepted magnitudes in pixels,
+     * or null when support is empty.
      */
     p90Px: number | null;
   };

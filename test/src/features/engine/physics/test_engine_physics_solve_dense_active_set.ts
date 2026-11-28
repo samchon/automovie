@@ -23,6 +23,10 @@ const ENUMERATED: number = 1e-7;
  *    minimizer matches the enumeration's within 1e-7.
  * 2. Rows x0 <= -1 and -x0 <= -1 are infeasible: null.
  * 3. An indefinite H: null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the dense constrained quadratic minimum and failure on infeasibility or an indefinite Hessian.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves 60 seeded, feasible four-variable programs and two explicitly invalid programs.
+ * @evidence contracts/development/testing.md#independent-expectations Exhaustive KKT enumeration independently identifies each solution within 1e-7. Opposing x ≤ -1 and x ≥ 1 constraints prove the empty case.
  */
 export function test_engine_physics_solve_dense_active_set(): void {
   let seed: number = 0x4017;

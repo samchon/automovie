@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
 import { normalizeSurfaceFrame } from "./normalizeSurfaceFrame";
-import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /*
  * Place a prepared rigid triangle at a requested centroid, heading and normal.
@@ -24,6 +24,11 @@ export function placeSurfaceFrame(
 ): [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] {
   if (prepared.offsets.length !== 3)
     throw new Error("Surface placement requires three prepared offsets.");
+  for (const offset of prepared.offsets)
+    if (!offset || !AutoMovieEngineVector3.isFinite(offset))
+      throw new Error(
+        "Surface placement requires three complete finite offsets.",
+      );
 
   const basis: IAutoMovieSweepFrame = normalizeSurfaceFrame(target);
   const points: IAutoMovieVector3[] = prepared.offsets.map(
@@ -59,7 +64,7 @@ function place(origin: number, terms: readonly number[]): number {
   let sum: number = origin;
   for (const term of terms) {
     sum += term;
-    if (overflowsBinary64(term) || overflowsBinary64(sum))
+    if (!Number.isFinite(term) || !Number.isFinite(sum))
       throw new Error("Surface placement exceeds finite coordinates.");
   }
   return sum;

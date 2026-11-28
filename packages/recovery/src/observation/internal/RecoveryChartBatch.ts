@@ -5,9 +5,9 @@ import type {
   IAutoMovieRecoveryChartSurface,
 } from "@automovie/interface";
 
-import { RecoveryChartBoundaryNetwork as N } from "./RecoveryChartBoundaryNetwork";
 import { AutoMovieRecoveryChartSurface as F } from "../../geometry/AutoMovieRecoveryChartSurface";
 import { refineRecoveryChartBoundaryChords as R } from "../../geometry/internal/refineRecoveryChartBoundaryChords";
+import { RecoveryChartBoundaryNetwork as N } from "./RecoveryChartBoundaryNetwork";
 
 /*
  * Fit a selected private chart batch after one common boundary-network pass.
@@ -19,8 +19,8 @@ import { refineRecoveryChartBoundaryChords as R } from "../../geometry/internal/
  * Failed maps and fits remain local results and never supply a source mesh.
  */
 export function* RecoveryChartBatch(
-  input: Parameters<IAutoMovieRecoveryChartBatch.Operation>[0],
-): ReturnType<IAutoMovieRecoveryChartBatch.Operation> {
+  input: IAutoMovieRecoveryChartBatch.IInput,
+): Generator<IAutoMovieRecoveryChartBatch.IResult, void, void> {
   let network: ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation>,
     sharedBoundaryQualified: boolean = true;
   try {
@@ -49,6 +49,7 @@ export function* RecoveryChartBatch(
         network.diagnostics.push(...independent.diagnostics);
       } catch (error: unknown) {
         yield {
+          type: "boundary-network-refused",
           name: prepared.name,
           chart: null,
           fit: null,
@@ -77,6 +78,7 @@ export function* RecoveryChartBatch(
         boundaries: chart.boundaries,
       });
       yield {
+        type: "fitted",
         name: chart.name,
         chart: {
           ...chart,
@@ -92,6 +94,7 @@ export function* RecoveryChartBatch(
       };
     } catch (failure: unknown) {
       yield {
+        type: "chart-fit-refused",
         name: chart.name,
         chart,
         fit: null,

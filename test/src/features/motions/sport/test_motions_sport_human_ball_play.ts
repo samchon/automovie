@@ -41,6 +41,10 @@ const flying = (x: number): Pick<IAutoMovieMotionHumanPerformance, "prop"> => ({
  * 2. One 0.3 m aside misses the disc but passes the rectangle.
  * 3. A window that ends before the crossing sees none; an empty window is a
  *    caller's defect and throws.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines scored gate crossing by time, signed plane and finite disc or rectangle footprint.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries a known ball path on-axis and 0.3 m aside through both gate shapes, then supplies a too-short and empty window.
+ * @evidence contracts/development/testing.md#independent-expectations The center path intersects the plane at 0.5 s. Lateral 0.3 m exceeds the disc radius 0.25 but lies within the rectangle's 0.5 m half-width.
  */
 export function test_motions_sport_human_ball_play(): void {
   const disc: IAutoMovieMotionHumanBallPlay.Gate = {

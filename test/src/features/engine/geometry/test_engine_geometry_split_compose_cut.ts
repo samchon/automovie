@@ -21,6 +21,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  *    1e-7 mm at columns and between them.
  * 2. The station rail of the same tree without the cut stands more than 2 mm off
  *    the plane.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the sloped cut rail, its owning chart and the uncut station contrast.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the same split tree with and without the declared cut and samples the resulting band edge on and between its columns.
+ * @evidence contracts/development/testing.md#independent-expectations The written frame point and normal fix a plane independently of mesh output. Every cut-edge point must lie on its plane while the corresponding station rail misses by more than 2 mm.
  */
 export function test_engine_geometry_split_compose_cut(): void {
   const declared: IAutoMovieConstructionSplit.ICut = {

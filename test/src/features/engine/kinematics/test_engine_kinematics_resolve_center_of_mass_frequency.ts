@@ -23,6 +23,10 @@ const STANDARD_GRAVITY: number = 9.80665;
  * 2. A quarter metre under 1 m/s^2 is 2 rad/s and four metres under 4 m/s^2 is 1
  *    rad/s, so a function of the ratio's inverse fails.
  * 3. A length of 0 or less and a gravity of 0 are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the inverted pendulum frequency and default gravity, with invalid length or gravity.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAutoMovieCenterOfMassFrequency with direct SI input pairs and the default-gravity form.
+ * @evidence contracts/development/testing.md#independent-expectations The independently specified sqrt(g/l) law gives frequencies one and two on the written cases. The reciprocal formula would reverse the unequal ratio. Nonpositive parameters are invalid.
  */
 export function test_engine_kinematics_resolve_center_of_mass_frequency(): void {
   const frequency: typeof AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency =

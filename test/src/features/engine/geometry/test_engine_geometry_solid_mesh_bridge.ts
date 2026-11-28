@@ -21,6 +21,10 @@ import { nclose } from "../../internal/predicates";
  * 1. A plan exists with 16 triangles (an annulus of 8 + 8 boundary vertices).
  * 2. Each triangle has positive chart area and a phase span under half a period.
  * 3. The areas sum to the band's 1 x 2 pi.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names periodic bridging with rotated starts, metric scale, positive orientation and chart area.
+ * @evidence contracts/development/testing.md#behavioral-verification Triangulates the actual winding bands under several offsets and walks the emitted chart triangles.
+ * @evidence contracts/development/testing.md#independent-expectations Two boundary cycles of eight vertices give an annulus of 16 triangles. Its area is width one times phase period 2π, regardless of vertex numbering.
  */
 export function test_engine_geometry_solid_mesh_bridge(): void {
   const period: number = 2 * Math.PI;

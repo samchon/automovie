@@ -56,8 +56,8 @@ type IGrip = IAutoMovieMotionHumanPerformanceState.IGrip;
  *    and has no holder or mount.
  * 2. A right hand moving `(t, 1, 0)` holds the cup from 1 to 2 s at an offset of
  *    0.1 m up, rolled a quarter: at 1.5 s the cup is at (1.5, 1.1, 0) rolled; at
- *    the grip's closing second it still rests; after release it stays where the
- *    hand let it go, (2, 1.1, 0). The holder is the actor's right hand inside
+ *    the grip's opening second it still rests. After release it stays where the
+ *    hand let go, at (2, 1.1, 0). The holder is the actor's right hand inside
  *    the grip, none after.
  * 3. An in-hand motion sliding the cup 0.2 m along the hand's `+Z` over the grip
  *    adds 0.1 m at its middle.
@@ -72,6 +72,10 @@ type IGrip = IAutoMovieMotionHumanPerformanceState.IGrip;
  *    cup meets the seated mount with no step.
  * 8. Refused: a prop not in the performance, and a socket chain revisiting the
  *    cup at the same second.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The fixture separates resting, self-moving, carried, fitted and mounted world frames, including release continuity, offsets and recursive read refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepared hand and prop courses feed the hold readers. The assertions read world position and axes, holder and mount records, the two-hand fit and both sides of the transfer boundary, then check refusal axes.
+ * @evidence contracts/development/testing.md#independent-expectations A right hand at (1.5, 1, 0) adds the 0.1 m seat lift, with 0.1 m of in-hand travel by mid-grip. At release its final frame holds (2, 1.1, 0). The rack at X 3 raises the peg to Y 1 and seat to 1.05, which the trajectory reaches across the mount boundary.
  */
 export async function test_motions_perform_hold(): Promise<void> {
   const cup: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(

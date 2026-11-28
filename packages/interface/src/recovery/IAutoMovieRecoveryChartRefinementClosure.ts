@@ -1,149 +1,76 @@
 /**
- * Close a private rectangle split under laminar opposed interface intervals.
- * Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u
- * and v. An exact endpoint sweep first establishes one covering layer over
- * every positive-area cell. Every subsequent strict split preserves that
- * partition without moving an endpoint. Proper overlaps propagate an existing
- * smaller end into the opposite leaf; identical, contained and disjoint
- * interfaces need no additional split. Stable geometric and name ordering makes
- * input permutations equivalent. Failure is atomic: invalid coverage, exhausted
- * leaf budgets, unrepresentable levels or colliding child names throw without
- * changing input. Low and high children append .0 and .1 to the parent ID,
- * increment its level and retain its root. This operation establishes rectangle
- * coverage and laminar interfaces only; C0 control relations, field
- * prolongation, approximation improvement and normal or source correspondence
- * remain consumer obligations.
+ * Callable application of one rectangular leaf split and its required interface
+ * closure.
  */
 
 export namespace IAutoMovieRecoveryChartRefinementClosure {
   /**
-   * Close a private rectangle split under laminar opposed interface intervals.
-   * Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary
-   * u and v. An exact endpoint sweep first establishes one covering layer over
-   * every positive-area cell. Every subsequent strict split preserves that
-   * partition without moving an endpoint. Proper overlaps propagate an existing
-   * smaller end into the opposite leaf; identical, contained and disjoint
-   * interfaces need no additional split. Stable geometric and name ordering
-   * makes input permutations equivalent. Failure is atomic: invalid coverage,
-   * exhausted leaf budgets, unrepresentable levels or colliding child names
-   * throw without changing input. Low and high children append .0 and .1 to the
-   * parent ID, increment its level and retain its root. This operation
-   * establishes rectangle coverage and laminar interfaces only; C0 control
-   * relations, field prolongation, approximation improvement and normal or
-   * source correspondence remain consumer obligations.
+   * Split the named leaf on the requested normalized axis and propagate any
+   * corresponding closure splits needed by neighboring leaf intervals. Preserve
+   * root lineage and validate that the result remains a single covering
+   * partition. Refuse a split that exceeds the complete leaf budget.
    */
 
   export type Operation = (input: {
-    /**
-     * Current normalized chart leaves with stable identities and disjoint
-     * interiors covering the declared domain.
-     */
+    /** Current complete rectangular leaf cover in the normalized chart. */
     leaves: readonly {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Stable ID of this current chart leaf. */
       id: string;
 
-      /**
-       * Identity of the original unrefined partition cell from which this leaf
-       * descends.
-       */
+      /** Original root leaf from which this leaf descends. */
       root: string;
 
-      /** Nonnegative subdivision depth below the original partition cell. */
+      /** Subdivision depth below the original partition. */
       level: number;
 
-      /**
-       * Global normalized chart rectangle [u0,v0,u1,v1] with strictly
-       * increasing extents.
-       */
+      /** Global normalized bounds [uMin, uMax, vMin, vMax]. */
       bounds: readonly [number, number, number, number];
     }[];
 
-    /**
-     * Caller-requested leaf split before required interface-closure
-     * propagation.
-     */
+    /** Initial requested split before interface closure. */
     request: {
-      /**
-       * Stable identity of the chart leaf addressed by this split or collar
-       * record.
-       */
+      /** Existing leaf ID addressed by the split. */
       leaf: string;
-      /** Normalized chart axis: 0 selects u and 1 selects v. */
+      /** Normalized chart split axis, 0 for U or 1 for V. */
       axis: 0 | 1;
-      /**
-       * Global normalized coordinate of the requested split on the selected
-       * axis.
-       */
+      /** Global normalized split coordinate inside the leaf. */
       parameter: number;
     };
 
-    /**
-     * Positive safe ceiling on the complete refined leaf population, including
-     * interface-closure splits.
-     */
+    /** Positive safe ceiling on the complete refined leaf population. */
     maxLeaves: number;
   }) => {
-    /**
-     * Current normalized chart leaves with stable identities and disjoint
-     * interiors covering the declared domain.
-     */
+    /** Complete ordered leaf set after requested and propagated splits. */
     leaves: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Stable retained or newly created leaf ID. */
       id: string;
 
-      /**
-       * Identity of the original unrefined partition cell from which this leaf
-       * descends.
-       */
+      /** Original root partition cell of this leaf. */
       root: string;
 
-      /** Nonnegative subdivision depth below the original partition cell. */
+      /** Subdivision depth of the retained leaf. */
       level: number;
 
-      /**
-       * Global normalized chart rectangle [u0,v0,u1,v1] with strictly
-       * increasing extents.
-       */
+      /** Retained normalized leaf bounds [uMin, uMax, vMin, vMax]. */
       bounds: [number, number, number, number];
     }[];
 
-    /**
-     * Actual requested and interface-closure splits, in the order applied to
-     * the leaf population.
-     */
+    /** Applied requested and propagated splits in execution order. */
     splits: {
-      /**
-       * Stable identity of the chart leaf addressed by this split or collar
-       * record.
-       */
+      /** Leaf ID split at this step. */
       leaf: string;
 
-      /** Normalized chart axis: 0 selects u and 1 selects v. */
+      /** Normalized axis of the applied split. */
       axis: 0 | 1;
 
-      /**
-       * Global normalized coordinate of the requested split on the selected
-       * axis.
-       */
+      /** Global normalized coordinate used by that split. */
       parameter: number;
 
-      /**
-       * Actual termination or qualification reason; null, where allowed, means
-       * no local failure was recorded.
-       */
+      /** Whether the step was requested or required by interface closure. */
       reason: "requested" | "interface-closure";
     }[];
 
-    /**
-     * Observed admission failures and qualification limits in production order;
-     * an empty array adds no extra certificate.
-     */
+    /** Observed closure and partition findings retained in order. */
     diagnostics: string[];
   };
 }

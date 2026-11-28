@@ -11,10 +11,8 @@ import { synthesizeLayerTestAction } from "../internal/synthesizeLayerTestAction
  * 1. A gap after walking holds its destination, with neither the departing leg nor incoming head.
  * 2. A later face and head enter together, leaving the lead-in empty when no earlier body clip exists.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Samples both the interior of an interval and the authored boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples both the interior of an interval and the authored boundary. The three short synthetic clips give separate observation points for root carry and for release of limb and facial channels.
  * @evidence contracts/development/testing.md#independent-expectations The actions occupy seconds zero to one and three to four.
- * @evidence contracts/development/testing.md#distinguishing-cases Root carry differs from released limb and facial ownership.
- * @evidence contracts/development/testing.md#execution-ownership Compiles three short synthetic clips.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies held and released channels.
  */
 export function test_perform_motion_layer_window(): void {

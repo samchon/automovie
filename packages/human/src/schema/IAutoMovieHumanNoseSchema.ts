@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanNose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanNose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Nasal width, height and protrusion for typia validation, in millimetres.
+ * Measure width between the alae, height from nasion to subnasale, and
+ * protrusion from subnasale to pronasale.
+ */
 export type IAutoMovieHumanNoseSchema = IAutoMovieHumanNose & {
   /** Alare to alare. */
   width: number & tags.Minimum<10> & tags.Maximum<70>;

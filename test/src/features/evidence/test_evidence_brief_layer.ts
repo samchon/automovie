@@ -28,8 +28,6 @@ import path from "node:path";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a real production tree on disk and reads the claims the public configuration factory returns, so the brief layer is checked through the graph a production actually runs.
  * @evidence contracts/development/testing.md#independent-expectations The expected brief paths, the absence of settings and upstream references and the screenplay-only instruction relation are written from the short route's documented layout and its minimal brief, not taken from the factory's output.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts enabled and omitted brief stages, the short and long routes, and domain versus top-level brief files.
- * @evidence contracts/development/testing.md#execution-ownership The unit creates and removes its own temporary directory and starts no process.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A short production with brief decisions in `docs/body/brief/sets/ring.md` and `docs/body/brief/cast/carina.md` and one screenplay scene file builds a configuration whose brief unit claim selects `createBriefFiles`, carries no upstream reference, whose screenplay coverage claim references both brief files and no settings file, and whose instruction relation binds the screenplay and not the brief.).
  */
 export function test_evidence_brief_layer(): void {

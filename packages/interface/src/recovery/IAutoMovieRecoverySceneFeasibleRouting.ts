@@ -5,28 +5,29 @@ import type {
 } from "..";
 
 /**
- * Fixed owned scene method state, excluding the existing cumulative work
- * ledger.
+ * Owned settings for explicit feasible scene refinement. Declared limits remain
+ * available for the returned report, while execution can reserve capacity for
+ * routing and diagnostics.
  */
 export interface IAutoMovieRecoverySceneFeasibleRouting {
-  /** Owned original ceilings, transferred directly to the returned result. */
+  /** Owned copy of the caller's original scene ceilings, reported in the result. */
   declared: IAutoMovieRecoveryCameraSceneBudget;
 
   /**
-   * Owned execution ceilings after routing and, once acquired, reporting
-   * retention.
+   * Owned working ceilings after routing reservations and any admitted
+   * reporting retention.
    */
   execution: IAutoMovieRecoveryCameraSceneBudget;
 
   /**
-   * Owned nested scalar options, with fit retention capped by execution
-   * capacity.
+   * Copied method flags and direction budgets, with fit retention limited to
+   * execution capacity.
    */
   feasible: IAutoMovieRecoveryFeasibleJointOptions;
 
   /**
-   * Acquired only after relative-seed acceptance, inside the seed transaction
-   * try.
+   * Report capacity acquired inside the initial transaction after relative seed
+   * acceptance, if available.
    */
   reporting?: IAutoMovieRecoveryFeasibleReportCapacity;
 }

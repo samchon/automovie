@@ -27,6 +27,10 @@ const TURN_ROUNDING: number = 16 * Number.EPSILON;
  *    is small, turns half about +Y × +X = -Z, (0, 0, -1, 0).
  * 4. A prepared +X source gives the same quarter turn onto +Y, and a prepared
  *    half-length +X source still turns half about +Z onto -X.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers scaled direction turns, zero or parallel fallback, antiparallel axis choice and prepared reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls rotationBetween on typed directions and reads prepareRotationBetween with the same geometric turns from fixed sources.
+ * @evidence contracts/development/testing.md#independent-expectations The positive axes define a quarter turn about +Z. A half turn uses an axis perpendicular to its source, and the written cross products determine the expected sign-equivalent quaternions. Zero and equal directions expect identity.
  */
 export function test_engine_math_rotation_between(): void {
   const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

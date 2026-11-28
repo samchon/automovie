@@ -150,6 +150,21 @@ export function validateAnalysisRunContents(
           `sample field "${sample.key}" names no metric of this run that produced a value; a field cannot be drawn for a measurement nobody made`,
           sample.key,
         );
+      out.range(
+        `${path}.value`,
+        sample.value,
+        -Number.MAX_VALUE,
+        Number.MAX_VALUE,
+        "sample value",
+      );
+      for (const axis of ["x", "y", "z"] as const)
+        out.range(
+          `${path}.position.${axis}`,
+          sample.position[axis],
+          -Number.MAX_VALUE,
+          Number.MAX_VALUE,
+          "sample position",
+        );
     }
 
     for (let index: number = 0; index < outcome.warnings.length; ++index) {
@@ -268,6 +283,14 @@ const validateMetric: (
       );
     return;
   }
+  const valueFinite: boolean = Number.isFinite(metric.value);
+  if (!valueFinite)
+    out.push(
+      "range",
+      `${path}.value`,
+      "measured metric value must be finite",
+      metric.value,
+    );
   if (metric.gap !== null)
     out.push(
       "type",
@@ -313,6 +336,16 @@ const validateMetric: (
     );
     return;
   }
+  if (!Number.isFinite(metric.target)) {
+    out.push(
+      "range",
+      `${path}.target`,
+      "judged metric target must be finite",
+      metric.target,
+    );
+    return;
+  }
+  if (!valueFinite) return;
   const verdict: "meets" | "misses" = analysisTargetMet(
     metric.value,
     metric.target,

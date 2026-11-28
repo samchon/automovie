@@ -1,9 +1,12 @@
-import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { AutoMovieCubicBezierControls3 } from "./AutoMovieCubicBezierControls3";
+import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
-/** Data and callback contracts shared by the ContourLoftCurves64 operations. */
+/** Chord-length views and source restrictions used by closed contour lofts. */
 export namespace IAutoMovieContourLoftCurves64 {
-  /** A closed polygon's physical arclength chart, in millimetres. */
+  /**
+   * Chord-length chart of a cyclic polygon in millimetres. It borrows the point
+   * array and stores its own cumulative lengths, including closure.
+   */
   export interface Curve {
     /**
      * Ordered closed polygon samples in millimetres; the caller keeps them
@@ -19,11 +22,11 @@ export namespace IAutoMovieContourLoftCurves64 {
   }
 
   /**
-   * An evaluated curve point and its inherited source phase, distinct from a
-   * control.
+   * An evaluated source point with its inherited phase and optional outgoing
+   * restriction for the next sample.
    */
   export interface Knot {
-    /** Evaluated point in millimetres, distinct from an authored control. */
+    /** Source-evaluated point in millimetres. */
     p: AutoMovieVector3Tuple;
 
     /** Inherited parameter in the primitive's declared phase chart. */
@@ -36,7 +39,11 @@ export namespace IAutoMovieContourLoftCurves64 {
     leaf?: IAutoMovieContourLoftCurves64.Leaf;
   }
 
-  /** An exact algebraic Bernstein restriction before binary64 rounding. */
+  /**
+   * One Bernstein restriction on an increasing source phase interval. A compact
+   * leaf keeps its original cubic and half path. Materialization caches the
+   * restricted coefficients on the same leaf.
+   */
   export interface Leaf {
     /**
      * Materialized positive source restriction; absent until needed for a
@@ -45,18 +52,18 @@ export namespace IAutoMovieContourLoftCurves64 {
     net?: AutoMovieVector3Tuple[];
     /** Immutable original cubic authority for lazy materialization. */
     original?: AutoMovieCubicBezierControls3;
-    /** Binary left/right half path from the original span, with length depth. */
+    /** Binary half choices read high bit first with leading zeros to depth. */
     path?: number;
-    /** Inherited source phase of its first control. */
+    /** Inclusive source phase at this restriction's start. */
     start: number;
     /**
-     * Inherited source phase of its last control, before any constant-interval
-     * quotient.
+     * Inclusive source phase at the end before constant intervals are removed
+     * from cyclic sampling.
      */
     end: number;
     /**
-     * Subdivision depth; a compact original half path has exactly this many
-     * bits.
+     * Number of inherited subdivision steps. Compact paths support at most 30
+     * steps. An explicit already qualified restriction can be deeper.
      */
     depth: number;
   }

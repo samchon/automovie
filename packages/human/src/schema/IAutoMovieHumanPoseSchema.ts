@@ -10,7 +10,11 @@ import type { IAutoMovieHumanNeckPoseSchema } from "./IAutoMovieHumanNeckPoseSch
 import type { IAutoMovieHumanPelvisPoseSchema } from "./IAutoMovieHumanPelvisPoseSchema";
 import type { IAutoMovieHumanSpinePoseSchema } from "./IAutoMovieHumanSpinePoseSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * One Human pose for typia validation, expressed in clinical degrees from
+ * anatomical neutral and millimetres for jaw travel. Each region is optional.
+ * A supplied arm or leg record contains both anatomical sides.
+ */
 export type IAutoMovieHumanPoseSchema = IAutoMovieHumanPose & {
   /** Eyes and jaw. */
   head?: IAutoMovieHumanHeadPoseSchema;

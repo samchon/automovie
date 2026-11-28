@@ -39,6 +39,10 @@ const ROUNDING: number = 1e-9;
  * 6. Optimal timing 0 → 1, held 0.4 s, → 0 under 1 m/s² alone: each piece takes
  *    from bang-bang's 2 s to the minimum-jerk timing's √(10 / √3) ≈ 2.4028 s,
  *    so the curve ends between 4.4 and 5.2056 s; mid-hold it is at 1 at rest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fixed and optimal timing of rest-to-rest knot pieces with boundary and interior holds.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares fixed, symmetric and optimized courses, samples holds, knot times and outside the path and observes velocity.
+ * @evidence contracts/development/testing.md#independent-expectations At quarter progress the two-unit quintic is 0.20703125. Acceleration-limited motion puts the optimized round trip with hold between 4.4 and 5.2056 s.
  */
 export function test_motions_posture_knot_course(): void {
   const course: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(

@@ -14,6 +14,10 @@ import { createFormationCycleLiteral } from "../../internal/createFormationCycle
  * 2. A material with the cycle carries it, and still does after dual quaternion
  *    skinning is applied beside it, whose program key is no longer the cycle's
  *    alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases distinguish plain, skinning-only, cycle-only, and combined shader materials.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that cycle detection stays true after a second shader patch changes the material program key, and stays false when the cycle was never applied.
+ * @evidence contracts/development/testing.md#independent-expectations Compares with the expected booleans from the explicitly applied cycle and skinning patches.
  */
 export function test_render_scene_is_formation_cycle_material(): void {
   const cycle: IAutoMovieRenderFormationCycle = createFormationCycleLiteral();

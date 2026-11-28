@@ -25,6 +25,10 @@ import { shotContractFixture } from "../../internal/shotContractFixture";
  * 2. Check shot/film domain-separated seeds, canonical digests and requested
  *    clocks.
  * 3. Mutate emitted bounds, recipe and intensity without changing authored inputs.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify sorted declared cues, missing binding cases, shot and film identity, and independent output data.
+ * @evidence contracts/development/testing.md#behavioral-verification The test materializes effects under both ownership protocols and observes order, seeds, digests, event references and clocks. It mutates the returned bounds, recipe and intensity, then checks the original input.
+ * @evidence contracts/development/testing.md#independent-expectations The authored cue IDs and protocol inputs establish the expected order, selected resources and independent digest. Distinct shot and film domains require their distinct seeds. A returned copy must preserve the original authored records after mutation.
  */
 export function test_engine_film_effect_compiled_streams(): void {
   const contract: IAutoMovieShotContract = shotContractFixture("shot-1");

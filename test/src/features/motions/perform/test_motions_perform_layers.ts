@@ -49,6 +49,10 @@ const INSTANT: number = 1e-12;
  * 6. `window` refuses an empty window, a layer writing the right arm while an
  *    action grips with the right hand there, and an anchor an action has; a
  *    grip outside the window is no conflict.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Scheduled instants come from literal seconds, tracks, placed layers or anchored actions. Window cases cover fade, generated layers, conflicts and omissions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the layer instant and window owners on a staged performance with named cues, an already placed layer, and anchored actions. It observes returned seconds, placed layer records, the side effect on the anchor map, and the refused windows.
+ * @evidence contracts/development/testing.md#independent-expectations The second drum beat at 2 s plus offset 0.5 gives 2.5. The wave has origin 0.8 s, so its half-share peak lies at 1.8 s. Ordinary and clipped ends are 2.6 and 2.2. The placed [1, 3] s window caps the requested fade at one second.
  */
 export async function test_motions_perform_layers(): Promise<void> {
   const { state } = await standingPerformanceState();

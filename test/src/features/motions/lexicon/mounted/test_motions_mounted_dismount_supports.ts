@@ -22,6 +22,10 @@ import { vclose } from "../../../internal/vclose";
  * 2. The foot leaves from its exact world pose while the seat keeps moving.
  * 3. The flight inherits both velocities and its destination stays fixed.
  * 4. Playback after either departure reads the prepared release only.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains different release clocks for seat and toe support, retained foot branch and inherited flight velocity.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a translating and banking material, prepares both releases and samples the Hermite flight and later prepared playback.
+ * @evidence contracts/development/testing.md#independent-expectations The foot releases from its exact 180° banked pose while the seat continues moving. Incoming fixture velocities determine departure and the authored landing stays fixed.
  */
 export function test_motions_mounted_dismount_supports(): void {
   const start: number = 10;

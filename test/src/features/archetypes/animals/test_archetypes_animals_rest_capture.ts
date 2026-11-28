@@ -10,7 +10,13 @@ import {
 import { AutoMovieEngineVector3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-/** Draw-time support marks follow the actual fitted solids through rest. */
+/**
+ * Draw-time support marks follow the actual fitted solids through rest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the horse and dog rest captures, fitting floor rulers, four sole marks and folded holds.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the real capture subjects and their in-memory mark readers at five film seconds. Checks mark kind, path and finite points and reads the settled limbs' actual proximal vectors.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture has four supported feet and one named observed fitting per model. The authored relative vertical bound checks a limb's fold directly from its own measured endpoints.
+ */
 export function test_archetypes_animals_rest_capture(): void {
   const subjects: ReturnType<typeof archetypeCaptureRest> =
     archetypeCaptureRest();

@@ -27,27 +27,22 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
 import { motionHumanRepeat } from "./motionHumanRepeat";
 
 /**
- * Perform and verify a staged sweep cell on its actual films. Timing, generic
- * motion, declared contact, range, spin and partner readings share the first
- * film. An optional repeat stages and performs independently, retaining the
- * existing finite-frame and position/orientation comparison.
+ * Perform a staged sweep cell and report timing, motion, contact, range, spin
+ * and partner findings. When requested, stage a second film for comparison
+ * against the first.
  *
- * @param scene The actual first scene.
- * @param perform The caller's seed-bound real performance constructor.
- * @param airborne Whether this law omits the existing floor/support checks.
- * @param skin The existing partner-depth bound, metres.
- * @param say Receives subject-attributed findings in detector order.
- * @param repeat Builds the same-input second scene; absent for no repeat.
- * @returns The first film, including when measurements reported complaints.
- * @throws {Error} A construction, frame-validation or detector error; the cell
- *   caller attributes it.
- * @evidence contracts/development/common.md#meaningful-documentation States every detector, the real-film boundary, optional repeat and error propagation.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the package audits at their unchanged limits, including 6 Hz range and the 5-degree spin bound. The repeat compares finite/unit displayed frames, membership, positions and sign-equivalent quaternion orientations at 4 Hz with motionHumanRepeat's existing 1e-9 bounds; this is a sampled comparison, not a continuous certificate.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One real film, per-person detectors, every unordered partner pair, then one optional independent repeat.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite measures remain findings; the airborne exclusions and every arithmetic bound are the caller's existing contract, with no cell-specific adjustment.
- * @evidence contracts/development/implementation.md#efficient-algorithms Work is driven by requested frame resolutions and detector grids for each person, plus all unordered partner pairs; repeating requires another performance and its sampled bone comparison. The split removes no audit work and claims no speedup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All detectors read the same first film and its owning frame cache. The repeat uses newly staged inputs and shallowly distinct actual body records so a performance-identity cache cannot stand in for the second construction.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adds no global cache or task. Film caches live with their films; the first film transfers to the caller and the repeated film is local to this read. Findings flow to the caller's complaint list without an added cap.
+ * @param scene People and props for the first film.
+ * @param perform Seed-bound performance constructor supplied by the caller.
+ * @param airborne Omits floor, slip, lift and balance limits and contact measures.
+ * @param skin Maximum partner depth in metres.
+ * @param say Receives findings with their subject in detector order.
+ * @param repeat Builds the second scene for a sampled comparison.
+ * @returns The first film, even when its measurements report findings.
+ * @throws If construction, frame reading or a detector fails.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the first film, each detector group, the airborne exclusions, the partner-depth unit and optional second film.
+ * @evidence contracts/development/implementation.md#principled-implementation Applies the package auditors to the actual performance. Range overshoot is measured at 6 Hz against 0.01, spin at the configured audit resolution against 5 degrees, and the optional second film compares sampled bone positions and orientations at 4 Hz.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reuses one film and its owning caches across each person's detectors. Only distinct unordered partner pairs require pairwise work. The optional repeat constructs a separate film, scoped to the call, and findings flow to the caller.
  */
 export function motionHumanLawSweepCell(
   scene: motionHumanLawSweep.IScene,

@@ -1,24 +1,43 @@
 /**
- * Isolated numerical source-cubic critical candidates on normalized (0,1). D=0
- * includes inflections and stationary points; categories may overlap. No
- * endpoint or unresolved continuum is fabricated as an isolated root.
+ * Numerical candidates for isolated planar cubic critical parameters on the
+ * open normalized span.
+ *
+ * An identically constant polynomial yields a continuum and contributes no
+ * isolated root. Equal root values merge and nearby distinct candidates remain
+ * distinct.
  */
 export interface IAutoMovieCubicCriticalParameters {
-  /** Sorted exact-value union of the three numerical candidate arrays. */
+  /**
+   * Sorted union of the three candidate arrays, merging numerically identical
+   * parameter values.
+   */
   breaks: readonly number[];
 
-  /** Interior roots of cross(p',p''); not necessarily regular inflections. */
+  /**
+   * Interior roots of the cross product of velocity and acceleration. The
+   * candidates include potential inflections, repeated roots and stationary
+   * points.
+   */
   zeroCurvature: readonly number[];
 
-  /** Interior roots of the affine-curvature critical equations where defined. */
+  /**
+   * Interior roots of the affine-curvature candidate equations for a regular
+   * subarc. Categories may overlap.
+   */
   affineCritical: readonly number[];
 
-  /** Interior velocity common-root candidates, checked in both coordinates. */
+  /**
+   * Interior velocity common-root candidates whose residuals pass the numerical
+   * checks for both components.
+   */
   stationary: readonly number[];
 
-  /** Computed curvature-numerator polynomial is identically zero. */
+  /** True when the computed curvature-numerator coefficients all vanish. */
   collinear: boolean;
 
-  /** Degenerate continua and finite arithmetic/root-observation limitations. */
+  /**
+   * Numerical root qualifications and degenerate cases such as constant curves
+   * or curvature continua.
+   */
   diagnostics: readonly string[];
 }

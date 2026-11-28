@@ -43,6 +43,10 @@ const DURATION: number = 0.5;
  * 4. The archive, decoded under the solve's identity and budgets, reads every body
  *    at the end, the start, the contact and the midpoint (out of time order)
  *    exactly as the live cache does.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents first contact and momentum of a free-space ball and pin, and playback archive reads across the solve clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves the two-body system, reads positive solver contacts, and decodes its real archive for out-of-order replay against the live cache.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.35 m gap at 2 m/s closes at 0.175 s. No external force fixes total z momentum at 2 kg·m/s and symmetry forbids transverse drift beyond the stated tolerance.
  */
 export async function test_engine_physics_rack_impact(): Promise<void> {
   const material: IAutoMoviePhysicalMaterial = {

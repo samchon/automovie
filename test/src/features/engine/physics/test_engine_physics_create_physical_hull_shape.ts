@@ -43,6 +43,10 @@ const NATIVE_DISTANCE: number = 1e-7;
  * 6. Shape pairs read their hand distance in either order: two spheres, two
  *    overlapping capsules, two cubes face to face, and two cubes turned so that
  *    a pair of skew edges are their nearest features, as boxes and as hulls.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes hull construction, mass, signed reads, world bounds, directional span, erosion and pair distance for closed solids.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds cuboid and tetrahedron hulls, calls their shape readers directly, and compares placed hull segments with the same cuboid represented as a box.
+ * @evidence contracts/development/testing.md#independent-expectations Dimensions fix the cuboid volume at 0.08 m³, the tetrahedron volume at 1/6, and the cuboid inradius at 0.1 m. Hand distances cover faces, corners and skew edges.
  */
 export function test_engine_physics_create_physical_hull_shape(): void {
   const still: IAutoMovieRigidTransform = {

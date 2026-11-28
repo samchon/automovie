@@ -3,32 +3,25 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/** Seat an appendage's root cross-section inside a quadruped head. */
+/** Seats an appendage root inside the neutral quadruped head capsule. */
 export namespace AutoMovieArchetypeQuadrupedHeadAttachment {
   /**
-   * Seat a real appendage's complete root cross-section inside its head.
+   * Seats the full root cross-section of an appendage inside the head.
    *
-   * The shared head is the capsule with cap centres poll/nose and headRadius.
-   * Eroding that solid by the positive root radius leaves the same finite axis
-   * and radius R-r. A centre inside this eroded capsule carries a whole ball of
-   * radius r inside the head, hence the root disk in every orientation. This is
-   * authored neutral construction, not a measured anatomical insertion. Stem
-   * length/direction and any branches remain the producer's responsibility.
+   * The poll and nose are the cap centres of the head capsule. The root
+   * centre stays within a capsule with the same axis and radius reduced by
+   * the stem radius. The whole root then fits at any orientation. The stem
+   * keeps its producer-authored direction and length.
    *
-   * Public only so the package's specs can reach it: it is not part of the
-   * authoring surface, and it moves to an internal subpath when one exists.
-   *
-   * @param head Generating head capsule, neutral model-space metres.
-   * @param hint Authored root-centre hint in that same frame; an already seated
-   *   centre stays unchanged.
-   * @param stemRadius Positive finite radius enclosing the root cross-section,
-   *   metres; for a box use its root rectangle's half-diagonal.
-   * @returns A fresh seated centre, preserving an outside hint's nearest-axis
-   *   bearing. Radius equality seats on the capsule axis.
-   * @throws {RangeError} For nonfinite/degenerate head geometry, invalid radius,
-   *   a root larger than the head or an unrepresentable inset/output.
-   * @throws {Error} When the shared closest-segment owner cannot represent its
-   *   finite query.
+   * @param head The neutral head capsule in animal-model metres.
+   * @param hint Authored centre in the same frame.
+   * @param stemRadius Radius enclosing the root cross-section, in metres.
+   *   A rectangular root uses its half-diagonal.
+   * @returns A new centre, unchanged in coordinates when already seated.
+   *   An outside centre moves toward the closest point on the axis.
+   * @throws {RangeError} For a degenerate head, invalid root radius or
+   *   unrepresentable inset.
+   * @throws {Error} If the closest-segment query cannot be represented.
    */
   export function attach(
     head: Pick<

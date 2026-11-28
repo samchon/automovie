@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    triple, a camera at its target, a zero or blank scale, an up along the
  *    sight or not a number, a repeated switch, both focus switches, a fixed
  *    switch on a name and "film@ortho".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the film, named and fixed view forms with explicit camera coordinates and projection qualifiers.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that supported view text retains coordinates, up direction, scale and focus, and refuses invalid geometry and incompatible switches.
+ * @evidence contracts/development/testing.md#independent-expectations Compares against literal camera records and uses separate invalid strings for overflow, repeated switches, degenerate directions and other refusals.
  */
 export function test_render_scene_parse_inspection_view(): void {
   TestValidator.equals("film", AutoMovieRenderInspectionRequest.parseView("film"), {

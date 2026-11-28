@@ -199,6 +199,7 @@ export class AutoMovieCliCaptureHost {
           props: { subject: props.subject, props: props.props },
           backend: this.backend,
           timeout: this.timeout,
+          ...(props.observe === undefined ? {} : { observe: props.observe }),
         }),
         failed,
       ]);

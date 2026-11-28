@@ -13,6 +13,10 @@ import { nclose } from "../../internal/nclose";
  * Scenario: no spin carries nothing; a tenth of a turn, before the share
  * starts, nothing; half a turn half round, 180 degrees; a whole turn back the
  * whole way, -360 degrees, and a turn and a half no further.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the foot rig's signed minimum-jerk spin share and maximum turn.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the virtual foot rotation at zero, a tenth, a half, a full reverse turn and beyond one turn.
+ * @evidence contracts/development/testing.md#independent-expectations Progress 0.1 precedes the blend, progress 0.5 gives 180 degrees, and the negative full turn clamps at -360 degrees.
  */
 export function test_motions_striking_close_strike_legs(): void {
   TestValidator.predicate(

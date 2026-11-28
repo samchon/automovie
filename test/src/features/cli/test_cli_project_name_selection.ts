@@ -13,11 +13,9 @@ import * as path from "node:path";
  * 3. A child or sibling target gives the derived basename name.
  * 4. The default offered for an asked name is `automovie-examples`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported pure selector and asserts its result, catching a working-directory basename silently adopted, a typed name ignored, or a new target that asks needlessly.
- * @evidence contracts/development/testing.md#independent-expectations Expectations come from the CLI usage text: `--name` wins, the current directory asks with `automovie-examples` offered, and other targets are named after their directory.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers three spellings of the working directory, a nested child, a sibling through `..`, a typed name for both kinds of target, and the default constant.
- * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that calls the selector in-process with literal paths, reading no terminal and starting no process.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names explicit name precedence, current-directory prompting, child and sibling names and the offered default.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the selector with a typed name and with three current-directory spellings, a child and a sibling. Checks the optional result for each path and reads the default constant.
+ * @evidence contracts/development/testing.md#independent-expectations Compares literal typed, derived and default names. The fixture's relative and absolute paths independently identify which targets resolve to the working directory.
  */
 export function test_cli_project_name_selection(): void {
   const cwd: string = path.resolve("Workspace Root");

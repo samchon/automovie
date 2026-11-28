@@ -32,11 +32,15 @@ function trapezoid(
  * Scenarios, a 2 s window:
  *
  * 1. Rising over [0.3, 0.7] and falling over [1.2, 1.6]: the span is those four
- *    instants, each within the bisection's bracket, the irrational 0.3 + 1/300
+ *    instants, within twice the bracket, with the start 0.3 + 1/300
  *    off the grid as well.
  * 2. Rising over [0.5, 1] and held: relax and end at 2.
  * 3. A zero weight, a weight peaking at ½, one already up at 0, and one that
  *    returns and moves again state none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names all four trapezoid boundaries, a hold through window end and weights without a complete single excursion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motionHumanArmStated with explicit uniform, trapezoidal, incomplete and repeated weight callbacks.
+ * @evidence contracts/development/testing.md#independent-expectations The trapezoid determines the off-grid start 0.3 + 1/300 and the three other times 0.7, 1.2 and 1.6 s within twice the bisection bracket. A weight still held at 2 s gives relax and end exactly 2.
  */
 export function test_motions_compose_arm_stated(): void {
   // 1. A whole span.

@@ -13,6 +13,10 @@ import * as THREE from "three";
  * 2. The cube at x = 5, straddling the right edge, is cut, and part of it
  *    remains visible.
  * 3. A budget of no triangles is over budget for the cut cube.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The camera scenario states the cube placement, the expected cut, and the triangle budget used to test all outcomes.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that a centered cube is clear, an edge-crossing cube is cut with a visible remainder, and a zero-triangle budget refuses the cut measurement.
+ * @evidence contracts/development/testing.md#independent-expectations Uses an ordinary cube's 12 triangles and the 90 degree lens with a 5 m center offset to specify the expected clear and cut outcomes.
  */
 export function test_render_scene_measure_camera_frame_edge_surface(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(90, 1, 0.1, 100);

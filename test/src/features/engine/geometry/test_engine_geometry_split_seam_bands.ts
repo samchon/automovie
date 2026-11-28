@@ -29,6 +29,10 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  *    <= 29 the cross direction is (0, 1, 0) for band a and (0, -1, 0) for band
  *    b within 1e-9 and the second derivative vanishes.
  * 4. Band a's chord column k is band b's 48 - k in the start cycles.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names host arc jets, seam-plane rulings, reversed band correspondence and face population.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a curved-seam split and reads both band jets and start cycles against its host and seam curves.
+ * @evidence contracts/development/testing.md#independent-expectations The authored host circle determines arc points. Straight cross-seam rulings have opposite y directions and zero second derivatives, and the reversed seam column is 48−k.
  */
 export function test_engine_geometry_split_seam_bands(): void {
   const n: number = S.COLUMNS;

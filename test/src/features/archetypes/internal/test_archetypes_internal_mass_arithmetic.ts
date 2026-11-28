@@ -3,7 +3,13 @@ import {
 } from "../../../../../packages/archetypes/src/core/internal/ArchetypeMassArithmetic";
 import { TestValidator } from "@nestia/e2e";
 
-/** Mass arithmetic rounds the physical result at binary64 boundaries. */
+/**
+ * Mass arithmetic rounds the physical result at binary64 boundaries.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names numeric boundaries for signed products, local weight, cancellation, ratios, weighted moments and means.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls each actual arithmetic owner at binary64 limits and checks exact values and refusals. Exercises intermediate underflow and overflow, a zero total and exact local subnormal admission.
+ * @evidence contracts/development/testing.md#independent-expectations The signed least-value product is minus twice the least positive value. Opposite maximum terms cancel exactly and large equal scales cancel before a 1/4 ratio. Three equal weights on opposite large coordinates and one give mean 1/3.
+ */
 export function test_archetypes_internal_mass_arithmetic(): void {
   const least: number = Number.MIN_VALUE;
   const greatest: number = Number.MAX_VALUE;

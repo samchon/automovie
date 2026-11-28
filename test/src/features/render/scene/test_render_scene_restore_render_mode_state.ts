@@ -31,6 +31,10 @@ const caught = (call: () => void): unknown => {
  * 3. No failure returns.
  * 4. A retirement with two failures reports one `AggregateError` whose message
  *    names both causes; a single failure is rethrown unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe restoration order, primary error precedence, flattening and the retirement report wording.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that all restorations run, nested failures flatten in order, a primary error stays first, and a sole failure keeps its identity.
+ * @evidence contracts/development/testing.md#independent-expectations Uses callback order markers and independently created error identities to specify ordered, flattened and single-failure results.
  */
 export function test_render_scene_restore_render_mode_state(): void {
   const ran: string[] = [];

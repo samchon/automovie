@@ -1,13 +1,12 @@
-/** Data and callback contracts shared by the CurveLengthQuadrature64 operations. */
+/** Numerical observations shared by strict-piece and cubic length readers. */
 export namespace IAutoMovieCurveLengthQuadrature64 {
   /**
-   * Observe two bounded composite rules without choosing the public policy.
-   * Callers admit nonempty pieces, finite increasing representable domains and
-   * integer K in [1,1024]. Derivatives use mm per domain-parameter unit. Zero
-   * speed is valid. Endpoint reads are requested only by the strict owner; the
-   * legacy cubic owner keeps its original interior-only finite-final test.
-   * Callback exceptions propagate, while arithmetic observations accompany the
-   * actual computed coarse/fine sums. Their difference is not an error bound.
+   * Composite K- and 2K-panel observations from original derivatives in
+   * millimetres per source parameter unit. The strict piece reader requests
+   * endpoint checks as well as interior nodes. The cubic reader uses interior
+   * nodes. Arithmetic flags accompany the sums so each reader can apply its own
+   * admission policy. Callback exceptions propagate. The two-panel populations
+   * can miss the same features.
    */
   export type IMeasureResult = {
     /** K-panel computed sum, mm. */

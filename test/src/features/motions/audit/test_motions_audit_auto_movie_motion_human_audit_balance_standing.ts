@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Only the left foot planted: not standing.
  * 5. A seat window opening at 1.5 s: standing at 1 s, but not held to 2 s.
  * 6. A knee borne on the ground with both feet: standing; on a prop: not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the current and held planting intervals, gapless handoff, absent foot, grip, later seat and ground versus prop knee support.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditBalance.standing with typed contact windows at known seconds, with and without a future hold endpoint.
+ * @evidence contracts/development/testing.md#independent-expectations The literal windows put both feet on the ground from 0 to 2 s and exclude 2.5 s. A left-plant handoff at 1 s covers the requested interval, while a seat beginning at 1.5 s invalidates a two-foot hold through 2 s.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_balance_standing(): void {
   const window = (

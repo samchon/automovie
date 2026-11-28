@@ -17,6 +17,10 @@ import { Vector4, type Vector4Tuple, WebGLRenderTarget } from "three";
  *
  * The typed host port records exact integer raster rectangles and indices.
  * Actual framebuffer completeness and native drawing use a browser host.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names captured logical and native rectangles, subresource restore order and failure cleanup.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls captureRestore through a typed renderer port that records getter values, setters and bind arguments. Restores a real native target through the recorded port, then injects a bind error and reads the resulting state.
+ * @evidence contracts/development/testing.md#independent-expectations The port supplies different logical and physical rectangles and the exact face 3 and mip 2. The expected call sequence sets logical registers before rebinding with captured physical values. The injected original error escapes, while the target's authored fields are restored.
  */
 export function test_render_scene_capture_framebuffer_restore(): void {
   const target: WebGLRenderTarget = new WebGLRenderTarget(128, 128);

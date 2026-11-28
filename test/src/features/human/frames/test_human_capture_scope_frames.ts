@@ -29,10 +29,8 @@ import type { IAutoMovieViewPart as Part } from "@automovie/interface";
  * 5. Admitted source-only input rejects an unknown key, and declared breast/hand owner bounds remain available independently of nose.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual catalog, fixed-framing helper and existing rasterizer with two tiny made parts, literal metre samples and an empty scene; no person, source solver, reference file or realization executes.
- * @evidence contracts/development/testing.md#independent-expectations Literal associated bounds at plus/minus0.1m must remain inside the900px frame; the foreign band.nose.mirror point at100m must not shrink that frame. Only the subject argument differs between the header PNG counterparts.
- * @evidence contracts/development/testing.md#distinguishing-cases Failed actual/valid reference and valid actual/failed reference, exact/foreign owners, equal/shifted frame and default/explicit f1/variant headers distinguish the repaired boundaries.
- * @evidence contracts/development/testing.md#execution-ownership Uses source definitions, existing camera projection and empty-scene Canvas only; performs no filesystem, case assembly, whole figure or geometry measurement.
- * @evidence contracts/development/common.md#meaningful-documentation Five numbered scenarios name the independent observation, shared framing and header contracts.
+ * @evidence contracts/development/testing.md#independent-expectations Associated bounds at ±0.1 m must project inside the 900-pixel frame. A foreign point at 100 m must leave the camera scale set by the declared owner. The matching header comparison varies only the subject argument.
+ * @evidence contracts/development/common.md#meaningful-documentation Actual and reference factory failures stay separate. Exact F1 owner framing, a foreign registration refusal, case-label PNGs and known source selection each have a case.
  */
 export function test_human_capture_scope_frames(): void {
   const failures: string[] = [];

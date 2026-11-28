@@ -41,6 +41,10 @@ const SCALE: number = 1e-12;
  * 4. Any other refusal passes through on the first plan.
  * 5. `slower` reads only a positive span's `duration` reach refusal in seconds
  *    asking more time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the first slowdown, secant refinement, depleted retry budget, unrelated errors, and qualifying duration refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the tempo planner with a staged context and synthetic typed laws that record each scale and return a plan or a located refusal. It separately calls the factor reader with valid and malformed refusal records.
+ * @evidence contracts/development/testing.md#independent-expectations For span equal to scale, a minimum of 1.5 s requires scale 1.5. The affine span 0.2 + 0.4·scale reaches 1 at scale 2, following probes at 1 and 5/3. A flat 0.5 s span doubles scales 2, 4 and 8 and then reports factor 8 relative to the first scale.
  */
 export async function test_motions_perform_tempo(): Promise<void> {
   const { context } = await standingPerformanceState();

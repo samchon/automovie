@@ -27,6 +27,10 @@ const PLACE: number = 1e-12;
  *    front knee would fold forward of its foot toward whoever stands in front.
  * 5. A point 0.9 m behind leaves the front ankle 0.993 m from its hip and is
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The kneeling hip rests behind the front ankle and refuses a knee point outside reach or ahead of the accepted boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the kneeling placement owner for an implicit point and measured, boundary, and infeasible points.
+ * @evidence contracts/development/testing.md#independent-expectations The known ankle coordinate and 0.3 m lunge distance determine the implicit offset. Two 0.4 m limb segments determine which named points are reachable.
  */
 export function test_motions_everyday_kneel_place(): void {
   const place = (at?: IAutoMovieVector3): IAutoMovieVector3 =>

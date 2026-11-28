@@ -119,6 +119,10 @@ function agree(a: readonly number[], b: readonly number[]): boolean {
  * 7. The same fixed frame rotates world X translation into local Z and the
  *    angular point velocity into local X and Z. The lateral interval keeps
  *    its signed slope at its centre and measures excess at both ends.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines fit rows for points, radii, held axes and rotations, normals, and targets in a moving or fixed frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds constraints and reads misses for the same effector under exact, radius-bounded, angular and transformed fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations A +0.05 m goal yields 50 mm residual; radius 0.02 m permits only 20 mm and leaves 30 mm. Explicit twists and a quarter-turn frame determine signed slope entries.
  */
 export function test_motions_posture_fit_targets(): void {
   const at: HumanFitTargets.IReading = reading(P);

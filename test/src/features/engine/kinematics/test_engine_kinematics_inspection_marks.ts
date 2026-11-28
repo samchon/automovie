@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/throwsError";
  *    closed polyline of the three hull points; the centre (0.2, 1, 0.2) is
  *    unflagged, (2, 1, 2) flagged.
  * 4. One support point draws a point and two a segment; none is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers ROM markings and support hull marks, including no-fault entries, flagged centres and malformed inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the ROM and balance mark owners with direct entries and support points, then inspects paths, flags, shapes and errors.
+ * @evidence contracts/development/testing.md#independent-expectations Only strictly positive or infinite overshoots in the fixture mark the joint. The three outer points define the support triangle. A point inside and one outside distinguish flagging, while one or two support points have known dimensionality.
  */
 export function test_engine_kinematics_inspection_marks(): void {
   const at = { x: 1, y: 2, z: 3 };

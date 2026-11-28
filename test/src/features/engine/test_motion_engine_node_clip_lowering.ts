@@ -50,9 +50,7 @@ const mapping: Parameters<
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual imported-node lowering at authored key times, observing the sorted time union, root/rest-relative clinical values, mapping-order stability, optional root absence and named admission refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal translations, a spine quarter turn and authored rest offsets determine expected key results independently. Whole numeric records use the existing shape-preserving zero-tolerance comparator; 90-degree clinical inversion keeps its original nclose tolerance. Matching key outputs does not prove lossless inter-key quaternion-versus-clinical interpolation.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves missing/duplicate/unmapped/mixed/cubic/nonunit and rig/mapping/channel/scale/weights boundaries, plus optional hips translation, explicit axes/rest frames and nonidentity rest rotation. The tiny source rig is an authored input rather than a measured Human model.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh clip/skeleton records through the extracted existing canonical fixtures, preserving array order and mapping identities. It opens no importer process, filesystem, renderer, browser or GPU and replaces no foreign method or production consumer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A mapped clip lowers the authored key-time union, root translation, joint).
+ * @evidence contracts/development/common.md#meaningful-documentation Mapped joints, root translation, key-time union and source rest frames exercise lowering. Unsupported, missing, ambiguous or corrupt mappings and transforms exercise refusals.
  */
 export function test_motion_engine_node_clip_lowering(): void {
   const motion: ReturnType<typeof AutoMovieEngineMotionClip.importedNodeClipToAutoMovieMotion> = lower(

@@ -3,15 +3,12 @@ import type { AutoMovieLoftViewSourceSplit } from "./AutoMovieLoftViewSourceSpli
 import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
 
 /**
- * Prepared direct fullness ownership for an original view-generated section.
- *
- * AutoMovieEngineLoftViewSource.create admits each scalar outline independently and
- * publishes this union only when the direct shoulder or top declaration is
- * complete. Generic girth has no variant: that factory returns null to leave
- * the existing girth path in charge. Prepared curves must remain unchanged
- * while station readers reuse them. Length-valued touch and split coordinates
- * use the declared pole coordinate; angles and shoulder shares retain their own
- * scalar parameterization.
+ * Prepared fullness of a direct native view source. Shoulder uses one shared
+ * share and optional cyclic departures. Top uses four quarter shares and
+ * optional guide touch plus either one split per quarter or ordered split
+ * lists. Touch and split coordinates share extent closure, while angle and
+ * share use their own scalar maps. Keep the outlines unchanged during station
+ * reads.
  */
 export type IAutoMovieLoftViewSourceFullness =
   | {

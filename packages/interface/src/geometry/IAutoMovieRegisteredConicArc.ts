@@ -1,15 +1,16 @@
 import type { AutoMovieVector2Tuple } from "../index";
 
 /**
- * One positive-weight rational quadratic over an original source interval. Its
- * parameter runs independently from zero to one; domain only registers the
- * source interval, since a fitted conic need not retain source speed.
+ * One positive-weight rational quadratic with its original source interval.
+ * Evaluate the conic over an independent parameter from zero through one. The
+ * source interval preserves correspondence without defining the fitted curve's
+ * parameter speed.
  */
 export interface IAutoMovieRegisteredConicArc {
   /** Source interval represented by this coefficient record. */
   domain: readonly [number, number];
 
-  /** Endpoint, tangent intersection, endpoint in the same millimetre frame. */
+  /** Start point, middle projective control and end point in millimetres. */
   controls: readonly [
     Readonly<AutoMovieVector2Tuple>,
     Readonly<AutoMovieVector2Tuple>,
@@ -19,6 +20,9 @@ export interface IAutoMovieRegisteredConicArc {
   /** Positive finite middle weight; endpoint weights are exactly one. */
   weight: number;
 
-  /** Largest sampled geometric discrepancy, not a certified supremum. */
+  /**
+   * Largest sampled geometric discrepancy in millimetres over the registered
+   * source interval.
+   */
   maximumSampleErrorMm: number;
 }

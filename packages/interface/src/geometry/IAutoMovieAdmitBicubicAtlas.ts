@@ -1,22 +1,19 @@
 import type { IAutoMovieBicubicAtlasGeometry } from "../model/IAutoMovieBicubicAtlasGeometry";
 
 /**
- * Structural selection from a bicubic atlas before tessellation.
+ * Retained patch and control identities from structural atlas selection.
  *
- * Patch and control integers index the original recipe; they do not renumber
- * coefficients or certify geometric quality. Global identity and budgets throw
- * on invalid input; malformed local coefficients or bindings omit incident
- * patches while independent finite patches survive.
+ * Ordinals address the original model recipe. Admission refuses invalid global
+ * tolerance or budgets, and omits patches incident on invalid local
+ * coefficients, addresses or bindings. Producer qualifications are reported
+ * separately from local omissions.
  */
 export namespace IAutoMovieAdmitBicubicAtlas {
   /**
-   * The structurally usable occurrences of an admitted global atlas recipe.
-   * Invalid coefficient or canonical-boundary declarations omit only incident
-   * patches and retain exact diagnostics; valid independent patches remain
-   * available for display. Producer source-fit qualifications are retained as
-   * diagnostics independently of structural completeness and never suppress
-   * finite usable patches. An empty declared patch array is an explicit
-   * incomplete generated domain.
+   * The retained occurrences of the model-space recipe. A recognized local
+   * refusal omits incident patches and leaves independent retained patches
+   * available. Source-fit diagnostics are separate from structural omissions.
+   * An empty declared patch array reports an incomplete generated domain.
    */
   export type IResult = {
     /**

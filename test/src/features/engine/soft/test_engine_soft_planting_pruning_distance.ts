@@ -19,6 +19,10 @@ import { nclose } from "../../internal/nclose";
  * 1. From (0.5, 0.2, 0.5) up +Y in [0,1]³ a 2 m segment exits at 0.8.
  * 2. From the centre of a unit sphere along +X a 2 m segment exits at 1.
  * 3. A 0.5 m segment ends inside: null. No envelope: null.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEnginePlanting.plantingPruningDistance with a unit-axis segment through a box or a sphere, a segment ending before the box exit and an unconstrained segment.
+ * @evidence contracts/development/testing.md#independent-expectations The box ceiling is y=1, so a base at y=0.2 exits after 0.8 m. The unit sphere exits 1 m from its centre. The 0.5 m segment cannot reach the ceiling.
+ * @evidence contracts/development/common.md#meaningful-documentation Box and sphere fixtures exercise separate exit calculations. The short segment and unconstrained envelope exercise the two null results.
  */
 export function test_engine_soft_planting_pruning_distance(): void {
   const box: IAutoMoviePruningEnvelope = {

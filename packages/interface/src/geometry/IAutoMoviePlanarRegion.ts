@@ -1,19 +1,23 @@
 import type { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 
 /**
- * An authored planar region with one outer contour and optional interior voids.
+ * One authored outer contour with optional holes in a common local XY metre
+ * frame.
  *
- * Coordinates use one local XY frame in metres. Contours close implicitly and
- * accept either winding. The Engine planar-region operations admit rings and
- * enforce simplicity, nonzero area and strict hole containment.
+ * Use finite simple rings with nonzero area, contours separated from one
+ * another and no duplicated closing point. Winding may be selected
+ * independently for each input ring.
  */
 export interface IAutoMoviePlanarRegion {
-  /** Borrowed outer contour with at least three finite points. */
+  /**
+   * Borrowed simple outer ring with at least three finite XY points. Supply no
+   * repeated closing vertex because closure is implicit.
+   */
   outer: readonly IAutoMovieProfilePoint[];
 
   /**
-   * Borrowed disjoint contours strictly inside the outer contour. An absent or
-   * empty list describes a region with no voids.
+   * Borrowed hole rings in declaration order, disjoint and strictly within the
+   * outer ring. Omission or an empty list describes no voids.
    */
   holes?: readonly (readonly IAutoMovieProfilePoint[])[] | undefined;
 }

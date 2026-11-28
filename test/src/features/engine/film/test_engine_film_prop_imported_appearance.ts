@@ -93,6 +93,10 @@ function tolerated(mutate: (spec: IAutoMoviePropSpec) => void): boolean {
  *    `validateModel` still judges the deterministic proxy it left behind, and
  *    the door's own hinge articulation both rides on it and is still gated on
  *    it, so the reference buys the pixels and not an exemption.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify registered prop media, original generated behavior and errors for appearance, byte ledger, LOD closure and underlying prop geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification The test forges genuine prepared imported and generated specs and checks the accepted join and the exact reported paths on changed media records. It also varies the body, model and articulation beneath a valid appearance.
+ * @evidence contracts/development/testing.md#independent-expectations The registered chair's rigid profile and sealed paths/digests establish its byte and level identity. Empty or repeated paths and invalid digest syntax break independent prerequisites. Imported bytes change only appearance, so the same generated-prop authorship and physical proxy requirements still determine ordinary model and joint results.
  */
 export function test_engine_film_prop_imported_appearance(): void {
   const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(createImportedPropSpec());

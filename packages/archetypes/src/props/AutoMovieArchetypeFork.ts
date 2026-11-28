@@ -2,18 +2,17 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createFork as createForkImplementation } from "./internal/createFork";
 
-/** Public operations for Auto Movie Archetype Fork. */
+/** Constructs a steel fork with a precision grip and axial tines contact. */
 export namespace AutoMovieArchetypeFork {
   /**
-   * Fork with a pinch grip and a working tip along +Y.
+   * Build a steel fork with its butt at Y zero and tines toward `+Y`.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * @param params Optional scene ID and finite length, grip diameter or mass
+   *   admitted by the fork bands. The ID defaults to `tool`.
+   * @param seed Numeric seed for omitted band values. The default handle
+   *   diameter is 0.0095 metres. Length is 0.19 metres and mass 0.045 kilograms.
+   * @returns A handle with a `grip` facing `-Z` and the axial `face` at the tines.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     HandToolDraw.IParams,
@@ -23,13 +22,9 @@ export namespace AutoMovieArchetypeFork {
   }
 
   /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
+   * Precision `grip` near the tines and axial `face` at their positive-Y tip.
    */
   export type Affordance = "face" | "grip";
 
-  /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
-   */
+  /** Overall Y length and handle diameter in metres. Mass is in kilograms. */
   export type Dimension = "gripDiameter" | "length" | "mass";}

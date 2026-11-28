@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. An inner scope's seed inside, the outer's again after it returns and after it
  *    throws.
  * 3. Outside, none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines body-identity seed scoping, null and missing seeds and restoration through nested calls and throws.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs two prepared body identities through an outer scope, callback scopes with replacement seed and a thrown error.
+ * @evidence contracts/development/testing.md#independent-expectations Only the matching body and limb may read a supplied seed. Inner and outer cases have distinct seed values and the outside read is empty.
  */
 export async function test_motions_posture_limb_incumbent(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

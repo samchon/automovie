@@ -8,6 +8,14 @@ Direct the commission within the user's [delegated choices](../story/planning/di
 
 Confirm [scope and authority](project-context.md#intake). [Register required production checks](checks.md) before drafting. Give the writer the instructions, inputs and deliverable. Follow the user's authority over roles and worker count. Assign [separate contexts](../story/workflow/routes.md#separate-contexts) to the writer and, when required, the Evidence answerer and independent reviewer. The independent reviewer owns the verdict. [Resume interrupted workers](../multi-agent/SKILL.md#continuing) when needed.
 
+### First programming assignment
+
+At the start of commissioned performance, choose the smallest passage of the registered film that lets you judge the decisive screen relationship. Give the film author its lead-in, consequence and delivery view. Name the people and props that can change contact, placement or visibility. Mark layout-only participants separately. Preserve the screenplay and the commissioned timeline.
+
+Use the film's source, camera and participant identities. Mount the needed actions and entry state before preparing unrelated work. Inspect the [passage](../motion/judgment.md#before-widening) and ask for the [first scoped check](checks.md#first-witness) when its witness exists. Record what played, what remained unavailable and the next decision under [passage observations](../review/delivery-review.md#passage-observations).
+
+Route an offscreen release to staging or camera, a refused law to its package owner and missing story intent to the author. Accept a deliberate hold when its lead-in and consequence make it readable at speed. Keep independent playable work moving when another role or package is unavailable. Keep a dependent event pending when its missing role can change the action or view. Replay the affected interval and its joins after repair.
+
 ## Judgment and revision
 
 At each handoff:

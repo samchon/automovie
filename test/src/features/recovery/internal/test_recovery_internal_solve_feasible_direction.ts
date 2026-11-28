@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  *    l = 3/4, so the multipliers are (3/4, 1/4) and the step is 1/2; the
  *    primal agrees, d = 1/2 with gamma = -1/2.
  * 2. A first row whose offset is not zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the primal step, simplex multipliers and the objective-row restriction.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves the scalar two-row case and submits an objective row with a nonzero offset.
+ * @evidence contracts/development/testing.md#independent-expectations The scalar dual's quadratic has minimum objective multiplier 3/4. Its weighted row sum is −1/2, so the direction is one half.
  */
 export function test_recovery_internal_solve_feasible_direction(): void {
   const rows: IAutoMovieSimplexAtom[] = [

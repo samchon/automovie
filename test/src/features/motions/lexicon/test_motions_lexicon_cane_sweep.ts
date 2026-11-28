@@ -21,6 +21,10 @@ import { throwsError } from "../../internal/throwsError";
  *    left, `wide` out.
  * 2. Sliding (constant contact) it does not lift.
  * 3. A walk that lands no foot in the sweep is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines tip placement alternating across foot landings, crossing lift and a slide with constant floor contact.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the authored foot landing track, samples both touches and midpoint through lifted and sliding modes, and tries no landing.
+ * @evidence contracts/development/testing.md#independent-expectations Declared landings at 1 and 1.5 s fix the opposite tip sides. The midpoint is centered and lifts one inch only in the lifted mode.
  */
 export function test_motions_lexicon_cane_sweep(): void {
   const walk = (t: number): Record<AutoMovieHumanSide, boolean> => ({

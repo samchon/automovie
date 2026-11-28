@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. With a resident limit of 5000 it is not eligible and retains the fixed
  *    356.
  * 3. A base of zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the resident and linear arithmetic and eligibility cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks exact counts and custody of the work charge with adequate capacity, inadequate capacity and malformed base retention.
+ * @evidence contracts/development/testing.md#independent-expectations Substituting width six, two points and four observations gives 10,060 total slots and a 356-slot fixed fallback.
  */
 export function test_recovery_internal_admit_map_curvature(): void {
   let charged: number = 0;

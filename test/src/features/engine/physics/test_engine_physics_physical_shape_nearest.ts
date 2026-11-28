@@ -35,6 +35,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    and `h - 0.05` from it.
  * 3. A taper of one radius on both ends reads the bare distance less that radius
  *    on every kind, to 1e-9.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States how linearly changing radius affects the nearest signed distance and separates varying and constant tapers.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the same nearest operation on sphere, capsule, box and hull shapes with bare, falling and constant radius segments.
+ * @evidence contracts/development/testing.md#independent-expectations A hand minimization of the radius-adjusted distance gives 0.3√0.99 − 0.1 m for the sphere and its minimizing segment point. Constant radius subtracts a fixed distance on every shape.
  */
 export function test_engine_physics_physical_shape_nearest(): void {
   const still: IAutoMovieRigidTransform = {

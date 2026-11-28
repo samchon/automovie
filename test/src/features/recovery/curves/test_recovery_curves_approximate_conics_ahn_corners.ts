@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  *    source endpoints.
  * 2. A corner at a supplied break gives two exact primitives that keep each side's
  *    tangent, asking for both one-sided second-order jets.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names translation invariance and the one-sided tangent requirements for a declared corner.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries a line shifted a million millimetres and a two-sided corner, then checks endpoints, arc count and recorded jet calls.
+ * @evidence contracts/development/testing.md#independent-expectations A line translation changes only position. The two nonparallel source derivatives at the supplied break identify the required incident tangents.
  */
 export function test_recovery_curves_approximate_conics_ahn_corners(): void {
   const options: IAutoMovieConicApproximation.IOptions =

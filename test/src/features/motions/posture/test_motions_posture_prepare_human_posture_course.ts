@@ -33,6 +33,10 @@ const QUARTER: number = 10 / 64 - 15 / 256 + 6 / 1024;
  * 5. A foot rotation given as `q` and `-q` stays the same rotation, normalized.
  * 6. A goal's flag and a limb only the first knot sets come from the knot at or
  *    before the second.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines boundary holds, shortest rotation and minimum-jerk interpolation with carried discrete pose fields.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a two-knot course before, within and after its span, including a missing joint, a flag and sign-equivalent rotation.
+ * @evidence contracts/development/testing.md#independent-expectations A rest-to-rest quintic gives half at the midpoint and its closed-form quarter share. Heading 350° to 10° crosses 360° and q and −q stay equivalent.
  */
 export function test_motions_posture_prepare_human_posture_course(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

@@ -31,6 +31,10 @@ import { throwsError } from "../../internal/predicates";
  *    apart, gap 0.5.
  * 6. Three parts give the pairs a-b, a-c, b-c in part order.
  * 7. A negative contact distance throws.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names all contact classes, actual metre gaps, containment shares, primitive conversion and pair order.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures actual model part pairs with mesh and primitive geometries, translating one cube across separation and contact thresholds.
+ * @evidence contracts/development/testing.md#independent-expectations The authored interval endpoints give gaps 0.5 and 5e−7. The [0.25,0.75] cube is enclosed by a 0.25 margin. Overlapping cubes cross with gap zero.
  */
 export function test_engine_geometry_model_contacts(): void {
   const options: IAutoMovieMeasureModelContacts.IOptions = { contact: 1e-6 };

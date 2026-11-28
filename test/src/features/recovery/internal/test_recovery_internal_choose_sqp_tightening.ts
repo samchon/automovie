@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  *    ceiling (1/2)^2.5, so the value is 1/24 by the objective cap.
  * 2. A zero multiplier prices nothing, so the value is the ceiling.
  * 3. An sqpNorm outside (0, 1) is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the objective cap, squared-norm input interval and zero-price scenario.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates one constrained direction with positive and zero multipliers and one invalid SQP norm.
+ * @evidence contracts/development/testing.md#independent-expectations In the scalar fixture, descent one half and multiplier price six give cap 1/24, below the nominal power ceiling.
  */
 export function test_recovery_internal_choose_sqp_tightening(): void {
   const rows: IAutoMovieSimplexAtom[] = [

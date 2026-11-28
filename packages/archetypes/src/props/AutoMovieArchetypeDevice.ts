@@ -7,70 +7,90 @@ import { AutoMovieArchetypeRemote } from "./AutoMovieArchetypeRemote";
 import { AutoMovieArchetypeTablet } from "./AutoMovieArchetypeTablet";
 import { AutoMovieArchetypeRadio } from "./AutoMovieArchetypeRadio";
 
-/** Public operations for Auto Movie Archetype Device. */
+/** Replays saved handheld device recipes through their named producers. */
 export namespace AutoMovieArchetypeDevice {
   /**
-   * Reads a saved handheld device recipe and calls the producer for its kind.
+   * Build the saved phone, camera, remote, tablet or two-way radio.
    *
-   * @param params The saved kind, dimensions, model and optional identifier.
-   * @param seed The seed used by the selected device.
-   * @returns The selected device in its original coordinate frame.
-   * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is
-   *   refused.
+   * @param params Saved kind, optional scene ID and applicable fixed settings.
+   *   Camera, tablet and radio use `model`. Saved phone and remote records
+   *   ignore the field and use their bands.
+   * @param seed Numeric seed for omitted dimensions or model. Without it,
+   *   bands use midpoints and catalogues use their first entry.
+   * @returns The selected device with its original `device` default ID and
+   *   local contact frames.
+   * @throws {AutoMovieArchetypeRefusal} If the kind, a consumed model or
+   *   a dimension is inadmissible.
    */
   export function create(params: AutoMovieArchetypeDevice.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeDevice.Affordance, AutoMovieArchetypeDevice.Dimension> {
     return createDeviceImplementation(params, seed);
   }
 
-  /** The kinds of device. */
+  /**
+   * Saved selectors for phone, camera, remote, tablet and the `walkieTalkie` radio route.
+   */
   export type Kind = HandheldDevice.Kind;
 
-  /** Every kind, in the original variant order. */
+  /** Saved device selectors in their catalogue order. */
   export const KINDS: readonly Kind[] = HandheldDevice.KINDS;
 
-  /** The union of the devices' affordance identifiers. */
+  /**
+   * Grip, pinch, support, screen, lens, button and speaker IDs available across the variants.
+   */
   export type Affordance = HandheldDevice.Affordance;
 
-  /** The outside dimensions in metres and mass in kilograms. */
+  /**
+   * Case width, height and thickness in metres and body mass in kilograms. Camera thickness excludes its forward lens projection.
+   */
   export type Dimension = HandheldDevice.Dimension;
 
-  /** The unit of each recorded dimension. */
+  /** Units shared by the device bands and catalogue figures. */
   export const UNITS: typeof HandheldDevice.UNITS = HandheldDevice.UNITS;
 
-  /** The saved device kind, model, fixed dimensions and optional identifier. */
+  /**
+   * Saved kind, optional ID and applicable fixed dimensions or catalogue model. Saved phone and remote recipes ignore a recorded model field.
+   */
   export type IParams = HandheldDevice.IParams;
 
-  /** The dimensions fixed by one manufacturer model. */
+  /** Dimensions of one catalogue entry, in metres and kilograms. */
   export type Figures = HandheldDevice.Figures;
 
-  /** The manufacturer models available across the original device kinds. */
+  /**
+   * Model labels for the compact cameras, tablet configurations and radio battery configurations.
+   */
   export type Model = HandheldDevice.Model;
 
-  /** Manufacturer figures by kind and model. */
+  /**
+   * Catalogue dimensions and mass by device kind and model. Each row keeps its correlated figures.
+   */
   export const MODELS: typeof HandheldDevice.MODELS = HandheldDevice.MODELS;
 
-  /** Ranges of drawn dimensions by kind. */
+  /**
+   * Applicable free dimensions by kind. Phone and remote use bands for their entire size and mass.
+   */
   export const BANDS: typeof HandheldDevice.BANDS = HandheldDevice.BANDS;
 
-  /** Each saved selector's named producer. */
+  /** Named device factories by saved selector. */
   export interface IProducers {
-    /** The named producer for the saved `phone` selector. */
+    /** Smartphone factory with optional fixed band dimensions. */
     phone: typeof AutoMovieArchetypePhone.create;
 
-    /** The named producer for the saved `camera` selector. */
+    /** Compact camera factory with a catalogue body choice. */
     camera: typeof AutoMovieArchetypeCamera.create;
 
-    /** The named producer for the saved `remote` selector. */
+    /** Remote-control factory with optional fixed band dimensions. */
     remote: typeof AutoMovieArchetypeRemote.create;
 
-    /** The named producer for the saved `tablet` selector. */
+    /** Tablet factory for Wi-Fi and cellular configurations. */
     tablet: typeof AutoMovieArchetypeTablet.create;
 
-    /** The named producer for the saved `walkieTalkie` selector. */
+    /** Radio factory with a catalogue battery and body configuration. */
     walkieTalkie: typeof AutoMovieArchetypeRadio.create;
   }
 
-  /** The public producer for each saved kind, in the same family. */
+  /**
+   * Public factories keyed by saved kind. Pass each selected factory its own options.
+   */
   export const PRODUCERS: Readonly<IProducers> = {
     phone: AutoMovieArchetypePhone.create,
     camera: AutoMovieArchetypeCamera.create,

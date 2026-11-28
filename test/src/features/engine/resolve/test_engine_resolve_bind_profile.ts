@@ -46,6 +46,10 @@ const PROFILE: IAutoMovieProfile = {
  *    "p/x", the pointer limit is unchanged, and the copy runs from "p/y" to
  *    "p/x".
  * 2. A binding of another profile, and a key the bone map lacks, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the prefixed bone mapping, unchanged pointer limit, and refusals for a wrong profile or missing bone key.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `bindProfile` with a typed profile containing one node limit, one pointer limit, and one copy driver. It compares the resulting channel descriptors and owner/source pair. Each malformed binding checks its error message.
+ * @evidence contracts/development/testing.md#independent-expectations The map sends a to x and b to y. Prefix p/ makes p/x the rotation limit and copy owner, and p/y the copy source. The /x pointer remains literal.
  */
 export function test_engine_resolve_bind_profile(): void {
   const bound: IAutoMovieBoundProfile = AutoMovieEngineResolve.bindProfile({

@@ -73,6 +73,10 @@ const FOLIAGE: {
  *    bounding sphere is a point, rather than the empty sphere of radius
  *    `-Infinity` that computing bounds over zero instances would leave for a
  *    camera to cull against.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names branch and leaf batches, parent-child matrices, finite bounds, pruning and resource ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds typed planting fixtures through the native scene owner and reads instance counts, matrices, bounds, visibility and resource events. Compares full, bare, pruned and dormant plants.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's member and part populations determine each batch count. Independent member-times-branch and member-times-leaf multiplication supplies the expected matrices, including possible shear. A vanished branch keeps its slot with zero height, and an empty dormant batch is hidden with a collapsed finite bound.
  */
 export function test_render_scene_build_planting_object(): void {
   const domain: IAutoMoviePlantingDomain = plantingRecipe({ foliage: FOLIAGE });

@@ -10,17 +10,18 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `presentHandPlace` puts a presented palm where the arm reaches with the upper
- * arm hanging and the forearm level ahead: 0.3 of the shoulder's half width out
- * from the midline, the upper arm's length below the shoulder, and the forearm
- * and half the hand ahead.
+ * Check the palm point for a presented hand.
  *
- * Scenarios, for a 0.2 m shoulder half width, 1.45 m shoulder height, 0.3 m
- * upper arm, 0.27 m forearm and 0.19 m hand, the root at (0, 0.95, 0):
+ * Scenarios:
  *
- * 1. Facing +Z, the left palm is at (0.06, 1.15, 0.365).
- * 2. The right palm mirrors it across the midline, (-0.06, 1.15, 0.365).
- * 3. Facing -Z (yaw 180) the left palm turns with the body, (-0.06, 1.15, -0.365).
+ * 1. With a 0.2 m shoulder half width and a 1.45 m shoulder height, the left
+ *    palm faces +Z at (0.06, 1.15, 0.365) m.
+ * 2. The right palm mirrors X. Facing -Z also reverses the left palm's
+ *    forward direction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the palm point and both side and yaw changes.
+ * @evidence contracts/development/testing.md#behavioral-verification The placement reader takes fixed body measurements and evaluates both hands and the turned entry.
+ * @evidence contracts/development/testing.md#independent-expectations The coordinates are 0.3 times shoulder half width, shoulder height minus upper arm length, and forearm plus half a hand ahead.
  */
 export function test_motions_dressing_present_hand_place(): void {
   const measure: presentHandPlace.IMeasure = {

@@ -14,10 +14,8 @@ import { TestValidator } from "@nestia/e2e";
  * 4b. A hinged door's leaf leaves its frame whole at the 80 J that breaks an unreinforced softwood frame under ASTM F476's ram (US 11280110 B1), and not at 79 J, the pieces weighing the door; the frame keeps only its `aperture`, the hinge, the latch and the handles riding them leaving with the leaf.
  * 5. A fracture set naming an unrecorded part, a part another set carries or a part twice, a set id declared twice, a set of no part, a contact not declared, and a contact two sets carry are each refused by the builder.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Breaks real bottles at and below their thresholds and reads the pieces' masses, parts, contacts and velocities; a bottle that breaks below its energy, loses mass, duplicates a part, keeps the wrong contacts or flies off at another speed is caught.
- * @evidence contracts/development/testing.md#independent-expectations The energies are the cited drop-tower figures, written here; the velocity is momentum over mass, worked here.
- * @evidence contracts/development/testing.md#distinguishing-cases Empty and full, at and below the threshold, a part-filled bottle, a mug, a door and seven builder refusals.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual model break operations and the builder in memory. Reads emitted parts, contacts, masses and separation velocity, and checks the builder's invalid fragment cases.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the cited bottle and door energies at and below the thresholds, momentum divided by fragment mass, and conservation of mass and part identity. Part-filled and mug controls distinguish unavailable break behavior.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_fracture_sets(): void {

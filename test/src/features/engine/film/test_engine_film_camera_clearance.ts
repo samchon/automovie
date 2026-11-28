@@ -112,6 +112,10 @@ const runtimeModels: () => IAutoMovieModel[] = (): IAutoMovieModel[] => [
  *     diagnostic string coercion.
  * 12. Overshooting interpolation and open loop seams are refused rather than
  *     trusted as endpoint-bounded motion.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify static, moving and parent-envelope contacts, clearance reporting, revision gates, malformed inputs and the limits on interpolation.
+ * @evidence contracts/development/testing.md#behavioral-verification The test evaluates clearance over the supplied camera and obstacle motions. It observes contact intervals, addressed failures and publishability, and runs the compiled report and artifact checks against those represented inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The tangency, midpoint wall and rotated offset positions are fixed by the fixture geometry. Matching revision stamps and fixed-clock samples determine report admission independently. The stale and zero-duration cases change only their clock or revision premise.
  */
 export function test_engine_film_camera_clearance(): void {
   assertFilmCameraClearanceEvaluation({

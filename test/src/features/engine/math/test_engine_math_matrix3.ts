@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/predicates";
  *    product (17, 2, -7).
  * 4. A two-entry transpose and a product whose entry overflows are refused, and
  *    the next valid call is unaffected.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers row-major transpose, ordered products and matrix-vector actions, with malformed and overflowing inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineMatrix3 operations on literal arrays. It tests the two multiplication orders and calls apply again after two refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Transposing swaps row and column indices. Explicit row dot products give (8, 17, 30) and the two ordered products differ. The skew action is the hand-computed cross product (17, 2, -7).
  */
 export function test_engine_math_matrix3(): void {
   const left: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 10];

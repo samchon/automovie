@@ -1,118 +1,79 @@
-import type {
-  AutoMovieVector3Tuple,
-  IAutoMovieRecoveryTerminalSeed,
-} from "..";
+import type { AutoMovieVector3Tuple, IAutoMovieRecoveryTerminalSeed } from "..";
 
 /**
- * Source-only distal topology observed above one existing closed-loop seed. The
- * maximum and PL critical positions are measurements in the registered
- * millimetre frame, not source mesh payloads. Multiple extrema, open incidence,
- * plateaus and unqualified links remain explicit; they never authorize a single
- * fabricated cap.
+ * Observed positive-axis terminal neighborhood traced from one saved closed
+ * source loop.
  */
 export interface IAutoMovieRecoverySourceTerminal {
-  /** Published source loop followed toward increasing scalar coordinates. */
+  /** Original closed-loop address and that publication's curve name. */
   seed: IAutoMovieRecoveryTerminalSeed & {
-    /**
-     * Stable saved coefficient identity, retained without inferring anatomical
-     * or material correspondence.
-     */
+    /** Saved curve name of the seed's published closed loop. */
     curveName: string;
   };
 
-  /**
-   * True only for one closed manifold distal component with one regular nonflat
-   * maximum and no branch or unresolved critical event.
-   */
+  /** Whether the traced source component supports one isolated qualifying tip. */
   singleTipQualified: boolean;
 
   /**
-   * Actual largest source projection in the seeded component and every tied
-   * physical position; null when the seed has no unique distal component.
+   * Largest traced scalar coordinate and the original source vertices attaining
+   * it, or null.
    */
   maximum: {
     /**
-     * Signed section-plane coordinate along the registered unit sweep axis, in
+     * Largest observed scalar height in the traced distal component, in
      * millimetres.
      */
     coordinateMm: number;
 
-    /**
-     * Ordered physical observations in registered millimetres; ordering and
-     * closure remain caller supplied.
-     */
+    /** All registered source points at this maximum height, in millimetres. */
     pointsMm: Readonly<AutoMovieVector3Tuple>[];
   } | null;
 
   /**
-   * Source-observed critical relations inside the distal component; loop
-   * continuation at their cuts remains a separate observation.
+   * Original critical events reached on the traced component, with available
+   * physical brackets.
    */
   events: Array<{
-    /**
-     * Caller-assigned stable semantic identity retained in generated
-     * coefficient and observation records.
-     */
+    /** Terminal-observation-local critical record name. */
     name: string;
 
-    /**
-     * Signed section-plane coordinate along the registered unit sweep axis, in
-     * millimetres.
-     */
+    /** Exact signed observation height of the critical vertex in millimetres. */
     coordinateMm: number;
 
-    /**
-     * Physical position in the registered millimetre frame; no coordinate
-     * matching or source repair is implied.
-     */
+    /** Original registered Cartesian point of the source event. */
     pointMm: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * Connected-component count in the lower link of the critical source
-     * vertex.
-     */
+    /** Observed count of lower components in the critical vertex link. */
     lowerComponents: number;
 
-    /**
-     * Connected-component count in the upper link of the critical source
-     * vertex.
-     */
+    /** Observed count of upper components in the critical vertex link. */
     upperComponents: number;
 
-    /**
-     * Whether the observed local incidence meets the owning operation's
-     * manifold checks; no embedding claim follows.
-     */
+    /** Whether the source critical link qualifies as a manifold cycle. */
     manifold: boolean;
 
-    /** Whether exact scalar ties occur in the critical vertex neighbourhood. */
+    /** Whether an incident source neighbor shares the same scalar level. */
     flat: boolean;
 
     /**
-     * Whether the observed local source event has the declared regular
-     * continuation qualification.
+     * Whether the event's source link and critical bracket pass the regularity
+     * checks.
      */
     regular: boolean;
 
-    /**
-     * Lower physical sweep coordinate in registered millimetres; paired with
-     * the strictly greater afterMm.
-     */
+    /** Measured lower physical bracket coordinate, or null when unavailable. */
     beforeMm: number | null;
 
-    /**
-     * Upper physical sweep coordinate in registered millimetres; paired with
-     * the strictly smaller beforeMm.
-     */
+    /** Measured upper physical bracket coordinate, or null when unavailable. */
     afterMm: number | null;
   }>;
 
-  /**
-   * Distinct observed event coordinates and qualified physical brackets to
-   * append as all-component section observations.
-   */
+  /** Additional observed critical coordinates and physical bracket planes. */
   coordinatesMm: number[];
 
-  /** Explicit failures or limits of this component's observed topology. */
+  /**
+   * Source terminal limitations from tracing, event qualification or bracket
+   * admission.
+   */
   diagnostics: string[];
 }

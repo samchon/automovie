@@ -352,6 +352,8 @@ export namespace AutoMovieMotionHumanArmCarry {
         // (`HumanHandAttitude`), between the hands its two ends show: weight 1
         // writes a planned arm's own hand, so its end is the plan's at the
         // hold's nearer edge, carried on the trunk now; the goal's fit else.
+        // A planned forearm keeps the twist its contact course admitted.
+        // Wrist attitude can then track only within the wrist's own range.
         const requested: ReadonlySet<AutoMovieHumanoidBone> =
           new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -408,6 +410,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           ),
           resolution,
           projection,
+          onPlan,
         );
       },
     };

@@ -4,26 +4,27 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMoviePose } from "../pose/IAutoMoviePose";
 import type { IAutoMovieResolvedBone } from "../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
-import type { IAutoMovieMotionTarget } from "./IAutoMovieMotionTarget";
+import type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHumanScheduledInstant";
 import type { IAutoMovieCheckLegality } from "./IAutoMovieCheckLegality";
 import type { IAutoMovieComposition } from "./IAutoMovieComposition";
-import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
-import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
-import type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHumanScheduledInstant";
 import type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
-import type { IAutoMovieMotionHumanLayer } from "./IAutoMovieMotionHumanLayer";
-import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
+import type { IAutoMovieMotionHumanLayer } from "./IAutoMovieMotionHumanLayer";
 import type { IAutoMovieMotionHumanObject } from "./IAutoMovieMotionHumanObject";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformanceAim } from "./IAutoMovieMotionHumanPerformanceAim";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
+import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieMotionHumanPropFracture } from "./IAutoMovieMotionHumanPropFracture";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
+import type { IAutoMovieMotionHumanSharedCarry } from "./IAutoMovieMotionHumanSharedCarry";
 import type { IAutoMovieMotionHumanSimulation } from "./IAutoMovieMotionHumanSimulation";
+import type { IAutoMovieMotionTarget } from "./IAutoMovieMotionTarget";
+import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
+import type { IAutoMovieScheduleCue } from "./IAutoMovieScheduleCue";
 
 /**
  * A performance of people and props: their chained actions placed on the film
@@ -113,6 +114,10 @@ export interface IAutoMovieMotionHumanPerformance {
    * launch and rests where it struck (`HumanPropFlight`) until a later grip
    * takes it.
    *
+   * A shared carry follows its prepared path from closure through release and
+   * leaves the prop at its settled frame. A later ordinary grip, mount or
+   * flight takes custody through the same film clock.
+   *
    * @param subject The prop.
    * @param seconds Film seconds.
    * @returns Its frame.
@@ -182,8 +187,8 @@ export interface IAutoMovieMotionHumanPerformance {
    * @param subject The soft prop.
    * @param seconds Film seconds.
    * @returns World metres, row-major `[x, y, z, ...]`.
-   * @throws {AutoMovieMotionHumanRefusal} When the prop is not soft or the performance
-   *   outlasts its domain's step budget.
+   * @throws {AutoMovieMotionHumanRefusal} When the prop is not soft or the
+   *   performance outlasts its domain's step budget.
    */
   soft(subject: string, seconds: number): number[];
 
@@ -212,8 +217,8 @@ export interface IAutoMovieMotionHumanPerformance {
    *
    * @param at The instant.
    * @returns The film second.
-   * @throws {AutoMovieMotionHumanRefusal} When nothing is anchored or tracked under the name,
-   *   or it has no such event.
+   * @throws {AutoMovieMotionHumanRefusal} When nothing is anchored or tracked
+   *   under the name, or it has no such event.
    */
   instant(at: AutoMovieMotionHumanScheduledInstant): number;
 
@@ -257,9 +262,10 @@ export interface IAutoMovieMotionHumanPerformance {
 
   /**
    * The windows baked through the engine's solver, in bake order
-   * (`AutoMovieMotionHumanPerformance.simulate`); inside each, the solver's contacts take over
-   * the declared plants of the parts it owns, which the verdicts read
-   * (`HumanVerdicts`). Absent or empty for a performance with none.
+   * (`AutoMovieMotionHumanPerformance.simulate`); inside each, the solver's
+   * contacts take over the declared plants of the parts it owns, which the
+   * verdicts read (`HumanVerdicts`). Absent or empty for a performance with
+   * none.
    *
    * @returns Each window, its mode and the engine's simulation of it.
    */
@@ -324,6 +330,15 @@ export namespace IAutoMovieMotionHumanPerformance {
     /** The props actions aim at. */
     props?: IAutoMovieMotionHumanProp[];
 
+    /**
+     * Prepared rigid prop paths from first grip through final release. Each
+     * episode names two different performers, their hands, handles and played
+     * anchors. The performance checks their realized contacts and rejects
+     * conflicting custody. After release the prop stays at its settled frame
+     * until a later ordinary grip, mount or launch takes it.
+     */
+    sharedCarry?: readonly IAutoMovieMotionHumanSharedCarry.IPreparedEpisode[];
+
     /** What everyone does. */
     composition: IAutoMovieComposition;
 
@@ -341,9 +356,9 @@ export namespace IAutoMovieMotionHumanPerformance {
 
     /**
      * The production's legality rules, such as `KickboxingRules.rules`, checked
-     * against the placed schedule with the engine's `checkLegality`;
-     * any violation refuses the performance with every broken rule in the
-     * message. None when absent.
+     * against the placed schedule with the engine's `checkLegality`; any
+     * violation refuses the performance with every broken rule in the message.
+     * None when absent.
      */
     rules?: readonly IAutoMovieCheckLegality.IRule[];
 
@@ -375,10 +390,11 @@ export namespace IAutoMovieMotionHumanPerformance {
 
     /**
      * Tracks of named instants that belong to no action, by track name: a
-     * dialogue's line starts and accents, a score's beats (`AutoMovieMotionHumanCue` builds
-     * both). An action is synced to one (`AutoMovieMotionHumanChain.sync`) and cut on one
-     * (`until`) as on another action's events; a track's name is used like an
-     * anchor, so no action may be anchored under it.
+     * dialogue's line starts and accents, a score's beats
+     * (`AutoMovieMotionHumanCue` builds both). An action is synced to one
+     * (`AutoMovieMotionHumanChain.sync`) and cut on one (`until`) as on another
+     * action's events; a track's name is used like an anchor, so no action may
+     * be anchored under it.
      */
     cues?: Readonly<Record<string, readonly IAutoMovieScheduleCue[]>>;
 

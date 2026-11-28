@@ -27,6 +27,10 @@ const CURVE: IAutoMovieDrivenCurve = {
  * 2. A point's own source gives its output.
  * 3. Below the first and above the last source the end output holds.
  * 4. An absent source reads the first point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names midpoint interpolation on both segments, exact knot behavior, held ends, and the missing-source default.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `evaluateDrivenCurve` at six selected inputs, including an undefined source, on a typed three-point curve.
+ * @evidence contracts/development/testing.md#independent-expectations The points (0, 0), (1, 10), and (3, 4) give midpoint outputs 5 and 7 and knot output 10. Below the first point or with no source, the expected value is 0. Above the last point it is 4.
  */
 export function test_engine_resolve_evaluate_driven_curve(): void {
   TestValidator.predicate(

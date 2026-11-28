@@ -9,27 +9,17 @@ import type {
 } from "..";
 
 /**
- * Joint sparse-map refinement retains the fixed observation population and
- * gauge. Coordinates use the initial reconstruction scale, with supplied pixel
- * intrinsics. Checkpoints and work charges run synchronously; either callback
- * may throw to terminate without a result. Omitted charge performs no
- * accounting callback, and omitted feasible options retain ordinary refinement.
- * With feasible refinement, reportCapacity borrows an already admitted
- * reporting scope; omission admits the direct reporting envelope, while
- * ordinary refinement ignores it. Numerical rank, depth, pixel residual and
- * budget admission remain the recovery solver's responsibility.
+ * Callable contract for joint recovery-map refinement over a fixed set of
+ * admitted observations and a fixed similarity gauge.
  */
 export namespace IAutoMovieRecoveryCameraMapRefinementOperation {
   /**
-   * Joint sparse-map refinement retains the fixed observation population and
-   * gauge. Coordinates use the initial reconstruction scale, with supplied
-   * pixel intrinsics. Checkpoints and work charges run synchronously; either
-   * callback may throw to terminate without a result. Omitted charge performs
-   * no accounting callback, and omitted feasible options retain ordinary
-   * refinement. With feasible refinement, reportCapacity borrows an already
-   * admitted reporting scope; omission admits the direct reporting envelope,
-   * while ordinary refinement ignores it. Numerical rank, depth, pixel residual
-   * and budget admission remain the recovery solver's responsibility.
+   * Refine poses and points in the initial reconstruction scale using supplied
+   * intrinsics, the fixed first pose, and the unit seed baseline. Checkpoint
+   * and work-charge callbacks run synchronously and may interrupt by throwing.
+   * Omit `feasible` for ordinary refinement. When feasible refinement is
+   * selected, `reportCapacity` can supply an admitted reporting scope; omission
+   * admits direct report capacity.
    */
   export type Operation = (
     initialPoses: readonly IAutoMovieRecoveryMapPose[],

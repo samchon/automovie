@@ -26,6 +26,10 @@ type Input = Parameters<typeof AutoMovieEngineValidation.validateScriptTree>[0];
  *    and `[5].temporal`; b1 interacting with itself and `ghost` at
  *    `[4].interactsWith[0]` and `[1]`; b1 claiming `ghost` at
  *    `[4].payload.beat`; b2 claiming beat-1 again at `[5].payload.beat`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers screenplay tree admission, deep traversal and located parent, time, interaction and beat-ownership faults.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateScriptTree on typed nodes and flat beats, including an intent-only tree, 10,000 nested refinements and literal invalid references.
+ * @evidence contracts/development/testing.md#independent-expectations The graph literals determine which parent and reference ids exist, which links self-reference and who claims each beat. Reclaiming beat-1 gives a duplicate owner. The constructed deep chain is acyclic and must validate.
  */
 export function test_engine_validation_validate_script_tree(): void {
   const fixture: Input = createScriptTreeFixture();

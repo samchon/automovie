@@ -38,6 +38,10 @@ const visible: (
  * 3. Near/far tangent spheres intersect and separated spheres do not.
  * 4. Camera translation/rotation resolves the same local-space result.
  * 5. Negative and non-finite radii fail closed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name horizontal, vertical and depth tangent and separated spheres, world-to-camera motion and invalid-radius refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the perspective sphere intersection method at explicit centers and radii, then repeats a matched case under camera transform and probes invalid sizes.
+ * @evidence contracts/development/testing.md#independent-expectations The tangent positions come from signed distance along the unit frustum plane normals, so enlarging the center distance past radius must lose intersection. The near and far walls admit a tangent radius and the camera-local position survives the rigid world transform.
  */
 export function test_engine_film_camera_projection_sphere(): void {
   const horizontalTangent: number = 5 + Math.SQRT2;

@@ -1,4 +1,7 @@
-import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieMark,
+} from "@automovie/interface";
 
 import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive";
 import { inspectInspectorRequest } from "./inspectInspectorRequest";
@@ -26,19 +29,25 @@ export function installInspectorRequest(props: {
    */
   seconds: number;
 
+  /* World trail marks at the same settled second. */
+  trailMarks?: readonly IAutoMovieMark[];
+
   /*
    * Told the refusal's error when the request is refused.
    */
   refused: (error: unknown) => void;
 }): boolean {
   const { now }: typeof props = props;
-  const base: Omit<
-    Parameters<typeof inspectInspectorRequest>[0],
-    "request"
-  > = {
+  const marks: readonly IAutoMovieMark[] | undefined = now.instance.marks?.(
+    props.seconds,
+  );
+  const base: Omit<Parameters<typeof inspectInspectorRequest>[0], "request"> = {
     instance: now.instance,
     renderer: now.renderer,
-    marks: now.instance.marks?.(props.seconds),
+    marks:
+      props.trailMarks === undefined
+        ? marks
+        : [...(marks ?? []), ...props.trailMarks],
   };
   try {
     now.inspection = inspectInspectorRequest({

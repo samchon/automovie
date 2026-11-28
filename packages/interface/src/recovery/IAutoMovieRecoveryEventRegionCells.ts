@@ -3,10 +3,15 @@ import type { IAutoMovieRecoveryEventRegion } from "./IAutoMovieRecoveryEventReg
 import type { IAutoMovieRecoveryEventRegionSource } from "./IAutoMovieRecoveryEventRegionSource";
 import type { IAutoMovieRecoverySourceCellNode } from "./IAutoMovieRecoverySourceCellNode";
 
-/** Clip one ordered candidate population into fresh private query cells. */
+/** Callable creation of clipped source cells and local observation indices. */
 
 export namespace IAutoMovieRecoveryEventRegionCells {
-  /** Clip one ordered candidate population into fresh private query cells. */
+  /**
+   * Clip the supplied complete candidate overlap population against both closed
+   * scalar planes. Retain reference-domain dimension and original physical rank
+   * independently. Return per-cell and face lookup tables plus an issue
+   * collector.
+   */
 
   export type Operation = (
     source: Parameters<IAutoMovieRecoveryEventRegion.Operation>[0],
@@ -14,44 +19,29 @@ export namespace IAutoMovieRecoveryEventRegionCells {
     query: Parameters<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>[0],
   ) => {
     /**
-     * Query-local result under construction, shared by cell, topology and port
-     * observation phases.
+     * Mutable per-query result populated by subsequent topology and port
+     * stages.
      */
     result: ReturnType<ReturnType<IAutoMovieRecoveryEventRegion.Operation>>;
 
-    /**
-     * Lower scalar-boundary node registry for this query, with original source
-     * incidence preserved.
-     */
+    /** Admitted finite lower scalar level in millimetres. */
     lower: number;
 
-    /**
-     * Upper scalar-boundary node registry for this query, with original source
-     * incidence preserved.
-     */
+    /** Admitted finite upper scalar level in millimetres. */
     upper: number;
 
-    /**
-     * Observed node identity to the one query-local node record that owns its
-     * scalar value.
-     */
+    /** Lookup from raw clipped node ID to its original node record. */
     nodeMap: Map<string, IAutoMovieRecoverySourceCellNode>;
 
-    /**
-     * Cell ordinal to its observed boundary-node sequence in the current scalar
-     * query.
-     */
+    /** Ordered raw clipped polygon nodes by result cell ID. */
     cellNodes: Map<number, IAutoMovieRecoverySourceCellNode[]>;
 
-    /**
-     * Original source-face ordinal to its cell ordinal in the current scalar
-     * query.
-     */
+    /** Original source face ordinal to its retained clipped-cell ID. */
     faceCells: Map<number, number>;
 
     /**
-     * Appends one query-local topology issue and returns its index; optional
-     * occurrence/port lists default to empty.
+     * Attach a classified issue to the current cell result and return its issue
+     * index.
      */
     issue: (
       code: AutoMovieRecoverySourceTopologyIssueCode,

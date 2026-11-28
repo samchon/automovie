@@ -22,6 +22,10 @@ const ROUNDING: number = 1e-12;
  * 2. Non-zero boundary states over 1.5 s: `state` returns each end's position,
  *    velocity and acceleration.
  * 3. A second before the start or after the end is held to that end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines boundary position, velocity and acceleration, smooth rest-to-rest state and sampling outside the segment.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a two-second rest-to-rest move and a second move with nonzero boundaries at endpoints and outside.
+ * @evidence contracts/development/testing.md#independent-expectations The analytic midpoint is position 0.5, speed 0.9375 and acceleration zero, with initial jerk 7.5. Outside seconds retain the corresponding hand-specified boundary.
  */
 export function test_motions_posture_quintic_segment(): void {
   // 1. Rest to rest.

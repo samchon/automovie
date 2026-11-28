@@ -17,11 +17,9 @@ const MM: number = 1e-3;
  * 3. A puck is the IIHF's 7.6 cm across and 2.5 cm thick, lying flat.
  * 4. Each new kind's `grip` lies at its middle with its height as the aperture, and its `top` on its top.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced collider and contacts over the seeds; a ball off its rule's size, an oval ball standing up or a puck on its edge is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Every figure is the MCC's, USBC's, World Rugby's, NFL's or IIHF's restated here; circumferences become diameters by dividing by pi.
- * @evidence contracts/development/testing.md#distinguishing-cases Spheres, capsules and a disc; the older kinds belong to `test_archetype_sport_placed`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists spherical, oval and flat kinds with regulation sizes, rest positions and central grip and top contacts.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each selected ball or puck through the public factory and measures its extents and contact frames. The oval bodies must lie along X and the puck must lie flat.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated MCC, USBC, World Rugby, NFL and IIHF dimensions. Dividing circumference by pi supplies the diameter checks, while measured height fixes the grip aperture and top.
  */
 export function test_archetype_ball_kinds(): void {
   const findings: string[] = [];

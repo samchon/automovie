@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  * 3. Both actual palm surfaces bear through the airborne interval.
  * 4. A nearby stance and a rigid staging move preserve the prepared contacts.
  * 5. An unreached body is refused before the lift is displayed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines shared acquisition and landing timing, actual hand and sole support, and prepared rigid-motion behavior for two performers.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages a short lift, compares both roles' displayed contact windows and poses, varies stance and rigid frame, and tries an unreached partner.
+ * @evidence contracts/development/testing.md#independent-expectations Original sole height and a steady reference carry supply independent footing endpoints. Both palm contacts bear across the airborne interval and the unreached case is refused.
  */
 export async function test_motions_lexicon_cradle_lift_support(): Promise<void> {
   const carry = AutoMovieMotionHumanCarryPerson.HumanCoupled.carry;

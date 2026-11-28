@@ -132,10 +132,8 @@ const boneOf: (
  * Scenarios:
  * - Positive and negative flexion, head-only flexion, lateral gaze and a locked head axis.
  * - An exhausted neck leaves an observable violation; absent and disconnected necks cannot carry the residual.
- * @evidence contracts/development/testing.md#behavioral-verification Reads each joint and the independent public pose validator.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads each joint and the independent public pose validator. The same skeleton topology supplies both signed ranges, saturation with excess gaze and a missing cervical parent. The test reads the compiled clinical axes and the public pose validator.
  * @evidence contracts/development/testing.md#independent-expectations Arc tangent yields the requested angle; subtracting the available head range gives the neck share.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples both range signs, excess demand and absent cervical hierarchy.
- * @evidence contracts/development/testing.md#execution-ownership Uses one skeleton topology with surgical variations to its range or parent.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies angular and anatomy boundaries.
  */
 export function test_motion_gaze_chain_limits(): void {

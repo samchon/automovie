@@ -44,6 +44,10 @@ const NONE: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  *    at `h² + h (0.5 − h) = h / 2`, so the first correction is `h`, and the
  *    goal once it alone has started is `h / 2`; an offset is added to the plan
  *    and not to the corrections.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes frame-spaced prediction, correction latency and minimum remaining correction time for a motion target.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans the virtual target at constant velocity and x = t², samples the first corrections, and tries contact before launch.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.5 s clock minus 0.11 s latency and 0.04 s duration leaves nine observations. Constant velocity needs zero adjustment and the discrete quadratic predictor changes by h.
  */
 export function test_motions_striking_aim(): void {
   const times: number[] = StrikingAim.observations(TIMING);

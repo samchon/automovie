@@ -63,6 +63,10 @@ function seeds(draw: () => number): () => number {
  *    reference distribution's.
  * 3. Seeded with 12345 the same; every seed lies in [1, 10^9].
  * 4. A first seed of zero is the default seed, as libc++'s `seed(0)`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines deterministic seeded ranlux24_base distribution behavior and the default alias for zero seed.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares the seed generator at its default and another first seed against a standalone reference implementation over 200 draws.
+ * @evidence contracts/development/testing.md#independent-expectations The reference engine's 10000th output is 7937952. Both sequences stay in [1, 10^9] and first seed zero must match the default.
  */
 export function test_motions_posture_random_seeds(): void {
   // 1. The reference engine.

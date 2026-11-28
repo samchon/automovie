@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  *    body reads, its pose, centre of mass, velocities and pending force and
  *    torque, is the same Float64 value, the negative zero included.
  * 2. One step of each leaves the same snapshot bytes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States exact restoration of pose, inertial state, pending forces and timestep, including signed zero.
+ * @evidence contracts/development/testing.md#behavioral-verification Takes a native world snapshot with tilted pose, off-axis mass and pending force and torque, restores it and steps both worlds.
+ * @evidence contracts/development/testing.md#independent-expectations Float64 state and snapshot bytes must match before and after the step, using the original world as the deterministic transport reference.
  */
 export function test_engine_physics_xpbd_world_snapshot(): void {
   const world: AutoMovieEngineXpbdWorld = new AutoMovieEngineXpbdWorld({

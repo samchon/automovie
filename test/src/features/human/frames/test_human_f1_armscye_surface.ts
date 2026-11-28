@@ -35,9 +35,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Armscye.create` with the `surface` rule on two made sources and reads its stations, loop and gap. It catches a loop read off the two walls' crossing, a faired or shifted station, host shares interpolated from the part's ring instead of cut on the host's skin, and a missing refusal.
  * @evidence contracts/development/testing.md#independent-expectations A cylinder cut by a surface of revolution about its course is a circle at one station; a point on a surface has zero measure; the host's cut is solved here in closed form along its two principal rays. None uses the module's search.
- * @evidence contracts/development/testing.md#distinguishing-cases A bowl square to the course, a slanted one whose station varies with the phase, and one with no crossing.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_f1_armscye_surface`; it builds two made cylinders in process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three numbered scenarios with their inputs and bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation Level and slanted bowls give independent part stations and host rays for the returned loop. An unreachable bowl must identify its missing surface crossing.
  */
 export function test_human_f1_armscye_surface(): void {
   const failures: string[] = [];

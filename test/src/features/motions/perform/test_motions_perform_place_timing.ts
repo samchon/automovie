@@ -47,6 +47,10 @@ const listed = (cues: readonly IAutoMovieScheduleCue[]): string =>
  * 3. A window from 1 to 3 s fading 0.5 s is full at 1.5 s and leaves at 2.5 s; a 5
  *    s fade is held to half the window; with none asked the overlay's 0.2 s
  *    fade is used.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The placement cases cover partial entry, expired contact, the zero-length endpoint, and ordinary, capped and default layer fades.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the timing owner with a typed resident plan and three entry shares, then calls layer instants for different fade inputs. It checks the returned duration, contact, retained events and exact named instants.
+ * @evidence contracts/development/testing.md#independent-expectations Entering a four-second plan halfway leaves two seconds and moves its three-second contact to one second after entry. At full entry share the end event rebases to share zero. A half-second fade yields full at 1.5 s and offset at 2.5 s in a [1, 3] s window.
  */
 export function test_motions_perform_place_timing(): void {
   TestValidator.equals(

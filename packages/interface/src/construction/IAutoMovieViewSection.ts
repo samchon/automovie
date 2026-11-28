@@ -5,75 +5,103 @@ import type { IAutoMovieViewConic } from "./IAutoMovieViewConic";
 
 /** Data and callback contracts shared by the ViewSection operations. */
 export namespace IAutoMovieViewSection {
-  /** The finite positive support half extents about the source axis. */
+  /**
+   * Four positive finite support distances from the source axis. Supply chart
+   * millimetres in +u, +v, −u, −v order.
+   */
   export interface IBox {
-    /** Half extents along +u,+v,-u,-v, millimetres, finite and positive. */
+    /** Four support half-extents in chart millimetres, ordered +u, +v, −u, −v. */
     extents: IAutoMovieQuarters<number>;
   }
 
-  /** One source section before periodic phase fitting. */
+  /**
+   * Prepared four-quarter section with its actual conic source and
+   * observations. Bare preparation leaves girth and diagonals at zero. Full
+   * preparation reads the source's corner directions and measures girth
+   * numerically.
+   */
   export interface ISection {
-    /** Original source support box. */
+    /**
+     * Original four directional half-extents admitted as the source support
+     * box.
+     */
     box: IAutoMovieViewSection.IBox;
 
-    /** Original conic shoulder per quarter. */
+    /**
+     * Dimensionless conic shoulder shares for the quarters starting at +u, +v,
+     * −u and −v.
+     */
     shoulders: IAutoMovieQuarters<number>;
 
     /**
-     * Four exact cardinal guide jets, including shared radial second
-     * derivatives.
+     * Cardinal source guide readings in quarter order, with radial derivatives
+     * shared at the corresponding guide.
      */
     guides: IAutoMovieQuarters<IAutoMoviePolarSector.IGuide>;
 
     /**
-     * Quadrature/inspection observations of the actual source, in increasing
-     * angle; these do not define an interpolant.
+     * Increasing-angle observations of the native conic pieces for quadrature
+     * and inspection.
      */
     knots: IAutoMoviePolarSector.IGuide[];
 
     /**
-     * The actual exact-conic/correction source, including an explicit admission
-     * failure.
+     * Prepared rational conic quarters and their guide corrections, including
+     * the producer's explicit failure state.
      */
     conics: IAutoMovieViewConic.ICurve;
 
-    /** No extra polar bump; quarter fullness belongs to shoulders. */
+    /**
+     * Four zero entries in this preparation. Quarter fullness is carried by
+     * shoulders.
+     */
     fullness: IAutoMovieQuarters<number>;
 
     /**
-     * Numerical taut-tape girth in millimetres; zero in bare and nonfinite on
-     * quadrature failure.
+     * Numerical native perimeter in millimetres. Bare preparation leaves zero;
+     * a failed measurement can be nonfinite.
      */
     girth: number;
 
     /**
-     * Radii along the four original corner directions, derived observations in
-     * millimetres.
+     * Native radii in millimetres along the four box corner directions. Bare
+     * preparation leaves zeros.
      */
     diagonals: IAutoMovieQuarters<number>;
   }
 
-  /** Finite admitted common-shoulder reach and its actual source girths. */
+  /**
+   * Admitted lower and upper common shoulder samples and their measured native
+   * girths. Endpoints include the same authored quarter departures used by the
+   * target solver.
+   */
   export interface IRange {
-    /** Least and greatest admitted common shoulder before quarter departures. */
+    /**
+     * Lower and upper dimensionless common shoulder shares before adding
+     * quarter departures.
+     */
     shoulder: [number, number];
 
-    /** Corresponding actual-source girths, millimetres. */
+    /** Corresponding lower and upper numerical native perimeters in millimetres. */
     girth: [number, number];
   }
 
-  /** A section selected by requested girth and any explicit reach diagnostic. */
+  /**
+   * Outcome of requesting a section by girth. An admitted match returns a
+   * section and empty diagnostics. An out-of-reach request can return the
+   * reached endpoint with a diagnostic. A report can also retain an estimate or
+   * a null section when source or residual admission fails.
+   */
   export interface ISolved {
     /**
-     * Actual source section, an admitted outside-request endpoint, or null
-     * without finite admitted reach/estimate. A nonnull result can retain an
-     * unresolved-residual diagnostic.
+     * Admitted native section, reached boundary or available estimate. Null
+     * reports that no usable section was selected.
      */
     section: IAutoMovieViewSection.ISection | null;
 
     /**
-     * Explicit reach/source/residual diagnostic; empty only after measured
-     * residual admission.
+     * Reach, source or measured-residual diagnostics. An accepted target has an
+     * empty list.
      */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
   }

@@ -45,6 +45,10 @@ type Step = IAutoMoviePhysicalBalance.IResult["step"];
  * 7. A pair's two steps are one landed swing phase; a step armed before the pair
  *    resolved overlaps it, one armed after does not; the divergence verdict
  *    reads a growing excursion, and leaves one or no landing to capture alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies limb choice from remaining pressure support, committed swings, diagonal pairs and least-violation fallback.
+ * @evidence contracts/development/testing.md#behavioral-verification Assesses biped and four-support stances, switches commanded pressure, and retargets before and during committed single and paired swings.
+ * @evidence contracts/development/testing.md#independent-expectations The fixed contact polygons determine whether removing a limb leaves pressure supported. Explicit side, pair motion and postlanding labels distinguish viable selection from minimum residual fallback.
  */
 export function test_engine_physics_physical_balance_step_choice(): void {
   const biped: IAutoMoviePhysicalSupportPatch[] = [

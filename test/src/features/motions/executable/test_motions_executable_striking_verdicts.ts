@@ -38,6 +38,10 @@ const timed = (
  *    s, 0.1 s past the contact within half its 0.4 s movement, is late;
  *    declared late and set at 0.8 s it fails.
  * 4. A late redirect refused as a cut into a kick passes; an accepted one fails.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual contact classification, peak event precedence, timing verdict and accepted versus refused redirect.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds typed bone names and authored event records to the family verdict helpers, then compares simulated timing and refusal cases.
+ * @evidence contracts/development/testing.md#independent-expectations A contact at local 0.4 s on an action beginning at 1 s peaks at 1.4. Explicit motion times give late versus failed, and a refused redirect retains its structured case.
  */
 export function test_motions_executable_striking_verdicts(): void {
   TestValidator.equals(

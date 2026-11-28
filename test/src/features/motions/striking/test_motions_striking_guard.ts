@@ -32,6 +32,10 @@ const AT: StrikingGuard.IFist = {
  * 2. The lead hand sits in front of the shoulder, 0.14 m outside the jaw: (0.2,
  *    1.65, 0.195); halfway leading, halfway between: (0.16, 1.65, 0.195).
  * 3. A leading boxing hand hugs the ear: (0.06, 1.625, 0.175).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines how virtual hand goals depend on stance share, rig landmarks, style and lowered position.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the hand goal for rear, lead, half-leading, lowered and boxing-style authored poses.
+ * @evidence contracts/development/testing.md#independent-expectations Distinct jaw, ear and shoulder offsets fix the target coordinates. The half-leading x coordinate is the midpoint 0.16 m and lowering changes only y by 0.05 m.
  */
 export function test_motions_striking_guard(): void {
   TestValidator.predicate(

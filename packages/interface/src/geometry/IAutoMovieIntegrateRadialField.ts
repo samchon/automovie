@@ -73,27 +73,12 @@ export namespace IAutoMovieIntegrateRadialField {
      * gives zero scalar and gradient integrals while preserving footprint
      * area.
      */
-    sites: readonly {
-      /**
-       * Finite site centre along the plane's first axis, in the polygon's
-       * coordinate unit.
-       */
-      x: number;
+    sites: readonly ISite[];
 
-      /**
-       * Finite site centre along the plane's second axis, in the polygon's
-       * coordinate unit.
-       */
-      y: number;
-
-      /**
-       * Finite signed perpendicular distance from the plane, in the same
-       * coordinate unit; either sign gives the same sphere section.
-       */
-      z: number;
-    }[];
-
-    /** Strictly positive finite common support radius in that coordinate unit. */
+    /**
+     * Positive finite common support radius in the footprint's unit. Its square
+     * must also be positive and finite.
+     */
     radius: number;
 
     /**
@@ -101,5 +86,26 @@ export namespace IAutoMovieIntegrateRadialField {
      * exact interior quadrature rule.
      */
     power: 2 | 3;
+  };
+
+  /** Equal-radius sphere centre in the integration plane's coordinate frame. */
+  export type ISite = {
+    /**
+     * Finite site centre along the plane's first axis, in the polygon's
+     * coordinate unit.
+     */
+    x: number;
+
+    /**
+     * Finite site centre along the plane's second axis, in the polygon's
+     * coordinate unit.
+     */
+    y: number;
+
+    /**
+     * Finite signed perpendicular distance from the plane, in the same
+     * coordinate unit; either sign gives the same sphere section.
+     */
+    z: number;
   };
 }

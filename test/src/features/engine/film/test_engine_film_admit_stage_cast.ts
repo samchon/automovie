@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An actor cannot mount itself or an absent actor. An ordinary mounted actor
  *    whose parent is placed is accepted.
  * 3. Every placed actor, including the stranger, claims an id in input order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify first model ownership, cast and placement completeness, mount prerequisites and ordered claimed IDs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test admits the authored cast and placements, observes the retained model and recorded node claims, and checks missing and conflicting IDs plus mount diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture declares the two models with the same ID in known order. Its explicit placement list identifies the stranger and omitted member, and only a placed parent distinct from its rider can satisfy a mount.
  */
 export function test_engine_film_admit_stage_cast(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

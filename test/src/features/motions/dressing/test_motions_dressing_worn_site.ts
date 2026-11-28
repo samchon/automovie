@@ -29,19 +29,20 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * A wearable's socket lies on its receiving head region and faces inwards as
- * the body moves. Stock hat and spectacles both have a nonzero socket offset,
- * with the hat's socket pointing down and the spectacles' pointing rearwards.
+ * Check the wearable socket against its receiving region in a displayed head
+ * frame.
  *
  * Scenarios:
  *
- * 1. On each stored body the hat sits on the crown and the spectacles on the
- *    bridge. The socket translation must be applied in the item's frame, and
- *    its normal must oppose the receiving region's normal. The hat's front
- *    and the spectacles' up direction align along the region's tangent plane.
- * 2. Move the body by a translation and a quarter turn. Read the moved site
- *    first, the resting site second and the moved site again. Both the item
- *    position and its rotation follow the body in any read order.
+ * 1. On each fixture, place the hat socket at the crown and the spectacles
+ *    socket at the bridge. Their normals oppose the receiving normals and
+ *    their chosen directions follow the corresponding tangents.
+ * 2. Translate and quarter-turn each body. Read the moved, original and moved
+ *    state again and obtain the corresponding item transforms on every read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the measured regions, material socket alignment and out-of-order reads.
+ * @evidence contracts/development/testing.md#behavioral-verification The site reader receives resolved posed bones and is checked against the original item geometry in both body placements.
+ * @evidence contracts/development/testing.md#independent-expectations The test applies the known socket offset and axis to each result and reconstructs the movement with the authored rigid transform.
  */
 export async function test_motions_dressing_worn_site(): Promise<void> {
   const origin: IAutoMovieMotionHumanPosture = {

@@ -3,10 +3,8 @@ import type { IAutoMovieSubdivisionVertexMask } from "./IAutoMovieSubdivisionVer
 /**
  * New Catmull-Clark points and the parent-vertex masks used to compute them.
  *
- * Packed xyz positions retain local metres; output order is parent vertices,
- * parent edges, then parent faces. This numerical step relies on admitted
- * topology and aligned finite position arrays; it does not perform cage
- * admission or repair.
+ * Packed XYZ positions retain local metres and are ordered by parent vertex,
+ * edge and face. Supply admitted topology and its aligned finite positions.
  */
 export namespace IAutoMovieRefineSubdivisionPoints {
   /**
@@ -21,9 +19,8 @@ export namespace IAutoMovieRefineSubdivisionPoints {
    * A vertex point applies `subdivisionVertexMask` to the vertex, its edge
    * neighbours and the new face points of its fan.
    *
-   * Both arrays and every returned mask belong to the caller. Finite aligned
-   * positions and admitted connectivity are premises; this step neither mutates
-   * nor retains the parent.
+   * Each returned array and mask belongs to the caller. The computation borrows
+   * parent positions and topology during the step.
    */
   export type IResult = {
     /**

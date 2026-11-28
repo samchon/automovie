@@ -14,15 +14,18 @@ const ENTRY: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> = {
 };
 
 /**
- * The `wireFlight` law's path (`wireFlight.path`): from the entry through its
- * waypoints to its end, each point's running length, the heading along the
- * level travel, or the entry's for a straight rise.
+ * Check cumulative wire-flight path length and heading.
  *
  * Scenarios:
  *
- * 1. Up 3 m to (0, 3, 0) and on 4 m to (4, 3, 0) runs 3 then 7 m, heading 90.
- * 2. A straight rise keeps the entry's 30 degree heading.
- * 3. A flight of no time, or ending where it starts, is refused.
+ * 1. Rise 3 m and then move 4 m along +X. Report the waypoint at 3 m, the end
+ *    at 7 m and heading 90 degrees.
+ * 2. A vertical path keeps the entry's heading of 30 degrees. Refuse zero
+ *    duration and a zero-length route.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the waypoints, retained vertical heading and admitted route dimensions.
+ * @evidence contracts/development/testing.md#behavioral-verification The path covers waypoint accumulation, the vertical-heading fallback and two inadmissible inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The authored segments are axis-aligned, giving their lengths and direction directly.
  */
 export function test_motions_reaction_wire_flight(): void {
   const path: wireFlight.IPath = wireFlight.path(

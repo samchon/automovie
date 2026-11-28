@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanFreckles } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanFreckles. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Freckle mark input for a typia validator or schema. The density is an
+ * expected count per square centimetre on the rest surface. Diameter is a
+ * maximum in millimetres, and contrast is a pigment coverage fraction.
+ */
 export type IAutoMovieHumanFrecklesSchema = IAutoMovieHumanFreckles & {
   /** Expected marks per square centimetre of rest surface where freckling is strongest (face, shoulders, upper chest and back), 0 to 40; less exposed skin takes a fraction of it. */
   density: number & tags.Minimum<0> & tags.Maximum<40>;

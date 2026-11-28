@@ -56,6 +56,10 @@ type Radial = readonly [number, number, number, number, number, number];
  *    0.37; mutating a returned reading does not change the next; a stale copy
  *    (overwritten quarter extents) and a broken source are refused, the latter
  *    naming its failure; empty and malformed stations are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names scalar jet propagation, ellipse and polynomial checks, active G2 ends, copy behavior and input refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares and reads radial fields at sampled stations and phases, observes all six jet components and exercises altered copies and malformed inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Differentiating the implicit ellipse and station polynomials gives independent jets. Homothety scales the radius and angular jets by h, and uses h′ or h″ for the corresponding station derivatives.
  */
 export function test_engine_geometry_conic_field(): void {
   const failures: string[] = [];

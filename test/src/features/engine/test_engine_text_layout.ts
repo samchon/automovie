@@ -32,9 +32,7 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public layout and asserts glyph positions, line widths, baselines and refusals; it catches a dropped kerning pair, a baseline at the box top, a wrap at the wrong place and a substituted glyph.
  * @evidence contracts/development/testing.md#independent-expectations Every expected length is computed by hand from the font's written metrics and #4098's layout rules, as the scenarios show.
- * @evidence contracts/development/testing.md#distinguishing-cases The 0.12 and 0.13 m boxes straddle the word width, the 0.2 and 0.19 m boxes straddle the two-line height, and each alignment and line break is a separate case. Glyph geometry is owned by test_engine_glyph_geometry.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test over a font written and decoded in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the text, box and expected result.
+ * @evidence contracts/development/common.md#meaningful-documentation Kerning and alignment place glyphs at hand-derived offsets. An overwide word, a missing glyph, a wrapped space and an explicit line break exercise the layout decisions.
  */
 export function test_engine_text_layout(): void {
   const font: IAutoMovieFont = AutoMovieIngestFont.decode(

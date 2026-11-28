@@ -28,9 +28,8 @@ export namespace IAutoMovieSolveSubdivisionLimit {
      */
     stencil: IAutoMovieSubdivisionStencil;
     /**
-     * Read-only packed XYZ target coordinates, at least 3*stencil.count
-     * entries, in one consistent spatial unit. Surface rigs use metres; the
-     * algebra itself performs no unit conversion.
+     * Borrowed finite packed XYZ targets, at least 3 * stencil.count entries in
+     * one spatial unit. Measured residuals use that same unit.
      */
     targets: ArrayLike<number>;
     /**
@@ -40,15 +39,15 @@ export namespace IAutoMovieSolveSubdivisionLimit {
      */
     free: Uint8Array;
     /**
-     * Writable packed control output, initialized from targets. Must have room
-     * for 3*stencil.count scalars and be distinct from scratch and borrowed
-     * target storage.
+     * Writable packed control output. The solver first copies targets into this
+     * buffer. Provide at least 3 * stencil.count slots distinct from scratch
+     * and target storage.
      */
     positions: IPropsPositions;
     /**
-     * Separate writable ping-pong buffer with the same capacity as positions.
-     * Initialized and overwritten by the solve; its final contents are
-     * unspecified.
+     * Separate writable buffer with at least 3 * stencil.count slots. It
+     * alternates with positions during Jacobi updates and has unspecified
+     * contents on return.
      */
     scratch: IPropsScratch;
   };
@@ -61,9 +60,9 @@ export namespace IAutoMovieSolveSubdivisionLimit {
      */
     [index: number]: number;
     /**
-     * Available scalar capacity, at least three times the stencil vertex
-     * count. The solver assumes valid indexed writes and does not allocate
-     * replacement storage.
+     * Available scalar capacity, at least three times the stencil vertex count.
+     * The solver assumes valid indexed writes and does not allocate replacement
+     * storage.
      */
     length: number;
   };
@@ -71,14 +70,13 @@ export namespace IAutoMovieSolveSubdivisionLimit {
   /** The positions object of {@link IProps}. */
   export type IPropsPositions = {
     /**
-     * Mutable scalar slots in packed XYZ order; writes are synchronous and
-     * the solver retains no buffer after return.
+     * Mutable scalar slots in packed XYZ order; writes are synchronous and the
+     * solver retains no buffer after return.
      */
     [index: number]: number;
     /**
-     * Available scalar capacity, at least three times the stencil vertex
-     * count; this is a caller precondition rather than a runtime length
-     * guard.
+     * Available scalar capacity, at least three times the stencil vertex count;
+     * this is a caller precondition rather than a runtime length guard.
      */
     length: number;
   };

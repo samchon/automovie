@@ -29,6 +29,10 @@ const STRAIGHT: number = 1e-5;
  * 3. The ankle 0.4 m below the hip folds the knee by 60 degrees (an equilateral
  *    triangle), which brings the thigh 60 forward: it trails -60.
  * 4. `prepareBehind` reads 0 past the straight leg and pi / 3 at 0.4 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Thigh trailing reads in the pelvis's sagittal frame and subtracts the knee's bend.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls trailing and bend preparation on straight, rotated, shortened and overextended reaches.
+ * @evidence contracts/development/testing.md#independent-expectations A 30-degree rear direction stays the same when the whole frame turns. Equal 0.4 m sides give a 60-degree bend and the overextended input is read straight.
  */
 export function test_motions_actions_walk_leg_trailing(): void {
   const legs: walkLeg.ILegs = { measure: { thigh: 0.4, shank: 0.4 } };

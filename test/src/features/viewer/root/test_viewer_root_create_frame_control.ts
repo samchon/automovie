@@ -18,6 +18,10 @@ import { nclose } from "../../internal/predicates";
  *    resuming.
  * 4. Invalid transfers refuse before native camera, source or mount-clock
  *    mutation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Coordinates source-time capture, restore and paused redraw with nested freeze leases and invalid-transfer admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public controller with observed source, native camera and mount-clock ports through restore, freeze, explicit redraw, release, disposal and refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit source seconds, camera snapshots and acquisition/release counts distinguish a successful restore from retained state. Mount-clock rebasing excludes the held wall-time interval.
  */
 export function test_viewer_root_create_frame_control(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(

@@ -4,6 +4,9 @@ import type {
   IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
+import type { measureRecoveryChartFace } from "../../geometry/internal/measureRecoveryChartFace";
+import { prepareRecoveryChartIncidence } from "../../geometry/internal/prepareRecoveryChartIncidence";
+
 /*
  * Create the feature-cut topology observer with its original failure and
  * edge-key policy.
@@ -22,69 +25,37 @@ export function RecoveryFeatureChartCutsTopology(
     vertices: readonly Readonly<AutoMovieVector3Tuple>[],
     triangles: readonly (readonly [number, number, number])[],
   ): IAutoMovieRecoveryObservedMeshTopology => {
-    const edges: Map<string, IAutoMovieRecoveryDirectedEdgeIncidence[]> =
-        new Map(),
-      incident: number[][] = Array.from(vertices, (): number[] => []),
+    const incident: number[][] = Array.from(vertices, (): number[] => []),
       vertexEdges: string[][] = Array.from(vertices, (): string[] => []);
-    const links: Map<number, Set<number>>[] = Array.from(
-        vertices,
-        (): Map<number, Set<number>> => new Map(),
-      ),
-      adjacent: number[][] = Array.from(triangles, (): number[] => []),
-      words: Set<string> = new Set();
+    const adjacent: number[][] = Array.from(triangles, (): number[] => []);
     const areas: number[] = [],
       normals: Readonly<AutoMovieVector3Tuple>[] = [];
-    triangles.forEach(
-      (t: readonly [number, number, number], face: number): void => {
-        if (
-          t.length !== 3 ||
-          new Set(t).size !== 3 ||
-          t.some((id: number): boolean => id < 0 || id >= vertices.length)
-        )
-          fail("triangle addresses are invalid");
-        const word: string = [...t]
-          .sort((a: number, b: number): number => a - b)
-          .join(":");
-        if (words.has(word)) fail("duplicate triangles are unsupported");
-        words.add(word);
-        const a: Readonly<AutoMovieVector3Tuple> = vertices[t[0]]!,
-          b: Readonly<AutoMovieVector3Tuple> = vertices[t[1]]!,
-          c: Readonly<AutoMovieVector3Tuple> = vertices[t[2]]!;
-        const u: number[] = b.map((x: number, k: number): number => x - a[k]!),
-          v: number[] = c.map((x: number, k: number): number => x - a[k]!);
-        const n: Readonly<AutoMovieVector3Tuple> = [
-            u[1]! * v[2]! - u[2]! * v[1]!,
-            u[2]! * v[0]! - u[0]! * v[2]!,
-            u[0]! * v[1]! - u[1]! * v[0]!,
-          ],
-          length: number = Math.hypot(...n),
-          area: number = length / 2;
-        if (!(area > 0)) fail("a triangle area or normal is unrepresentable");
-        areas.push(area);
-        normals.push(
-          [n[0] / length, n[1] / length, n[2] / length],
-        );
-        for (let k: number = 0; k < 3; k++) {
-          const from: number = t[k]!,
-            to: number = t[(k + 1) % 3]!,
-            other: number = t[(k + 2) % 3]!,
-            key: string = edge(from, to),
-            rows: IAutoMovieRecoveryDirectedEdgeIncidence[] =
-              edges.get(key) ?? [];
-          incident[from]!.push(face);
-          rows.push({ a: from, b: to, face });
-          edges.set(key, rows);
-          for (const [x, y] of [
-            [to, other],
-            [other, to],
-          ]) {
-            const set: Set<number> = links[from]!.get(x!) ?? new Set();
-            set.add(y!);
-            links[from]!.set(x!, set);
-          }
-        }
-      },
-    );
+    const { edges, links }: ReturnType<typeof prepareRecoveryChartIncidence> =
+      prepareRecoveryChartIncidence({
+        vertices,
+        triangles,
+        edgeKey: edge,
+        fail,
+        invalidArea: "a triangle area or normal is unrepresentable",
+        duplicate: "duplicate triangles are unsupported",
+        onFace: (
+          face: number,
+          triangle: readonly [number, number, number],
+          {
+            normal,
+            length,
+            areaMm2,
+          }: ReturnType<typeof measureRecoveryChartFace>,
+        ): void => {
+          areas.push(areaMm2);
+          normals.push([
+            normal[0] / length,
+            normal[1] / length,
+            normal[2] / length,
+          ]);
+          for (const vertex of triangle) incident[vertex]!.push(face);
+        },
+      });
     if (incident.some((rows: number[]): boolean => !rows.length))
       fail("unused vertices do not belong to a chart");
     const next: Map<number, number> = new Map(),

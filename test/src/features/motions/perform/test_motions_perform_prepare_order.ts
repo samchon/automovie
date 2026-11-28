@@ -1,7 +1,7 @@
-import {
-  prepareHumanPerformanceOrder
-} from "../../../../../packages/motions/src/perform/internal/prepareHumanPerformanceOrder";
 import { TestValidator } from "@nestia/e2e";
+
+import { prepareHumanPerformanceOrder } from "../../../../../packages/motions/src/perform/internal/prepareHumanPerformanceOrder";
+import { throwsError } from "../../internal/throwsError";
 
 /** A person of the order: a name, the ready hook and the actions. */
 interface IPerson extends prepareHumanPerformanceOrder.IPerson {
@@ -33,7 +33,15 @@ interface IAction extends prepareHumanPerformanceOrder.IAction {
  * 1. The order: Ann's first, then Bob's two entered by 2 s, Bob's first reading
  *    Ann back without solving her first again, then Ann's second and Bob's
  *    third; every action exactly once.
- * 2. No person keeps a ready hook after the preparation.
+ * 2. No person keeps a ready hook after success or failure.
+ * 3. Repeated ready queries inspect each pending timestamp at most once.
+ * 4. An entered action can be read before its moving phase starts. A later nested
+ *    read then prepares that same action. The full walk prepares an action even
+ *    when no observation reaches its moving phase.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Includes nested ready calls, out-of-order entries, repeated timestamps and throwing solves.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the private preparation owner on synthetic action lists and observes solve order and timestamp reads.
+ * @evidence contracts/development/testing.md#independent-expectations Derives the order from placement order and eligibility at 2 s and bounds timestamp reads by the fixed action count.
  */
 export function test_motions_perform_prepare_order(): void {
   const action = (name: string, entryTime: number): IAction => ({
@@ -46,7 +54,7 @@ export function test_motions_perform_prepare_order(): void {
   };
   const bob: IPerson = {
     name: "bob",
-    actions: [action("b1", 0), action("b2", 1.5), action("b3", 3)],
+    actions: [action("b1", 0), action("b3", 3), action("b2", 1.5)],
   };
   const solved: string[] = [];
   prepareHumanPerformanceOrder(
@@ -72,5 +80,69 @@ export function test_motions_perform_prepare_order(): void {
   TestValidator.predicate(
     "the ready hooks are removed",
     ann.ready === undefined && bob.ready === undefined,
+  );
+
+  TestValidator.predicate(
+    "a failed solve releases both hooks",
+    throwsError((): void =>
+      prepareHumanPerformanceOrder(
+        [ann, bob],
+        (person) => person.actions,
+        (): void => {
+          throw new Error("failed solve");
+        },
+      ),
+    ) &&
+      ann.ready === undefined &&
+      bob.ready === undefined,
+  );
+
+  let reads: number = 0;
+  let visits: number = 0;
+  const partner: IPerson = {
+    name: "partner",
+    actions: Array.from(
+      { length: 80 },
+      (_, index): IAction => ({
+        name: `action-${index}`,
+        get entryTime(): number {
+          ++reads;
+          return index / 10;
+        },
+      }),
+    ),
+  };
+  prepareHumanPerformanceOrder(
+    [ann, partner],
+    (person) => person.actions,
+    (person, entry): void => {
+      ++visits;
+      if (person === ann && entry.name === "a1")
+        for (let index: number = 0; index < 50; ++index) partner.ready!(2);
+    },
+  );
+  TestValidator.equals("one solve per action", visits, 82);
+  TestValidator.predicate(
+    "one timestamp measurement per partner action",
+    reads <= 80,
+  );
+
+  const demanded: string[] = [];
+  prepareHumanPerformanceOrder(
+    [ann, bob],
+    (person) => person.actions,
+    (_person, read): void => {
+      demanded.push(read.name);
+      if (read.name === "a1") bob.ready!(2);
+      if (read.name === "b2") bob.ready!(2.25);
+      if (read.name === "b1") ann.ready!(0);
+    },
+    (read, seconds): boolean =>
+      read.name === "b1" ? seconds > 2 : read.name !== "b3",
+  );
+  TestValidator.equals(
+    "an earlier waiting read leaves the later phase and final walk ready",
+    demanded,
+    ["a1", "b2", "b1", "a2", "b3"],
   );
 }

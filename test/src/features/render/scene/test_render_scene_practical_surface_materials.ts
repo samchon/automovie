@@ -15,6 +15,10 @@ import { throwsError } from "../../internal/predicates";
  * 2. An unavailable material on a later part leaves every earlier candidate
  *    unchanged. Two ids resolving to one native target also refuse.
  * 3. The shot end is outside the authored interval and refuses before lookup.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the authored half-second key and define resolve failures and the excluded shot end.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that a valid change affects only its selected part, while failed resolution and duplicate targets leave every material untouched, and that the shot end is refused before lookup.
+ * @evidence contracts/development/testing.md#independent-expectations Compares original and replacement material object identities selected in the fixture and supplies the exact end time as a boundary control.
  */
 export function test_render_scene_practical_surface_materials(): void {
   const initial: Material = new MeshBasicMaterial();

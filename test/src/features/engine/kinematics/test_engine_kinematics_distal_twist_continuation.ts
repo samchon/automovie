@@ -26,6 +26,10 @@ import { nclose } from "../../internal/nclose";
  * 3. The paired demand is Rz(a - t) Ry(b) and the projected wrist is identity.
  *    The two quaternion products and angle reads allow 64 binary64 rounding
  *    units in radians.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers keeping a prior twist inside the residual band, its nearest feasible correction and the paired wrist rotation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls withProjection with a fixed wrist projector and nearby analytic demands. It reads the selected twist and reconstructs the paired orientation.
+ * @evidence contracts/development/testing.md#independent-expectations The scalar residual is twice acos of cos((a-t)/2) times cos(b/2). Independent derivative bounds convert bracket width and roundoff into angle tolerances, so an interior keep differs from an edge correction.
  */
 export function test_engine_kinematics_distal_twist_continuation(): void {
   const degrees: number = 180 / Math.PI;

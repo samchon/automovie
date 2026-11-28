@@ -20,12 +20,11 @@ import { throwsError } from "../internal/predicates";
  * 3. An overlapping chunk, a version 6 receipt and a stereo file are refused,
  *    naming `phonemeChunks[1]`, `version` and `sourceSampleRate`.
  * 4. A receipt with one-phoneme chunks and an aligner record is admitted.
+ * 5. The same valid receipt refuses a zero, fractional or non-finite output rate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists each admitted and refused receipt and the field each refusal names.
  * @evidence contracts/development/testing.md#behavioral-verification Runs ingest's `AutoMovieIngestAudio.admitReceipt` on fixture bytes; a check that let any changed field through, or named the wrong field, fails.
- * @evidence contracts/development/testing.md#independent-expectations The fixture digests its bytes and request with Node's SHA-256, so the product's digest is compared against an independent implementation; the decoded length follows the receipt's documented rate rule.
- * @evidence contracts/development/testing.md#distinguishing-cases Each refusal changes one field of an otherwise admitted receipt, and the aligner case admits the adjacent positive form; WAVE container refusals belong to the decoder's tests.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_ingest_sound_receipt_admission`; it starts no process.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture uses Node's SHA-256 to digest the bytes and request. The decoded length follows the ratio of two sample rates, and changing only the output rate to zero, a fraction or NaN must refuse before interpolation.
  */
 export function test_ingest_sound_receipt_admission(): void {
   const samples: Float32Array = Float32Array.from(
@@ -152,6 +151,13 @@ export function test_ingest_sound_receipt_admission(): void {
       },
       "[sourceSampleRate]",
     ],
+    ...[0, 0.5, NaN].map(
+      (sampleRate: number): [string, () => unknown, string] => [
+        `output rate ${sampleRate}`,
+        () => admit(undefined, { sampleRate }),
+        "[sampleRate]",
+      ],
+    ),
   ];
   TestValidator.equals(
     "each changed field is refused by name",

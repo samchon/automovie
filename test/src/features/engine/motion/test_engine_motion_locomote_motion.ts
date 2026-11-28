@@ -26,6 +26,10 @@ const DIRECTION: IAutoMovieVector3 = { x: 3, y: 0, z: 4 };
  * 2. Without facing the travel the root keeps its rest rotation.
  * 3. A distance, speed or gait duration that is not positive, or a zero direction,
  *    is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names whole-cycle clip duration, final displacement and heading, unchanged rotation when facing is omitted, and invalid travel inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `locomoteMotion` with a typed one-second looping gait and three distances. It checks the resulting clip duration, gait period, and final root transform, then exercises invalid distance, speed, gait duration, and direction.
+ * @evidence contracts/development/testing.md#independent-expectations Normalizing (3, 0, 4) yields (0.6, 0, 0.8), which determines both expected position and forward bearing. Distances 0.2, 0.5, and 3.49 m use the expected duration choices 0.4, 1, and 3 s and periods capped at one second.
  */
 export function test_engine_motion_locomote_motion(): void {
   const gait: IAutoMovieMotion = { ...createValidMotion(), loop: true };

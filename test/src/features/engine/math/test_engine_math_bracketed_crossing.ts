@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    end at or above, no wider than 1e-9.
  * 2. With the ends' values given as known, the function is never read at 0 or 1,
  *    and the result is the same bracket.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the side and width of a crossing bracket and the effect of supplying endpoint values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls bracketedCrossing with a linear function and typed predicate, then repeats it with explicit endpoint values and records sampled arguments.
+ * @evidence contracts/development/testing.md#independent-expectations The sign of x minus 0.3 determines each side independently. The returned bracket must enclose 0.3 within 1e-9. Supplying the exact end values should preserve that bracket and eliminate endpoint calls.
  */
 export function test_engine_math_bracketed_crossing(): void {
   const f = (x: number): number => x - 0.3;

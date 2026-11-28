@@ -33,18 +33,27 @@ export interface IAutoMovieMotionHumanButton {
    */
   contact: string;
 
-  /** Signed change in slider travel, metres. */
+  /**
+   * Finite nonzero change in slider travel in metres. Either sign is valid.
+   * Invalid input is refused on `travel`.
+   */
   travel: number;
 
-  /** Radius of the button's enclosing sphere, metres. */
+  /**
+   * Finite positive radius of the button's enclosing sphere in metres. Invalid
+   * input is refused on `radius`.
+   */
   radius: number;
 
-  /** Full panel thickness across the aperture plane, metres. */
+  /**
+   * Finite positive panel thickness across the aperture plane in metres.
+   * Invalid input is refused on `thickness`.
+   */
   thickness: number;
 
   /**
-   * Duration of the push, seconds, at unit tempo. Required: no natural value is
-   * defined, so the author sets it (provisional: no timing study was read).
+   * Finite positive push duration in seconds at unit tempo. Supply a duration
+   * for the action. Invalid input is refused on `duration`.
    */
   duration: number;
 

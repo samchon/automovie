@@ -19,6 +19,10 @@ import { screenplayNode } from "../../internal/screenplayNode";
  *    validation separately owns its rejection.
  * 3. `tree: []` renders an empty document body with one newline.
  * 4. Zero beats throw: there is no screenplay to render.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Renders flat scripts and raw unknown beat references, and distinguishes an empty tree from an absent screenplay.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the renderer with treeless, ghost-reference, explicitly empty and zero-beat fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Literal headers, beat fragments and one terminal newline distinguish the fallbacks. The zero-beat fixture must refuse the document.
  */
 export function test_render_screenplay_render_screenplay_fallback(): void {
   const flat: IAutoMovieScript = { ...TREE_SCRIPT, tree: null };

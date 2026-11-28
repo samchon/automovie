@@ -14,6 +14,10 @@ const DIRECTION_TOLERANCE: number = 1e-12;
  *    (0, 2, 3); pitch 90 looks at (1, 3, 3).
  * 2. The lens and clip range are carried.
  * 3. A near plane of 0 and a far plane not beyond the near are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases state the origin, convention for forward, quarter-turn yaw and pitch, lens settings and invalid clip limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that yaw and pitch point the viewer camera in the expected axes, retaining lens and clipping values while refusing invalid planes.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the literal targets `(1, 2, 2)`, `(0, 2, 3)` and `(1, 3, 3)` from the same origin.
  */
 export function test_render_scene_viewer_pose_from_heading(): void {
   const lens: { fovDeg: number; aspect: number } = { fovDeg: 40, aspect: 2 };

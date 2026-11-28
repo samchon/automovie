@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *    colour space and orientation passes, with square or implicit pixels.
  * 2. A different width, an interlaced picture and a non-square explicit pixel
  *    aspect are each refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Checks a decoded PNG against its delivery profile and admits implicit square pixels.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls PNG admission with a matching profile, implicit pixel aspect, and three independently invalid picture facts.
+ * @evidence contracts/development/testing.md#independent-expectations Known width, interlace and pixel-aspect expectations allow each defect to be isolated without encoding a picture.
  */
 export function test_render_delivery_assert_production_png_picture(): void {
   const profile = AutoMovieRenderDelivery.resolvePngProfile({

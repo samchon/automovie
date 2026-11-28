@@ -8,10 +8,12 @@ import { listCameraSubjectMeshes as listCameraSubjectMeshesImplementation } from
 import { measureCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./inspection/internal/measureCameraFrameEdgeSurface";
 
 import { measureCameraNearClip } from "./inspection/internal/measureCameraNearClip";
+import { measureCameraOcclusionPixels } from "./inspection/internal/measureCameraOcclusionPixels";
 import { resolveInspectionView as resolveViewImplementation } from "./inspection/internal/resolveInspectionView";
 import { measureCameraFrameEdge } from "./inspection/internal/measureCameraFrameEdge";
 import { observeCameraInspection } from "./inspection/internal/observeCameraInspection";
 import { observePlacedCamera } from "./inspection/internal/observePlacedCamera";
+import { projectedRasterKey } from "./inspection/internal/projectedRasterKey";
 
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
@@ -163,6 +165,30 @@ export namespace AutoMovieRenderInspectionCamera {
     /** Independent diagnostic rows emitted by placed camera observation. */
     export type IObservePlacedResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
 
+  /** Exact pixel counts from a settled placement, or a specific admission refusal. */
+  export type PlacedPixelMeasurement = IMeasuredPlacedPixels | IUnavailablePlacedPixels;
+
+  /** Isolated and visible pixel counts in one native sharp observation. */
+  export interface IMeasuredPlacedPixels {
+    /** The native mask finished counting. */
+    readonly status: "measured";
+
+    /** Whole delivery pixels occupied by the target alone and behind occluders. */
+    readonly pixels: IAutoMovieCameraInspection.IPixels;
+
+    /** Number of masks drawn. A box outside the raster needs none. */
+    readonly passes: 0 | 1 | 2;
+  }
+
+  /** Why native masks could not establish pixel coverage. */
+  export interface IUnavailablePlacedPixels {
+    /** The current sample could supply no exact count. */
+    readonly status: "unsupported";
+
+    /** The renderer, semantic, geometry or depth condition that prevented measurement. */
+    readonly reason: string;
+  }
+
   /**
    * Measure how far a required subject's drawn surface reaches in front of the
    * delivery near plane inside the delivered frame.
@@ -215,6 +241,39 @@ export namespace AutoMovieRenderInspectionCamera {
     props: IObservePlacedProps,
   ): IObservePlacedResult {
     return observePlacedCamera(props);
+  }
+
+  /**
+   * Count a source-resolved object's isolated and visible delivery pixels at
+   * this exact settled sample. Capture or delivery must supply its native
+   * renderer and a unique semantic root. Supported opaque surfaces preserve
+   * native binary-mask depth, with an explicit refusal when overlapping
+   * depth ranges cannot prove image order.
+   *
+   * This sharp placed-sample observation assigns no legibility grade. To
+   * assess a chosen maximum occlusion ratio, use the authored requirement in
+   * {@link observePlaced}.
+   *
+   * @param sample Original placed scene, projection, raster and host mode.
+   * @param target The semantic root of the required drawable.
+   * @returns Measured native pixels or the reason the host could not establish them.
+   */
+  export function measurePlacedPixels(
+    sample: IAutoMovieRenderDrawScene.IPlacedSample,
+    target: Object3D | undefined,
+  ): PlacedPixelMeasurement {
+    if (sample.mode === "viewer" || sample.auditRaster === undefined)
+      return { status: "unsupported", reason: "Native placed pixels require a capture or delivery renderer audit." };
+    if (target === undefined)
+      return { status: "unsupported", reason: "The source supplied no placed target root." };
+    return measureCameraOcclusionPixels({
+      ...sample.auditRaster,
+      scene: sample.scene,
+      camera: sample.camera,
+      target,
+      width: sample.width,
+      height: sample.height,
+    });
   }
   /**
    * Measure where the sides of the delivered frame cut a required subject.
@@ -397,6 +456,8 @@ export namespace AutoMovieRenderInspectionCamera {
    * It throws for a size that is not positive, an unknown name with the accepted
    * names listed, a subject view asked to be orthographic, followed or focused,
    * and a fitted view without bounds, which means nothing is drawn to frame.
+   * The record includes exact projection identity when its active matrices are
+   * finite and invertible and its raster dimensions are positive whole pixels.
    *
    * ```ts
    * const { camera, record } = AutoMovieRenderInspectionCamera.resolveView({
@@ -415,6 +476,18 @@ export namespace AutoMovieRenderInspectionCamera {
     props: IResolveViewProps,
   ): IResolveViewResult {
     return resolveViewImplementation(props);
+  }
+
+  /**
+   * Calculate an equality key for a recorded raster and camera projection.
+   * The key includes the pixel dimensions, both applied matrices and the layer
+   * mask. Use it to compare exact camera state across stored and current views.
+   *
+   * @param evidence A camera record's `projectionIdentity`, or unparsed data.
+   * @returns The canonical key, or null when the identity fields are missing or malformed.
+   */
+  export function projectionKey(evidence: unknown): string | null {
+    return projectedRasterKey(evidence);
   }
 
 }

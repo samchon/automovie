@@ -10,6 +10,11 @@ export namespace AutoMovieEngineSequence {
    * where declared, and cubic Hermite scales tangents by segment duration and
    * normalizes interpolated rotations. Before/after-key endpoints copy authored
    * values verbatim.
+   *
+   * Negative seconds clamp to zero or wrap for a looping clip. A zero duration
+   * reads at zero. Finite linear endpoints remain sampleable when their
+   * difference overflows. Nonfinite seconds, malformed durations or tracks,
+   * and duplicate channel keys throw.
    */
   export function sampleClip(clip: IAutoMovieClip, seconds: number): Map<string, IAutoMovieSampledChannel> {
     return sampleClipImplementation(clip, seconds);

@@ -12,15 +12,20 @@ import type {
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 
-/*
- * Score the direct, airborne portion of a water polo shot. The same resolved
- * flight that displays the ball supplies its radius, centre, and the first
- * contact or takeover that can end a scoring opportunity. The fixed mouth's +Z
- * faces the field and its +Y begins at the waterline.
- * Parameter params: The `film` displaying both the ball and the fixed goal, the
- * `ball`'s subject id through catch, carry and shot, and the fixed placed
- * `goal` with the physical "mouth" aperture.
- * Returns: Each credited goal, in film order.
+/**
+ * Read the direct goals of one placed water polo ball.
+ *
+ * The fixed goal's `mouth` aperture uses metres and a level frame with
+ * `+Z` toward the field. Its origin is on the sill at the waterline. A
+ * drag-free spherical flight must approach from the field and pass with
+ * its entire sphere inside the mouth. Its centre crosses the goal line
+ * for scoring at local `z = -radius`, before the flight ends, is captured,
+ * or is superseded by another launch.
+ *
+ * @param params Film, ball subject ID, and its fixed scoring goal.
+ * @returns Credited goals in flight order.
+ * @throws {AutoMovieMotionHumanRefusal} If the goal is movable or the
+ *   mouth has no positive dimensions or level frame.
  */
 export function scoreWaterPoloGoal(
   params: scoreWaterPoloGoal.IGoal,

@@ -195,6 +195,10 @@ const landing = (
  *    the sill halfway, at x = 1.
  * 2. A landing foot still inside, or feet so wide that with a 0.25 m clearance
  *    they need more than the 0.8 m opening, are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines ankle trajectories across a door plane, interior-to-exterior movement and jamb clearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks two straight inward-to-outward foot paths, then keeps one landing inside and widens the pair beyond its permitted opening.
+ * @evidence contracts/development/testing.md#independent-expectations The plane x = 1 intersects the stated path halfway between 0.6 and 1.4. A width 0.8 m with 0.25 m clearance cannot admit the wider fixture.
  */
 export async function test_motions_lexicon_travel_car_exit(): Promise<void> {
   const input = (

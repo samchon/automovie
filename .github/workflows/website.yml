@@ -35,6 +35,10 @@ concurrency:
 jobs:
   website:
     runs-on: ubuntu-latest
+    timeout-minutes: 70
+    defaults:
+      run:
+        shell: pwsh
     permissions:
       contents: write
     steps:
@@ -58,18 +62,37 @@ jobs:
       - name: Type check
         run: pnpm --filter @automovie/website typecheck
 
-      # The build bakes every scene's and motion's take ahead of the visitor.
-      # A take depends only on its composition and the packages' sources, and
-      # the bake keeps each one under a hash of both, so the cache restored
-      # from an earlier run is reused for every take that did not change.
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: website/.bake-cache
-          key: website-bake-${{ hashFiles('packages/*/src/**', 'website/src/**', 'pnpm-lock.yaml') }}
-          restore-keys: website-bake-
+      - name: Prepare website export
+        run: pnpm --filter @automovie/website build:preflight
 
-      - name: Build website
-        run: pnpm --filter @automovie/website build
+      - name: Restore verified gallery results
+        id: gallery-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: website/.bake-cache/results
+          key: website-bake-v2-${{ hashFiles('packages/*/src/**', 'website/src/**', 'pnpm-lock.yaml') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            website-bake-v2-${{ hashFiles('packages/*/src/**', 'website/src/**', 'pnpm-lock.yaml') }}-
+            website-bake-v2-
+
+      # The queue stops inside this backstop so the save step still runs after
+      # a failed take. The cache contains only parent-promoted results.
+      - name: Bake gallery
+        id: bake
+        timeout-minutes: 40
+        run: pnpm --filter @automovie/website bake --jobs 3
+
+      - name: Save retained gallery results
+        if: ${{ !cancelled() && (steps.bake.outcome == 'success' || steps.bake.outcome == 'failure') }}
+        continue-on-error: true
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: website/.bake-cache/results
+          key: ${{ steps.gallery-cache.outputs.cache-primary-key }}
+
+      - name: Export website
+        timeout-minutes: 15
+        run: pnpm --filter @automovie/website build:export
 
       # The built pages are opened in a headless browser, because only the
       # browser bundle shows a package source the bundler compiled wrongly,
@@ -85,10 +108,11 @@ jobs:
       # when the build or the smoke test fails.
       - name: Scene checks
         if: ${{ !cancelled() }}
+        timeout-minutes: 10
         run: pnpm --filter @automovie/website scenes
 
       - name: Deploy
-        if: github.event_name != 'pull_request'
+        if: ${{ success() && github.event_name != 'pull_request' }}
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           branch: gh-pages

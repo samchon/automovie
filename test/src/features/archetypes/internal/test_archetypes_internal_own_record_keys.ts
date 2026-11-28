@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Integer names come first in ascending order. Other names remain in insertion
  *    order. Inherited, non-enumerable and symbol properties are excluded.
  * 2. A record with no own enumerable keys has an empty list.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes integer ordering, insertion order, visibility and empty records.
+ * @evidence contracts/development/testing.md#behavioral-verification Enumerates a real authored object containing numeric and text keys, a prototype, a hidden property and a symbol. Checks the full visible ordered result and the empty control.
+ * @evidence contracts/development/testing.md#independent-expectations Integer keys ascend before later text keys in insertion order. Only own enumerable string properties belong to the result.
  */
 export function test_archetypes_internal_own_record_keys(): void {
   const hidden: unique symbol = Symbol("internal record data");

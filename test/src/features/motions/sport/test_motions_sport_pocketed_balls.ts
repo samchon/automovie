@@ -58,6 +58,10 @@ const at = (position: IAutoMovieVector3): IAutoMoviePhysicalSegmentState => ({
  * 1. `a` first lies more than 3 cm below the bed at 0.7 s, credited at 1.7 s to
  *    the corner; `b` is not credited, nor `c`.
  * 2. No pocket, or a ball missing from the cache, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines scoring at the first baked frame below the bed and inside an authored pocket mouth.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a synthetic 10 Hz cache with one sinking ball near the pocket, another off-table and one stationary, plus missing-data cases.
+ * @evidence contracts/development/testing.md#independent-expectations Using 0.1 m/s from 35 mm above, the first tested depth beyond 30 mm occurs at 0.7 s, so release at 1 s scores at 1.7; distant and stationary cases do not score.
  */
 export function test_motions_sport_pocketed_balls(): void {
   const corner: IAutoMovieMotionHumanPrecisionDeck.IPocket = {

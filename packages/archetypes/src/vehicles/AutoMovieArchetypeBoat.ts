@@ -22,28 +22,22 @@ import { rowBoat } from "./internal/rowBoat";
 /** The canonical producer and authoring contract for boats. */
 export namespace AutoMovieArchetypeBoat {
   /**
-   * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy
-   * pulling boat for a landing party.
+   * Build the selected open boat and its named contacts.
    *
-   * The boat floats with its root on still water under the middle of its length,
-   * its bow toward `+Z`: its bottom `draft` below the water and its gunwale
-   * `depth` above the bottom. People sit on its `thwart<k>` seats, a rowboat's
-   * and a launch's facing aft as rowers do, a canoe's facing forward as paddlers
-   * do, and a rowboat's `sternSeat` facing forward; they stand on its `floor`,
-   * take its `gunwale` boarding, and step over its `bow` and `stern`. A rowboat's
-   * two oars each turn in an oarlock about the upright (`leftOarlock`,
-   * `rightOarlock`), lift about the oarlock's pin riding that (`leftOar`,
-   * `rightOar`), and are held by their `leftHandle` and `rightHandle`; `AutoMovieArchetypeBoat.row`
-   * rows it along a course. A racing shell's sliding seat is out of scope: on a
-   * fixed thwart the trunk and arms make the stroke.
+   * The origin is on the reference waterline at midships, with the bow toward
+   * local `+Z`. Canoe thwarts face forward. Rowing thwarts face aft, and the
+   * rowboat's `sternSeat` faces forward. The `floor`, `gunwale`, `bow`, and
+   * `stern` mark surfaces and edges for standing and boarding. A rowboat has
+   * two built-in oars with lock, lift, and hand sites. Use {@link row} to
+   * pose those oars along a course.
    *
-   * @param params The kind, its read hull and a canoe's layup, and any dimension
-   *   the author fixes.
-   * @param seed The seed that draws every dimension left free inside its band;
-   *   absent, each takes the middle of its band.
-   * @returns The boat.
-   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
-   *   one the kind lacks.
+   * @param params Saved boat kind, scene ID, and the applicable catalogue
+   *   choices and fixed dimensions. A `launch` uses its dedicated hull.
+   * @param seed Chooses omitted catalogue values and draws dimensions.
+   *   Omit it to use the first available entries and band midpoints.
+   * @returns The hull and the contacts supplied by its kind.
+   * @throws {AutoMovieArchetypeRefusal} For an unknown kind, an inadmissible
+   *   catalogue choice used by the kind, or a fixed value the kind cannot use.
    */
   export function create(
     params: AutoMovieArchetypeBoat.IParams,
@@ -116,7 +110,9 @@ export namespace AutoMovieArchetypeBoat {
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 
-  /** The kinds of boat. */
+  /**
+   * Saved branch for a fixed-seat rowboat, tandem canoe, or Navy pulling boat.
+   */
   export type Kind = "rowboat" | "canoe" | "launch";
 
   /** Every kind, for a caller that reads one at run time. */
@@ -396,13 +392,13 @@ export namespace AutoMovieArchetypeBoat {
    * dimension the kind has fixed to a value inside its band.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which read hull of the kind; drawn from the seed when absent. */
+    /** Catalogue hull for `rowboat` or `canoe`. The launch uses its own hull. */
     model?: Model;
 
-    /** Which of the canoe's layups; drawn from the seed when absent. */
+    /** Layup among the selected canoe hull's options. */
     layup?: Layup;
 
-    /** Which boat. */
+    /** Saved kind used to select the factory and applicable dimensions. */
     kind: Kind;
 
     /** The model's id, unique in a scene; `boat` when absent. */
@@ -463,8 +459,8 @@ export namespace AutoMovieArchetypeBoat {
     AutoMovieArchetypeBoat.Dimension
   > {
     /**
-     * The full samplers of a native course in course seconds, or undefined for
-     * a ride along an external plan, which `bind` refuses.
+     * Course-time samplers for a generated course with model projection.
+     * Omit the binding step when this field is undefined.
      */
     readonly rowing: IRowing | undefined;
   }
@@ -500,17 +496,18 @@ export namespace AutoMovieArchetypeBoat {
    * returned callbacks directly to the prop adapter.
    *
    * @param ride The result of rowing a native course with this producer.
-   * @param start Film second corresponding to course second zero.
+   * @param start Finite film second corresponding to course second zero.
    * @returns The independently callable root and socket readers in film
    *   seconds.
-   * @throws {RangeError} For an unbound, external course or a nonfinite start.
+   * @throws {RangeError} If the ride has no native rowing samplers or the
+   *   start is nonfinite.
    */
   export function bind(
     ride: IRowRide,
     start: number,
   ): AutoMovieEngineRigidCarrierSample.IBinding {
     const source: IRowing | undefined = ride.rowing;
-    if (source === undefined)
+    if (source === undefined || !Number.isFinite(start))
       throw new RangeError(
         "A bound rowboat needs a native course and a finite film second.",
       );

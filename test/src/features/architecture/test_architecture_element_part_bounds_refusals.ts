@@ -20,9 +20,7 @@ import { namedFacts, vclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls builtEnvironmentElementPartBounds for crate, the actual modelless yard-root and the undeclared nowhere id. One returned part box with the selected min/max and the two null results expose omitted placement, invented group geometry or a lookup that fails for every input; no validation success or rendered box is asserted.
  * @evidence contracts/development/testing.md#independent-expectations The authored unit cube at (2,0,3) reaches (1.5,-0.5,2.5)..(2.5,0.5,3.5) under the original vclose tolerance, and its single drawn part determines count one. Explicit model-null and absent-id records determine the two null controls independently of the product's returned boxes.
- * @evidence contracts/development/testing.md#distinguishing-cases One drawn part, a real modelless grouping element and an unknown id preserve both absence paths; external-reference origin fallback and animated bones are outside this case.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test_architecture_element_part_bounds_refusals imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An element the record does not hold answers `null`.).
+ * @evidence contracts/development/common.md#meaningful-documentation A missing element and a model-free group each return null. The placed box gives positive part bounds at its authored location.
  */
 export function test_architecture_element_part_bounds_refusals(): void {
   const record: IAutoMovieBuiltEnvironment = pair();

@@ -16,15 +16,17 @@ import { AutoMovieArchetypePoolEdgeData } from "./internal/AutoMovieArchetypePoo
 
 /** Constructs the pool edge archetype from its recipe. */
 export namespace AutoMovieArchetypePoolEdge {
-/** The kinds: the bare end wall, and the end wall with a starting platform. */
+  /**
+   * Select the deck edge alone or include the starting platform.
+   */
   export type Kind = "deckEdge" | "startingPlatform";
 
   /**
-   * The affordance ids:
+   * Pool-edge contact identifiers, in the model's local frame.
    *
-   * - `deck`, `deckFace`, `wall`, `edge`, `water`, `restLedge`: every kind's, as
-   *   {@link createPoolEdge} describes them.
-   * - `platform`, `front`, `backstrokeGrip`: a starting platform's.
+   * Both kinds expose `deck`, `deckFace`, `wall`, `edge`, `water`, and
+   * `restLedge`. `startingPlatform` also exposes `platform`, `front`, and
+   * `backstrokeGrip`. See {@link create} for their frames and uses.
    */
   export type Affordance =
     | "deck"
@@ -76,39 +78,29 @@ export namespace AutoMovieArchetypePoolEdge {
   }
 
   /**
- * One lane's width of a competition pool's end wall: the deck, the wall down
- * into the water with its rest ledge, and on the `startingPlatform` kind the
- * starting platform on the deck.
- *
- * The deck's surface is the origin's height and the wall's face the origin's
- * `Z`; the water lies toward `+Z`, its surface the drawn freeboard below the
- * deck, and the wall reaches down to the pool's floor. A swimmer in the water
- * faces the wall along `-Z`; one on the platform faces the water along `+Z`.
- *
- * - `deck` marks the deck edge, `deckFace` its bounded top and `wall` its bounded
- *   water-facing surface; `edge` the deck's edge over the water, a ledge along
- *   `+X` with `+Z` out over the water, which a swimmer grips and hauls out by;
- *   `water` the water's surface at the wall's face, the plane a swimming act
- *   swims on, as wide as the segment; `restLedge` the rest ledge's outer edge,
- *   a ledge a swimmer stands or rests on.
- * - A starting platform's `platform` is its top, a surface sloping down toward
- *   the water; `front` the top's front edge, a ledge the toes curl over;
- *   `backstrokeGrip` the horizontal backstroke grip under the top's front, a
- *   bar across the platform on the wall's line, at the drawn height FR 2.7
- *   allows below the slab, behind the wall's face so it does not protrude. Its
- *   mounting is not drawn.
- *
- * Getting into or out of the water by a ladder is `createLadder` placed at the
- * wall; no motion law yet climbs out of water (the multi-contact rows of
- * #3436), so the edge serves a production's staging until one does.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The pool edge.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
- *   or one only the other kind has.
- */
+   * Build a pool end-wall segment and its deck and water contacts.
+   *
+   * The deck lip is at the origin, `+X` spans the lane, and `+Z` points into
+   * the pool. The deck extends behind the lip along `-Z`. The `water` surface
+   * is `freeboard` metres below the lip and the floor is `poolDepth` below that.
+   *
+   * `deck` marks the lip. `edge` is the transverse ledge, with its normal up.
+   * `deckFace` and `wall` are bounded surfaces on the same wall part. The
+   * deck face points up and carries palm and foot contact during `edgeExit`.
+   * The wall face points into the pool. `restLedge` marks the submerged ledge's
+   * outer edge.
+   *
+   * A `startingPlatform` adds the sloping `platform` face, its `front` ledge,
+   * and the horizontal `backstrokeGrip` bar. A separate ladder can be placed
+   * at the wall.
+   *
+   * @param params Segment kind, optional scene ID and fixed dimensions.
+   * @param seed Draws omitted dimensions within their bands. Omit it to use
+   *   each band's midpoint.
+   * @returns The fixed end wall, its deck, and the named contact frames.
+   * @throws {AutoMovieArchetypeRefusal} For an unknown kind, a dimension
+   *   belonging only to the other kind, or a fixed value outside its band.
+   */
 export function create(
   params: AutoMovieArchetypePoolEdge.IParams,
   seed?: number,
@@ -304,12 +296,13 @@ export function create(
   };
 
   /**
-   * The construction sizes: `deck`, the deck's run behind the edge, and
-   * `ledge`, the rest ledge's thickness, each an estimate no act reads and no
-   * band declares; `slab`, the platform's top thickness, the 0.04 m FR 2.7
-   * names for a top a swimmer grips; `recess`, how far the pedestal stands back
-   * from the wall's line, an estimate; `grip`, the backstroke grip bar's
-   * diameter, an estimate the bar is not declared with.
+   * Construction sizes in metres.
+   *
+   * `deck` extends behind the lip and sets the depth of `deckFace`. `ledge`
+   * is the rest ledge thickness. `slab` is the 0.04 m starting platform top
+   * thickness from FR 2.7. `recess` measures how far the pedestal stands
+   * behind the wall, and `grip` is the bar's drawn diameter. The other sizes
+   * are staging estimates.
    */
   export const ESTIMATES: Readonly<{
     deck: number;

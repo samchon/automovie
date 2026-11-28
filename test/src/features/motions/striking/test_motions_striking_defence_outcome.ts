@@ -71,6 +71,10 @@ const INPUT: IAutoMovieMotionHumanDefenceOutcome.IInput = {
  *    inside the skill's bands.
  * 4. Forced in time with an attack that may not stretch and lands at once, it is
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes timing outcome classification and plausible-band enforcement for an authored exchange.
+ * @evidence contracts/development/testing.md#behavioral-verification Classifies three margins, resolves unforced and forced variants against skill bands, and tries impossible timing.
+ * @evidence contracts/development/testing.md#independent-expectations With 0.2 s movement, boundaries at margin 0 and -0.1 separate the three states. Forced starts and reaction times must lie inside declared bands.
  */
 export function test_motions_striking_defence_outcome(): void {
   TestValidator.equals(

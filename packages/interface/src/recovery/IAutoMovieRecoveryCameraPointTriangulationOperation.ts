@@ -1,24 +1,18 @@
 import type { IAutoMovieRecoveryCameraChartCreationOperation } from "..";
 
 /**
- * Triangulate one observation pair in the first-camera, unit-baseline gauge.
- * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An
- * unresolved third design direction, point at infinity or nonfinite divided
- * coordinate returns null; a finite point behind a camera remains explicitly
- * nonpositive. Invalid or overflowing matrix actions and SVD nonconvergence
- * throw. This algebraic point is fitting evidence, not an independently
- * observed surface.
+ * Callable triangulation of one calibrated observation pair in first-camera
+ * axes and the supplied translation scale.
  */
 
 export namespace IAutoMovieRecoveryCameraPointTriangulationOperation {
   /**
-   * Triangulate one observation pair in the first-camera, unit-baseline gauge.
-   * Original 4-by-4 DLT uses calibrated rays and P1=[I|0], P2=[R|t]. An
-   * unresolved third design direction, point at infinity or nonfinite divided
-   * coordinate returns null; a finite point behind a camera remains explicitly
-   * nonpositive. Invalid or overflowing matrix actions and SVD nonconvergence
-   * throw. This algebraic point is fitting evidence, not an independently
-   * observed surface.
+   * Transform measured pixels through the inverse charts, then solve the
+   * original four-row homogeneous design for cameras `[I | 0]` and `[R | t]`.
+   * Unresolved ray angle or rank, a point at infinity, or unavailable depths or
+   * residuals can return null. A finite point behind a camera carries signed
+   * depths. Nonrepresentable matrix actions and failed singular decomposition
+   * can raise an error.
    */
 
   export type Operation = (
@@ -28,14 +22,14 @@ export namespace IAutoMovieRecoveryCameraPointTriangulationOperation {
     second: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>,
     pose: {
       /**
-       * Row-major 3 by 3 camera rotation in the operation's declared
-       * source-to-camera convention.
+       * Nine row-major coefficients rotating the first camera coordinates into
+       * the second.
        */
       rotation: readonly number[];
 
       /**
-       * Camera translation in the operation's admitted reconstruction scale;
-       * two-view direction alone has no metric length.
+       * Additive second-camera translation whose length sets the reconstruction
+       * scale.
        */
       translation: readonly [number, number, number];
     },
@@ -43,41 +37,35 @@ export namespace IAutoMovieRecoveryCameraPointTriangulationOperation {
     maxSweeps: number,
   ) => {
     /**
-     * Physical point in the source frame; camera triangulation uses the
-     * admitted translation scale.
+     * Dehomogenized [X, Y, Z] in first-camera axes and the supplied translation
+     * scale.
      */
     point: [number, number, number];
 
-    /**
-     * Signed point depth in the first camera's translation-scale coordinate
-     * frame.
-     */
+    /** Signed first-camera Z in the supplied translation scale. */
     firstDepth: number;
 
-    /**
-     * Signed point depth in the second camera's translation-scale coordinate
-     * frame.
-     */
+    /** Signed second-camera Z in the supplied translation scale. */
     secondDepth: number;
 
-    /** True only when the triangulated point lies in front of both cameras. */
+    /** True when both signed camera depths are positive. */
     positiveDepth: boolean;
 
     /**
-     * Angle between the two viewing rays for this triangulated point, in
-     * radians.
+     * Measured angle between the calibrated rays in the first camera
+     * coordinates, in radians.
      */
     parallaxRadians: number;
 
     /**
-     * Pixel discrepancy between the first observation and its point
-     * reprojection.
+     * Euclidean pixel residual of the returned point in the original first
+     * image.
      */
     firstReprojectionPx: number;
 
     /**
-     * Pixel discrepancy between the second observation and its point
-     * reprojection.
+     * Euclidean pixel residual of the returned point in the original second
+     * image.
      */
     secondReprojectionPx: number;
   } | null;

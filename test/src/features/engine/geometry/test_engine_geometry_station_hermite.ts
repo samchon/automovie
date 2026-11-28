@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    at u = 0 select f'_a, and the cubic rule puts 0 on both curvatures.
  * 2. The quintic rule reproduces q, q' and q'' at u = 0.3 (s = 1.6) within 1e-12.
  * 3. The cubic rule reproduces c, c' and c'' there, its curvatures ignored.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names value, slope and curvature weights, physical span scaling and cubic versus quintic support.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes and applies both sets of weights on [1,3], checking exact endpoint selection and analytic interior values and derivatives.
+ * @evidence contracts/development/testing.md#independent-expectations The written cubic and quintic give closed derivatives at s = 1.6. A cubic basis depends only on endpoint positions and slopes, so its curvature weights are zero.
  */
 export function test_engine_geometry_station_hermite(): void {
   const end = (

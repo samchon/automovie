@@ -1,18 +1,17 @@
-/**
- * A point of a surface network by patch and patch coordinates, the same on
- * every tier.
- *
- * `s` and `t` are the patch's own coordinates, so they name the same place on
- * the surface whatever the tier's row and column counts; this is the chart a
- * texture, a decal or a garment is bound to.
- */
+/** Tier-independent chart address within one surface network patch. */
 export interface IAutoMovieSurfaceCoordinate {
-  /** Index of the patch in the network's patch list. */
+  /** Zero-based ordinal in the network's ordered patch table. */
   patch: number;
 
-  /** Patch coordinate across, 0 to 1. */
+  /**
+   * Normalized across-patch coordinate in [0, 1], aligned with grid columns
+   * when present.
+   */
   s: number;
 
-  /** Patch coordinate up, 0 to 1. */
+  /**
+   * Normalized along-patch coordinate in [0, 1], aligned with grid rows when
+   * present.
+   */
   t: number;
 }

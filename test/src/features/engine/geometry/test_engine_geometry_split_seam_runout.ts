@@ -30,6 +30,10 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  * 2. The seam passes within 0.01 mm of (R, 0, -34) mm on 4001 shares (their
  *    spacing is 0.015 mm), and over its first 3 mm of length runs less than 1
  *    mm along the chord while it stands more than 2.5 mm out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names length-based correspondence, the non-star-shaped start and measured runout.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the length-matched fixture and samples the seam densely around the authored out-of-fork knot.
+ * @evidence contracts/development/testing.md#independent-expectations The first knot is 4 mm along the host from A and zero along the chord. The initial path therefore advances outward much more than it advances across the chord.
  */
 export function test_engine_geometry_split_seam_runout(): void {
   const knots: IAutoMovieConstructionSplit.IProfileKnot[] = [

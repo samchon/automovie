@@ -5,6 +5,7 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureCompleteRecord,
   IAutoMovieCaptureSubject,
+  IAutoMovieCaptureVideoSource,
   IAutoMovieRunVideoCaptureProps,
 } from "@automovie/interface";
 
@@ -51,6 +52,8 @@ export async function runVideoCapture(
 ): Promise<IAutoMovieCaptureCompleteRecord> {
   // 1. What a file cannot give is refused before the folder is touched.
   const { request } = props;
+  if (request.cue !== undefined)
+    throw new Error("A video file has no played source cues. Capture its frames by number or time.");
   if (
     request.views.join(";") !== "film" ||
     request.passes.length !== 1 ||
@@ -102,6 +105,7 @@ export async function runVideoCapture(
       file: props.file,
       report: `${folder.directory}/${REPORT}`,
       threshold: request.threshold,
+      ...(props.streamIndex === undefined ? {} : { streamIndex: props.streamIndex }),
     }),
   );
   const cuts: { seconds: number; score: number }[] =
@@ -127,19 +131,28 @@ export async function runVideoCapture(
     ),
   );
   await folder.claim([...extracted.values()]);
-  await props.run(
-    planVideoFrames({
-      file: props.file,
-      frames: [...extracted.keys()],
-      directory: folder.directory,
-    }),
-  );
+  const selectedFrames: number[] = [...extracted.keys()];
+  const extraction: string[] = planVideoFrames({
+    file: props.file,
+    frames: selectedFrames,
+    directory: folder.directory,
+    ...(props.streamIndex === undefined ? {} : { streamIndex: props.streamIndex }),
+    presentation: props.extract !== undefined,
+  });
+  let presentation: IAutoMovieCaptureVideoSource.Presentation | undefined;
+  if (props.extract === undefined) await props.run(extraction);
+  else presentation = await props.extract(extraction, selectedFrames);
   return runCapture({
     plan: planned,
     folder,
     revision: props.revision,
     match: "time",
-    video: { file: props.file, threshold: request.threshold, cuts },
+    video: {
+      file: props.file,
+      threshold: request.threshold,
+      cuts,
+      ...(presentation === undefined ? {} : { presentation }),
+    },
     draw: async (
       cell: IAutoMovieCaptureCell,
     ): Promise<IAutoMovieCaptureDrawing> => {

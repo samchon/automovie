@@ -24,6 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. The cube [-1, 1]^3 against its centre: 0; against (0, 0, 3): 2.
  * 6. A zero or wrong projection direction proves nothing (0); target 0 stays a
  *    lower bound.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the lower-bound contract, feature configurations, target work and degenerate projection controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries the convex and one-direction bounds on translated, rounded, near, contacting and degenerate fixtures, reading the gap and work count.
+ * @evidence contracts/development/testing.md#independent-expectations Parallel triangles offset by 1 along z have a unit gap. A 3-4 point displacement gives 5, and a point at z = 3 is 2 beyond the cube. A wrong projection proves no gap.
  */
 export function test_engine_geometry_convex_separation(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });

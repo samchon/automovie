@@ -18,6 +18,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 2. Two unit spheres at x = -2 and x = 2, bearing pi / 2: target (0, 0, 0),
  *    radius 3, distance 6, camera (6, 0, 0).
  * 3. An unknown subject, a fill of 0 and no subjects are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes one and two enclosing spheres and the unknown subject, zero fill and empty subject refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls CompositionPose.resolveFraming with resident subject spheres and authored bearing, fill and field of view, then checks the returned target, radius and camera coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations The symmetric spheres centred at x = -2 and x = 2 with radius 1 extend to x = -3 and +3. At half fill and a right-angle field, camera distances are twice the measured radii along the declared bearings.
  */
 export function test_engine_composition_resolve_framing(): void {
   const goal = (

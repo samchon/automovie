@@ -20,14 +20,18 @@ import { nclose } from "../../internal/nclose";
  *    rest.
  * 2. A steady 60 N push accelerates it at `(60 − 0.3 · 10 g) / 10`, its distance
  *    `a t² / 2` after 2 s.
- * 3. The same push for 1 s and then none: it decelerates at `0.3 g` to a stop at
- *    `1 + v₁ / (0.3 g)` and stays there, `a / 2 + v₁² / (0.6 g)` along.
+ * 3. After the unannounced force cutoff, the measured intermediate state
+ *    decelerates at `0.3 g` and stops after another `v² / (0.6 g)` metres.
  * 4. Let go at a declared 1 s, the push's slide is exact at the cut: `a` m/s and
  *    `a / 2` m there, stopping `a² / (0.6 g)` further on.
  * 5. A door of 2 kg m² under 1 N m turns `t² / 4` radians; with the torque
  *    switched off at a declared 1 s it turns on at half a radian a second.
  * 6. A 70 kg body with its centre at 1 m pushing 100 N at its hands' 1.2 m leans
  *    `asin(120 / (70 g))`; a push its weight cannot balance gives none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names static and kinetic slide, an authored force cutoff, continued rotation after torque ends, and feasible or infeasible counter-lean.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the slide and hinge trajectory owners with explicit masses, coefficients, time functions, and cut times. It reads integrated positions and speeds and directly tests the push-balance lean.
+ * @evidence contracts/development/testing.md#independent-expectations For a 60 N push, acceleration is (60 - 0.3·10g)/10. At an authored one-second cut its speed is a and its distance a/2. Then the stopping distance is a²/(0.6g). A 1 N·m torque on 2 kg·m² produces t²/4 radians. Balance requires sin(lean) = 120/(70g).
  */
 export function test_motions_perform_prop_dynamics(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

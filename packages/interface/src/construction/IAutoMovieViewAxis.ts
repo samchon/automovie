@@ -6,20 +6,27 @@ import type { IAutoMovieViewAxisJet } from "./IAutoMovieViewAxisJet";
 
 /** Data and callback contracts shared by the ViewAxis operations. */
 export namespace IAutoMovieViewAxis {
-  /** A source section plane with optional analytic station derivatives. */
+  /**
+   * Read a section plane along a part's station axis. Values use a
+   * world-millimetre origin and orthonormal dimensionless chart axes. Analytic
+   * owners can also expose the two frame derivatives in station or in a
+   * selected root or angle coordinate.
+   */
   export interface IAxis {
     /**
-     * The section plane at a station.
+     * Read the section plane at physical station in millimetres. The frame
+     * contains a world-millimetre origin and unit u and v axes.
      *
-     * @param station Station along the part, mm.
-     * @returns Origin on the axis and orthonormal chart axes, world mm.
+     * @param station Physical station in millimetres.
+     * @returns World-millimetre origin and dimensionless chart axes.
      */
     at(station: number): IAutoMovieLoftSectionFrame;
 
     /**
-     * Analytic value and two derivatives in station or the explicitly selected
-     * coordinate, whose endpoints use kernel mm; null at a singular/nonfinite
-     * query, absent on numerical frame-value owners.
+     * Read the frame and its first two derivatives at the given millimetre
+     * station. Omit parameter for station derivatives. A kernel-millimetre root
+     * or angle map selects a different derivative coordinate; the owner can
+     * return null when the requested derivatives are unavailable.
      */
     jet?(
       station: number,
@@ -27,52 +34,60 @@ export namespace IAutoMovieViewAxis {
     ): IAutoMovieViewAxisJet.IJet | null;
 
     /**
-     * The original declaration of an axis prepared from one, carried by the
-     * axis itself; absent on every other axis.
+     * Original authored metre declaration of a parallel axis, when supplied by
+     * the parallel-axis factory.
      */
     readonly parallel?: IAutoMovieConstructionParallelAxis;
   }
 
-  /** One source point of a curved axis in world mm. */
+  /**
+   * Authored kernel point of a curved axis, with a strictly increasing station
+   * and its world position in millimetres.
+   */
   export interface IAxisKnot {
-    /** Station, mm, strictly increasing over the knots. */
+    /** Physical station in millimetres, increasing over the axis knots. */
     station: number;
 
-    /** The axis point there, world mm. */
+    /** World [x, y, z] axis position in millimetres at this knot. */
     point: AutoMovieVector3Tuple;
   }
 
-  /** One mm-valued source offset at a mm station. */
+  /**
+   * Source knot of a level-axis horizontal offset. Station is world height in
+   * millimetres, and the value is the corresponding horizontal coordinate in
+   * millimetres.
+   */
   export interface IAxisKnot1 {
-    /** Station, mm, strictly increasing over the knots. */
+    /** World height in millimetres, increasing across this offset's knots. */
     station: number;
 
-    /** The value there, mm. */
+    /** World X or Z in millimetres as specified by the containing offset curve. */
     value: number;
   }
 
   /**
-   * One segment's straight run on a jointed axis: where along the segment the
-   * course runs on its line, and the stations there. Outside the run the course
-   * is in a turn and cuts the corner inside the segment's line.
+   * Straight portion of one jointed centreline segment. All distances are in
+   * millimetres. Convert segment offset x within [from, to] to course station
+   * as start + x − from. Neighbouring turns use the remaining segment
+   * distance.
    */
   export interface IRun {
     /**
-     * Distance from the segment's first centre where the run starts, mm: the
-     * previous turn's set-back, 0 on the first segment.
+     * Distance along the source segment to the straight run's first point. The
+     * previous turn supplies the setback; the first run starts at zero.
      */
     from: number;
 
     /**
-     * Distance from the segment's first centre where the run ends, mm: the
-     * segment's length less the next turn's set-back.
+     * Distance along the source segment to the straight run's last point, after
+     * reserving the next turn's setback.
      */
     to: number;
 
-    /** The station at `from`, mm. */
+    /** Course station in millimetres at segment offset from. */
     start: number;
 
-    /** The station at `to`, mm. */
+    /** Course station in millimetres at segment offset to. */
     end: number;
   }
 }

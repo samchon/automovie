@@ -20,6 +20,10 @@ import {
  *    rules.
  * 3. Ordered input values, numeric fields and original geometry/mesh identities
  *    remain unchanged; returned geometries/materials are retired.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names mixed material spans, all-colored and bare outputs, preserved inputs and disposal.
+ * @evidence contracts/development/testing.md#behavioral-verification Flattens typed generated-model variants through the formation geometry owner. Reads the native groups, attributes and material flags and verifies source object identity and resources.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied colors define the colored vertex rows, and white is the identity for bare neighbors in the shared color channel. All-bare input needs no color buffer. The declared part sizes determine material groups, while the original model and its resources stay as supplied.
  */
 export function test_render_scene_flatten_instanced_model_vertex_colour_instancing(): void {
   const colored: import("@automovie/interface").IAutoMovieMesh =

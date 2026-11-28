@@ -116,9 +116,7 @@ const basisX: (m: number[]) => [number, number, number] = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves frames with a prefixed profile rotation-copy driver and profile/direct aim drivers, observing copied X-basis columns, the no-profile rest neighbor and direct aim precedence.
  * @evidence contracts/development/testing.md#independent-expectations A quarter-turn about Y maps X to negative Z, rest leaves X unchanged and literal positive/negative X targets determine aim direction; the later direct aim must win over the profile aim, independently of resolver output.
- * @evidence contracts/development/testing.md#distinguishing-cases Prefixed copy versus no profile and profile-only versus contested direct aim distinguish remapping and world-driver order; scalar driven curves and malformed bindings belong to other tests.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_frame_profile_drivers entry synchronously executes the real binding/frame pipeline on portable data, with no live scene installation or substituted product methods.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A profile copy driver, bound with `nodePrefix: "actor/"` onto prefixed nodes,).
+ * @evidence contracts/development/common.md#meaningful-documentation A bound copy reaches prefixed scene nodes, while omitting the profile leaves rest orientation. A profile aim checks world-pass precedence.
  */
 export function test_resolve_frame_profile_drivers(): void {
   const nodes: IAutoMovieNode[] = [

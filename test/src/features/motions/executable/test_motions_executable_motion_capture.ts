@@ -40,6 +40,10 @@ const at = (x: number, y: number, z: number): IAutoMovieVector3 => ({
  * 3. A red trail, a green target and drift of 2 mm and 9 mm against a 5 mm limit
  *    give a polyline, a point and two drift marks, the 9 mm one flagged; a
  *    trail and a target sharing red are one kind, `trail and target d04040`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines capture frame grid, coalescing of nearly equal instants, ghost styling and marks for trails, targets and drift.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds capture with unordered requested times and nearly coincident labeled instants, then produces shape marks with distinct colors and drift levels.
+ * @evidence contracts/development/testing.md#independent-expectations The 32 Hz grid includes 0 through 3/32 and duration 4/32. A 9 mm drift fails a 5 mm limit, and the 2 mm case stays unflagged.
  */
 export async function test_motions_executable_motion_capture(): Promise<void> {
   // 1. The props.

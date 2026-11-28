@@ -18,11 +18,14 @@ import { nclose } from "../../internal/nclose";
  * 3. For 3*qdot=1, binary64 qdot is 1/3. Its true stored-value residual is -2^-54,
  *    inverse defect 2^-54 and both backward errors 2^-55. These nonzero
  *    expectations detect fabricated zero diagnostics.
- * 4. Rank deficiency, malformed dimensions, nonfinite data and invalid row scales
- *    refuse; scaling loss and arithmetic overflow remain distinguishable from
- *    unsupported input and singular pivots.
+ * 4. Distinguish unsupported input, singular pivots, and finite input whose row
+ *    scaling, solution or diagnostic arithmetic cannot be represented.
  * 5. Inputs stay unchanged and editing returned arrays cannot affect a later solve
  *    of the same physical equality.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers physical row scaling, compensated residual reports, finite admission, unrepresentable arithmetic and result ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls solveResolvedRate on explicit square equalities, unit conversions, malformed and nonfinite data, and values that overflow or underflow during computation. It edits one result and re-runs the original equality.
+ * @evidence contracts/development/testing.md#independent-expectations The upper triangular inverse gives condition 93/20 and the mixed rows give (3, -2) at either scale. The stored binary64 third has residual -2^-54. Hand-picked extreme ratios separate invalid input, lost finite arithmetic and singular pivots.
  */
 export function test_engine_kinematics_solve_resolved_rate(): void {
   const matrix: number[][] = [
@@ -158,6 +161,33 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
       `invalid physical scale ${invalid}`,
       AutoMovieEngineKinematics.solveResolvedRate([[1]], [1], [invalid]).status,
       "unsupported",
+    );
+  for (const [label, rows, rate, scale] of [
+    ["nonfinite coefficient", [[NaN]], [1], [1]],
+    ["nonfinite goal", [[1]], [Infinity], [1]],
+    ["nonfinite scale", [[1]], [1], [Infinity]],
+    ["missing row", new Array<readonly number[]>(1), [1], [1]],
+    ["missing coefficient", [new Array<number>(1)], [1], [1]],
+    ["missing goal", [[1]], new Array<number>(1), [1]],
+    ["missing scale", [[1]], [1], new Array<number>(1)],
+  ] as const)
+    TestValidator.equals(
+      label,
+      AutoMovieEngineKinematics.solveResolvedRate(rows, rate, scale).status,
+      "unsupported",
+    );
+  for (const [label, rows, rate, scale] of [
+    ["scaled coefficient overflows", [[Number.MAX_VALUE]], [1], [0.5]],
+    ["scaled goal overflows", [[1]], [Number.MAX_VALUE], [0.5]],
+    ["scaled coefficient underflows", [[Number.MIN_VALUE]], [1], [2]],
+    ["scaled goal underflows", [[1]], [Number.MIN_VALUE], [2]],
+    ["velocity overflows", [[1e-308]], [10], [1]],
+    ["residual magnitude overflows", [[Number.MAX_VALUE]], [Number.MAX_VALUE], [1]],
+  ] as const)
+    TestValidator.equals(
+      label,
+      AutoMovieEngineKinematics.solveResolvedRate(rows, rate, scale).status,
+      "unrepresentable",
     );
 
   triangular.velocity[0] = 99;

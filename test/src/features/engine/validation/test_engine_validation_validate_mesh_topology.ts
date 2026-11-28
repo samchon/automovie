@@ -32,6 +32,10 @@ import { hasViolation, violationCount } from "../../internal/predicates";
  *    passes, and under `expectClosed` reports exactly its three open edges.
  * 6. A tessellated unit box (corners emitted per face, more than eight vertices)
  *    is watertight once welded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers welded topology, winding, manifoldness and open-boundary requirements with malformed-buffer controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMeshTopology on handwritten triangle meshes and a tessellated box, including `expectClosed` and an explicit path.
+ * @evidence contracts/development/testing.md#independent-expectations Opposite directed uses of an edge pair correctly, same direction disagrees, and three uses are non-manifold. Removing a tetrahedral face exposes exactly three edges, while duplicate face corners of a box weld to its closed shell.
  */
 export function test_engine_validation_validate_mesh_topology(): void {
   const mesh = (

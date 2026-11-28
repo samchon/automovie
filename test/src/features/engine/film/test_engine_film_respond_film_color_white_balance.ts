@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    other.
  * 3. The 3200 K white has red above green above blue, and the 12000 K white has
  *    blue above red.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the grey-card reflectance, illumination and exposure and compare unbalanced warmth, neutral correction and hot-source hue.
+ * @evidence contracts/development/testing.md#behavioral-verification The test builds the radiance from a Planckian source, passes it through the film response with the same optics under two white-balance settings, and compares the resulting channels and a cooler source.
+ * @evidence contracts/development/testing.md#independent-expectations The reference card uses 18 percent grey under 1000 lux and exposure log2(1000 times 100 divided by 250). At 3200 K the uncorrected red and blue separation exceeds 20 in 255, while balancing to the source places channels within two. At 12000 K blue exceeds red.
  */
 export function test_engine_film_respond_film_color_white_balance(): void {
   const light: [number, number, number] = AutoMovieEngineFilmResponse.autoMoviePlanckianWhite(3200);

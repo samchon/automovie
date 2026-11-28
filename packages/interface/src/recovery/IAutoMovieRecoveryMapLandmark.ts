@@ -1,16 +1,25 @@
 import type { IAutoMovieRecoveryMapObservation } from "..";
 
-/** Sparse conditional fitting evidence, not an authored surface or metric point. */
+/**
+ * A sparse fitting point in the first-camera coordinate system and its retained
+ * image measurements. The length unit is the seed baseline.
+ */
 export interface IAutoMovieRecoveryMapLandmark {
-  /** Deterministic linked-feature component identity within this operation. */
+  /**
+   * Numeric component identity assigned by feature linkage for this observation
+   * set.
+   */
   id: number;
 
-  /** World coordinate in first-camera axes and unit seed-baseline length. */
+  /**
+   * Reconstructed [X, Y, Z] in the first-camera frame, measured in
+   * seed-baseline units.
+   */
   point: [number, number, number];
 
   /**
-   * Distinct-view observations retained by explicit geometry gates; absent
-   * images remain unobserved.
+   * Image measurements retained for this point, one per view in the enclosing
+   * camera population.
    */
   observations: IAutoMovieRecoveryMapObservation[];
 }

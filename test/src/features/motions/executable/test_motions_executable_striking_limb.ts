@@ -31,6 +31,10 @@ const UNIFORM: StrikingLimb.ICapsule = {
  * 3. On the uniform capsule, a point 2 m along the axis lies 0.9 m past its end
  *    cap; on one tapering from 0.1 to 0.2 m, a point 1 m off its middle lies
  *    `sqrt(1 - k²) - r0 - k s` = `sqrt(0.99) - 0.1 - 0.05` m out.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual collider chain identity, aggregate lengths and signed capsule distance for capture readouts.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries human rig limb roots and authored segment dimensions, then measures point distance to constant and tapered virtual capsules.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied link lengths sum to 1.13 m. Capsule-axis and taper geometry give 0.9 m at the end and √0.99 − 0.15 m off the tapered center.
  */
 export function test_motions_executable_striking_limb(): void {
   TestValidator.equals(

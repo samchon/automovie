@@ -11,6 +11,10 @@ import * as path from "node:path";
  *
  * 1. A missing dependency reports which production must install it.
  * 2. An installed dependency throws its compiler failure as the cause.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines distinction between a missing production module and a failure during initialization of an installed module.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates a scoped temporary production, reads an initially absent name and then loads the same name from a module that throws.
+ * @evidence contracts/development/testing.md#independent-expectations The first message identifies the missing module. The second retains the fixture's exact compiler message as its error cause under a load error.
  */
 export async function test_cli_production_module(): Promise<void> {
   const root: string = await fs.mkdtemp(

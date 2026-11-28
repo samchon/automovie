@@ -16,6 +16,7 @@ import type {
 import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
@@ -153,7 +154,7 @@ export function prepareStand(
       );
     };
     let arms: ReturnType<typeof HumanArmSwing.course> | undefined;
-    return {
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [{ name: "settled", share: settle / duration }],
 
@@ -213,6 +214,10 @@ export function prepareStand(
         );
       },
     };
+    // This reader writes arm joints and planted leg goals for its whole span.
+    if (on === undefined && left.kind === "ground" && right.kind === "ground")
+      HumanPreparedPlayback.groundedStand(plan, context.body);
+    return plan;
   };
 }
 

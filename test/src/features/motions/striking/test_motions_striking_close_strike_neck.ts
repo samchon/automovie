@@ -12,6 +12,10 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenario: taking in 0.2 s, releasing at 0.6 s of 1 s, the hands are half in
  * at 0.1 s, fully in from 0.2 to 0.6 s, half out at 0.8 s and off at 1 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the grip weight envelope for a scripted two-hand constraint, including take, hold and release.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the animated constraint before and at both authored transition times and at the clip end.
+ * @evidence contracts/development/testing.md#independent-expectations The symmetric minimum-jerk halves give weight 0.5 at 0.1 and 0.8 s. Weight stays 1 from 0.2 through 0.6 s and is zero at 1 s.
  */
 export function test_motions_striking_close_strike_neck(): void {
   const w = (t: number): number => CloseStrikeNeck.weight(t, 0.2, 0.6, 1);

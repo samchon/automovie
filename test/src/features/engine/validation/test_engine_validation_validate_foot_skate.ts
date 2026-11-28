@@ -36,6 +36,10 @@ import {
  *    `$contactPlan.contacts[0].bone`.
  * 4. Each nonfinite, reversed or empty contact interval reports its own
  *    temporal violation before the shared grid reads it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers planted-foot horizontal speed, advisory overshoot, intent, rate limits and independent invalid contact findings.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateFootSkate with authored root travel on a typed leg fixture and varies the contact window, bone and allowed speed.
+ * @evidence contracts/development/testing.md#independent-expectations Linear travel of 0.2 metres over one second is 0.2 metres per second. It exceeds 0.05 by 0.15 and fits 0.25. The rig and interval literals define the absent bone and malformed-window paths.
  */
 export function test_engine_validation_validate_foot_skate(): void {
   const at = (x: number, y: number, z: number): IAutoMovieTransform => ({

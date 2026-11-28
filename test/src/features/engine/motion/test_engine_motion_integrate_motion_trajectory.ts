@@ -103,10 +103,10 @@ const refusal: (
  * 10. The orientation with body rate (2 cos 3t, 3, 2 sin 3t) keeps that rate on
  *     both sides of each interior knot, read by one-sided stencils of offset
  *     1e-5 s.
- * 11. A matrix state X' = t^5 E01 from the identity, scaled by 1, 1e-3 or 1e3, is I
- *
- *     - T^6 E01 / 6 times the scale under a 1e-10 relative tolerance; error blocks
- *           that do not partition the state are refused.
+ * 11. A matrix state `X' = t^5 E01` from the identity is `I + T^6 E01 / 6`.
+ *     The test checks its off-diagonal entry at scales 1, 1e-3, and 1e3 using
+ *     a relative integration tolerance of 1e-10. Error blocks must partition
+ *     the state.
  * 12. A tolerance of 1e-290 against a rate that differs at every second is refused
  *     after the step maximum, and a fixed step of the least positive double
  *     over one second is refused before any reading.
@@ -116,6 +116,10 @@ const refusal: (
  *     object with its descriptors unchanged, after the two reads.
  * 14. An interval that does not run forward, a non-positive step, a rate of the
  *     wrong length and a zero tolerance are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fixed, adaptive, and dense integrator cases, their analytic signals, state ownership, and failure behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `integrateMotionTrajectory` with typed rate functions, then examines state, orientation, step grids, and dense reads. It tests malformed inputs, bounded work for sub-resolution requests, and identity preservation when a nested integration failure propagates through airborne integration.
+ * @evidence contracts/development/testing.md#independent-expectations The ramp, exponential decay, oscillator, polynomial dense state, and t⁵ matrix entry have analytic results. Halving the fixed step should give an error ratio near 16, while the published DOPRI5 step and dense polynomials predict local orders 6 and 5. Pulse and quaternion stencil checks constrain step placement and continuity separately.
  */
 export function test_engine_motion_integrate_motion_trajectory(): void {
   const ramp: IAutoMovieIntegrateMotionTrajectory.ITrajectory =

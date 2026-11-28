@@ -14,14 +14,14 @@ import { DOOR_BANDS } from "./constants/DOOR_BANDS";
 import { DOOR_SIZES } from "./constants/DOOR_SIZES";
 import { createDoorMeasures as parts } from "./internal/createDoorMeasures";
 
-/**
- * A door in its frame, with its construction and companion types.
- */
+/** Creates framed doors with articulated leaves and named hand contacts. */
 export namespace AutoMovieArchetypeDoor {
 
 /**
- * A door in its frame: a hinged leaf with lever, knob or push-and-pull
- * hardware, or a sliding leaf.
+ * Creates a framed door with a moving leaf and matching hand contacts.
+ *
+ * The default is a right-hinged leaf with a lever. Select `sliding` to
+ * produce a translating leaf with a pull bar on each face.
  *
  * The door stands in the `XY` plane with its threshold's middle at the origin.
  * A hinged leaf opens toward `+Z`, the side it is pulled from, about the
@@ -33,7 +33,8 @@ export namespace AutoMovieArchetypeDoor {
  * the latch.
  *
  * `pull` and `push` are where a hand takes the door from the `+Z` and the `-Z`
- * side; `aperture` is the clear opening a body passes through.
+ * side. The fixed `aperture` describes the clear opening, while the
+ * `push` and `pull` frames follow the moving hardware.
  *
  * @param params The kind, the hinge side, the hardware, the leaf's standard
  *   sizes, a latch's backset, a lever's style and any dimension the author
@@ -338,23 +339,23 @@ export function create(
 }
 
 
-  /** The moved constant {@link createDoorMeasures.BREAKING}. */
+  /** Prototype impact threshold in joules for releasing a hinged leaf. */
   export const BREAKING: typeof parts.BREAKING = parts.BREAKING;
-  /** The moved type {@link createDoorMeasures.Kind}. */
+  /** Chooses rotation about a hinge or translation along the frame. */
   export type Kind = parts.Kind;
-  /** The moved constant {@link createDoorMeasures.KINDS}. */
+  /** Lists the leaf motions accepted by the factory. */
   export const KINDS: typeof parts.KINDS = parts.KINDS;
-  /** The moved type {@link createDoorMeasures.Hardware}. */
+  /** Chooses a lever, knob, or push plate and pull bar for a hinged leaf. */
   export type Hardware = parts.Hardware;
-  /** The moved constant {@link createDoorMeasures.HARDWARE}. */
+  /** Lists the hardware choices accepted for a hinged leaf. */
   export const HARDWARE: typeof parts.HARDWARE = parts.HARDWARE;
-  /** The moved constant {@link createDoorMeasures.PULL_HEIGHT}. */
+  /** Default pull bar centre above the threshold, in metres. */
   export const PULL_HEIGHT: typeof parts.PULL_HEIGHT = parts.PULL_HEIGHT;
-  /** The moved constant {@link createDoorMeasures.PLATE_HEIGHT}. */
+  /** Push plate centre above the threshold, in metres. */
   export const PLATE_HEIGHT: typeof parts.PLATE_HEIGHT = parts.PLATE_HEIGHT;
-  /** The moved constant {@link createDoorMeasures.PLATE}. */
+  /** Model push plate width and height, in metres. */
   export const PLATE: typeof parts.PLATE = parts.PLATE;
-  /** The moved constant {@link createDoorMeasures.PULL}. */
+  /** Estimated pull bar length and clearance from the leaf, in metres. */
   export const PULL: typeof parts.PULL = parts.PULL;
 
   /**
@@ -392,7 +393,7 @@ export function create(
    *   leaf's face.
    * - `latchTurn`: the turn that draws the latch, degrees.
    * - `swing`: the widest opening, degrees.
-   * - `force`: the push or pull that opens the leaf, newtons.
+   * - `force`: the reference opening force recorded with the model, newtons.
    * - `mass`: the leaf with its frame, kilograms.
    */
   export type Dimension =

@@ -1,33 +1,41 @@
-import type {
-  AutoMovieVector2Tuple,
-  IAutoMovieRegisteredConicArc,
-} from "../index";
+import type { AutoMovieVector2Tuple } from "./AutoMovieVector2Tuple";
+import type { IAutoMovieRegisteredConicArc } from "./IAutoMovieRegisteredConicArc";
 
 /**
- * Source-registered polynomial or bitangent conic coefficient record.
- * Polynomial u=(t-a)/(b-a); a conic's u is its own rational parameter.
+ * Read a planar curve from saved polynomial or bitangent conic coefficients.
+ *
+ * Both variants register a source interval `[a, b]`. The polynomial maps a
+ * source parameter `t` to `u = (t - a) / (b - a)`. The conic uses its own
+ * normalized parameter `u`, which can travel along the interval at a different
+ * speed.
  */
 export type IAutoMovieRegisteredPlanarCurvePiece =
-  | {
-      /** Selects polynomial Bernstein evaluation and linear source registration. */
-      kind: "polynomial";
+  | IAutoMovieRegisteredPlanarCurvePiece.IPolynomial
+  | IAutoMovieRegisteredPlanarCurvePiece.IConic;
 
-      /** Actual polynomial degree; there are degree plus one planar controls. */
-      degree: 3 | 4 | 5;
+/** Saved variants selected by `kind`. */
+export namespace IAutoMovieRegisteredPlanarCurvePiece {
+  /** Polynomial Bernstein coefficients with affine source registration. */
+  export interface IPolynomial {
+    /** Selects polynomial evaluation. */
+    kind: "polynomial";
 
-      /** Ordered original source interval, in the callback's parameter unit. */
-      domain: readonly [number, number];
+    /** Number of Bernstein controls minus one. */
+    degree: 3 | 4 | 5;
 
-      /** Bernstein controls in the source's planar millimetre coordinate frame. */
-      controls: readonly Readonly<AutoMovieVector2Tuple>[];
+    /** Ordered source interval in the source callback's parameter unit. */
+    domain: readonly [number, number];
 
-      /**
-       * Largest observed fitting/held-out correspondence discrepancy,
-       * millimetres.
-       */
-      maximumSampleErrorMm: number;
-    }
-  | (IAutoMovieRegisteredConicArc & {
-      /** Selects rational quadratic evaluation with independent local speed. */
-      kind: "conic";
-    });
+    /** `degree + 1` Bernstein controls in source-plane millimetres. */
+    controls: readonly Readonly<AutoMovieVector2Tuple>[];
+
+    /** Largest observed fitting or held-out sample discrepancy in millimetres. */
+    maximumSampleErrorMm: number;
+  }
+
+  /** A positive-weight quadratic conic with its own local parameter speed. */
+  export interface IConic extends IAutoMovieRegisteredConicArc {
+    /** Selects rational conic evaluation. */
+    kind: "conic";
+  }
+}

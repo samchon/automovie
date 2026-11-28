@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  * Scenario: a stroke contacting 1.5 s after its start is ready at 0.96 s,
  * contacts at 1.5 s (`stroke`), follows through to 2.04 s and returns by 2.79
  * s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines normalized animation preparation, contact, follow and return duration shares.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the phrase clock on a virtual stroke with the authored contact 1.5 s after start.
+ * @evidence contracts/development/testing.md#independent-expectations Multiplying that span by the declared shares gives ready at 0.96 s, contact at 1.5 s, end of follow at 2.04 s and full return at 2.79 s.
  */
 export function test_motions_lexicon_precision_sport_stroke(): void {
   const clock: IAutoMovieMotionClock = PrecisionStrokeForms.clock(1.5);

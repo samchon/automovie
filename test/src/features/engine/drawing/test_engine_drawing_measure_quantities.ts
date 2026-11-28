@@ -42,9 +42,13 @@ const total: (
  * 3. The measured opening area is the door's 1.89 m^2 plus the oculus's circle of
  *    pi 0.3^2 = 0.282743 m^2.
  * 4. The space volume is 180 + 30 = 210 m^3.
- * 5. Five fixed gaps are declared as unsupported, and the same environment gives
- *    the same digest.
+ * 5. Material quantity, pattern cut waste and opening deduction are declared
+ *    unsupported. The same environment gives the same digest.
  * 6. A contributor bound below one is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names count, area and volume take-off, the selected unsupported subjects, digest stability and rejection of a zero contributor bound.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the prepared atelier, reads protocol, counts, totals and unsupported gap subjects, then repeats the call and tests the contributor bound.
+ * @evidence contracts/development/testing.md#independent-expectations The authored lists have six elements and three openings. Rectangle and circle areas give 1.89 + pi times 0.09 square metres. The 180 and 30 cubic metre spaces sum to 210, checked within the declared take-off tolerance.
  */
 export function test_engine_drawing_measure_quantities(): void {
   const report: IAutoMovieQuantityReport =

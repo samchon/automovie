@@ -41,52 +41,28 @@ import { HumanPerformanceSoft } from "./internal/HumanPerformanceSoft";
 import { HumanPerformanceState } from "./internal/HumanPerformanceState";
 import { HumanPerformanceTether } from "./internal/HumanPerformanceTether";
 import { HumanPropFlight } from "./internal/HumanPropFlight";
-import { HumanSegment } from "./internal/HumanSegment";
 import { fractureHumanPerformanceProp } from "./internal/fractureHumanPerformanceProp";
 
 /**
- * A performance of people and props: their chained actions placed on the film
- * clock, every cut checked against the actions' interrupt tables, and each
- * person's displayed pose a pure function of film seconds.
+ * Resolves an authored performance and reads its people and props at film
+ * seconds.
  *
- * Construction resolves the composition with the engine's schedule resolver.
- * Each intent's timing comes from its law's plan, made from the state the
- * performer is in when the intent starts: the previous action's displayed pose
- * and velocity at its cut or end, its posture and its planted feet. A cut (an
- * intent's `until`) is legal only inside a window of the cut action's interrupt
- * table for the next action; otherwise construction throws with the legal
- * windows. A `proximity` cut is found by scanning the 24 Hz grid for the first
- * frame within the distance and closing on the crossing by a bracketed root
- * search to `HumanPerformanceSchedule.CUT`, about 4e-8 s, deterministic on a
- * fixed grid whose last sample is the action's end; a distance never met leaves
- * the action uncut. Given rules, the placed schedule is checked with the
- * engine's legality check and a violation refuses the performance. Each
- * performance resolves its own input (`HumanPerformanceState`): the resolution
- * is a pure function of its input. Authored airborne turn counts use staged
- * rigid rotation by default, keeping the law's centre path, heading and
- * articulation. Explicit physical mode solves their angular momentum instead; a
- * supplied momentum always uses physical integration regardless of this
- * authored-turn policy.
+ * Construction places each action from the performer's state at entry. It
+ * admits cuts through the action's interrupt rules and checks any supplied
+ * production rules. A proximity cut uses the first crossing found by the
+ * schedule's sampled search. The action retains its end if that search finds no
+ * crossing.
  *
- * Sampling a person at a second takes the active action's posture, resolves it
- * to a pose, adds the decaying inertialization offset of the transition that
- * entered it, re-solves every planted or gripping limb onto its goal so no
- * contact slides, and clamps to the range of motion ({@link HumanSegment}). A
- * person before their first action stands at their starting place. Additive
- * layers (gaze, breathing) apply over every action without cutting it. Once
- * every action is placed, every stop committed and every flight resolved, the
- * performance solves once every record its reads evaluate, each after what it
- * reads (`prepareHumanPerformance`): the plans' own solutions, the props'
- * spans and flights, each action's leg chain, swivel course, anchors and
- * transition offset, the hits and the soft props. Every read after that is a
- * pure function of its film second, in any order, and keeps nothing.
+ * Authored airborne turns use staged rotation by default. Physical mode solves
+ * for angular momentum. Explicit momentum always uses the physical solver.
  *
- * A window of the performance can be baked through the engine's solver
- * (`simulate`); the baked performance shows the solved bodies inside the window
- * and its own motion outside it.
+ * Each instance prepares its own displayed pose, contacts and prop custody. A
+ * person stands at their starting place before their first action. Pose reads
+ * apply transitions and additive layers and can occur in any order. Use
+ * {@link simulate} to bake an overlapping window of solved body motion.
  */
 export class AutoMovieMotionHumanPerformance {
-  /** The resolved schedule. */
+  /** The resolved schedule. Use {@link instant} to resolve a played action cue. */
   public readonly schedule: IAutoMovieSchedule;
 
   /** Seconds from 0 to the last action's end. */
@@ -113,16 +89,20 @@ export class AutoMovieMotionHumanPerformance {
   private windows: readonly HumanPerformanceSimulation.IReading[] = [];
 
   /**
-   * Resolve a performance.
+   * Resolve the film schedule and prepare its playback.
    *
    * @param input The chain seed, the performers, the props and the composition.
-   * @param observation Optional native airborne-work observer, forwarded to
-   *   the airborne solve as a diagnostic; the authored input and physical
-   *   admission are unchanged.
+   * @param observation Optional native airborne-work observer, forwarded to the
+   *   airborne solve as a diagnostic; the authored input and physical admission
+   *   are unchanged.
+   * @throws {AutoMovieMotionHumanRefusal} When placement, cuts, contacts,
+   *   constraints or a requested physical flight refuse the performance.
    */
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
-    observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
+    observation?: ReturnType<
+      typeof AutoMovieEngineMotionAirborneRotation.observe
+    >,
   ) {
     // Resolved afresh on every construction: a resolution is a pure function
     // of its input, so it owns its plans, schedule and contacts and shares
@@ -165,8 +145,8 @@ export class AutoMovieMotionHumanPerformance {
    * @param mode The physical policy of the window's bodies: `kinematic` shows
    *   this performance's own motion.
    * @returns The performance with the window baked.
-   * @throws {AutoMovieMotionHumanRefusal} When the window is outside the film, names an
-   *   unknown performer, or reaches an obstacle with openings.
+   * @throws {AutoMovieMotionHumanRefusal} When the window is outside the film,
+   *   names an unknown performer, or reaches an obstacle with openings.
    */
   public async simulate(
     window: IAutoMovieMotionHumanSimulationWindow,
@@ -174,7 +154,8 @@ export class AutoMovieMotionHumanPerformance {
   ): Promise<AutoMovieMotionHumanPerformance> {
     const reading: HumanPerformanceSimulation.IReading =
       await HumanPerformanceSimulation.bake(this, this.resolved, window, mode);
-    const baked: AutoMovieMotionHumanPerformance = new AutoMovieMotionHumanPerformance(this.input);
+    const baked: AutoMovieMotionHumanPerformance =
+      new AutoMovieMotionHumanPerformance(this.input);
     baked.windows = [...this.windows, reading];
     return baked;
   }
@@ -285,7 +266,8 @@ export class AutoMovieMotionHumanPerformance {
    * @param point The point's name.
    * @param seconds Film seconds.
    * @returns The point's world frame, metres.
-   * @throws {AutoMovieMotionHumanRefusal} When the prop or its point is unknown.
+   * @throws {AutoMovieMotionHumanRefusal} When the prop or its point is
+   *   unknown.
    */
   public site(
     subject: string,
@@ -405,8 +387,8 @@ export class AutoMovieMotionHumanPerformance {
    * @param subject The soft prop.
    * @param seconds Film seconds.
    * @returns World metres, row-major `[x, y, z, ...]`.
-   * @throws {AutoMovieMotionHumanRefusal} When the prop is not soft or the performance
-   *   outlasts its domain's step budget.
+   * @throws {AutoMovieMotionHumanRefusal} When the prop is not soft or the
+   *   performance outlasts its domain's step budget.
    */
   public soft(subject: string, seconds: number): number[] {
     return HumanPerformanceSoft.at(this.resolved, subject, seconds);
@@ -440,13 +422,19 @@ export class AutoMovieMotionHumanPerformance {
   }
 
   /**
-   * The film second of an instant: a second as given, or a named instant of an
-   * anchored action or of a cue track.
+   * Resolve a film second from an absolute time, a played action event, or a
+   * cue track.
+   *
+   * An action contributes events within its realized span, including an event
+   * at the exact cut. Without an event name, use its played contact or entry
+   * second. A declared cue track keeps its own film seconds. A named occurrence
+   * counts matching played events in declaration order. An offset applies to
+   * the selected second.
    *
    * @param at The instant.
    * @returns The film second.
-   * @throws {AutoMovieMotionHumanRefusal} When nothing is anchored or tracked under the name,
-   *   or it has no such event.
+   * @throws {AutoMovieMotionHumanRefusal} For an unknown anchor or cue track,
+   *   or an absent event occurrence.
    */
   public instant(at: AutoMovieMotionHumanScheduledInstant): number {
     return HumanPerformanceLayers.instant(this.resolved, at);

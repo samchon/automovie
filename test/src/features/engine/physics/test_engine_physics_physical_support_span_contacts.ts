@@ -16,6 +16,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 4. The weight's shares at the centroid are 1/N each; at any pivot they sum to
  *    one, their weighted mean of the contacts is the pivot and none is
  *    negative, with N = 6's pivot 0.01 m inside an edge.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines planted support hull, remaining contacts, reach-limited capture region and supported weight shares.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds support sets with 2, 3, 4, 6 and 8 contacts, removes a limb and reads allocations at center, corners and edges.
+ * @evidence contracts/development/testing.md#independent-expectations Circle vertices and reach discs supply explicit geometry. Center shares are 1/N, nonnegative loaded shares sum to one and their weighted point must reconstruct the requested pivot.
  */
 export function test_engine_physics_physical_support_span_contacts(): void {
   for (const n of [2, 3, 4, 6, 8]) {

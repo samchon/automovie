@@ -21,9 +21,13 @@ import { standingPerformanceState } from "../../internal/fixtures/standingPerfor
  *
  * 1. An action's local grip opens before its placed entry. The old hold ends
  *    at entry, and its new hold begins at film second 3.
- * 2. A cut just before the new hold drops it. One before entry also restores
- *    the older hold and clears its overlay takeover fields.
+ * 2. A cut at the new hold's start keeps it. A cut just before drops it. One
+ *    before entry also restores the old hold and clears its takeover fields.
  * 3. Trying to use a hand holding a prop for another object reports its side.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenario follows a same-hand takeover from placed entry through exact hold and rollback boundaries, and checks a conflicting object's refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification The hold and cut owners mutate typed placed hold records inside a staged performance. The test reads their identity, end time, ownership fields and restoration, then checks the refusal's hand and offered alternative.
+ * @evidence contracts/development/testing.md#independent-expectations The contact opens locally at 2 + 0.25·2 = 2.5 s but entry clips takeover to 2.75 s. The new hold starts at 2 + 0.5·2 = 3 s, so the cuts at 3, 2.875, and 2.5 s keep it, remove it, and restore the prior hold respectively.
  */
 export async function test_motions_perform_hold_ownership(): Promise<void> {
   const { state } = await standingPerformanceState();

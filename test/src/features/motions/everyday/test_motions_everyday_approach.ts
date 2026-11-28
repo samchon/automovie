@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. One at (-0.2, 0, 2) is passed at (0.3, 0, 2).
  * 3. Obstacles at (0, 0, -1), (0, 0, 5), (0.6, 0, 2) and a path of no length give
  *    none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A straight approach selects a passing waypoint on the path's original side. Nearby, longitudinally outlying, and zero-length routes exercise its omission rules.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the waypoint owner over one start and goal with obstacle points at the centerline and outside each relevant bound.
+ * @evidence contracts/development/testing.md#independent-expectations The perpendicular foot of the obstacle projection and signed offset determine the passing point directly. Outlying or degenerate routes have no waypoint.
  */
 export async function test_motions_everyday_approach(): Promise<void> {
   const from: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

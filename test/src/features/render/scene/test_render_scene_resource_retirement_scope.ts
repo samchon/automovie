@@ -12,6 +12,10 @@ import { rejects } from "node:assert/strict";
  *    operation added during that wait joins the original report.
  * 2. A later settlement reports the same cause without retrying. Repeated close
  *    shares the report and new ownership is refused after close.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe concurrent release, a late failing operation, retained failure, and closure of ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that one owned resource is retired once, a late request joins settlement, later calls retain the original failure, and closed scopes reject new ownership.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the literal start order `first, late`, original failure identity, and unchanged event list after repeated settlement and close.
  */
 export async function test_render_scene_resource_retirement_scope(): Promise<void> {
   const scope: AutoMovieRenderResourceRetirementScope =

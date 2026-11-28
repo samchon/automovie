@@ -1,3 +1,5 @@
+import "./internal/declareCompletedFrameEvent";
+
 import type * as THREE from "three";
 import { applyCaptureCanvasSize as applyViewerCaptureCanvasSize } from "./internal/applyCaptureCanvasSize";
 import { createViewerCameraState } from "./internal/createViewerCameraState";
@@ -367,15 +369,5 @@ export namespace AutoMovieViewerDisplay {
   /** Apply positive CSS dimensions to the capture canvas; nonpositive dimensions leave it unchanged. */
   export function applyCaptureCanvasSize(request: IApplyCaptureCanvasSizeRequest): void {
     applyViewerCaptureCanvasSize(request);
-  }
-}
-
-declare global {
-  interface HTMLElementEventMap {
-    /**
-     * A frame the viewer completed, sent to a canvas whose
-     * `data-automovie-frame-observer` attribute is `on`.
-     */
-    "automovie:completed-frame": CustomEvent<AutoMovieViewerDisplay.ICompletedFrame>;
   }
 }

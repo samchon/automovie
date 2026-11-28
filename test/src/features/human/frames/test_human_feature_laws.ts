@@ -28,9 +28,7 @@ import type { AutoMovieVector3Tuple } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production `template` on every law of the production table and reads the result through the template record's own `height` and `at`.
  * @evidence contracts/development/testing.md#independent-expectations Directions are hand cross products of the made datums; sizes are the table's shares times a round length; the midpoint and half length are hand sums.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds of law, a long direction that is not square to the outward one, two lengths, mounds and hollows, three refusals; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership Synchronous pure arithmetic; no family, person or loft.
- * @evidence contracts/development/common.md#meaningful-documentation States the made datums and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures distinguish one- and two-landmark feature axes, height and scaling, catalogue membership, and missing direction or landmark refusals.
  */
 export function test_human_feature_laws(): void {
   const failures: string[] = [];

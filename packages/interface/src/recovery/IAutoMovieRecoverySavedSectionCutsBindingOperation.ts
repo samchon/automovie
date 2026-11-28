@@ -5,67 +5,49 @@ import type {
   IAutoMovieRecoverySlabs,
 } from "..";
 
-/**
- * Compare a complete saved raw-contour population with one fresh exact cut.
- * Address sets and admitted closure verify contour identity only; curve names
- * and output indices remain caller-attested references. Newly emitted exact
- * faces are used even when the saved artifact retained broad incidence only.
- */
+/** Callable exact raw-cut binding for a caller-attested saved section. */
 
 export namespace IAutoMovieRecoverySavedSectionCutsBindingOperation {
   /**
-   * Compare a complete saved raw-contour population with one fresh exact cut.
-   * Address sets and admitted closure verify contour identity only; curve names
-   * and output indices remain caller-attested references. Newly emitted exact
-   * faces are used even when the saved artifact retained broad incidence only.
+   * Compare a complete saved lineage population with one fresh raw section cut.
+   * Verify original contour order, face incidence and admitted closure. Return
+   * a bound raw section or the first refusal diagnosis.
    */
 
   export type Operation = (input: {
     /**
-     * Caller-verified saved section whose full raw contour population is bound
-     * by this observation.
+     * Caller-bound saved section and its complete raw contour publication
+     * population.
      */
     saved: IAutoMovieRecoverySavedSection;
 
-    /**
-     * Every raw plane-cut contour, including open paths, contacts and
-     * unsupported junction chains.
-     */
+    /** Fresh raw cut with actual contour and exact emitting face evidence. */
     contours: ReturnType<ReturnType<IAutoMovieMeshPlaneCut.Prepare>>;
 
     /**
-     * Source incidence or chart preparation shared by the operation; its
-     * borrowed arrays remain stable for the pass.
+     * Prepared source geometry and original face incidence for recomputing
+     * broad support.
      */
     prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>;
 
-    /**
-     * Synchronous cooperative cancellation/work checkpoint; a thrown exception
-     * aborts the current operation.
-     */
+    /** Synchronous checkpoint called when comparing the raw contour records. */
     checkpoint: () => void;
   }) =>
     | {
-        /**
-         * Closed outcome discriminator; unavailable or ambiguous arms retain
-         * diagnostics instead of fabricated successful data.
-         */
+        /** Successful exact raw-cut comparison. */
         status: "bound";
         /**
-         * Admitted saved-section binding value, present only on the successful
-         * outcome arm.
+         * Bound station observation with fresh exact face provenance and
+         * retained publication metadata.
          */
         value: IAutoMovieRecoverySlabs["sections"][number];
       }
     | {
-        /**
-         * Closed outcome discriminator; unavailable or ambiguous arms retain
-         * diagnostics instead of fabricated successful data.
-         */
+        /** Refused raw contour binding. */
         status: "refused";
         /**
-         * Reason this particular result is unavailable or qualified only within
-         * a stated numerical scope.
+         * First source incidence or population comparison failure at this saved
+         * station.
          */
         diagnostic: string;
       };

@@ -28,6 +28,10 @@ const ROUNDING: number = 1e-12;
  * 4. A zero duration, a repeated name, `start` named again, an instant past the
  *    end and an unknown name are refused; an instant a rounding past the end is
  *    held at it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names ordered instants, reserved endpoints, window and envelope values, rounding near the end and malformed clock or name refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds motionClock from an unsorted typed instant list and reads instants, events and timing methods, alongside invalid durations and names.
+ * @evidence contracts/development/testing.md#independent-expectations In a four-second clock, the authored seconds 1 and 3 are shares 0.25 and 0.75. At second 2 the interval midpoint has share 0.5. The progress comparisons exercise forwarding of the established timing law.
  */
 export function test_motions_compose_clock_native(): void {
   const clock: IAutoMovieMotionClock = motionClock(4, [

@@ -23,6 +23,10 @@ import { nclose } from "../../internal/predicates";
  *    square [-5, 5]^2, area 100, centroid (0,0,0), normal (0,0,-1) (v x u),
  *    extents 5, -5, 5, -5 along +u, -u, +v, -v, reach 5 sqrt 2 from the course
  *    point to the corner, and no flag or check.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names Newell direction, centroids, degenerate contours and the millimetre cube cut.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads polygon area normals and centres and cuts an explicit twelve-triangle cube with the XY course plane.
+ * @evidence contracts/development/testing.md#independent-expectations The polygon coordinates fix signed double-area and centroid. At z = 0 the cube section is a 10 mm square with area 100 and reach 5√2.
  */
 export function test_engine_geometry_mesh_course(): void {
   const p = (x: number, y: number, z: number): AutoMovieVector3Tuple => [

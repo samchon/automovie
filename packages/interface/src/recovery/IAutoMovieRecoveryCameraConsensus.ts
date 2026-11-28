@@ -3,99 +3,116 @@ import type {
   IAutoMovieRecoveryCameraOptimizerFit,
 } from "..";
 
-/** Final calibrated support and independent camera-qualification diagnostics. */
+/**
+ * Calibrated pair consensus measurements and independent pose qualification
+ * diagnostics. Read them together with the pair estimate's final status.
+ */
 export interface IAutoMovieRecoveryCameraConsensus {
-  /** Actual eight-point proposal count, including numerical refusals. */
+  /**
+   * Eight-point proposals evaluated, including those with a refused numerical
+   * design.
+   */
   trials: number;
 
   /**
-   * Required ideal all-inlier trials at the final support; null denotes an
-   * unattainable finite target.
+   * Ideal unique-eight-sample trial target recomputed at the final support, or
+   * null when a finite target is unavailable.
    */
   requiredTrialsAtFinalSupport: number | null;
 
   /**
-   * Operational trial target only; deterministic finite-generator proposals do
-   * not certify physical correctness.
+   * Whether proposal count satisfied both the configured minimum and the ideal
+   * target for the final support.
    */
   conditionalTrialTargetMet: boolean;
 
-  /** Proposal models refused by their declared numerical owners. */
+  /** Raw proposal fits refused by the design, calibration or scoring owner. */
   numericalRefusals: number;
 
   /**
-   * Eligible proposals refined in draw order before winner comparison, bounded
-   * by the declared local budget.
+   * Eligible raw proposals entering local optimization within its draw-order
+   * budget.
    */
   localRefinements: number;
 
   /**
-   * Nonconverged local proposals or final re-estimation failures, including
-   * provisional changing subsets. Unexpected runtime errors fail the operation
-   * instead.
+   * Unfinished or numerically refused local refits, plus recognized numerical
+   * exceptions in final re-estimation.
    */
   localRefinementRefusals: number;
 
-  /** Final re-estimations, including repeats after a changed sampling target. */
+  /**
+   * Final support re-estimation attempts, including subsequent attempts after
+   * support changes the sampling target.
+   */
   finalReestimations: number;
 
   /**
-   * True only when every final fixed-subset optimizer terminates and its final
-   * inlier set stabilizes.
+   * Whether the final refit stabilized and the essential projection retained
+   * the same support.
    */
   finalRefinementConverged: boolean;
 
   /**
-   * Final fixed-subset optimizer diagnostics, empty when no final optimizer
-   * completed.
+   * Completed fixed-subset optimizer reports from the final refinement, or an
+   * empty list if unavailable.
    */
   optimizerFits: IAutoMovieRecoveryCameraOptimizerFit[];
 
   /**
-   * Eighth/largest original-design singular ratio on the entire final inlier
-   * population, null without a resolved fit.
+   * Eighth-to-largest singular value ratio on the entire final inlier design,
+   * or null when that design is unresolved.
    */
   finalDesignSingularRatio: number | null;
 
-  /** Final calibrated epipolar inlier count. */
+  /**
+   * Number of tentative pairs classified within the selected epipolar
+   * threshold.
+   */
   inliers: number;
 
-  /** Inlier count divided by all tentative matches. */
+  /** Epipolar inlier count divided by all tentative matches. */
   inlierFraction: number;
 
   /**
-   * Final inlier median mean-two-sided point-to-line distance in pixels, or
-   * null without finite support.
+   * Median inlier two-sided mean point-to-line distance in pixels, or null
+   * without a finite statistic.
    */
   medianSymmetricPointLinePx: number | null;
 
   /**
-   * Final inlier linear-interpolated 90th percentile point-to-line distance in
-   * pixels.
+   * Interpolated 90th percentile of the measured inlier point-to-line distances
+   * in pixels, or null without a finite statistic.
    */
   p90SymmetricPointLinePx: number | null;
 
   /**
-   * Fractions of original pixel-chart area enclosed by observed inlier convex
-   * hulls, first/second; no surface coverage claim.
+   * First- and second-image fractions covered by the inlier convex hulls in
+   * their original pixel charts, or null before that stage.
    */
   inlierImageHullFractions: [number, number] | null;
 
   /**
-   * Positive-in-both-cameras count divided by all final inliers, or null
-   * without a resolved candidate.
+   * Leading pose branch count positive in both cameras divided by the final
+   * inlier count, or null before pose evaluation.
    */
   positiveDepthFraction: number | null;
 
   /**
-   * Median ray angle for finite positive-depth points in radians, or null when
-   * absent.
+   * Median measured angle in radians among the branch's finite inlier points
+   * with positive depth in both cameras, or null if absent.
    */
   medianParallaxRadians: number | null;
 
-  /** Four positive-depth counts; a tied maximum cannot qualify a unique camera. */
+  /**
+   * Four branch counts in essential decomposition order, or an empty list
+   * before branch evaluation completes.
+   */
   allPositiveDepthCounts: number[];
 
-  /** Null without four final epipolar inliers to test the planar competitor. */
+  /**
+   * Competing planar support evidence when at least four epipolar inliers
+   * permit that search.
+   */
   homography: IAutoMovieRecoveryCameraHomographyConsensus | null;
 }

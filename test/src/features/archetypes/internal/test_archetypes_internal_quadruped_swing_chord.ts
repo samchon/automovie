@@ -26,6 +26,10 @@ const POSITION_ROUNDING: number = 64 * 20 * Number.EPSILON;
  *    the world chord.
  * 2. At a quarter, the body path receives √2 − 1/2 of horizontal weight. Each
  *    endpoint settles on its original foothold.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the two foot frames, horizontal blend, retained world height and exact foot anchors.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the actual carried swing at each endpoint, the quarter and midpoint. Observes model-space transport and world-space vertical interpolation at different weights.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter-turn maps the two local midpoint coordinates to world X 9.5 and Z 19. The original foothold heights average to 6 independently of the carried body's height.
  */
 export function test_archetypes_internal_quadruped_swing_chord(): void {
   const released: IAutoMovieTransform = {

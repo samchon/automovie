@@ -42,6 +42,10 @@ const AT: IAutoMovieRigidTransform = {
  * 2. A worn hat and a lid mounted on the rack declare spans of their own, the
  *    lid's ended by the first grip on it; a fixed prop has none.
  * 3. Prepared spans are returned as prepared.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Grip-span coverage includes hand windows, wear and mount handoffs, prop-declared carriers, excluded contact types, and prepared span identity.
+ * @evidence contracts/development/testing.md#behavioral-verification The collector receives a staged person with typed contacts, later holds, wear and mount records. The test compares exact summarized carrier, times and flags, then verifies that a prepared array is returned by identity.
+ * @evidence contracts/development/testing.md#independent-expectations A two-second action maps its middle half to [0.5, 1.5] s and its last tenth to [1.8, 2] s. The late grip starts at the placed entry 3.5 s. Wear ends at the hold's 6.5 s start, then the mount takes over at 7 s.
  */
 export async function test_motions_perform_grips(): Promise<void> {
   const rack: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(

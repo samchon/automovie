@@ -10,25 +10,21 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeHighChairData } from "./internal/AutoMovieArchetypeHighChairData";
 
-/** Constructs the high chair archetype from its recipe. */
+/** Constructs a floor-standing high chair with a front-edge seat contact. */
 export namespace AutoMovieArchetypeHighChair {
 /**
- * A child's high chair: a seat shell on four splayed legs, its back rising to
- * the chair's height.
+ * Build a high chair with a seat shell, back and four splayed legs.
  *
- * The chair stands on the floor at the origin, facing `+Z`. Its legs run from
- * the corners of the maker's footprint up to the seat's corners; the seat lies
- * at the maker's seat height and its back stands at the seat's rear edge up to
- * the chair's height. `seat` is the seat a child is set on and lifted from,
- * facing `+Z`. The tray is not built, since no source read sizes or places it;
- * setting a child in and lifting one out is a two-body act with no motion law
- * yet (#3440).
+ * The floor is model Y zero and the chair faces `+Z`. The ANTILOP
+ * footprint is 0.56 by 0.59 metres and the seat is 0.54 metres high.
+ * The model exposes one seat contact and its supporting geometry.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The chair.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Optional object ID and finite dimensions inside their bands.
+ *   The ID defaults to `highChair`.
+ * @param seed Numeric seed for omitted dimensions. Without it, the mass
+ *   defaults to 3.25 kilograms.
+ * @returns The chair with its `seat` at the front edge of the physical seat.
+ * @throws {AutoMovieArchetypeRefusal} If a fixed dimension is outside its band.
  */
 export function create(
   params: AutoMovieArchetypeHighChair.IParams = {},
@@ -104,16 +100,13 @@ export function create(
   return builder.build(d.mass);
 }
 
-  /** The affordance id: `seat`, the seat, facing `+Z`. */
+  /** The level `seat` contact at the centre of the shell's forward edge. */
   export type Affordance = "seat";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`, `depth`: the footprint.
-   * - `height`: the chair's top.
-   * - `seatHeight`, `seatWidth`, `seatDepth`: the seat.
-   * - `mass`: kilograms.
+   * The floor footprint uses `width` and `depth`. `height` reaches the top
+   * of the back. `seatHeight`, `seatWidth` and `seatDepth` describe the
+   * supporting shell. Geometry is in metres and mass is in kilograms.
    */
   export type Dimension =
     | "width"
@@ -124,7 +117,9 @@ export function create(
     | "seatDepth"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /**
+   * Uses metres for the chair and seat geometry and kilograms for body mass.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -137,13 +132,17 @@ export function create(
     mass: "kg",
   };
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /**
+   * Optional object ID and fixed values in the ANTILOP bands. Equal geometric endpoints select the recorded measurement.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `highChair` when absent. */
+    /** Scene object ID, defaulting to `highChair`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /**
+   * Recorded ANTILOP footprint and seat geometry with a provisional empty mass interval.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     width: AutoMovieArchetypeBand.metres(0.56, 0.56, AutoMovieArchetypeHighChairData.ANTILOP),
     depth: AutoMovieArchetypeBand.metres(0.59, 0.59, AutoMovieArchetypeHighChairData.ANTILOP),

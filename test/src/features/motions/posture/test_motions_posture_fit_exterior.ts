@@ -91,6 +91,10 @@ function surrounding(
  *    influence, with an angular slope of −1/4 m per radian. An independent
  *    right-angle offset sphere touches its named support. An ordinary
  *    tangent pair cannot satisfy a separated named contact.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines exterior nonpenetration, signed linearization, exact tangency, fixed material coordinates and named-contact ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures signed sphere gaps, calls an independent body fit with movable and locked axes, then evaluates named contacts with transformed geometry and decoy pairs.
+ * @evidence contracts/development/testing.md#independent-expectations The authored sphere gap is −1/16 m with translation slope −1 and lower bound 62.5 mm. Named contact uses the stated actual collider group, including beyond the influence distance.
  */
 export async function test_motions_posture_fit_exterior(): Promise<void> {
   const separation: number = 3 / 16;

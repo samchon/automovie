@@ -18,6 +18,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    2^800, 2^-1000) is 2^600; an underflowing a*e term gives exactly 2^-601
  *    and its row permutation -(2^-601); diag(2^-400 x3) has an unrepresentable
  *    determinant and is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers determinant sign and magnitude, singularity, cancellation, intermediate overflow and underflow, and admission failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls determinantMatrix3 on explicit row-major matrices. It tests exact or bounded results and invokes the same operation for malformed size and unrepresentable determinants.
+ * @evidence contracts/development/testing.md#independent-expectations Row dependence and row permutation establish zero and sign. Subtracting the first row in the cancellation fixture yields delta squared. The diagonal and sparse matrices reduce to powers of two even when evaluation intermediates exceed binary64 range.
  */
 export function test_engine_math_determinant_matrix3(): void {
   TestValidator.equals(

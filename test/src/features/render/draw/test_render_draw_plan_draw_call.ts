@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    2 s with a 50 by 25 cell, is called with the subject's size, every
  *    planned second as its framing span and a label scale of 2.
  * 2. A view with `@follow` frames on the cell's own second alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Uses planned subject size, view framing times and a cell label scale for each draw call.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls draw planning at a fixed capture cell with an ordinary front view and a follow view.
+ * @evidence contracts/development/testing.md#independent-expectations The 100 × 50 subject and 50 × 25 cell imply label scale two. Only the follow view reduces the framing span to the cell's own second.
  */
 export function test_render_draw_plan_draw_call(): void {
   const request = AutoMovieRenderInspectionRequest.parseRequest((): undefined => undefined);

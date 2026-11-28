@@ -33,6 +33,10 @@ const ROUNDING: number = 1e-12;
  * 3. `prepare` gives `at`'s point, also after the heading changes.
  * 4. The fixed knee offset survives caller edits before the first query. Current
  *    yaw still rotates the offset on every read.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the world-forward hint, opposite foot splay, changing yaw and a snapshot of rest geometry before the first read.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanKneeBend.at and its prepared reader on a stored body and on a small edited rest-offset fixture, then reads absolute bend points.
+ * @evidence contracts/development/testing.md#independent-expectations At heading 90, one forward metre adds 1 to X. Splaying changes the tested headings to 110 and 70 degrees. The explicit before-and-after yaw coordinates are derived from the original rest offset.
  */
 export async function test_motions_compose_knee_bend(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

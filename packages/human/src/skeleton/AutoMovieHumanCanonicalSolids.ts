@@ -1,44 +1,44 @@
-import { AutoMovieEngineVector3, AutoMovieEnginePhysicalHullFaces, AutoMovieEnginePhysicalHull, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEnginePhysicalHullFaces,
+  AutoMovieEnginePhysics,
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanCanonicalSolids,
   IAutoMoviePhysicalHullFaces,
   IAutoMovieResolveHumanoidRingModules,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
- * The convex solids of a polygon man at the canonical T-pose rest: the
- * convex hulls of the ring points its drawing is lofted through.
+ * Build the stock polygon body's convex collision pieces from its drawing rings at
+ * the canonical T-pose. The shared ring resolver receives the joints in Human
+ * axes. The points return to canonical axes before their hulls and mass properties
+ * are calculated.
  *
- * The rings come from `resolveHumanoidRingModules`, the one owner
- * the drawing reads too, so a solid's vertices are the drawn vertices. The
- * owner works in Human's frame, so the canonical joints are reflected into
- * it by `(x, y, z) -> (z, y, x)` and every ring point reflected back; a
- * reflection keeps a convex hull a convex hull.
- *
- * A module is one hull while every ring point and every ring edge lies on
- * that hull. Where a ring is narrower than the straight run between its
- * neighbours the drawn surface is concave there, so the stack is cut at that
- * ring and each run becomes its own hull, down to one hull for each pair of
- * rings, which is always convex. A closing pole counts as a last ring of one
- * point.
- *
- * The digits of the hand carry no solid here: a phalanx is a capsule, which
- * a curl needs for its closed form contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the single ring owner, the frame reflection, when a module is cut into more than one hull and why the fingers are left out.
- * @evidence contracts/development/design.md#principled-representation A solid is its hull points about its own centroid with the uniform solid's volume and principal inertia, on the rig bone that carries it; nothing is optional.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the canonical profile, its one consumer, which reads every member to make shapes and mass properties.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No `any`, `unknown`, index signature or cast beyond naming a carrier; ring geometry and hull mathematics stay with their engine owners.
+ * A run of rings stays together while its points and edge midpoints satisfy the
+ * hull's surface tolerance. Runs that fail the test split at a shared ring. The
+ * closing pole has one point. The physical profile builds hand phalanx capsules
+ * separately for the closed-form grasp solver.
  */
 export namespace AutoMovieHumanCanonicalSolids {
 
   /**
-   * Build every solid of the body.
+   * Build the convex collision pieces for the stock ring modules in module order.
+   * A piece keeps the module's rig carrier and an ordered suffix when its module
+   * splits. Centres and centroid-relative points use the canonical axes. Volumes
+   * and unit-mass principal moments are in cubic metres and square metres,
+   * respectively.
    *
-   * @param joints Every drawn Human joint by id, parent before child.
-   * @returns The solids in the ring owner's module order.
+   * @param joints Rest joints keyed by Human joint id and iterated parent before
+   * child, with centres, tip coordinates, radii and supplied foot heel-plane
+   * points in canonical metres.
+   * @returns The ring-derived hulls and their mass properties. The profile
+   * supplies the separate hand capsule shapes.
    */
   export function build(joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>): IAutoMovieHumanCanonicalSolids.ISolid[] {
     const tuple = (p: IAutoMovieVector3): [number, number, number] => [
@@ -51,25 +51,38 @@ export namespace AutoMovieHumanCanonicalSolids {
       y: p.y,
       z: p.x,
     });
-    // A run of rings is one hull when the hull's surface passes through
-    // every ring: no ring point is buried, and no ring edge either, since
-    // two points can lie on a hull whose surface cuts across between them.
+    const frame: IAutoMovieRigidTransform = {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: AutoMovieEngineQuaternion.identity(),
+    };
+    // Each candidate run owns its hull. Read every ring edge midpoint on that
+    // same surface, which can bury an edge even when both of its ends lie on it.
     const convex = (
       run: IAutoMovieVector3[][],
       points: IAutoMovieVector3[],
     ): boolean => {
-      const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMovieEnginePhysicalHullFaces.build(points);
-      return (
-        hull.buried <= hull.tolerance &&
-        run.every((ring: IAutoMovieVector3[]): boolean =>
-          ring.every(
-            (p: IAutoMovieVector3, index: number): boolean =>
-              AutoMovieEnginePhysicalHull.nearest(
-                points,
-                AutoMovieEngineVector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5),
-              ).distance >= -hull.tolerance,
-          ),
-        )
+      const hull: IAutoMoviePhysicalHullFaces.IHull =
+        AutoMovieEnginePhysicalHullFaces.build(points);
+      if (!(hull.buried <= hull.tolerance)) return false;
+      const distance: ReturnType<
+        typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance
+      > = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(frame, {
+        id: "ring",
+        material: "skin",
+        kind: "hull",
+        points,
+        hull,
+        transform: frame,
+      });
+      return run.every((ring: IAutoMovieVector3[]): boolean =>
+        ring.every((p: IAutoMovieVector3, index: number): boolean => {
+          const midpoint: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+            p,
+            ring[(index + 1) % ring.length]!,
+            0.5,
+          );
+          return distance(midpoint, midpoint) >= -hull.tolerance;
+        }),
       );
     };
     const solids: IAutoMovieHumanCanonicalSolids.ISolid[] = [];
@@ -81,6 +94,7 @@ export namespace AutoMovieHumanCanonicalSolids {
           position: tuple(joint.position),
           tip: joint.tip === null ? null : tuple(joint.tip),
           radius: joint.radius,
+          ...(joint.heel === undefined ? {} : { heel: tuple(joint.heel) }),
         }),
       ),
     )) {
@@ -99,9 +113,7 @@ export namespace AutoMovieHumanCanonicalSolids {
       while (start + 1 < layers.length) {
         let end: number = start + 1;
 
-        // The points of the longest run found convex are kept as the array
-        // its hull was searched on, so the solid's mass reads that hull from
-        // the engine's per-array memo instead of searching it again.
+        // Keep the widest run whose points and edges meet its hull surface.
         let accepted: IAutoMovieVector3[] | null = null;
         while (end + 1 < layers.length) {
           const run: IAutoMovieVector3[][] = layers.slice(start, end + 2);
@@ -120,8 +132,7 @@ export namespace AutoMovieHumanCanonicalSolids {
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,
           centre: solid.centerOfMass,
-          // The centred points are a translation of the run, so their hull
-          // is read from the run's instead of being searched again.
+          // Store the points in the centroid frame of the computed solid.
           points: AutoMovieEnginePhysicalHullFaces.shift(points, solid.centerOfMass),
           volume: solid.volume,
           inertia: solid.inertia,

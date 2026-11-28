@@ -1,34 +1,30 @@
 /** Result of inverting one local coordinate of an original native section. */
 export namespace IAutoMovieNativeCoordinate {
   /**
-   * Fresh mutable result after native coordinate inversion admits its residual.
-   * Endpoints can succeed with zero bisection queries. Other successful results
-   * have at most 64 midpoint queries and a finite residual within
-   * 32_Number.EPSILON_max(1, abs(target), absolute native extents) millimetres.
-   * Unreachable targets or a failed residual check throw an admission error.
+   * Original native section point after inverting a chosen coordinate on its
+   * declared monotone half. The point and residual are in local millimetres.
+   * The accepted absolute residual is at most 32 × Number.EPSILON × max(1,
+   * absolute target, absolute extents). Endpoint matches use zero midpoint
+   * queries; interior search uses at most 64. The owner throws when the target
+   * is unreachable or its residual fails admission.
    */
   export interface IResult {
     /**
-     * Original polar radians in the selected half: component 1 uses
-     * [-pi/2,pi/2] or [pi/2,3pi/2]; component 0 uses [0,pi] or [pi,2pi].
+     * Original polar phase in radians on the selected half. When solving
+     * component 1, positive and negative halves span [−π/2, π/2] and [π/2,
+     * 3π/2]. When solving component 0, they span [0, π] and [π, 2π].
      */
     phase: number;
 
-    /**
-     * Original [x,z] section-plane point in millimetres, never adjusted to the
-     * requested coordinate.
-     */
+    /** Fresh local [u, v] point in millimetres at the returned native phase. */
     point: [number, number];
 
-    /**
-     * Actual selected point component minus the requested target, in
-     * millimetres.
-     */
+    /** Returned point's selected coordinate minus the target, in millimetres. */
     residual: number;
 
     /**
-     * Total midpoint point queries, excluding both explicit endpoints; not just
-     * the iteration that found the best point.
+     * Number of midpoint evaluations across this search. The endpoint
+     * evaluations are excluded, and an exact endpoint result uses zero.
      */
     iterations: number;
   }

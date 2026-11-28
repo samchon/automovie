@@ -48,6 +48,10 @@ const ARM: readonly IAutoMovieMotionHumanJacobian.IVariable[] = [
  *    variable, stays.
  * 3. A wrist goal two metres away, past the arm's reach, is not feasible, its
  *    residual over a metre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines static target fit with pose preference, active variables and a measured infeasible residual.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits a complete rig with zero, reachable and unreachable wrist targets, varying only four left-arm angles.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.15 m up and 0.2 m forward goal must meet declared tolerance. The right arm stays fixed and a 2 m goal leaves residual greater than 1 m.
  */
 export async function test_motions_posture_body_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -16,6 +16,10 @@ const BISECTION: number = 2 ** -38;
  * 2. Along one axis the cone angle is linear in `t`, so flexion 0 -> 90 under a 45
  *    degree limit gives t = 1/2.
  * 3. From an anchor of 20 degrees to 80 under a 50 degree limit, t = 1/2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names an admitted endpoint, a one-axis clip from zero and the same calculation from a nonzero anchor.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Kinematics.swingConeBlend with one inside endpoint and two authored one-axis segments.
+ * @evidence contracts/development/testing.md#independent-expectations An inside endpoint selects weight 1. Single-axis rotation gives linear angle on these segments, and the limits 45 within [0,90] and 50 within [20,80] sit at their exact midpoints.
  */
 export function test_engine_rom_swing_cone_blend(): void {
   TestValidator.equals("inside the limit", AutoMovieEngineKinematics.swingConeBlend(30, 0, 0, 0, 45), 1);

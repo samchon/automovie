@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Every value in the fixture is exactly representable in binary64, including
  * the rate-two divisions and the one-eighth-second overlap.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish seam points, clipped ranges, replay, tie ordering and collapsed source windows on the already computed output clock.
+ * @evidence contracts/development/testing.md#behavioral-verification The test invokes sequenceEditorialMarkerTimeline for its authored layout and compares placement, clipping, original coordinates and sort order. It supplies a separate large-coordinate layout whose represented endpoint collapses.
+ * @evidence contracts/development/testing.md#independent-expectations Exactly representable marker coordinates, rate-two scaling and the one-eighth-second overlap determine the expected placements by interval arithmetic. At 2^54 the one-second source end rounds to its opening, so the authored span still distinguishes the opening point and covering range from the range that ends there.
  */
 export function test_engine_film_sequence_editorial_marker_timeline(): void {
   const reel: IAutoMovieSequenceEntry[] = [

@@ -22,6 +22,10 @@ import { standingPerformanceState } from "../../internal/fixtures/standingPerfor
  *    second.
  * 3. An id nobody placed is the first.
  * 4. An unknown performer is the first, under their own name.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the performer, capability and one-based location count across actions, overlays, alternate anchors and unknown performers.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the refusal location owner on a staged actor with two renamed actions and one overlay, comparing the complete location records for four intents.
+ * @evidence contracts/development/testing.md#independent-expectations The placed wave action plus wave overlay give wave instance 3. Counting the single stand anchor gives instance 2 while the act stays wave. An unseen bow or a different performer has instance 1.
  */
 export async function test_motions_perform_read_where(): Promise<void> {
   const { state } = await standingPerformanceState();

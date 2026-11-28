@@ -23,10 +23,8 @@ import type {
  * 9. The rolled chart's jet agrees with central differences of its frames, and the twin of a rolled family is still the reflection of the original.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicLoft.create`, `mirror` and `part` and reads the engine's chain with `AutoMovieEngineLoftChain.point`.
- * @evidence contracts/development/testing.md#independent-expectations A circle's radius, a reflection in a plane, the cubic fixed by four end conditions, a natural cubic's closed form and central differences owe nothing to this code.
- * @evidence contracts/development/testing.md#distinguishing-cases A centred circle, an off-centre section with unequal shoulders on a slanted course, a closed end and an open one.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_loft`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
+ * @evidence contracts/development/testing.md#independent-expectations The 20 mm radius and plane reflection give direct point expectations. The cap follows the cubic for squared radius fixed by its endpoint conditions. The natural cubic and central differences provide the roll and jet comparisons.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures distinguish cylinder radius, reflected grooved and featured sections, cap shape and rings, phase density, and a rolled chart's directions and derivatives.
  */
 export function test_human_conic_loft(): void {
   const failures: string[] = [];

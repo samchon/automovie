@@ -29,11 +29,9 @@ import { filmResponseRendererFields } from "../internal/filmResponseRendererFiel
  * 3. Returning to a request that changes nothing applies it once more, then keeps
  *    it across the following seconds.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount with a real scene, a recording renderer and an opted-in subject, and reads the scene at the observation and at the render.
- * @evidence contracts/development/testing.md#independent-expectations The prop's own layer mask is three.js's default 1, and `hide` takes it off every layer as the inspection documents.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a request that changes no observed state with one that hides an object, and the return between them.
- * @evidence contracts/development/testing.md#execution-ownership In-memory unit discovered as test_inspector_scene_reapplication. No browser, timers or graphics context.
- * @evidence contracts/development/common.md#meaningful-documentation Three numbered scenarios identify the requests and the reuse pinned.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the visible prop, the request that hides it and the return to an ordinary inspection while the diagnostic reader continues seeing the source pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives the normal Viewer mount with a recording draw host and a physical scene. Its observer records the original masks and the renderer records the current inspection object and applied masks.
+ * @evidence contracts/development/testing.md#independent-expectations A stock prop begins on Three.js layer 0, bitmask 1. The explicit hide request sets its drawn mask to 0. Object identity across frames distinguishes the retained neutral overlay from the new overlay built for each changing pose.
  */
 export async function test_inspector_scene_reapplication(): Promise<void> {
   const scene: THREE.Scene = new THREE.Scene();

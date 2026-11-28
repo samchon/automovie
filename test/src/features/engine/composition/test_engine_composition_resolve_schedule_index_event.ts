@@ -20,6 +20,10 @@ import { TestValidator } from "@nestia/e2e";
  *    `of` is "k".
  * 2. The same part aligned with the event `impact` and `index` 0 starts at the
  *    kick's impact, 1.0 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the typed index refusal when the event is absent and the zero-index impact alignment when present.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes two authored compositions to Schedule.resolve and checks both the raised ScheduleError fields and the resolved follower's start.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied index value 1 and anchor k determine the error payload. The tagged first impact occurs halfway through the 2 s kick, putting the step at 1 s.
  */
 export function test_engine_composition_resolve_schedule_index_event(): void {
   const laws: IAutoMovieScheduleLaws = {

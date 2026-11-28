@@ -27,6 +27,10 @@ const ROUNDING: number = 1e-12;
  * 2. The span from 4 to 9 s lasts 5 s.
  * 3. Its read at 1 s reads the motion at 5 s, and its water likewise.
  * 4. Its action starts at -2, is entered at -1 and ends at 4 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names whole-film identity and rebased duration, motion reads, water reads and action times for a sliced span.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds HumanVerdictsSpan on an input motion with a counted pose reader and one typed action, then samples both readers and the action's shifted fields.
+ * @evidence contracts/development/testing.md#independent-expectations The span starts at second 4 and lasts 9 minus 4 seconds. Adding 4 maps its local second 1 to film second 5. Subtracting 4 from the original action times 2, 3 and 8 gives -2, -1 and 4.
  */
 export function test_motions_audit_human_verdicts_span(): void {
   const read: number[] = [];

@@ -8,34 +8,16 @@ import type { IAutoMovieRecoverySourcePortReference } from "./IAutoMovieRecovery
 import type { IAutoMovieRecoverySourceTopologyIssue } from "./IAutoMovieRecoverySourceTopologyIssue";
 
 /**
- * Prepare private scalar-clipped source-cell ownership and boundary incidence
- * observations. Every query supplies all faces with max(height)>=before and
- * min(height)<=after, in original face order. The implicit cell is that face's
- * barycentric domain intersected with the closed scalar interval; no source
- * triangle array or generated mesh is returned. Source and returned private
- * addresses must be discarded before engine publication. Original source edges
- * share declared incidence; cut edges remain face occurrences, so coincident or
- * parallel cut edges are not welded. Raw and canonical incidence are explicit
- * alternatives, not assumed equivalent. Plane strata require one external owner
- * when adjacent slabs are combined. Connectivity/topology never establishes a
- * regular or event chart: every component remains unclassified, with all
- * unsupported evidence retained.
+ * Prepare source geometry once and query clipped cells and boundary observation
+ * membership.
  */
 
 export namespace IAutoMovieRecoveryEventRegion {
   /**
-   * Prepare private scalar-clipped source-cell ownership and boundary incidence
-   * observations. Every query supplies all faces with max(height)>=before and
-   * min(height)<=after, in original face order. The implicit cell is that
-   * face's barycentric domain intersected with the closed scalar interval; no
-   * source triangle array or generated mesh is returned. Source and returned
-   * private addresses must be discarded before engine publication. Original
-   * source edges share declared incidence; cut edges remain face occurrences,
-   * so coincident or parallel cut edges are not welded. Raw and canonical
-   * incidence are explicit alternatives, not assumed equivalent. Plane strata
-   * require one external owner when adjacent slabs are combined.
-   * Connectivity/topology never establishes a regular or event chart: every
-   * component remains unclassified, with all unsupported evidence retained.
+   * Prepare the supplied registered source and incidence mode, then query its
+   * intersection with a closed scalar slab. Supply every face meeting that
+   * interval in original ordinal order. Return cells, component topology,
+   * contacts and port ownership.
    */
 
   export type Operation = (
@@ -45,218 +27,150 @@ export namespace IAutoMovieRecoveryEventRegion {
   ) => IAutoMovieRecoveryEventRegion.Result;
 
   /**
-   * Source within recovery event region. Borrowed physical positions in the
-   * registered millimetre frame; indices in triangles address this array.
+   * Borrowed registered source arrays and explicit incidence equivalence for
+   * repeated region queries.
    */
   export interface Source {
-    /**
-     * Borrowed physical positions in the registered millimetre frame; indices
-     * in triangles address this array.
-     */
+    /** Original registered Cartesian vertices in millimetres. */
     verticesMm: readonly Readonly<AutoMovieVector3Tuple>[];
 
-    /**
-     * Oriented triangle vertex-index triples addressing the paired position
-     * array; indices are not control IDs.
-     */
+    /** Original oriented triangle vertex triples in source face order. */
     triangles: readonly IAutoMovieRecoveryEventRegion.Triangle[];
 
-    /**
-     * One in-range canonical connectivity index per original vertex; this does
-     * not move source coordinates.
-     */
+    /** One in-range idempotent canonical address per original source vertex. */
     canon: Int32Array;
 
     /**
-     * Finite scalar projections aligned with source vertices, in the same units
-     * as query levels.
+     * Finite signed scalar coordinates in millimetres, aligned with the
+     * original vertices.
      */
     heights: readonly number[];
 
     /**
-     * Selects raw source addresses or caller-declared canonical connectivity;
-     * equal coordinates alone do not select an equivalence.
+     * Connectivity rule selecting original or exact-equivalent canonical vertex
+     * addresses.
      */
     incidence: "raw" | "canonical";
   }
 
   /**
-   * Query within recovery event region. Lower physical sweep coordinate in
-   * registered millimetres; paired with the strictly greater afterMm.
+   * One closed physical scalar interval and the source and port populations to
+   * observe.
    */
   export interface Query {
-    /**
-     * Lower physical sweep coordinate in registered millimetres; paired with
-     * the strictly greater afterMm.
-     */
+    /** Lower signed scalar plane in millimetres. */
     beforeMm: number;
 
-    /**
-     * Upper physical sweep coordinate in registered millimetres; paired with
-     * the strictly smaller beforeMm.
-     */
+    /** Upper signed scalar plane in millimetres, strictly greater than beforeMm. */
     afterMm: number;
 
     /**
-     * Strictly increasing original face indices covering the operation's
-     * complete scalar overlap interval; omission, where allowed, scans all
-     * faces.
+     * Original face ordinals in strictly increasing order. Include all faces
+     * meeting the closed scalar interval.
      */
     candidates: readonly number[];
 
     /**
-     * Declared boundary observations and their component membership; ambiguous
-     * or missing membership remains explicit.
+     * Caller-defined boundary observations with exact source support and named
+     * typed references.
      */
     ports: readonly IAutoMovieRecoverySourcePort[];
   }
 
   /**
-   * Returned coefficient or observation state from RecoveryEventRegion. Every
-   * observed source-topology or port-membership failure, retained without
-   * repairing source incidence.
+   * Clipped source incidence, contact, topology and port evidence for one
+   * admitted physical query.
    */
   export interface Result {
-    /**
-     * Selects raw source addresses or caller-declared canonical connectivity;
-     * equal coordinates alone do not select an equivalence.
-     */
+    /** Raw or canonical connectivity policy used to build this result. */
     incidence: IAutoMovieRecoveryEventRegion.Source["incidence"];
 
-    /** Closed scalar query bounds [before,after] in registered millimetres. */
+    /** Lower and upper signed scalar bounds in millimetres. */
     boundsMm: [number, number];
 
     /**
-     * Candidate inclusion is the caller's closed-overlap premise, not
-     * independently certified here.
+     * Accounting for supplied candidates and those completely outside the
+     * closed clip.
      */
     coverage: {
-      /**
-       * Number of caller-supplied face candidates visited by this
-       * closed-interval query.
-       */
+      /** Number of original face ordinals supplied in this query. */
       candidateFaces: number;
 
-      /**
-       * Supplied candidates with no cell in the requested closed scalar
-       * interval.
-       */
+      /** Supplied candidates whose closed scalar clip was empty. */
       outsideCandidates: number;
 
       /**
-       * Caller-premise means the observer does not scan omitted faces to
-       * certify candidate completeness.
+       * Literal caller premise acknowledging that candidate completeness is
+       * externally supplied.
        */
       completeness: "caller-premise";
     };
 
-    /**
-     * Observed boundary-node identities in traversal order; repeated physical
-     * positions retain separate incidence when declared.
-     */
+    /** Distinct raw source nodes encountered while clipping nonempty cells. */
     nodes: IAutoMovieRecoverySourceCellNode[];
 
-    /**
-     * Explicit original-to-canonical incidence aliases; no proximity matching
-     * is inferred.
-     */
+    /** Raw node addresses whose selected incidence identity differs. */
     aliases: {
-      /**
-       * Original observed node identity before applying the selected incidence
-       * equivalence.
-       */
+      /** Raw clipping node ID with a different joining identity. */
       rawNode: string;
-      /**
-       * Declared connectivity identity, independent of physical coordinate
-       * equality.
-       */
+      /** Incidence key used in component processing for that raw node. */
       incidenceId: string;
     }[];
 
     /**
-     * Observed source cells in query-local index order; source-face addresses
-     * remain acquisition metadata.
+     * Retained nonempty clipped cells, with original face and contact
+     * dimension.
      */
     cells: IAutoMovieRecoverySourceCell[];
 
-    /**
-     * Directed halfedge occurrences retained in actual source-cell traversal
-     * order.
-     */
+    /** Directed source-relative halfedges from dimension-two clipped cells. */
     occurrences: IAutoMovieRecoverySourceHalfedge[];
 
     /**
-     * Observed two-cell components or their query-local ordinals;
-     * lower-dimensional contacts do not merge them.
+     * Edge-connected dimension-two cell populations and their independent
+     * topology evidence.
      */
     components: IAutoMovieRecoverySourceComponent[];
 
-    /**
-     * Lower-dimensional source cells and their incident two-cell components,
-     * retained without inventing a cap.
-     */
+    /** Lower-dimensional clipped cells and the observed components they touch. */
     contacts: {
-      /** Query-local index into the observed cells array. */
+      /** ID of the lower-dimensional clipped contact cell. */
       cell: number;
-      /**
-       * Component ordinals meeting this lower-dimensional contact; contact does
-       * not merge their two-cell sheets.
-       */
+      /** Dimension-two component IDs touched by the contact's incidence nodes. */
       touchingComponents: number[];
     }[];
 
     /**
-     * Declared boundary observations and their component membership; ambiguous
-     * or missing membership remains explicit.
+     * Named boundary references with clipped cell, component and occurrence
+     * membership and explicit status.
      */
     ports: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Original caller-defined port name. */
       id: string;
 
-      /**
-       * Saved observation address for this port; the discriminant separates
-       * closed/open curves, contacts and named boundaries.
-       */
+      /** Caller-supplied typed observable address for the port. */
       reference: IAutoMovieRecoverySourcePortReference;
 
-      /**
-       * Observed source cells in query-local index order; source-face addresses
-       * remain acquisition metadata.
-       */
+      /** Retained clipped-cell IDs reached by source face ownership. */
       cells: number[];
 
-      /**
-       * Observed two-cell components or their query-local ordinals;
-       * lower-dimensional contacts do not merge them.
-       */
+      /** Dimension-two component IDs incident to those retained cells. */
       components: number[];
 
-      /**
-       * Directed halfedge occurrences retained in actual source-cell traversal
-       * order.
-       */
+      /** Exposed source occurrence IDs admitted by this port role. */
       occurrences: string[];
 
-      /**
-       * Closed outcome discriminator; unavailable or ambiguous arms retain
-       * diagnostics instead of fabricated successful data.
-       */
+      /** Unique, contact-only, ambiguous or missing source membership. */
       status: "unique-component" | "contact-only" | "ambiguous" | "missing";
     }[];
 
     /**
-     * Every observed source-topology or port-membership failure, retained
-     * without repairing source incidence.
+     * Source topology and port problems retained with implicated original and
+     * result-local IDs.
      */
     issues: IAutoMovieRecoverySourceTopologyIssue[];
   }
 
-  /**
-   * Triangle within recovery event region. Its referenced contract retains the
-   * same units, ordering and absence semantics.
-   */
+  /** One oriented original source triangle in vertex population order. */
   export type Triangle = readonly [number, number, number];
 }

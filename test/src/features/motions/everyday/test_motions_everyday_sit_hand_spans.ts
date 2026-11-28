@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A hand meeting its support at departure is resting at that exact second.
  * 2. Across a positive reach span the endpoints hold. The minimum-jerk
  *    quintic gives 53/512 at one quarter and one half at the midpoint.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Sitting hand support handles an existing exact-start contact and a later reach into the same phase.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the hand support span reader with assigned departure and arrival times for both cases.
+ * @evidence contracts/development/testing.md#independent-expectations An existing contact begins at full share. The timed reach's endpoints and interior share follow the minimum-jerk formula.
  */
 export function test_motions_everyday_sit_hand_spans(): void {
   const touching: { start: number; ready: number } = { start: 0, ready: 0 };

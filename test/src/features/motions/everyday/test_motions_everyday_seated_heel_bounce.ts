@@ -7,7 +7,13 @@ import {
 } from "../../../../../packages/motions/src/everyday/internal/seatedHeelBounce";
 import { strict as assert } from "node:assert";
 
-/** Four beats at 2 Hz take two seconds and need a seat and two flat feet. */
+/**
+ * Four beats at 2 Hz take two seconds and need a seat and two flat feet.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Four beats at 2 Hz last two seconds. A heel bounce needs a seat, two flat feet, and positive count and cadence.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the beat timing and support admission functions with explicit beat and contact inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Duration is count divided by cadence. Separate missing-support and zero-input assertions isolate refusal axes.
+ */
 export function test_motions_everyday_seated_heel_bounce(): void {
   assert.equal(seatedHeelBounce.beatDuration(4, 2), 2);
   const seat: IAutoMovieMotionHumanEntryState.ISupport = {

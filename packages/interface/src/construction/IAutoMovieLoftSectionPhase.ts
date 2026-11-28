@@ -1,23 +1,19 @@
 /**
- * Local section point and phase partials at fixed physical station.
- *
- * AutoMovieEngineLoftSectionLegacy reads the periodic spline's correspondence phase
- * in radians; AutoMovieEngineLoftSection also returns this shape for native polar and
- * mixed fields. The [u,v] components are local to the section plane before
- * frame, lift or relief placement. Producers return fresh mutable finite
- * vectors and reject nonfinite requested readings. Phase-only admission
- * supplies no physical station derivative or nonzero-speed guarantee.
+ * Local section value and the first two phase partials at fixed physical
+ * station. Each vector uses the section's u/v chart before frame, lift and
+ * relief. Legacy sections use their periodic correspondence phase; native
+ * sections use polar phase. Both angles are in radians.
  */
 export type IAutoMovieLoftSectionPhase = {
-  /** Local [u,v] point in millimetres. */
+  /** Position [u, v] in section-chart millimetres. */
   p: [number, number];
 
-  /** First phase partial in millimetres per radian. */
+  /** First phase partial of [u, v], in millimetres per radian. */
   t: [number, number];
 
   /**
-   * Second phase partial in millimetres per squared radian; native G1 joins can
-   * have a sided value.
+   * Second phase partial of [u, v], in millimetres per squared radian. A native
+   * G1 join can supply a sided value.
    */
   tt: [number, number];
 };

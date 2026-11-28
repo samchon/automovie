@@ -3,35 +3,29 @@ import { createDrinkware as createDrinkwareImplementation } from "./internal/cre
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand } from "../core";
 import { DRINKWARE_BANDS } from "./constants/DRINKWARE_BANDS";
 
-/** Public operations for Auto Movie Archetype Drinkware. */
+/** Creates drinking vessels with named grip, rim and opening affordances. */
 export namespace AutoMovieArchetypeDrinkware {
   /**
-   * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer,
-   * water or wine bottle.
+   * Creates a drinking vessel with its contacts on the generated geometry.
    *
-   * The model is the vessel's body as one upright cylinder, with a mug's handle
-   * as three bars, a wine glass's stem and foot, and a bottle's neck; with each
-   * kind's flat colour, brown for a beer bottle, pale blue for a water bottle and
-   * dark green for a wine bottle, that is what tells the six apart. What a hand
-   * and a mouth read is exact: each grip's frame lies on the axis of the part it
-   * wraps with the part's diameter as its `aperture`, and the `lip` stands on the
-   * rim on the vessel's `+Z` side, where the drinker's mouth meets it.
+   * The vessel stands at the origin with `+Y` up. Choose `body` for a grip
+   * on the body and `lip` for the rim on the `+Z` side. A mug or cup adds a
+   * hook on the `+X` handle bar. The hook follows the bar centre when the
+   * lower stub rests at the base. A wine glass adds a `stem` grip. A bottle
+   * adds `neck` and `mouth`. Grip aperture measures the bar or cylinder
+   * diameter. On a hook, length measures the clear loop height.
    *
-   * The vessel stands on its base at the origin, `+Y` up. A mug's or a cup's
-   * handle is on `+X`, the right of a drinker who faces the `+Z` side: a loop
-   * centred on the body's half height, or resting its lower stub at the base
-   * where the body is too short for that, its inside as tall as an index and a
-   * middle finger are broad and as deep as the thicker of them, so the two
-   * fingers pass through it, its bar an industrial handle's read thickness as an
-   * analogue; the fingers' hook grip reads the loop's clearance, not the bar.
+   * The vessel is empty by default. Fill adds the modeled liquid mass in
+   * kilograms and selects the composite material. Empty mugs and cups use
+   * ceramic, water bottles use plastic, and the other empty vessels use glass.
    *
-   * @param params The kind, how full it is and any dimension the author fixes.
-   * @param seed The seed that picks the model when none is given and draws every
-   *   dimension left free inside its band; absent, the first model and the middle
-   *   of each band.
-   * @returns The vessel.
-   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
-   *   a fill outside 0 to 1.
+   * @param params The kind, optional catalogue record, fill and dimensions.
+   * @param seed Seed for omitted catalogue choices and band values. Omit it
+   *   to use the first applicable record and each band midpoint.
+   * @returns The vessel and its kind-specific affordances.
+   * @throws {AutoMovieArchetypeRefusal} For an invalid kind, unavailable
+   *   catalogue record or dimension, a value outside its band or fixed
+   *   catalogue figure, or a fill other than a finite ratio from zero to one.
    */
   export function create(params: AutoMovieArchetypeDrinkware.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeDrinkware.Affordance, AutoMovieArchetypeDrinkware.Dimension> {
     return createDrinkwareImplementation(params, seed);
@@ -44,8 +38,7 @@ export namespace AutoMovieArchetypeDrinkware {
    * sturdier and does their fracture-threshold suffice to break the human
    * skull?, J. Forensic Leg. Med. 16(3):138-142, 2009, abstract,
    * https://britglass.org.uk/knowledge-base/digital-library-and-information-services/are-full-or-empty-beer-bottles-sturdier-and).
-   * A part-filled bottle's, which no source read gives, is absent, so it does
-   * not break.
+   * These two fill endpoints publish fracture thresholds in the model.
    */
   export const BREAKING: Readonly<Record<number, number>> = { 0: 40, 1: 30 };
 
@@ -74,8 +67,7 @@ export namespace AutoMovieArchetypeDrinkware {
    * The affordance ids:
    *
    * - `body`: a power grip round the body, taken from the `-X` side; every kind.
-   * - `handle`: a mug's or a cup's handle bar, hooked by the fingers through its
-   *   loop.
+   * - `handle`: the centre of a mug's or a cup's hook bar.
    * - `stem`: a wine glass's stem, pinched.
    * - `neck`: a bottle's neck.
    * - `mouth`: a bottle's opening, a socket facing up.
@@ -148,8 +140,8 @@ export namespace AutoMovieArchetypeDrinkware {
     id?: string;
 
     /**
-     * How full the vessel is, 0 to 1 of its stated capacity, which adds the
-     * content's mass at one kilogram per litre; empty when absent.
+     * Finite fraction of capacity from zero to one, empty by default. Adds
+     * one kilogram per litre of modeled contents.
      */
     fill?: number;
   }
@@ -202,4 +194,5 @@ export namespace AutoMovieArchetypeDrinkware {
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
-  > = DRINKWARE_BANDS;}
+  > = DRINKWARE_BANDS;
+}

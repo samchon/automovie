@@ -26,6 +26,10 @@ import { sweepRowPerimeter } from "../../internal/sweepRowPerimeter";
  * 3. Rings at u 0.375, 0.5 and 0.625 declaring 3 percent more, the same and 2
  *    percent less than the sweep's own perimeters, a row apart at the medium
  *    tier, all hold together.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the subdivided perimeter tolerance, three sampling tiers and simultaneous different requested lengths.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles real elliptic and rounded-rectangle sections and measures the resulting subdivided limit rings against authored targets across tiers.
+ * @evidence contracts/development/testing.md#independent-expectations A dense 4096-edge polyline supplies independent source perimeter. The declared percentages alter it by known factors, and the 0.5 mm bound tests each ring separately.
  */
 export function test_engine_geometry_sweep_girth(): void {
   const held: number = 0.0005;

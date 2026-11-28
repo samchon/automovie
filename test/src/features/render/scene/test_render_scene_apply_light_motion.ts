@@ -12,6 +12,10 @@ import * as THREE from "three";
  * 1. A point light with no clip is written to the light its id resolves to:
  *    position, colour, intensity and range.
  * 2. A light whose id resolves to nothing is skipped without an error.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the point-light fields written and the skipped missing ID.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies one typed staged light without an animation clip to a native point light through an ID resolver. Reads transform, linear RGB, intensity and distance. Repeats with a resolver that supplies no light.
+ * @evidence contracts/development/testing.md#independent-expectations The staged light supplies (1, 2, 3), linear RGB (0.25, 0.5, 0.75), intensity 7 and range 12. An unresolved ID leaves the control light's intensity at its starting value 1.
  */
 export function test_render_scene_apply_light_motion(): void {
   const light: IAutoMovieLight = {

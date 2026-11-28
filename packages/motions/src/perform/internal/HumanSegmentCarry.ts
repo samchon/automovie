@@ -1,4 +1,7 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -40,13 +43,14 @@ export namespace HumanSegmentCarry {
    * captures re-entered each other without bound.
    */
   export function borne(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment,
+    person: Pick<IAutoMovieMotionHumanSegment.IPerson, "holds">,
+    segment: Pick<IAutoMovieMotionHumanSegment, "plan" | "end" | "entryTime">,
     seconds: number,
   ): IAutoMovieMotionHumanSegment.IHeld[] {
     const out: IAutoMovieMotionHumanSegment.IHeld[] = [];
-    const left: boolean = HumanSegment.drives(segment.plan, "left");
-    const right: boolean = HumanSegment.drives(segment.plan, "right");
+    // Read contact geometry only if an eligible hold needs that hand.
+    let left: boolean | undefined;
+    let right: boolean | undefined;
     let ridingLeft: boolean = false;
     let ridingRight: boolean = false;
     for (const held of person.holds) {
@@ -64,7 +68,10 @@ export namespace HumanSegmentCarry {
         )
       )
         continue;
-      const driven: boolean = held.side === "left" ? left : right;
+      const driven: boolean =
+        held.side === "left"
+          ? (left ??= HumanSegment.drives(segment.plan, "left"))
+          : (right ??= HumanSegment.drives(segment.plan, "right"));
       if (driven) continue;
       const earlier: boolean = held.side === "left" ? ridingLeft : ridingRight;
       if (held.riding === true) {
@@ -181,7 +188,8 @@ export namespace HumanSegmentCarry {
       AutoMovieEngineQuaternion.rotateVector(anchor.worldRotation, goal.point),
     );
     const miss: number =
-      AutoMovieEngineVector3.distance(map.get(hand)!.worldPosition, centre) * 1000;
+      AutoMovieEngineVector3.distance(map.get(hand)!.worldPosition, centre) *
+      1000;
     if (miss > HumanArmTrajectoryTerms.TOLERANCE)
       throw new AutoMovieMotionHumanRefusal({
         kind: "reach",

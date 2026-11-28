@@ -12,6 +12,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 /**
  * Actual-root feedback retains independently planted endpoints without moving
  * the root or solved bodies.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes compensating actual root displacement while retaining planted world endpoints and borrowed goals.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans support on a typed quadrupod after shifting the actual root 0.03 m in x and reads each returned planted segment.
+ * @evidence contracts/development/testing.md#independent-expectations The actual root position is the unmodified premise. Each planted segment must stay within 0.003 m of its original target and the source targets must remain identical.
  */
 export function test_engine_physics_plan_physical_root_support_targets(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

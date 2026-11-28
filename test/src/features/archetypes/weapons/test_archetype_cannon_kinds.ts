@@ -22,11 +22,9 @@ const LB: number = 0.45359237;
  * 5. A model given for a gun is refused at `model`.
  * 6. A swivel gun is Royal Museums Greenwich KTP0053's 2.25 in calibre on a 1000 mm tube (provisional); its `elevation` rides its `traverse`, so panning a quarter turn carries the tilted muzzle round with it, and its tilt's and pan's ends are admitted models; its `tiller` rides the elevation.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each kind, reads its dimensions and contacts, sweeps the mortar's models and articulates the naval gun; a figure off its source, a blended mortar, a muzzle at the wrong angle or an unrefused model is caught.
- * @evidence contracts/development/testing.md#independent-expectations The figures are written here from Griffiths, Douglas and the 1861 manual's pages.
- * @evidence contracts/development/testing.md#distinguishing-cases The three new kinds, both mortars, the elevation's and the pan's ends and a refusal.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the three scenic model choices and the dimensions, contacts, catalogue draws and articulation cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each public model, compares whole catalogue choices and reads the actual scene geometry and contact frames before and after articulation.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the historical dimensions already stated in the in-memory fixture and compares each generated choice to an entire catalogue entry.
  */
 export function test_archetype_cannon_kinds(): void {
   const findings: string[] = [];

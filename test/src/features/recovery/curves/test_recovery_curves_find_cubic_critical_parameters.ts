@@ -24,6 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  *    3), so D = 18 - 72·t + 72·t², the square of 0.5 - t scaled; the affine
  *    conditions e + f·t = 0 and 4e² - 9f·d0 - f·e·t - f²·t²/2 = 0 both meet at
  *    0.5, and the velocity (3 - 12t + 12t², 3 - 6t) vanishes there.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the curvature and stationary conditions with four explicit source curves.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates constant, straight, S-shaped and cusped cubic controls through the public critical-parameter routine.
+ * @evidence contracts/development/testing.md#independent-expectations The S-curve gives a linear curvature numerator with a root at one half. For the cusp both velocity components vanish at the same parameter.
  */
 export function test_recovery_curves_find_cubic_critical_parameters(): void {
   const lead: string =

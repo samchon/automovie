@@ -1,15 +1,11 @@
 import type { IAutoMovieLoftViewRead } from "./IAutoMovieLoftViewRead";
 
 /**
- * Complete endpoint generating data after orientation into the receiving
- * station/phase chart.
- *
- * AutoMovieEngineLoftSectionSource.bind admits this family, clones it into
- * independent field and snapshot records, and binds both to the receiving
- * layer's actual coefficient rows. endpoint later refuses a changed or
- * malformed family rather than treating it as absent legacy geometry. Native
- * inputs retain their scalar physical-station jets; basis rows retain all
- * coefficients through station order two.
+ * Complete native scalar or periodic basis endpoint jet already oriented into
+ * the receiving station and phase chart. The native variant supplies four
+ * extent jets and four shoulder jets. The basis variant supplies the order and
+ * three complete coefficient rows. Use SectionSource.bind to associate the
+ * family and its independent snapshot with a layer.
  */
 export type IAutoMovieLoftSectionSourceFamily =
   | {

@@ -23,6 +23,10 @@ type ICustodyCheck = Extract<
 /**
  * Check malformed placed facts and authored transform and custody boundaries
  * independently of seeking or review order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers placed TRS admission, intentional or unavailable boundaries, continuous steps and declared custody changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls measurePlacedContinuity with raw transforms and independent endpoint and holder facts. It checks measured distance and angle, exact finding paths and unsupported states.
+ * @evidence contracts/development/testing.md#independent-expectations The half-metre move exceeds its quarter-metre limit and opposite quaternion signs have zero angle. A same-time quarter turn gives pi/2. Explicit allowed holders distinguish early receipt, drop and an authorized null release.
  */
 export const test_engine_validation_placed_continuity = (): void => {
   const transform: ITransformCheck = {

@@ -428,6 +428,10 @@ async function arrivalTurn(): Promise<void> {
  * - `walk_tempo`: `walkTempo` takes a stepping plan's steps unevenly in time:
  * - `walk_heading_footfalls`: `walkHeading`'s footfall rules:
  * - `arrivalTurn`: Displayed foot and pelvis placement through an arrival turn.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Walk turns, step timing, footfalls and the displayed arrival turn follow their prepared controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls heading and tempo helpers on fixed knots and steps, then evaluates the stock walk through an arrival turn.
+ * @evidence contracts/development/testing.md#independent-expectations Known knot derivatives, strike order and uneven intervals check each helper. The displayed arrival has independent 2 cm position and 3-degree heading tolerances.
  */
 export async function test_motions_actions_walk(): Promise<void> {
   part_walk_turn.verify();

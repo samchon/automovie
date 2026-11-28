@@ -24,6 +24,10 @@ const TRAVEL_ROUNDING_METRES: number = 4 * Number.EPSILON;
  * 2. On a 0.2 / 0.3 / 0.1 / 0.4 s phrase with the right foot leading, the left
  *    plants throughout, the right to 0.2 and from 0.5 to 0.6 of the stroke, or
  *    from 0.5 to the end staying.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines animation travel and lead and rear plant windows for step, lunge and stay.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the travel and plant helpers for a 1.8 m rig and a timed phrase with the right foot leading.
+ * @evidence contracts/development/testing.md#independent-expectations Factors 0.2 and 0.45 yield 0.36 m and 0.81 m. Authored phase boundaries fix continuous rear plant and the distinct lead-foot windows.
  */
 export function test_motions_striking_advance(): void {
   const tall = { body: { measure: { stature: 1.8 } } };

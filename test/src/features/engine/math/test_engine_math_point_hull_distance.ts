@@ -15,6 +15,10 @@ import { nclose } from "../../internal/predicates";
  * 1. A point inside is 0; a point (2, 0.5) beside an edge is 1; a point (4, 5)
  *    past the corner (1, 1) is 5.
  * 2. An empty hull is Infinity; a one-vertex hull gives the vertex distance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers XZ distance inside a square, beyond its edge and corner, and on empty or single-vertex hulls.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes the unit-square hull and direct test points to pointHullDistance. Two calls substitute the degenerate hulls.
+ * @evidence contracts/development/testing.md#independent-expectations Inside has zero distance. The perpendicular edge gap is one and the corner displacement (3, 4) has length five. The empty hull gives infinity and a single vertex reduces to point distance.
  */
 export function test_engine_math_point_hull_distance(): void {
   const p = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });

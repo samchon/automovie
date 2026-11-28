@@ -32,32 +32,21 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * The `dress` law's own logic, the rigid carry of a wearable onto its worn
- * frame, without the arm planner:
- *
- * - `HumanWornItem.point` places an item-local point on the item's frame,
- *   `position + rotation * local`.
- * - `HumanWornItem.holding` targets the hand that holds an item so the item lands
- *   on a frame: the hand turned by the frame's rotation times the inverse held
- *   rotation, its grip socket the held offset, so turned, short of the frame's
- *   origin.
- * - `dressTurn.carried` places the carrying hand on a wearable's frame by the
- *   same rule.
+ * Check rigid wearable placement, carry and required hand custody.
  *
  * Scenarios:
  *
- * 1. An item at (0, 1, 0): unturned, its local (0.1, 0, 0.2) lies at (0.1, 1,
- *    0.2); turned 90 degrees about +Y, its local (1, 0, 0) at (0, 1, -1).
- * 2. A hat held 0.1 m along the grip frame's +Y asked onto a frame at (0, 1.7, 0)
- *    turned 90 degrees about +Y: the hand turns 90 degrees, its grip socket at
- *    (0, 1.6, 0), the offset the body's grip socket.
- * 3. A wearable at (0, 1, 0.5) turned 90 degrees about +Y held 0.1 m along +Z:
- *    held unturned the hand turns with it and grips at (-0.1, 1, 0.5); held
- *    turned the same the hand is unturned and grips at (0, 1, 0.4).
- * 4. The right hand must hold the hat. An empty hand and one holding a
- *    different prop refuse before the arm is planned.
+ * 1. Place an item-local point in an unrotated frame and after a 90 degree
+ *    yaw about its authored origin.
+ * 2. For a hat held 0.1 m up, read the arrival grip socket 0.1 m below the
+ *    worn frame. Compare the carried grip when its initial rotation is
+ *    identity or already matches the wearable.
+ * 3. Refuse an empty right hand and a right hand holding another prop for the
+ *    hat request.
  *
- * The body is built whole (`humanFixtureBody`) for the hand's grip socket.
+ * @evidence contracts/development/common.md#meaningful-documentation The cases name the offsets and frames used by placement and the two missing-custody conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture exercises forward point conversion, solved grip geometry and the dress law's entry gate.
+ * @evidence contracts/development/testing.md#independent-expectations The given local offsets and inverse held rotation determine expected world grip positions by rigid composition.
  */
 export async function test_motions_dressing_dress(): Promise<void> {
   // 1. Points.

@@ -5,621 +5,477 @@ import type {
 } from "..";
 
 /**
- * One constrained bicubic Bernstein fit over a shared millimetre control
- * registry. Fixed coefficients remain unchanged, affine relations identify
- * dependent controls, and explicit enclosure bounds constrain independent
- * controls. RecoveryChartFit admits the numeric problem; rank, convergence and
- * sampled residuals are separate result qualifications and do not certify an
- * embedded or source-faithful surface.
+ * Physical observation input and numerical result of one constrained bicubic
+ * coefficient fit.
  */
 
 export namespace IAutoMovieRecoveryChartFit {
   /**
-   * One private chart coefficient problem; callers separate diagnostic
-   * observations from public geometry.
+   * Fit weighted chart observations against a shared millimetre control
+   * registry. Supply the enclosure, observation population and work controls
+   * for a joint normalized solve.
    */
   export interface Input {
-    /** Millimetre controls; non-null values remain bitwise unchanged. */
+    /**
+     * Registered millimetre control positions. A null slot leaves the control
+     * free or subject to an affine relation.
+     */
     controls: readonly (Readonly<AutoMovieVector3Tuple> | null)[];
 
     /**
-     * Optional feasible original-millimetre coefficients used only to
-     * initialize independent unknowns.
+     * Optional physical starting coefficients in original registry order. The
+     * fit copies only values for independent controls.
      */
     initialControlsMm?: readonly Readonly<AutoMovieVector3Tuple>[];
 
     /**
-     * Acyclic affine identities in original control IDs; fixed entries cannot
-     * be dependent.
+     * Optional acyclic identities assigning dependent controls as weighted sums
+     * of original IDs.
      */
     relations?: readonly {
-      /**
-       * Zero-based ordinal in this record's owning cell, component or control
-       * registry; it is not a source coordinate.
-       */
+      /** Dependent control's original registry id. */
       id: number;
 
-      /**
-       * Sparse affine contributions in original control IDs; duplicate IDs and
-       * signed weights retain the owning operation's declared combination
-       * rule.
-       */
+      /** Signed original-control contributions that define the dependent value. */
       terms: readonly {
-        /**
-         * Zero-based ordinal in this record's owning cell, component or control
-         * registry; it is not a source coordinate.
-         */
+        /** Original registry id of one contributing control. */
         id: number;
-        /**
-         * Declared scalar row or affine coefficient weight; its sign and
-         * normalization follow the enclosing fit or substitution contract.
-         */
+        /** Signed multiplier of that control in the affine identity. */
         weight: number;
       }[];
     }[];
 
-    /** Explicit sparse substitution budgets when affine identities are supplied. */
+    /**
+     * Explicit affine expansion and reduced-row budgets when relations are
+     * present.
+     */
     relationBudget?: {
-      /**
-       * Positive integer ceiling on supplied or expanded sparse affine terms,
-       * as admitted by the owning operation.
-       */
+      /** Maximum sparse terms retained during identity expansion. */
       maxTerms: number;
 
-      /** Positive integer ceiling on acyclic affine dependency expansion depth. */
+      /** Maximum acyclic dependency depth. */
       maxDepth: number;
 
       /**
-       * Optional cap on an expanded observation stencil; omission uses the
-       * fitter's documented default.
+       * Cap on all reduced observation-row addresses. Defaults to 128 with
+       * relations or 16 without them.
        */
       maxRowTerms?: number;
     };
 
-    /** Sixteen registry IDs per patch, u varying fastest within each v row. */
+    /**
+     * Bicubic patch nets, each using sixteen original control IDs with U
+     * varying fastest.
+     */
     patches: readonly {
-      /**
-       * Indices into the shared control registry; bicubic nets use sixteen IDs
-       * with u varying fastest.
-       */
+      /** Sixteen original registry IDs in U-fastest Bernstein order. */
       controlIds: readonly number[];
 
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** Optional stable patch identifier copied into diagnostics. */
       id?: string;
 
-      /**
-       * Optional global chart rectangle [u0,v0,u1,v1]; omission leaves only
-       * local patch coordinates.
-       */
+      /** Optional global normalized patch bounds [uMin, uMax, vMin, vMax]. */
       parameterBounds?: readonly [number, number, number, number];
     }[];
 
     /**
-     * Normalized local u/v and positive physical-area or declared observation
-     * weights.
+     * Weighted original millimetre point correspondences in each patch's local
+     * unit chart, with optional physical tangent rows.
      */
     observations: readonly {
-      /**
-       * Patch identity or zero-based patch ordinal, according to this record,
-       * addressing the supplied coefficient-patch registry.
-       */
+      /** Zero-based index of this observation's patch. */
       patch: number;
 
-      /**
-       * Normalized u coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Local U parameter in [0, 1]. */
       u: number;
 
-      /**
-       * Normalized v coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Local V parameter in [0, 1]. */
       v: number;
 
-      /**
-       * Physical position in the registered millimetre frame; no coordinate
-       * matching or source repair is implied.
-       */
+      /** Observed [X, Y, Z] in registered millimetres. */
       pointMm: Readonly<AutoMovieVector3Tuple>;
 
-      /**
-       * Declared scalar row or affine coefficient weight; its sign and
-       * normalization follow the enclosing fit or substitution contract.
-       */
+      /** Positive observation weight before normalization by total weight. */
       weight: number;
 
-      /**
-       * Optional physical directional-derivative observation; absence
-       * contributes only the position row.
-       */
+      /** Optional scaled physical tangent rows for this observation. */
       physicalJet?: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0]["physicalJet"];
     }[];
 
     /**
-     * Additional original correspondences checked after solving, without
-     * changing the area objective.
+     * Additional original correspondences checked after fitting, outside the
+     * assembled objective.
      */
     validation?: readonly {
-      /**
-       * Patch identity or zero-based patch ordinal, according to this record,
-       * addressing the supplied coefficient-patch registry.
-       */
+      /** Zero-based patch index of this check-only sample. */
       patch: number;
 
-      /**
-       * Normalized u coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Local U parameter of the validation correspondence. */
       u: number;
 
-      /**
-       * Normalized v coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Local V parameter of the validation correspondence. */
       v: number;
 
-      /**
-       * Physical position in the registered millimetre frame; no coordinate
-       * matching or source repair is implied.
-       */
+      /** Observed validation position in registered millimetres. */
       pointMm: Readonly<AutoMovieVector3Tuple>;
     }[];
 
-    /**
-     * Explicit componentwise feasible control enclosure in millimetres,
-     * including fixed controls.
-     */
+    /** Componentwise lower and upper control bounds in registered millimetres. */
     enclosureMm: {
-      /** Lower componentwise physical control bound in millimetres. */
+      /** Lower [X, Y, Z] control enclosure in registered millimetres. */
       lower: Readonly<AutoMovieVector3Tuple>;
-      /** Upper componentwise physical control bound in millimetres. */
+      /** Upper [X, Y, Z] control enclosure in registered millimetres. */
       upper: Readonly<AutoMovieVector3Tuple>;
     };
 
-    /**
-     * Requested observation residual in millimetres; not a continuous
-     * source-distance bound.
-     */
+    /** Requested maximum sampled position residual in millimetres. */
     toleranceMm: number;
 
-    /** Positive normalized projected-gradient termination tolerance. */
+    /** Positive projected-gradient threshold in normalized original coordinates. */
     gradientTolerance: number;
 
-    /** Positive maximum gradient iterations; exhaustion remains unqualified. */
+    /** Positive iteration cap for the projected box solve. */
     maxIterations: number;
   }
 
   /**
-   * Finite fitted coefficients with independent convergence and observation
-   * accounting.
+   * Reconstructed millimetre coefficients with separate numerical convergence,
+   * rank, sampled-error and enclosure evidence.
    */
   export interface Result {
-    /** Millimetre registry in input order, preserving all fixed entries exactly. */
+    /**
+     * Fitted registry in input order and registered millimetres, with the
+     * original fixed values preserved.
+     */
     controls: Readonly<AutoMovieVector3Tuple>[];
 
     /**
-     * True only when numerical full observation rank, gradient termination and
-     * supplied residual pass.
+     * Whether full observed rank, normalized projected gradient, sampled
+     * position maximum and dependent enclosure pass together.
      */
     qualified: boolean;
 
-    /** Actual projected-gradient iterations. */
+    /** Projected proposals attempted by the normalized box solver. */
     iterations: number;
 
-    /** Infinity norm of the normalized projected-gradient mapping. */
+    /**
+     * Infinity norm of the projected-gradient mapping in original normalized
+     * box coordinates.
+     */
     projectedGradient: number;
 
-    /** Weighted RMS of all supplied point correspondences, millimetres. */
+    /** Weighted RMS of fitting position observations in millimetres. */
     rmsMm: number;
 
-    /**
-     * Millimetre exchange-length-scaled physical-gradient RMS, separate from
-     * position RMS.
-     */
+    /** Weighted RMS of exchange-length-scaled tangent residuals, in millimetres. */
     physicalJetRmsMm: number;
 
     /**
-     * Position-plus-physical-gradient objective RMS in the declared millimetre
-     * exchange scale.
+     * Root of the combined position and physical-gradient mean square, in
+     * millimetres.
      */
     objectiveRmsMm: number;
 
-    /**
-     * Actual transient signed derivative rows assembled without expanding the
-     * observation table.
-     */
+    /** Number of generated signed derivative rows consumed during assembly. */
     physicalJetRows: number;
 
     /**
-     * Original and diagonally transformed spectral estimates and actual restart
-     * count, not condition numbers.
+     * Sparse box solver estimates, diagonal range and realized momentum restart
+     * count.
      */
     solve: {
-      /**
-       * Row-sum spectral upper estimate for the original Hessian, not a
-       * condition number.
-       */
+      /** Original normalized Hessian absolute row-sum estimate. */
       originalLipschitz: number;
 
-      /**
-       * Row-sum spectral upper estimate after diagonal congruence, not a
-       * condition number.
-       */
+      /** Absolute row-sum estimate after diagonal congruence. */
       scaledLipschitz: number;
 
-      /**
-       * Smallest positive Hessian diagonal; null means no positive entry was
-       * observed.
-       */
+      /** Smallest positive original Gram diagonal, or null if absent. */
       minimumPositiveDiagonal: number | null;
 
-      /** Largest Hessian diagonal used in scaling and diagnostics. */
+      /** Largest original Gram diagonal used by the box solver. */
       maximumDiagonal: number;
 
-      /** Actual acceleration-momentum resets after objective increase. */
+      /** Projected-acceleration momentum restarts actually taken. */
       restarts: number;
     };
 
-    /** Largest supplied point-correspondence residual, millimetres. */
+    /**
+     * Largest observed position residual across fitting and validation samples,
+     * in millimetres.
+     */
     maximumMm: number;
 
-    /** Unknown coefficient count after fixed shared controls are eliminated. */
+    /**
+     * Number of independent vector controls after fixed and dependent
+     * elimination.
+     */
     unknownControls: number;
 
     /**
-     * Numerical Gram rank, or null when the explicit dense diagnostic limit is
-     * exceeded.
+     * Numerical Gram rank, or null if the rank work cap excludes the
+     * calculation.
      */
     observationRank: number | null;
 
-    /** Relative Gram pivot threshold; this is not an exact rank certificate. */
+    /** Relative pivot floor for the Gram rank decision. */
     rankTolerance: number;
 
     /**
-     * Smallest accepted over largest Cholesky pivot; not a singular-value
-     * condition number.
+     * Smallest accepted over largest Gram Cholesky pivot, or null when
+     * unavailable.
      */
     gramPivotRatio: number | null;
 
     /**
-     * Column-scaled, twice-reorthogonalized data-row rank, or null at the work
-     * limit.
+     * Numerical rank of scaled original observation rows, or null under its
+     * work cap.
      */
     dataRowRank: number | null;
 
     /**
-     * Accepted data QR diagonal ratio; neither this nor a Gram pivot is a
-     * condition number.
+     * Smallest accepted to largest diagonal magnitude of the data-row
+     * factorization, or null when unavailable.
      */
     dataQrDiagonalRatio: number | null;
 
     /**
-     * Per-patch maximum over fit and additional validation correspondences,
-     * millimetres.
+     * Maximum checked position residual per patch, in original input patch
+     * order and millimetres.
      */
     patchMaximumMm: number[];
 
-    /** Per-patch maximum restricted to rows with unknown coefficient support. */
+    /**
+     * Maximum measured residual per patch over samples with independent
+     * coefficient support.
+     */
     patchFreeSupportMaximumMm: number[];
 
     /**
-     * Actual local UV of each patch maximum, used by the declared residual
-     * refinement wave.
+     * Local [u, v] of the first strict maximum in each patch, or null when none
+     * was recorded.
      */
     patchMaximumLocations: ([number, number] | null)[];
 
-    /**
-     * Controls with no positive observation basis support, independent of rank
-     * work limits.
-     */
+    /** Count of independent controls with no positive observation Gram diagonal. */
     unsupportedControls: number;
 
-    /** Maximum over rows supported entirely by fixed coefficients, millimetres. */
+    /**
+     * Maximum measured residual among rows without independent positional
+     * support, in millimetres.
+     */
     fixedSupportMaximumMm: number;
 
-    /** Maximum over rows with positive unknown coefficient support, millimetres. */
+    /**
+     * Maximum measured residual among rows with independent positional support,
+     * in millimetres.
+     */
     freeSupportMaximumMm: number;
 
     /**
-     * Generated patch and local parameters of the largest checked
-     * correspondence.
+     * Patch and local coordinates of the first strictly larger global sampled
+     * maximum, or null when unavailable.
      */
     maximumLocation: {
-      /**
-       * Patch identity or zero-based patch ordinal, according to this record,
-       * addressing the supplied coefficient-patch registry.
-       */
+      /** Original input patch index of the worst sample. */
       patch: number;
 
-      /**
-       * Normalized u coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Worst sample's local U parameter. */
       u: number;
 
-      /**
-       * Normalized v coordinate in the declared local patch or unit source
-       * chart.
-       */
+      /** Worst sample's local V parameter. */
       v: number;
 
       /**
-       * True when every coefficient contributing to this correspondence is
-       * fixed by external authority.
+       * True when no positive position basis coefficient carries independent
+       * terms.
        */
       fixedSupport: boolean;
     } | null;
 
     /**
-     * One private worst correspondence and its original affine feasible range;
-     * never consumer geometry.
+     * Private maximum-sample record with its original controls and affine
+     * reachability calculation, or null.
      */
     maximumWitness: {
-      /**
-       * Patch identity or zero-based patch ordinal, according to this record,
-       * addressing the supplied coefficient-patch registry.
-       */
+      /** Original input patch index of the witness. */
       patch: number;
 
-      /**
-       * Declared patch identity, or null when the caller supplied only
-       * positional patch indices.
-       */
+      /** Copied declared patch identifier, or null when absent. */
       patchId: string | null;
 
-      /**
-       * Normalized local patch coordinates [u,v] of the retained
-       * correspondence.
-       */
+      /** Local [u, v] of the retained maximum sample. */
       localUV: [number, number];
 
-      /**
-       * Global normalized chart coordinates, or null when the patch has no
-       * declared global bounds.
-       */
+      /** Global [u, v] obtained from the leaf bounds, or null without bounds. */
       globalUV: [number, number] | null;
 
       /**
-       * Global normalized bounds of the containing refinement leaf, or null
-       * when no leaf layout is supplied.
+       * Global normalized bounds [uMin, uMax, vMin, vMax], or null without
+       * them.
        */
       leafBounds: readonly [number, number, number, number] | null;
 
-      /**
-       * Observed target in the operation's millimetre exchange scale;
-       * derivative rows retain their physical directional meaning.
-       */
+      /** Observed maximum-sample position in registered millimetres. */
       targetMm: Readonly<AutoMovieVector3Tuple>;
 
-      /**
-       * Evaluated fitted position at the retained correspondence, in registered
-       * millimetres.
-       */
+      /** Fitted maximum-sample position in registered millimetres. */
       fittedPointMm: Readonly<AutoMovieVector3Tuple>;
 
-      /**
-       * Indices into the shared control registry; bicubic nets use sixteen IDs
-       * with u varying fastest.
-       */
+      /** Original registry IDs of the sixteen controls supporting the witness. */
       controlIds: number[];
 
       /**
-       * Bernstein control positions in the common registered millimetre frame,
-       * ordered by control registry ID.
+       * Physical millimetre control positions in the witness's local basis
+       * order.
        */
       controlsMm: Readonly<AutoMovieVector3Tuple>[];
 
       /**
-       * Signed Bernstein row weights in original control order; derivative rows
-       * are not position convex combinations.
+       * Sixteen position Bernstein weights aligned with the original control
+       * IDs.
        */
       coefficients: number[];
 
       /**
-       * Fixed constants and independent-control terms expressing each retained
-       * original control.
+       * Reduced affine expressions associated with the witness's original
+       * control slots.
        */
       coefficientExpressions: {
-        /**
-         * Fixed affine control contribution in the same physical millimetre
-         * chart as the dependent coefficient.
-         */
+        /** Fixed millimetre contribution of this control expression. */
         constant: Readonly<AutoMovieVector3Tuple>;
 
-        /**
-         * Sparse affine contributions in original control IDs; duplicate IDs
-         * and signed weights retain the owning operation's declared combination
-         * rule.
-         */
+        /** Independent original control terms for this expression. */
         terms: {
-          /**
-           * Zero-based ordinal in this record's owning cell, component or
-           * control registry; it is not a source coordinate.
-           */
+          /** Original independent control id in this reduced expression. */
           id: number;
-          /**
-           * Declared scalar row or affine coefficient weight; its sign and
-           * normalization follow the enclosing fit or substitution contract.
-           */
+          /** Signed coefficient multiplying that independent control. */
           weight: number;
         }[];
       }[];
 
-      /**
-       * Original position/physical-gradient correspondences used to diagnose
-       * this patch's retained worst witness.
-       */
+      /** Bounded fitting samples from the same patch in input observation order. */
       sampledRows: {
-        /**
-         * Normalized u coordinate in the declared local patch or unit source
-         * chart.
-         */
+        /** Local U of one retained diagnostic row sample. */
         u: number;
 
-        /**
-         * Normalized v coordinate in the declared local patch or unit source
-         * chart.
-         */
+        /** Local V of one retained diagnostic row sample. */
         v: number;
 
-        /**
-         * Observed target in the operation's millimetre exchange scale;
-         * derivative rows retain their physical directional meaning.
-         */
+        /** Observed position of that sample in registered millimetres. */
         targetMm: Readonly<AutoMovieVector3Tuple>;
 
-        /**
-         * Optional physical directional-derivative observation; absence
-         * contributes only the position row.
-         */
+        /** Sample's original scaled tangent rows, or null if absent. */
         physicalJet:
           | IAutoMovieRecoveryChartFit.Input["observations"][number]["physicalJet"]
           | null;
       }[];
 
-      /**
-       * Fixed contribution to the affine coefficient row, in registered
-       * millimetres.
-       */
+      /** Fixed millimetre contribution after composing the witness position row. */
       constantMm: Readonly<AutoMovieVector3Tuple>;
 
       /**
-       * Sparse affine contributions in original control IDs; duplicate IDs and
-       * signed weights retain the owning operation's declared combination
-       * rule.
+       * Independent-control contributions after composing the witness position
+       * row.
        */
       terms: {
-        /**
-         * Zero-based ordinal in this record's owning cell, component or control
-         * registry; it is not a source coordinate.
-         */
+        /** Independent original control ID in the composed witness. */
         id: number;
-        /**
-         * Declared scalar row or affine coefficient weight; its sign and
-         * normalization follow the enclosing fit or substitution contract.
-         */
+        /** Combined signed weight of that independent control. */
         weight: number;
-        /** Current control value in registered millimetres for this affine term. */
+        /** Fitted independent control position in registered millimetres. */
         valueMm: Readonly<AutoMovieVector3Tuple>;
       }[];
 
-      /**
-       * Lower physical support or componentwise enclosure bound, in the
-       * declared registered millimetre frame.
-       */
+      /** Original lower physical box bound for the witness. */
       lowerMm: Readonly<AutoMovieVector3Tuple>;
 
-      /**
-       * Upper physical support or componentwise enclosure bound, in the
-       * declared registered millimetre frame.
-       */
+      /** Original upper physical box bound for the witness. */
       upperMm: Readonly<AutoMovieVector3Tuple>;
 
       /**
-       * Single-row affine-box feasibility observation; it does not certify
-       * joint fit or continuous source support.
+       * Reachable physical box and target distance for this one affine position
+       * row.
        */
       reachable: ReturnType<IAutoMovieAffineBoxBound.Operation>;
 
       /**
-       * Always null: this coefficient-fit witness does not claim original
-       * source-face identity.
+       * Null because this coefficient witness does not carry original face
+       * identity.
        */
       originalSourceFace: null;
     } | null;
 
     /**
-     * Binary64 tangent-plane box gap for the assembled normalized objective;
-     * not a rigorous error-bounded certificate.
+     * Normalized quadratic objective, numerical tangent box gap and associated
+     * physical scale.
      */
     optimality: {
-      /**
-       * Current normalized quadratic objective value under the declared row
-       * weights.
-       */
+      /** Evaluated normalized box quadratic at the returned control iterate. */
       objective: number;
 
-      /** Constant term of the assembled normalized least-squares objective. */
+      /** Constant term of the normalized least-squares objective. */
       leastSquaresConstant: number;
 
-      /**
-       * Tangent-plane support gap over the feasible normalized box; a numerical
-       * bound, not an outward-rounded certificate.
-       */
+      /** Numerical tangent-plane support gap over the original normalized box. */
       boxSupportGap: number;
 
-      /** Infinity norm of the original normalized objective gradient. */
+      /** Infinity norm of the original normalized quadratic gradient. */
       gradientInfinity: number;
 
       /**
-       * Reported objective-gap upper estimate restored to square-millimetre
-       * scale.
+       * Physical squared-millimetre estimate derived by rescaling the
+       * normalized gap.
        */
       physicalObjectiveGapUpperMm2: number;
 
-      /**
-       * Positive millimetre scale dividing physical position residuals in the
-       * normalized solve.
-       */
+      /** Millimetre length used to divide physical coordinates. */
       normalizationScaleMm: number;
 
-      /** Physical millimetre origin subtracted before the normalized solve. */
+      /** Registered millimetre origin used to translate the fit. */
       normalizationOriginMm: Readonly<AutoMovieVector3Tuple>;
     };
 
     /**
-     * Unknown vector controls touching at least one declared enclosure
-     * coordinate.
+     * Independent controls touching at least one enclosure coordinate after
+     * solving.
      */
     activeEnclosureControls: number;
 
     /**
-     * Largest dependent-control excursion outside the original millimetre
-     * enclosure.
+     * Largest componentwise millimetre excursion from the enclosure for an
+     * affine-dependent control.
      */
     dependentEnclosureViolationMm: number;
 
-    /** Affine substitution accounting; this does not certify convex weights. */
+    /**
+     * Observed affine substitution depth, term counts and signed weight
+     * diagnostics.
+     */
     relationDiagnostics: {
-      /**
-       * Largest retained affine substitution expression in original control
-       * IDs.
-       */
+      /** Largest retained independent-term expression. */
       maximumTerms: number;
 
-      /** Deepest affine dependency expansion actually traversed. */
+      /** Deepest observed affine dependency chain. */
       maximumDepth: number;
 
-      /**
-       * Smallest retained affine weight; negative values remain explicit and do
-       * not imply convexity.
-       */
+      /** Smallest signed original source weight after flattening. */
       minimumWeight: number;
 
-      /**
-       * Largest absolute deviation of an affine expression's weight sum from
-       * one.
-       */
+      /** Largest deviation of a retained affine weight sum from one. */
       maximumWeightSumError: number;
     };
 
     /**
-     * Largest assembled reduced observation stencil; the explicit row-work cap
-     * includes exact-zero terms.
+     * Largest reduced observation stencil assembled, counting stored exact-zero
+     * terms.
      */
     maximumRowTerms: number;
 
-    /** Actual stored sparse Hessian entries, including symmetric partners. */
+    /** Number of stored sparse Hessian entries, including mirrored counterparts. */
     hessianNonzeros: number;
 
-    /**
-     * Unobserved controls and incomplete convergence remain explicit; rank is
-     * not certified.
-     */
+    /** Observed numerical and fitting qualifications that remain unresolved. */
     diagnostics: string[];
   }
 }

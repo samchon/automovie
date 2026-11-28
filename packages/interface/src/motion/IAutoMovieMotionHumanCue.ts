@@ -37,25 +37,29 @@ export namespace IAutoMovieMotionHumanCue {
       };
 
   /**
-   * A beat track: `beat` at every beat and `downbeat` at the first beat of
-   * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and `{ event:
-   * "downbeat", index: 1 }` the start of the second bar. A score's pulse.
+   * Clock and meter used to emit a beat track.
+   *
+   * Each beat yields a `beat` cue. The first beat of each bar also yields a
+   * `downbeat` at the same second. Read `beat` occurrence 5 for the sixth beat
+   * or `downbeat` occurrence 1 for the start of the second bar.
+   * The cue builder checks that all seconds and the output array can be
+   * represented before emitting the track.
    */
   export interface IBeats {
     /**
-     * Tempo, beats per minute. A walk that keeps step takes one step a beat:
-     * 120 is the drill's quick time and 180 its double time (`HumanGait.MARCH`,
-     * `HumanGait.DOUBLE`).
+     * Finite positive tempo in beats per minute. Fractional tempo is allowed.
+     * A walk keeping step takes one step per beat. Quick and double time in
+     * drill use 120 and 180 BPM, respectively.
      */
     bpm: number;
 
-    /** Film second of the first beat, which is a downbeat; 0 when absent. */
+    /** Finite film second of the first downbeat. Defaults to 0. */
     from?: number;
 
-    /** How many beats the track holds. */
+    /** Number of beats to emit, as a positive safe integer. */
     count: number;
 
-    /** Beats in a bar; 4 when absent. */
+    /** Beats per bar, as a positive safe integer. Defaults to 4. */
     meter?: number;
   }
 

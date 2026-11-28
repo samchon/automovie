@@ -69,9 +69,7 @@ const ROLES: Readonly<Record<string, readonly string[]>> = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds every kit through the public environments entry and reads staged frames, runtime models and anchors, which catches a piece outside its room, a missing role or affordance, a clearance not reserved or reserved at the wrong figure, a chair turned away from its desk and a table that does not follow the sofa.
  * @evidence contracts/development/testing.md#independent-expectations The 0.76 m, 1.22 m, 1.067 m and 1.219 m figures are the issue's cited ADA and NKBA values, the room sizes are computed from the drawn models' rest boxes measured through the engine, and the 0.45 m default and 0.6 m gap are the kit's documented input.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a bedroom 0.10 m either side of its bound, one and two cooks against the same room, two seeds and two table gaps; `test_environment_furnishing_relations` owns the relation cases and `test_environment_furnishing` the cafe and gym.
- * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory rooms; it starts no renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its six scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks staged room-kit positions, anchors, reserved clearances and model roles. Exercises bedroom sizes on each side of the limit, single- and two-cook kitchens, seed variants and two sofa-table gaps.
  */
 export function test_environment_room_kits(): void {
   const build: (

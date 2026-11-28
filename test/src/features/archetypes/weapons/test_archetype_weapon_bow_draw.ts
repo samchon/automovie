@@ -12,11 +12,9 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Each string half stays its braced length within the string's radius (`createBow.STRING`), the inextensible string the limbs' table keeps.
  * 5. Naming a limb in a state is refused, its leader being `string`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Articulates real bows through their draw and measures the posed parts and contacts with finite-safe comparisons; limbs that do not follow, a string that leaves its tips or the nock, or a nock that drifts off the arrow's line is caught.
- * @evidence contracts/development/testing.md#independent-expectations A limb tip's distance from the grip, the string halves' ends and lengths and the nock's place are read off the posed model, not off the table that poses it.
- * @evidence contracts/development/testing.md#distinguishing-cases Three kinds, 11 travels each including brace and full draw, and the refusal.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the posed scene limbs, span endpoints, central contact and alignment checks at sampled animation states.
+ * @evidence contracts/development/testing.md#behavioral-verification Articulates public scene models and measures the two posed span halves and their endpoints. Repeatable frame observations distinguish detached ends, an unmoved limb and an off-axis centre.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the emitted limb tips and centre contact as geometric references. A span between these points must have the Euclidean distance between its endpoints.
  */
 export function test_archetype_weapon_bow_draw(): void {
   const findings: string[] = [];

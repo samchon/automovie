@@ -295,8 +295,13 @@ function scenario_test_motions_perform_prop_outcome_material(): void {
 }
 
 /**
- * A prop outcome's refusals: its continuation and its material, each scenario
- * below.
+ * A bouncing prop continues through valid contacts, settles under the inward
+ * gravity cutoff, and rejects invalid contact times. Authored contact material
+ * determines the ground outcome and its coefficients.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names ballistic continuation, strict settling cutoff, film-time contact ordering, and material outcomes and refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification The exported scenario runs continuation and material checks on typed sphere records. It reads real rebound legs with a supplied plane contact callback, checks advancement, and passes explicit material fields through `HumanPropOutcome.decide`.
+ * @evidence contracts/development/testing.md#independent-expectations From unit upward speed, constant gravity g gives midpoint Y = 0.5 + g/8 and speed 1 + g/2. With inward acceleration 5 and radius 0.1, speed 1 puts the apex exactly at the cutoff. A 0.5 s contact after 0.25 s advances to 0.75 s. Literal material fields determine the expected coefficients.
  */
 export function test_motions_perform_prop_outcome(): void {
   scenario_test_motions_perform_prop_outcome_continuation();

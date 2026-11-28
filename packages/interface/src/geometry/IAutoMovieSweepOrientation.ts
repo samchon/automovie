@@ -1,34 +1,33 @@
 /**
- * A sweep's section planes compiled into buffers that a pose can rewrite, from
- * `orientSweep`.
- *
- * The caller writes each station's plane rotation and whether it gives one,
- * calls `update` after the spine's transport is current, then reads frames into
- * its own arrays without allocation.
+ * Reusable section plane compiler whose station rotation buffers can be
+ * rewritten for pose updates.
  */
 export interface IAutoMovieSweepOrientation {
   /**
-   * Each station's plane rotation `[x, y, z, w]` in the model frame, four
-   * numbers per station, read where `given` is 1.
+   * Writable packed absolute x, y, z, w rotations, four scalars per station.
+   * Slots are read when selected by given.
    */
   rotations: Float64Array;
 
   /**
-   * 1 for a station that gives a rotation, 0 for one whose plane is the carried
-   * frame.
+   * Writable flag per station. Zero keeps the carried frame at that station and
+   * one reads its rotation slot.
    */
   given: Uint8Array;
 
-  /** Recompute every station's turn relative to the carried frame at its `at`. */
+  /**
+   * Recompute relative turns after the current spine transport and station
+   * rotations have been written.
+   */
   update(): void;
 
   /**
-   * Write the section plane at `u`: origin, first axis, second axis and normal,
-   * twelve numbers.
+   * Write metre origin, unit first axis, unit second axis and unit normal in
+   * that order, three scalars each.
    *
-   * @param u Chord-length parameter, clamped to `[0, 1]`
-   * @param out Receives twelve numbers
-   * @param at Offset into `out`
+   * @param u Normalized chord coordinate, clamped to [0, 1].
+   * @param out Borrowed destination with twelve writable scalars from at.
+   * @param at Scalar starting offset in out.
    */
   frame(u: number, out: Float64Array, at: number): void;
 }

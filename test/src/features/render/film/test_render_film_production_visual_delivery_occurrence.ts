@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. Segment 2 of shot "s1" over frames 10–20 is "occurrence:2:10-20:s1".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Formats the segment index, delivered frame range and shot as one occurrence identifier.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the occurrence-name formatter for segment two of shot s1 over frames ten through twenty.
+ * @evidence contracts/development/testing.md#independent-expectations The exact expected string pins ordering and delimiters for all three independent fields.
  */
 export function test_render_film_production_visual_delivery_occurrence(): void {
   const segment: IAutoMovieFilmTimelineSegment = {

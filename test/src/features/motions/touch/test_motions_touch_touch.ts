@@ -41,42 +41,23 @@ const ROUNDING: number = 1e-12;
 type Lay = Parameters<typeof touchLayouts>[1];
 
 /**
- * The `touch` law's own logic, each piece without the arm planner:
- *
- * - `touchSide` picks the touching hand: the one the author names; else never a
- *   hand that would touch its own arm (or leave the other hand on its own arm),
- *   whatever the other's strain.
- * - `touchFaces` names the point a two-handed touch turns the trunk toward: the
- *   middle of the two regions when it lies aside of the shoulders' midpoint by
- *   more than half their span across the heading; none between them or without
- *   both shoulders.
- * - `touchSite` moves a touch's contact over its surface: by an offset up and out
- *   in the surface's plane, not at all along a prop's contact, toward the
- *   shoulder by at most `within` for a reach rule, and by a drawn point within
- *   `draw`; a negative `within` is refused.
- * - `touchLayouts` decides each declared hand and target's layout once, in order,
- *   and hands every later read a fresh copy; an undeclared pair is read anew.
+ * Check hand selection, two-hand facing and surface layout for touch.
  *
  * Scenarios:
  *
- * 1. Hand choice, the average man standing at the origin: a named left hand
- *    touches; the left forearm is touched by the right hand and the right
- *    forearm by the left; the sternum with the other hand on the left forearm
- *    is touched by the left hand.
- * 2. Facing, shoulders at x = 0.2 and -0.2 at 1.4 m: regions meeting at x = 0.6
- *    are faced facing +Z; meeting at x = 0.1, none; a middle 0.5 m behind,
- *    facing +X, is faced; without the right shoulder, none.
- * 3. Sites on a surface at (0, 1.2, 0.1) facing +Z, the shoulder at (0.2, 1.4, 0):
- *    0.05 m up and 0.02 m out lies at (0.02, 1.25, 0.1); along a contact it
- *    stays; within 0.1 m of the shoulder it moves 0.1 m toward it and within 1
- *    m all the way; a drawn point lies on the plane within its 0.05 m; a
- *    negative `within` is refused on `site.within`.
- * 4. Layouts: building reads each declared pair once in order; a declared pair's
- *    read reads nothing more, returns its decision and is a fresh copy; an
- *    undeclared pair is read at its own call.
+ * 1. Respect an explicit hand and select the free hand for own forearm
+ *    contacts. Face a two-hand midpoint beyond the shoulder span in the
+ *    relevant heading.
+ * 2. Apply the authored surface offset, cap movement toward a shoulder, bound
+ *    the draw and reject a negative reach allowance. Preserve the point on a
+ *    prop's fixed contact.
+ * 3. Prepare declared hand-target pairs in order. Repeat them without another
+ *    layout read and return fresh objects. Resolve an undeclared pair on
+ *    demand.
  *
- * The body is built whole (`humanFixtureBody`) for the hand choice, which reads
- * the body's surfaces and arms.
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the choice axes, frame and layout reuse boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification The hand, facing, surface and preparation functions receive small typed fixtures and their own asserts.
+ * @evidence contracts/development/testing.md#independent-expectations The shoulder midpoint and local offset geometry determine the expected coordinates. Callback observations distinguish eager, reused and new reads.
  */
 export async function test_motions_touch_touch(): Promise<void> {
   // 1. Hand choice.

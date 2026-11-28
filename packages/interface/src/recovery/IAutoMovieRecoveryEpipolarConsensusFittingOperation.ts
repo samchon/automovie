@@ -6,24 +6,17 @@ import type {
 } from "..";
 
 /**
- * Estimate a calibrated pixel epipolar consensus with bounded local refinement.
- * Every proposal is projected to the supplied-calibration essential manifold
- * before scoring. The first bounded proposals with at least eight calibrated
- * inliers receive local refinement before comparison with the current winner; a
- * raw score cannot bound the result of local optimization. Final re-estimation
- * invalidates an older sampling target; any larger target resumes proposals
- * within the same total trial budget.
+ * Callable bounded search and final refit for calibrated epipolar
+ * correspondence evidence.
  */
 
 export namespace IAutoMovieRecoveryEpipolarConsensusFittingOperation {
   /**
-   * Estimate a calibrated pixel epipolar consensus with bounded local
-   * refinement. Every proposal is projected to the supplied-calibration
-   * essential manifold before scoring. The first bounded proposals with at
-   * least eight calibrated inliers receive local refinement before comparison
-   * with the current winner; a raw score cannot bound the result of local
-   * optimization. Final re-estimation invalidates an older sampling target; any
-   * larger target resumes proposals within the same total trial budget.
+   * Draw deterministic distinct eight-point proposals, project each surviving
+   * model into essential space, and score finite signed Sampson support. Try
+   * eligible local refits within the declared limit. Recompute the sampling
+   * target after final re-estimation and resume sampling when the new target
+   * requires it and capacity remains.
    */
 
   export type Operation = (
@@ -36,51 +29,48 @@ export namespace IAutoMovieRecoveryEpipolarConsensusFittingOperation {
     checkpoint: (completed: number, total: number) => void,
   ) => {
     /**
-     * Row-major 3 by 3 epipolar model in the declared image charts; homogeneous
-     * scale is arbitrary.
+     * Current calibrated row-major pixel fundamental matrix, or null without a
+     * usable candidate.
      */
     matrix: number[] | null;
 
     /**
-     * Residual-gated original correspondence indices and their pixel quantiles
-     * for the current model.
+     * Current original-order support indices and finite pixel residual
+     * statistics.
      */
     score: ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>;
 
-    /**
-     * Actual random-sample hypotheses attempted under the caller's explicit
-     * work ceiling.
-     */
+    /** Completed proposal draws, including recognized numerical refusals. */
     trials: number;
 
     /**
-     * Conditional trial requirement computed from final observed support, or
-     * null when it is not representable.
+     * Ideal conditional trial target at the final support or null when a finite
+     * target is unavailable.
      */
     requiredTrialsAtFinalSupport: number | null;
 
     /**
-     * Whether actual trials met the conditional target; this is conditional on
-     * the assumed sampling/support model.
+     * Whether proposal count met both the configured floor and final support
+     * target.
      */
     conditionalTrialTargetMet: boolean;
 
-    /** Attempted hypotheses rejected for numerical admission or degeneracy. */
+    /** Numerically refused raw proposal fits. */
     numericalRefusals: number;
 
-    /** Number of local consensus refinements actually attempted. */
+    /** Eligible proposals entering a bounded local refinement. */
     localRefinements: number;
 
-    /** Local refinements refused by numerical or support admission. */
+    /**
+     * Unfinished or numerically refused local refits and recognized numerical
+     * exceptions from final re-estimation.
+     */
     localRefinementRefusals: number;
 
-    /** Actual final-support reestimations, separate from sampled hypotheses. */
+    /** Final-support refit attempts, separate from proposal draws. */
     finalReestimations: number;
 
-    /**
-     * Last final-support refinement report, or null when no refinement was
-     * admitted.
-     */
+    /** Last available final-support refinement report, or null. */
     finalRefinement: ReturnType<IAutoMovieRecoveryEpipolarModelRefinementOperation.Operation> | null;
   };
 }

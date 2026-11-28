@@ -25,6 +25,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  *    normal/detail/overlay maps retain their derivative-frame route.
  * 4. Collapsed UVs cannot publish a zero explicit tangent as a supported unit
  *    frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a valid rigid tangent, mirrored handedness and derivative-frame fallback for excluded inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds variants of the same strip through the scene model owner and reads its actual Three.js attributes and material state. Checks the eligible, mirrored, isotropic, morph, skinned, mapped and degenerate cases.
+ * @evidence contracts/development/testing.md#independent-expectations The authored strip has a known longitudinal axis and normal. Their unit orthogonal basis fixes tangent length and direction, while reversing UV orientation flips handedness. An unformable UV frame and the input variants that require derivatives must avoid an invented explicit tangent.
  */
 export function test_render_scene_build_model_anisotropy_tangent(): void {
   const base: IAutoMovieModel = createModel();

@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A declared event is a knot even when the cap prevents any sweep.
  * 5. Two adjacent clock values are the only possible knots and preserve
  *    distinct endpoint values without reevaluating the prepared function.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines adaptive knot membership, cap, event insertion and behavior at adjacent clock values.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares constant and sine data, varies the cap, supplies an exact branch event and reads adjacent binary64 endpoints out of order.
+ * @evidence contracts/development/testing.md#independent-expectations Six initial knots and five midpoints give exactly 11 evaluations for a constant. The cap and adjacent clocks independently constrain further samples and event membership.
  */
 export function test_motions_posture_adaptive_knots(): void {
   // 1. A constant.

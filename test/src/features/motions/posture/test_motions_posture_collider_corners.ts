@@ -40,6 +40,10 @@ function set(points: readonly IAutoMovieVector3[]): string[] {
  *    probes coincide with its radius-matched sphere's six probes. These
  *    dyadic coordinates and sums are exact in binary64.
  * 4. A tetrahedron hull: its four vertices.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the collider probe set and exact collapse from a capsule to a radius-matched sphere.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds local probes for box, sphere, capsule, collapsed capsule and authored hull vertices.
+ * @evidence contracts/development/testing.md#independent-expectations The dyadic capsule dimensions put poles at ±3/8 and three probe circles at −1/4, 0 and 1/4. Collapse yields exactly six distinct coordinates.
  */
 export function test_motions_posture_collider_corners(): void {
   // 1. A box.

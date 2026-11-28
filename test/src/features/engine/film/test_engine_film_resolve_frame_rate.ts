@@ -13,6 +13,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. `fps` 24 alone is 24/1; `fps` 30 with 60/2 reduces to 30/1; `fps` 30000 /
  *    1001 with 30000/1001 keeps the NTSC ratio.
  * 2. `fps` 29.97 with 30000/1001 disagrees and is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name scalar fallback, reduced rational identity and the scalar and rational combinations that disagree.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls resolveProductionFrameRate with a scalar, matching rational and mismatching pair and reads its ratio or refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Scalar 24 has denominator 1, 60/2 reduces to 30/1, and 30000/1001 already has coprime terms. The independently supplied display value 29.97 differs from the exact NTSC division and the route must refuse that combination.
  */
 export function test_engine_film_resolve_frame_rate(): void {
   const ntsc = { numerator: 30000, denominator: 1001 };

@@ -20,11 +20,9 @@ import { TestValidator } from "@nestia/e2e";
  *    a length, a diameter or a mass fixed a micro-unit off its figure is
  *    refused on that dimension.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the cartridge and reads its admission, its dimensions, its mass and its two contacts' places; a cartridge of another size, weight or grip, or one torn at its ball end, is caught.
- * @evidence contracts/development/testing.md#independent-expectations The sizes and the weight are the manuals' figures, written here; the contacts' places are read off the produced model.
- * @evidence contracts/development/testing.md#distinguishing-cases The one cartridge under three seeds, its grip and its end, which distinguish the pinched middle from the torn top, and three refused figures.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the scenic prop's size, mass and the local grip and seam contact locations.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and reads the public prop geometry and named contacts. Tests the emitted extents, weight and opposite contact positions.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal reference sizes and mass and measures the named positions against the actual model extents.
  */
 export function test_archetype_projectile_cartridge(): void {
   const findings: string[] = [];

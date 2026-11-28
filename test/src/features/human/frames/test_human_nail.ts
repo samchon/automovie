@@ -31,9 +31,7 @@ import type { IAutoMovieHumanNail, IAutoMovieViewLoft } from "@automovie/interfa
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanNail.create` and lofts the plate it returns through `AutoMovieHumanConicLoft.create`.
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is the made section's support function, the quarter circle, the circle's sagitta from the published radius, or a bound from the fold's definition; none is the law's own formula.
- * @evidence contracts/development/testing.md#distinguishing-cases The turned frame tells a roll read from the skin from one taken from the segment; the level top tells the plate's own arc from the digit's back, which has none; the closing quarter circle tells the free edge's rule from a share of the length; the short digit tells a refusal from a nail behind the joint.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on one made skin, reached by `--include human_nail`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
+ * @evidence contracts/development/common.md#meaningful-documentation The bar fixture checks level orientation, breadth, free edge, plate arc, relief and ownership around the fold and sides, with a too-short digit refusal.
  */
 export function test_human_nail(): void {
   const failures: string[] = [];

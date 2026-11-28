@@ -14,6 +14,11 @@ export function sampleRecoveryCameraIndices(
   trial: number,
 ): number[] {
   if (
+    !Number.isSafeInteger(population) ||
+    !Number.isSafeInteger(sampleSize) ||
+    !Number.isSafeInteger(seed) ||
+    !Number.isSafeInteger(domain) ||
+    !Number.isSafeInteger(trial) ||
     population < sampleSize ||
     sampleSize < 1 ||
     seed < 0 ||
@@ -29,7 +34,11 @@ export function sampleRecoveryCameraIndices(
   );
   for (let at: number = 0; at < sampleSize; at++) {
     const selected: number =
-      at + Math.floor(AutoMovieEngineMath.seededValue(seed, domain, trial, at) * (population - at));
+      at +
+      Math.floor(
+        AutoMovieEngineMath.seededValue(seed, domain, trial, at) *
+          (population - at),
+      );
     const previous: number = indices[at]!;
     indices[at] = indices[selected]!;
     indices[selected] = previous;

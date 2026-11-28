@@ -1,83 +1,54 @@
 import type { IAutoMovieRecoverySourceTopology } from "..";
 
 /**
- * Edge-connected two-dimensional source cells with independently reported
- * topology. Query-local cell and face lists retain source ownership; topology
- * may be unresolved and classification remains literally unclassified. Boundary
- * cycles retain directed occurrence order.
+ * Connected dimension-two clipped source cells with independent topology and
+ * boundary evidence.
  */
 export interface IAutoMovieRecoverySourceComponent {
-  /**
-   * Zero-based ordinal in this record's owning cell, component or control
-   * registry; it is not a source coordinate.
-   */
+  /** Index of the component in the query's retained component array. */
   id: number;
 
-  /**
-   * Observed source cells in query-local index order; source-face addresses
-   * remain acquisition metadata.
-   */
+  /** Original clipped-cell IDs of this dimension-two component. */
   cells: number[];
 
-  /**
-   * Original source-face indices retained as incidence support; these never
-   * become generated mesh indices.
-   */
+  /** Original source triangle IDs supplying the component's cells. */
   faces: number[];
 
-  /**
-   * Always unclassified: topology observations do not themselves authorize an
-   * engine chart.
-   */
+  /** Literal unclassified reconstruction status for this source component. */
   classification: "unclassified";
 
   /**
-   * Topology of the relative two-cell sheet; lower-dimensional contacts remain
-   * separate evidence.
+   * Combinatorial counts, orientation, manifold links, boundary cycles and
+   * possible genus.
    */
   topology: IAutoMovieRecoverySourceTopology;
 
   /**
-   * Halfedge occurrence and traversal direction; no coordinate or arbitrary
-   * seam closure is added.
+   * Simple directed boundary cycles with occurrence order, joining nodes and
+   * orientation status.
    */
   cycles: {
-    /**
-     * Directed halfedge occurrences retained in actual source-cell traversal
-     * order.
-     */
+    /** Ordered directed occurrence references tracing one component boundary. */
     occurrences: {
-      /**
-       * Stable identity within the owning chart, boundary or occurrence
-       * registry; equal coordinates do not create identity.
-       */
+      /** ID of the original face-local boundary occurrence. */
       id: string;
-      /**
-       * Traversal orientation relative to the stored occurrence: +1 forward and
-       * -1 backward.
-       */
+      /** Traversal direction against the stored occurrence direction. */
       direction: 1 | -1;
     }[];
 
-    /**
-     * Observed boundary-node identities in traversal order; repeated physical
-     * positions retain separate incidence when declared.
-     */
+    /** Joining node identities encountered around the cycle in order. */
     nodes: string[];
 
     /**
-     * Whether traversal follows a qualified coherent sheet orientation or
-     * remains explicitly unqualified.
+     * Whether the component's manifold orientation supports this boundary
+     * traversal.
      */
     orientation: "coherent" | "unqualified";
   }[];
 
-  /**
-   * Boundary incidence identities whose traversal could not be qualified as a
-   * simple cycle.
-   */
+  /** Boundary occurrence IDs that cannot form simple cycles. */
   unresolvedBoundary: string[];
 
-  /** Indices into the query result's issues array for this component. */
+  /** Indices into the containing result's source issue list. */
   issueIds: number[];
 }

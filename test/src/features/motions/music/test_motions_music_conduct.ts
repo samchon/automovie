@@ -11,21 +11,18 @@ import { humanFixture } from "../../internal/fixtures/humanFixture";
 import { vclose } from "../../internal/vclose";
 
 /**
- * The conduct law's own logic: the conducting figure in the performer's frontal
- * plane (Rudolf's figures, half size `HALF` = 0.18 m) and the baton tip's path
- * over the beat clock.
+ * Check the conducting figure and timed baton-tip path.
  *
  * Scenarios:
  *
- * 1. The average man at (1, 0.9, 2) facing +Z beats 2/4 with the right hand: the
- *    figure's centre a forearm and 0.6 upper arms ahead, 0.1 m below the
- *    shoulders and half a shoulder half width toward the baton; its second
- *    ictus 0.2 halves inward and 0.4 down, its top a half above. With the left
- *    hand it mirrors.
- * 2. Three beats at 120 bpm after a 1 s lead on ictuses at 1.0, 0.8 and 0.9 m from
- *    a 1.2 m top with a 0.1 m rebound: the tip starts at the top, reaches the
- *    first ictus at the first beat, passes mid-beat between the first two
- *    lifted the whole rebound, and holds the last ictus after the last beat.
+ * 1. On the posed body, place the right-hand 2/4 figure and check its top and
+ *    second ictus. Mirror the second ictus for the left hand.
+ * 2. At 120 bpm with one second of lead, sample the initial top, first ictus,
+ *    midpoint rebound and final held ictus.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify measured body geometry, figure points, tempo and sample times.
+ * @evidence contracts/development/testing.md#behavioral-verification The conducting figure and tip path consume separate typed body and beat fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Measured limb lengths and the prescribed figure coefficients give the expected points. The half-second beat spacing and rebound supply the midpoint.
  */
 export async function test_motions_music_conduct(): Promise<void> {
   // 1. The figure.

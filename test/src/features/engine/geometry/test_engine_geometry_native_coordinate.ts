@@ -26,6 +26,10 @@ import { nclose } from "../../internal/predicates";
  * 2. Targets 1e-6 of the extent past either support, NaN and Infinity are refused
  *    with an Error, as is a collapsed section of zero extents.
  * 3. A throwing extent getter's own exception passes through unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names both ellipse components and halves, endpoints and iterations, numerical refusals and callback failure.
+ * @evidence contracts/development/testing.md#behavioral-verification Locates coordinates on scaled explicit ellipses before comparing actual point, phase, residual and iteration budget.
+ * @evidence contracts/development/testing.md#independent-expectations Solving the ellipse equation for the other coordinate and selecting its stated sign determines each root. Extreme supports are direct, and targets past them have no candidate.
  */
 export function test_engine_geometry_native_coordinate(): void {
   const refused = (label: string, job: () => unknown): void => {

@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/predicates";
  *    no member merges to nothing.
  * 5. A skinned member, an index past its member's own vertices and normals short
  *    of their vertices are refused by their own diagnostics.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names large-buffer rebasing, implicit indices, shared attributes and refusal conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Merges large explicit buffers and small mixed geometry, reading actual lengths, final indices, retained data and diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations Two members give twice their lengths. The last second-member index is its authored remainder plus 48004. A missing member attribute cannot be common.
  */
 export function test_engine_geometry_merge_meshes(): void {
   const vertices: number = 48_004;

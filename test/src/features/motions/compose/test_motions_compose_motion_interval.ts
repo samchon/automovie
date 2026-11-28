@@ -22,6 +22,10 @@ const ROUNDING: number = 1e-12;
  * 2. A window of no length steps at its close.
  * 3. A named window of a clock (`reach` at 0.5 s to `hold` at 2.5 s) reads the
  *    same as its seconds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names clamping before and after, quarter-window minimum jerk, a zero-length step and a prepared named interval.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieMotionInterval linear and progress with authored seconds and queries the prepared named-window reader on one synthetic clock.
+ * @evidence contracts/development/testing.md#independent-expectations Both interior inputs are one quarter of their windows. The quintic at one quarter gives 0.103515625. Equal endpoints switch to share 1 exactly at the shared second.
  */
 export function test_motions_compose_motion_interval(): void {
   // 1. Uniform and minimum-jerk shares.

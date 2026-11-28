@@ -34,6 +34,10 @@ const STATE: AutoMovieArchetypeCourse.IState = {
  *    travel only for its preceding touchdown; the next stance is ordinary.
  * 3. A declared cross-step moves the opposite hoof toward the figure. The
  *    neutral fore offset is clamped to half the stance travel before rotation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States ordinary touchdown, lift-off, swing midpoint, initial standing and the proposed cross-step.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the actual stance preparation and lifted trajectory at boundaries and midpoint. Observes held initial placement, next ordinary touchdown and which side crosses for the declared step.
+ * @evidence contracts/development/testing.md#independent-expectations A half-stride duty ends at phase 1/2. A symmetric rest-to-rest swing reaches half travel and full height at its midpoint. The authored stance travel limits the fore offset before rotation.
  */
 export function test_archetypes_animals_hoof_stance_boundary(): void {
   const ordinary: Hoof.IStance = { duty: 1 / 2, landed: STATE, travel: 1 / 2 };

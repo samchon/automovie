@@ -34,6 +34,10 @@ function tolerance(x: number, t: number): number {
  *    point within `3 tol` of 5 and not past it.
  * 4. On `sin x` over [0, 4π], with two minima, it returns one of them, 3π/2 or
  *    7π/2, within `3 tol`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents safeguarded local minimization, evaluation spacing and relative tolerance at large coordinates.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the minimizer on a parabola, a large-offset quartic, a monotone function and a two-minimum sine interval.
+ * @evidence contracts/development/testing.md#independent-expectations Known vertices, upper endpoint and sine minima provide references independent of search, while √ε|x| + t specifies spacing and localization scale.
  */
 export function test_motions_posture_brent_bracket(): void {
   // 1. The parabola.

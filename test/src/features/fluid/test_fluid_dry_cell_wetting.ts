@@ -62,9 +62,7 @@ const strand: (props: {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Simulates reachable dry cells, an unreachable raised shore and a sub-threshold film; observes spreading, sampled nonnegative depths, conserved volume and blocked transfer at the specified boundaries.
  * @evidence contracts/development/testing.md#independent-expectations Authored bed/level comparisons and initial cell-area volume define expected wet versus dry decisions; zero blocked faces and the first-step dryDepth threshold are independent physical expectations.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains steps 1, 20, 120 and 600 for flat spreading, the two-metre step at 600 and the 0.05-versus-0.10 film at step 1; resting uneven bed and solid obstacles belong to other entries.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns these portable absolute CPU field observations with existing fixtures; assertions do not observe every future step or GPU projection.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A column of water beside three dry cells over a flat bed spreads into all of).
+ * @evidence contracts/development/common.md#meaningful-documentation The flat basin wets its dry cells, the raised shore stays blocked and the thin film cannot feed its neighbour. Sampled depths and the volume ledger distinguish spreading from lost water.
  */
 export function test_fluid_dry_cell_wetting(): void {
   const spreading: ReturnType<typeof strand> = strand({

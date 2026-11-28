@@ -28,6 +28,10 @@ const ROUNDING: number = 1e-12;
  *    s to 1.5 s, the first second the clock reaches it, share 0.6; the contact
  *    at plan 1.5 s to 2.25 s.
  * 3. A table of one entry returns the plan as it is.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A tabulated walk holds or advances the plan clock and moves events and contacts to their first reachable film seconds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls paced playback with an explicit clock containing a delay and a plateau, and compares a one-entry table.
+ * @evidence contracts/development/testing.md#independent-expectations Linear interpolation gives the three queried plan times. The first table crossing gives the event and contact-window times even when the clock repeats a value.
  */
 export function test_motions_actions_walk_paced(): void {
   const plan: walkStation.IPlan = {

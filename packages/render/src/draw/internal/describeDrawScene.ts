@@ -23,8 +23,8 @@ import type { IAutoMovieRenderDrawScene } from "../IAutoMovieRenderDrawScene";
  * paths of the drawn objects, one world box per distinct path, the union of the
  * boxes of every object sharing it; an object with an empty box is left out.
  * Mark kinds are the subject's declared `markKinds` and those it supplies at
- * second 0, then `trail`, `trail/now`, `edge` and every `defect/<kind>`, the
- * kinds the inspection draws from its own sampling and measurement. Declaring a
+ * second 0, then the kinds the inspection samples and measures. A registered
+ * motion source also makes `trail/route` available for the capture request. Declaring a
  * later kind admits its capture without seeking through the film or inventing a
  * marker at zero; its geometry still comes from `marks` at the drawn second.
  */
@@ -53,6 +53,7 @@ export function describeDrawScene(
   const measured: string[] = [
     "trail",
     "trail/now",
+    ...(scene.inspectMotionTrail === undefined ? [] : ["trail/route"]),
     "edge",
     ...Object.keys(AutoMovieRenderInspectionPalette.defect).map(
       (kind: string): string => `defect/${kind}`,
@@ -101,5 +102,8 @@ export function describeDrawScene(
             }),
           ),
         }),
+    ...(scene.playedCues === undefined
+      ? {}
+      : { playedCues: structuredClone(scene.playedCues) }),
   };
 }

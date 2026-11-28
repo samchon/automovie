@@ -2,37 +2,37 @@ import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
 import { createDevelopmentContractClaims } from "../development/claims/createDevelopmentContractClaims";
-import { createEngineeringClaims } from "./claims/createEngineeringClaims";
-import { createResearchClaims } from "./claims/createResearchClaims";
 import { assertFilmCatalogLayout } from "../internal/assertFilmCatalogLayout";
 import { assertProductionContractLayout } from "../internal/assertProductionContractLayout";
 import { createReferenceRoot } from "../internal/createReferenceRoot";
 import { hasMatchingFile } from "../internal/hasMatchingFile";
 import { resolveSkillsDirectory } from "../internal/resolveSkillsDirectory";
+import { assertNarrativeScope } from "../narrative/internal/assertNarrativeScope";
 import { createProductionConfig } from "../narrative/internal/createProductionConfig";
+import type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
+import { createEngineeringClaims } from "./claims/createEngineeringClaims";
+import { createResearchClaims } from "./claims/createResearchClaims";
 
-/** Owns configuration assembly for an AutoMovie production. */
+/** Builds the native Evidence configuration for an AutoMovie production. */
 export namespace AutoMovieEvidenceConfig {
   /**
-   * Creates a native Evidence configuration with optional narrative claims.
+   * Assembles the selected production claims without running the checks.
    *
-   * Resolve the shared skills tree once. The absolute directory goes to the
-   * narrative factories, which keep production-owned work and language
-   * contracts under `<location>/docs/contracts`, and its root relative to
-   * `location` goes to the default engineering, development and research
-   * claims. Caller-supplied `claims` are added after the defaults as written,
-   * so they name their own root. A short narrative includes its studies by
-   * default once one exists. Catalog selection checks the three catalog inputs
-   * before building claims. Ordinary film composition can be checked directly
-   * against the screenplay. On a story route the production's entity types cite
-   * their subject records.
+   * Engineering claims apply by default. Enable narrative, development or
+   * research checks through their options. The short route includes research
+   * when it has a study beyond the index, unless research is disabled.
+   *
+   * Bundled contracts resolve under the shared skills directory. Local work and
+   * language contracts resolve under `docs/contracts` in the production.
+   * Additional claims keep their supplied roots and are copied into the
+   * result.
    *
    * @param props Absolute production location and optional contract selection.
    * @returns Native Evidence configuration for the selected production
    *   contracts.
-   * @throws If the production path or required contract layout is invalid.
+   * @throws If the path, required contract layout, narrative scope or stage
+   *   selection is invalid.
    */
   export function create(
     props: IAutoMovieEvidenceConfigProps,
@@ -42,6 +42,10 @@ export namespace AutoMovieEvidenceConfig {
         "Evidence location must be an absolute project directory, such as import.meta.dirname.",
       );
     assertProductionContractLayout(props.location);
+    const narrative: IAutoMovieEvidenceConfigProps["narrative"] =
+      props.narrative;
+    if (narrative?.scope !== undefined)
+      assertNarrativeScope(narrative.scope, narrative.mode);
     const catalog: boolean =
       (props.development?.catalog === "evidence" ||
         (props.development?.catalog === undefined &&
@@ -63,17 +67,16 @@ export namespace AutoMovieEvidenceConfig {
         catalog: catalog ? "evidence" : "disabled",
         skills: root,
         instructions:
-          props.narrative?.mode === "none" &&
+          narrative?.mode === "none" &&
           fs.existsSync(path.join(props.location, "docs", "instructions")),
       }),
     );
     if (
       (props.development?.entities === "evidence" ||
         props.development?.composition === "evidence") &&
-      (props.narrative?.mode === "short" || props.narrative?.mode === "long")
+      (narrative?.mode === "short" || narrative?.mode === "long")
     ) {
-      const layer: string =
-        props.narrative.mode === "short" ? "brief" : "settings";
+      const layer: string = narrative.mode === "short" ? "brief" : "settings";
       const subjects: string[] = ["cast", "crowds", "props", "sets"].map(
         (domain: string): string => `docs/body/${layer}/${domain}/*.md`,
       );
@@ -89,37 +92,37 @@ export namespace AutoMovieEvidenceConfig {
     if (
       props.research === "evidence" ||
       (props.research === undefined &&
-        props.narrative?.mode === "short" &&
+        narrative?.mode === "short" &&
         hasMatchingFile(props.location, "docs/research/**/*.md", [
           "docs/research/index.md",
         ]))
     )
       claims.push(...createResearchClaims({ skills: root }));
-    if (props.narrative === undefined) return { severity: "error", claims };
+    if (narrative === undefined) return { severity: "error", claims };
 
     // Mode none adds only the caller's narrative claims; there is no layer to build.
-    if (props.narrative.mode === "none")
+    if (narrative.mode === "none")
       return {
         severity: "error",
-        claims: [...claims, ...structuredClone(props.narrative.claims ?? [])],
+        claims: [...claims, ...structuredClone(narrative.claims ?? [])],
       };
 
     return createProductionConfig({
       location: props.location,
       skills,
-      mode: props.narrative.mode,
+      mode: narrative.mode,
       narrativeScope: structuredClone(
-        props.narrative.scope ?? { mode: "complete-work" },
+        narrative.scope ?? { mode: "complete-work" },
       ),
       construction: {
         settings: "disabled",
         treatments: "disabled",
         scripts: "disabled",
         screenplay: "disabled",
-        ...structuredClone(props.narrative.construction ?? {}),
+        ...structuredClone(narrative.construction ?? {}),
       },
       supportClaims: claims,
-      claims: structuredClone(props.narrative.claims ?? []),
+      claims: structuredClone(narrative.claims ?? []),
     });
   }
 }

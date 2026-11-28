@@ -36,6 +36,10 @@ const SHOULDER: number = 1.5;
  * 5. 2 m apart preferring 1.5 m: no point lies within both limits, refused at the
  *    1.6 m the straight arms span.
  * 6. A zero reach, a reach past the limit and coincident shoulders are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names intersecting and disjoint reach spheres, preferred-height retention and clamping, straight-arm limits and malformed sides.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies equal-height shoulder coordinates and reach limits directly to CompositionPose.mutualGoal, then reads the point, reach distances and refusal messages.
+ * @evidence contracts/development/testing.md#independent-expectations Equal sphere radii put the goal midway between shoulders. Pythagoras gives the comfortable drop sqrt(0.11) and the straight-arm drop sqrt(0.39). A gap of 1.5 m gives two 0.75 m reaches, and gaps beyond 1.6 m exceed both limits.
  */
 export function test_engine_composition_resolve_mutual_goal(): void {
   const side = (

@@ -333,8 +333,8 @@ export namespace HumanTrunk {
    * Parameter requested: Bones used by the operation; all when absent. Include
    * every region bone and, for rays, all midline collider bones the reading
    * will use.
-   * Parameter resolution: Optional exact FK source borrowed only during the
-   * immediate function Object() { [native code] } resolve; the returned reader never captures it.
+   * Parameter resolution: Optional exact FK source borrowed during `resolve`.
+   * The returned reader keeps the resolved bones.
    * Returns: The resolved bones and region/ray readers borrowing them.
    */
   export function prepare(

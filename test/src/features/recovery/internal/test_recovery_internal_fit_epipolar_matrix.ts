@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  *    F = [t]x with t = (1, 0, 0), so the fit has unit norm, only the entries 5
  *    and 7 nonzero, and those two equal and opposite.
  * 2. Fewer than eight pairs are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rank two, unit scale and the minimum paired population.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits eight analytic translated correspondences and attempts a seven-pair fit.
+ * @evidence contracts/development/testing.md#independent-expectations Pure translation along x produces the skew matrix with equal and opposite entries at indices five and seven.
  */
 export function test_recovery_internal_fit_epipolar_matrix(): void {
   const first: [number, number][] = [

@@ -15,6 +15,10 @@ import { nclose } from "../../internal/predicates";
  *    repaired independently.
  * 3. Fractional DPR is retained and invalid/overflowing extents refuse before
  *    mutation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Resizes CSS and native projection independently and admits fractional DPR while refusing invalid extents.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resize on a CPU viewport and camera with CSS changes, repeated dimensions, DPR-only and projection-only changes, and invalid inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Known logical dimensions, aspect and resize-call counts separate buffer work from projection repair. Valid DPR is retained and both states must survive a refusal.
  */
 export function test_viewer_root_create_viewport_resize(): void {
   let width: number = 1280;

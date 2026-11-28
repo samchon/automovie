@@ -14,6 +14,10 @@ import { throwsError } from "../../internal/throwsError";
  *
  * 1. A 4 s float sliding off the left over 1 s is afloat at a quarter of it.
  * 2. Sliding off a blocked side, or over the whole float, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines cue times and an open-side admission for a virtual float transition shorter than its hold.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans a left exit over one second in a four-second float and tries a blocked side and a same-duration transition.
+ * @evidence contracts/development/testing.md#independent-expectations The timing ratio gives afloat progress one quarter. A closed side or transition consuming the entire float is inadmissible.
  */
 export function test_motions_lexicon_float_beside(): void {
   TestValidator.equals(

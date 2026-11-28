@@ -22,11 +22,9 @@ import { vclose } from "../../internal/vclose";
  * 3. Cyclic, duplicate, missing-cylinder, wrong-primitive and nonfinite-radius
  *    declarations refuse; neither input geometry nor original span data changes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names actual dependent-line geometry, literal rigid-frame expectation, declaration-order independence and all unsupported graph/geometry cases.
- * @evidence contracts/development/testing.md#behavioral-verification Produces actual cylinder spans, moves their real carrier parts and measures emitted primitive endpoints from lay and reposed rather than inspecting dependency metadata alone.
- * @evidence contracts/development/testing.md#independent-expectations A line from(0,0,0) to(0,4,0) has centre(0,2,0), so its fixed local+.25Y anchor is(0,2.25,0). The second line's other independent carrier moves to(3,2,1). The1e-12m budget admits rigid arithmetic, not a stale predecessor pose.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts source and moved geometry, original/reversed declaration orders, geometry-only/full-model consumers, two-node/self cycles and malformed physical line ownership.
- * @evidence contracts/development/testing.md#execution-ownership A bounded synchronous in-memory unit owns its graph, poses and malformed copies; no process, compiler, renderer, foreign-method replacement or timed experiment is used.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the source and moved span geometry, independent anchor, reordered declarations, two-node and self cycles and invalid physical span declarations.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds dependent cylinder spans, moves their real carrier parts and reads emitted endpoints through `lay` and reposed geometry. Reversing declaration order distinguishes dependency ordering from source order. Cycles and malformed physical spans exercise refusal paths.
+ * @evidence contracts/development/testing.md#independent-expectations A segment from (0, 0, 0) to (0, 4, 0) places its midpoint at (0, 2, 0) and its local 0.25 metre Y anchor at (0, 2.25, 0). The second carrier moves independently to (3, 2, 1). A `1e-12` metre tolerance bounds rigid transforms.
  */
 export function test_archetype_contract_span_dependencies(): void {
   const source: AutoMovieArchetype<never, never> =

@@ -2,25 +2,24 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createGurney as createGurneyImplementation } from "./internal/createGurney";
 import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
-/** Public operations for Auto Movie Archetype Gurney. */
+/** Constructs a caster stretcher with a mattress and long-edge seat frames. */
 export namespace AutoMovieArchetypeGurney {
   /**
-   * A caster stretcher with a patient surface and opposed side seats.
+   * Build a stretcher with four casters, a litter and a mattress.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * @param params Optional ID and fixed values in the stretcher bands.
+   *   The ID defaults to `bed`.
+   * @param seed Numeric seed for omitted dimensions. Without it the
+   *   litter is 0.6955 metres and the mattress top is 0.8355 metres high.
+   * @returns The patient `surface` and two side-edge seats.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed dimension is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeGurney.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeGurney.Affordance, AutoMovieArchetypeGurney.Dimension> {
     return createGurneyImplementation(params, seed);
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Patient and base footprint, litter height and mattress thickness in metres, plus empty stretcher mass in kilograms.
    */
   export type Dimension =
     | "length"
@@ -31,10 +30,14 @@ export namespace AutoMovieArchetypeGurney {
     | "thickness"
     | "width";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * The `surface` at litter height plus mattress thickness, with opposed side-edge seats.
+   */
   export type Affordance = "leftSide" | "rightSide" | "surface";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional ID and fixed stretcher band dimensions, including litter height and empty body mass.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeBed.IParams,
     | "id"

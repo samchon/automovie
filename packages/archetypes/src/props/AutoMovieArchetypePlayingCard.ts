@@ -2,19 +2,16 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createPlayingCard as createPlayingCardImplementation } from "./internal/createPlayingCard";
 import { TabletopStack } from "./internal/TabletopStack";
 
-/** Public operations for Auto Movie Archetype Playing Card. */
+/** Constructs a flat red playing-card proxy with centered stacking sockets. */
 export namespace AutoMovieArchetypePlayingCard {
   /**
-   * One playing card lying flat, face down.
+   * Build one face-down paper card in the XZ plane with its long edge along Z.
    *
-   * The card lies in the `XZ` plane, its long side along `Z`, its origin the
-   * centre of its underside. It stacks and is placed by the shared tabletop
-   * contacts (`TabletopStack`): a pinch at its upper face, its `base` and its
-   * `top`. A deck is cards stacked by their sockets, and a dealt card is put down
-   * on a seat's place.
+   * The red slab is 0.0635 by 0.0889 metres, 0.0003 metres thick.
+   * Its upper precision pinch uses the slab thickness.
    *
-   * @param params The optional scene id.
-   * @returns The inert card and its contact frames, metres.
+   * @param params Optional scene ID, defaulting to `playingCard`.
+   * @returns The paper card with a pinch and top and base stack sockets.
    */
   export function create(params?: AutoMovieArchetypePlayingCard.IParams): AutoMovieArchetype<
   AutoMovieArchetypePlayingCard.Affordance,
@@ -23,29 +20,31 @@ export namespace AutoMovieArchetypePlayingCard {
     return createPlayingCardImplementation(params);
   }
 
-  /** The shared pinch, underside and upper sockets. */
+  /** Upper `grip` and `top` socket, with `base` at the underside centre. */
   export type Affordance = TabletopStack.Contact;
 
-  /** The card's width, length, thickness and mass. */
+  /**
+   * Width along X, length along Z and thickness along Y in metres. Mass is in kilograms.
+   */
   export type Dimension = "width" | "length" | "thickness" | "mass";
 
-  /** The scene id. */
+  /** Optional scene ID for the fixed-size card. */
   export interface IParams {
-    /** The model's id, unique in a scene; `playingCard` when absent. */
+    /** Scene object ID, defaulting to `playingCard`. */
     id?: string;
   }
 
-  /** The card's size, metres and kilograms. */
+  /** Fixed metric playing-card dimensions and estimated mass. */
   export interface ICard {
-    /** Across the short side, read. */
+    /** Short-side width along X, 0.0635 metres. */
     width: number;
 
-    /** Along the long side, read. */
+    /** Long-side length along Z, 0.0889 metres. */
     length: number;
 
-    /** The board's thickness, estimated. */
+    /** Estimated Y thickness of the card, 0.0003 metres. */
     thickness: number;
 
-    /** The card's mass, estimated. */
+    /** Estimated whole card mass, 0.0018 kilograms. */
     mass: number;
   }}

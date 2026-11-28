@@ -17,20 +17,19 @@ import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
  * atomically.
  */
 export function RecoveryChartReachableBox(
-  input: Parameters<IAutoMovieAffineBoxBound.Operation>[0],
-): ReturnType<IAutoMovieAffineBoxBound.Operation> {
-  const finite: (p: readonly number[]) => boolean = (
-    p: readonly number[],
-  ): boolean => p.length === 3;
+  input: IAutoMovieAffineBoxBound.IInput,
+): IAutoMovieAffineBoxBound.IResult {
   if (
-    !finite(input.constantMm) ||
-    !finite(input.lowerMm) ||
-    !finite(input.upperMm) ||
-    !finite(input.targetMm) ||
+    !finiteTuple(input.constantMm) ||
+    !finiteTuple(input.lowerMm) ||
+    !finiteTuple(input.upperMm) ||
+    !finiteTuple(input.targetMm) ||
     input.lowerMm.some(
       (x: number, k: number): boolean => x > input.upperMm[k]!,
     ) ||
-    !(input.toleranceMm > 0) ||
+    !Number.isFinite(input.toleranceMm) ||
+    input.toleranceMm <= 0 ||
+    !Number.isSafeInteger(input.maxTerms) ||
     input.maxTerms < 1 ||
     input.terms.length > input.maxTerms
   )
@@ -80,32 +79,40 @@ export function RecoveryChartReachableBox(
       shift < 0 && magnitude !== units << BigInt(-shift);
     if (remainder && (negative ? direction < 0 : direction > 0)) units++;
     const value: number = (negative ? -1 : 1) * Number(units) * 2 ** quantum;
-    if (value === Infinity || value === -Infinity)
+    if (!Number.isFinite(value))
       throw new Error("An outward affine-box number view is not representable");
     return value;
   };
   const combined: Map<number, number> = new Map();
   for (const term of input.terms) {
-    if (term.id < 0)
+    if (
+      !Number.isSafeInteger(term.id) ||
+      term.id < 0 ||
+      !Number.isFinite(term.weight)
+    )
       throw new Error(
-        "Finite weights and nonnegative original integer IDs are required",
+        "Finite weights and nonnegative safe integer control IDs are required",
       );
     const weight: number = (combined.get(term.id) ?? 0) + term.weight;
-    if (weight === Infinity || weight === -Infinity)
+    if (!Number.isFinite(weight))
       throw new Error("A combined binary64 row weight became nonfinite");
     combined.set(term.id, weight);
   }
-  const weights: Dyadic[] = [...combined.values()].map(exact);
-  const lower: Dyadic[] = input.lowerMm.map(exact),
-    upper: Dyadic[] = input.upperMm.map(exact);
-  const lows: Dyadic[] = input.constantMm.map(exact),
-    highs: Dyadic[] = input.constantMm.map(exact);
   let weightSum: number = 0,
     absoluteWeightSum: number = 0;
   for (const weight of combined.values()) {
     weightSum += weight;
     absoluteWeightSum += Math.abs(weight);
   }
+  if (!Number.isFinite(weightSum) || !Number.isFinite(absoluteWeightSum))
+    throw new Error(
+      "An affine-box numeric summary of weights is not representable",
+    );
+  const weights: Dyadic[] = [...combined.values()].map(exact);
+  const lower: Dyadic[] = input.lowerMm.map(exact),
+    upper: Dyadic[] = input.upperMm.map(exact);
+  const lows: Dyadic[] = input.constantMm.map(exact),
+    highs: Dyadic[] = input.constantMm.map(exact);
   for (const weight of weights)
     for (let k: number = 0; k < 3; k++) {
       lows[k] = add(
@@ -130,6 +137,10 @@ export function RecoveryChartReachableBox(
   }
   const tolerance: Dyadic = exact(input.toleranceMm),
     minimumDistanceMm: number = Math.hypot(...gaps);
+  if (!Number.isFinite(minimumDistanceMm))
+    throw new Error(
+      "An affine-box numeric summary of distance is not representable",
+    );
   return {
     lowerMm: [
       outward(lows[0]!, -1),
@@ -150,4 +161,14 @@ export function RecoveryChartReachableBox(
     diagnostic:
       "Exact dyadic single-row predicate after binary64 duplicate combination; outward endpoint views and approximate distance do not certify joint fit, source support or closest-surface distance.",
   };
+}
+
+/* Reading the three slots also detects holes in an authored tuple. */
+function finiteTuple(values: readonly number[]): boolean {
+  return (
+    values.length === 3 &&
+    Number.isFinite(values[0]) &&
+    Number.isFinite(values[1]) &&
+    Number.isFinite(values[2])
+  );
 }

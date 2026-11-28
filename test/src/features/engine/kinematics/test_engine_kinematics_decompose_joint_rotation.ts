@@ -30,6 +30,10 @@ const HALF_ROOT_TWO: number = Math.SQRT1_2;
  * 3. The identity is all zeros.
  * 4. Non-unit orthogonal custom axes are normalized: 25 degrees about +Y is twist
  *    25 under axes of lengths 2, 3 and 4.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the default and custom clinical axes, alternate branches, framed rotations, gimbal lock and round-trip consistency.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls decomposeJointRotation on analytic axis turns, known alternate angles and seeded compositions. The composed round trips are a separate reversible-property check.
+ * @evidence contracts/development/testing.md#independent-expectations Cardinal quarter turns isolate flexion and twist. Scaling orthogonal axes does not change the angular answer. The fixture's wide and principal charts distinguish 125 degrees from its 55-degree alternate representation.
  */
 export function test_engine_kinematics_decompose_joint_rotation(): void {
   const flexed: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation({

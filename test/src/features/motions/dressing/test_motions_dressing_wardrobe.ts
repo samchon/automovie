@@ -26,28 +26,21 @@ const ROUNDING: number = 1e-12;
 const SHORTEST: number = 0.23;
 
 /**
- * The wardrobe primitives admit the jacket and free hand, read the wearable's
- * contact geometry, and prepare the transfer between those contacts.
+ * Check garment admission, named contact geometry and transport between
+ * contacts.
  *
  * Scenarios:
  *
- * 1. Threading at 0.12 m from the collar passes. Greater separation refuses
- *    on `prop`. A hand already holding something refuses on `side`.
- * 2. Sites, a jacket declaring a `collar` handle and a `sleeve` aperture: both
- *    found, `collar` as an aperture and an undeclared `hood` refused.
- * 3. A collar at (0.1, 0.4, 0) turned a quarter about +Y reads that frame.
- * 4. A 0.2 m tall opening at (0, 1, 0): its middle at (0, 1.1, 0), at (0, 0.9, 0)
- *    turned a half turn about +Z; without a width refused on `opening`.
- * 5. A path from the origin unturned to (1, 0, 0) turned 90 degrees about +Y: half
- *    way at 0.5, 0.103515625 of the way at 0.25, on its ends past them.
- * 6. A frame at (0.1, 1, 0.2) moved by (0, -0.05, 0.1) lies at (0.1, 0.95, 0.3)
- *    with the same rotation.
- * 7. The left hand's grip on `coat` over 0.2 to 0.6 carries it; the right's over 0
- *    to 1, not carrying, steadies it.
- * 8. The axes `opening`, `reach`, `base` and `side` refuse as an affordance, a
- *    reach, a base and a parameter.
- * 9. Frames 1 m apart take the transport time of 1 m; in one place at least 0.23
- *    s.
+ * 1. Admit a collar reach at 0.12 m. Reject a farther reach, an occupied
+ *    hand, wrong or missing sites and an opening without width.
+ * 2. Read the turned collar and mirrored opening centres. Blend frames along
+ *    minimum jerk and translate a frame while keeping its rotation.
+ * 3. Check carrying and steadying grip windows, four typed refusal
+ *    categories, and transport timing across a metre and at rest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the admission boundaries, frame controls, contact roles and timing inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The wardrobe helper tests call the named reader, interpolation, contact, refusal and transport operations on literal records.
+ * @evidence contracts/development/testing.md#independent-expectations Independent frame transforms and the minimum-jerk polynomial determine the spatial expectations. Explicit windows and the minimum transport time anchor the remaining reads.
  */
 export function test_motions_dressing_wardrobe(): void {
   // 1. Preconditions.

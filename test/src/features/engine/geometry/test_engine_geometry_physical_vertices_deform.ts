@@ -27,6 +27,10 @@ import { throwsError } from "../../internal/throwsError";
  *    matches the partition.
  * 5. A reference -1 is refused by both; a zero-area triangle is refused despite
  *    its sources ("finite nonzero source and output area").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names alias preservation through placement and deformation, mirrors, legacy recomputation and malformed influence.
+ * @evidence contracts/development/testing.md#behavioral-verification Places and deforms explicit-lineage and mixed legacy triangles, then observes winding, source partition and alias disagreement refusals.
+ * @evidence contracts/development/testing.md#independent-expectations An x mirror reverses triangle winding. Tenfold stretch carries 0.49 nm beyond its original grid cell. Equal field samples preserve aliases and deliberately different samples separate them.
  */
 export function test_engine_geometry_physical_vertices_deform(): void {
   const mesh: IAutoMovieMesh = createPhysicalMesh(

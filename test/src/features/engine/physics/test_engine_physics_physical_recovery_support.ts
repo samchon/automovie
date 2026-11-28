@@ -45,6 +45,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    axis the ankle has, within 0.01 rad; the turn about the axis it lacks is
  *    the hip's (Kajita et al., Introduction to Humanoid Robotics, Section 2.5;
  *    TSID `ex_4_walking`).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes lift-off pose and velocity continuity, shared endpoint clearance and foot hang, and a stable repeated leg fit.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples two-link references from lift-off through fade, checks a pitched foot's planned versus observed hang, and repeats the fit on a stored fixture profile.
+ * @evidence contracts/development/testing.md#independent-expectations Declared share zero and one fix the endpoint joint references. The halfway velocity is their mean, and a level planned foot avoids the independently measured pitched-toe lift.
  */
 export async function test_engine_physics_physical_recovery_support(): Promise<void> {
   const failures: string[] = [];

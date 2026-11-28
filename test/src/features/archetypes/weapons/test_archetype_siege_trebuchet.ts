@@ -15,11 +15,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 4. After the pin's second the arm rises monotonically from its cocked travel to the release, which it reaches at the throw's second.
  * 5. The stone leaves at the pouch's velocity: the arm's rate there, read off the track by a central difference, times the long arm, square to the arm, within the difference's 1e-3 m/s; and from the pouch's place at that travel.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each kind, articulates its arm and winch, reads its counterweight's tilt, runs its throw and reads the track and the launch; a figure off its source, a winch off its ratio, a tilting box, a swing that falls back before release or a launch off the pouch is caught.
- * @evidence contracts/development/testing.md#independent-expectations The figures are written here from Saimre and Tarver; the pouch's velocity is worked here from the track's own rate by finite difference and the arm's geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds, four seeds each, the arm's ends and the release.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two scenic mechanism layouts, articulated geometry, suspended body orientation and simulated event frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both public scenery variants and reads part poses and local contacts under articulation. Samples the animation and the resulting event to check the suspended body's pose and event attachment.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's recorded dimensions and an independent finite-difference observation of the posed scene attachment. The measured frame provides the event origin reference.
  */
 export function test_archetype_siege_trebuchet(): void {
   const findings: string[] = [];

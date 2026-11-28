@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The absent request writes nothing.
  * 2. A request read from values writes those values back, switches as 1 and 0
  *    and colours as six hexadecimal digits.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the text emitted for an absent request and a request with explicit switches and colors.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that an absent request writes no options and that a populated request retains key ordering, switch values, and six-digit hexadecimal colors.
+ * @evidence contracts/development/testing.md#independent-expectations Compares with an empty result and a literal sequence of options, including the encoded switches and colors.
  */
 export function test_render_scene_format_inspection_request(): void {
   const read = (

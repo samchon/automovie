@@ -124,7 +124,23 @@ function scenario_test_motions_throwing_throw_object_launch(): void {
   );
 }
 
-/** The thrown object's own logic: its curve and its launch, each scenario below. */
+/**
+ * Check a throw's hand curve, launched payload and ballistic range.
+ *
+ * Scenarios:
+ *
+ * 1. Read a cubic joining endpoints one metre apart and check its midpoint at
+ *    0.5 s.
+ * 2. Hold a named ball in the right hand until release, and check its launch
+ *    when no successor is given. Empty-handed input adds no grip or
+ *    projectile.
+ * 3. Aim and replay the projectile to its distance target and refuse targets
+ *    that have no usable range solution.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify hand-curve timing, custody, launch and inadmissible targets.
+ * @evidence contracts/development/testing.md#behavioral-verification The curve and launch owners receive typed endpoint, held-prop and target fixtures and are asserted separately.
+ * @evidence contracts/development/testing.md#independent-expectations The Hermite endpoints and symmetry define the curve samples. The height and range equation gives the projectile target.
+ */
 export function test_motions_throwing_throw_object(): void {
   scenario_test_motions_throwing_throw_object_curve();
   scenario_test_motions_throwing_throw_object_launch();

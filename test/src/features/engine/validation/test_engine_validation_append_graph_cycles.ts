@@ -13,7 +13,8 @@ import { TestValidator } from "@nestia/e2e";
  * cycle returns to, by a depth-first walk that skips links to undeclared nodes
  * and revisits no finished node.
  *
- * Graph: a ??b ??c ??a, d ??a, e ??(undeclared), f ??f.
+ * The chain from a passes through b and c and returns to a. Node d links to a,
+ * e links to an undeclared target, and f links to itself.
  *
  * Scenarios:
  *
@@ -21,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  *    returns; `d` reaches only finished nodes; `e`'s dangling link is skipped;
  *    the self-link closes at `f`.
  * 2. A chain without cycles reports nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers a multi-node return, self-link, repeated reach of an already visited node, dangling link and acyclic chain.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes explicit nodes and links to appendGraphCycles with a fresh violation collector, then reads the ordered finding paths.
+ * @evidence contracts/development/testing.md#independent-expectations The directed cycle returns to a and the self-link returns to f. The edge from d closes neither cycle, e lacks a declared target, and the second graph is acyclic.
  */
 export function test_engine_validation_append_graph_cycles(): void {
   const node = (

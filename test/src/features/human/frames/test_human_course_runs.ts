@@ -24,9 +24,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production nearest, ends, map and extreme on made axes and runs, reading their returned stations.
  * @evidence contracts/development/testing.md#independent-expectations Every expected station is the closed form of the made polyline and the piecewise-linear tau map, written by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases A scaled run beside a translated one, both end extrapolations, the bit-exact identity and three refused defects, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made numbers, no person, reference, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios name each made input and its expected station.
+ * @evidence contracts/development/common.md#meaningful-documentation The made courses test nearest stations, run remapping, exact identity, grid extrema, invalid run arrays, and smooth station and derivative checks through a corner.
  */
 export function test_human_course_runs(): void {
   const failures: string[] = [];

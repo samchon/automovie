@@ -28,6 +28,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Target (0, -5, 0) beyond reach: the end stops at (0, -2, 0).
  * 4. The prepared solve equals the direct one exactly.
  * 5. A target at the root and a zero-length upper or fore segment give null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers extended and bent targets, preferred bend, unreachable clamp, prepared equivalence and degenerate chains.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the direct and prepared two-bone articulation owners with explicit unit offsets, then reapplies their returned local rotations to those offsets.
+ * @evidence contracts/development/testing.md#independent-expectations With identity rests the rotated offsets sum to the effector. The straight shell is two units, the right-angle target is one unit right and down, and a zero segment or coincident target has no usable orientation.
  */
 export function test_engine_kinematics_two_bone_chain_articulation(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

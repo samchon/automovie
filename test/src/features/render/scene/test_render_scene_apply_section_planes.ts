@@ -84,6 +84,10 @@ const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (
  *    count.
  * 6. An empty declaration clears material planes to null and disables local
  *    clipping; pixel equality with an earlier frame is not asserted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names native clipping planes, boundary membership, count-sensitive material version and clearing.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the section-plane owner on typed Three.js scalar and array materials and an in-memory clipping switch. Reads plane identity and distances, Engine membership, renderer flags and the native material version before and after updates.
+ * @evidence contracts/development/testing.md#independent-expectations The removed half-space is y above 3, so retained-side distance is 3 minus y. Below, on and above points have a positive, zero and negative distance respectively. Rescaling the declared normal leaves this plane unchanged. Changing the plane count advances version, and clearing restores null material planes.
  */
 export function test_render_scene_apply_section_planes(): void {
   // 1. one plane reaches every material, and only the ones that exist

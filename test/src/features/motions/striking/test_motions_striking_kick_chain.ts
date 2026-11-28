@@ -26,6 +26,10 @@ import { vclose } from "../../internal/vclose";
  *    DORSAL_MARGIN` of dorsiflexion.
  * 3. A round kick across +X hints along (1, 0.3, 0); a push kick along +Z along
  *    (0, 1, 1).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rig sole orientation, unloaded ankle range and variant-specific knee hints.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sole, unloaded ankle and bend with a forward line, two shank angles and two authored variants.
+ * @evidence contracts/development/testing.md#independent-expectations A sole facing back along +Z yields a -90° rotation about x. The 45° shank is limited by the declared unloaded range less margin.
  */
 export function test_motions_striking_kick_chain(): void {
   TestValidator.predicate(

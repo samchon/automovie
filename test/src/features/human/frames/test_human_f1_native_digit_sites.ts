@@ -26,9 +26,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the production site owner on f1's stored digits and the calibration's ratio.
  * @evidence contracts/development/testing.md#independent-expectations The joint's station is checked by direct distances on the course to the stored joint centre; the ratio's identity is arithmetic on made calipers.
- * @evidence contracts/development/testing.md#distinguishing-cases Both digit kinds, the site's owner, its place on the course, its place in the family's stations, the identity carry, and the unit and a changed ratio; all findings are collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on stored module data; no person, native assembly, loft or realization. The whole native assembly at f1 is not built here.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios name each property and the stored inputs it reads.
+ * @evidence contracts/development/common.md#meaningful-documentation The digit sites use the declared finger and toe, the nearest station to their next joint, an interior address and the corresponding caliper ratio.
  */
 export function test_human_f1_native_digit_sites(): void {
   const failures: string[] = [];

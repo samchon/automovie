@@ -4,16 +4,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planMotionCaptureInstants` names each instant a capture draws by its case's
- * label, one per second written to the millisecond: instants within one
- * millisecond are one still at the first second listed, named by their distinct
- * labels joined with `/`, in the case's order.
+ * Check grouping and labelling of capture instants at millisecond precision.
  *
  * Scenarios:
  *
- * 1. Distinct instants keep their seconds and labels, in order.
- * 2. Two labels within a millisecond are one still at the first second.
- * 3. A label repeated at the same millisecond is named once.
+ * 1. Keep the authored start and end at 0 and 1.25 s. Group 0.5, 0.5002 and
+ *    0.5001 s into a still at 0.5 s.
+ * 2. Keep `grip / release` in declaration order and include the repeated grip
+ *    label once.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify tick precision, representative second and label order.
+ * @evidence contracts/development/testing.md#behavioral-verification The capture planner receives five flat inputs and is compared with three precise output records.
+ * @evidence contracts/development/testing.md#independent-expectations The three middle values share the same millisecond and their first distinct labels determine the expected text.
  */
 export function test_motions_capture_plan_motion_capture_instants(): void {
   TestValidator.equals(

@@ -70,9 +70,7 @@ interface IBox {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds rooms through the public `createFurnishedRoom` in `createEnvironment` and reads the staged frames, which catches a wall face off the wall, a run or heading in the wrong direction, an `after` or `facing` that ignores the measured box, a hung piece dropped to the floor, a clearance not reserved and a refusal without its role.
  * @evidence contracts/development/testing.md#independent-expectations Every expected face, gap and height is computed from the room dimensions, the authored offsets and the producers' own rest boxes measured through the engine's `computeModelRestExtent` and turned by the staged rotation; the headings and run directions are the issue's table.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a two-place and a three-place sofa, an accepted and a refused chest gap on either side of the 0.76 m clearance, all four walls and four distinct refusals; `test_environment_furnishing` keeps the cafe and gym cases.
- * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory rooms; it starts no renderer or host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks staged facing, wall runs, hanging height and measured `after` gaps over four walls. Exercises two sofa sizes, accepted and refused chest clearances, and missing or incompatible references.
  */
 export function test_environment_furnishing_relations(): void {
   const build: (

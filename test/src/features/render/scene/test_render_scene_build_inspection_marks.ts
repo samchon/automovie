@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A polyline of one place, segments that do not pair up, arrows whose
  *    origins and vectors differ, coordinates that are not triples and a mark
  *    without coordinates are each refused with the mark's path.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the built line and point overlay, lifecycle calls and malformed input paths.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds an overlay through the mark owner, reads its scene children and exercises update, resize and disposal. Submits malformed shapes through the same builder and checks each diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations Known valid polyline, segment, arrow and point lists yield a draw object. Incomplete vertices, unpaired segment ends, unequal arrow arrays and invalid point lists each identify the literal submitted path.
  */
 export function test_render_scene_build_inspection_marks(): void {
   const mark = (

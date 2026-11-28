@@ -30,34 +30,24 @@ type IPerformance = AutoMovieMotionHumanEnsemble.HumanPopulation.IPerformance;
 const ROUNDING: number = 1e-12;
 
 /**
- * `HumanPopulation.cycle` and `standing` turn a performed template's displayed
- * poses into a population take moved to the slot origin facing +Z.
- *
- * - `standing` holds the pose at the active stand's `settled` event at every
- *   phase, its root at the origin above the stand's floor with its heading
- *   taken out, for the stand's placed length and no stride; it refuses a
- *   fractional phase count, no active stand, a successor at the settled instant
- *   and a stand on anything but ground.
- * - `cycle` reads the poses over the stride from the first heel strike at or
- *   after `from` to the next strike of the same foot, each moved back by its
- *   share of the stride along the travel and turned to face +Z; it refuses a
- *   window that holds no whole stride.
- *
- * The template's body and entry come from a typed action context; its feet are
- * lifted, so the stand's floor is 0. Its displayed pose is a stub that walks +X
- * at 1 m/s facing +X, its root 0.9 m up.
+ * Check normalized standing and cycling templates sampled from a performed
+ * track.
  *
  * Scenarios:
  *
- * 1. A stand placed over 1 to 3 s and settled a quarter in holds the pose at 1.5 s
- *    over three phases: the root at (0, 0.9, 0) facing +Z, period 2, no
- *    stride.
- * 2. A settled event at a short final stand's end still holds; no phase, a second
- *    outside every action, a walk, a stand on a prop and a stand followed at
- *    its settled instant are refused.
- * 3. A walk with heel strikes at 0.2 (left), 0.7 (right) and 1.2 s (left) from 0.1
- *    s gives a 1 s, 1 m cycle whose four poses all stand at (0, 0.9, 0) facing
- *    +Z; from 0.8 s no stride is whole.
+ * 1. Hold the placed stand's settled pose at every phase. Normalize its
+ *    heading and horizontal position, keep its 0.9 m root height, and report
+ *    a two-second period with no stride.
+ * 2. Admit settled at the terminal stand endpoint. Refuse invalid phase
+ *    count, a missing active stand, walking, prop support and a successor
+ *    occupying the settled instant.
+ * 3. Use left heel strikes at 0.2 and 1.2 s for a one-second, one-metre
+ *    cycle. Remove progression from each sampled pose and refuse a window
+ *    without a whole stride.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify which settled endpoint and repeated foot strike qualify and how normalized poses read.
+ * @evidence contracts/development/testing.md#behavioral-verification The public templates consume a typed schedule with deterministic displayed poses and explicit phase and support controls.
+ * @evidence contracts/development/testing.md#independent-expectations The event times and the prescribed one-metre-per-second +X route give the stride, period and normalized root analytically.
  */
 export async function test_motions_ensemble_human_population(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

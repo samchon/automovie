@@ -26,6 +26,10 @@ const SOLE: IAutoMovieMotionHumanFoot.ISocket[] = [
  * 1. The ball, the lowest socket, is the contact.
  * 2. The first read of a window anchors it, drifting 0; a read 3 cm along and 4 cm
  *    aside drifts 5 cm, its height ignored.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines lowest-socket selection and horizontal displacement from the first read in a support window.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a sole with a lowest ball socket, establishes the first support point and reads a later displaced point.
+ * @evidence contracts/development/testing.md#independent-expectations The first read has zero drift. Horizontal offsets 3 and 4 cm give 5 cm independently of their height difference.
  */
 export function test_motions_executable_foot_slip(): void {
   TestValidator.equals(

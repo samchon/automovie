@@ -1,9 +1,11 @@
 import type {
   IAutoMovieDrawnVideoResult,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 
 import type { AutoMovieRenderDrawSession } from "./AutoMovieRenderDrawSession";
+import type { IAutoMovieRenderDrawActivity } from "./IAutoMovieRenderDrawActivity";
 
 /** Inputs for drawing and encoding one subject's video. */
 export interface IAutoMovieRenderDrawnVideoProps {
@@ -33,4 +35,10 @@ export interface IAutoMovieRenderDrawnVideoProps {
   controls?: { passes: readonly string[]; frameDir: string };
   /** Draw a transparent layer instead of the opaque film. */
   background?: "scene" | "transparent";
+  /** Observe requests and completions at the native frame and file boundaries. */
+  observe?: (activity: IAutoMovieRenderDrawActivity) => void;
+  /** Receive each frame receipt after its beauty and requested guide files have been written. */
+  frameWritten?: (frame: IAutoMovieDrawnVideoResult["frames"][number]) => void;
+  /** Receive the available scene audit when drawing stops before encoding. */
+  incompleteAudit?: (audit: IAutoMovieInspectionDiagnostics.IAudit) => void;
 }

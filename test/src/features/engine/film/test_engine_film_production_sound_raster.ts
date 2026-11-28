@@ -25,6 +25,10 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  * 3. Positive heights 1..3 preserve a visible centre row; very large finite peaks
  *    saturate the viewport without unbounded row traversal.
  * 4. Empty stereo input remains an opaque silent raster.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name checked waveform and spectrogram dimensions, malformed input cases, tiny drawable rows and the opaque silent baseline.
+ * @evidence contracts/development/testing.md#behavioral-verification The test passes a real mixed output to the waveform and spectrogram methods and inspects dimensions, alpha and visible rows. It separately supplies malformed, silent, very large and tiny-display inputs.
+ * @evidence contracts/development/testing.md#independent-expectations RGBA requires four bytes per pixel and opaque alpha 255. Incomplete stereo frames cannot supply both channels. For height one through three the integer center row is in bounds, and a finite peak beyond the viewport must paint within those rows. Empty audio keeps the opaque silent center.
  */
 export function test_engine_film_production_sound_raster(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();

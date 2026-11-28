@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  *    `UNIT` times the path.
  * 3. Partly carried, the two units peak apart, so the sum's peak lies below the
  *    path's whole `UNIT` and above half of it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines peak speed evaluation for a virtual hand path under no root carry, full body carry and overlapping animated motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the timing function for a fixed 0.8 m stage prop path with the three carry compositions.
+ * @evidence contracts/development/testing.md#independent-expectations The normalized minimum-jerk derivative peaks at 15/8 of its mean. Separated component peaks bound the partial-carry result between half and all of that peak.
  */
 export function test_motions_lexicon_sword_cut_at(): void {
   const half: number = HumanSwordTiming.peak(0.8, 0.4);

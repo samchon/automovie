@@ -9,7 +9,12 @@ import type { IAutoMovieHumanScalpHairSchema } from "./IAutoMovieHumanScalpHairS
 import type { IAutoMovieHumanSkinAppearanceSchema } from "./IAutoMovieHumanSkinAppearanceSchema";
 import type { IAutoMovieHumanUnderwearSchema } from "./IAutoMovieHumanUnderwearSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanAppearance. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Required skin, scalp hair, eyebrow, eyelash and underwear descriptions
+ * within a supplied appearance block. Eyebrows and eyelashes specify
+ * anatomical left and right separately. Use this type when generating a typia
+ * validator or schema.
+ */
 export type IAutoMovieHumanAppearanceSchema = IAutoMovieHumanAppearance & {
   /** Skin surface finish. */
   skin: IAutoMovieHumanSkinAppearanceSchema;

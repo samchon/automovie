@@ -26,6 +26,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. At 2.5 s a prop seat bears the person and at 3.5 s it was the last contact:
  *    no floor.
  * 6. Without any contact, in water there is no floor, out of it the world plane.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names pre-contact ground, active support minima, a tie on previous contacts, prop support and water without declared plants.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditMotion.floors on authored support windows and on water and dry motions without contacts, reading values at fixed film seconds.
+ * @evidence contracts/development/testing.md#independent-expectations The world plane starts at 0, active bank and tread at 0.3 and 0.1 m select the lower, and after both end the earlier declared bank is retained. A current or previous prop seat supplies no ground plane.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_motion_floors(): void {
   const contacts: IAutoMovieMotionHumanContactWindow[] = [

@@ -22,6 +22,10 @@ const TOE = (q: IAutoMovieQuaternion): number =>
  * 1. A whole bump pitches the unturned foot 25 degrees about +X.
  * 2. Pointed, the toe drops from -0.06 to `-0.06 cos 25 - 0.15 sin 25`, and the
  *    ankle at 0.1 m rises by that drop; pointed back up, it stays.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the virtual toe-point rotation and resulting lifted ankle that keeps toe clearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Points a foot around its local lateral axis and computes lift for lowered and raised toe placement.
+ * @evidence contracts/development/testing.md#independent-expectations Rotating the local toe offset gives −0.06 cos 25° − 0.15 sin 25°. The downward difference raises the ankle and an upward toe leaves its height.
  */
 export function test_motions_striking_foot_point(): void {
   const still: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

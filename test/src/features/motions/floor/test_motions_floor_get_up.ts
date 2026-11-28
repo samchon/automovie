@@ -8,15 +8,17 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `getUp.halfKneeling` is the half-kneeling key with a leading foot: the key
- * itself leading with the right, and its left and right sides exchanged leading
- * with the left.
+ * Check which leg leads the half-kneeling get-up pose.
  *
  * Scenarios:
  *
- * 1. Leading with the right is the key.
- * 2. Leading with the left, each left joint holds the key's right one and each
- *    right joint the key's left one, the tilt kept.
+ * 1. A right lead returns the authored right half-kneel.
+ * 2. A left lead exchanges the corresponding leg joints and retains the root
+ *    pitch and roll.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish the leading sides and identify the root angles that stay fixed.
+ * @evidence contracts/development/testing.md#behavioral-verification The two lead choices select the expected half-kneeling shape and attitude.
+ * @evidence contracts/development/testing.md#independent-expectations The test compares with the authored right table and a direct exchange of its corresponding leg joints.
  */
 export async function test_motions_floor_get_up(): Promise<void> {
   const right: IAutoMovieMotionHumanLieDown.IPose = getUp.halfKneeling("right");

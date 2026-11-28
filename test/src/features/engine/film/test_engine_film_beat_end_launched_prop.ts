@@ -186,6 +186,10 @@ const stoneAt: (
  *     value playback draws, instead of a unit scale.
  * 11. A nonzero performer startOffset changes the pose clock, while object
  *     transforms and their derived velocities still read the shot clock.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify release, landing and controlled changes to clip order, channel ownership, source clock, scale and velocity.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves beat snapshots before and after launch and compares actual stone transforms and carried velocity. It varies producer IDs, input order, missing or partial channels, start time and performer offset.
+ * @evidence contracts/development/testing.md#independent-expectations The hand starts the authored attachment, and the flight ends at (0, 0, 5) after release at 2.2 seconds. The latest started translation wins independent of input order. Clamping after landing and the zero-length window at an exact start each give zero velocity. Staged input supplies the unanimated control.
  */
 export function test_engine_film_beat_end_launched_prop(): void {
   const offsetShot: IAutoMovieShot = {

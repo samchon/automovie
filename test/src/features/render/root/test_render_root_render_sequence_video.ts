@@ -59,6 +59,10 @@ const PLAN: IAutoMovieSequenceRenderPlan = {
  * 1. The capture callback reads both samples in order. The encoder receives the
  *    saved arguments after capture finishes. The result reports written paths
  *    and preserves the original plan and its blend.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Records actual sequence output paths while retaining the planned frame and blend provenance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sequence execution with observed in-memory capture and encode adapters and predetermined output paths.
+ * @evidence contracts/development/testing.md#independent-expectations The captured event order places encoding last. Returned paths come from the adapters, and the original plan, blend and path are checked by identity or literal value.
  */
 export async function test_render_root_render_sequence_video(): Promise<void> {
   const events: string[] = [];

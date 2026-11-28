@@ -23,6 +23,10 @@ import { singleMaterial } from "../../internal/singleMaterial";
  * 3. Marks replaced by `update` are disposed when replaced, and those that
  *    replaced them on `restore`.
  * 4. A second `restore` changes nothing and disposes nothing again.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names isolated scene edits, replaced-resource release, final restoration and repeated restore.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies a typed inspection request and attaches dispose listeners to actual temporary geometries and materials. Updates marks, restores the inspection twice and reads resource counts, object identity, clipping and mask state.
+ * @evidence contracts/development/testing.md#independent-expectations The original quads, materials, masks and plane list are recorded before changes. Replacing marks retires only the replaced resources first. A missing or duplicate disposal changes the final listener count relative to distinct watched resources.
  */
 export function test_render_scene_apply_inspection_restore(): void {
   const left: THREE.Mesh = InspectionScene.quad("left", -2, 1);

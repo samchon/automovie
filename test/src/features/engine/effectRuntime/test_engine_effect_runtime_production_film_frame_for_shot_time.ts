@@ -15,6 +15,10 @@ import { filmEffectTimeline } from "../../internal/filmEffectTimeline";
  * 2. 0 s is film frame 0.
  * 3. A negative time, a time past the segment (3 s is frame 72) and an unshown
  *    shot are null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines mapping from shown shot time to film frame and null for time or shot outside the edit.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries start, half-second, negative, beyond-end and unshown shot times against a 48-frame segment.
+ * @evidence contracts/development/testing.md#independent-expectations Frame arithmetic gives 0 and 12 at 24 fps. Three seconds maps to 72 beyond the segment and cannot return a film frame.
  */
 export function test_engine_effect_runtime_production_film_frame_for_shot_time(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

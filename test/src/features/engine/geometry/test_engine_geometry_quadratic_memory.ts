@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/predicates";
  *    independently.
  * 4. A callback's own error passes out unchanged; the next borrow is zeroed again
  *    even after writing through an old view.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names alignment, zeroing, receiver exclusivity, view lifetime and error release.
+ * @evidence contracts/development/testing.md#behavioral-verification Borrows the real owner at several sizes, reads and writes its views, and attempts nested, out-of-range and expired access.
+ * @evidence contracts/development/testing.md#independent-expectations Nine bytes rounded to eight-byte alignment require sixteen. The contract permits one live callback per owner, and a completed callback invalidates its guarded views.
  */
 export function test_engine_geometry_quadratic_memory(): void {
   const owner = AutoMovieEngineMath.createQuadraticMemory();

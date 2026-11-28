@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. "cue-1" is returned unchanged.
  * 2. "a-->b" and "" throw.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Preserves a valid cue identifier and rejects text that cannot be stored as one.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls identifier serialization with a simple name, a reserved arrow and an empty string.
+ * @evidence contracts/development/testing.md#independent-expectations Literal identity on the valid name and separate throwing cases distinguish delivery identity from character replacement.
  */
 export function test_render_caption_serialize_identifier(): void {
   TestValidator.equals(

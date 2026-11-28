@@ -25,6 +25,10 @@ import { vclose } from "../../internal/vclose";
  *    the top tread and landing span 0.78 to 1.34 m at 0.34 m.
  * 2. Down: two treads sunk below the floor and the floor block behind, from -0.36
  *    m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines displayed tread extents, landing depth and descending floor cover.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds blocks for an ascending and descending two-riser flight from the same fixed stair profile.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.17 m riser and 0.28 m tread give first span [0.5, 0.78] and upper span [0.78, 1.34], with expected heights and the independent descending floor extent.
  */
 export function test_motions_executable_stairs_case_boxes(): void {
   const flight = (

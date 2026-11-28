@@ -10,16 +10,16 @@ import type {
 } from "..";
 
 /**
- * Propose point and measurement growth using only currently registered poses.
- * Existing points receive only individually positive-depth pixel-qualified
- * measurements; new points must pass every available registered observation.
+ * Callable construction of a detached point and measurement proposal using
+ * currently registered cameras.
  */
 
 export namespace IAutoMovieRecoverySceneLandmarksGrowthOperation {
   /**
-   * Propose point and measurement growth using only currently registered poses.
-   * Existing points receive only individually positive-depth pixel-qualified
-   * measurements; new points must pass every available registered observation.
+   * Copy the retained points, then add missing observations with positive depth
+   * and acceptable pixel residual. Triangulate new tracks from their registered
+   * observations and retain each point only when all those views qualify.
+   * Charge shared scene work, and check retention before growing the proposal.
    */
 
   export type Operation = (

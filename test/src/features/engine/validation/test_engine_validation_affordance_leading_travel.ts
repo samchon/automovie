@@ -23,6 +23,10 @@ import { nclose } from "../../internal/nclose";
  * 4. Too few rows, repeated knots or a reversal of follower direction refuse.
  *
  * All admitted examples yield dyadic or integer travel by exact arithmetic.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers inverse travel across gears, monotone cams and partial domains, plus noninvertible input and finite extreme ratios.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls affordanceLeadingTravel on signed ratios and literal rising or falling tables at requested interior and endpoint values. Separate table variants exercise invalid inversion.
+ * @evidence contracts/development/testing.md#independent-expectations Solving the linear ratio and chosen cam segments gives exact signed, integer or dyadic values. The legal domain maps to its stated endpoints. Constant, repeated or reversing rows cannot identify one leader.
  */
 export function test_engine_validation_affordance_leading_travel(): void {
   const gear: IAutoMovieAffordanceCoupling = { id: "gear", ratio: -2 };

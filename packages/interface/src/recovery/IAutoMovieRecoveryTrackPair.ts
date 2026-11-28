@@ -1,16 +1,19 @@
 import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "..";
 
-/** Frozen forward and reverse appearance matches for two input view indices. */
+/**
+ * Search results for one ordered source pair, with independently qualified
+ * forward and reverse matches.
+ */
 export interface IAutoMovieRecoveryTrackPair {
-  /** First view's index in the fixed input population. */
+  /** Original source index of the first view in the pair. */
   first: number;
 
-  /** Second view's index in the same input population. */
+  /** Original source index of the second view in the pair. */
   second: number;
 
-  /** Borrowed query-first to target-second feature matches. */
+  /** Directed matches using the first source as query and the second as target. */
   forward: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>;
 
-  /** Borrowed query-second to target-first feature matches. */
+  /** Directed matches using the second source as query and the first as target. */
   reverse: ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>;
 }

@@ -70,6 +70,10 @@ const context = (
  * 3. The held ball releases its 0.12 m sphere about its 1 cm offset, with no
  *    tangential loss when it has restitution and no friction; an unheld or a
  *    fixed ball is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines court-ball phrase, scaled hand placement and release of the held sphere from its offset.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads chest pass, contest and retimed clocks, computes posed hand targets and checks held, unheld and fixed ball models.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 0.37 and 0.24 s phases give release at 0.61 s; doubling them gives 1.22 s while the 0.85 s finish stays fixed. The 0.12 m ball and 0.01 m offset determine its release center.
  */
 export function test_motions_sport_ball_court(): void {
   // 1. The clock.

@@ -26,6 +26,10 @@ const STANDARD_GRAVITY: number = 9.80665;
  * 3. A centre at rest extrapolates to itself.
  * 4. Neither input is changed.
  * 5. A length of 0 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the velocity correction, default gravity, a stationary centre, input ownership and zero-length refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAutoMovieCenterOfMassExtrapolate with explicit positions, velocities, gravity and pendulum lengths, then compares input snapshots.
+ * @evidence contracts/development/testing.md#independent-expectations For gravity four and length one the frequency is two, so the shift is half the velocity. A length numerically equal to default gravity gives frequency one, and zero velocity leaves the centre unchanged.
  */
 export function test_engine_kinematics_resolve_center_of_mass_extrapolate(): void {
   const centre: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };

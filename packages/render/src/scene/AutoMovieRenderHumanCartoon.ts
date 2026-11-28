@@ -107,6 +107,20 @@ export namespace AutoMovieRenderHumanCartoon {
     max: [number, number, number];
     /** Most anterior local triangle X at Y/Z; undefined outside its silhouette. */
     frontAt: (y: number, z: number) => number | undefined;
+    /** Stock sites in head-local metres. Omission uses bounds-based placement. */
+    anchors?: IHeadAnchors;
+  }
+
+  /** Head-local Y/Z projections of the visible face sites, in metres. */
+  export interface IHeadAnchors {
+    /** Left rest eye joint, projected onto the head front when mounting. */
+    leftEye: readonly [y: number, z: number];
+    /** Right rest eye joint, projected onto the head front when mounting. */
+    rightEye: readonly [y: number, z: number];
+    /** Front shell exit in the nose contact direction. */
+    nose: readonly [y: number, z: number];
+    /** Front shell exit in the mouth contact direction. */
+    mouth: readonly [y: number, z: number];
   }
 
   /** Owned cartoon face drawing and unsupported expression fields. */
@@ -119,24 +133,25 @@ export namespace AutoMovieRenderHumanCartoon {
     dispose: () => void;
   }
 
-    /**
-   * Build a deliberately exaggerated cartoon face for a posed polygon head. The
-   * caller adds the returned object to the already posed head group once. Bounds
-   * use that group's metres, +X forward, +Y up and +Z anatomical left. Eyes,
-   * brows, nose and mouth are dimensioned marks, not anatomical skin. Supported
-   * units are AU1/2/4/5/6/7/12/15/20/23/24/25/26/27/41/43; named lip fields reuse
-   * those units. Other actions, tongue and visemes are reported as unsupported.
-   * Head orientation stays with the parent; gaze moves pupils and jaw millimetres
-   * move the mouth marks. Marks follow the actual polygon front; the silhouette
-   * limits exaggerated brow and jaw travel. Pose values must be finite and
-   * already admitted by the caller; this drawing applies no second clinical range
-   * limit, including when clamping is disabled.
+  /**
+   * Build an owned cartoon face for a polygon head attachment.
    *
-   * @param head Actual local bounds of the polygon head, metres.
-   * @param expression Existing public action-unit input; omission means neutral.
-   * @param pose Admitted finite eye/jaw pose; neck motion is already on the
-   *   parent.
+   * Add the result to the posed head group once. The group uses head-local
+   * metres with +X forward, +Y up and +Z left. Marks follow the shell front
+   * and stay inside its projected silhouette. By default the bounds determine
+   * their positions. A supplied stock anchor replaces its mark's default site.
+   * The marks are independent of collision.
+   *
+   * Supported units are AU1/2/4/5/6/7/12/15/20/23/24/25/26/27/41/43. Named
+   * lip fields use the same units. Other actions, tongue and visemes are
+   * reported as unsupported. Gaze changes the pupils and jaw displacement
+   * changes the mouth marks. The caller supplies already admitted pose values.
+   *
+   * @param head Local polygon bounds and front query, with optional anchors.
+   * @param expression Sided action units; omission means neutral.
+   * @param pose Finite eye angles in degrees and jaw displacements in millimetres.
    * @returns Owned face geometry, explicit unsupported fields and its disposer.
+   * @throws {Error} On invalid bounds, duplicate or invalid activations, or a mark whose front cannot be resolved.
    */
   export function buildFace(
     head: IHeadBounds,

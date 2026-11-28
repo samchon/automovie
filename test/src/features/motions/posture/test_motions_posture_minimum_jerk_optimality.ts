@@ -131,6 +131,10 @@ function cost(segments: readonly HumanQuinticSegment.ISegment[]): number {
  * 4. A rest-to-rest piece from 0 to 1 over 1.3 s does not overshoot: its position
  *    rises monotonically within [0, 1], its rate `30 τ² (1 − τ)² / T` never
  *    negative and never past its middle's 15/8 / T.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines continuity and optimality of open and cyclic minimum-jerk splines and bounds for a rest-to-rest piece.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples derivative joins, perturbs the solved interior derivatives in both directions, integrates jerk and checks the period boundary.
+ * @evidence contracts/development/testing.md#independent-expectations Exact quadrature measures integrated squared jerk. Symmetric increases under perturbation verify a stationary minimum, and the analytic peak is (15/8)/T.
  */
 export function test_motions_posture_minimum_jerk_optimality(): void {
   const times: number[] = [0, 0.7, 1.5, 2.6];

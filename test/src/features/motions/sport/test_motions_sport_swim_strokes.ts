@@ -17,6 +17,10 @@ import { nclose } from "../../internal/nclose";
  *    the left first at 0.42 s, the first breath at 0.8 · 1.4 = 1.12 s, relaxed
  *    at 2.8 s.
  * 2. Three tread cycles of 1 s: the third at 2 s, ending at 3 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines per-cycle and per-hand crawl cues, breathing progress and tread clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds two crawl periods with a left-arm lag and three one-second tread cycles and reads their cues.
+ * @evidence contracts/development/testing.md#independent-expectations At period 1.4, lag 0.3 gives 0.42 s and breathing share 0.8 gives 1.12 s. A third one-second tread cycle begins at 2 s.
  */
 export function test_motions_sport_swim_strokes(): void {
   const crawl: IAutoMovieMotionClock = swim.strokes(true, 2, 1.4, 0.3);

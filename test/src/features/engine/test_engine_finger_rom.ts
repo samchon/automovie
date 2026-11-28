@@ -50,9 +50,7 @@ const SPREAD: number = 8;
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the engine's table and clamps hand shapes through `clampPose` on a generated body.
  * @evidence contracts/development/testing.md#independent-expectations The ranges are written from the cited sources; the emblems' and shapes' angles must survive a clamp that only removes motion outside the anatomy.
- * @evidence contracts/development/testing.md#distinguishing-cases Every joint kind, a two-freedom knuckle, the saddle with its twist, emblems that abduct and the four working shapes.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test; no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the sources and the four scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Both hands match authored joint ranges. A victory pose, a thumb posture and four working shapes exercise the clamp's retained anatomy.
  */
 export function test_engine_finger_rom(): void {
   const range = (min: number, max: number): { min: number; max: number } => ({

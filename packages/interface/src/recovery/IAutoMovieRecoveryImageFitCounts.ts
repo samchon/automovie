@@ -1,14 +1,20 @@
 /**
- * Observed and fitted scalar populations, without a geometric coverage
- * assertion.
+ * Counts for the selected cubic spline fit. Counts describe the coefficient
+ * solve and common row domain used to produce the recipe.
  */
 export interface IAutoMovieRecoveryImageFitCounts {
-  /** Number of corresponding observed physical rows. */
+  /**
+   * Number of distinct physical Y stations used by the fit within the common
+   * domain of the views.
+   */
   rows: number;
 
-  /** Number of longitudinal spline spans. */
+  /** Number of longitudinal cubic spans in the selected profile. */
   spans: number;
 
-  /** Number of independently fitted scalar coefficients. */
+  /**
+   * Total independent scalar coefficients across all fitted fields before
+   * conversion to saved span controls.
+   */
   freeScalars: number;
 }

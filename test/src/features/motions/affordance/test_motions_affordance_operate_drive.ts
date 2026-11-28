@@ -22,17 +22,22 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON * 7;
 
 /**
- * One slider coordinate owns both the visible handle and the published drive.
+ * Check that the operated joint coordinate drives both displayed contact and
+ * authored motion.
  *
  * Scenarios:
  *
- * 1. Find the slider through the handle's parent. A 3/4 stroke from 0.25 m adds
- *    0.375 m to that joint alone and the handle's reads use the requesting film
- *    instant even when progress matches an earlier read.
- * 2. The drive publishes the same slider coordinate along the stroke. The same
- *    chain cannot be used to drive another kind of joint.
- * 3. A grip rides a latch which rides a hinge. Read the hinge at the same second
- *    as the grip, even if the latch has already reached its final travel.
+ * 1. Find the slider under the handle. At three quarter progress add 0.375 m
+ *    to the 0.25 m starting slide, keeping other joints fixed and reading the
+ *    handle at each requesting film second.
+ * 2. Publish the slider's start, end and midpoint drive. Reject driving
+ *    another kind of joint through the same chain.
+ * 3. Read a latch grip below a hinged ancestor at the current second, even
+ *    after the latch reaches its own final travel.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify the joint, stroke values and film-time ownership of carried contact.
+ * @evidence contracts/development/testing.md#behavioral-verification The real operated-part and drive readers consume typed articulated hierarchies with exact joint and frame callbacks.
+ * @evidence contracts/development/testing.md#independent-expectations The slide uses the specified fraction of 0.5 m. The nested expected point follows the authored ancestor transform independently.
  */
 export function test_motions_affordance_operate_drive(): void {
   const frame: IAutoMovieAffordance["frame"] = {

@@ -19,6 +19,10 @@ import { vclose } from "../../internal/vclose";
  *    (the first beat's middle) and high again at a third.
  * 2. With no count asked the law beats four times.
  * 3. A count rounding to none is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the staged prop face offset and repeated raise and lower animation.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans three beats against a fixed upward region, reads the first peak and contact, exercises the default and refuses zero.
+ * @evidence contracts/development/testing.md#independent-expectations The specified 0.2 m region height plus 0.02 m clearance gives 0.22 m, and a 0.3 m raise reaches 0.52 m. Three beats put first contact at progress 1/6.
  */
 export function test_motions_tasks_beat_flames(): void {
   const region: beatFlamesBeats.IRegion = {

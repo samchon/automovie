@@ -21,6 +21,10 @@ const ROUNDING: number = 8 * 9 * Number.EPSILON;
  *    hinge.
  * 3. A distal axis perpendicular to the wrist offset can move it by two metres, so
  *    the hinge-only one-metre bound proves no positive radius.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a conservative inner wrist radius from hinge range and distal rotation excursion.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes the bound for aligned, reflected and unequal links and a distal axis perpendicular to the offset.
+ * @evidence contracts/development/testing.md#independent-expectations Two unit links at 120° give squared radius 2 + 2 cos 120° = 1. An unequal fully folded pair keeps radius 1, which a maximum distal shift of 2 can eliminate.
  */
 export function test_motions_posture_arm_wrist_shell(): void {
   const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

@@ -1,14 +1,19 @@
 import type { AutoMovieHumanExpressionSide as AutoMovieHumanExpressionSideContract } from "@automovie/interface";
 
-/** Closed expression side choices; serialized values are unchanged. */
+/**
+ * Side labels for one facial action unit activation.
+ *
+ * Use the person's own right and left. Each activation supplies its intensity
+ * and side explicitly.
+ */
 export namespace AutoMovieHumanExpressionSide {
-  /** Apply this action unit to both anatomical sides. */
+  /** Use the activation intensity on both anatomical sides. */
   export const Both: "both" = "both" satisfies
     AutoMovieHumanExpressionSideContract;
-  /** Apply this action unit to the person's anatomical left side. */
+  /** Use the activation intensity on the person's left side. */
   export const Left: "left" = "left" satisfies
     AutoMovieHumanExpressionSideContract;
-  /** Apply this action unit to the person's anatomical right side. */
+  /** Use the activation intensity on the person's right side. */
   export const Right: "right" = "right" satisfies
     AutoMovieHumanExpressionSideContract;
 }

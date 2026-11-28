@@ -1,62 +1,60 @@
 /**
- * Independent pixel-reprojection and point-geometry qualifications for a triad.
- * These residuals are Euclidean image distances, not epipolar Sampson errors.
+ * Thresholds for an ordered camera triad's point geometry, resection consensus,
+ * and joint fit. Pixel residuals use Euclidean distance from the calibrated
+ * projected point to the observed image location.
  */
 export interface IAutoMovieRecoveryCameraMapPolicy {
   /**
-   * Positive maximum Euclidean reprojection distance in each observing image,
-   * in pixels.
+   * Positive finite limit on Euclidean reprojection error for each observing
+   * image, in pixels.
    */
   maximumReprojectionErrorPx: number;
 
   /**
-   * Pointwise acute ray angle in degrees, strictly between 0 and 90, for seed
-   * triangulation.
+   * Finite minimum acute seed-viewing-ray angle in degrees, strictly between
+   * zero and 90. It gates triangulated and jointly fitted seed points.
    */
   minimumPointParallaxDegrees: number;
 
   /**
-   * Minimum distinct 3D-track/target-feature resection inliers, integer at
-   * least six.
+   * Safe integer minimum of six or more distinct 3D-track and target-feature
+   * inliers.
    */
   minimumResectionInliers: number;
 
   /**
-   * Resection inlier fraction over all eligible distinct 3D-to-2D observations,
-   * in (0,1].
+   * Required resection inlier fraction over all eligible distinct 3D-to-2D
+   * observations, in (0, 1].
    */
   minimumResectionInlierFraction: number;
 
-  /**
-   * Ideal unique-six-sample stopping confidence in (0,1), not physical
-   * correspondence confidence.
-   */
+  /** Conditional confidence in (0, 1) for the ideal six-point proposal model. */
   samplingConfidence: number;
 
-  /** Deterministic unsigned 32-bit sampling identity. */
+  /** Deterministic unsigned 32-bit sampling seed, including zero. */
   samplingSeed: number;
 
   /**
-   * Positive original-design singular-value ratio below one for DLT, point and
-   * local camera observability.
+   * Finite lower bound in (0, 1) for original-design singular-value ratios used
+   * to qualify point and camera observability.
    */
   minimumDesignSingularRatio: number;
 
   /**
-   * Maximum smallest/next-smallest DLT singular-value ratio in [0,1),
-   * identifying a resolved projective direction.
+   * Finite upper bound in [0, 1) on the smallest-to-next-smallest singular
+   * value ratio in the direct linear transform.
    */
   maximumDltNullRatio: number;
 
   /**
-   * Maximum relative Frobenius discrepancy between recovered DLT rotation block
-   * and its proper scaled rotation, in (0,1).
+   * Finite relative Frobenius error bound in (0, 1) between the recovered
+   * direct-linear rotation block and its proper scaled rotation.
    */
   maximumRotationProjectionError: number;
 
   /**
-   * Positive soft-L1 scale in pixels, applied to each complete 2D residual
-   * norm.
+   * Positive finite soft-L1 scale in pixels, applied to the norm of each
+   * two-coordinate residual.
    */
   lossScalePx: number;
 }

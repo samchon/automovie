@@ -24,6 +24,10 @@ import { throwsError } from "../../internal/throwsError";
  *    wave of 3 cycles fitted with cutoff 3 keeps exactly half the unpenalized
  *    controls; 30 samples are refused.
  * 5. `width` is N.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names periodic interpolation, phase derivatives, recovered controls, independent smoothing and inadmissible sample count.
+ * @evidence contracts/development/testing.md#behavioral-verification Interpolates eight ellipse samples, reads and differentiates the spline at known phases, and projects fixed sample sets under several penalties.
+ * @evidence contracts/development/testing.md#independent-expectations The periodic cubic knot stencil is (1,4,1)/6. Central differences supply derivative references. A pure retained harmonic at the cutoff has half the unpenalized controls under the documented rule.
  */
 export function test_engine_geometry_spline_curve(): void {
   const N: number = 8;

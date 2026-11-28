@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A byte count that does not match the size, a factor that does not divide
  *    it, a decoded size that is not the asked one and a wrong byte count are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Flips framebuffer rows, downsamples supersampled pixels and validates the encoded and decoded raster.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls pixel encoding and decoding with explicit one- and two-pixel rows, opaque and partially covered blocks, and separate invalid inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Literal RGBA bytes pin row order, averaged color and coverage alpha 128. The invalid byte count, factor and size each identify a distinct refusal.
  */
 export function test_render_draw_draw_pixels(): void {
   const flipped: string = AutoMovieRenderDraw.encodeAutoMovieDrawPixels(

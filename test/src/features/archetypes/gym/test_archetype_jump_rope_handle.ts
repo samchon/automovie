@@ -13,11 +13,9 @@ import { vclose } from "../../internal/vclose";
  * 1. Each of Rogue's three handle families yields one barrel with the measured length and grip diameter.
  * 2. Each grip sits at the origin along the barrel and each cord socket points out from the positive Z face.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured models and the moving cord's mounting frame.
- * @evidence contracts/development/testing.md#behavioral-verification Observes body geometry and local affordance positions from the built model.
- * @evidence contracts/development/testing.md#independent-expectations States Rogue's handle lengths of 5.25, 6.75 and 7.5 inches and 7/8 inch grip diameter in metres independently of the producer.
- * @evidence contracts/development/testing.md#distinguishing-cases Measures all three families and distinguishes the socket's positive tip from the opposite end and the grip centre.
- * @evidence contracts/development/testing.md#execution-ownership The exported unit uses local in-memory archetypes and starts no host.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the three catalogue handles, barrel dimensions, central grip and forward cord socket.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures each generated barrel and reads both local frames. The checks distinguish a central grip from the socket at the positive Z face.
+ * @evidence contracts/development/testing.md#independent-expectations Uses Rogue's 5.25, 6.75 and 7.5 inch handle lengths and 7/8 inch grip diameter. The socket must lie on the measured forward end plane.
  */
 export function test_archetype_jump_rope_handle(): void {
   const models: Readonly<Record<AutoMovieArchetypeJumpRope.Handle, number>> = {

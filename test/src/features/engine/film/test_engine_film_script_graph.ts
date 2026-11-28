@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/predicates";
  * 5. A cyclic parent chain throws instead of looping forever.
  * 6. BeatNodeOf finds the claiming beat node, and returns null for an unclaimed
  *    beat, a null tree, and an undefined tree alike.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the exact nearest-first ancestry, root, malformed parent chains and explicitly unclaimed and absent beat trees.
+ * @evidence contracts/development/testing.md#behavioral-verification The test traverses the authored graph through scriptAncestors and beatNodeOf and compares ordered identities and refusals against supplied structural variants.
+ * @evidence contracts/development/testing.md#independent-expectations Known parent links place grp, scene1, act1 and root above b1. The root has no parent, and a missing or cyclic link cannot complete a valid chain. Only a graph node that explicitly claims the beat provides its address.
  */
 export function test_engine_film_script_graph(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

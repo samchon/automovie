@@ -22,6 +22,12 @@ import { throwsError } from "../../internal/throwsError";
  *    vertex and two fans meeting at one vertex are refused.
  * 5. One quad and its reverse vanish their limit normals ("limit normal at
  *    vertex").
+ * 6. Fractional and nonfinite depths refuse before refinement. A triangle
+ *    generates three quads at level one.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names valid sharpness and levels, level-one nonquad refinement, and malformed levels, topology and vanished normals.
+ * @evidence contracts/development/testing.md#behavioral-verification Subdivides valid cages and individually broken variants, checking face counts and named failure causes.
+ * @evidence contracts/development/testing.md#independent-expectations Each quad yields four children per step, giving 32 faces for two steps on two quads and 4⁶ at the cap. Oriented edges and connected one-rings are required.
  */
 export function test_engine_geometry_subdivision_refusals(): void {
   const valid: IAutoMovieSubdivisionCage = {
@@ -55,6 +61,24 @@ export function test_engine_geometry_subdivision_refusals(): void {
     AutoMovieEngineGeometry.subdivideSurface({ cage: { positions: quad, faces: [[0, 1, 2, 3]] }, levels: 6 }).faces.length,
     4 ** 6 * 4,
   );
+
+  const oneTriangle: IAutoMovieSubdivisionCage = {
+    positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+    faces: [[0, 1, 2]],
+  };
+  TestValidator.equals(
+    "one child quad per triangle corner",
+    AutoMovieEngineGeometry.subdivideSurface({ cage: oneTriangle, levels: 1 }).faces.length / 4,
+    3,
+  );
+  for (const levels of [0, 1.5, NaN, Infinity, 7])
+    TestValidator.predicate(
+      `invalid subdivision depth ${levels}`,
+      throwsError(
+        () => AutoMovieEngineGeometry.subdivideSurface({ cage: valid, levels }),
+        "integer from 1 to 6",
+      ),
+    );
 
   // 3.
   refused("no face", { ...valid, faces: [], uvFaces: [] }, "needs at least one face");

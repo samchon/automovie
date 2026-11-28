@@ -22,6 +22,10 @@ const ROUNDING: number = 1e-12;
  *    0.05) leaves its square part (0, −0.2, 0.05) for the knuckles.
  * 2. A forearm along the bar points the knuckles straight down.
  * 3. Facing +X, the left hand's bar runs along +Z.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A two-hand load stays level across the performer and its first wrist stays square to the bar.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the level-frame reader with an oblique forearm, a parallel forearm and a turned left-hand actor.
+ * @evidence contracts/development/testing.md#independent-expectations Projecting the forearm away from the known bar axis yields the expected square grip. Parallel input uses the stated down direction, and a quarter-turn maps the transverse axis.
  */
 export function test_motions_exercise_workout_load_level(): void {
   // 1. Square to the bar.

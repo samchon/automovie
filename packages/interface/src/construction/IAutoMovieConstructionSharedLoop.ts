@@ -17,26 +17,33 @@ import type { IAutoMovieSolidSharedCurve } from "./IAutoMovieSolidSharedCurve";
  */
 export namespace IAutoMovieConstructionSharedLoop {
   /**
-   * The kernel's join input for a declared loop, and the contact it was built
-   * from.
+   * Prepared kernel join and contact generated from one declared host loop. It
+   * retains the actual shared curve, side orientation and evaluated width law
+   * for subsequent solid realization.
    */
   export interface IPrepared {
-    /** What `AutoMovieEngineSolidBody.merge` takes as its `join`. */
+    /**
+     * Kernel join arguments with actual traced contact and width data. The
+     * calling merge supplies host and part geometry.
+     */
     join: Omit<IAutoMovieSolidJoin.IInput, "part" | "host">;
 
-    /** The contact, for a reader of its arcs. */
+    /** Actual shared contact retained for arc, direction and side reads. */
     shared: IAutoMovieSolidSharedCurve.IShared;
   }
 
-  /** A premise the record broke. */
+  /**
+   * Named failure of shared-loop preparation. The diagnostic identifies the
+   * relevant loop, contact or width premise with its source detail.
+   */
   export interface IRefusal {
-    /**
-     * `shared loop`, `closed loop`, `enclosed loop`, `one kept side` or
-     * `width`.
-     */
+    /** Diagnostic category for the loop, contact, kept side or width premise. */
     contract: string;
 
-    /** The message with its numbers. */
+    /**
+     * Original explanation of the refused premise, with relevant source values
+     * when present.
+     */
     detail: string;
   }
 }

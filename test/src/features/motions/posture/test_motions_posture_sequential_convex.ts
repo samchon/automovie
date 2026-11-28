@@ -31,6 +31,10 @@ const STEP_ROUNDING: number = 12 * 3 * Number.EPSILON;
  *    coefficient leaves `x = 1/2` and reports the penalty iteration limit.
  *
  * @see https://escholarship.org/content/qt6km506db/qt6km506db.pdf Schulman et al. 2014, §3, Algorithm 1.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines trust-region acceptance and shrink, outer penalty increase and explicit iteration limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Minimizes a constrained quadratic with exact model and a quartic with overoptimistic first-order model, then restricts penalty iterations.
+ * @evidence contracts/development/testing.md#independent-expectations Trial arithmetic fixes the rejected ratio zero and accepted improvement 0.5904. A single penalty gives x = 1/2, while increased penalty attains the x = 1 constraint.
  */
 export function test_motions_posture_sequential_convex(): void {
   type IReading = IAutoMovieMotionHumanSequentialConvex.IEvaluation;

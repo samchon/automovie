@@ -23,6 +23,10 @@ const FORCE_ROUNDING: number = 16 * 16 * Number.EPSILON;
  * 2. With zero velocity and dt = 0 the force is the spring term. A (3, 4, 0) N
  *    demand limited to 2 N retains direction (3/5, 4/5, 0).
  * 3. A zero cap or zero error and velocity yield zero force.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the implicit spring-damping force, whole-vector norm cap and absence of force under zero cap or demand.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes force for fixed mass, stiffness, damping and velocity, doubles inputs, tests a norm-limited demand and checks zero cases.
+ * @evidence contracts/development/testing.md#independent-expectations Backward implicit damping gives denominator 7/4 and force (2, -10/7, -12/7) N. A cap of 2 N on a 3–4 vector preserves its 3/5 and 4/5 directions.
  */
 export function test_engine_physics_root_tracking_force(): void {
   const error: IAutoMovieVector3 = { x: 1, y: -0.5, z: 0 };

@@ -21,6 +21,7 @@ import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
+import { humanPreparationReads } from "./humanPreparationReads";
 import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
@@ -328,6 +329,7 @@ export namespace HumanPerformanceRead {
       throw HumanPerformanceRead.missing("performer", subject, [
         ...self.people.keys(),
       ]);
+    humanPreparationReads.performer(self, subject);
     return person;
   }
 

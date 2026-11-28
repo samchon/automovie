@@ -1,50 +1,47 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createChopsticks as createChopsticksImplementation } from "./internal/createChopsticks";
 
-/** Public operations for Auto Movie Archetype Chopsticks. */
+/** Constructs a fixed lower chopstick and one hinged upper chopstick. */
 export namespace AutoMovieArchetypeChopsticks {
   /**
-   * A pair of chopsticks held in the conventional hold: the lower stick fixed
-   * against the thumb's base and the ring finger, the upper stick moved by the
-   * index and middle fingers.
+   * Build two equal wooden sticks around the fixed lower stick's `+Z` axis.
    *
-   * The lower stick is the prop's frame, running along `+Z` from its butt at the
-   * origin to its tip. The upper stick lies above it (`+Y`) and turns about a
-   * fulcrum a third of the way along, at the thumb's tip, on the `pinch` hinge:
-   * open at 0, spread `spread` degrees, and closed at `spread`, its tip on the
-   * lower one's. `grip` is the hold a third of the way along, `tips` the meeting
-   * point of the two tips, where a morsel is pinched.
+   * The upper stick pivots one third along its shaft around `+X`. It closes
+   * through 12 degrees at `pinch`, when both rods meet at the fixed `tips`
+   * socket. The grip stays one third along the lower stick.
    *
-   * @param params The optional scene id.
-   * @returns The chopsticks and their contacts, metres.
+   * @param params Optional scene ID, defaulting to `chopsticks`.
+   * @returns The articulated pair with its grip, hinge and tip contact.
    */
   export function create(params?: AutoMovieArchetypeChopsticks.IParams): AutoMovieArchetype<AutoMovieArchetypeChopsticks.Affordance, AutoMovieArchetypeChopsticks.Dimension> {
     return createChopsticksImplementation(params);
   }
 
-  /** The upper stick's hinge, the hold and the tips. */
+  /**
+   * Fixed `grip`, upper-stick `pinch` hinge and fixed `tips` contact socket.
+   */
   export type Affordance = "pinch" | "grip" | "tips";
 
-  /** The length, the diameter and the mass. */
+  /** Both rods' length and diameter in metres, and pair mass in kilograms. */
   export type Dimension = "length" | "diameter" | "mass";
 
-  /** The scene id. */
+  /** The scene ID of the fixed-size pair. */
   export interface IParams {
-    /** The model's id, unique in a scene; `chopsticks` when absent. */
+    /** Scene object ID, defaulting to `chopsticks`. */
     id?: string;
   }
 
-  /** The pair's size, metres, degrees and kilograms. */
+  /** Recipe measurements for the pair's wooden rods and upper-stick travel. */
   export interface ISize {
-    /** Each stick's length. */
+    /** Length of each rod, 0.24 metres. */
     length: number;
 
-    /** Each stick's diameter. */
+    /** Diameter of both rods, 0.006 metres. */
     diameter: number;
 
-    /** The open spread between the sticks, degrees. */
+    /** Upper-stick travel from rest toward the lower stick, 12 degrees. */
     spread: number;
 
-    /** The pair's mass. */
+    /** Total pair mass of 0.02 kilograms. */
     mass: number;
   }}

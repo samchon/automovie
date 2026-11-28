@@ -32,9 +32,7 @@ const profileWith: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls profileSemanticKeys on authored limit/driver records and checks exact first-reference key order, duplicate removal and null-reference omission.
  * @evidence contracts/development/testing.md#independent-expectations The literal node references in limit and each supported driver determine the ordered a-through-m list; pointers have global addresses and contribute no boneMap key, independently of walker output.
- * @evidence contracts/development/testing.md#distinguishing-cases All current driver field families, repeated keys and null pole/center distinguish complete enumeration from an indiscriminate field scan; concrete remapping belongs to bind-profile cases.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_profile_keys entry directly executes portable synchronous reference enumeration, without a scene registry, process or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Limits contribute node-channel keys; pointer channels contribute nothing.).
+ * @evidence contracts/development/common.md#meaningful-documentation Limits and each driver family contribute node identities in first-reference order. Pointer channels, null optional references and duplicate keys exercise omission and deduplication.
  */
 export function test_resolve_profile_keys(): void {
   const keys: string[] = AutoMovieEngineResolve.profileSemanticKeys(

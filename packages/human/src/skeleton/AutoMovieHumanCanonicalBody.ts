@@ -22,62 +22,33 @@ import { AutoMovieHumanCanonicalProfile as Profile } from "./AutoMovieHumanCanon
 import type { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJointStrength";
 
 /**
- * A Human's polygon man on the engine's canonical humanoid rig, so a motion
- * written as canonical clinical poses drives the polygon man exactly as it
- * drives any other VRM humanoid.
- *
- * The canonical rig is the one `AutoMovieEngineHumanoidJointAxes` and `AutoMovieEngineHumanoidRestFrame`
- * read: the VRM 1.0 T-pose, right-handed, +Y up, the body facing +Z with its
- * left toward +X, identity rest rotations. Human registers +X forward, +Y up
- * and +Z toward its left-named limbs, a left-handed frame, so every point is
- * reflected by `(x, y, z) -> (z, y, x)` and a left-named limb then lies on the
- * anatomical left.
- *
- * The polygon man is built from joints and girth radii only, so the body is
- * prepared at the skeleton level, without Human's skin, lofts, head
- * surfaces or any solve of the detailed figure's curves. The canonical rig has no scapulohumeral rhythm, pelvic share or
- * resting abduction, which Human's own evaluator adds; a canonical pose moves
- * the polygon man by the rig's angles alone.
+ * Prepare and pose the stock polygon body on the canonical VRM T-pose rig. The rig
+ * is right-handed with +Y up, +Z forward, and +X toward the body's left. The draw
+ * data uses Human's registered axes (+X forward, +Y up, +Z left). The two frames
+ * are related by swapping X and Z.
  */
 export namespace AutoMovieHumanCanonicalBody {
 
   /**
-   * Prepare a Human's polygon man on the canonical rig from its parameters,
-   * at the skeleton level: no skin, loft or head surface is built.
+   * Prepare the stock skeleton, joint map and contact profile once for a
+   * performer. Preparation scales the Human bind to metres, reflects it and
+   * straightens the arms, fingers and legs into the canonical T-pose. The feet
+   * keep their bind orientation. The lowest foot joint or tip sphere touches Y =
+   * 0, and each measured heel plane follows the final ankle translation.
    *
-   * The bind joints come from `AutoMovieHumanCanonicalBind`, which places
-   * them by closed-form placement laws alone: no curve of the detailed figure
-   * is built, fitted or measured, so the trunk joints stand on the line from
-   * the mid-hip to the neck base instead of the detailed figure's converged
-   * column axis. A body costs tens of milliseconds, nearly all of it the hull
-   * search of its colliders. Each joint's girth
-   * radius is perimeter / 2π of the person's own resolved circumference
-   * (`AutoMovieHumanBodyAnatomy.resolve`): hip, waist, chest, neck and head
-   * for the trunk and head, the arm at the axilla, the forearm, the hand, the
-   * thigh, the calf, the ankle and the ball of the foot (0.8 of it at the
-   * midfoot, as Human's rig has it); the jaw is 0.12 of the head radius as
-   * Human's rig has it, the eye a 12 mm globe (Bekerman et al. 2014), and a
-   * digit the stature girth Human uses for an unlofted digit (finger and
-   * lesser toe 0.03, hallux 0.04 of stature).
+   * Each humanoid joint has identity rest rotation. Extra Human joints follow
+   * their rig carriers, and the hallux root sets the toes pivot. The stock profile
+   * reads the same joint centres, girth radii and heel planes as the drawing.
+   * The ear ray starts at the measured upper ear station relative to the head.
+   * Girth radii use the resolved circumferences divided by 2π, with the stock jaw,
+   * eye and digit radii supplied by their respective model conventions.
    *
-   * The joints then move onto the canonical rig: reflected from Human's
-   * registered frame, each arm straightened along ±X by shortest arcs about
-   * the shoulder, the elbow and the wrist and pronated until the palm faces
-   * -Y, each finger straightened in the palm's plane along its own knuckle
-   * line and the thumb's two hinges along its metacarpal (the bind holds a
-   * relaxed hand, and a finger angle of zero is the extended finger, as in
-   * the VRM T-pose and the Neutral-0 position), each thigh and shank straightened along -Y with the foot keeping its
-   * bind orientation, and the whole body raised or lowered so its lowest foot
-   * joint sphere touches the floor. Every humanoid-named joint becomes a rig
-   * bone with an identity rest rotation, the toes bone at the hallux's
-   * metatarsophalangeal joint, and every other joint rides its nearest
-   * humanoid ancestor. The contact profile is built from the same joints and
-   * radii (`AutoMovieHumanCanonicalProfile`), its colliders the convex hulls
-   * of the drawn ring points, so contacts meet what is drawn.
-   *
-   * @param params The Human's parameters.
-   * @param options Body mass in kilograms and the skeleton id.
-   * @returns The canonical body.
+   * @param params Human measurements and shape parameters used by the stock bind
+   * and girth laws.
+   * @param options Required positive body mass in kilograms and the
+   * skeleton/profile id.
+   * @returns A canonical T-pose body in metres, reusable for placement, drawing
+   * and contact.
    */
   export function prepare(
     params: IAutoMovieHumanParameters,
@@ -114,13 +85,21 @@ export namespace AutoMovieHumanCanonicalBody {
       if (part.startsWith("Hallux")) return girth(0.04 * measures.stature);
       return girth(0.03 * measures.stature);
     };
-    return canonical(
-      anatomy.bones.map((b) => ({
+    const body: IAutoMovieHumanCanonicalBody.IBody = canonical(
+      anatomy.bones.map((b): IBind => ({
         bone: b.bone,
         parent: b.parent,
         position: AutoMovieEngineVector3.scale(vector(b.position), scale),
         tip: b.tip === null ? null : AutoMovieEngineVector3.scale(vector(b.tip), scale),
         radius: radius(b.bone),
+        ...(b.bone === "leftFoot" || b.bone === "rightFoot"
+          ? {
+              heel: AutoMovieEngineVector3.scale(
+                vector(anatomy.heels[b.bone === "leftFoot" ? "left" : "right"]),
+                scale,
+              ),
+            }
+          : {}),
       })),
       {
         ...options,
@@ -131,16 +110,19 @@ export namespace AutoMovieHumanCanonicalBody {
         },
       },
     );
+    const [forward, up] = anatomy.earRayOffset;
+    body.profile.earRayOrigin = { x: 0, y: up * scale, z: forward * scale };
+    return body;
   }
 
   /**
-   * Place every Human joint under a canonical pose: forward kinematics of the
-   * rig with `AutoMovieEngineHumanoidJointAxes` and `AutoMovieEngineHumanoidRestFrame`, each joint
-   * carried rigidly by its carrier bone.
+   * Place the original Human joints under a canonical rig pose. Each joint's rest
+   * offset follows the world rotation and translation of its carrier. Placements
+   * use canonical world axes and metres.
    *
-   * @param body The canonical body.
-   * @param pose A canonical pose of its skeleton.
-   * @returns Placements in the order of `body.joints`.
+   * @param body The canonical body returned by prepare.
+   * @param pose The pose of that body's skeleton in the canonical clinical axes.
+   * @returns Current joint centres and carrier rotations in body.joints order.
    */
   export function place(body: IAutoMovieHumanCanonicalBody.IBody, pose: IAutoMoviePose): IAutoMovieHumanCanonicalBody.IPlacement[] {
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
@@ -184,16 +166,20 @@ export namespace AutoMovieHumanCanonicalBody {
   }
 
   /**
-   * The polygon drawing's input for a canonical body and pose, in Human's
-   * registered frame: rest bones and placements reflected back by
-   * `(x, y, z) -> (z, y, x)`. The drawing's parent must carry that same
-   * reflection (`REFLECTION`, a column-major 4x4) so the figure shows in the
-   * canonical world; a reflected world matrix keeps faces outward because
-   * three.js reverses winding for it.
+   * Read rest bones and current placements in Human's registered frame, in metres.
+   * The rest data always describe the canonical T-pose expressed in that frame. An
+   * omitted pose yields the rest centres with identity placement rotations. With a
+   * pose, the output rotates and places each rig-carried joint before converting
+   * its world transform to the display frame.
    *
-   * @param body The canonical body.
-   * @param pose A canonical pose; omitted, the T-pose rest.
-   * @returns Rest bones and placements in Human's frame.
+   * Render the records under REFLECTION to put them in the canonical scene.
+   * Three.js reverses face winding for that reflected world matrix.
+   *
+   * @param body The canonical body returned by prepare.
+   * @param pose A pose of the body's canonical skeleton, or omit it for the
+   * T-pose.
+   * @returns Rest bones with their radii, tips and any stock heel planes, plus the
+   * current placements.
    */
   export function display(
     body: IAutoMovieHumanCanonicalBody.IBody,
@@ -211,6 +197,7 @@ export namespace AutoMovieHumanCanonicalBody {
         position: flip(j.position),
         tip: j.tip === null ? null : flip(j.tip),
         radius: j.radius,
+        ...(j.heel === undefined ? {} : { heel: flip(j.heel) }),
       }),
     );
     const posed: IAutoMovieHumanBonePlacement[] =
@@ -237,7 +224,11 @@ export namespace AutoMovieHumanCanonicalBody {
     return { bones, posed };
   }
 
-  /** The reflection between Human's frame and the canonical one, column-major 4x4. */
+  /**
+   * Column-major 4 × 4 reflection that maps (x, y, z) to (z, y, x). Apply it to
+   * the parent of a display result to move the Human-frame drawing into the
+   * canonical scene.
+   */
   export const REFLECTION: readonly number[] = [
     0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
   ];
@@ -252,6 +243,7 @@ interface IBind {
   position: IAutoMovieVector3;
   tip: IAutoMovieVector3 | null;
   radius: number;
+  heel?: IAutoMovieVector3;
 }
 
 /*
@@ -420,6 +412,19 @@ function canonical(
     tip.set(bone.bone, end === null ? null : lift(end));
   }
 
+  // Canonical preparation restores each foot's original orientation. Its
+  // longitudinal plane therefore follows just the ankle's final translation.
+  const heels: Map<string, IAutoMovieVector3> = new Map();
+  for (const bone of bind)
+    if (bone.heel !== undefined)
+      heels.set(
+        bone.bone,
+        AutoMovieEngineVector3.add(
+          position.get(bone.bone)!,
+          reflect(AutoMovieEngineVector3.subtract(bone.heel, bone.position)),
+        ),
+      );
+
   const carrier: Map<string, AutoMovieHumanoidBone> = new Map();
   for (const bone of bind) {
     const toe: string | null = toeSide(bone.bone);
@@ -473,16 +478,20 @@ function canonical(
     skeleton: { id: options.id, bones },
     profile: Profile.build(
       new Map(
-        bind.map((bone: IBind): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
-          bone.bone,
-          {
-            parent: bone.parent,
-            carrier: carrier.get(bone.bone)!,
-            position: position.get(bone.bone)!,
-            tip: tip.get(bone.bone)!,
-            radius: bone.radius,
-          },
-        ]),
+        bind.map((bone: IBind): [string, IAutoMovieHumanCanonicalSolids.IJoint] => {
+          const heel: IAutoMovieVector3 | undefined = heels.get(bone.bone);
+          return [
+            bone.bone,
+            {
+              parent: bone.parent,
+              carrier: carrier.get(bone.bone)!,
+              position: position.get(bone.bone)!,
+              tip: tip.get(bone.bone)!,
+              radius: bone.radius,
+              ...(heel === undefined ? {} : { heel }),
+            },
+          ];
+        }),
       ),
       options.mass,
       options.id,
@@ -491,6 +500,7 @@ function canonical(
     joints: bind.map((bone: IBind): IAutoMovieHumanCanonicalBody.IJoint => {
       const p: IAutoMovieVector3 = position.get(bone.bone)!;
       const end: IAutoMovieVector3 | null = tip.get(bone.bone)!;
+      const heel: IAutoMovieVector3 | undefined = heels.get(bone.bone);
       return {
         bone: bone.bone,
         parent: bone.parent,
@@ -498,6 +508,7 @@ function canonical(
         position: [p.x, p.y, p.z],
         tip: end === null ? null : [end.x, end.y, end.z],
         radius: bone.radius,
+        ...(heel === undefined ? {} : { heel: [heel.x, heel.y, heel.z] }),
       };
     }),
   };

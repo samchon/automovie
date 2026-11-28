@@ -4,40 +4,61 @@ import type { IAutoMovieViewOutline } from "./IAutoMovieViewOutline";
 
 /** Data and callback contracts shared by the ViewCurves operations. */
 export namespace IAutoMovieViewCurves {
-  /** One source edge, retained even when its preparation fails. */
+  /**
+   * Original signed outline of one front or side edge, with its placement
+   * direction. A failed preparation retains the edge identity and a null
+   * outline. The result's diagnostics explain the source refusal.
+   */
   export interface ICurve {
-    /** Stable name of the source edge. */
+    /** Stable source edge name formed from front or side plus its declared sign. */
     name:
       | "front.positive"
       | "front.negative"
       | "side.positive"
       | "side.negative";
 
-    /** Frame direction carrying this chart coordinate. */
+    /** Chart coordinate carried by the source edge, u for front and v for side. */
     direction: "u" | "v";
 
-    /** Admitted scalar source, or null with its diagnostic. */
+    /** Prepared scalar outline, or null when its source admission failed. */
     outline: IAutoMovieViewOutline.IOutline | null;
   }
 
-  /** Every original edge and its source admission failures. */
+  /**
+   * Four named original edges and their preparation diagnostics. A failed edge
+   * retains its original slot so the caller can inspect the other sources
+   * independently.
+   */
   export interface IResult {
-    /** Four records in front positive/negative, side positive/negative order. */
+    /**
+     * Edge records in front positive, front negative, side positive and side
+     * negative order.
+     */
     curves: IAutoMovieViewCurves.ICurve[];
 
-    /** Source failures, independent of section and fullness diagnostics. */
+    /**
+     * Failures from preparing the original outlines, with the matching edge
+     * name in the detail.
+     */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
   }
 
-  /** Original scalar reading located in its actual source frame. */
+  /**
+   * One original scalar reading, actual source frame and world point at the
+   * requested station. The scalar jet concerns the source outline; frame
+   * placement maps its value to the displayed world point.
+   */
   export interface IReading {
-    /** Shared source scalar reading and its qualified jets. */
+    /**
+     * Outline value and its available derivative representations at the
+     * requested station.
+     */
     scalar: IAutoMovieViewOutline.IReading;
 
-    /** Actual input axis frame at the station, world millimetres. */
+    /** Actual axis frame used for the query, with origin in world millimetres. */
     frame: IAutoMovieLoftSectionFrame;
 
-    /** The source edge's world point, millimetres. */
+    /** World [x, y, z] point in millimetres using the edge's signed coordinate. */
     point: [number, number, number];
   }
 }

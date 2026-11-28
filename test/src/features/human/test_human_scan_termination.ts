@@ -33,10 +33,8 @@ import { TestValidator } from "@nestia/e2e";
  *    neighbours are 2 on both sides; with none resolved the search is
  *    refused, where it circled the ring forever.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls Human's public station walk, frame and neighbour search with ordinary and degenerate inputs; a walk or search that circles never returns, and one that refuses or moves an ordinary input fails scenarios 1, 3 and 5.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Human's public station walk, frame and neighbour search with ordinary and degenerate inputs; a walk or search that circles never returns, and one that refuses or moves an ordinary input fails scenarios 1, 3 and 5. The fixtures vary station window widths and ends, ring closure and extrema, and the availability of neighbouring frames.
  * @evidence contracts/development/testing.md#independent-expectations Stations follow from the documented 2 mm spacing and tip rings by hand; frames and neighbours from the ring's order by inspection.
- * @evidence contracts/development/testing.md#distinguishing-cases Zero, negative, not-a-number and sub-resolution window widths and non-finite ends; an open, a wrapped and an extreme-less ring; partly and wholly unresolved neighbours.
- * @evidence contracts/development/testing.md#execution-ownership Pure in-memory reads, discovered by its exported name; it prepares no body and starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the two scans and the five scenarios.
  */
 export function test_human_scan_termination(): void {

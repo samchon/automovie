@@ -17,6 +17,8 @@ export const AutoMovieRenderCapturePlanKeys: readonly string[] = [
   "rate",
   "at",
   "events",
+  "cue",
+  "entry",
   "window",
   "threshold",
   "views",

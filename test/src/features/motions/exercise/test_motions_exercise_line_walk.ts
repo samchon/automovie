@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. A 70 kg walker on a 10 m line sagging 0.1 m needs 70 g 25 ≈ 17.2 kN and is
  *    refused; sagging 0.2 m it needs 8.6 kN; a line without ends, or with no
  *    sag, is not checked.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Heel-to-toe footprints cover signed travel. Sagging-line admission uses the working load.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls line pacing and sag checks with measured foot lengths, forward and backward travel, no travel, and two sag depths.
+ * @evidence contracts/development/testing.md#independent-expectations Dividing distance by foot length predicts the step counts. Weight times span divided by four times sag gives one load above 15 kN and one below.
  */
 export function test_motions_exercise_line_walk(): void {
   TestValidator.equals(

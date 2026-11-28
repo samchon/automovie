@@ -27,6 +27,10 @@ const contact = (
  *    points ahead (world +Z), its power grip 6 cm up the handle and its face on
  *    the head 0.285 m up and 5.5 cm aside.
  * 2. A pot's rim stands 0.2 m up facing up, 0.24 m across.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines placed capture tool frames and contact affordances for a hammer and vessel.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both objects, reads the hammer handle and head faces and inspects the pot's rim frame and width.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn sends local handle +Y toward world +Z and the held offsets remain author-defined. The pot's rim is 0.2 m up and 0.24 m wide.
  */
 export function test_motions_executable_tool_cases(): void {
   const hammer: IAutoMovieMotionHumanProp = toolCaseHeld("hammer", {

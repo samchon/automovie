@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. "?at=1" and "at=1" read the same request.
  * 2. "colour=1" is refused naming "colour"; "views=" naming "views".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names optional query punctuation and the error cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads two equivalent query strings and calls the reader with an unknown key and an empty view, checking the keyed refusal.
+ * @evidence contracts/development/testing.md#independent-expectations A leading question mark is URL punctuation. An unknown colour key and a view without a value are independent invalid requests.
  */
 export function test_viewer_inspector_read_address(): void {
   TestValidator.equals(

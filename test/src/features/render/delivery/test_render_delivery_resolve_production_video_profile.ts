@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The raster and rate pass through; the brands are `isom`, the pixels are
  *    square and the track matrix is the nine-entry unity matrix.
  * 2. Editing one result's matrix leaves the next result unchanged.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Resolves the required MP4 video profile and allocates a fresh track matrix for each result.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls video profile resolution on a fixed raster and rate, changes one returned matrix, then resolves again.
+ * @evidence contracts/development/testing.md#independent-expectations The literal brand and unity matrix provide expected media facts. Mutation of the first result must leave the next matrix at identity.
  */
 export function test_render_delivery_resolve_production_video_profile(): void {
   const profile = AutoMovieRenderDelivery.resolveVideoProfile({

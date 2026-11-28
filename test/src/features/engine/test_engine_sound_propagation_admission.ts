@@ -17,9 +17,7 @@ import { throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Invokes actual propagation derivation for individually malformed clocks, distance and physical profile fields, observing each original diagnostic substring instead of accepting a fallback receipt.
  * @evidence contracts/development/testing.md#independent-expectations Literal invalid values and exclusive film/segment bounds determine the expected refusals independently. The fixed valid base arranges one changed premise at a time; diagnostic agreement does not prove numeric conditioning or every possible malformed input.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves empty/blank assumptions, out-of-film arrival, negative coefficient and absorption, fractional/negative/outside frames and zero fps or speed. Separate accepted-path units own zero distance and carry/trim PCM behavior.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh selected profiles and refusal closures through the existing fixture, with no file, device, decoder, renderer, browser or GPU and no foreign-method replacement.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty assumptions and invalid physical profile values retain exact refusals.).
+ * @evidence contracts/development/common.md#meaningful-documentation Empty and malformed physical assumptions exercise profile refusals. Distance, emission, segment, clock and out-of-film arrival each have located controls.
  */
 export function test_engine_sound_propagation_admission(): void {
   const { profile }: ReturnType<typeof createSoundPropagationTestInputs> =

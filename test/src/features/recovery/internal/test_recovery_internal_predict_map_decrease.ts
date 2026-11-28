@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  *    [0, 0, 1]: g·δ = 3, Jδ = 2, so -3 - 2 = -5.
  * 2. A second row [0] | [1, 0, 0] adds nothing for this increment: still -5.
  * 3. An increment of the wrong length is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names physical gradient and original Jacobian action, including a silent row.
+ * @evidence contracts/development/testing.md#behavioral-verification Predicts change for one observation, adds a row orthogonal to the step and refuses a short increment.
+ * @evidence contracts/development/testing.md#independent-expectations The model's linear term is three and its sole changing row has action two, giving predicted decrease −5.
  */
 export function test_recovery_internal_predict_map_decrease(): void {
   TestValidator.equals(

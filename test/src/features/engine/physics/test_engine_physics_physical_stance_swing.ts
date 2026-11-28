@@ -43,6 +43,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    `sqrt(MINIMUM_JERK 0.5 / 10)`; the clearance a stance can carry is `min(h,
  *    LIFT_SHARE m g T^2 / CLEARANCE)`; angular momentum k shifts the capture
  *    point by `omega / (m g) k x y`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes load-qualified lift and touch, dwell before a second step, tilt limits and acceleration/clearance budgets.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances stance and swing conditions through release, scuff, descent and touchdown, then reads orientation, moment and drive limits.
+ * @evidence contracts/development/testing.md#independent-expectations 800 N needs two consecutive eligible substeps to land. Effective-mass torque gives 160/(2 × 0.8) acceleration, and minimum-jerk and gravity formulas bound duration and clearance.
  */
 export function test_engine_physics_physical_stance_swing(): void {
   const failures: string[] = [];

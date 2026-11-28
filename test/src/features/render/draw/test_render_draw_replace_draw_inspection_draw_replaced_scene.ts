@@ -30,6 +30,10 @@ import { nclose } from "../../internal/nclose";
  * 4. The declared contact kind is admitted on each replacement graph. Its solver
  *    receipt draws one arrow per collider at the completed step, expires, then
  *    reappears at the same second when the capture seeks backwards.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Binds the actual replacement graph, restores retired masks and redraws native contact marks on reverse seek.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises draw inspection with prepared successive meshes, a failed async placement and seekable physics receipt marks.
+ * @evidence contracts/development/testing.md#independent-expectations Authored box corners give independent replacement bounds. The old and new mesh masks, absent failed overlay and known solver receipt times distinguish correct rebind from stale state.
  */
 export async function test_render_draw_replace_draw_inspection_draw_replaced_scene(): Promise<void> {
   const findings: string[] = [];

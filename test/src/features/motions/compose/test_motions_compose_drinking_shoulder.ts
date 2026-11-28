@@ -41,6 +41,10 @@ function bones(
  * 3. With the heading turned 90 degrees (+X ahead, −Z to the side) the planes turn
  *    with it: the arm aside is now raised ahead at 90 + atan(0.1 / 0.5), and an
  *    elbow 0.3 m toward −Z is abducted 90.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names an arm ahead and aside, a vanishing projection and the changed sagittal and frontal planes under a quarter-turn heading.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls measureDrinkingShoulder using three authored landmarks and exact 0 or 90 degree headings, then checks flexion and abduction.
+ * @evidence contracts/development/testing.md#independent-expectations Axis-aligned projections give 90 or 0 degrees. The hip offset of 0.1 m sideways and 0.5 m down contributes atan(0.1/0.5) where it lies in the measured plane.
  */
 export function test_motions_compose_drinking_shoulder(): void {
   const ahead: IAutoMovieMotionHumanDrinkingArm.IMeasuredResult =

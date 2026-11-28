@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. `sequence` and `parallel` turn every part into a node, in order.
  * 3. `at` anchors a part with a zero offset by default and carries the given
  *    offset, event and occurrence index.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the accepted input forms, stable ordering and explicit or default event alignment fields.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public of, sequence, parallel and at builders with an intent, a composition node and a chain, then compares the returned records.
+ * @evidence contracts/development/testing.md#independent-expectations Literal tagged nodes preserve each fixture part in its declared position. The anchored examples separately require default offset 0 and supplied offset -0.5 with event impact at index 1.
  */
 export function test_engine_composition_composition(): void {
   const act: IAutoMovieIntent = { subject: "a", capability: "reach" };

@@ -17,11 +17,9 @@ import {
  * 3. A missing `--module`, an empty `--module`, `--port` or `--props`, and a port of 0, 65536, 1.5 or text are refused naming the option.
  * 4. The request left by the command, read by the plan reader, written by its writer and joined into the address, reads back from the address's query to an equal request, special characters included; the request that asks for nothing is the base address alone.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported command reader, option splitter and address writer, with render's own argument reader, plan reader and writer around them, and asserts the returned values or thrown messages.
- * @evidence contracts/development/testing.md#independent-expectations Expected values come from the documented options table and the TCP port range 1 to 65535; the address oracle is the browser's `URL` decoder read by the plan reader, compared with the request read from the command line, not with the writer's output.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts each command option against a request option, the port's two ends against the values just outside them, a fraction and text, a missing against an empty module, and an empty against a full request.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_cli_inspect_arguments`; it starts no server, Vite or browser. Serving the page belongs to a run of the command.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming its input and the behaviour it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes token forwarding, command-only options, port and module refusals, and the browser query round trip.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported command reader, option splitter and address writer, then uses the production request reader to check the decoded URL. Verifies the port boundaries, missing fields, forwarded options and bare address.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the explicit accepted range 1–65,535 and literal invalid ports, modules and props. Compares the request decoded from an independent URL with the request read from the original tokens, including special characters.
  */
 export function test_cli_inspect_arguments(): void {
   // 1. The command keeps its tokens.

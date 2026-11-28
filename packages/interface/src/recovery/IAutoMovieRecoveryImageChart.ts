@@ -1,29 +1,32 @@
 import type { IAutoMovieRecoveryImageCamera } from "./IAutoMovieRecoveryImageCamera";
 
 /**
- * Byte provenance and supplied pixel chart shared by captures and observations.
- * The record describes current pixels; it does not authorize an unstated crop
- * or transform.
+ * Identify one calibrated current image grid and its byte provenance. Width
+ * and height are positive safe integer pixel counts. Supply a camera for
+ * these exact image coordinates.
  */
 export interface IAutoMovieRecoveryImageChart {
-  /** Capture/camera identity, unique within its containing view population. */
+  /** Nonempty view identity, unique within the capture or observation. */
   id: string;
 
   /**
-   * Original-byte SHA-256, asserted by resident callers and verified by the
-   * file host.
+   * SHA-256 of original image bytes, as 64 hexadecimal characters. The file
+   * host verifies it before decoding.
    */
   sourceSha256: string;
 
-  /** Producer-declared external orientation, crop or rectification history. */
+  /**
+   * Nonempty account of any producer orientation, crop or rectification for the
+   * current pixels.
+   */
   pixelProvenance: string;
 
-  /** Positive integer width of the current image, pixels. */
+  /** Positive safe integer number of columns in the current raster. */
   width: number;
 
-  /** Positive integer height of the current image, pixels. */
+  /** Positive safe integer number of rows in the current raster. */
   height: number;
 
-  /** Supplied camera calibrated for these exact current pixel coordinates. */
+  /** Supplied camera calibrated for this exact pixel grid. */
   camera: IAutoMovieRecoveryImageCamera;
 }

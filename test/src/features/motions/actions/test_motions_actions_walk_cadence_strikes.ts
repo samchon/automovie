@@ -31,6 +31,10 @@ const ROUNDING: number = 64 * Number.EPSILON * 16;
  *    the constant median timer deviation.
  * 2. After the last beat, the walk keeps its planned half-second intervals. A gait
  *    that cannot match a much slower beat is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Beat-locked footfalls reduce phase error, keep their pace beyond the last beat, and refuse excessive stretch.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cadence preparation on a timed left/right pattern with an unrelated cue, then on a track that requires an excessive slowdown.
+ * @evidence contracts/development/testing.md#independent-expectations The gain-0.7 recurrence gives the next two phase errors independently. Planned half-second intervals resume beyond the track and a one-second beat exceeds the permitted stretch.
  */
 export function test_motions_actions_walk_cadence_strikes(): void {
   const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("0000000000000000");

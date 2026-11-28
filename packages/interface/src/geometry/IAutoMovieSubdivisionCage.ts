@@ -1,39 +1,34 @@
 import type { IAutoMovieSubdivisionCrease } from "./IAutoMovieSubdivisionCrease";
 
 /**
- * The control polygon mesh that `subdivideSurface` refines.
+ * An authored polygon control cage for subdivision in a local metre frame.
  *
- * A cage is quad-dominant but may carry any polygon of three or more corners.
- * It must be a manifold with consistent winding: every edge belongs to one face
- * (a boundary) or two faces that traverse it in opposite directions, every
- * vertex belongs to at least one face, and the faces around each vertex form
- * one fan. Faces wind counter-clockwise seen from the side the normals point
- * to.
+ * Supply at least one vertex and face. Each polygon has at least three distinct
+ * corners. Faces wind counterclockwise on the outward side and share each
+ * interior edge in opposite directions. Faces incident on a vertex form one
+ * connected fan, and each vertex belongs to at least one face.
  *
- * UVs are face-varying, as in OpenSubdiv: each face corner names a UV value, so
- * a seam is an edge whose two faces name different values at either end. Every
- * UV value belongs to the corners of exactly one vertex.
+ * Supply UV values and their corner indices together. Faces can use different
+ * UV indices for either endpoint of a seam. Each UV value belongs to one
+ * geometric vertex and is used by at least one face corner.
  */
 export interface IAutoMovieSubdivisionCage {
-  /** Packed vertex positions `[x, y, z, ...]` in metres, finite. */
+  /** Dense finite packed XYZ in metres, one triple per original vertex. */
   positions: readonly number[];
 
   /**
-   * Polygons as vertex indices, at least three distinct corners each, wound
+   * Polygons as safe vertex ordinals, at least three distinct corners, wound
    * counter-clockwise about their outward side.
    */
   faces: ReadonlyArray<readonly number[]>;
 
   /**
-   * Packed face-varying UV values `[u, v, ...]`, finite; omitted means the
-   * surface carries no UVs, and then `uvFaces` is omitted too.
+   * Dense finite packed UV pairs. Omit this array and uvFaces together for a
+   * surface without UVs.
    */
   uvs?: readonly number[];
 
-  /**
-   * UV value indices per face corner, the same shape as `faces`: corner `k` of
-   * face `f` takes UV `uvFaces[f][k]`.
-   */
+  /** Safe UV value ordinals grouped by face, with one index per face corner. */
   uvFaces?: ReadonlyArray<readonly number[]>;
 
   /** Sharp or semi-sharp edges; omitted means every interior edge is smooth. */

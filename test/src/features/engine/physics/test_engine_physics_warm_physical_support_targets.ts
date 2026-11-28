@@ -53,6 +53,10 @@ const FIRST_ORDER: number = 1e-4;
  *    about 0.48 mm, within the fit's 1 mm tolerance, so returning it is cheaper
  *    than the fit already accepts and the seed returns fully to authored. Red:
  *    a rank cutoff keeps it because its singular value is large.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains carrying earlier task-space correction while restoring authored motion in the null space and within the fit tolerance.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds warm seeds with a redundant leg's zig-zag, a mixed hip correction, a nonredundant fit and a sub-tolerance previous displacement.
+ * @evidence contracts/development/testing.md#independent-expectations An independent cross product constructs the endpoint Jacobian's null direction. The 1 mm budget preserves significant task correction but lets a 0.48 mm displacement return to authored.
  */
 export function test_engine_physics_warm_physical_support_targets(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

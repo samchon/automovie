@@ -6,12 +6,12 @@ import type {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
+import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection";
 import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry";
 import { createCollisionFinding } from "./createCollisionFinding";
 import { findCollisionWitness } from "./findCollisionWitness";
 import { readCollisionMotion } from "./readCollisionMotion";
 import { resolveCollisionHit } from "./resolveCollisionHit";
-import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection";
 
 /*
  * Check the motion between the preceding output instant and the placed one for
@@ -25,7 +25,9 @@ import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection"
  * interval is bisected at placed instants until a midpoint confirms the pair,
  * every remaining span moves less than that half-thickness or leaves the swept
  * bounds apart, or the placement or depth limit is reached. No interval
- * crossing a cut or a declared break is examined. The drawn instant is placed
+ * crossing a cut or a declared break is examined. Cached bounds only select
+ * candidates; a requested surface is read with its sample's scene placed.
+ * The drawn instant is placed
  * again before returning, so every host keeps drawing it.
  * Parameter props: The span, its continuity, the placement and layer readers, the
  * contact query and the work limits.
@@ -47,11 +49,13 @@ export function observeCollisionMotionImplementation(
     layer: string,
     status: Diagnostic.ICoverage["status"],
     reason: string,
+    paths?: readonly string[],
   ): void => {
     const obligation: boolean = required.get(layer) ?? false;
+    const location = { basis: "swept" as const, ...(paths === undefined ? {} : { paths }) };
     coverage.push(
       status === "checked"
-        ? { check: "collision", key, required: obligation, status }
+        ? { check: "collision", key, required: obligation, status, ...location }
         : { check: "collision", key, required: obligation, status, reason },
     );
   };
@@ -72,23 +76,34 @@ export function observeCollisionMotionImplementation(
   }
   const budget: ILimits = { ...props.limits };
   const instants: Map<number, IInstant> = new Map();
-  const at = (seconds: number): IInstant | "budget" => {
-    const known: IInstant | undefined = instants.get(seconds);
-    if (known !== undefined) return known;
+  let placed: IInstant;
+  const readPlaced = (seconds: number): IInstant =>
+    readInstant(seconds, props.layers(seconds), budget, props.geometry);
+  const place = (seconds: number): IInstant | "budget" => {
     if (budget.placements === 0) return "budget";
     --budget.placements;
     props.place(seconds);
-    const instant: IInstant = readInstant(
-      props.layers(seconds),
-      budget,
-      props.geometry,
-    );
+    return (placed = readPlaced(seconds));
+  };
+  const exact = (state: ILayerState): ILayerState | "budget" | undefined => {
+    if (placed.seconds !== state.seconds && place(state.seconds) === "budget")
+      return "budget";
+    const current: ILayerState | undefined = placed.layers.get(state.layerId);
+    return current?.localSeconds === state.localSeconds
+      ? current
+      : undefined;
+  };
+  const at = (seconds: number): IInstant | "budget" => {
+    const known: IInstant | undefined = instants.get(seconds);
+    if (known !== undefined) return known;
+    const instant: IInstant | "budget" = place(seconds);
+    if (instant === "budget") return instant;
     instants.set(seconds, instant);
     return instant;
   };
   const limited: Set<string> = new Set();
   try {
-    const end: IInstant = readInstant(props.layers(to), budget, props.geometry);
+    const end: IInstant = (placed = readPlaced(to));
     instants.set(to, end);
     const start: IInstant | "budget" = at(from);
     if (start === "budget") {
@@ -103,25 +118,33 @@ export function observeCollisionMotionImplementation(
         continue;
       }
       for (const [a, b] of candidates(first, last)) {
-        const key: string = JSON.stringify([id, "motion", a, b]);
-        if (confirmedAt(first, a, b, budget) || confirmedAt(last, a, b, budget))
-          continue;
-        const outcome: IOutcome = bisect(
-          { id, a, b, at, budget, depth: props.limits.depth },
-          from,
-          to,
-        );
+        const paths: readonly string[] = [a, b];
+        const key: string = JSON.stringify([id, "motion", ...paths]);
+        const begin: IAtOutcome = witnessAt(first, a, b, budget, exact);
+        if (begin.kind === "witness") continue;
+        const finish: IAtOutcome = witnessAt(last, a, b, budget, exact);
+        if (finish.kind === "witness") continue;
+        const outcome: IOutcome =
+          begin.kind === "limit"
+            ? begin
+            : finish.kind === "limit"
+              ? finish
+              : bisect(
+                  { id, a, b, at, exact, budget, depth: props.limits.depth },
+                  from,
+                  to,
+                );
         if (outcome.kind === "clear") continue;
         if (outcome.kind === "limit") {
           limited.add(id);
-          row(key, id, "deferred", outcome.reason);
+          row(key, id, "deferred", outcome.reason, paths);
           continue;
         }
-        row(key, id, "checked", "");
+        row(key, id, "checked", "", paths);
         findings.push(
           createCollisionFinding(
             key,
-            [a, b],
+            paths,
             "sweep",
             true,
             outcome.separation,
@@ -163,6 +186,7 @@ type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionMotionProps;
  * One placed instant: the collected parts and their memoized solids per layer.
  */
 interface IInstant {
+  readonly seconds: number;
   readonly layers: ReadonlyMap<string, ILayerState>;
 }
 
@@ -170,7 +194,10 @@ interface IInstant {
  * One layer at one placed instant.
  */
 interface ILayerState {
-  readonly layer: ILayer;
+  readonly seconds: number;
+  readonly layerId: string;
+  readonly localSeconds: number;
+  readonly allowances: readonly Collision.IAllowance[] | undefined;
   readonly collected: AutoMovieRenderInspectionGeometry.IResult;
   readonly parts: ReadonlyMap<string, Collision.IPart>;
   readonly motion: ReadonlyMap<string, readCollisionMotion.IPose>;
@@ -181,15 +208,14 @@ interface ILayerState {
 /*
  * Every kind of work an observation may spend.
  */
-const LIMIT_KINDS: readonly (keyof ILimits)[] =
-  [
-    "placements",
-    "depth",
-    "comparisons",
-    "posedVertices",
-    "surfaceTriangles",
-    "parts",
-  ];
+const LIMIT_KINDS: readonly (keyof ILimits)[] = [
+  "placements",
+  "depth",
+  "comparisons",
+  "posedVertices",
+  "surfaceTriangles",
+  "parts",
+];
 
 /*
  * Result of bisecting one pair's span.
@@ -210,6 +236,7 @@ type IOutcome =
  * Collect every layer at the placed instant and record its feature poses.
  */
 function readInstant(
+  seconds: number,
   layers: readonly ILayer[],
   budget: { posedVertices: number; parts?: number },
   geometry: Pick<Geometry.IQueries, "contact">,
@@ -225,23 +252,21 @@ function readInstant(
     );
     const motion: Map<string, readCollisionMotion.IPose> = new Map();
     for (const part of collected.parts) {
-      const pose: readCollisionMotion.IPose | null =
-        readCollisionMotion(part);
+      const pose: readCollisionMotion.IPose | null = readCollisionMotion(part);
       if (pose !== null) motion.set(part.id, pose);
     }
-    const solids: Map<
-      string,
-      findCollisionWitness.ISolid | null | "budget"
-    > = new Map();
+    const solids: Map<string, findCollisionWitness.ISolid | null | "budget"> =
+      new Map();
     states.set(layer.id, {
-      layer,
+      seconds,
+      layerId: layer.id,
+      localSeconds: layer.localSeconds,
+      allowances: layer.allowances,
       geometry,
       collected,
       parts,
       motion,
-      solidOf: (
-        id: string,
-      ): findCollisionWitness.ISolid | null | "budget" => {
+      solidOf: (id: string): findCollisionWitness.ISolid | null | "budget" => {
         if (!solids.has(id))
           solids.set(
             id,
@@ -254,7 +279,7 @@ function readInstant(
       },
     });
   }
-  return { layers: states };
+  return { seconds, layers: states };
 }
 
 /*
@@ -268,8 +293,7 @@ function candidates(
 ): readonly (readonly [string, string])[] {
   const swept: { id: string; box: IAutoMovieSubjectBox; group?: string }[] = [];
   for (const [id, end] of last.motion) {
-    const begin: readCollisionMotion.IPose | undefined =
-      first.motion.get(id);
+    const begin: readCollisionMotion.IPose | undefined = first.motion.get(id);
     if (begin === undefined) continue;
     const group: Collision.IGroup | undefined = last.parts.get(id)?.group;
     swept.push({
@@ -316,6 +340,7 @@ function bisect(
     a: string;
     b: string;
     at: (seconds: number) => IInstant | "budget";
+    exact: (state: ILayerState) => ILayerState | "budget" | undefined;
     budget: ILimits;
     depth: number;
   },
@@ -341,15 +366,16 @@ function bisect(
       return { kind: "limit", reason: "motion-placement-limit" };
     const state: ILayerState | undefined = placed.layers.get(pair.id);
     if (state !== undefined) {
-      const found = witnessAt(state, pair.a, pair.b, pair.budget);
-      if (found !== null)
-        return {
-          kind: "witness",
-          seconds: middle,
-          from: span.from,
-          to: span.to,
-          ...found,
-        };
+      const found: IAtOutcome = witnessAt(
+        state,
+        pair.a,
+        pair.b,
+        pair.budget,
+        pair.exact,
+      );
+      if (found.kind === "limit") return found;
+      if (found.kind === "witness")
+        return { ...found, seconds: middle, from: span.from, to: span.to };
     }
     spans.push(
       { from: span.from, to: middle, depth: span.depth + 1 },
@@ -387,55 +413,75 @@ function needsSplit(
   return moved >= Math.min(a1.thickness, b1.thickness) / 2;
 }
 
-/*
- * Whether a placed instant already confirms the pair.
- */
-function confirmedAt(
-  state: ILayerState,
-  a: string,
-  b: string,
-  budget: ILimits,
-): boolean {
-  return witnessAt(state, a, b, budget) !== null;
-}
+/* The outcome of resolving one pair at its actual placed instant. */
+type IAtOutcome =
+  | { kind: "clear" }
+  | { kind: "limit"; reason: string }
+  | {
+      kind: "witness";
+      point: { x: number; y: number; z: number };
+      separation: number;
+    };
 
-/*
- * The pair's witness at one placed instant, by the placed-frame resolution.
- */
+/* Resolve the saved broad pair, replaying only when it needs a drawn surface. */
 function witnessAt(
   state: ILayerState,
   a: string,
   b: string,
   budget: ILimits,
-): { point: { x: number; y: number; z: number }; separation: number } | null {
+  exact: (state: ILayerState) => ILayerState | "budget" | undefined,
+): IAtOutcome {
   const first: Collision.IPart | undefined = state.parts.get(a);
   const second: Collision.IPart | undefined = state.parts.get(b);
-  if (first === undefined || second === undefined) return null;
-  const result: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
-    parts: [first, second],
-    geometry: state.geometry,
-    seconds: state.layer.localSeconds,
-    allowances: state.layer.allowances,
-    maxComparisons: Math.min(budget.comparisons, 16),
-  });
+  if (first === undefined || second === undefined || state.collected.truncated)
+    return { kind: "limit", reason: "motion-part-unavailable" };
+  const result: Collision.IResult =
+    AutoMovieEngineValidation.measureSceneCollision({
+      parts: [first, second],
+      geometry: state.geometry,
+      seconds: state.localSeconds,
+      allowances: state.allowances,
+      maxComparisons: Math.min(budget.comparisons, 16),
+    });
   budget.comparisons -= Object.values(result.compared).reduce(
     (x: number, y: number): number => x + y,
     0,
   );
   for (const hit of result.findings) {
-    const outcome: resolveCollisionHit.IResolution =
-      resolveCollisionHit({
-        hit,
-        surfaces: state.collected.surfaces,
-        solidOf: state.solidOf,
-        allowances: state.layer.allowances ?? [],
-        seconds: state.layer.localSeconds,
-        budget,
-      });
-    if (outcome.kind === "witness")
-      return { point: outcome.point, separation: outcome.separation };
+    if (
+      hit.status === "proxy" ||
+      (hit.status === "candidate" && hit.basis !== "displayed")
+    ) {
+      const replay: ILayerState | "budget" | undefined = exact(state);
+      if (replay === "budget")
+        return { kind: "limit", reason: "motion-placement-limit" };
+      if (replay === undefined)
+        return { kind: "limit", reason: "motion-layer-unavailable" };
+      // Rebind IDs against the replayed graph; a seek may replace a mesh or a layer root.
+      if (replay !== state) return witnessAt(replay, a, b, budget, exact);
+    }
+    const outcome: resolveCollisionHit.IResolution = resolveCollisionHit({
+      hit,
+      surfaces: state.collected.surfaces,
+      solidOf: state.solidOf,
+      allowances: state.allowances ?? [],
+      seconds: state.localSeconds,
+      budget,
+    });
+    if (outcome.kind === "witness") return outcome;
+    if (outcome.kind === "budget")
+      return { kind: "limit", reason: "motion-surface-witness-limit" };
+    if (outcome.kind === "incomplete")
+      return { kind: "limit", reason: "motion-surface-witness-incomplete" };
   }
-  return null;
+  return result.budgetExhausted || result.unavailablePairs.length !== 0
+    ? {
+        kind: "limit",
+        reason: result.budgetExhausted
+          ? "motion-comparison-limit"
+          : "motion-pair-unavailable",
+      }
+    : { kind: "clear" };
 }
 
 /*

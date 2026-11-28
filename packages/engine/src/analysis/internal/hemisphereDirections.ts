@@ -38,10 +38,14 @@ export function hemisphereDirections(
     throw new Error(
       `hemisphere sample count must be a positive safe integer, but was ${count}`,
     );
-  const length: number = AutoMovieEngineVector3.length(props.normal);
-  if (length <= AXIS_EPSILON)
+  if (
+    !AutoMovieEngineVector3.isFinite(props.normal) ||
+    AutoMovieEngineVector3.length(props.normal) <= AXIS_EPSILON
+  )
     throw new Error("hemisphere sampling needs a finite, non-zero normal");
-  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(props.normal);
+  const normal: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+    props.normal,
+  );
   // Duff et al.'s branchless orthonormal basis: `sign + normal.z` is never zero
   // because `sign` is chosen from the sign of `normal.z`, so there is no
   // singular pole to special-case.

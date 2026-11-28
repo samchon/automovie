@@ -34,12 +34,11 @@ const rank: IAutoMovieFormationPlacement = {
  *    comes from the turned member's world position and retains clearance.
  * 3. A nonplanar ridge, an uncovered member and a missing anchor datum distinguish
  *    per-member relief from a shared or extrapolated offset.
+ * 4. A fractional or NaN slot raises a safe-integer error.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three independent effects on a slot and its relief datum.
- * @evidence contracts/development/testing.md#behavioral-verification Calls direct placement with typed authored surface records, exercising seed, dressing axes, heading, staged height, missing datum and nonplanar relief.
- * @evidence contracts/development/testing.md#independent-expectations The file lattice, half-metre slope, 90-degree turn and literal ridge rows determine the coordinates and heights. The unturned coordinates and ridge values are dyadic. The cardinal rotation allows 1e-12 m for trigonometric roundoff.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers absent, zero, biaxial and lateral-only dressing, two seeds, constant and planar terrain, a ridge sampled between columns, and all foot/anchor footprint combinations. Replay uses an independently cloned design. Random magnitudes are bounded by the authored tolerance.
- * @evidence contracts/development/testing.md#execution-ownership Uses the formation placement kernel and resident typed inputs without constructing a formation model, scene, filesystem asset or simulation.
+ * @evidence contracts/development/common.md#meaningful-documentation Names seed-based dressing, the relation between unit heading and the world slope, the terrain coverage required at the anchor and member, and invalid slot indices.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `formationSlotPosition` on a twelve-slot line and a three-slot rank with literal ground records. Cloned inputs check replay, a different seed must move slot zero, and the terrain assertions check absolute placement or preserved staging where a datum is absent. Separate fractional and NaN inputs must throw a RangeError before placement.
+ * @evidence contracts/development/testing.md#independent-expectations The lattice has X values -4, 0, and 4 m and increases Z by 3 m per rank. Dressing is bounded by 0.25 m laterally and 0.4 m in depth. A quarter turn maps the outer files to Z ±4 m, yielding Y ±2 m on a 0.5 slope within 1e-12 m for rotation roundoff. The ridge samples 4, 5, and 4 m give 4.5 m halfway between adjacent knots.
  */
 export function test_engine_space_formation_slot_position(): void {
   const layout: Extract<
@@ -56,6 +55,16 @@ export function test_engine_space_formation_slot_position(): void {
     count: 12,
     layout,
   };
+  for (const slot of [0.5, NaN]) {
+    let refused: boolean = false;
+    try {
+      AutoMovieEnginePopulationFormation.formationSlotPosition(formation, slot);
+    } catch (error) {
+      refused =
+        error instanceof RangeError && error.message.includes("safe integer");
+    }
+    TestValidator.predicate(`malformed slot ${slot}`, refused);
+  }
   const zero: IAutoMovieFormationPlacement = {
     ...formation,
     layout: { ...layout, dressing: { lateral: 0, depth: 0 } },

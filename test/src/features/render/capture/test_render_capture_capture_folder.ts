@@ -25,6 +25,10 @@ import { rejectsError } from "../../internal/rejectsError";
  * 6. A record that is not JSON is refused naming its path.
  * 7. A claim of a path with a separator, a relative step or the record's own name
  *    is refused, and a write of an unclaimed name is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines file and comparison ownership, interrupted-run recovery and out-of-scope write refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Opens real temporary capture roots and rounds, reads malformed and incomplete records, tries canonical and alternate spellings and exercises claims and writes.
+ * @evidence contracts/development/testing.md#independent-expectations Only prior records give removable paths. Previous files survive a missing or incomplete comparison, malformed path names refuse, and retained rounds are observed after the operations.
  */
 export async function test_render_capture_capture_folder(): Promise<void> {
   const complete: (files: string[]) => string = (files: string[]): string =>

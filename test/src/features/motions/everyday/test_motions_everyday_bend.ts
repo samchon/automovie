@@ -113,6 +113,10 @@ namespace part_toe_touch {
  * - `bend_choose`: `bend.choose` takes the strategy a target asks for:
  * - `bend_lower_hip_share`: `bendLower.hipShare` is the share of the standing hip
  *   height a strategy keeps:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The selected bend strategy and measured hip height depend on reach, with a fixed toe-touch row.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the strategy selector, hip-share reader, and named row with prepared reach inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Named strategy selection is exact. Deeper squat targets order the hip shares, and the toe-touch row must retain the authored foot-top target and 20-second hold.
  */
 export async function test_motions_everyday_bend(): Promise<void> {
   part_bend_choose.verify();

@@ -1,11 +1,24 @@
-/** A null span denotes the existing constant ellipse cap law. */
+/**
+ * Original cap's ellipse shoulder support in physical station millimetres. A
+ * finite support runs from pole to near with span equal to their distance. Null
+ * near and span select the constant ellipse weight.
+ */
 export interface IAutoMovieLoftViewSourceCap {
-  /** Declared pole station, mm. */
+  /**
+   * Declared closed station at one endpoint of the original domain, in
+   * millimetres.
+   */
   pole: number;
 
-  /** Original nearest non-pole knot station; null for the constant law. */
+  /**
+   * Closest original non-pole outline knot in station millimetres, or null for
+   * the constant ellipse law.
+   */
   near: number | null;
 
-  /** Its actual distance from the pole; null for the constant law. */
+  /**
+   * Distance from pole to near in millimetres, or null with the constant
+   * ellipse law.
+   */
   span: number | null;
 }

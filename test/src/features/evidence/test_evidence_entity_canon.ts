@@ -23,8 +23,6 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public config's subject claim through native Evidence on disk, then removes the tag and moves its target.
  * @evidence contracts/development/testing.md#independent-expectations The prop has two facts. A single reference to the file covers it. The world document outside the four entity domains needs no citation.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises both narrative roots, submission by either stage, an inactive stage and an untagged path.
- * @evidence contracts/development/testing.md#execution-ownership Each route owns a temporary checkout and removes it after the check.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the coverage unit and when verification applies.
  */
 export async function test_evidence_entity_canon(): Promise<void> {

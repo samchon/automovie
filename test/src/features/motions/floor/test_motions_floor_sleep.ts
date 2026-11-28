@@ -20,17 +20,18 @@ interface IRecorder extends sleep.IChain<IRecorder> {
 }
 
 /**
- * `sleep` turns a lying performer over `changes` times, each into a position
- * drawn by its share of the night (Skarpsno et al. 2017) and never the one it
- * lies in, holding still between: each turn takes up to two quarter turns of a
- * second, and the rest of the sleep is shared out over seeded holds.
+ * Check the generated sequence of resting holds and turns.
  *
- * Scenarios, a 20 s sleep with three changes on seed 7:
+ * Scenarios:
  *
- * 1. It appends three `turnOver`s, no two in a row to the same position.
- * 2. Their holds sum to less than the 20 - 2 x 3 = 14 s left after the turns.
- * 3. The same seed draws the same turns.
- * 4. No change, and three changes in 6 s, are refused on `changes` and `duration`.
+ * 1. Generate 20 s of sleep with three position changes. Neighboring
+ *    positions differ and the positive holds fit the time left by the turns.
+ * 2. Repeat with the same seed for the same sequence. Refuse zero changes and
+ *    a six-second duration for three changes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify the change count, hold budget, seed and invalid requests.
+ * @evidence contracts/development/testing.md#behavioral-verification The recorded chain checks the emitted positions, hold budget, deterministic seed and inadmissible options.
+ * @evidence contracts/development/testing.md#independent-expectations The available hold budget is 20 s less three two-second turns, and the second run is compared with the first recorded sequence.
  */
 export function test_motions_floor_sleep(): void {
   const recorded = (): IRecorder => {

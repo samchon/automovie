@@ -25,6 +25,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    e^(omega t), lies on the region.
  * 5. With 0.5 s left and the capture point at (0, -0.5) every prediction is out of
  *    reach: the region is empty and its area zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the reachable swing-side fan and its intersection with capture predictions over remaining swing time.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a region on a rectangular left foot for capture inside, instantaneous placement, visible corner predictions and a divergent unreachable point.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.6 m reach and side limit y ≤ -0.05 bound the fan. cop + (ξ − cop)e^(ωt) predicts each visible corner, and no reachable points gives zero area.
  */
 export function test_engine_physics_physical_one_step_capture_region(): void {
   const foot: Polygon.IPoint[] = Polygon.hull([

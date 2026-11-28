@@ -35,6 +35,10 @@ const NATIVE: number = 1e-7;
  *    the same actor remains a distinct pair on the same motion clock.
  * 3. Offset angular motion, an absent proof and malformed declarations exercise
  *    the certificate boundary. A nonzero query start retains its launch clock.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains how a continuous moving shape can prove separation for a named pair while preserving earlier contacts and the launch clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the shape collider with bounded, opaque and malformed motion for tangent spheres and a rotating offset hull, with separate actor parts.
+ * @evidence contracts/development/testing.md#independent-expectations Quadratic roots give spherical return at 0.5 s and the offset hull's return. Negative uncertainty, missing valid pose and unproved opening retain the relevant admission or initial-contact behavior.
  */
 export function test_engine_physics_projectile_first_contact_moving_departure(): void {
   const sphere: IAutoMoviePhysicalShape = baseSphere(ZERO);

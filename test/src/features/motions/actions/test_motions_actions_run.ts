@@ -274,6 +274,10 @@ const HIP: number = 0.9;
  * 1. The run (Fr 1.3) goes `sqrt(1.3 * 9.80665 * 0.9)`, and is the pace when none
  *    is given.
  * 2. The jog (Fr 0.6) and the sprint (Fr 5) go by their own numbers.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Jog, run and sprint use distinct speeds. A connected sprint keeps its existing flight and first landing.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the pace law for a fixed hip height and follows public connected sprint segments through the inherited airborne window.
+ * @evidence contracts/development/testing.md#independent-expectations Froude scaling fixes each speed. The outgoing strike time, airborne feet and displayed ankle positions supply the incoming segment's boundary expectations.
  */
 export async function test_motions_actions_run(): Promise<void> {
   const body: run.IBody = { measure: { hipHeight: HIP } };

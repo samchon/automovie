@@ -26,6 +26,10 @@ const ROUNDING: number = 1e-9;
  *
  * The body is built whole (`humanFixtureBody`): the contact is the foot's
  * lowest sole socket on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names two lifted floor plants, a lift matching a tread height and an excluded prop support.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries AuditGround.lift with stored-body plants and three authored support cases, comparing returned vertical distances.
+ * @evidence contracts/development/testing.md#independent-expectations Raising 0.03 m versus 0.01 m gives a 0.02 m difference. Raising both the body and its declared ground by 0.1 m preserves their relative height, while the prop supplies no stationary plane.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_ground_lift(): Promise<void> {
   // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.

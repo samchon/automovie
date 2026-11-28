@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { assertRecoveryImageChart } from "../../geometry/internal/assertRecoveryImageChart";
+import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 
 /*
@@ -42,8 +43,29 @@ export function observeRecoveryImages(
         diagnostics: ["Cancelled before image admission"],
       };
 
-    // The caller's budget bounds the views, their pixels and the occupied
-    // rows the scan retains.
+    if (
+      !input.objectId.trim() ||
+      !input.frame.trim() ||
+      input.rigidity !== "asserted-fixed" ||
+      !["analytic", "photograph", "inconsistent-stress"].includes(input.cohort)
+    )
+      throw new Error(
+        "invalid-capture: fixed object, metric frame and evidence cohort required",
+      );
+    const { rgb, threshold }: IAutoMovieRecoveryImageInput["background"] =
+      input.background;
+    if (
+      rgb.length !== 3 ||
+      !rgb.every(
+        (value: number): boolean =>
+          Number.isInteger(value) && value >= 0 && value <= 255,
+      ) ||
+      !isRecoveryPositiveFinite(threshold) ||
+      threshold > 255
+    )
+      throw new Error(
+        "invalid-capture: fixed RGB background requires three bytes and a threshold in (0, 255]",
+      );
     if (
       !input.budget ||
       !isRecoveryPositiveSafeInteger(input.budget.maxViews) ||
@@ -53,10 +75,23 @@ export function observeRecoveryImages(
       throw new Error(
         "invalid-capture: positive safe-integer view, pixel and row budgets required",
       );
-    if (input.views.length > input.budget.maxViews)
-      throw new Error("invalid-capture: views exceed the view budget");
+    if (input.views.length === 0 || input.views.length > input.budget.maxViews)
+      throw new Error("invalid-capture: view count is outside the view budget");
+    const names: Set<string> = new Set();
+    const charts: ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation>[] =
+      [];
     let pixels: number = 0;
     for (const view of input.views) {
+      if (
+        !view.id.trim() ||
+        names.has(view.id) ||
+        !/^[a-f0-9]{64}$/i.test(view.sourceSha256) ||
+        !view.pixelProvenance.trim()
+      )
+        throw new Error(
+          "invalid-capture: distinct view identities and declared byte provenance required",
+        );
+      names.add(view.id);
       if (
         !isRecoveryPositiveSafeInteger(view.width) ||
         !isRecoveryPositiveSafeInteger(view.height)
@@ -74,13 +109,14 @@ export function observeRecoveryImages(
         throw new Error(
           "budget-exhausted: total image pixels exceed maxPixels",
         );
-      assertRecoveryImageChart(view);
+      if (!Number.isSafeInteger(3 * count) || view.rgb8.length !== 3 * count)
+        throw new Error(
+          "invalid-capture: RGB8 length must equal three bytes per pixel",
+        );
+      charts.push(assertRecoveryImageChart(view));
     }
 
-    const red: number = input.background.rgb[0],
-      green: number = input.background.rgb[1],
-      blue: number = input.background.rgb[2],
-      threshold: number = input.background.threshold;
+    const [red, green, blue]: typeof rgb = rgb;
     const redForeground: Uint8Array = new Uint8Array(256),
       greenForeground: Uint8Array = new Uint8Array(256),
       blueForeground: Uint8Array = new Uint8Array(256);
@@ -91,7 +127,7 @@ export function observeRecoveryImages(
     }
     const views: IAutoMovieRecoveryImageObservation["views"] = [];
     let retained: number = 0;
-    for (const view of input.views) {
+    for (const [index, view] of input.views.entries()) {
       if (cancelled())
         return {
           operator,
@@ -101,7 +137,7 @@ export function observeRecoveryImages(
       const rows: IAutoMovieRecoveryImageObservation["views"][number]["rows"] =
         [];
       const chart: ReturnType<IAutoMovieRecoveryImageChartAssertOperation.Operation> =
-        assertRecoveryImageChart(view);
+        charts[index]!;
       let previousRow: number | undefined;
       for (let row: number = 0; row < view.height; row++) {
         let first: number = view.width,

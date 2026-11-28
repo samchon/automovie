@@ -7,6 +7,7 @@ import { PRODUCTION_CONTRACTS } from "../../internal/PRODUCTION_CONTRACTS";
 import type { IPackageChecklistClaimProps } from "../IPackageChecklistClaimProps";
 import { BODY_ROOT } from "./utilities/BODY_ROOT";
 import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
+import { workContractAddress } from "./workContractAddress";
 
 /*
  * Creates one work-local contract claim.
@@ -25,8 +26,9 @@ export function createPackageChecklistClaim(
   const documents: string[] = Array.isArray(props.document)
     ? props.document
     : [props.document];
-  const canonicalDocuments: string[] = documents.map(
-    (document: string): string => document.replaceAll("\\", "/"),
+  const addresses = documents.map(workContractAddress);
+  const canonicalDocuments: string[] = addresses.map(
+    (address): string => address.path,
   );
   if (canonicalDocuments.length === 0)
     throw new Error("A package contract requires at least one work document.");
@@ -34,12 +36,12 @@ export function createPackageChecklistClaim(
     throw new Error(
       "A package contract cannot select the same work document twice.",
     );
-  const foreign: string | undefined = canonicalDocuments.find(
-    (document: string): boolean => !isWorkDocument(document),
+  const foreign = addresses.find(
+    (address): boolean => address.family === undefined,
   );
   if (foreign !== undefined)
     throw new Error(
-      `${foreign}: package contracts require one exact work/{principles,naturalness,obligations,discovery,targets}/...md address.`,
+      `${foreign.path}: package contracts require one exact work/{principles,naturalness,obligations,discovery,targets}/...md address.`,
     );
   const obligation: string | undefined = canonicalDocuments.find(
     (document: string): boolean => document.startsWith("work/obligations/"),
@@ -98,32 +100,4 @@ export function createPackageChecklistClaim(
       }),
     ),
   };
-}
-
-/*
- * Keeps the package API on the tracked work-owned contract subtree.
- *
- * Existing work-owned `naturalness` addresses remain valid. The caller selects
- * the hosts and stage for a work-specific expression question.
- */
-function isWorkDocument(document: string): boolean {
-  const normalized: string = document.replaceAll("\\", "/");
-  const parts: string[] = normalized.split("/");
-  return (
-    parts.length >= 3 &&
-    parts[0] === "work" &&
-    [
-      "principles",
-      "naturalness",
-      "obligations",
-      "discovery",
-      "targets",
-    ].includes(parts[1]) &&
-    parts.every(
-      (part: string): boolean => part !== "" && part !== "." && part !== "..",
-    ) &&
-    !/[[\]*?#]/u.test(normalized) &&
-    normalized.endsWith(".md") &&
-    !normalized.toLowerCase().endsWith("/skill.md")
-  );
 }

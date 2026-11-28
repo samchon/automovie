@@ -31,6 +31,10 @@ const POSTURE: IAutoMovieMotionHumanPosture = {
  *
  * 1. The left arm's ending angles are its upper arm's and forearm's, and no other
  *    bone's.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the left arm's terminal chain and the other pose joints that must be absent from the result.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls courseArmGoalBase.ended with a one-posture synthetic action at the authored terminal second, reading only the selected left arm.
+ * @evidence contracts/development/testing.md#independent-expectations The input declares left upper arm angles (30, 10, 0) and forearm angles (45, 0, 0). The expected record consists of those two entries.
  */
 export function test_motions_compose_course_arm_ended(): void {
   TestValidator.equals(

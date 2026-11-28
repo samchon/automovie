@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Keys from the target's own material list resolve inside the shot clock.
  * 2. A duplicate target, an exclusive-tail cue and an unregistered material
  *    produce distinct findings on the offending track.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers known practical materials and separately located duplicate, time and unresolved-material faults.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls appendPracticalSurfacesArtifact with one explicit part and model catalog, then appends a duplicate target with a tail-time unknown material key.
+ * @evidence contracts/development/testing.md#independent-expectations The catalog contains two material names for the listed part. Time one is the exclusive shot end. Repeating the part target and naming a third material each violates a different authored field.
  */
 export function test_engine_validation_practical_surfaces_artifact(): void {
   const track: IAutoMoviePracticalSurfaceTrack = {

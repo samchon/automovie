@@ -14,9 +14,7 @@ import { FamilyConicCaseSelection as Selection } from "../../../reference-conics
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual shared digest and preflight admission using made metadata only, accumulating every refusal with its valid counterpart.
  * @evidence contracts/development/testing.md#independent-expectations The expected digest starts from literal UTF-8 bytes with ordinal keys; literal case/source mismatches and missing per-case fields independently distinguish invalid reports.
- * @evidence contracts/development/testing.md#distinguishing-cases Reordered valid fields accompany changed content/hash/id/scope, aggregate/failure reports, nonfinite values and ordered arrays.
- * @evidence contracts/development/testing.md#execution-ownership No figure, production constructor, filesystem, geometry solver or renderer runs.
- * @evidence contracts/development/common.md#meaningful-documentation Four numbered scenarios distinguish metadata identity from geometry acceptance.
+ * @evidence contracts/development/common.md#meaningful-documentation Canonical field order and stable digests admit reordered fields. Case, source and digest mismatches, aggregate records, non-finite values and array order have separate cases.
  */
 export function test_human_capture_case_identity(): void {
   const fields: { b: number; a: number } = { b: 2, a: 1 };

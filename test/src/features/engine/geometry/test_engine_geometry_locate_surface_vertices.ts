@@ -33,6 +33,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. A cage of another network ("not sampled from this network"), a face out of
  *    range, a non-quad corner ("not a quad") and u = 1.5 ("outside 0 to 1") are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the subdivided surface coordinates, sweep versus Coons records, swapped-coordinate control and malformed source locations.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and subdivides real networks, locates their vertices and checks public sweep evaluations plus mismatch and range diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations A located domain point must revisit the same swept neighbourhood while the swapped pair does not. The selected 1 cm bound separates the measured chart error from that wrong-frame control.
  */
 export function test_engine_geometry_locate_surface_vertices(): void {
   // 1.

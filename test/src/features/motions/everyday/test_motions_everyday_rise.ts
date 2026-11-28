@@ -106,6 +106,10 @@ namespace part_rise_seat_off {
  * - `rise_seat_off`: `riseSeatOff` releases the seat at the end of the rise's
  *   flexion phase, 36 % of the rise (McDonald, Villarejo Mayor and Lennon
  *   2025).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A rise first draws the feet beneath the seated body and releases its support at the end of the transfer phase.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the foot preparation and seat-off timing readers with a stock seated pose and a fixed rise duration.
+ * @evidence contracts/development/testing.md#independent-expectations The support phase ends at 36 percent of the rise. Prepared foot positions must move under the body while respecting their support inputs.
  */
 export async function test_motions_everyday_rise(): Promise<void> {
   part_prepare_rise_feet.verify();

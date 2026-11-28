@@ -90,6 +90,10 @@ const entry: (
  *    records ride in span order.
  * 3. The empty entries boundary is a locked-off covering camera: `cameraMotion:
  *    null`, `cameraIntent: []`, the camera id still carried.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the side camera's own bearing, compiled per-span intent and the empty locked-off take.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls compileCameraCoverage and reads the actual camera tracks and intents. It compares the two-span clip with the same explicitly selected camera in compileCameraMove and inspects an empty take.
+ * @evidence contracts/development/testing.md#independent-expectations With a 90-degree field of view and a 1.24-metre visible span, distance is 0.62 metres. The two-metre subject's 0.72 aim fraction gives height 1.44. The side camera's authored positive X bearing determines its position and quarter-turn independently of the hero.
  */
 export function test_engine_film_camera_coverage(): void {
   // 1. the covering camera's own staged bearing frames its own angle.

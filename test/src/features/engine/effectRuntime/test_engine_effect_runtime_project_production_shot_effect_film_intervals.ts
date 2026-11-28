@@ -16,6 +16,10 @@ import { filmEffectTimeline } from "../../internal/filmEffectTimeline";
  *    frames 36..48.
  * 3. An effect wholly after the segment shows nowhere, and a shot without effects
  *    gives none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines transfer of shot-local effect time into the visible film interval and trimming to the cut.
+ * @evidence contracts/development/testing.md#behavioral-verification Projects effects wholly shown, partly cut, wholly outside and absent on a prepared film segment.
+ * @evidence contracts/development/testing.md#independent-expectations At 24 fps, [0.5, 1] maps to frames [12, 24]. An interval starting at 1.5 maps from 36 and trims to out frame 48.
  */
 export function test_engine_effect_runtime_project_production_shot_effect_film_intervals(): void {
   const intervals: IAutoMovieShotEffectFilmInterval[] =

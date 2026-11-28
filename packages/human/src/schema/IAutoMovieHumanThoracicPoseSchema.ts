@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanThoracicPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanThoracicPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Thoracic flexion, side bend and axial rotation in degrees from anatomical
+ * neutral. Positive flexion bends forward. Positive side bend and rotation
+ * move toward the person's left.
+ */
 export type IAutoMovieHumanThoracicPoseSchema = IAutoMovieHumanThoracicPose & {
   /** Forward bend 30, backward bend 10. */
   flexion?: number & tags.Minimum<-10> & tags.Maximum<30>;

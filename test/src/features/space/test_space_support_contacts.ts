@@ -59,9 +59,7 @@ const space: IAutoMovieSpace = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives contact points with supportContactsFor and feeds them into detectSupportToppling, checking table/ramp heights, retained plan coordinates, stable centered support, two remaining edge contacts with a positive topple overshoot, and an empty-support type finding over void.
  * @evidence contracts/development/testing.md#independent-expectations The table footprint includes four centered corners at height 1 but only the x=1.5 pair of a half-overhanging footprint. Ramp rise 2 over span 4 gives heights 0.5 and 1.5 at x=11 and 13. Center x=2 is outside the remaining support segment x=1.5; assertions require positive rather than exact overshoot.
- * @evidence contracts/development/testing.md#distinguishing-cases Centered, sloped, partly unsupported and fully unsupported footprints distinguish projection from walkability and omitted contacts from invented ground. Exact topple tolerance, layered tops, physicsIntent and malformed source surfaces belong to other tests.
- * @evidence contracts/development/testing.md#execution-ownership The named test_space_support_contacts entry explicitly composes two portable product functions in memory; it proves this tested composition rather than installation in a production physics host, and dynamically registers no cases.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A box footprint centered on the table yields four contacts, all at the table).
+ * @evidence contracts/development/common.md#meaningful-documentation Checks per-corner contacts on a flat surface and ramp. Exercises centered, overhanging and unsupported footprints through the topple check and observes the empty-support refusal.
  */
 export function test_space_support_contacts(): void {
   const centered: IAutoMovieVector3[] = AutoMovieEngineSpace.supportContactsFor(space, [

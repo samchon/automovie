@@ -30,6 +30,10 @@ import { nclose } from "../../internal/predicates";
  *    tiny negative phases 1e-20, 1e-30 and 1e-100 gives the limit jet (20, 0,
  *    20 - 400 kappa), with kappa the smaller of 1 / (40 w^2) over the two end
  *    weights w = 0.55 / 0.45 and 0.25 / 0.75, each component within 1e-6 x 20.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names ellipse scale and ratio coverage, extremal guides, support-station derivative and the small negative-phase limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual radial jets from prepared sections and checks implicit geometry, signed curvature, input preservation and one-sided differences.
+ * @evidence contracts/development/testing.md#independent-expectations Solving the ellipse equation on a radial ray gives 1 over the norm of (cos φ/a, sin φ/b). Exact curvature is positive. The station comparison and endpoint curvature use their stated independent tolerances.
  */
 export function test_engine_geometry_conic_fidelity(): void {
   const k: number = Math.SQRT2 - 1;

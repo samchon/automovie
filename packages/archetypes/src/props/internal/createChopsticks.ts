@@ -1,5 +1,6 @@
 import type { AutoMovieArchetypeChopsticks } from "../AutoMovieArchetypeChopsticks";
 import { AutoMovieEngineVector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   type AutoMovieArchetype,
@@ -9,18 +10,10 @@ import {
 } from "../../core/index";
 
 /*
- * A pair of chopsticks held in the conventional hold: the lower stick fixed
- * against the thumb's base and the ring finger, the upper stick moved by the
- * index and middle fingers.
- *
- * The lower stick is the prop's frame, running along `+Z` from its butt at the
- * origin to its tip. The upper stick lies above it (`+Y`) and turns about a
- * fulcrum a third of the way along, at the thumb's tip, on the `pinch` hinge:
- * open at 0, spread `spread` degrees, and closed at `spread`, its tip on the
- * lower one's. `grip` is the hold a third of the way along, `tips` the meeting
- * point of the two tips, where a morsel is pinched.
- * Parameter params: The optional scene id.
- * Returns: The chopsticks and their contacts, metres.
+ * Build the equal rods and place the hinge one third along the moving rod.
+ * The upper rod turns from its open angle to one tip-side contact on the
+ * lower rod. A one-diameter lateral offset keeps the cylinders disjoint
+ * through the entire swing.
  */
 export function createChopsticks(
   params: AutoMovieArchetypeChopsticks.IParams = {},
@@ -28,8 +21,16 @@ export function createChopsticks(
   const v: typeof AutoMovieEngineVector3.create = AutoMovieEngineVector3.create;
   const r: number = SIZE.diameter / 2;
   const fulcrum: number = SIZE.length / 3;
-  const rise: number =
-    Math.tan((SIZE.spread * Math.PI) / 180) * (SIZE.length - fulcrum);
+  const angle: number = (SIZE.spread * Math.PI) / 360;
+  const openAxis: IAutoMovieVector3 = v(0, Math.sin(angle), Math.cos(angle));
+  // Put the closed contact at the end of both rounded collider stems.
+  const tip: number = SIZE.length - r;
+  const reach: number = tip - fulcrum;
+  const pivot: IAutoMovieVector3 = v(
+    SIZE.diameter,
+    reach * openAxis.y,
+    tip - reach * openAxis.z,
+  );
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeChopsticks.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "chopsticks",
@@ -51,10 +52,13 @@ export function createChopsticks(
   builder.rod("lower", r, v(0, 0, 0), v(0, 0, SIZE.length), {
     color: "#a0743c",
   });
-  // Open, the upper stick rises from the fulcrum toward its tip.
-  builder.rod("upper", r, v(0, 2 * r, 0), v(0, 2 * r + rise, SIZE.length), {
-    color: "#a0743c",
-  });
+  builder.rod(
+    "upper",
+    r,
+    AutoMovieEngineVector3.addScaled(pivot, openAxis, -fulcrum),
+    AutoMovieEngineVector3.addScaled(pivot, openAxis, SIZE.length - fulcrum),
+    { color: "#a0743c" },
+  );
   builder.affordance({
     id: "pinch",
     kind: "hinge",
@@ -62,7 +66,7 @@ export function createChopsticks(
     travel: SIZE.spread,
     parts: ["upper"],
     frame: AutoMovieArchetypeFrame.facing(
-      v(0, 2 * r, fulcrum),
+      pivot,
       v(1, 0, 0),
       v(0, 0, 1),
     ),
@@ -84,7 +88,7 @@ export function createChopsticks(
   builder.affordance({
     id: "tips",
     kind: "socket",
-    frame: AutoMovieArchetypeFrame.upright(v(0, r, SIZE.length)),
+    frame: AutoMovieArchetypeFrame.upright(v(r, 0, tip)),
     extent: null,
   });
   return builder.build(SIZE.mass);

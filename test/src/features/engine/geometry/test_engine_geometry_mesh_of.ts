@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    arrays are adopted, UVs null, skin null.
  * 2. Grouping vertices 0 and 5 gives both (0, 1, 4) / sqrt 17, the larger face
  *    weighing more; the other vertices keep their own normals.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names adopted buffers, separate and grouped face normals, and the unused vertex case.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds meshes with and without one seam group and reads actual normal arrays, ownership and null attributes.
+ * @evidence contracts/development/testing.md#independent-expectations The two written face crosses are (0,0,4) and (0,1,0). Their sum at the grouped origin normalizes by √17. The unused vertex has no incident contribution.
  */
 export function test_engine_geometry_mesh_of(): void {
   const positions = (): number[] => [

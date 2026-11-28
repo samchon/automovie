@@ -36,6 +36,10 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  *    forward along the normal and a destination that overflows; the prepared
  *    triangle still places at a valid frame afterwards.
  * 8. A nonfinite optional reference normal cannot choose a normal sign.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names signed normal placement, centroid and length preservation, extreme finite sizes, owned snapshots and both admission boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares and places actual triangles in level, skewed and extreme frames, then changes sources and supplies malformed geometry or destinations.
+ * @evidence contracts/development/testing.md#independent-expectations The written centroids, signed face normals and normalized forward projections fix transformed coordinates. Distances must stay constant. A degenerate basis or unrepresentable destination cannot define that placement.
  */
 export function test_engine_geometry_surface_frame_place(): void {
   const level = {

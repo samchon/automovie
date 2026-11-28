@@ -63,11 +63,15 @@ const validateFiniteBounds: (
 ): void => {
   if (bounds === null) return;
   for (let i: number = 0; i < bounds.length; ++i) {
-    const bound: number | null = bounds[i];
+    const bound: number | null | undefined = bounds[i];
     if (bound === null) continue;
     if (i >= width)
       throw new Error(
         `channel limit "${key}" ${side}[${i}] is outside value width ${width}, but was ${bound}`,
+      );
+    if (!Number.isFinite(bound))
+      throw new Error(
+        `channel limit "${key}" ${side}[${i}] must be finite or null, but was ${bound}`,
       );
   }
 };

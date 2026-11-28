@@ -32,11 +32,9 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  *    refuses its station count and a cup placed beyond the table cannot claim
  *    its support.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the resolved kit populations, scoped IDs, turned override and support assertions plus the refusal cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks café and gym kit populations, explicit overrides across seeds and a turned layout. Exercises table and cup support, invalid layout capacity, a reserved door swing and a narrow gym aisle.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public environment and producer exports, reads the staged and runtime records, and observes layout and bearing refusals through ordinary construction.
  * @evidence contracts/development/testing.md#independent-expectations Counts one counter plus four sets of three, two stations with three pieces each and one cup. The literal quarter-turn oracle maps room X to negative world Z and room Z to positive world X. The dining table height range comes from the table producer's documented bounds. The reserved swing covers the overridden chair centre and the narrow gym leaves less than one 915 mm aisle at each end.
- * @evidence contracts/development/testing.md#distinguishing-cases Two seeds distinguish explicit overrides from style draws, while restating the same table position distinguishes an override from a phantom obstacle to its group. Cup attachment at the stack contrasts a distant unsupported assertion. Invalid capacity and overlap of a named keep-out report different causes.
- * @evidence contracts/development/testing.md#execution-ownership Runs once in the workspace feature test runner. Performs deterministic CPU composition and placement admission without installing a renderer or replacing any global input.
  */
 export function test_environment_furnishing(): void {
   const cafeLayout: Parameters<

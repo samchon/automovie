@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Records `a, b, a` declare {a, b} and report the second `a` at `[2].id`.
  * 2. References `a, x, a` against {a, b} report `x` unresolved at `[1]` and the
  *    second `a` duplicated at `[2]`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers collecting declared identities and locating repeated or unresolved references.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the declaration collector and validateDeclaredReferences on fixed identifier arrays and compares exact findings.
+ * @evidence contracts/development/testing.md#independent-expectations In a, b, a only the last a repeats. In a, x, a, x is absent from the declared set and the last a is duplicated. The expected indices follow those input positions.
  */
 export function test_engine_validation_declared_ids(): void {
   const read = (collector: AutoMovieEngineViolationCollector): string[][] =>

@@ -6,7 +6,11 @@ import type {
 import type { IAutoMovieHumanArmIdentitySchema } from "./IAutoMovieHumanArmIdentitySchema";
 import type { IAutoMovieHumanLegIdentitySchema } from "./IAutoMovieHumanLegIdentitySchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanExtremityDimensions. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Optional left and right hand and foot measurements for typia validation.
+ * Every supplied pair records both anatomical sides and uses millimetres. Foot
+ * assembly remains an inherited authoring request.
+ */
 export type IAutoMovieHumanExtremityDimensionsSchema =
   IAutoMovieHumanExtremityDimensions & {
     /** Independently supplied left and right hand lengths and breadth. */

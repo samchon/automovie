@@ -16,6 +16,10 @@ import { nclose } from "../../internal/nclose";
  * 2. `−sin x` on [0, π] is least at π/2, value −1.
  * 3. A function least at the interval's end returns a point within three
  *    tolerances of that end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines scalar minimization for an interior vertex, smooth extremum and endpoint optimum.
+ * @evidence contracts/development/testing.md#behavioral-verification Minimizes a parabola, negative sine and a function with its optimum at the interval end.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic minima are (0.3, 0) and (π/2, −1). The boundary case returns within three configured tolerances.
  */
 export function test_motions_posture_brent_minimum(): void {
   const t: number = 1e-6;

@@ -61,6 +61,14 @@ At handoff, run and record the [required production checks](../production/checks
 
 Limit retake verdicts to the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep observations [outside the contract graph](../contracts/items.md#outside-the-graph).
 
+### Passage observations
+
+Start the acceptance record with the [first programming assignment](../production/director.md#first-programming-assignment). Name the subject or candidate, intended interval and view. After capture or playback, add the exact source or file, observed frames or seconds, viewing mode, witness and remaining questions. Mark planned, partial and complete coverage by their recorded extent.
+
+A diagnostic view can locate a successful transfer whose cause the delivery camera hides. Record those physical and screen observations separately. Keep the pace judgment pending until the passage plays at speed. Give the independent viewer the exact complete cut and collect the first reading under [Video](#video).
+
+Count the outcome of each commissioned first candidate once. Keep agreed-scope corrections, other requests, pending review and absent candidates visible separately. Include the number of candidates and requests, elapsed time and any recorded cost. Preserve the observation and decision for a replaced candidate as history.
+
 ## Repairs
 
 Send the repair owner the exact passage, time or frame, failed criterion and observed loss.

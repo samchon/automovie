@@ -44,6 +44,10 @@ const approach = (foot: "left" | "right"): AthleticsRunUp.IApproach => ({
  *    length.
  * 2. With the bar 0.8 m to the right of a runner heading +X, the left (outside)
  *    foot takes off and the right (inside) one is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the crossbar frame at the action's start and outside-foot admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a placed and quarter-turned crossbar with a tracked query time and tries takeoff on either foot for the same runner.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter turn maps the authored bar axis to −Z, center to (3, 2, 5), and leaves its length 4 m. A bar on the right makes left the permitted foot.
  */
 export function test_motions_sport_high_jump(): void {
   const asked: number[] = [];

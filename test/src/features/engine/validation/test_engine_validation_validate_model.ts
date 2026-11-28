@@ -20,8 +20,8 @@ import { IDENTITY_TRANSFORM, createModel } from "../../internal/fixtures";
 import { hasViolation } from "../../internal/predicates";
 
 /**
- * `validateModel` admits a coherent model and names each broken rule by its
- * kind and path; every rule of its source has one decisive case here.
+ * `validateModel` admits the base model and locates the faults introduced by
+ * the fixture mutations.
  *
  * Fixture: the standard one-part generated model (a 0.4 x 0.6 x 0.2 box in
  * material mat-1, on the standard skeleton), one rule broken at a time; a
@@ -49,6 +49,10 @@ import { hasViolation } from "../../internal/predicates";
  *    extent; a handle binding a part; an empty image; a repeated image id.
  *
  * The material rules are `test_engine_validation_validate_model_material`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers model admission, identity and graph, representative geometry and transforms, body fields, affordances and carried images.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel on a conventional one-part base and individually mutated models. It compares each listed result's status and finding path.
+ * @evidence contracts/development/testing.md#independent-expectations Literal id, parent and part catalogs establish membership and duplicates. The primitive and buffer dimensions fix their own valid ranges. Each malformed fixture changes a known field or relation with a predetermined outcome.
  */
 export function test_engine_validation_validate_model(): void {
   const base: IAutoMovieModel = createModel();

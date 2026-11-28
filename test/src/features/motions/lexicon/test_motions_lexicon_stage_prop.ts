@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  * 2. A shield block marks the face over 1.05 s without a step and ends 0.18 arms
  *    across, 0.53 ahead.
  * 3. The offset and linked displays share one silhouette.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines authored stage-prop beats through marker, duration, support and linked or offset graphic display.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a figure-eight and a shield beat at fixed phases and compares both representations of the same display.
+ * @evidence contracts/development/testing.md#independent-expectations Authored times 1.8 s and 1.05 s distinguish the beats. The fixed poses and axes define their silhouettes and only the figure-eight schedules a step.
  */
 export function test_motions_lexicon_stage_prop(): void {
   const eight: humanStagePropBeat.IBeat = humanStagePropBeat("figureEight");

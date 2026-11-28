@@ -36,8 +36,6 @@ import { syntheticTrueTypeFont } from "../internal/syntheticTrueTypeFont";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public decoder on font bytes and asserts the decoded record's fields, contours and kerning; it catches wrong field offsets, a misread flag or delta, a lost implied on-curve point, a wrong composite transform or a kerning pair left by glyph index.
  * @evidence contracts/development/testing.md#independent-expectations Expected values are the numbers written into the font, and the O areas come from the closed form of a quadratic arc, two thirds of its control triangle beyond its chord, per ISO/IEC 14496-22 quadratic outlines.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers on-curve and off-curve contours, an all-off-curve contour, a hole, a composite with an x/y scale and a 2 × 2 transform, both Unicode cmap formats and repeat decoding. Refusals are owned by test_ingest_truetype_font_refusals.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit test of the ingest decoder over in-memory bytes; no file, browser or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the decoded fact it pins.
  */
 export function test_ingest_truetype_font(): void {

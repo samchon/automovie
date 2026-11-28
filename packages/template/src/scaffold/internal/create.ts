@@ -35,17 +35,11 @@ import { transcludeMarkdownSection } from "./transcludeMarkdownSection";
  *
  * A standalone `## ${Continuing}` in scaffold skill Markdown inserts the same
  * path's root skill section from `generated/sections`. Instruction Markdown
- * omits reserved `<!--
- * Parameter props: The installation kind and its name.
- * Returns: The files, keyed by path relative to the installation directory.
- * When the name is refused, when the build outputs are missing, or when
- * two sources produce the same path.
+ * omits reserved source-reference comments.
  */
-export const create: (
+export function create(
   props: IAutoMovieTemplateScaffoldProps,
-) => Record<string, string> = (
-  props: IAutoMovieTemplateScaffoldProps,
-): Record<string, string> => {
+): Record<string, string> {
   const name: string = assertProjectName(props.name);
   const skills: string =
     props.kind === "workspace-production"
@@ -60,8 +54,9 @@ export const create: (
       throw new Error(`scaffold sources collide at "${relative}"`);
     files[relative] = content
       .replaceAll("\r\n", "\n")
-      .replaceAll("{{name}}", name)
-      .replaceAll("{{skills}}", skills);
+      .replaceAll(/\{\{(?:name|skills)\}\}/gu, (token: string): string =>
+        token === "{{name}}" ? name : skills,
+      );
   };
 
   if (props.kind !== "workspace-production") readLayer("instructions", add);
@@ -74,7 +69,7 @@ export const create: (
       renderEvidenceConfig(props.kind === "workspace-production"),
     );
   return files;
-};
+}
 
 /*
  * The package root is three levels above this module in source and output.

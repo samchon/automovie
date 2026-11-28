@@ -17,6 +17,10 @@ const WEIGHT_TOLERANCE: number = 1e-12;
  * 2. Closed-lip visemes `sil`, `PP` and `FF` set nothing.
  * 3. A weight is clamped to `[0, 1]` before it is summed.
  * 4. Two visemes of one preset add: `TH` and `DD` give `ih` 1.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe weighted viseme presets, closed-lip inputs, value clamping and a shared preset.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that visemes map and sum to mouth presets and channels, clamp input weights and leave closed-lip inputs with no contributions.
+ * @evidence contracts/development/testing.md#independent-expectations Evaluates `0.5 × 1 + 0.5 × 0.6 = 0.8` for the mixed jaw channel and specifies explicit expected values for the other fixture weights.
  */
 export function test_render_scene_viseme_channel_weights(): void {
   const mixed: Map<string, number> = visemeChannelWeights({

@@ -21,6 +21,10 @@ import { nclose } from "../../internal/nclose";
  *    1.2 s; without a drop there is no sag.
  * 2. Stopped at 0.3 s of 1.315 s, the 15 ms dwell holds the stop; half the rest
  *    on, at 0.815 s, it has returned half and shows the stroke at 0.15 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes animation progress for extend, recoil, guard sag and return after a held contact event.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads phase helpers across authored times, toggles the drop and samples a stopped motion across its dwell and return.
+ * @evidence contracts/development/testing.md#independent-expectations Midpoints give half progress. A 15 ms dwell after 0.3 s remains held, and the halfway return at 0.815 s reads source time 0.15 s.
  */
 export function test_motions_striking_punch_geometry(): void {
   const { out, back, sag } = punchGeometry.phases(0.4, 0.4, 0.2);

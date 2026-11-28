@@ -22,6 +22,10 @@ import { nclose } from "../../internal/nclose";
  * 3. The eight corners of the unit cube fill volume 1 with tetrahedra all of one
  *    orientation and nonzero volume.
  * 4. Every joggled point stays within 30000 ulps of 1 of its input.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers a single tetrahedron, an interior split, consistently oriented cube fill and bounded joggle.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls tetrahedralizeDelaunay on explicit points and derives volumes from returned geometry. It calls delaunayNeighbours on the one-simplex result.
+ * @evidence contracts/development/testing.md#independent-expectations The unit right tetrahedron has volume one sixth and every distinct pair of corners shares an edge. Adding one interior vertex gives four subvolumes with the same total. Determinants and the independently set 30,000-ulp component limit constrain the cube mesh.
  */
 export function test_engine_math_tetrahedralize_delaunay(): void {
   const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({

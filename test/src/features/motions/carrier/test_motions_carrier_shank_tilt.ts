@@ -22,19 +22,19 @@ const THIGH: number = 0.45;
 const SHANK: number = 0.42;
 
 /**
- * `shankTilt` is the shank's forward lean from vertical for an ankle below a
- * hip, the knee bent forward in the facing's plane: the two-link leg's closed
- * form. For an ankle straight below the hip at a distance `D`, the shank's lean
- * is the triangle's angle at the ankle, `acos((s^2 + D^2 - t^2) / (2 s D))` by
- * the law of cosines, with `t` the thigh and `s` the shank.
+ * Check the sagittal shank tilt for a two-link leg.
  *
- * Scenarios, for a 0.45 m thigh and a 0.42 m shank:
+ * Scenarios:
  *
- * 1. A straight leg under its hip leans 0 degrees.
- * 2. An ankle straight below at 90 % of the leg's length leans the law of cosines'
- *    angle forward.
- * 3. Facing the other way mirrors the knee: the same ankle leans the same, the
- *    knee now ahead of the reversed facing.
+ * 1. A 0.45 m thigh and a 0.42 m shank extended below the hip give zero lean.
+ * 2. Shorten the hip-to-ankle separation to 90 percent of full length and
+ *    compare the resulting lean with the leg triangle.
+ * 3. Reverse the facing. The knee bends ahead of the new direction at the
+ *    same angle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the segment lengths, bent separation and change of facing.
+ * @evidence contracts/development/testing.md#behavioral-verification The solver covers straight and bent knees and a reversed forward direction.
+ * @evidence contracts/development/testing.md#independent-expectations The expectation uses the law of cosines at the ankle and the specified two link lengths.
  */
 export function test_motions_carrier_shank_tilt(): void {
   const leg: shankTilt.ILeg = { measure: { thigh: THIGH, shank: SHANK } };

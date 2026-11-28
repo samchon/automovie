@@ -35,6 +35,10 @@ import { nclose } from "../../../internal/nclose";
  * deck rather than a box with a conventional name, poses the actual stored
  * rider, and carries the selected socket through the named site's full turn
  * in one posed material observation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains pelvis-bearing eligibility from the actual deck, bar clearance and support patch, including named seat motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Tests a deck and two rod envelopes with finite negative fixtures, adds a skew obstruction and binds a stored articulated rider to the matching posed material.
+ * @evidence contracts/development/testing.md#independent-expectations Known half-span and rod radius bound the solution between −0.255 and −0.145 m. The skew obstruction shortens only the forward limit, while point-only contact cannot carry a load.
  */
 export async function test_motions_mounted_seat_domain(): Promise<void> {
   const origin: IAutoMovieRigidTransform = {

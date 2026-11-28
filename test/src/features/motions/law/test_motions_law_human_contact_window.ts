@@ -20,18 +20,22 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON * 2;
 
 /**
- * Detect foot-bearing windows in the toe path and lock only declared contacts.
+ * Check detection of toe-bearing windows and application of declared locks.
  *
  * Scenarios:
  *
- * 1. A slow toe below the detection threshold stays locked at its original
- *    horizontal point and at the supplied floor. The other foot has no declared
- *    contact and the authored hand grip keeps its own timing.
- * 2. A fast linear toe has no bearing window even with declared intent.
- * 3. The shortest admitted four-frame path measures the same stationary toe after
- *    translation. A shorter path refuses before reading toe locations.
- * 4. World goals receive interpolated offsets, while a bone-framed goal retains
- *    its original coordinates.
+ * 1. Track a slow left toe below the movement threshold. Lock its horizontal
+ *    point and shift to the supplied floor, leave the undeclared right foot
+ *    free and preserve the hand grip interval.
+ * 2. Leave a faster toe without a bearing interval. Admit four frames and
+ *    read the translated stationary path across the whole span. Refuse a
+ *    shorter path before reading toes.
+ * 3. Interpolate offsets for world limb goals while keeping bone-framed goals
+ *    at their local coordinates.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify detection speed, floor frame, minimum sampling length and kept local goals.
+ * @evidence contracts/development/testing.md#behavioral-verification The contact lock implementation receives deterministic toe readers and typed authored contact windows.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.149 m/s fixture gives a known per-frame shift. Literal floor height, offsets and hand timing supply the other expectations.
  */
 export function test_motions_law_human_contact_window(): void {
   const hand: IAutoMovieMotionHumanContactWindow = {

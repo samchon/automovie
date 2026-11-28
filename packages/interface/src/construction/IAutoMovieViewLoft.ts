@@ -11,121 +11,114 @@ import type { IAutoMovieViewSection } from "./IAutoMovieViewSection";
  */
 export namespace IAutoMovieViewLoft {
   /**
-   * View loft outcome, including admitted sections when final geometry fails.
-   *
-   * Input/preparation failures return null geometry and diagnostics;
-   * station-level failures can retain sections for inspection. A direct source
-   * with any skipped station is not published as a partial chain. Generic girth
-   * can still publish from at least two surviving stations. Foreign axis
-   * callbacks can throw rather than returning a result. Result arrays are
-   * mutable and call-owned; frames/source records can be shared with the chain,
-   * so preserve them while any surface or sampler retains that chain.
+   * View loft result with final geometry, surviving sections and source
+   * diagnostics. Input refusal leaves both geometry fields null. Station
+   * refusal can retain sections for inspection. Direct original sources require
+   * all prepared stations to survive. Girth can publish from at least two
+   * admitted sections. Preserve source data while geometry retains it.
    */
   export interface IResult {
     /**
-     * Loft chain including declared reliefs and ring phases, or null on failed
-     * final admission. A non-null chain can still have diagnostics or no
-     * qualified solid surface.
+     * Admitted loft chain with ring phases and declared reliefs, or null on
+     * final chain refusal. A returned chain can coexist with diagnostics.
      */
     chain: IAutoMovieLoftChain | null;
 
     /**
-     * Regular surface for merge/diff, null for an absent chain, unavailable
-     * physical2 or failed anchor admission.
+     * Regular solid surface constructed from the chain when physical
+     * derivatives and anchor admission permit it, or null.
      */
     surface: IAutoMovieSolidSurface | null;
 
     /**
-     * Surviving four-quarter sections in increasing physical station order,
-     * including inserted cap rings and excluding collapsed pole stations. Empty
-     * on early failure; retained even if later chain construction fails.
+     * Admitted four-quarter station records in physical order, including
+     * inserted cap rings and excluding collapsed tips.
      */
     sections: IAutoMovieViewLoft.IStation[];
 
     /**
-     * Surviving conic-chain sections in increasing physical station order for
-     * touch, split or piece-list sources; empty when none survive or the
-     * ordinary four-quarter representation applies.
+     * Admitted conic-chain stations in physical order. Touch and split
+     * declarations produce these records.
      */
     chains: IAutoMovieViewLoft.IChainStation[];
 
     /**
-     * Collected numerical admission failures in encounter order; empty means no
-     * reported failure, not a proof of every geometric invariant. Callback
-     * exceptions can escape without becoming entries.
+     * Numerical source and construction refusals in encounter order. Axis
+     * callback exceptions can propagate separately.
      */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 
     /**
-     * Declared continuity of the chosen construction, not a numeric certificate
-     * at every point or a geometric G2 claim at a pole. The default C2/C2
-     * object is shared across results, including early failures; consumers must
-     * preserve it.
+     * Declared station and phase continuity of the selected representation.
+     * Preserve the shared default record while other results use it.
      */
     continuity: IResultContinuity;
   }
 
-  /** The continuity object of {@link IResult}. */
+  /**
+   * Declared chart continuity. Successful conic-chain results use C1 for
+   * station and phase because moving joins can change their second partials.
+   * Ordinary sections and early refusals use the shared C2 labels.
+   */
   export type IResultContinuity = {
     /**
-     * C2 for ordinary four-quarter sections; a successfully published chain
-     * with conic-chain stations reports C1 because its joins can have sided
-     * second phase partials. Failure results retain the default C2 label even
-     * when partial chain stations survive.
+     * C2 for the ordinary representation. C1 marks a published conic chain
+     * whose arc joins can have sided second phase derivatives.
      */
     phase: "C2" | "C1";
 
     /**
-     * C2 over regular physical stations for ordinary sections, conservatively
-     * C1 for a successfully published chain with moving conic-chain joins.
-     * Failure results retain the default C2 label; no label asserts finite
-     * station derivatives at a collapsed pole.
+     * C2 for ordinary regular sections. C1 accounts for conic-chain joins that
+     * move across physical stations in a published chain.
      */
     station: "C2" | "C1";
   };
 
-  /** One emitted station. */
+  /**
+   * Admitted four-quarter section and its actual axis frame at one physical
+   * station. Preserve the retained frame during geometry reads.
+   */
   export interface IStation {
     /**
-     * Physical station in millimetres; equal to world height only for a
-     * horizontal height-aligned axis.
+     * Physical source station in millimetres. A horizontal height axis uses
+     * this as world height.
      */
     station: number;
 
     /**
-     * Actual axis.at(station) frame retained without cloning: world-mm origin
-     * and dimensionless local u/v axes. Preserve it while the resulting
-     * chain/surface uses the same frame data.
+     * Actual axis frame at this station, with origin in world millimetres and
+     * dimensionless u and v axes.
      */
     frame: IAutoMovieLoftSectionFrame;
 
     /**
-     * Admitted four-quarter section in local millimetres, used to generate
-     * compatibility spline coefficients and retained for guide/curvature
-     * inspection.
+     * Admitted four-quarter source used to fit compatibility coefficients and
+     * inspect native guide geometry.
      */
     section: IAutoMovieViewSection.ISection;
   }
 
-  /** One emitted chain station. */
+  /**
+   * Admitted split or touch conic chain and its shared original frame at one
+   * physical station. Retain the frame and section data in their published
+   * form.
+   */
   export interface IChainStation {
     /**
-     * Physical station in millimetres, in the same coordinate as the source
-     * outlines and axis.
+     * Physical station in millimetres shared by the axis and all source
+     * outlines.
      */
     station: number;
 
     /**
-     * Actual axis.at(station) frame retained without cloning: world-mm origin
-     * and dimensionless local u/v axes. Its owner must preserve the value while
-     * published geometry retains it.
+     * Actual axis frame at this station, with world-millimetre origin. The
+     * result borrows it for publication.
      */
     frame: IAutoMovieLoftSectionFrame;
 
     /**
-     * Admitted local conic chain, including guide contacts and declared splits;
-     * its arc joins may be only G1 even when individual arcs have second
-     * derivatives.
+     * Prepared local conic chain through the authored contact guides and split
+     * controls.
      */
     chain: IAutoMovieViewChain.ISection;
   }

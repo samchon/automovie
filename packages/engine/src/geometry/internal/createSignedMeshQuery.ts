@@ -6,10 +6,10 @@ import type {
 } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../../math/internal/createMeshEdgeKey";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { boundMeshQueryPoint as bound } from "./boundMeshQueryPoint";
 import { buildMeshQueryHierarchy } from "./buildMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /*
  * Compile a closed oriented surface, or an open oriented sheet, into a
@@ -57,10 +57,19 @@ export function createSignedMeshQuery(
   mesh: IAutoMovieMesh,
   options?: IAutoMovieSignedMeshQueryOptions,
 ): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit {
+  const boundary: IAutoMovieSignedMeshQueryOptions["boundary"] =
+    options?.boundary;
+  if (boundary !== undefined && boundary !== "closed" && boundary !== "open")
+    throw new Error(
+      "Signed mesh queries require boundary mode closed or open.",
+    );
   const indices: number[] = triangleIndicesOf(mesh, "Signed mesh queries");
   if (indices.length === 0)
     throw new Error("Signed mesh queries need a nonempty finite surface.");
   const positions: number[] = mesh.positions.slice();
+  for (const value of positions)
+    if (!Number.isFinite(value))
+      throw new Error("Signed mesh queries require finite mesh positions.");
   const identities: Map<string, number> = new Map();
   const vertices: number[] = [];
   for (let at: number = 0; at < positions.length; at += 3) {
@@ -172,11 +181,11 @@ export function createSignedMeshQuery(
       low,
       high,
       centre: low.map(
-        (value: number, axis: number): number => (value + high[axis]!) / 2,
+        (value: number, axis: number): number => value / 2 + high[axis]! / 2,
       ),
     });
   }
-  const open: boolean = options?.boundary === "open";
+  const open: boolean = boundary === "open";
   const rim: Set<number> = new Set();
   for (const edge of edges.values()) {
     if (
@@ -213,7 +222,12 @@ export function createSignedMeshQuery(
     buildMeshQueryHierarchy(triangles);
   let recent: ITriangle | undefined;
   return (point: readonly number[]): IAutoMovieSignedMeshQueryHit => {
-    if (point.length !== 3)
+    if (
+      point.length !== 3 ||
+      !Number.isFinite(point[0]) ||
+      !Number.isFinite(point[1]) ||
+      !Number.isFinite(point[2])
+    )
       throw new Error("Signed mesh queries require finite XYZ coordinates.");
     let extent2: number = 0;
     for (let axis: number = 0; axis < 3; axis++)
@@ -223,7 +237,7 @@ export function createSignedMeshQuery(
           Math.abs(point[axis]! - root.high[axis]!),
         ) ** 2;
     // A finite query far from the mesh can overflow its squared extent.
-    if (overflowsBinary64(extent2))
+    if (!Number.isFinite(extent2))
       throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: IBest = {
       seed: recent,
@@ -237,15 +251,21 @@ export function createSignedMeshQuery(
     };
     if (recent !== undefined) consider(point, recent, vertexNormals, rim, best);
     visit(root, bound(root, point), point, vertexNormals, rim, best);
-    // A nonempty finite admitted tree always supplies a nearest feature.
-    recent = best.hit;
     const distance: number = Math.sqrt(best.distance2);
+    const signedDistance: number =
+      Math.sign(dot(subtract(point, best.point), best.normal)) * distance;
+    if (
+      best.hit === undefined ||
+      !Number.isFinite(distance) ||
+      !Number.isFinite(signedDistance)
+    )
+      throw new Error("Signed mesh query arithmetic must remain finite.");
+    recent = best.hit;
     return {
       point: best.point.slice(),
       normal: unit(best.normal),
       distance,
-      signedDistance:
-        Math.sign(dot(subtract(point, best.point), best.normal)) * distance,
+      signedDistance,
       triangle: best.triangle,
       feature: best.feature,
       boundary: best.boundary,

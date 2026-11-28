@@ -26,6 +26,10 @@ import { testAffordance } from "../../internal/fixtures/testAffordance";
  *    9 mm of the start, midpoint and end of the 30-degree screen stroke.
  * 2. Contact lasts 285 ± 5 ms between the approach and withdrawal.
  * 3. A target past the edge of the glass is refused on its endpoint axis.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation A timed swipe puts the finger on a turned phone at both screen widths and refuses a point beyond its glass.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the gesture against the two authored screen widths and samples displayed contact throughout its expected stroke.
+ * @evidence contracts/development/testing.md#independent-expectations The screen's own transform supplies the three target points with 9 mm tolerance. A 285 ms contact duration and a beyond-edge refusal independently cover timing and admission.
  */
 export function test_motions_everyday_swipe_touchscreen_playback(): void {
   const center: IAutoMovieVector3 = { x: -0.2, y: 1.2, z: 0.48 };

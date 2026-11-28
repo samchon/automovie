@@ -2,17 +2,22 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createStandingLamp as createStandingLampImplementation } from "./internal/createStandingLamp";
 import { type AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
-/** Public operations for Auto Movie Archetype Standing Lamp. */
+/**
+ * Constructs a freestanding table or floor lamp with a socket inside its shade.
+ */
 export namespace AutoMovieArchetypeStandingLamp {
   /**
-   * A freestanding table or floor lamp with a positioned light binding.
+   * Build a round base at Y zero, an upright stem and a shade.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The `light` socket points `+Y` from the top of the stem. The
+   * `grip` lies halfway up the shade and faces `-X`.
+   *
+   * @param params Required table or floor kind, optional scene ID and
+   *   applicable finite measurements. The ID defaults to `light`.
+   * @param seed Numeric seed for omitted values. Seedless overall
+   *   heights are 0.41 metres for table and 1.53 metres for floor.
+   * @returns The base, stem and shade with grip and emitter socket.
+   * @throws {AutoMovieArchetypeRefusal} If a kind or fixed value is inadmissible.
    */
   export function create(params: AutoMovieArchetypeStandingLamp.IParams, seed?: number): AutoMovieArchetype<
   AutoMovieArchetypeStandingLamp.Affordance,
@@ -21,12 +26,12 @@ export namespace AutoMovieArchetypeStandingLamp {
     return createStandingLampImplementation(params, seed);
   }
 
-  /** The `kind` choices this producer admits. */
+  /** Selects the freestanding table or floor construction and its bands. */
   export type Kind = "tableLamp" | "floorLamp";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Base and shade diameters, shade height, stem height and overall
+   * height in metres. Total mass is in kilograms.
    */
   export type Dimension =
     | "base"
@@ -36,17 +41,19 @@ export namespace AutoMovieArchetypeStandingLamp {
     | "shade"
     | "stem";
 
-  /** The contact IDs declared by this producer. */
+  /** Side shade `grip` and upward `light` at the top of the stem. */
   export type Affordance = "grip" | "light";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Standing form, optional scene ID and finite dimensions within the selected form's bands.
+   */
   export interface IParams extends Pick<
     AutoMovieArchetypeLight.IParams,
     "id" | "height" | "shade" | "overall" | "stem" | "base" | "mass"
   > {
-    /** The measured table or floor form. */
+    /** Required `tableLamp` or `floorLamp` size and construction. */
     kind: Kind;
   }
 
-  /** Legacy selectors for this construction, in gallery order. */
+  /** The two accepted standing forms in table-then-floor order. */
   export const KINDS: readonly IParams["kind"][] = ["tableLamp", "floorLamp"];}

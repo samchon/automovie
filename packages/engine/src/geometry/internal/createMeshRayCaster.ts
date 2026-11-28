@@ -5,8 +5,8 @@ import type {
   IAutoMovieMeshRayQueryOptions,
 } from "@automovie/interface";
 
-import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
+import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /*
  * Index a resident mesh for repeated ray queries.
@@ -50,6 +50,9 @@ export function createMeshRayCaster(
     mesh,
     "Ray casting (complete triangle buffers)",
   );
+  for (const position of mesh.positions)
+    if (!Number.isFinite(position))
+      throw new Error("Ray casting needs finite mesh positions.");
   const count: number = indices.length / 3;
   const tree: IRayHierarchy = buildRayHierarchy(mesh.positions, indices);
   const { box, leftChild, rightChild, first, span, order, edge } = tree;
@@ -63,27 +66,38 @@ export function createMeshRayCaster(
     options?: IAutoMovieMeshRayQueryOptions,
   ): IAutoMovieMeshRayHit | null => {
     const minimumTravel: number = minimum === undefined ? 0 : minimum;
+    if (
+      origin.length !== 3 ||
+      direction.length !== 3 ||
+      !Number.isFinite(origin[0]) ||
+      !Number.isFinite(origin[1]) ||
+      !Number.isFinite(origin[2]) ||
+      !Number.isFinite(direction[0]) ||
+      !Number.isFinite(direction[1]) ||
+      !Number.isFinite(direction[2]) ||
+      (direction[0] === 0 && direction[1] === 0 && direction[2] === 0) ||
+      (maximum !== Infinity && !Number.isFinite(maximum)) ||
+      !Number.isFinite(minimumTravel) ||
+      minimumTravel < 0 ||
+      minimumTravel > maximum
+    )
+      throw new Error(
+        "A ray needs a finite origin, a finite nonzero direction and 0 <= finite minimum <= maximum.",
+      );
     const length: number = Math.hypot(
       direction[0]!,
       direction[1]!,
       direction[2]!,
     );
-    if (
-      origin.length !== 3 ||
-      direction.length !== 3 ||
-      !(length > 0) ||
-      !(maximum >= 0) ||
-      !(minimumTravel >= 0) ||
-      !(minimumTravel <= maximum)
-    )
-      throw new Error(
-        "A ray needs a finite origin, a nonzero direction and 0 <= minimum <= maximum.",
-      );
     const excluded: ReadonlySet<number> | undefined =
       options?.excludedTriangles;
     if (excluded !== undefined)
       for (const triangle of excluded)
-        if (triangle < 0 || triangle >= count)
+        if (
+          !Number.isSafeInteger(triangle) ||
+          triangle < 0 ||
+          triangle >= count
+        )
           throw new Error(
             "Ray exclusions must address original triangles of this mesh.",
           );
@@ -173,19 +187,23 @@ export function createMeshRayCaster(
         const py: number = dz * e2x - dx * e2z;
         const pz: number = dx * e2y - dy * e2x;
         const det: number = e1x * px + e1y * py + e1z * pz;
+        assertFiniteRayTrial(det, ordinal);
         if (det > -1e-18 && det < 1e-18) continue;
         const inv: number = 1 / det;
         const sx: number = ox - edge[c]!;
         const sy: number = oy - edge[c + 1]!;
         const sz: number = oz - edge[c + 2]!;
         const u: number = (sx * px + sy * py + sz * pz) * inv;
+        assertFiniteRayTrial(u, ordinal);
         if (u < 0 || u > 1) continue;
         const qx: number = sy * e1z - sz * e1y;
         const qy: number = sz * e1x - sx * e1z;
         const qz: number = sx * e1y - sy * e1x;
         const v: number = (dx * qx + dy * qy + dz * qz) * inv;
+        assertFiniteRayTrial(v, ordinal);
         if (v < 0 || u + v > 1) continue;
         const hit: number = (e2x * qx + e2y * qy + e2z * qz) * inv;
+        assertFiniteRayTrial(hit, ordinal);
         if (hit < minimumTravel || hit > best) continue;
         // Every admitted equal hit is visited, so the attributed triangle is
         // the lowest original ordinal and `best` keeps the raw computed zero.
@@ -225,6 +243,13 @@ export function createMeshRayCaster(
     ): boolean =>
       cast(origin, direction, maximum, minimum, true, options) !== null,
   };
+}
+
+function assertFiniteRayTrial(value: number, triangle: number): void {
+  if (!Number.isFinite(value))
+    throw new Error(
+      `Ray casting arithmetic must remain finite for triangle ${triangle}.`,
+    );
 }
 
 /*

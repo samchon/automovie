@@ -21,6 +21,10 @@ import { physicalMovingPair } from "../../internal/physicalMovingPair";
  *    miss, leaves it `authored`.
  * 2. A ball returning toward a kinematic sphere in its way is refused with
  *    "Physical return intersects receiver".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States that positive contact with the named receiver releases the whole body and that a blocked return fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves a kinematic strike and an otherwise identical sweep 3 m higher, then advances a separate sphere toward a blocking receiver.
+ * @evidence contracts/development/testing.md#independent-expectations The actual child strike makes the root dynamic at 0.5 s, the miss leaves it authored, and the blocked return identifies receiver intersection.
  */
 export async function test_engine_physics_physical_release_on_contact(): Promise<void> {
   // 1. A hit and a miss.

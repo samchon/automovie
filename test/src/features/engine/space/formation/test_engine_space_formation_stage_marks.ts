@@ -1,6 +1,7 @@
 import { AutoMovieEngineTransform, AutoMovieEnginePopulationFormation, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieFormationDesign,
+  IAutoMovieFormationSlotMotion,
   IAutoMovieFormationSlotPlacement,
   IAutoMovieFormationStageMarkSet,
   IAutoMovieVector3,
@@ -55,13 +56,12 @@ const second: IAutoMovieFormationStageMarkSet = {
  *    retains the last assigned facing when the next mark omits it.
  * 2. A late joiner, an unset slot and a separately rotated block keep their own
  *    rest placement.
- * 3. The resulting cues enter an ordinary shot. Invalid authored sets fail.
+ * 3. Compiled cues and raw shared-slot cues enter an ordinary shot. Invalid
+ *    slots fail through both compilation and raw cue admission.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The actual compiler feeds the member sampler and placement and the ordinary sparse shot cue admission. Interval holds, earlier and later performers, retained facing and refusal cases exercise the public entry.
- * @evidence contracts/development/testing.md#independent-expectations With a 90 degree unit yaw, authored local depth adds to world X and negative local lateral adds to world Z. The 2 m centered file spacing puts slot zero at local X -1 initially. Linear half time and quadratic ease-in half time give one-half and one-quarter progress. A second 90 degree yaw sends the first blocked slot one metre along block depth before applying the block translation.
- * @evidence contracts/development/testing.md#distinguishing-cases A rotated translated unit, a turned and displaced block, an unset member, a late joiner and a gap catch identity swaps, missing inverse rest placement and endpoint resets. Error cases distinguish repeated ids or slots, a negative/nonfinite window, overlapping starts, a missing slot, a hero slot and malformed coordinates or heading.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable CPU-only feature spec samples numeric placements without a human body, renderer, browser or artist tooling.
- * @evidence contracts/development/common.md#meaningful-documentation States the staged unit and which data the reference positions use.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes anchor-relative marks from slot displacement. Held marks, late assignments, block orientation and raw and compiled shot admission have separate cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles typed mark sets and places the resulting slots through the public formation pipeline. It checks compiled and independently authored cue admission, the actual reading of a valid shared cue, and located refusal of sparse or otherwise invalid raw slot lists. The compiler refusals include conflicting sets, promoted or malformed slots and non-finite coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations At 90-degree yaw the first mark lies at (14, 2, 22), the second at (16, 2, 23). Halfway time advances by one-half with linear easing and one-quarter with ease-in. A retained 45-degree offset gives facing 135 degrees. The raw group names only slots 0 and 2, and only those two read the destination. A unique safe integer below count is required for each slot.
  */
 export function test_engine_space_formation_stage_marks(): void {
   const motions = AutoMovieEnginePopulationFormation.compileFormationStageMarks(design, [first, second]);
@@ -160,31 +160,94 @@ export function test_engine_space_formation_stage_marks(): void {
       ),
   );
 
+  const admit = AutoMovieEngineValidation.validateAutoMovieFormationSlotMotions;
+  const shot: Parameters<typeof admit>[0] = {
+    id: "field",
+    durationSeconds: 8,
+    participants: [{ id: design.id, kind: "formation" }],
+  };
+  const formations: Parameters<typeof admit>[1]["formations"] = [
+    {
+      id: design.id,
+      count: design.count,
+      heroes: [
+        {
+          slot: 3,
+          actor: "leader",
+          transform: AutoMovieEngineTransform.identity(),
+        },
+      ],
+    },
+  ];
   TestValidator.equals(
     "ordinary shot cue admission",
-    AutoMovieEngineValidation.validateAutoMovieFormationSlotMotions(
-      {
-        id: "field",
-        durationSeconds: 8,
-        participants: [{ id: design.id, kind: "formation" }],
-      },
-      {
-        formations: [
-          {
-            id: design.id,
-            count: design.count,
-            heroes: [
-              { slot: 3, actor: "leader", transform: AutoMovieEngineTransform.identity() },
-            ],
-          },
-        ],
-        formationSlotMotions: motions,
-      },
-    ),
+    admit(shot, { formations, formationSlotMotions: motions }),
     [],
   );
+  const raw: IAutoMovieFormationSlotMotion = {
+    ...motions[0]!,
+    id: "group",
+    slots: [0, 2],
+  };
+  TestValidator.equals(
+    "a raw cue can name two unique anonymous slots",
+    admit(shot, { formations, formationSlotMotions: [raw] }),
+    [],
+  );
+  const read = (slot: number) =>
+    AutoMovieEnginePopulationFormation.sampleFormationSlotMotion(
+      [raw],
+      design.id,
+      slot,
+      raw.end,
+    );
+  TestValidator.predicate(
+    "the two named slots alone hold the authored destination",
+    read(0) === raw.to &&
+      read(2) === raw.to &&
+      vclose(read(1).offset, { x: 0, y: 0, z: 0 }, 0),
+  );
+  const sparse: number[] = [0];
+  sparse[2] = 2;
+  for (const slots of [
+    [0.5],
+    [NaN],
+    [Infinity],
+    [-1],
+    [design.count],
+    [0, 0],
+    [],
+    new Array<number>(1),
+    sparse,
+  ]) {
+    const diagnostics = admit(shot, {
+      formations,
+      formationSlotMotions: [{ ...raw, slots }],
+    });
+    TestValidator.predicate(
+      `raw cue slot refusal: ${slots.join(", ")}`,
+      diagnostics.length === 1 &&
+        diagnostics[0]!.category === "error" &&
+        diagnostics[0]!.target === "shot:field" &&
+        diagnostics[0]!.message.includes(
+          `formationSlotMotion:group.slots must name at least one unique safe integer slot inside 0..${design.count - 1}`,
+        ),
+    );
+  }
 
   const mark = first.marks[0]!;
+  for (const slot of [0.5, NaN]) {
+    let refused: boolean = false;
+    try {
+      AutoMovieEnginePopulationFormation.compileFormationStageMarks(design, [
+        { ...first, marks: [{ ...mark, slot }] },
+      ]);
+    } catch (error) {
+      refused =
+        error instanceof RangeError && error.message.includes("safe integer");
+    }
+    TestValidator.predicate(`malformed mark slot ${slot}`, refused);
+  }
   const refused: readonly IAutoMovieFormationStageMarkSet[][] = [
     [first, { ...second, id: first.id }],
     [{ ...first, start: -1 }],

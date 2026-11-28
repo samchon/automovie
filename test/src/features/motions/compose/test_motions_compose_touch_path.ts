@@ -35,6 +35,10 @@ const ROUNDING: number = 1e-12;
  * 2. A place straight ahead of the elbow on that region lies along the fallback.
  * 3. Reaching that same place points straight to it from the elbow; a place on the
  *    solved elbow points straight up.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names a tangent lay, degenerate fallback, direct reach and the on-elbow upward default.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanTouchPath lay and reach on a stored shoulder and fixed world targets, using one supplied elbow for the zero-length case.
+ * @evidence contracts/development/testing.md#independent-expectations Removing the +Z normal component from (0.2, 0.1, 0.3) gives the tangent (0.2, 0.1, 0), while direct reach keeps all three before normalization. A parallel tangent uses the literal fallback and zero reach uses +Y.
  */
 export async function test_motions_compose_touch_path(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

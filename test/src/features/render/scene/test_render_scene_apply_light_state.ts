@@ -26,6 +26,10 @@ const COPY_TOLERANCE: number = 0;
  *    half-angle as pi/6 radians. Its range is copied in metres.
  * 2. A point light copies its zero (unlimited) range and a rectangular light
  *    copies its independent width and height.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names copied position, linear color, angle and the dimensions of all three light kinds.
+ * @evidence contracts/development/testing.md#behavioral-verification Writes typed spot, point and area declarations through applyLightState and reads the actual Three.js fields for each.
+ * @evidence contracts/development/testing.md#independent-expectations Thirty degrees is π/6 radians. The remaining spot fields, the point's zero range and the panel's distinct width and height are literal fixture values, so an RGB conversion, unit conversion elsewhere or swapped dimensions would change the asserted fields.
  */
 export function test_render_scene_apply_light_state(): void {
   const common: IAutoMovieLightBase = {

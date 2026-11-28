@@ -26,6 +26,10 @@ import { nclose } from "../../internal/predicates";
  *    Verification rejects stale bytes and anchor coordinates.
  * 5. A source span too small to advance the global end does not own the left side
  *    of that endpoint.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify exact retimed seam ownership, overlap selection, start and end sides and malformed or stale versioned inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test prepares and queries a playback layout, resolves anchors and checks addresses and refusal. It varies occurrence, overlap and endpoint conditions and invokes separate admission and verification decisions.
+ * @evidence contracts/development/testing.md#independent-expectations The authored retimed join shares source second 0.3, even when a numeric sum rounds outward. Each dissolve occurrence has its own source clock. The first and last sequence boundaries have only one supported side, and an unrepresentable output extension cannot own a preceding side.
  */
 export function test_engine_film_motion_take_anchor(): void {
   const shot: IAutoMovieShot = {

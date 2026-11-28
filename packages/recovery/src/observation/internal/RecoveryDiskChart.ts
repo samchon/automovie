@@ -1,9 +1,12 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieRecoveryDirectedEdgeIncidence,
   IAutoMovieRecoveryDiskBoundaryPreparationOperation,
   IAutoMovieRecoveryDiskChart,
 } from "@automovie/interface";
 
+import { measureRecoveryChartFace } from "../../geometry/internal/measureRecoveryChartFace";
+import { prepareRecoveryChartIncidence } from "../../geometry/internal/prepareRecoveryChartIncidence";
 import { prepareRecoveryDiskBoundary } from "../../geometry/internal/prepareRecoveryDiskBoundary";
 
 /*
@@ -71,81 +74,57 @@ export function RecoveryDiskChart(
   if (
     input.boundaryCycle.length < 3 ||
     boundary.size !== input.boundaryCycle.length ||
-    input.boundaryCycle.some((id: number): boolean => id < 0 || id >= count)
+    input.boundaryCycle.some(
+      (id: number): boolean =>
+        !Number.isSafeInteger(id) || id < 0 || id >= count,
+    )
   )
     fail("one unrepeated complete boundary cycle is required");
-  type Edge = { a: number; b: number; face: number };
-  const edges: Map<string, Edge[]> = new Map(),
-    faces: Set<string> = new Set(),
-    used: Set<number> = new Set();
   const adjacent: number[][] = Array.from(input.triangles, (): number[] => []);
-  const links: Map<number, Set<number>>[] = Array.from(
-    input.verticesMm,
-    (): Map<number, Set<number>> => new Map(),
-  );
   const normal: (
-    a: Readonly<AutoMovieVector3Tuple>,
-    b: Readonly<AutoMovieVector3Tuple>,
-    c: Readonly<AutoMovieVector3Tuple>,
+    vertices: readonly Readonly<AutoMovieVector3Tuple>[],
+    triangle: readonly [number, number, number],
   ) => [number, number, number] = (
-    a: Readonly<AutoMovieVector3Tuple>,
-    b: Readonly<AutoMovieVector3Tuple>,
-    c: Readonly<AutoMovieVector3Tuple>,
+    vertices: readonly Readonly<AutoMovieVector3Tuple>[],
+    triangle: readonly [number, number, number],
   ): [number, number, number] => {
-    const u: number[] = b.map((x: number, k: number): number => x - a[k]!),
-      v: number[] = c.map((x: number, k: number): number => x - a[k]!);
-    const n: [number, number, number] = [
-      u[1]! * v[2]! - u[2]! * v[1]!,
-      u[2]! * v[0]! - u[0]! * v[2]!,
-      u[0]! * v[1]! - u[1]! * v[0]!,
-    ];
-    const length: number = Math.hypot(...n);
-    if (!(length > 0) || length === Infinity)
-      fail("a private triangle is degenerate or its normal is unrepresentable");
+    const { normal: n, length }: ReturnType<typeof measureRecoveryChartFace> =
+      measureRecoveryChartFace(
+        vertices,
+        triangle,
+        fail,
+        "a private triangle is degenerate or its normal is unrepresentable",
+        "private triangle addresses are invalid",
+      );
     return [n[0] / length, n[1] / length, n[2] / length];
   };
   const normals: Readonly<AutoMovieVector3Tuple>[] = [];
-  input.triangles.forEach(
-    (triangle: readonly [number, number, number], face: number): void => {
-      if (
-        triangle.length !== 3 ||
-        new Set(triangle).size !== 3 ||
-        triangle.some((id: number): boolean => id < 0 || id >= count)
-      )
-        fail("private triangle addresses are invalid");
-      const word: string = [...triangle]
-        .sort((a: number, b: number): number => a - b)
-        .join(":");
-      if (faces.has(word)) fail("duplicate private triangles are unsupported");
-      faces.add(word);
-      normals.push(
-        normal(
-          input.verticesMm[triangle[0]]!,
-          input.verticesMm[triangle[1]]!,
-          input.verticesMm[triangle[2]]!,
-        ),
-      );
-      for (let k: number = 0; k < 3; k++) {
-        const a: number = triangle[k]!,
-          b: number = triangle[(k + 1) % 3]!,
-          c: number = triangle[(k + 2) % 3]!;
-        used.add(a);
-        const key: string = edgeKey(a, b),
-          rows: Edge[] = edges.get(key) ?? [];
-        rows.push({ a, b, face });
-        edges.set(key, rows);
-        for (const [x, y] of [
-          [b, c],
-          [c, b],
-        ]) {
-          const neighbors: Set<number> = links[a]!.get(x) ?? new Set();
-          neighbors.add(y);
-          links[a]!.set(x, neighbors);
-        }
-      }
-    },
-  );
-  if (used.size !== count)
+  const { edges, links }: ReturnType<typeof prepareRecoveryChartIncidence> =
+    prepareRecoveryChartIncidence({
+      vertices: input.verticesMm,
+      triangles: input.triangles,
+      edgeKey,
+      fail,
+      invalidArea:
+        "a private triangle is degenerate or its normal is unrepresentable",
+      invalidAddress: "private triangle addresses are invalid",
+      duplicate: "duplicate private triangles are unsupported",
+      onFace: (
+        _face: number,
+        _triangle: readonly [number, number, number],
+        {
+          normal: direction,
+          length,
+        }: ReturnType<typeof measureRecoveryChartFace>,
+      ): void => {
+        normals.push([
+          direction[0] / length,
+          direction[1] / length,
+          direction[2] / length,
+        ]);
+      },
+    });
+  if (links.some((link: Map<number, Set<number>>): boolean => link.size === 0))
     fail("unused vertices do not belong to the supplied disk");
   let boundaryEdges: number = 0;
   for (const rows of edges.values()) {
@@ -169,7 +148,9 @@ export function RecoveryDiskChart(
   for (let i: number = 0; i < input.boundaryCycle.length; i++) {
     const a: number = input.boundaryCycle[i]!,
       b: number = input.boundaryCycle[(i + 1) % input.boundaryCycle.length]!,
-      rows: Edge[] | undefined = edges.get(edgeKey(a, b));
+      rows: IAutoMovieRecoveryDirectedEdgeIncidence[] | undefined = edges.get(
+        edgeKey(a, b),
+      );
     if (rows?.length !== 1 || rows[0]!.a !== a || rows[0]!.b !== b)
       fail(
         "the supplied boundary disagrees with coherent source triangle incidence",
@@ -346,11 +327,7 @@ export function RecoveryDiskChart(
         );
       }
       for (const child of children) {
-        const n: Readonly<AutoMovieVector3Tuple> = normal(
-          verticesMm[child[0]]!,
-          verticesMm[child[1]]!,
-          verticesMm[child[2]]!,
-        );
+        const n: Readonly<AutoMovieVector3Tuple> = normal(verticesMm, child);
         if (
           !(
             n.reduce(

@@ -1,7 +1,10 @@
 import type { IAutoMovieHumanAtlantoOccipitalPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanAtlantoOccipitalPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Skull-to-atlas nod and tilt in degrees from neutral. Positive flexion brings
+ * the chin inward. Positive lateral flexion tilts toward the person's left.
+ */
 export type IAutoMovieHumanAtlantoOccipitalPoseSchema =
   IAutoMovieHumanAtlantoOccipitalPose & {
     /** Nod: chin-in flexion 10, chin-up extension 15. */

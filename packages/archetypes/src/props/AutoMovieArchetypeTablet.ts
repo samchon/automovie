@@ -1,19 +1,20 @@
 import type { AutoMovieArchetype } from "../core";
 import { HandheldDevice } from "./internal/HandheldDevice";
 
-/** The canonical producer and authoring contract for an upright tablet. */
+/**
+ * Constructs an upright iPad-sized case with a front screen and full-height rear grasp.
+ */
 export namespace AutoMovieArchetypeTablet {
   /**
-   * An upright tablet with a full-height grasp and a front touchscreen.
+   * Build the tablet resting on its bottom edge with `screen` facing model `+Z`.
    *
-   * The model stands on its bottom edge at the origin with its front toward `+Z`.
+   * Both catalogue configurations use a 179.5 by 248.6 by 7 millimetre body.
+   * The rear grip is centred through the thickness and spans the full height.
    *
-   * @param params The identifier and a choice among this device's measured
-   *   models.
-   * @param seed The seed for the device's remaining choices.
-   * @returns The device and its named contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer
-   *   input.
+   * @param params Optional scene ID and model. The ID defaults to `device`.
+   * @param seed Numeric seed for an omitted model. Omit it for `wifi`.
+   * @returns The tablet slab and its rear `grip` and full-face `screen`.
+   * @throws {AutoMovieArchetypeRefusal} If the catalogue model is unavailable.
    */
   export function create(
     params: AutoMovieArchetypeTablet.IParams = {},
@@ -26,21 +27,24 @@ export namespace AutoMovieArchetypeTablet {
   }
 
   /* The parameters and affordance identifiers of {@link AutoMovieArchetypeTablet}. */
-  /** The `model` choices this producer admits. */
+  /** Wi-Fi and cellular configurations of the recorded 10th-generation iPad. */
   export type Model = "wifi" | "cellular";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Catalogue case width, height and thickness in metres, and configuration mass in kilograms.
    */
   export type Dimension = "height" | "mass" | "thickness" | "width";
 
-  /** The identifiers of contacts built by this producer. */
+  /**
+   * Centred full-height rear `grip` and the front `screen` covering the case face.
+   */
   export type Affordance = "grip" | "screen";
 
-  /** Parameters for this tablet. */
+  /** Optional scene ID and Wi-Fi or cellular configuration. */
   export interface IParams extends Pick<HandheldDevice.IParams, "id"> {
-    /** The manufacturer model, drawn from the seed when absent. */
+    /**
+     * Selects the dimension and mass record. Defaults to `wifi` without a seed.
+     */
     model?: Model;
   }
 }

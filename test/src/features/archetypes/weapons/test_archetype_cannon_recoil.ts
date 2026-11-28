@@ -29,11 +29,9 @@ const FT: number = 0.3048;
  *    collapses are refused. Endpoint playback itself can drive the
  *    articulation, exactly at its bound.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the track over its span and poses the gun at its end; a track that does not stop at the run, moves backward, depends on anything but the shot's second, or a gun that does not move with it is caught.
- * @evidence contracts/development/testing.md#independent-expectations The shot's mass and speed are the 1861 manual's, written here; the start speed and duration are worked from them by momentum and even slowing.
- * @evidence contracts/development/testing.md#distinguishing-cases Four seeds across the recoil band, two shot seconds, a refused kind, non-finite times and both signs of an unrepresentably large start, and direct endpoint playback through articulate.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists all six scenarios, the recoil derivation, invalid-time decisions and actual endpoint playback.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the generated translation track, the authored event time, held endpoints and posed model at the final sample.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the public in-memory track across its interval and measures the actual final model translation. It checks that varying the authored event time shifts the track consistently.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture holds its event and motion inputs fixed while changing sample time. The stated ideal translation law gives independent end displacement and duration expectations.
  */
 export function test_archetype_cannon_recoil(): void {
   const findings: string[] = [];

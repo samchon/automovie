@@ -8,16 +8,18 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The `stopDropRoll` law's timetable (`stopDropRollTimeline`): stopped 0.3 s,
- * dropped over the collapse's own length, then rolled onto a side and back 0.9
- * s per roll, four rolls by default.
+ * Check the stop, drop and repeated roll timetable.
  *
  * Scenarios:
  *
- * 1. After a 1.2 s drop, two rolls end at 0.3 + 1.2 + 1.8 = 3.3 s, the drop cued
- *    at 0.3 s and the body down at 1.5 s.
- * 2. With no count it rolls four times, 5.1 s in all.
- * 3. Rolls rounding to none are refused.
+ * 1. With a 1.2 s drop and two rolls, cue the drop at 0.3 s and the floor
+ *    arrival at 1.5 s. End at 3.3 s.
+ * 2. With no count, use four rolls and end at 5.1 s. Refuse a count of 0.2,
+ *    which rounds to zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the stop and arrival cues and explicit, default and refused counts.
+ * @evidence contracts/development/testing.md#behavioral-verification The test checks cue shares in film seconds, explicit and default roll counts and count admission.
+ * @evidence contracts/development/testing.md#independent-expectations The totals use a 0.3 s stop plus the authored 1.2 s drop and either two or four rolls at 0.9 s each.
  */
 export function test_motions_reaction_stop_drop_roll(): void {
   const two: stopDropRollTimeline.ITimeline = stopDropRollTimeline(2, 1.2);

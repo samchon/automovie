@@ -1,16 +1,16 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-/**
- * Declares that no narrative layer is checked, for a screenplay no narrative
- * pass writes.
- */
+/** Selects native claims for a screenplay supplied directly to production. */
 export interface IAutoMovieEvidenceNoNarrativeProps {
   /**
-   * Checks no narrative layer; with an enabled composition stage, the
-   * composition and entities must realize every instruction section instead.
+   * Skips narrative layer checks. Enabled composition checks account for the
+   * direct production instructions when that directory is present.
    */
   mode: "none";
 
-  /** Additional native claims for the production's actual respondents. */
+  /** Leaves narrative scope absent because this route authors no layers. */
+  scope?: never;
+
+  /** Adds native claims after the engineering and development claims. */
   claims?: IEvidenceClaim[];
 }

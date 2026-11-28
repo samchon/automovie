@@ -20,6 +20,10 @@ import { createFilmGrammarCase } from "../../internal/createFilmGrammarCase";
  *    findings.
  * 4. Recovery names the axis-cross intent, which suppresses that finding and is
  *    exercised.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify hidden crossing, visible crossing, a neutral intermediary, rotated axes and the precise allowed intent.
+ * @evidence contracts/development/testing.md#behavioral-verification The test reads grammar from the supplied outgoing and incoming camera observations and compares axis findings across on-screen, hidden and declared variants.
+ * @evidence contracts/development/testing.md#independent-expectations The two sides of the authored opposing plane are known independently from the subjects and cameras. A visible traversal, neutral bridge or changed subject pair alters that premise. Merely reversing collection order does not change the geographic relation.
  */
 export function test_engine_film_grammar_axis(): void {
   const {

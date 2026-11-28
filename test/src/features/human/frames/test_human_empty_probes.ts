@@ -40,9 +40,7 @@ import { vclose } from "../../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanEmptyProbes.between`, `middle` and `list` on made and stored families. It catches a probe placed between walls too close for the skin's chords, a probe off the walls' midpoint, a cutter probe off its course's middle, and a listing that misses or repeats a probe or invents a lip gap; it allows any wall gap at or above the required one.
  * @evidence contracts/development/testing.md#independent-expectations The wall points, gaps and phase count follow in closed form from the made circles and courses stated above; the f1 names follow from the stored cutters' mirroring and the four fingers' order.
- * @evidence contracts/development/testing.md#distinguishing-cases A gap above and one below the requirement on the same families, a cutter, and the whole f1 listing. The capture's skin and hull checks belong to the Human capture's inspection, which this unit test does not run.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made and stored families; no person, skin or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and its expectation.
+ * @evidence contracts/development/common.md#meaningful-documentation An available wall gap, a too-small gap, a cutter midpoint and the stored list exercise placed and refused probe records.
  */
 export function test_human_empty_probes(): void {
   const failures: string[] = [];

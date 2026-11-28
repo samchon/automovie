@@ -8,6 +8,7 @@ import { expandInspectionSweep as expandInspectionSweepImplementation } from "./
 import { legendInspectionMarks as legendInspectionMarksImplementation } from "./inspection/internal/legendInspectionMarks";
 import { mergeInspectionLegends as mergeInspectionLegendsImplementation } from "./inspection/internal/mergeInspectionLegends";
 import { reduceInspectionEpisodes as reduceInspectionEpisodesImplementation } from "./inspection/internal/reduceInspectionEpisodes";
+import { selectInspectionDiagnostics } from "./inspection/internal/selectInspectionDiagnostics";
 
 /** Public operations for Auto Movie Render Inspection Marks. */
 export namespace AutoMovieRenderInspectionMarks {
@@ -134,6 +135,63 @@ export namespace AutoMovieRenderInspectionMarks {
    */
   export function mergeLegends(legends: readonly (readonly IAutoMovieInspectionLegendEntry[])[]): IAutoMovieInspectionLegendEntry[] {
     return mergeInspectionLegendsImplementation(legends);
+  }
+
+  /** Source diagnostics and optional filters for a selected display. */
+  export interface ISelectDiagnosticsProps {
+    /** Complete observations obtained from the placed or retained source. */
+    readonly observations: IAutoMovieInspectionDiagnostics.IObservations;
+    /**
+     * Canonical roots of the entities being inspected. A row must name every
+     * supplied root or a descendant of it. An empty list matches all paths.
+     */
+    readonly paths: readonly string[];
+    /** Limit results to this source occurrence when supplied. */
+    readonly scope?: string;
+    /** Limit results to the checker with this exact name when supplied. */
+    readonly check?: string;
+    /** Limit results to this exact checker-owned obligation key when supplied. */
+    readonly key?: string;
+  }
+
+  /** One selected source coverage range and its observed classification. */
+  export interface ISelectedCoverage {
+    /** Original range and checker policy, including the retained reason. */
+    readonly range: IAutoMovieInspectionDiagnostics.ICoverageRange;
+    /**
+     * The recorded outcome. A checked row says whether the supplied
+     * observations also contain a matching finding for its scoped obligation.
+     */
+    readonly status:
+      | Exclude<IAutoMovieInspectionDiagnostics.ICoverage["status"], "checked">
+      | "checked-clear"
+      | "checked-with-findings";
+  }
+
+  /** Original records matched for display, with source totals. */
+  export interface ISelectedDiagnostics {
+    /** Matching coverage ranges. Empty means the selection has no recorded coverage. */
+    readonly coverage: readonly ISelectedCoverage[];
+    /** Matching original episodes and their exact first and worst witnesses. */
+    readonly episodes: readonly IAutoMovieInspectionDiagnostics.IEpisode[];
+    /** Count of coverage ranges before applying the selection. */
+    readonly totalCoverage: number;
+    /** Count of finding episodes before applying the selection. */
+    readonly totalEpisodes: number;
+  }
+
+  /**
+   * Select the original coverage and findings for named scene paths.
+   * Select each path root on an exact segment boundary. A path query includes
+   * only coverage the producer addressed. Layer-wide and older unlocated
+   * coverage can be read by their checker and key without path selection.
+   *
+   * This reads retained facts. A checked-clear row means the input has a
+   * checked result with no matched finding for that obligation in that scope.
+   * The function does not fill time gaps or change the source audit.
+   */
+  export function selectDiagnostics(props: ISelectDiagnosticsProps): ISelectedDiagnostics {
+    return selectInspectionDiagnostics(props);
   }
 
   /**

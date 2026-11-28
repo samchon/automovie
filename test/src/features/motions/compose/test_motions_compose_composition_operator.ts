@@ -34,6 +34,10 @@ import { nclose } from "../../internal/nclose";
  *    both normal return and an inner owned exception.
  * 4. A failed outer write publishes no partial result to the next query. A reader
  *    retained by a throwing prepare also leaves no active scope.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names temporary before-query scopes, same-query prefix reuse, fresh retained readers, reentrant restoration and failure cleanup.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes a synthetic base with two counted primitive callbacks, then drives prepare, public posture, reentrant posture and retained reads with controlled exceptions.
+ * @evidence contracts/development/testing.md#independent-expectations The base pitch is 10t and each trunk write adds 1, so two reads of that prefix give head flexion 20t + 2. Authored call sequences prescribe exact callback counts across successful, nested and failed queries.
  */
 export function test_motions_compose_composition_operator(): void {
   const failures: string[] = [];

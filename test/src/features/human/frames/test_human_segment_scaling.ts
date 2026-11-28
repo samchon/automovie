@@ -30,9 +30,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production chain edit, spread and f1 length binding and composes their frames with the production composer.
  * @evidence contracts/development/testing.md#independent-expectations Every expected origin is the made chain's closed form; f1's moves are a tenth of a stored offset rotated by the stored humerus frame.
- * @evidence contracts/development/testing.md#distinguishing-cases A scaled run beside translated ones, the twin, both identities, three refused defects and f1's identity beside an edited length, all findings collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made joints and the stored table; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and expected point.
+ * @evidence contracts/development/common.md#meaningful-documentation The synthetic chain checks selected length edits, inherited world movement, reflection, unit identity, axial spreading and malformed operations. Stored lengths add named controls.
  */
 export function test_human_segment_scaling(): void {
   const failures: string[] = [];

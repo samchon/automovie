@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    interval and a non-positive count or rate are each refused.
  * 3. One tick on a 1/1 time base covers one frame at 1 fps. An unsafe ratio whose
  *    terms both round to the same number cannot establish that interval.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Audits decoded frame intervals and repeated images on the commissioned rational clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the frame-CRC parser on exact fixture rows and separate missing, malformed, excess, off-grid and unsafe-clock cases.
+ * @evidence contracts/development/testing.md#independent-expectations Three consecutive ticks at 24 fps give 0.125 seconds, and repeated fixture CRCs locate the repeat. A one-tick clock and an unsafe ratio distinguish exact arithmetic from rounded equality.
  */
 export function test_render_delivery_audit_decoded_frames(): void {
   const a: string = "a".repeat(32);

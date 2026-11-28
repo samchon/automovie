@@ -12,6 +12,9 @@ export function requiredRecoveryCameraTrials(
   confidence: number,
 ): number {
   if (
+    !Number.isSafeInteger(population) ||
+    !Number.isSafeInteger(inliers) ||
+    !Number.isSafeInteger(sampleSize) ||
     population < 0 ||
     inliers < 0 ||
     inliers > population ||

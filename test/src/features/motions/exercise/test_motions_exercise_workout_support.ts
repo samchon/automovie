@@ -48,6 +48,10 @@ function affordance(
  * 1. The top lies at (1.3, 0.45, 2), read at the start, 2.5 s.
  * 2. The bars' middle lies at (1, 1, 2).
  * 3. A seat the bench does not have is refused, naming its affordances.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Workout support resolves a named affordance in the bench's frame at action start and can midpoint two grips.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the support reader on one rotated bench, two named bars, and an absent affordance.
+ * @evidence contracts/development/testing.md#independent-expectations Rotating and translating the given points gives their world positions and midpoint. The read log fixes the action-start time, and the absent affordance must list the available names.
  */
 export function test_motions_exercise_workout_support(): void {
   const frame: IAutoMovieRigidTransform = {

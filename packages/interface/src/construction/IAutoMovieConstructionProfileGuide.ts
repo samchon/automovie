@@ -1,18 +1,15 @@
 /**
- * A named locus at one original clock value along a profile piece.
- *
- * Piece names an existing family piece; clock uses that original curve's
- * parameter and lies in its retained interval. Profile preparation resolves the
- * source, so the guide follows the original station-varying curve rather than
- * an observed display polyline.
+ * Named guide at an original clock value on one retained piece. Use the source
+ * curve's clock units and keep the value inside that piece's declared
+ * interval.
  */
 export interface IAutoMovieConstructionProfileGuide {
-  /** Guide identity used by source constraints and editor selections. */
+  /** Stable guide identity unique within the profile family. */
   id: string;
 
-  /** Existing piece identity. */
+  /** ID of the retained source piece carrying this guide. */
   piece: string;
 
-  /** Fixed original clock inside that piece's interval, in the owner's units. */
+  /** Original curve parameter in the piece interval, in that curve's units. */
   clock: number;
 }

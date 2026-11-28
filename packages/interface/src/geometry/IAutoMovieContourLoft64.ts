@@ -59,29 +59,7 @@ export namespace IAutoMovieContourLoft64 {
     /** Exact next saved-section coordinate in millimetres. */
     afterMm: number;
     /** Complete, disjoint partition of both saved loop lists. */
-    groups: readonly {
-      /**
-       * Zero-based loop ordinals in the section at beforeMm; each loop occurs
-       * in exactly one group across this interval.
-       */
-      before: readonly number[];
-      /**
-       * Zero-based loop ordinals in the section at afterMm, partitioned by the
-       * same incidence groups.
-       */
-      after: readonly number[];
-      /**
-       * Whether the observation producer establishes this group's continuation;
-       * false preserves a local gap and never requests nearest-loop
-       * replacement.
-       */
-      supported: boolean;
-      /**
-       * Producer's unsupported-incidence explanation, or null when none is
-       * supplied; the flag remains the support decision.
-       */
-      reason: string | null;
-    }[];
+    groups: readonly IIncidenceGroup[];
   }
 
   /**
@@ -96,18 +74,7 @@ export namespace IAutoMovieContourLoft64 {
      * Curves with source-independent orientation labels; negative winding
      * denotes a cavity boundary.
      */
-    loops: readonly {
-      /**
-       * Complete generating cubic curve in the common section chart,
-       * millimetres; ownership is independent of source mesh addresses.
-       */
-      curve: IAutoMovieCubicBezierCurve64;
-      /**
-       * Positive outer-boundary or negative cavity orientation in the section's
-       * declared cutting-plane frame.
-       */
-      winding: 1 | -1;
-    }[];
+    loops: readonly ISectionLoop[];
   }
 
   /**
@@ -163,37 +130,7 @@ export namespace IAutoMovieContourLoft64 {
      * kernel did not publish ownership; it never authorizes inferred
      * attribution.
      */
-    primitiveRanges?: {
-      /**
-       * Zero-based first retained triangle in mesh.indices, measured in
-       * triangles rather than scalar index entries.
-       */
-      firstTriangle: number;
-      /**
-       * Number of consecutively retained triangles belonging to this
-       * source-free incidence group.
-       */
-      triangleCount: number;
-      /** Lower saved cut coordinate of the owning interval, millimetres. */
-      beforeMm: number;
-      /** Upper saved cut coordinate of the owning interval, millimetres. */
-      afterMm: number;
-      /**
-       * Zero-based independently emitted incidence-group ordinal within this
-       * interval.
-       */
-      group: number;
-      /**
-       * Strip joins two incident boundaries; cap belongs to an explicitly
-       * declared regular extremum terminal.
-       */
-      kind: "strip" | "cap";
-      /**
-       * Declared critical-event identities attributed to these retained
-       * triangles; empty means no named event attribution.
-       */
-      eventNames: string[];
-    }[];
+    primitiveRanges?: IPrimitiveRange[];
     /**
      * Pass-local source-leaf interaction work before shared-boundary emission.
      * Refinements count contact-driven leaf splits; chordPairs and
@@ -201,102 +138,14 @@ export namespace IAutoMovieContourLoft64 {
      * calls. Timing is null without observeWork. Pass qualification is separate
      * from retained historical diagnostics.
      */
-    interactionObservations?: {
-      /** Lower saved cut coordinate for this interaction pass, millimetres. */
-      beforeMm: number;
-      /** Upper saved cut coordinate for this interaction pass, millimetres. */
-      afterMm: number;
-      /**
-       * Zero-based incidence group whose source-leaf interactions were
-       * inspected.
-       */
-      group: number;
-      /**
-       * Producer's pass ordinal for this group's contact-driven refinement
-       * work.
-       */
-      pass: number;
-      /**
-       * Which saved section supplied the boundary leaves inspected in this
-       * pass.
-       */
-      side: "before" | "after";
-      /**
-       * Whether this pass's interaction checks succeeded; older diagnostics may
-       * remain even after a qualified pass.
-       */
-      qualified: boolean;
-      /** Number of actual contact-driven source-leaf splits in this pass. */
-      refinements: number;
-      /**
-       * Number of chord pairs actually visited by this pass, not the
-       * Cartesian-product population.
-       */
-      chordPairs: number;
-      /** Number of exact determinant calls made while qualifying this pass. */
-      exactOrientationTests: number;
-      /**
-       * Observed wall-clock duration in milliseconds, or null when observeWork
-       * was omitted or false.
-       */
-      elapsedMs: number | null;
-      /**
-       * Ordered local interaction qualifications and failure explanations;
-       * empty means no diagnostics were published for the pass.
-       */
-      diagnostics: string[];
-    }[];
+    interactionObservations?: IInteractionObservation[];
     /**
      * Source-free strip qualification and work observations. A finite emitted
      * candidate remains displayable when topology/link/orientation
      * qualification fails; qualified does not certify injectivity, C1 or visual
      * quality. Timing is null unless observeWork was requested.
      */
-    stripObservations?: {
-      /** Lower saved cut coordinate of the strip interval, millimetres. */
-      beforeMm: number;
-      /** Upper saved cut coordinate of the strip interval, millimetres. */
-      afterMm: number;
-      /** Ordinal of the independently emitted group in this interval. */
-      group: number;
-      /**
-       * First oriented input-walk node count after slit expansion, including
-       * repeated sheet occurrences.
-       */
-      n: number;
-      /** Second oriented input-walk node count under the same convention. */
-      m: number;
-      /**
-       * Four-state DP solves for distinct forbidden-transition conditions,
-       * including infeasible solves.
-       */
-      dpCalls: number;
-      /**
-       * Popped candidates that failed qualification and generated alternative
-       * branches.
-       */
-      expandedConflicts: number;
-      /**
-       * Maximum queued feasible candidates, excluding the currently popped
-       * candidate.
-       */
-      peakQueue: number;
-      /**
-       * Actual strip admission, construction, search and emission time,
-       * milliseconds; null without explicit observeWork.
-       */
-      elapsedMs: number | null;
-      /**
-       * Whether the emitted candidate passed the strip topology, link and
-       * orientation checks; not an injectivity or C1 certificate.
-       */
-      qualified: boolean;
-      /**
-       * Local strip-search and qualification explanations; finite emitted
-       * candidates can coexist with failed qualification.
-       */
-      diagnostics: string[];
-    }[];
+    stripObservations?: IStripObservation[];
 
     /**
      * Engine-generated indexed geometry in metres. Normals derive from its
@@ -309,57 +158,225 @@ export namespace IAutoMovieContourLoft64 {
      * Actual evaluated section curves, in metres, retaining their own sheet
      * identities.
      */
-    construction: {
-      /**
-       * Producer-assigned identity of this evaluated section boundary,
-       * independent of source mesh vertex indices.
-       */
-      id: string;
-      /**
-       * The evaluated construction is a closed section boundary; this literal
-       * does not imply a closed final mesh.
-       */
-      closed: true;
-      /**
-       * Evaluated section points in world metres and boundary order, preserving
-       * separate sheet occurrences.
-       */
-      points: [number, number, number][];
-      /**
-       * Original generating curve parameters aligned with points, when
-       * published. Reversed winding may decrease this sequence; constant trace
-       * quotients preserve phase gaps. These are not measured arc lengths.
-       */
-      phases?: number[];
-    }[];
+    construction: IConstructionBoundary[];
 
     /**
      * Boundaries for which the declared event relationships did not establish a
      * valid closure.
      */
-    unresolved: {
-      /**
-       * Lower saved cut coordinate bounding the unresolved relationship,
-       * millimetres.
-       */
-      beforeMm: number;
-      /**
-       * Upper saved cut coordinate bounding the unresolved relationship,
-       * millimetres.
-       */
-      afterMm: number;
-      /**
-       * Number of incident contours on the lower side of the unresolved
-       * relationship.
-       */
-      incoming: number;
-      /**
-       * Number of incident contours on the upper side of the unresolved
-       * relationship.
-       */
-      outgoing: number;
-      /** Explicit unsupported relationship or arithmetic reason, when available. */
-      reason?: string;
-    }[];
+    unresolved: IUnresolvedRelationship[];
   }
+
+  /** Partition the loop ordinals that continue across one saved cut interval. */
+  export type IIncidenceGroup = {
+    /**
+     * Zero-based loop ordinals in the section at beforeMm; each loop occurs in
+     * exactly one group across this interval.
+     */
+    before: readonly number[];
+    /**
+     * Zero-based loop ordinals in the section at afterMm, partitioned by the
+     * same incidence groups.
+     */
+    after: readonly number[];
+    /**
+     * Whether the observation producer establishes this group's continuation;
+     * false preserves a local gap and never requests nearest-loop replacement.
+     */
+    supported: boolean;
+    /**
+     * Producer's unsupported-incidence explanation, or null when none is
+     * supplied; the flag remains the support decision.
+     */
+    reason: string | null;
+  };
+
+  /** An oriented cubic boundary in a saved section's millimetre chart. */
+  export type ISectionLoop = {
+    /**
+     * Complete generating cubic curve in the common section chart, millimetres;
+     * ownership is independent of source mesh addresses.
+     */
+    curve: IAutoMovieCubicBezierCurve64;
+    /**
+     * Positive outer-boundary or negative cavity orientation in the section's
+     * declared cutting-plane frame.
+     */
+    winding: 1 | -1;
+  };
+
+  /**
+   * Attribute consecutive retained triangles to a cut interval and incidence
+   * group.
+   */
+  export type IPrimitiveRange = {
+    /**
+     * Zero-based first retained triangle in mesh.indices, measured in triangles
+     * rather than scalar index entries.
+     */
+    firstTriangle: number;
+    /**
+     * Number of consecutively retained triangles belonging to this source-free
+     * incidence group.
+     */
+    triangleCount: number;
+    /** Lower saved cut coordinate of the owning interval, millimetres. */
+    beforeMm: number;
+    /** Upper saved cut coordinate of the owning interval, millimetres. */
+    afterMm: number;
+    /**
+     * Zero-based independently emitted incidence-group ordinal within this
+     * interval.
+     */
+    group: number;
+    /**
+     * Strip joins two incident boundaries; cap belongs to an explicitly
+     * declared regular extremum terminal.
+     */
+    kind: "strip" | "cap";
+    /**
+     * Declared critical-event identities attributed to these retained
+     * triangles; empty means no named event attribution.
+     */
+    eventNames: string[];
+  };
+
+  /**
+   * Record one pass inspecting the lower or upper side of a boundary
+   * interaction.
+   */
+  export type IInteractionObservation = {
+    /** Lower saved cut coordinate for this interaction pass, millimetres. */
+    beforeMm: number;
+    /** Upper saved cut coordinate for this interaction pass, millimetres. */
+    afterMm: number;
+    /** Zero-based incidence group whose source-leaf interactions were inspected. */
+    group: number;
+    /** Producer's pass ordinal for this group's contact-driven refinement work. */
+    pass: number;
+    /** Which saved section supplied the boundary leaves inspected in this pass. */
+    side: "before" | "after";
+    /**
+     * Whether this pass's interaction checks succeeded; older diagnostics may
+     * remain even after a qualified pass.
+     */
+    qualified: boolean;
+    /** Number of actual contact-driven source-leaf splits in this pass. */
+    refinements: number;
+    /**
+     * Number of chord pairs actually visited by this pass, not the
+     * Cartesian-product population.
+     */
+    chordPairs: number;
+    /** Number of exact determinant calls made while qualifying this pass. */
+    exactOrientationTests: number;
+    /**
+     * Observed wall-clock duration in milliseconds, or null when observeWork
+     * was omitted or false.
+     */
+    elapsedMs: number | null;
+    /**
+     * Ordered local interaction qualifications and failure explanations; empty
+     * means no diagnostics were published for the pass.
+     */
+    diagnostics: string[];
+  };
+
+  /** Record the search work and qualification for one strip group. */
+  export type IStripObservation = {
+    /** Lower saved cut coordinate of the strip interval, millimetres. */
+    beforeMm: number;
+    /** Upper saved cut coordinate of the strip interval, millimetres. */
+    afterMm: number;
+    /** Ordinal of the independently emitted group in this interval. */
+    group: number;
+    /**
+     * First oriented input-walk node count after slit expansion, including
+     * repeated sheet occurrences.
+     */
+    n: number;
+    /** Second oriented input-walk node count under the same convention. */
+    m: number;
+    /**
+     * Four-state DP solves for distinct forbidden-transition conditions,
+     * including infeasible solves.
+     */
+    dpCalls: number;
+    /**
+     * Popped candidates that failed qualification and generated alternative
+     * branches.
+     */
+    expandedConflicts: number;
+    /**
+     * Maximum queued feasible candidates, excluding the currently popped
+     * candidate.
+     */
+    peakQueue: number;
+    /**
+     * Actual strip admission, construction, search and emission time,
+     * milliseconds; null without explicit observeWork.
+     */
+    elapsedMs: number | null;
+    /**
+     * Whether the emitted candidate passed the strip topology, link and
+     * orientation checks; not an injectivity or C1 certificate.
+     */
+    qualified: boolean;
+    /**
+     * Local strip-search and qualification explanations; finite emitted
+     * candidates can coexist with failed qualification.
+     */
+    diagnostics: string[];
+  };
+
+  /** Publish a closed evaluated section boundary and its aligned source phases. */
+  export type IConstructionBoundary = {
+    /**
+     * Producer-assigned identity of this evaluated section boundary,
+     * independent of source mesh vertex indices.
+     */
+    id: string;
+    /**
+     * The evaluated construction is a closed section boundary; this literal
+     * does not imply a closed final mesh.
+     */
+    closed: true;
+    /**
+     * Evaluated section points in world metres and boundary order, preserving
+     * separate sheet occurrences.
+     */
+    points: [number, number, number][];
+    /**
+     * Original generating curve parameters aligned with points, when published.
+     * Reversed winding may decrease this sequence; constant trace quotients
+     * preserve phase gaps. These are not measured arc lengths.
+     */
+    phases?: number[];
+  };
+
+  /** Describe an unsupported relationship between saved cuts. */
+  export type IUnresolvedRelationship = {
+    /**
+     * Lower saved cut coordinate bounding the unresolved relationship,
+     * millimetres.
+     */
+    beforeMm: number;
+    /**
+     * Upper saved cut coordinate bounding the unresolved relationship,
+     * millimetres.
+     */
+    afterMm: number;
+    /**
+     * Number of incident contours on the lower side of the unresolved
+     * relationship.
+     */
+    incoming: number;
+    /**
+     * Number of incident contours on the upper side of the unresolved
+     * relationship.
+     */
+    outgoing: number;
+    /** Explicit unsupported relationship or arithmetic reason, when available. */
+    reason?: string;
+  };
 }

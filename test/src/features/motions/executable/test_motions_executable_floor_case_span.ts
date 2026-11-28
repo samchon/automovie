@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. -5 to 10 mm passes and reads in millimetres.
  * 2. -10 to 15 mm, on both bounds, passes.
  * 3. -11 mm, or 16 mm, fails.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the closed millimetre interval for classifying displayed floor heights.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the verdict on an interior span, the exact lower and upper bounds and just outside each side.
+ * @evidence contracts/development/testing.md#independent-expectations Height limits −10 and +15 mm admit endpoints. −11 and +16 mm independently distinguish refused below-floor and above-floor measurements.
  */
 export function test_motions_executable_floor_case_span(): void {
   TestValidator.equals(

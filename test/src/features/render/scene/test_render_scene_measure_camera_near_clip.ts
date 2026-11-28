@@ -17,6 +17,10 @@ const DEPTH_TOLERANCE: number = 1e-6;
  * 3. A budget of no triangles is over budget once triangles must be examined, as
  *    in the clipped camera; a negative budget and a refused
  *    subject are unmeasured.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The camera cases state near-plane distance, subject location, triangle budgets, and refused subject geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that a far cube stays clear, a nearby face is clipped by the measured depth, and unsupported geometry or invalid budgets prevent measurement.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the difference between a 0.1 m near plane and a 0.05 m camera-to-face distance to expect a 0.05 m clipped depth.
  */
 export function test_render_scene_measure_camera_near_clip(): void {
   const cube: THREE.Mesh = new THREE.Mesh(

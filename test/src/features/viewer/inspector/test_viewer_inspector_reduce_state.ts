@@ -25,6 +25,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A subject is set and cleared.
  * 6. Text that does not read keeps the request and records an error; a restore
  *    sets both.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists selection, visibility, color, view, time, finding location and subject transitions.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes the public reducer successive action records and compares resulting request fields or identity at the point each decision owns.
+ * @evidence contracts/development/testing.md#independent-expectations Literal paths, color values, times and views identify the effect of each action. Repeating the selected path preserves it once and clearing an option restores that option's stated default.
  */
 export function test_viewer_inspector_reduce_state(): void {
   const start: IAutoMovieViewerInspectorState = {
@@ -98,6 +102,14 @@ export function test_viewer_inspector_reduce_state(): void {
     "time samples one second",
     after({ type: "time", seconds: 1.5 }).request,
     read("parts=a&at=1.5&passes=depth"),
+  );
+  TestValidator.equals(
+    "an explicit time leaves the selected source cue",
+    AutoMovieViewerInspector.reduceState(
+      AutoMovieViewerInspector.createState("cue=contact&entry=1"),
+      { type: "time", seconds: 1.5 },
+    ),
+    { request: read("at=1.5"), error: null },
   );
   TestValidator.equals(
     "locate also labels",

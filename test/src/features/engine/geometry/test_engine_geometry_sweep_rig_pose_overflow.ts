@@ -20,6 +20,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. A girth factor of MAX_VALUE fits the rest scale but overflows times that
  *    expansion: the pose refuses ("posed sweep scale is not positive and
  *    finite") and the scale buffer stays as it was.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the bent-joint scale increase, posed overflow and retention of the previous buffer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual volume-preserving rig on the rest and bent skeleton under the extreme girth factor and compares scales after refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Multiplying MAX_VALUE by a previously measured expansion above one exceeds the finite range. The prior admitted state must remain readable after that failure.
  */
 export function test_engine_geometry_sweep_rig_pose_overflow(): void {
   const skeleton: ReturnType<typeof sweepBranchedSkeleton> = sweepBranchedSkeleton();

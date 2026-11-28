@@ -11,13 +11,10 @@ import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
- * How a model's articulations move its parts and its other affordances: the
- * rigid motion each articulation kind makes at a travel, and the model those
- * motions leave.
+ * Resolves articulation travels and poses the model parts they carry.
  *
- * The model declares the articulation itself (`IAutoMovieAffordance.parts`,
- * `rides` and `follows`), so this reads any `IAutoMovieModel`'s affordances,
- * not only an archetype's. Each kind moves about or along an axis of its own
+ * The model declares attached parts, carriers and linked travel. Each kind
+ * moves about or along the specified axis of its own
  * rest frame, as `AutoMovieAffordanceKind` states: a `hinge`, `knob`, `crank`
  * and `wheel` turn about `+Y`, a `slider` runs along `+X`, a `button`, a
  * `pedal` and a `trigger` go in along `-Y`. A carried affordance takes its
@@ -64,7 +61,7 @@ export namespace AutoMovieArchetypeArticulation {
   }
 
   /**
-   * The travel range of an articulation, in its kind's unit.
+   * Reads the allowed travel interval in the articulation kind's unit.
    *
    * @param affordance The articulation.
    * @returns The least and greatest travel; null for an end without a limit, as
@@ -82,14 +79,13 @@ export namespace AutoMovieArchetypeArticulation {
   }
 
   /**
-   * The rigid motion one articulation makes at a travel, in the model's space,
-   * from its rest frame.
+   * Creates a caller-owned rigid motion for the supplied travel.
    *
    * @param affordance The articulation at rest.
    * @param travel The travel, degrees for the turning kinds and metres for the
    *   others.
-   * @returns The motion; the motion that moves nothing for a kind that does not
-   *   travel.
+   * @returns The model-space motion from rest, with identity for a stationary
+   *   contact kind.
    */
   export function motion(
     affordance: IAutoMovieAffordance,
@@ -99,7 +95,7 @@ export namespace AutoMovieArchetypeArticulation {
       axis: "x" | "y",
       sign: number,
     ): AutoMovieArchetypeFrame.IMotion => ({
-      rotation: AutoMovieArchetypeFrame.STILL.rotation,
+      rotation: { ...AutoMovieArchetypeFrame.STILL.rotation },
       translation: AutoMovieEngineVector3.scale(
         AutoMovieArchetypeFrame.axis(affordance.frame, axis),
         sign * travel,
@@ -115,19 +111,19 @@ export namespace AutoMovieArchetypeArticulation {
     if (kind === "slider") return shift("x", 1);
     if (kind === "button" || kind === "pedal" || kind === "trigger")
       return shift("y", -1);
-    return AutoMovieArchetypeFrame.STILL;
+    return copyMotion(AutoMovieArchetypeFrame.STILL);
   }
 
   /**
-   * A model's parts and affordances at an articulation state.
+   * Applies one admitted articulation state to the model.
    *
    * @param archetype The name refusals carry.
    * @param rest The model's parts and affordances at rest.
    * @param state One travel per coupled degree of freedom, named by its leader
    *   or an explicitly reversible follower; an independent articulation not
    *   listed stays at rest.
-   * @returns New parts and affordances and every articulation's travel; the
-   *   rest records are not changed.
+   * @returns Posed parts and affordances with every articulation's travel.
+   *   Unmoved parts keep their existing records.
    * @throws {AutoMovieArchetypeRefusal} For an unknown articulation, a
    *   non-finite or out-of-range travel, an unmarked follower input, a
    *   non-invertible reverse input, duplicate inputs for one coupled degree of
@@ -169,7 +165,7 @@ export namespace AutoMovieArchetypeArticulation {
     return { parts, affordances, travels: selected.travels };
   }
 
-  /** Absolute travel inputs, omitting unspecified entries before admission. */
+  /** Copies supplied absolute travel entries into a new map for admission. */
   export function travels<Id extends string>(
     state: Partial<Record<Id, number>>,
   ): Map<string, number> {
@@ -185,15 +181,25 @@ export namespace AutoMovieArchetypeArticulation {
   export interface IProjection {
     /** Admitted travel of every articulation, including followers. */
     travels: ReadonlyMap<string, number>;
-    /** Model-space motion taking the supplied rest contact to its posed frame. */
+    /** Reads a caller-owned model-space motion for the indexed rest contact. */
     motion: (contact: IAutoMovieAffordance) => AutoMovieArchetypeFrame.IMotion;
     /** Model-space frame at the admitted travels, absent for an unknown id. */
     frame: (id: string) => IAutoMovieTransform | undefined;
   }
 
   /**
-   * Index a rest model for independent travel queries and selected contact
-   * frames.
+   * Prepares a rest model to evaluate independent travel states and contacts.
+   *
+   * Keep the indexed rest records fixed during reuse. Each submitted state
+   * resolves its coupled travels and sets an absent independent drive to
+   * rest. Within that state, contact reads share the internal motion plan and
+   * return caller-owned motion or frame records.
+   *
+   * @param archetype Name used in structured refusals.
+   * @param rest The admitted rest parts and affordances.
+   * @returns A projector for this rest model that validates each travel state.
+   * @throws {AutoMovieArchetypeRefusal} From a projector call for the invalid
+   *   states described by `pose`.
    */
   export function prepare(
     archetype: string,
@@ -348,7 +354,8 @@ export namespace AutoMovieArchetypeArticulation {
       };
       return {
         travels,
-        motion: total,
+        motion: (contact: IAutoMovieAffordance): AutoMovieArchetypeFrame.IMotion =>
+          copyMotion(total(contact)),
         frame: (id: string): IAutoMovieTransform | undefined => {
           const contact: IAutoMovieAffordance | undefined = byId.get(id);
           return contact === undefined
@@ -358,6 +365,16 @@ export namespace AutoMovieArchetypeArticulation {
       };
     };
   }
+}
+
+/* Give callers a writable motion without lending the identity or a cached row. */
+function copyMotion(
+  value: AutoMovieArchetypeFrame.IMotion,
+): AutoMovieArchetypeFrame.IMotion {
+  return {
+    rotation: { ...value.rotation },
+    translation: { ...value.translation },
+  };
 }
 
 /*

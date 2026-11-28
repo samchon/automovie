@@ -1,14 +1,11 @@
 /**
- * One finite source interval bounded by two explicitly requested section
- * planes.
+ * Increasing physical cut coordinates delimiting a requested source slab in
+ * millimetres.
  */
 export interface IAutoMovieRecoverySlabPair {
-  /** Lower physical coordinate, millimetres along the normalized section axis. */
+  /** Lower requested observed station in millimetres. */
   beforeMm: number;
 
-  /**
-   * Upper physical coordinate, strictly greater than beforeMm, also explicitly
-   * requested.
-   */
+  /** Upper requested observed station in millimetres, greater than beforeMm. */
   afterMm: number;
 }

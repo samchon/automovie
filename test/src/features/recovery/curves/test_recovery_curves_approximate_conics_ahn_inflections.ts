@@ -20,6 +20,10 @@ import { nclose } from "../../internal/nclose";
  *
  * 1. A cubic inflection splits at its supplied boundary without crossing it.
  * 2. A nonconic cubic meets a separate dense bidirectional distance check.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies a declared inflection boundary and independently sampled bidirectional distance checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits an inflected cubic and a nonconic, walks the registered intervals and checks held-out distances both ways.
+ * @evidence contracts/development/testing.md#independent-expectations The source break gives the allowed inflection split. The analytic evaluator supplies separate points for distance against the returned coefficients.
  */
 export function test_recovery_curves_approximate_conics_ahn_inflections(): void {
   const options: IAutoMovieConicApproximation.IOptions =

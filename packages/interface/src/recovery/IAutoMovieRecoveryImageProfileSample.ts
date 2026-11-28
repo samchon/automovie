@@ -1,10 +1,13 @@
-/** Co-charted scalar observations at one physical row. */
+/**
+ * Store one physical Y station and its ordered section-family values in
+ * millimetres. The family determines the field order and count.
+ */
 export interface IAutoMovieRecoveryImageProfileSample<
   T extends number[] = number[],
 > {
-  /** Physical model Y coordinate, millimetres. */
+  /** Physical Y station in the common chart, in millimetres. */
   yMm: number;
 
-  /** Ordered section-family scalar fields, millimetres. */
+  /** Section-family scalars in the specified field order, all in millimetres. */
   values: T;
 }

@@ -29,8 +29,8 @@ import { fluidCourantNumber } from "./fluidCourantNumber";
  * inputs are not modified.
  *
  * The Courant comparison runs only when its five authored inputs are finite and
- * positive. A computed value above one, including Infinity, is refused; derived
- * NaN is missed by that comparison. Admission also does not bound finite area,
+ * positive. A computed value above one, including Infinity, is refused at the
+ * timestep. Admission also does not bound finite area,
  * damping, clock, flow accumulation or spray-index products, and later water
  * depth may exceed referenceDepth. It does not certify every derived
  * solver/surface/spray result or perform general unknown-object shape
@@ -127,19 +127,17 @@ export function validateFluidDomain(
     AutoMovieEngineFluidMaxSteps,
   );
 
-  // Bad authored operands are reported at their fields. Infinity exceeds this
-  // comparison, but NaN from extreme finite intermediates currently bypasses it.
-  const courant: number = fluidCourantNumber(domain);
-  if (
-    [
-      solver.fixedStepSeconds,
-      solver.gravity,
-      solver.referenceDepth,
-      domain.grid.cellX,
-      domain.grid.cellZ,
-    ].every((value: number): boolean => value > 0) &&
-    courant > 1
-  )
+  // The preceding scalar checks own the findings for invalid operands.
+  const courant: number | null = [
+    solver.fixedStepSeconds,
+    solver.gravity,
+    solver.referenceDepth,
+    domain.grid.cellX,
+    domain.grid.cellZ,
+  ].every((value: number): boolean => Number.isFinite(value) && value > 0)
+    ? fluidCourantNumber(domain)
+    : null;
+  if (courant !== null && !(courant <= 1))
     out.push(
       "range",
       `${root}.solver.fixedStepSeconds`,

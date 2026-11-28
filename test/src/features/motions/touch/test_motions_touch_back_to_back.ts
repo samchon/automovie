@@ -7,18 +7,17 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `backToBackTogether`, the pairing rule of `backToBack.plan`: two backs
- * leaning on each other must bear and sit up together, within one 24 Hz frame.
- *
- * This lean bears from 1 s to 3 s.
+ * Check when two back-to-back bear intervals can support each other.
  *
  * Scenarios:
  *
- * 1. A partner bearing from 1.03 s to 2.97 s, within a frame either way, is
- *    admitted.
- * 2. A partner sitting up at 2.5 s, or bearing only from 1.5 s, leaves this back
- *    leaning on nothing: refused on `with`.
- * 3. A partner still leaning until 3.5 s outlasts this back: refused on `hold`.
+ * 1. For a lean from 1 to 3 s, admit a partner from 1.03 to 2.97 s.
+ * 2. Refuse a 1.5 s start or 2.5 s finish on `with` . Refuse a 3.5 s partner
+ *    finish on `hold` .
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify early and late mismatches and their refusal axes.
+ * @evidence contracts/development/testing.md#behavioral-verification The pairing helper compares both sides of the declared bearing windows.
+ * @evidence contracts/development/testing.md#independent-expectations The admitted offset is less than 1/24 s and the other displacements are a half second.
  */
 export function test_motions_touch_back_to_back(): void {
   const mine: backToBackTogether.IWindow = { ready: 1, relax: 3 };

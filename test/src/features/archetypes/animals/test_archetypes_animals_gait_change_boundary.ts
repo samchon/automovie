@@ -21,6 +21,10 @@ const SPEED_ROUNDOFF: number = 32 * Number.EPSILON;
  *    gait was already established and the down edge is strict as well.
  * 3. The canine authored speed, with zero hysteresis, selects the faster
  *    gait exactly at the boundary from either side.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the reference gait transitions, strict equine edges, hysteresis overlap and the canine exact boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual gait-boundary and selection routines with ascending, descending and formerly selected cases. Exercises the exact canine boundary from both sides.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's 1.38 metre and 170 kg references with independently stated transition rules. The authored overlap preserves whichever gait is active, and zero hysteresis follows the faster branch at equality.
  */
 export function test_archetypes_animals_gait_change_boundary(): void {
   const horse: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.SPECIES.horse;

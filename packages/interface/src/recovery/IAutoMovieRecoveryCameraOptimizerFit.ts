@@ -1,23 +1,35 @@
-/** Termination and objective diagnostics of one fixed-subset local pose fit. */
+/**
+ * Numerical report for one fixed-subset relative-pose optimizer. The cost uses
+ * robust signed Sampson residuals in the original pixel charts.
+ */
 export interface IAutoMovieRecoveryCameraOptimizerFit {
-  /** Actual attempted local steps. */
+  /**
+   * Number of local update attempts. A gradient stop can occur before a trial
+   * step.
+   */
   iterations: number;
 
-  /** Steps admitted by a decreasing actual robust objective. */
+  /** Number of accepted updates that strictly lowered the fixed-set robust cost. */
   acceptedSteps: number;
 
-  /** Local stopping reason; iteration-budget remains unfinished. */
+  /** Stopping condition recorded by the local optimizer. */
   termination: "gradient" | "step" | "cost" | "iteration-budget";
 
-  /** Whether the fixed-subset local numerical stopping rule completed. */
+  /** Whether the optimizer reached a gradient, step or cost stop. */
   converged: boolean;
 
-  /** Initial soft-L1 objective in squared pixels under the declared scale. */
+  /**
+   * Initial soft-L1 objective of the signed Sampson residuals, in squared
+   * pixels.
+   */
   initialCost: number;
 
-  /** Final soft-L1 objective for the same fixed subset. */
+  /** Final robust objective on the same fixed subset, in squared pixels. */
   finalCost: number;
 
-  /** Smallest scaled original-Jacobian singular ratio visited by that fit. */
+  /**
+   * Smallest visited smallest-to-largest singular value ratio of the weighted,
+   * column-scaled undamped Jacobian.
+   */
   minimumLocalDesignRatio: number;
 }

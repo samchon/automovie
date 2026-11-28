@@ -1,26 +1,21 @@
 /**
- * Answer of a refutation-only mesh separation query: whether one complete
- * feature is separated from the resident surface by at least the requested
- * clearance.
+ * Early-stop decision for complete feature separation from a compiled resident
+ * surface.
  *
- * `certified` has exactly the meaning of
- * {@link IAutoMovieMeshSeparationResult}'s field for the same compiled snapshot,
- * feature and options. The query stops at the first resident triangle whose
- * conservative bound falls below the target, so it reports no global lower
- * bound, closest triangle or attachment caps.
+ * This refutation-only form can reach its decision before the full walk uses
+ * its shared work budget.
  */
 export interface IAutoMovieMeshSeparationVerdict {
   /**
-   * Whether the complete feature proved at least the requested separation;
-   * false means unproved, including touches, crossings and rounding at an exact
-   * limit.
+   * True when the complete feature passes the same geometric proof as a full
+   * measurement with the same admitted inputs.
    */
   certified: boolean;
 
   /**
-   * Original ordinal of the resident triangle or attachment support that ended
-   * the walk by refuting the feature, the first in walk order rather than the
-   * closest, or -1 when the feature is certified.
+   * Original resident triangle ordinal that ended certification in walk order,
+   * or -1 when certified. A failed attachment cap supplies its support
+   * ordinal.
    */
   witness: number;
 }

@@ -1,13 +1,12 @@
 /**
- * Valid camera population exceeds an explicitly admitted fit resource ceiling.
- * Only camera work admission constructs this error after safe bounds and gauge
- * validation. Scene orchestration catches its concrete class to roll back the
- * entire proposed transaction; unrelated numerical and callback errors escape.
+ * Identifies a bounded camera fit whose valid population exceeds its admitted
+ * resident entries, direction entries or direction work. Scene orchestration
+ * uses this receipt to preserve the previously qualified camera component.
  */
 export class AutoMovieRecoveryFeasibleCapacityError extends Error {
-  /** Create a fixed resource refusal after the camera owner's core admission. */
+  /** Create a capacity refusal for the already admitted working population. */
   public constructor(
-    /** The valid bound exceeded by the current complete population. */
+    /** The resident or direction resource whose capacity was exceeded. */
     public readonly reason: "resident" | "direction-entries" | "direction-work",
   ) {
     super(`camera-feasible-capacity: ${reason}`);

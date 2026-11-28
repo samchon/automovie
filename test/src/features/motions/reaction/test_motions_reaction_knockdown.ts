@@ -8,15 +8,18 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * The `knockdown` law's timetable (`knockdown.timetable`): the body lands
- * seated `SEATED` (0.45 s) in, the `stroke`, rolls on to its back by `DOWN`
- * (1.1 s), and lies, one second by default.
+ * Check the landing cues and floor hold for a knockdown.
  *
  * Scenarios:
  *
- * 1. Held 2 s, the knockdown is seated and struck at 0.45 s, down and relaxing at
- *    1.1 s, and ends at 3.1 s; it starts rolling back before the seat lands.
- * 2. A negative lie is refused.
+ * 1. With a two-second hold, seat and stroke coincide at 0.45 s. Rolling
+ *    starts before the seat, and down and relax coincide at 1.1 s.
+ * 2. End at 3.1 s with the authored hold and 2.1 s with the default. Refuse a
+ *    negative hold.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the two landings, default hold and invalid duration.
+ * @evidence contracts/development/testing.md#behavioral-verification The clock asserts cue order, the two landing instants and the hold policy.
+ * @evidence contracts/development/testing.md#independent-expectations The expected end times add the authored two seconds or the default one second to the specified 1.1 s body landing.
  */
 export function test_motions_reaction_knockdown(): void {
   const clock: IAutoMovieMotionClock = knockdown.timetable(2);

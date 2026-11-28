@@ -190,9 +190,7 @@ const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Footprint membership, support/ground outputs, convex-piece area and emitted surface triangles exercise actual region readers and consumers; the dyadic thin L catches both hull-filled notches and dropped positive slabs.
  * @evidence contracts/development/testing.md#independent-expectations Authored rectangles give plate area 64-16=48 and thin L area three times its binary-exact width. Shoelace sums check the actual decomposition, while downstream membership and emitted triangle probes establish the asserted local void cases rather than universal polygon exactness.
- * @evidence contracts/development/testing.md#distinguishing-cases Holed and filled plates, concave L, both rims, ordinary convex input, zero-area and crossing rings, point-closing slabs, relief and supported/unsupported props preserve the existing cases; the admitted thin L and narrow band distinguish feature preservation from the separate containment rim tolerance.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_space_footprint_voids; this export owns its assertions and invokes assertFootprintVoidGeometry for the existing geometric/consumer cases. It neither installs a viewer nor proves GPU appearance or another OS.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A holed plate is one surface. A point inside the void is outside the).
+ * @evidence contracts/development/common.md#meaningful-documentation Checks holed and concave footprints in containment, support, decomposition, tessellation and take-off. Exercises closed rims, degenerate and crossed rings, a thin positive band and relief over a void.
  */
 export function test_space_footprint_voids(): void {
   // An admitted dyadic L is three width-by-one rectangles. Normalize its area

@@ -21,20 +21,53 @@ export function precisionStrokePeak(
   limb: courseArmGoal.Limb,
   duration: number,
 ): number {
+  return sample(duration, (seconds): readonly Point[] => [
+    posture(seconds).limbs[limb]?.point,
+  ]);
+}
+
+export namespace precisionStrokePeak {
+  /*
+   * Sample the two wrist points together on the same grid as a single arm.
+   * Returns the greatest speed of either wrist, in metres per second.
+   */
+  export function paired(
+    duration: number,
+    wrists: (
+      seconds: number,
+    ) => readonly [IAutoMovieVector3, IAutoMovieVector3],
+  ): number {
+    return sample(duration, wrists);
+  }
+}
+
+type Point = IAutoMovieVector3 | undefined;
+
+function sample(
+  duration: number,
+  points: (seconds: number) => readonly Point[],
+): number {
   let fastest: number = 0;
-  let last: IAutoMovieVector3 | undefined;
+  let last: readonly Point[] = [];
   let before: number = 0;
   const count: number = Math.ceil(duration / STEP);
   for (let i: number = 0; i <= count; i++) {
     const seconds: number = Math.min(duration, i * STEP);
-    const point: IAutoMovieVector3 | undefined =
-      posture(seconds).limbs[limb]?.point;
-    if (point !== undefined && last !== undefined && seconds > before)
-      fastest = Math.max(
-        fastest,
-        AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(point, last)) / (seconds - before),
-      );
-    last = point;
+    const current: readonly Point[] = points(seconds);
+    if (seconds > before)
+      for (let j: number = 0; j < current.length; ++j) {
+        const point: Point = current[j];
+        const previous: Point = last[j];
+        if (point !== undefined && previous !== undefined)
+          fastest = Math.max(
+            fastest,
+            AutoMovieEngineVector3.length(
+              AutoMovieEngineVector3.subtract(point, previous),
+            ) /
+              (seconds - before),
+          );
+      }
+    last = current;
     before = seconds;
   }
   return fastest;

@@ -2,77 +2,74 @@ import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
 
 /**
- * Polynomial, positive-weight rational, or rational-XZ/polynomial-Y
- * coefficients over local t in [0,1]. Rational numerators and weights are
- * authoritative; an optional Euclidean control cache is checked against their
- * quotient.
+ * Describe one Bernstein curve piece on the normalized local interval `[0, 1]`.
+ *
+ * The Engine evaluates positions in millimetres and derivatives per local
+ * parameter unit from the saved coefficients. The available fields are a
+ * polynomial, a positive-weight rational curve, or rational XZ with an
+ * independent polynomial Y. Source metadata records provenance while the local
+ * parameter still controls evaluation.
  */
-export type IAutoMovieBernsteinCurvePiece64 = IAutoMovieCurve64.PieceMetadata &
-  (
-    | {
-        /** Selects a polynomial position field. */
-        primitive: "polynomialBezier";
+export type IAutoMovieBernsteinCurvePiece64 =
+  | IAutoMovieBernsteinCurvePiece64.IPolynomial
+  | IAutoMovieBernsteinCurvePiece64.IRational
+  | IAutoMovieBernsteinCurvePiece64.IRationalXZPolynomialY;
 
-        /** Polynomial degree; controls has exactly degree plus one entries. */
-        degree: number;
+/** Bernstein coefficient layouts selected by `primitive`. */
+export namespace IAutoMovieBernsteinCurvePiece64 {
+  /** A polynomial position and derivative on all three axes. */
+  export interface IPolynomial extends IAutoMovieCurve64.PieceMetadata {
+    /** Selects polynomial evaluation. */
+    primitive: "polynomialBezier";
 
-        /** Position coefficients in millimetres and Bernstein order. */
-        controls: readonly Readonly<AutoMovieVector3Tuple>[];
-      }
-    | {
-        /** Selects a rational position field for every coordinate. */
-        primitive: "rationalBezier";
+    /** Nonnegative integer degree. */
+    degree: number;
 
-        /** Common numerator and denominator degree. */
-        degree: number;
+    /** `degree + 1` position coefficients in millimetres and Bernstein order. */
+    controls: readonly Readonly<AutoMovieVector3Tuple>[];
+  }
 
-        /**
-         * Weighted position coefficients, millimetres times the dimensionless
-         * weight.
-         */
-        homogeneousNumerator: readonly Readonly<AutoMovieVector3Tuple>[];
+  /**
+   * Weighted position coefficients and denominator for rational evaluation.
+   *
+   * Both arrays have `degree + 1` entries in Bernstein order. An optional
+   * derived cache describes the quotient of corresponding coefficient pairs.
+   */
+  export interface IRationalCoefficients
+    extends IAutoMovieCurve64.PieceMetadata {
+    /** Shared nonnegative integer degree of the numerator and denominator. */
+    degree: number;
 
-        /** Strictly positive dimensionless denominator coefficients. */
-        weights: readonly number[];
+    /** XYZ positions in millimetres multiplied by their dimensionless weights. */
+    homogeneousNumerator: readonly Readonly<AutoMovieVector3Tuple>[];
 
-        /**
-         * Optional Euclidean quotient cache in millimetres, checked against
-         * numerator divided by weight.
-         */
-        controls?: readonly Readonly<AutoMovieVector3Tuple>[];
-      }
-    | {
-        /**
-         * Selects rational transverse X/Z and independent polynomial
-         * longitudinal Y.
-         */
-        primitive: "rationalXZPolynomialYBezier";
+    /** Strictly positive finite dimensionless denominator coefficients. */
+    weights: readonly number[];
 
-        /**
-         * Numerator/denominator degree; it does not set polynomialYControls
-         * degree.
-         */
-        degree: number;
+    /**
+     * Optional Euclidean XYZ cache in millimetres. The Engine checks each
+     * component against its numerator divided by its weight.
+     */
+    controls?: readonly Readonly<AutoMovieVector3Tuple>[];
+  }
 
-        /**
-         * Weighted XYZ coefficients; rational Y is evaluated but replaced by
-         * the independent polynomial Y result.
-         */
-        homogeneousNumerator: readonly Readonly<AutoMovieVector3Tuple>[];
+  /** Rational position and quotient-rule derivative on all three axes. */
+  export interface IRational extends IRationalCoefficients {
+    /** Selects rational evaluation on XYZ. */
+    primitive: "rationalBezier";
+  }
 
-        /** Positive dimensionless weights shared by the rational coordinates. */
-        weights: readonly number[];
+  /** Rational XZ with an independently evaluated polynomial Y. */
+  export interface IRationalXZPolynomialY extends IRationalCoefficients {
+    /** Selects rational evaluation on XZ and polynomial evaluation on Y. */
+    primitive: "rationalXZPolynomialYBezier";
 
-        /**
-         * Longitudinal millimetre coefficients; their count minus one is this
-         * polynomial's independent degree.
-         */
-        polynomialYControls: readonly number[];
-
-        /**
-         * Optional quotient cache for the homogeneous field before hybrid Y
-         * replacement.
-         */
-        controls?: readonly Readonly<AutoMovieVector3Tuple>[];
-      }
-  );
+    /**
+     * Nonempty longitudinal Bernstein coefficients in millimetres. Their count
+     * minus one gives the Y degree. The evaluator uses this field for the final
+     * Y position and derivative, while the optional cache describes the XYZ
+     * numerator and weight quotient before Y replacement.
+     */
+    polynomialYControls: readonly number[];
+  }
+}

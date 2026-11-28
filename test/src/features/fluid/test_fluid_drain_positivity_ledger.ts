@@ -15,9 +15,7 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Simulates a one-cell sump with an over-eager drain at steps 1 and 200 and requires zero remaining depth plus exactly the available half-cubic-metre drain booking.
  * @evidence contracts/development/testing.md#independent-expectations One square metre times authored depth 0.5 gives available volume 0.5, independent of solver output; strict zero and booking identity catch overdraw or repeated removal.
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps the first-step exhaustion and later unchanged empty/booked twin; above-water sills and closed activity windows are separate drain ledger entries.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns both absolute CPU seeks through simulateFluidDomain and the existing basin fixture, without starting a process, renderer or native host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 1 x 1-metre cell with 0.5 cubic metres water and a 64 cubic metres per second drain is observed after one step.).
+ * @evidence contracts/development/common.md#meaningful-documentation An oversized drain empties the single cell in one step. The half-cubic-metre booking remains unchanged through step 200.
  */
 export function test_fluid_drain_positivity_ledger(): void {
   const overEager: ReturnType<typeof flatBasin> = flatBasin({

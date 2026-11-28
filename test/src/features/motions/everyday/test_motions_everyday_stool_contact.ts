@@ -34,6 +34,10 @@ const DISCS: readonly (readonly [number, number, boolean])[] = [
  *    lower and upper bounds. A 90-degree turn rotates the point and its root.
  * 2. A cushion exactly at 0.8 of popliteal height above its floor is admitted.
  *    At 1 mm lower the refusal states the measured world height in metres.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Approved disc seats place the stock sockets at their surveyed bounds. An ordinary cushion must clear the minimum height above its floor.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the seating geometry and admission owner with a stock body, turned disc, and cushion at and below the minimum.
+ * @evidence contracts/development/testing.md#independent-expectations The floor plus 0.8 of measured popliteal height gives the exact cushion boundary. Turning the disc by 90 degrees gives its distinct rotated point.
  */
 export async function test_motions_everyday_stool_contact(): Promise<void> {
   const rig: IHumanFixture = await humanFixture("m-average");

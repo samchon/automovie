@@ -1,47 +1,51 @@
-﻿import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanPerformance } from "./IAutoMovieMotionHumanPerformance";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 
 /**
- * Water polo: the credit of the direct, airborne portion of a shot. The same
- * resolved flight that displays the ball supplies its radius, centre and the
- * first contact or takeover that can end a scoring opportunity; the fixed
- * goal's mouth faces the field with +Z and its +Y begins at the waterline.
- * `scoreGoal` is a reader of the film, so it returns its named result and no
- * chain.
+ * Inputs and film-clock cues for scoring direct water polo goals.
  */
-
-
-/** The parameter and result types of the water polo reader. */
 export namespace IAutoMovieMotionHumanWaterPolo {
   /**
-   * The parts of a performance the goal credit reads: its duration, its prop
-   * frames and its flights.
+   * Placed film data for scoring: duration, goal frames and ball flights.
+   *
+   * The film and all its flights use the same clock in seconds.
    */
   export type IFilm = Pick<
     IAutoMovieMotionHumanPerformance,
     "duration" | "flights" | "prop"
   >;
 
-  /** The parameters of `scoreGoal`. */
+  /**
+   * One ball and one fixed goal read from the same play.
+   */
   export interface IGoal {
-    /** Performance displaying both the ball and the fixed goal. */
+    /**
+     * Placed film supplying the goal frame and realized ball flights.
+     */
     film: IFilm;
 
-    /** Subject id of the ball through catch, carry and shot. */
+    /**
+     * Existing scene ID of the ball across possession and flight.
+     */
     ball: string;
 
-    /** Fixed placed goal with the physical `mouth` aperture. */
+    /**
+     * Fixed goal exposing a positive, level `mouth` aperture at the waterline.
+     *
+     * The mouth's local `+Z` faces the field.
+     */
     goal: IAutoMovieMotionHumanProp;
   }
 
   /**
-   * Film-clock cue for a credited direct goal: the complete ball has gone
-   * through the goal's aperture.
+   * Credit for one direct crossing of the complete ball through the mouth.
    */
   export interface ICue {
-    /** Cue discriminator. */
+    /**
+     * Discriminator for a credited goal.
+     */
     kind: "goal";
 
     /** The ball's existing performance subject id. */
@@ -50,13 +54,19 @@ export namespace IAutoMovieMotionHumanWaterPolo {
     /** The chosen goal's existing performance subject id. */
     goal: string;
 
-    /** The performer responsible for the observed launch. */
+    /**
+     * Performer who launched the scoring flight.
+     */
     scorer: IAutoMovieMotionHumanPropFlight.IFlight["source"]["subject"];
 
-    /** The scoring instant in film seconds. */
+    /**
+     * Film second when the complete sphere clears the mouth plane.
+     */
     seconds: number;
 
-    /** The physical ball centre at the scoring instant, world metres. */
+    /**
+     * Physical ball centre at the scoring instant, in world metres.
+     */
     center: IAutoMovieVector3;
   }
 }

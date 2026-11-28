@@ -71,6 +71,10 @@ function directional(
  * 2. A translated spot aims along diagonal negative X and Y. Its target is a child
  *    of the light, so moving the source retains that direction.
  * 3. A point has no aiming target and preserves its position and range.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names aimed native targets, translation-relative direction and point-light behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds typed directional, spot and point lights through the scene layout builder. Reads target-relative directions, hierarchy and native point fields.
+ * @evidence contracts/development/testing.md#independent-expectations Rotating local −Z by the two X quarter-turns gives opposite Y axes. Normalizing a supplied diagonal determines the expected direction independently. Moving a spot with its attached target preserves its relative direction. The point retains its declared position and range.
  */
 export function test_render_scene_build_light_aim(): void {
   const diagonal: IAutoMovieVector3 = unit({ x: -1, y: -2, z: 0.5 });

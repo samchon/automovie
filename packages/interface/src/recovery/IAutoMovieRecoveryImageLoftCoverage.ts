@@ -1,18 +1,18 @@
 /**
- * Physical coverage limits of an aligned-ellipse image reconstruction. A
- * successful fit remains conditional inference rather than a measurement of
- * unseen skin.
+ * Coverage metadata required for a saved aligned-ellipse recipe. An admitted
+ * compile produces only the inferred open lateral surface within the saved
+ * longitudinal interval.
  */
 export interface IAutoMovieRecoveryImageLoftCoverage {
-  /** Lateral shape is inferred under the aligned elliptical-section hypothesis. */
+  /** The generated lateral surface is inferred under the aligned ellipse prior. */
   lateralSurface: "inferred-under-aligned-ellipse-prior";
 
-  /** End caps were not observed and are not completed by this recipe. */
+  /** The open loft omits caps at both longitudinal endpoints. */
   endCaps: "unobserved";
 
-  /** Interior geometry was not observed. */
+  /** The recipe leaves interior geometry unobserved. */
   interior: "unobserved";
 
-  /** Camera calibration was supplied, not recovered. */
+  /** The source cameras were supplied to observation and fitting. */
   cameras: "supplied";
 }

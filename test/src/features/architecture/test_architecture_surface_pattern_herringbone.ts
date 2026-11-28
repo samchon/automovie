@@ -133,9 +133,7 @@ const floor: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls generateSurfacePattern and patternInstanceTransforms for authored herringbone boards, checking exact occurrence/cut identities, quantities, neighbour findings, minimum-piece boundaries, whole-piece slots, and replay.
  * @evidence contracts/development/testing.md#independent-expectations The 0.6-square room has area 0.36; six whole and four half boards consume 0.45 and waste 0.09 square metres. Twelve explicitly enumerated cross-grain contacts, fixed half-coverage thresholds, slot ids, positions, long axes, and dimensions independently anchor the layout and instancing results.
- * @evidence contracts/development/testing.md#distinguishing-cases Zero overlap/joint findings contrast with 90-degree grain findings, which disappear at 90-degree or null tolerance; half pieces switch to slivers above minimum 0.5, and whole versus cut pieces take distinct instancing paths. Repeated declarations retain their numerical records through existing test12ValuesClose.
- * @evidence contracts/development/testing.md#execution-ownership Uses existing local pattern/generator fixtures and synchronous numerical generation/instancing without rendering, resources, clocks, global replacement, or another test host. Quaternion-vector observations check selected axes; these assertions do not establish a rendered floor or universal herringbone coverage.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The ten pieces reaching the room are laid in lattice order under their own).
+ * @evidence contracts/development/common.md#meaningful-documentation Flat and upright boards tile the region, turn grain at their joints and obey the minimum piece size. Whole boards instance on the floor, and replay preserves the selected values.
  */
 export function test_architecture_surface_pattern_herringbone(): void {
   const laid: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({

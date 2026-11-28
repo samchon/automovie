@@ -1,31 +1,24 @@
-import type { IAutoMovieSubdivisionCage } from "./IAutoMovieSubdivisionCage";
 import type { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
+import type { IAutoMovieSubdivisionCage } from "./IAutoMovieSubdivisionCage";
 import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 
 /**
  * A surface network sampled at one tier: a quad control cage ready for
- * `subdivideSurface`, with the surface coordinate of every face
- * corner, the per-patch grids and the named rings.
+ * `subdivideSurface`, with the surface coordinate of every face corner, the
+ * per-patch grids and the named rings.
  *
  * Within a tier the cage's connectivity, UV layout and coordinates depend only
  * on the network's patch and count declarations, never on the shapes of its
  * sweeps and curves, so every input of one network yields the same topology and
  * only positions change. Every tier addresses the same coordinates, `(patch, s,
- * t)`, so a point bound on one tier is found on another by
- * `mapSurfaceTier`.
+ * t)`, so a point bound on one tier is found on another by `mapSurfaceTier`.
  */
 export interface IAutoMovieSurfaceCage {
   /** The tier sampled. */
   tier: AutoMovieSurfaceTier;
 
   /** Control cage in metres, quads only, with face-varying UVs. */
-  cage: Required<Pick<IAutoMovieSubdivisionCage, "uvs" | "uvFaces">> & {
-    /** Packed control positions `[x, y, z, ...]`, metres. */
-    positions: number[];
-
-    /** Quads as four vertex indices, counterclockwise seen from outside. */
-    faces: number[][];
-  };
+  cage: IAutoMovieSurfaceCage.ICage;
 
   /**
    * Packed pre-inverse generating samples `[x, y, z, ...]`, metres, after girth
@@ -93,4 +86,19 @@ export namespace IAutoMovieSurfaceCage {
      */
     faces: number[];
   }
+
+  /** Quad faces and packed generating control positions. */
+  export type ICageControls = {
+    /** Packed control positions `[x, y, z, ...]`, metres. */
+    positions: number[];
+
+    /** Quads as four vertex indices, counterclockwise seen from outside. */
+    faces: number[][];
+  };
+
+  /** Quad control cage with face-varying UV value and corner arrays. */
+  export type ICage = Required<
+    Pick<IAutoMovieSubdivisionCage, "uvs" | "uvFaces">
+  > &
+    ICageControls;
 }

@@ -2,18 +2,21 @@ import { type AutoMovieArchetype } from "../core/index";
 import { type HandToolDraw } from "./internal/HandToolDraw";
 import { createScrewdriver as createScrewdriverImplementation } from "./internal/createScrewdriver";
 
-/** Public operations for Auto Movie Archetype Screwdriver. */
+/** Constructs an axial screwdriver with a round handle and shank tip. */
 export namespace AutoMovieArchetypeScrewdriver {
   /**
-   * Screwdriver with a round grip and an axial tip along +Y.
+   * Build a screwdriver with its handle from Y zero and shank along `+Y`.
    *
-   * @param params The optional scene ID and any fixed free dimension in metres or
-   *   kilograms.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * The power `grip` faces `-Z` and wraps the round handle. The axial
+   * `face` sits at the far end of the shank.
+   *
+   * @param params Optional ID, finite overall length, `blade` shank length,
+   *   grip diameter and mass in their bands. The ID defaults to `tool`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.20955 metres overall,
+   *   a 0.1016 metre shank and a 0.035 metre grip.
+   * @returns The handle grip and axial shank contact.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: Pick<
     HandToolDraw.IParams,
@@ -25,14 +28,10 @@ export namespace AutoMovieArchetypeScrewdriver {
     return createScrewdriverImplementation(params, seed);
   }
 
-  /**
-   * The contacts this producer builds; a numbered family's count follows its
-   * inputs.
-   */
+  /** Round power `grip` and axial `face` at the positive-Y shank tip. */
   export type Affordance = "face" | "grip";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Overall length, shank length as `blade` and grip diameter in metres. Mass is in kilograms.
    */
   export type Dimension = "blade" | "gripDiameter" | "length" | "mass";}

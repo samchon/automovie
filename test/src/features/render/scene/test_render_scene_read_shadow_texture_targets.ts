@@ -21,6 +21,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    color or face facts separate retained and prospective phases.
  * 5. Clearing active slots retains planned bounds; disabled policy with cleared
  *    slots reports no rows, and observation never disposes caller depth.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the actual and prospective shadow targets, light policies, matching profiles and varied attachment storage.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that retained products replace only matching plans, differing profile fields keep actual and prospective phases distinct, and clearing the caller's slots changes observation without disposing their targets.
+ * @evidence contracts/development/testing.md#independent-expectations Uses explicit face, format, extent, depth and policy expectations for directional, spot, variance and point cases, with targeted field differences and a zero-disposal expectation.
  */
 export async function test_render_scene_read_shadow_texture_targets(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

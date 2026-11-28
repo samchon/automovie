@@ -19,9 +19,8 @@ const ROUNDING: number = 1e-9;
 const SLIDE: number = 0.1;
 
 /**
- * `AutoMovieMotionHumanAudit.run` reads every generic check of one person on
- * one shared grid and reports each reading above its limit as a finding; a
- * `null` limit leaves its check unread.
+ * `AutoMovieMotionHumanAudit.run` returns the generic checks and their findings
+ * for one person. A `null` limit leaves the corresponding check unread.
  *
  * Scenarios, the average man's quiet stance for 1 s, both feet planted, read at
  * 4 Hz:
@@ -33,6 +32,10 @@ const SLIDE: number = 0.1;
  *
  * The body is built whole (`humanFixtureBody`): the checks read its colliders,
  * soles, tangle model and mass model on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names clean measurements, the one sliding-plant finding and disabling that check with a null limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the generic audit on stored-body stances with no motion and a fixed horizontal slide, then checks the combined measures and findings.
+ * @evidence contracts/development/testing.md#independent-expectations At 0.1 m/s for one second a planted foot moves 0.1 m, above the slip bound and with unchanged displayed rotation and height. The expected finding is a single slip and a null slip limit removes its measurement.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_run(): Promise<void> {
   // Runs every generic check: every collider, the tangle model, the soles and the mass model, a whole-body read.

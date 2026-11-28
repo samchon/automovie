@@ -2,25 +2,26 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createCrib as createCribImplementation } from "./internal/createCrib";
 import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
-/** Public operations for Auto Movie Archetype Crib. */
+/**
+ * Constructs an enclosed crib with a mattress surface and graspable side rails.
+ */
 export namespace AutoMovieArchetypeCrib {
   /**
-   * A crib with a surrounding slat frame and grasp bars on both sides.
+   * Build a crib with an enclosed mattress, posts and side and end slats.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * @param params Optional ID and fixed crib dimensions within their bands.
+   *   The ID defaults to `bed`.
+   * @param seed Numeric seed for omitted settings. Without it the interior
+   *   is 28 by 52.375 inches and the mattress top is 0.381 metres high.
+   * @returns The mattress `surface` and two side-bar grasp frames.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed dimension is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeCrib.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeCrib.Affordance, AutoMovieArchetypeCrib.Dimension> {
     return createCribImplementation(params, seed);
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Interior width and length, rail top height, support-to-rail distance and mattress thickness in metres, plus mass in kilograms.
    */
   export type Dimension =
     | "height"
@@ -30,10 +31,14 @@ export namespace AutoMovieArchetypeCrib {
     | "thickness"
     | "width";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * The mattress `surface` and the `leftRail` and `rightRail` bar centrelines on opposite sides.
+   */
   export type Affordance = "leftRail" | "rightRail" | "surface";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional scene ID and fixed crib values in the admitted interior, frame, thickness and mass bands.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeBed.IParams,
     "id" | "width" | "length" | "height" | "rail" | "thickness" | "mass"

@@ -27,21 +27,9 @@ import { nclose } from "../../internal/predicates";
  * 3. An exact 25/100 pixel loss passes an inclusive 25% threshold and fails a
  *    lower threshold. Zero and invalid pixel counts have distinct states.
  *
- * Changed aspect and crop, a box outside each depth bound, sparse occlusion
- * with static opaque geometry, alpha-test uncertainty and matched pixel counts.
- * degrees and depth five, the wide half-width is ten and the square half-width
- * is five. A point at x over depth d projects to x / d against the square edge
- * at 1: the x 3.5 m box reaches 4 / 4.5 = 0.889, the x 5 m box 5.5 / 4.5 =
- * 1.222, and the x 6.5 m box's most inward corner 6 / 5.5 = 1.091. The crop
- * ends at the optical axis. The opaque wall is nearer than the subject, spans
- * its projection before sliding, and covers only its left side after sliding. A
- * 100-pixel silhouette with 75 remaining has exactly 25% occlusion. equality is
- * compared with a strict exceedance. Boxes inside, across and beyond the right
- * edge separate the three side grades. A partially hidden box has both ray
- * outcomes and an opaque wall never manufactures pixel counts. geometry and
- * math directly in a deterministic unit without a GL context, server, film
- * synthesis or browser. inputs, measured units and all outcomes with
- * independent geometric oracles.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes distinct framing, ray and native pixel outcomes and the absent renderer boundary.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public camera observer on a posed scene, applies crop and material changes, and checks the classification of supplied exact counts and native measurement refusal without a renderer.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree square lens projects x over depth. The unit boxes at x 3.5, 5 and 6.5 m consequently lie inside, across and outside its right side. The near rigid wall blocks every sampled ray before sliding. Losing 25 of 100 pixels meets an inclusive 25% threshold, and the Viewer cannot supply native mask pixels.
  */
 export function test_render_scene_observe_camera_inspection(): void {
   const scene: Scene = new Scene();
@@ -63,6 +51,12 @@ export function test_render_scene_observe_camera_inspection(): void {
     "square delivery excludes target",
     observe().framing,
     "outside",
+  );
+  TestValidator.equals("interactive preview cannot supply native pixel counts",
+    AutoMovieRenderInspectionCamera.measurePlacedPixels({
+      scene, camera, width: 80, height: 60, mode: "viewer", time: { filmSeconds: 0 },
+    }, target),
+    { status: "unsupported", reason: "Native placed pixels require a capture or delivery renderer audit." },
   );
   for (const [x, framing] of [
     [3.5, "possible"],
@@ -169,6 +163,19 @@ export function test_render_scene_observe_camera_inspection(): void {
     exact(20, 21, 0).status,
     "unmeasured",
   );
+  for (const x of [NaN, Infinity]) {
+    const invalid = AutoMovieRenderInspectionCamera.observe({
+      scene, camera, target, triangleBudget: 100,
+      targetBounds: { min: { x, y: -0.5, z: -5.5 }, max: { x, y: 0.5, z: -4.5 } },
+    });
+    TestValidator.equals("nonfinite certified bounds prove no framing or rays", invalid, {
+      framing: "unavailable", occlusion: { status: "unmeasured" },
+    });
+  }
+  camera.projectionMatrix.elements[0] = NaN;
+  TestValidator.equals("nonfinite projection proves no framing", observe().framing, "unavailable");
+  camera.projectionMatrix.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  TestValidator.equals("degenerate projection proves no framing", observe().framing, "unavailable");
 
   geometry.dispose();
   beauty.dispose();

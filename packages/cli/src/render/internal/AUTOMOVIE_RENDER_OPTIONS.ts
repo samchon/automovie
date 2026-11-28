@@ -14,4 +14,6 @@ export const AUTOMOVIE_RENDER_OPTIONS: readonly string[] = [
   "backend",
   "timeout-ms",
   "background",
+  "checkpoint-dir",
+  "checkpoint-identity",
 ];

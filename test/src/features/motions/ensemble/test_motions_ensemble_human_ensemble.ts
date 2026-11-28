@@ -13,21 +13,17 @@ import { TestValidator } from "@nestia/e2e";
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 
 /**
- * `HumanEnsemble` resolves a group's members: each a stable subject id
- * `<ensemble>.<index>`, placed where the input places it, with attributes drawn
- * by the chain seed, the ensemble and the member's index, so adding members
- * leaves the earlier ones as they were; an empty group is refused on its
- * count.
+ * Check ensemble identities, placements and stable seeded attributes.
  *
- * The members carry whole bodies (`humanFixtureBody`), the record the group
- * hands to a performance.
+ * Scenarios:
  *
- * Scenarios, members placed 1 m apart along X from an origin:
+ * 1. From x = 10 m, generate `cast.0` , `cast.1` and `cast.2` at x = 10, 11
+ *    and 12 m. The first member agrees with the one-member cast.
+ * 2. Generate `other.0` at x = 30 m. Refuse an empty cast on `cast.count` .
  *
- * 1. A cast of three from x = 10 is `cast.0`, `cast.1`, `cast.2` at 10, 11, 12.
- * 2. Its first member's attributes and place equal a cast of one's.
- * 3. Another ensemble of one from x = 30 is `other.0` at 30.
- * 4. A cast of none is refused on `cast.count`.
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify ensemble names, placement spacing and empty input.
+ * @evidence contracts/development/testing.md#behavioral-verification The member resolver receives canonical bodies and exact fixture placements and the repeat checks the stable first entry.
+ * @evidence contracts/development/testing.md#independent-expectations The identity pattern and callback's one-metre indexing determine the expected names and locations.
  */
 export async function test_motions_ensemble_human_ensemble(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  *    vertices facing +z, indices [0, 1, 2].
  * 3. A second triangle (0,0,0), (0,0,1), (1,0,0) faces +y and indexes from 3.
  * 4. A zero-area triangle gets the zero normal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names target ownership, appended indices and UVs, plane normals and zero-area output.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public target and append operations, reading arrays after consecutive triangles and a degenerate triangle.
+ * @evidence contracts/development/testing.md#independent-expectations The written edge cross products point along +z and +y. A second three-vertex addition starts at index 3. Equal-area-zero corners have no unit normal.
  */
 export function test_engine_geometry_flat_triangle(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({

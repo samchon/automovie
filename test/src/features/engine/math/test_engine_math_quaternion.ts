@@ -30,6 +30,10 @@ import { makeRng, randomUnitQuaternion } from "../../internal/random";
  *    stay unit, slerp at 0 and 1 give its ends (up to sign), normalizing a unit
  *    quaternion changes nothing, and multiplication associates, all within
  *    tolerance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers Hamilton products, axis turns, interpolation, inverse, normalization, numerical limits and fixed-seed invariants.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineQuaternion operations directly with basis quaternions, signed endpoints, extreme components and a fixed-seed sweep. Prepared interpolation is read at several shares and after a result changes.
+ * @evidence contracts/development/testing.md#independent-expectations Hamilton basis products, analytic half-angle values and independent vector turns give exact references. Unit norm, composition order, endpoint equivalence up to sign and rotation limits distinguish wrong order, long arcs and overflow or underflow errors.
  */
 export function test_engine_math_quaternion(): void {
   const q = (

@@ -90,6 +90,10 @@ function same(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
  * 5. A root turning from heading 0 to 90 degrees over the first interval: at 1.125
  *    s the unturned root is slerped to heading 45, and one somersault's eighth
  *    turn is about (√½, 0, −√½).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names center interpolation and local flight time, heading and custom-axis transforms, twists, and a changing root frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the staged and read flight owners on typed tables with constant or changing root headings. It checks center positions and compares physical rotations up to quaternion sign.
+ * @evidence contracts/development/testing.md#independent-expectations At 1.125 s table interpolation yields height 1.15 m. Yaw 90 maps somersault +X to -Z, while a 90-degree custom +Z frame maps +X to +Y. Two twists give 180 degrees at a quarter of the interval. At the early midpoint the slerped heading maps +X to (√½, 0, -√½).
  */
 export function test_motions_perform_flight_turns(): void {
   const still: HumanPerformanceFlightRotation.IRow[] = table(

@@ -12,6 +12,10 @@ import { ConstructionSplitSeam as S } from "../../internal/construction/Construc
  *
  * 1. Every edge of the skin is used by exactly two triangles except the edges on
  *    the free ends (z = 0.06 and z = -0.11 m), and none by more.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the closed curved-seam interior and two specified free-end planes.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the profiled split at the stated chord and counts incidences on its emitted triangle edges.
+ * @evidence contracts/development/testing.md#independent-expectations Each interior edge of the watertight surface must have exactly two uses. The specified free-end planes explain the permitted boundary edges.
  */
 export function test_engine_geometry_split_seam_skin(): void {
   const real = S.realize(S.split(S.profile()), true);

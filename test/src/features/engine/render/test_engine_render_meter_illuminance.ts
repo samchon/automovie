@@ -81,6 +81,10 @@ const DOWN: IAutoMovieQuaternion = AutoMovieEngineQuaternion.fromAxisAngle(
  * 4. A spot facing down with a 30 degree cone gives 25 on its axis and nothing 5 m
  *    to the side.
  * 5. Two lights sum, each reported under its id; a zero normal is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names incidence and distance, directional color, spot bounds, summed contributions and a zero-normal refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public exposure meter on a fixed surface with synthetic lamps and reads measured lux, contributing ids and the invalid-normal diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations A point at 2 m contributes 100/4. The oblique sample uses distance squared 8 and cosine 1/sqrt(2). A red channel weights 100 by 0.2126, and the vertical point and directional results add to 105.
  */
 export function test_engine_render_meter_illuminance(): void {
   const identity: IAutoMovieQuaternion = AutoMovieEngineQuaternion.identity();

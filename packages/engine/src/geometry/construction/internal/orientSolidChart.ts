@@ -1,5 +1,7 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
+import { finiteBinary64Grid } from "../../../math/internal/finiteBinary64Grid";
+
 /*
  * Exact orientation sign of three represented binary64 chart points.
  *
@@ -26,6 +28,15 @@ export function orientSolidChart(
   const by: number = b[1];
   const cx: number = c[0];
   const cy: number = c[1];
+  if (
+    !Number.isFinite(ax) ||
+    !Number.isFinite(ay) ||
+    !Number.isFinite(bx) ||
+    !Number.isFinite(by) ||
+    !Number.isFinite(cx) ||
+    !Number.isFinite(cy)
+  )
+    throw new RangeError("Solid chart coordinates must be finite");
 
   // Axis-aligned constraints need only order comparisons, even at extreme scales.
   if (ax === bx)
@@ -63,19 +74,7 @@ export function orientSolidChart(
     Math.abs(determinant) > bound
   )
     return determinant > 0 ? 1 : -1;
-  const numbers: Dyadic[] = [ax, ay, bx, by, cx, cy].map(decode);
-  const nonzero: Dyadic[] = numbers.filter(
-    (value: Dyadic): boolean => value.significand !== 0n,
-  );
-  if (nonzero.length === 0) return 0;
-  const exponent: number = Math.min(
-    ...nonzero.map((value: Dyadic): number => value.exponent),
-  );
-  const values: bigint[] = numbers.map((value: Dyadic): bigint =>
-    value.significand === 0n
-      ? 0n
-      : value.significand << BigInt(value.exponent - exponent),
-  );
+  const values: bigint[] = finiteBinary64Grid([ax, ay, bx, by, cx, cy]);
   const exact: bigint =
     (values[2]! - values[0]!) * (values[5]! - values[1]!) -
     (values[3]! - values[1]!) * (values[4]! - values[0]!);
@@ -83,41 +82,11 @@ export function orientSolidChart(
 }
 
 /*
- * Exact integer significand multiplied by two to exponent.
- */
-interface Dyadic {
-  /*
-   * Signed integer significand; zero has no relevant exponent.
-   */
-  significand: bigint;
-
-  /*
-   * Binary exponent of the integer's least significant bit.
-   */
-  exponent: number;
-}
-
-/*
  * Whether a value is finite and of at least the smallest normal magnitude.
  */
 function normal(value: number): boolean {
-  return Math.abs(value) >= NORMAL;
-}
-
-/*
- * Decode a finite double without arithmetic on its significand. Calls are
- * synchronous and have no callbacks.
- */
-function decode(value: number): Dyadic {
-  VIEW.setFloat64(0, value, false);
-  const bits: bigint = VIEW.getBigUint64(0, false);
-  const biased: number = Number((bits >> 52n) & 2047n);
-  const fraction: bigint = bits & ((1n << 52n) - 1n);
-  const unsigned: bigint = biased === 0 ? fraction : fraction + (1n << 52n);
-  return {
-    significand: bits >> 63n === 0n ? unsigned : -unsigned,
-    exponent: biased === 0 ? -1074 : biased - 1075,
-  };
+  const magnitude: number = Math.abs(value);
+  return magnitude >= NORMAL && magnitude < Infinity;
 }
 
 /*
@@ -125,8 +94,3 @@ function decode(value: number): Dyadic {
  * tolerance.
  */
 const NORMAL: number = 2 ** -1022;
-
-/*
- * Fixed decoding storage, never exposed or retained by an input/result.
- */
-const VIEW: DataView = new DataView(new ArrayBuffer(8));

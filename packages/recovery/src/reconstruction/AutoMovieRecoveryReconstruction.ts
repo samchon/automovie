@@ -39,7 +39,12 @@ import {
  * the namespace is an API container and is not itself callable.
  */
 export namespace AutoMovieRecoveryReconstruction {
-  /** Bind a source-free analytic publication to the saved bundle and hashes. */
+  /**
+   * Bind an analytic coefficient extension to its original saved curve and
+   * continuation artifacts. Supply the hashes already established by the
+   * caller's byte verification. Replacement curves use millimetres. A hash,
+   * identity or ownership conflict throws before publishing a replacement set.
+   */
   export function applyAnalyticPublication(
     bundle: IAutoMovieRecoveryTensorFamiliesInput,
     publication: IAutoMovieRecoveryAnalyticPublication,
@@ -48,7 +53,12 @@ export namespace AutoMovieRecoveryReconstruction {
     return applyPublication(bundle, publication, hashes);
   }
 
-  /** Assemble named native-parent charts under the supplied finite policy. */
+  /**
+   * Assemble named native Coons charts into connected coefficient components.
+   * A complete native cubic owns each boundary identity, while its endpoint
+   * names own their original values. Conflicting incidents remain local
+   * diagnostics. Supply explicit assembly budgets.
+   */
   export function assembleFieldComplex(
     input: IAutoMovieRecoveryFieldComplexInput,
     policy: IAutoMovieRecoveryFieldComplexPolicy,
@@ -56,14 +66,26 @@ export namespace AutoMovieRecoveryReconstruction {
     return assembleComplex(input, policy);
   }
 
-  /** Compile a bicubic coefficient atlas into recipe and generated models. */
+  /**
+   * Compiles a saved bicubic atlas into recipe and generated metre geometry.
+   *
+   * The recipe model retains the supplied coefficient authority. The
+   * generated model contains the Engine mesh when triangles were emitted. Its
+   * receipt transfers the native counts, primitive ranges, completeness and
+   * approximation qualification. Those two flags describe separate outcomes.
+   */
   export function compileAtlas(
     geometry: IAutoMovieBicubicAtlasGeometry,
   ): IAutoMovieRecoveryAtlasCompilation {
     return compileAtlasOperation(geometry);
   }
 
-  /** Compile declared cubic chart sides into a piecewise event-domain atlas. */
+  /**
+   * Compile four named oriented cubic sides into a normalized bicubic Coons
+   * domain. Coordinates use millimetres. Require exact matching corner
+   * coefficients and unchanged native parents. Insufficient patch capacity
+   * returns an incomplete result with required count.
+   */
   export function compileEventDomain(
     input: IAutoMovieRecoveryEventChartInput,
     policy: IAutoMovieRecoveryEventCompilationPolicy,
@@ -73,7 +95,11 @@ export namespace AutoMovieRecoveryReconstruction {
     return compileEventDomainOperation(input, policy);
   }
 
-  /** Compile a chart while retaining native cubic owners and partial intervals. */
+  /**
+   * Compile one named chart while retaining its complete native boundary
+   * owners and the oriented intervals used by each patch. The tensor partition
+   * belongs to this chart. An incomplete local compile remains incomplete.
+   */
   export function compileNativeNamedChart(
     input: IAutoMovieRecoveryEventChartInput,
     policy: IAutoMovieRecoveryEventCompilationPolicy,
@@ -83,7 +109,11 @@ export namespace AutoMovieRecoveryReconstruction {
     return compileNativeChart(input, policy);
   }
 
-  /** Bind two closed paths to a shared periodic annular seam. */
+  /**
+   * Bind two named closed paths to one shared periodic seam. Keep the full
+   * three-dimensional millimetre paths and the explicit seam identity.
+   * Incompatible path or endpoint authority throws.
+   */
   export function prepareAnnularChart(
     bottom: IAutoMovieRecoveryEventCurveArc,
     top: IAutoMovieRecoveryEventCurveArc,
@@ -92,7 +122,12 @@ export namespace AutoMovieRecoveryReconstruction {
     return prepareAnnularChartOperation(bottom, top, id);
   }
 
-  /** Admit saved analytic-domain ownership and retain finite native results. */
+  /**
+   * Realize admitted named analytic domains from saved curve coefficients and
+   * a continuation graph. Preserve each finite result, including a partial
+   * atlas with explicit omissions. If a claim is invalid or repeated, leave
+   * that domain with its original saved operator.
+   */
   export function realizeAnalyticDomains(
     bundle: Parameters<
       IAutoMovieRecoveryAnalyticDomainsRealizationOperation.Operation
@@ -106,14 +141,25 @@ export namespace AutoMovieRecoveryReconstruction {
     return realizeAnalyticDomainsOperation(bundle, graph);
   }
 
-  /** Generate the admitted ordinary tensor families from a saved bundle. */
+  /**
+   * Realize declared ordinary curve families as Engine analytic tensors.
+   * Source coefficients and endpoint ownership are in millimetres. Convert
+   * generated controls and endpoint values together to metres. Incompatible or
+   * conflicting ownership remains explicit.
+   */
   export function realizeTensorFamilies(
     bundle: IAutoMovieRecoveryTensorFamiliesInput,
   ): IAutoMovieRecoveryTensorRealization {
     return realizeTensorFamiliesOperation(bundle);
   }
 
-  /** Reconstruct saved cubic and domain coefficients without source geometry. */
+  /**
+   * Reconstruct a saved cubic bundle using the declared legacy reconstruction
+   * operator. Hermite curves use their saved phase widths when converted to
+   * Bernstein. Unsupported coverage produces `partial`; input refusal,
+   * callback failure and cooperative cancellation publish diagnostics without
+   * a generated model.
+   */
   export function reconstructModel(
     input:
       | IAutoMovieRecoveryTensorFamiliesInput
@@ -124,38 +170,29 @@ export namespace AutoMovieRecoveryReconstruction {
   }
 
   /**
-   * Bind declared saved-domain identities to actual returned ownership records.
-   * The legacy explicit planner retains original group order and appends
-   * diagnostics. Exact unique scalar brackets map its ranges to original declared
-   * interval ordinals. Missing admission observations and ambiguous per-group
-   * analytic ranges stay unknown. No mesh position, normal or triangle is changed
-   * by this record assembly.
+   * Describe how declared domain identities map to the actual reconstruction
+   * result. Preserve the original group ordering. Match legacy ranges only
+   * through unique exact saved scalar brackets. Unobserved or ambiguous
+   * ownership remains unknown.
    */
   export function describeDomains(input: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[0], result: Parameters<IAutoMovieRecoveryDomainsDescriptionOperation.Operation>[1]): ReturnType<IAutoMovieRecoveryDomainsDescriptionOperation.Operation> {
     return describeRecoveryDomainsImplementation(input, result);
   }
 
   /**
-   * Bind planned named domains only to unique actual reports with the same
-   * identity. Repeated or missing names keep admission and generation unknown,
-   * even if an operator report exists at the same array ordinal. All original
-   * reports and geometry stay in the reconstruction result, including unbound
-   * observations.
+   * Map planned named domains to unique actual reports with the same name. A
+   * missing or repeated name leaves admission and generation unknown. Keep all
+   * original reports and geometry in the reconstruction result.
    */
   export function describeNamedDomains(input: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[0], result: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[1]): ReturnType<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation> {
     return describeRecoveryNamedDomainsImplementation(input, result);
   }
   /**
-   * Generate saved ordinary tensor families and retained curve-only event or
-   * legacy domains. Delegated groups have one tensor owner and are not also tiled
-   * by the contour operator. Shared analytic end-curve coefficients are admitted
-   * before engine dispatch; their polygonal conformity and transverse continuity
-   * remain independently unqualified. The contour engine shares each retained
-   * generating boundary across incident slabs. Unmet fitting tolerances and
-   * strip-quality failures remain visible and unqualified. An actual missing
-   * incidence or unrepresentable primitive remains a local gap rather than a
-   * quality warning. Optional work observation changes timing records only; saved
-   * generating inputs are immutable.
+   * Generate ordinary tensor families and remaining curve-only event or legacy
+   * domains from a saved bundle. Keep saved inputs immutable. An admitted
+   * tensor group is emitted by its tensor owner. Tolerance deficits and
+   * unsupported incidence remain distinguished in the returned work and
+   * coverage receipts.
    */
   export function reconstructRecovery(
     bundle: Parameters<IAutoMovieReconstructRecovery.Operation>[0],

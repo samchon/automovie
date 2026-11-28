@@ -15,20 +15,18 @@ import { nclose } from "../../internal/nclose";
  *    about z: x goes to y and y to -x, so the rows are [0, -1, 0 | 1, 0, 0 | 0,
  *    0, 1]; the translation is (1, 2, 3).
  * 2. A five-coordinate step is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the quarter-turn and additive translation, and the malformed count.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public map-pose update with an identity pose, one six-coordinate step and one short step.
+ * @evidence contracts/development/testing.md#independent-expectations A positive quarter-turn sends x to y and y to negative x. The three independent translation coordinates directly specify (1, 2, 3). A five-coordinate input belongs to a different chart.
  */
 export function test_recovery_internal_step_map_pose(): void {
   const pose: IAutoMovieRecoveryMapPose = {
     rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1],
     translation: [0, 0, 0],
   };
-  const stepped: IAutoMovieRecoveryMapPose = AutoMovieRecoveryCameraMap.stepMapPose(pose, [
-    0,
-    0,
-    Math.PI / 2,
-    1,
-    2,
-    3,
-  ]);
+  const stepped: IAutoMovieRecoveryMapPose =
+    AutoMovieRecoveryCameraMap.stepMapPose(pose, [0, 0, Math.PI / 2, 1, 2, 3]);
   const expected: number[] = [0, -1, 0, 1, 0, 0, 0, 0, 1];
   TestValidator.predicate(
     "a quarter turn about z",

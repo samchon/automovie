@@ -9,7 +9,6 @@ import type {
 
 import { AutoMovieEngineCurveLengthQuadrature64 } from "../../AutoMovieEngineCurveLengthQuadrature64";
 import { assertCurve64 } from "./assertCurve64";
-import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /*
  * Integrate a cubic curve's physical speed with composite eight-point
@@ -25,7 +24,11 @@ export function measureCubicCurveLength64(
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
   assertCurve64(curve);
-  if (subdivisions < 1 || subdivisions > 1024)
+  if (
+    !Number.isSafeInteger(subdivisions) ||
+    subdivisions < 1 ||
+    subdivisions > 1024
+  )
     throw new Error("Cubic length subdivisions must be an integer in [1,1024]");
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieEngineCurveLengthQuadrature64.measure(
@@ -70,7 +73,7 @@ export function measureCubicCurveLength64(
       subdivisions,
       false,
     );
-  if (overflowsBinary64(measured.fineMm) || overflowsBinary64(measured.coarseMm))
+  if (!Number.isFinite(measured.fineMm) || !Number.isFinite(measured.coarseMm))
     throw new Error("Cubic speed integration overflow");
   return {
     lengthMm: measured.fineMm,

@@ -14,7 +14,8 @@ import { planDrawLayers } from "./planDrawLayers";
  * live layer on a tie, or null outside every transition. The placed entry is
  * the shown layer, or outside a transition the entry `playbackEntryAt` finds
  * live at the second, or null without a `cut`; `placeDrawLayer` places
- * it on its own clock at the second and at every trail or framing time. The
+ * it on its own clock at that second. Draw and Viewer plan each displayed
+ * trail or framing time independently. The
  * draw page and the Viewer both plan through it, so a delivered frame, a
  * capture and a painted frame show and record the same shot.
  *

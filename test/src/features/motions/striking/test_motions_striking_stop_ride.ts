@@ -33,6 +33,10 @@ const SHOWN: IAutoMovieMotionHumanPosture = {
  * 3. The ride is solved only when prepared, on that contact.
  * 4. A later commitment that met nothing clears the ride: a preparation then
  *    solves none.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains earliest contact commitment, prepared ride solving and clearing when the committed stop has no contact.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a stopped animated path with two contact times, prepares a pose reader and later commits an absent contact.
+ * @evidence contracts/development/testing.md#independent-expectations Use of the earlier contact is visible in both its exact timestamp and the fixture root height. The no-contact preparation never invokes the ride solve.
  */
 export function test_motions_striking_stop_ride(): void {
   const solved: IAutoMovieMotionWeaponContact[] = [];

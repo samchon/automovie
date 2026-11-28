@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A quarter turn about z maps (x, y, z) to (-y, x, z): the bound is
  *    (-2,0,0)-(0,1,3).
  * 3. A scale of -1 on x still gives an ordered box (-1,0,0)-(0,2,3).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers ordering of transformed bounds under translation, a quarter turn and a mirror.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls transformedBoxBounds on the same local box with three explicit column-major matrices.
+ * @evidence contracts/development/testing.md#independent-expectations Adding ten moves only the x interval. The quarter turn maps (x, y) to (-y, x). Mirroring x reverses its transformed corner order, giving the ordered interval [-1, 0].
  */
 export function test_engine_math_transformed_box_bounds(): void {
   const box: IAutoMovieSubjectBox = {

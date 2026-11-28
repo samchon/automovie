@@ -42,6 +42,10 @@ const REQUIREMENT: prepareHumanPostureCorrection.IRequirement = {
  *    window's ends, is exact at the forced knots and within the requirement's
  *    half millimetre on a 1/120 s grid; it is solved at fewer seconds than that
  *    grid has.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names forced knots, constant and smooth corrections, range identity, retained joints and the bounded adaptive solve count.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares direct correction callbacks on a small posture, reads them on a fixed 120 Hz grid and records the callback's solve seconds.
+ * @evidence contracts/development/testing.md#independent-expectations The constant input fixes a 0.1 m translation and 5-degree spine value. The smooth input's sine-squared formula fixes its values at the forced marks and throughout the grid, within the prescribed half-millimetre bound.
  */
 export function test_motions_compose_prepare_human_posture_correction(): void {
   const window: IAutoMovieMotionHumanBalance.IWindow = {

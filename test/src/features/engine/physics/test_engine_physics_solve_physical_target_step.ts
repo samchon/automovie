@@ -16,6 +16,10 @@ const STEP: number = 1e-5;
  * 1. Identical columns share a free update equally.
  * 2. A lower-bound column requesting outward travel is removed and re-solved.
  * 3. The corresponding upper-bound and all-fixed systems remain bounded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes distribution of correction across free columns and removal of bound columns pushing outward.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves equal columns, lower and upper bounds, fixed-only coordinates, and added zero columns or constant residuals.
+ * @evidence contracts/development/testing.md#independent-expectations Symmetry splits equal free corrections. A bound redirects the full correction onto the remaining free column, while all-fixed input has no search direction.
  */
 export function test_engine_physics_solve_physical_target_step(): void {
   const solve: (error: number, minimum: number, maximum: number) => number[] = (

@@ -15,6 +15,10 @@ import { ConstructionSplitFan as F } from "../../internal/construction/Construct
  * 1. An outer seam that does not enclose seam 0 (phases [-t / 2, pi - t]).
  * 2. A split with two children for two seams.
  * 3. A profile reach of 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the non-enclosing seam, mismatched child count and zero reach refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits one invalid fan premise per construction and checks its admission failure.
+ * @evidence contracts/development/testing.md#independent-expectations A farther seam must enclose the inner one. Two separators require three children. A zero reach cannot establish a positive profile span.
  */
 export function test_engine_geometry_split_fan_refusals(): void {
   const refused = (root: IAutoMovieConstructionSplit, why: string): void => {

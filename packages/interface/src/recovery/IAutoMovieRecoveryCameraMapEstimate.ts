@@ -9,136 +9,144 @@ import type {
 } from "..";
 
 /**
- * Conditional three-camera map and sparse fitting evidence in one seed gauge.
- * Only seed-supported landmarks are triangulated in this version; other linked
- * tracks remain explicitly untriangulated. A completed operation is partial
- * with respect to an editable surface, metric scale and unobserved scene
- * geometry.
+ * Completed three-view camera-map evidence in the first-camera unit-baseline
+ * gauge. Check the inner `status` to distinguish a qualified triad, a retained
+ * seed, and failed seed qualification. A completed resident operation transfers
+ * this evidence with outer `partial` status.
  */
 export interface IAutoMovieRecoveryCameraMapEstimate {
-  /** Versioned three-view map evidence artifact. */
+  /** Schema of the completed three-view camera-map evidence. */
   schema: "automovie-recovery-camera-map-estimate-v1";
 
-  /** Caller-asserted scene identity. */
+  /** Caller-asserted scene identity copied from input. */
   objectId: string;
 
-  /** Distinguishes analytic, photographic and inconsistent-control populations. */
+  /** Input acquisition cohort, retained alongside map measurements. */
   cohort: IAutoMovieRecoveryCameraMapInput["cohort"];
 
   /**
-   * Independent map qualification; seed-only does not expose a final third
-   * pose.
+   * Internal geometric qualification. `seed-only` retains the two seed poses;
+   * `refused` means the seed did not qualify.
    */
   status: "accepted-sparse-map" | "seed-only" | "refused";
 
-  /** Every available failed map qualification. */
+  /** Failed map qualifications reached during the attempted stages. */
   refusalReasons: string[];
 
-  /** Source order fixes seed views zero/one and resection view two. */
+  /**
+   * Three source records in input order, with the first two identifying the
+   * seed.
+   */
   sources: IAutoMovieRecoveryCameraSource[];
 
   /**
-   * Unchanged pair evidence, including the seed policy/budget and tentative
-   * pixel matches.
+   * Two-view estimate and its qualification, including its original policy,
+   * limits, and tentative pixel matches.
    */
   seed: IAutoMovieRecoveryCameraPairEstimate;
 
-  /** Complete separate Euclidean reprojection and point policy. */
+  /** Admitted map thresholds for point geometry and Euclidean reprojection. */
   policy: IAutoMovieRecoveryCameraMapInput["policy"];
 
-  /** Complete aggregate/new numerical work ceilings. */
+  /** Admitted map ceilings for aggregate observation and numerical work. */
   budget: IAutoMovieRecoveryCameraMapInput["budget"];
 
   /**
-   * First-camera coordinates; one fixed first pose and one fixed seed
-   * translation norm remove seven similarity freedoms.
+   * Coordinates in the first camera chart, with that pose fixed and the seed
+   * baseline length held at one.
    */
   gauge: "first-camera-unit-seed-baseline";
 
-  /** Physical length is unobserved even when all three cameras qualify. */
+  /** Physical scale remains unknown for the complete triad as well as the seed. */
   metricScale: "unknown";
 
   /**
-   * Three source-order poses. All are null after seed refusal; only the first
-   * two are present for seed-only evidence.
+   * Three source-order poses. Refused seed evidence has three nulls; seed-only
+   * evidence keeps the first two poses.
    */
   poses: (IAutoMovieRecoveryMapPose | null)[];
 
-  /**
-   * Seed-supported finite fitting points and their retained measurements; no
-   * source mesh or editable surface is contained here.
-   */
+  /** Retained seed-supported fitting points and observations in the map gauge. */
   landmarks: IAutoMovieRecoveryMapLandmark[];
 
-  /** Once-observed feature counts in source order. */
+  /** Feature counts from the set observation, in source order. */
   featureCounts: number[];
 
   /**
-   * Actual oriented descriptor pairs compared over six forward/reverse matching
-   * calls.
+   * Measured directed descriptor comparisons across all forward and reverse
+   * pair calls.
    */
   descriptorComparisons: number;
 
-  /** Bidirectional appearance index-pairs before transitive linking. */
+  /** Bidirectional appearance matches before transitive track linking. */
   intersectionMatches: number;
 
-  /** Linked (view, feature) nodes, excluding isolated features. */
+  /** Linked view-feature nodes, excluding isolated features. */
   linkedObservations: number;
 
-  /** All linked components before duplicate-view or point filtering. */
+  /** Linked components before duplicate-view conflict and seed-point filtering. */
   linkedTracks: number;
 
   /**
-   * Components containing distinct feature indices in one image; withheld, not
-   * labelled as false material matches.
+   * Withheld components containing two or more distinct feature indices in the
+   * same view.
    */
   conflictingTracks: number;
 
   /**
-   * Nonconflicting tracks without a direct accepted epipolar seed pair; not
-   * triangulated in this version.
+   * Nonconflicting tracks with no qualified seed observation pair, including
+   * all of them when seed qualification fails.
    */
   untriangulatedTracks: number;
 
   /**
-   * Seed-supported components refusing finite point, pointwise depth, acute ray
-   * angle or pixel reprojection.
+   * Seed-supported tracks rejected by at least one point geometry or
+   * reprojection gate, counted once per track.
    */
   refusedSeedPoints: number;
 
-  /** Seed-supported pairs without a resolved finite DLT point. */
+  /**
+   * Seed-supported tracks for which linear triangulation produces no resolved
+   * finite point.
+   */
   unresolvedSeedPoints: number;
 
   /**
-   * Resolved seed points nonpositive in either seed image; gate counts can
-   * overlap.
+   * Resolved seed points with nonpositive depth in either seed camera. This
+   * count can overlap other resolved-point refusal counts.
    */
   nonpositiveSeedPoints: number;
 
-  /** Resolved seed points below the acute viewing-ray angle requirement. */
+  /** Resolved seed points with acute viewing-ray angle below the policy limit. */
   lowParallaxSeedPoints: number;
 
-  /** Resolved seed points exceeding the per-observation Euclidean pixel limit. */
+  /**
+   * Resolved seed points exceeding the Euclidean pixel limit in either seed
+   * view.
+   */
   reprojectionRefusedSeedPoints: number;
 
-  /** Null before a seed-supported third-view resection can be attempted. */
+  /**
+   * Third-view resection report once enough eligible seed-supported target
+   * observations allow an attempt.
+   */
   resection: IAutoMovieRecoveryMapResection | null;
 
   /**
-   * Null before joint refinement; a nonconverged report does not expose a final
-   * triad.
+   * Joint fit report if numerical refinement returns one, including reports
+   * from nonconverged fits.
    */
   joint: IAutoMovieRecoveryMapJointFit | null;
 
   /**
-   * Maximum final retained-observation reprojection distance in pixels; null
-   * before completed joint qualification.
+   * Computed candidate's largest finite retained pixel reprojection distance,
+   * or null before joint evaluation or after nonpositive final depth.
    */
   maximumReprojectionErrorPx: number | null;
 
   /**
-   * Minimum final seed point's acute viewing-ray angle in degrees; null before
-   * completed joint qualification.
+   * Computed candidate's minimum acute seed-viewing-ray angle in degrees, or
+   * null until available.
    */
   minimumPointParallaxDegrees: number | null;
 }

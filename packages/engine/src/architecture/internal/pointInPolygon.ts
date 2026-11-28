@@ -1,5 +1,6 @@
-import { IAutoMoviePlanarPoint } from "@automovie/interface";
+import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 
+import { pointInPlanarRing } from "../../geometry/internal/pointInPlanarRing";
 import { pointOnSegment } from "./pointOnSegment";
 
 /*
@@ -28,16 +29,5 @@ export function pointInPolygon(
       )
     )
       return true;
-  let inside: boolean = false;
-  for (let index: number = 0; index < polygon.length; ++index) {
-    const from: IAutoMoviePlanarPoint = polygon[index]!;
-    const to: IAutoMoviePlanarPoint = polygon[(index + 1) % polygon.length]!;
-    if (
-      from.y > point.y !== to.y > point.y &&
-      point.x <
-        from.x + ((point.y - from.y) / (to.y - from.y)) * (to.x - from.x)
-    )
-      inside = !inside;
-  }
-  return inside;
+  return pointInPlanarRing(point, polygon);
 }

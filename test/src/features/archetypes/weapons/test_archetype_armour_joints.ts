@@ -40,10 +40,8 @@ import { armourJointObservation } from "../../internal/armourJointObservation";
  * lattice dimensions or expected profile vertices are reproduced.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual row/sector/brim joint observations, causal head-size regressions, fitted exact/unfitted minimum gauge, independent guard lengths and original plate/pad precision.
- * @evidence contracts/development/testing.md#behavioral-verification Builds public actual pieces, matches transformed cell corners, measures noncollinear shared faces and clips actual bowl/brim sections; independently reads real hull-plane support and structured refusal instead of accepting individually valid disconnected cells.
- * @evidence contracts/development/testing.md#independent-expectations Positive contact area and matching actual boundaries define a connected wall; original1.5/3mm and0.75inch source values and museum guard lengths remain literal. Actual cell coordinates and engine hull-plane observations supply contact/gauge, without copying the producer's lattice or homothety formula.
- * @evidence contracts/development/testing.md#distinguishing-cases All six helmet source states fitted/unfitted at both band ends, two head sizes including0.3m row failure, row/azimuth joints and the0.148m disconnected-brim refusal with valid controls; every gauntlet/limb record in fitted and unfitted circumferential courses plus exact guard lengths.
- * @evidence contracts/development/testing.md#execution-ownership One portable actual-producer and numerical-geometry unit; it starts no Human generator, renderer, capture, file or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real pieces and checks their transformed cells in memory. Matches shared faces and clips bowl and brim sections to expose disconnected cells.
+ * @evidence contracts/development/testing.md#independent-expectations Matching boundaries and positive contact area establish connected walls. Uses the sourced 1.5 and 3 mm gauges, 0.75 inch pad and catalogue guard lengths. Varies source record, fit, gauge and head radius, with both feasible and refused brim fits.
  */
 export function test_archetype_armour_joints(): void {
   const findings: string[] = [];

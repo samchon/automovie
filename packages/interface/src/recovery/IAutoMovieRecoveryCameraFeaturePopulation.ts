@@ -1,26 +1,38 @@
-/** Actual candidate and descriptor populations of one automatic image scan. */
+/**
+ * Detector counts for one admitted RGB image, from response maxima through
+ * retained normalized descriptors.
+ */
 export interface IAutoMovieRecoveryCameraFeaturePopulation {
-  /** Source identity for the detector counters. */
+  /** Original capture ID of the image whose detector counts are reported. */
   viewId: string;
 
-  /** Interior response maxima before quadratic/orientation/window admission. */
+  /**
+   * Interior response maxima before localization, orientation and
+   * descriptor-window admission.
+   */
   rawCorners: number;
 
-  /** Descriptor-window-valid candidates entering ANMS. */
+  /**
+   * Oriented window-valid detector candidates entering adaptive spatial
+   * suppression.
+   */
   validCandidates: number;
 
-  /** ANMS-selected points before actual descriptor observation. */
+  /** Candidates selected under the feature cap before descriptor evaluation. */
   selectedBeforeDescriptor: number;
 
-  /** Retained finite nonzero normalized descriptors. */
+  /** Retained nonzero normalized descriptors available for matching. */
   observedDescriptors: number;
 
-  /** Selected points omitted for an unresolved descriptor norm. */
+  /**
+   * Selected candidates omitted because their descriptor gradient norm did not
+   * resolve.
+   */
   zeroDescriptors: number;
 
   /**
-   * Selected points omitted when floating sample coordinates cross their image
-   * support.
+   * Selected candidates omitted when a descriptor sample falls outside its
+   * image-level support.
    */
   invalidSupportDescriptors: number;
 }

@@ -29,6 +29,10 @@ const START: number = 20;
  *    with its samples up to 20; the later one is dropped.
  * 3. Support wrenches and diagnostics up to 20 / 120 s and the ownership changes
  *    the checkpoint counted are kept, the later ones dropped.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the snapshot-bounded prefix of the controller, recovery, contacts, support forces, diagnostics and ownership ledgers.
+ * @evidence contracts/development/testing.md#behavioral-verification Restores a typed checkpoint at interval 20 from a longer bake with closed, open and later episodes plus receipts on both sides of the cut.
+ * @evidence contracts/development/testing.md#independent-expectations The closed episode remains whole, the open episode keeps only its captured samples and the later episode is absent. Time 20/120 and the captured ownership count set the other cuts.
  */
 export function test_engine_physics_restore_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =

@@ -11,8 +11,8 @@ import type {
 import { AutoMovieEngineBernsteinSubdivision64 as S } from "../../AutoMovieEngineBernsteinSubdivision64";
 import { AutoMovieEngineCanonicalBoundary64 as Q } from "../../AutoMovieEngineCanonicalBoundary64";
 import { AutoMovieEngineCurveMath64 as V } from "../../AutoMovieEngineCurveMath64";
+import { boundBicubicSecondDerivatives64 } from "./boundBicubicSecondDerivatives64";
 import { prepareBicubicAtlasBoundary64 } from "./prepareBicubicAtlasBoundary64";
-import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /*
  * Admit canonical atlas coefficients and plan adaptive leaves under the
@@ -24,11 +24,23 @@ export function bicubicAtlasPlan64(
   CORNERS: readonly (readonly [number, number, number])[],
 ): IAutoMovieBicubicAtlasPlan64.IResult {
   if (
+    (input.retainPatchCoefficients !== undefined &&
+      typeof input.retainPatchCoefficients !== "boolean") ||
+    (input.retainTriangleParameters !== undefined &&
+      typeof input.retainTriangleParameters !== "boolean")
+  )
+    throw new Error("Atlas retention flags must be boolean when supplied");
+  const vertexOffset: number = input.vertexOffset ?? 0;
+  if (
     !input.topologyDomain.trim() ||
-    !(input.toleranceMm > 0) ||
+    !Number.isFinite(input.toleranceMm) ||
+    input.toleranceMm <= 0 ||
+    !Number.isSafeInteger(input.maxCells) ||
     input.maxCells < 1 ||
+    !Number.isSafeInteger(input.maxVerticesPerChunk) ||
     input.maxVerticesPerChunk < 3 ||
-    (input.vertexOffset ?? 0) < 0 ||
+    !Number.isSafeInteger(vertexOffset) ||
+    vertexOffset < 0 ||
     (input.cellBudgetPolicy !== undefined &&
       input.cellBudgetPolicy !== "retain-coarse" &&
       input.cellBudgetPolicy !== "omit-unresolved")
@@ -54,13 +66,12 @@ export function bicubicAtlasPlan64(
     names.add(patch.id);
     for (let i: number = 0; i < 16; i++) {
       const id: number = patch.controlIds[i]!;
-      if (id < 0 || id >= input.controlsMm.length)
-        throw new Error("A patch control ID is outside the declared registry");
+      if (!Number.isSafeInteger(id) || id < 0 || id >= input.controlsMm.length)
+        throw new Error(
+          "A patch control ID must be a safe integer in the declared registry",
+        );
     }
   }
-  const norm: (p: AutoMovieVector3Tuple) => number = (
-    p: AutoMovieVector3Tuple,
-  ): number => Math.hypot(...p);
   const boundary: IAutoMoviePrepareBicubicAtlasBoundary64.IResult =
     prepareBicubicAtlasBoundary64(input, SIDES);
   const {
@@ -86,53 +97,6 @@ export function bicubicAtlasPlan64(
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
   ];
-  const bound: (grid: AutoMovieBernsteinGrid64) => [number, number, number] = (
-    grid: AutoMovieBernsteinGrid64,
-  ): [number, number, number] => {
-    let uu: number = 0,
-      uv: number = 0,
-      vv: number = 0;
-    for (let r: number = 0; r < 4; r++)
-      for (let c: number = 0; c < 2; c++)
-        uu = Math.max(
-          uu,
-          6 *
-            norm(
-              V.add(
-                V.sub(grid[r]![c + 2]!, V.scale(grid[r]![c + 1]!, 2)),
-                grid[r]![c]!,
-              ),
-            ),
-        );
-    for (let r: number = 0; r < 2; r++)
-      for (let c: number = 0; c < 4; c++)
-        vv = Math.max(
-          vv,
-          6 *
-            norm(
-              V.add(
-                V.sub(grid[r + 2]![c]!, V.scale(grid[r + 1]![c]!, 2)),
-                grid[r]![c]!,
-              ),
-            ),
-        );
-    for (let r: number = 0; r < 3; r++)
-      for (let c: number = 0; c < 3; c++)
-        uv = Math.max(
-          uv,
-          9 *
-            norm(
-              V.sub(
-                V.sub(grid[r + 1]![c + 1]!, grid[r + 1]![c]!),
-                V.sub(grid[r]![c + 1]!, grid[r]![c]!),
-              ),
-            ),
-        );
-    // Second differences of finite controls can overflow binary64.
-    if ([uu, uv, vv].some(overflowsBinary64))
-      throw new Error("nonfinite tensor derivative estimate");
-    return [uu / 8, uv / 4, vv / 8];
-  };
   let allocated: number = Math.min(input.maxCells, input.patches.length);
   const plans: IAutoMovieBicubicAtlas64.Plan[] = input.patches.map(
     (patch: Patch, p: number): IAutoMovieBicubicAtlas64.Plan => {
@@ -210,7 +174,9 @@ export function bicubicAtlasPlan64(
       while (stack.length) {
         const cell: Cell = stack.pop()!;
         try {
-          const b: [number, number, number] = bound(cell.grid);
+          const b: [number, number, number] = boundBicubicSecondDerivatives64(
+            cell.grid,
+          );
           cell.error = b[0] + b[1] + b[2];
           if (cell.error <= input.toleranceMm) {
             cells.push(cell);
@@ -308,6 +274,10 @@ export function bicubicAtlasPlan64(
   );
 
   return { boundary, fanVertices, norm, cross, plans };
+}
+
+function norm(point: AutoMovieVector3Tuple): number {
+  return Math.hypot(...point);
 }
 
 type Patch = IAutoMovieBicubicAtlas64.Patch;

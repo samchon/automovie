@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *    switch on with the empty string, numbers and a colour assignment.
  * 3. An unknown shade, a zero stroke and a switch that is neither on nor off
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe empty defaults, parsed lists, switches, numeric values and colors, and malformed requests.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that omitted options resolve to documented defaults, present options retain the supplied values, and an unknown shade, zero stroke or malformed switch is refused.
+ * @evidence contracts/development/testing.md#independent-expectations Compares against literal settings for omission and explicit input, and supplies the three specific invalid input values as refusal controls.
  */
 export function test_render_scene_parse_inspection_request(): void {
   const read = (entries: [string, string][]): IAutoMovieInspectionRequest => {

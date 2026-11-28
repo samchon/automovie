@@ -35,6 +35,10 @@ const sample: () => IAutoMovieConstraintViolation[] =
  *    and path.
  * 2. Original records still have no node.
  * 3. A missing tree and an unclaimed beat leave both outputs unstamped.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the stamped beat-node and preserved feedback records, along with absent and unclaimed tree controls.
+ * @evidence contracts/development/testing.md#behavioral-verification The test passes two prepared feedback objects to the beat location owner and reads its output fields and input identities. It repeats the operation without a tree or relevant claim.
+ * @evidence contracts/development/testing.md#independent-expectations The authored graph alone maps the beat to b1. Both resulting records should keep their severity and path from the supplied violations, and the original records have no added node. An absent mapping supplies no replacement identity.
  */
 export function test_engine_film_locate_on_beat(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

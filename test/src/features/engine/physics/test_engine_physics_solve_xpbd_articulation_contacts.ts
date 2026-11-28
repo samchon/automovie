@@ -105,6 +105,10 @@ function patch(
  * 4. The same hold 10 N s short of rest with caps of 2 N s: both axes at their
  *    caps and the floor pulling nothing, the nearest feasible point (Escande,
  *    Mansard and Wieber 2014).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains nonnegative remaining entry capacity, friction bounds and lexicographic priority of support over motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs articulated support rows for preloaded landing, capped normal and tangent force, a two-axis coupled row and an unreachable wrench request.
+ * @evidence contracts/development/testing.md#independent-expectations Friction 0.5 yields 2 N·s tangent at 4 N·s normal. The sum 5 and difference 1 give impulses (3, 2), and the impossible case reaches both 2 N·s caps.
  */
 export function test_engine_physics_solve_xpbd_articulation_contacts(): void {
   // 1-2. The bound's seams, three own axes of cap 100.

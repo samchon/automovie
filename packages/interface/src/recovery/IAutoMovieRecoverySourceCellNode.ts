@@ -1,29 +1,14 @@
-/**
- * Symbolic vertex of a scalar-clipped source cell, before coefficient
- * publication. The scalar uses the source height chart in registered
- * millimetres; raw and declared incidence identities remain distinct. Consumers
- * read original vertex-ordinal support through a readonly list, and source
- * admission owns its ranges.
- */
+/** Raw clipping corner or cut-edge crossing with separate joining identity. */
 export interface IAutoMovieRecoverySourceCellNode {
-  /**
-   * Stable identity within the owning chart, boundary or occurrence registry;
-   * equal coordinates do not create identity.
-   */
+  /** Raw original vertex or source-edge crossing key. */
   id: string;
 
-  /**
-   * Declared connectivity identity, independent of physical coordinate
-   * equality.
-   */
+  /** Raw or canonical joining key under the prepared incidence policy. */
   incidenceId: string;
 
-  /** Original source vertex ordinals supporting this symbolic observed node. */
+  /** Original source vertex address or the two endpoints of the cut source edge. */
   vertices: readonly number[];
 
-  /**
-   * Node coordinate in the immutable registered scalar chart, in millimetres
-   * for recovery observations.
-   */
+  /** Registered axis height of the corner or crossing, in millimetres. */
   scalar: number;
 }

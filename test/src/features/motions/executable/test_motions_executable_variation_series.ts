@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  *
  * 1. 2, 4, 4, 4, 5, 5, 7, 9 have the textbook deviation 2.
  * 2. The corners of a 2 m square lie `sqrt(2)` m from its centre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines scalar population standard deviation and radial RMS spread from mean positions.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the two statistics on a textbook scalar series and a square point fixture.
+ * @evidence contracts/development/testing.md#independent-expectations The exact scalar series has population deviation 2; 2 m square corners are all √2 m from their centroid and have that RMS spread.
  */
 export function test_motions_executable_variation_series(): void {
   TestValidator.predicate(

@@ -10,10 +10,10 @@ import type {
 import { AutoMovieEngineScheduleError } from "./AutoMovieEngineScheduleError";
 
 /**
- * The state of one walk of a composition (`resolveSchedule`) and the
- * readings of it every placement shares: the instants an anchor or a cue track
- * offers, the names placed so far, the instant an event names and the intent a
- * part begins with.
+ * The state of one walk of a composition (`resolveSchedule`) and the readings
+ * of it every placement shares: the instants an anchor or a cue track offers,
+ * the names placed so far, the instant an event names and the intent a part
+ * begins with.
  */
 export namespace AutoMovieEngineScheduleWalk {
   /**
@@ -36,12 +36,15 @@ export namespace AutoMovieEngineScheduleWalk {
   }
 
   /**
-   * The named instants of an anchored entry (its events, and its own start and
-   * end where it names none so) or of a cue track.
+   * Read the played instants of an anchored action or the instants of a cue
+   * track. An action includes events within its placed start and end, including
+   * an event exactly at the cut. Supply a start or end instant when the action
+   * has no played event by that name.
    *
    * @param walk The walk.
    * @param of The anchor or track.
-   * @returns The instants, or undefined when nothing of that name is placed.
+   * @returns Film seconds in declaration order, or undefined when neither an
+   *   anchor nor a cue track has that name.
    */
   export function instants(
     walk: IAutoMovieScheduleWalk.IWalk,
@@ -53,7 +56,12 @@ export namespace AutoMovieEngineScheduleWalk {
     // compute from what is placed so far (a struck person's hits).
     if (entry === undefined)
       return walk.tracks.get(of) ?? walk.laws.instants?.(of, walk.entries);
-    const events: readonly IAutoMovieScheduleCue[] = entry.events ?? [];
+    const events: readonly IAutoMovieScheduleCue[] = (
+      entry.events ?? []
+    ).filter(
+      (event: IAutoMovieScheduleCue): boolean =>
+        event.seconds >= entry.start && event.seconds <= entry.end,
+    );
     const named: (name: string) => boolean = (name: string): boolean =>
       events.some((e: IAutoMovieScheduleCue): boolean => e.name === name);
     return [
@@ -82,8 +90,8 @@ export namespace AutoMovieEngineScheduleWalk {
    * @param index The occurrence, from 0.
    * @param by The intent that asks, for the error.
    * @returns Film seconds.
-   * @throws {AutoMovieEngineScheduleError} When there is no event of that name or
-   *   that many.
+   * @throws {AutoMovieEngineScheduleError} When there is no event of that name
+   *   or that many.
    */
   export function instant(
     of: string,

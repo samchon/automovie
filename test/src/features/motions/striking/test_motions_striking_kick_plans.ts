@@ -44,6 +44,10 @@ const BASE: IAutoMovieMotionHumanPosture = {
  * Scenario: a correction of 1 m along +X over a second, started at the kick's
  * origin, shows half the turn, 5 degrees, and the ankle at (0.5, 0, 0) halfway,
  * replanning once; a second correction of nothing changes neither.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes sequenced animated replanning and per-correction blending that skips zero displacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a 1 m correction and a zero correction, then samples the carriage and ankle halfway through.
+ * @evidence contracts/development/testing.md#independent-expectations Minimum jerk gives 0.5 at one-half, so the virtual ankle moves 0.5 m and a 10° replan shows 5°. Exactly one replan is expected.
  */
 export function test_motions_striking_kick_plans(): void {
   let replans: number = 0;

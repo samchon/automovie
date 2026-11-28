@@ -12,23 +12,24 @@ import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
  */
 export namespace AutoMovieHumanPelvicShare {
   /**
-   * Share of a clinical hip flexion the pelvis carries: Bohannon 1985 measured
-   * a quarter to a third (measured range), taken at its midpoint 7/24
-   * (convention, the abstract gives no mean).
+   * Dimensionless fraction of clinical hip flexion carried by the pelvis
+   * before the opposite hip's extension limit applies. The value is 7/24, the
+   * midpoint of one quarter and one third.
    */
   export const SHARE: number = 7 / 24;
 
-  /** The hip's extension range, degrees, read from the pose channels (AAOS): how far the other hip lets the pelvis turn back. */
+  /**
+   * Positive nominal hip extension allowance in clinical degrees. Derived from
+   * the negative lower bound of the canonical hip flexion channel.
+   */
   export const EXTENSION: number = -AutoMovieHumanPoseChannels.find(
     (row): boolean => row[0] === "legs.<side>.hip.flexion",
   )![4];
 
   /**
-   * The pelvis's backward turn for both hips' clinical flexions.
-   *
-   * @param left Left hip flexion, degrees.
-   * @param right Right hip flexion, degrees.
-   * @returns The posterior tilt, degrees, never negative.
+   * Read the nonnegative posterior pelvis tilt in degrees given left and right
+   * clinical hip flexions. The share of the larger flexion is capped by the
+   * other hip's available extension.
    */
   export function tilt(left: number, right: number): number {
     // The share of the larger flexion, bounded so the less flexed thigh keeps
@@ -41,11 +42,9 @@ export namespace AutoMovieHumanPelvicShare {
   }
 
   /**
-   * The largest turn a hip joint itself makes for a clinical flexion: least
-   * pelvic help, with the other thigh down.
-   *
-   * @param flexion A clinical hip flexion, degrees.
-   * @returns The hip joint's own flexion, degrees.
+   * Read the hip joint's own flexion in degrees when the other thigh is down.
+   * Positive clinical flexion loses the corresponding pelvis share. Extension
+   * is carried through.
    */
   export function joint(flexion: number): number {
     return flexion > 0 ? flexion - tilt(flexion, 0) : flexion;

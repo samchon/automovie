@@ -27,6 +27,10 @@ import { vclose } from "../../internal/vclose";
  *    refuses instead of manufacturing a closed solid.
  * 5. Mutating a source vertex after reflection but before the first hull read
  *    cannot move the already returned independent reflected geometry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains reflected hull winding, source and output ownership, and admission after either side changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds exact reflected cuboids, edits an unread result and an independent source, and attempts mass admission on a reflected flat rectangle.
+ * @evidence contracts/development/testing.md#independent-expectations Independent planes and the 2 × 3 × 4 dimensions give volume 24 and moments (13, 20, 25)/12. Doubling the reflected x extent gives volume 48 and centroid x = -4.
  */
 export function test_engine_physics_physical_hull_mass(): void {
   const source: IAutoMovieVector3[] = [];

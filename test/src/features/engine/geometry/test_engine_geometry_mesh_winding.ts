@@ -26,6 +26,10 @@ import { outwardBoxMesh } from "../../internal/outwardBoxMesh";
  * 4. Every triangle reversed: the centre winds -1 and is still inside.
  * 5. A point on the top face is surface, not inside.
  * 6. A zero-area triangle added changes nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names inside and surface states, missing faces, overlapping components, reversed orientation and degenerate triangles.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries centre, exterior and surface points against complete, open, reversed and combined triangle buffers.
+ * @evidence contracts/development/testing.md#independent-expectations A closed cube subtends 4π at its centre. Removing one symmetric face removes a sixth. Overlap adds signed solid angles and reversing faces negates winding.
  */
 export function test_engine_geometry_mesh_winding(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-12;

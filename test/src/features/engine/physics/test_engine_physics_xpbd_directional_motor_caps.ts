@@ -35,6 +35,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    task with the axis past the weak bound while a level-two motion row pulls
  *    it the weak way; the same program with both caps at the weak bound stops
  *    at it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines separate strength per motor direction through native and cascaded solves.
+ * @evidence contracts/development/testing.md#behavioral-verification Configures a weak-direction PD demand, steps a capped free link in both directions and drives a support cascade against the competing motion row.
+ * @evidence contracts/development/testing.md#independent-expectations One link turns at τh/(I + mc²) using the cap of the actual direction. A strong-side-only support request succeeds with asymmetric caps and stops at the common weak cap otherwise.
  */
 export function test_engine_physics_xpbd_directional_motor_caps(): void {
   const findings: string[] = [];

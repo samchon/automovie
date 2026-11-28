@@ -36,6 +36,8 @@ Set the asset and its use at [intake](project-context.md#intake). Use the applic
 
 For long films or films whose screenplays skip narrative passes, start [programmed motion](../motion/performance.md) from the finished text. Run the [pre-composition discovery checkpoint](../story/planning/discovery.md#checkpoints) first when the long route runs narrative passes.
 
+At the start of either programmed route, use the director's [first programming assignment](director.md#first-programming-assignment). Widen from the observed passage through its joins.
+
 A motion hint or direct 3D film is silent by default. Follow the [soundtrack route](../audio/soundtrack.md) when the commission includes sound.
 
 ## Production checks

@@ -25,6 +25,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    soles, its forward axis perpendicular to the left-to-right vector with the
  *    left sole on its left; facing +x for soles side by side along z; and the
  *    fallback's axis for coincident soles.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains constant-pivot evolution, cubic interpolation, corner chaining and the planar midfeet frame including degenerate inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls each planner helper with an authored frequency, endpoint rates, positive and zero durations, and distinct or coincident soles.
+ * @evidence contracts/development/testing.md#independent-expectations Exponential growth and the Hermite midpoint supply closed forms. Forward is perpendicular to the separation axis and the fallback fixes coincident soles.
  */
 export function test_engine_physics_physical_icp_planner_tools(): void {
   const tools = AutoMovieEnginePhysicalIcpPlannerTools;

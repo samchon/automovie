@@ -28,22 +28,18 @@ import { TestValidator } from "@nestia/e2e";
 const CYCLE: number = 30;
 
 /**
- * The care laws compose one action each on the carer's chain:
+ * Check the authored requests produced by the care composers.
  *
- * - `pulse` holds the partner's pulse site with the fingertips for `PULSE_HOLD`
- *   seconds, the carotid at the neck and the radial at the wrist, the right
- *   hand unless another is named;
- * - `compressions` presses the partner's sternum with both palms, arms straight,
- *   30 times with no hold;
- * - `pressWound` presses the wounded region with both palms once and holds;
- * - `kneelBeside` kneels on both knees at the given point and stays down.
+ * Scenarios:
  *
- * Scenarios, on a chain for subject `a` caring for `b`:
+ * 1. Compose a right-hand carotid check by default and a left-hand radial
+ *    check on request.
+ * 2. Compose 30 palm compressions, one five-second wound pressure on the left
+ *    thigh, and a both-knee kneel at (0.4, 0, 1).
  *
- * 1. The carotid with no hand named, and the radial with the left hand.
- * 2. One cycle of compressions.
- * 3. A 5 s pressure on the left thigh's front.
- * 4. A kneel at (0.4, 0, 1).
+ * @evidence contracts/development/common.md#meaningful-documentation The compositions identify the partner regions, hands, holds and kneel location.
+ * @evidence contracts/development/testing.md#behavioral-verification Each helper's appended intent is compared with the typed request expected by its chain caller.
+ * @evidence contracts/development/testing.md#independent-expectations The expected requests specify all selected fields directly from the input and each composer's stated default.
  */
 export function test_motions_touch_care(): void {
   const last = (node: IAutoMovieComposition): IAutoMovieIntent => {

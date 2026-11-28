@@ -35,19 +35,21 @@ function indexed(samples: readonly number[]): IAutoMovieRandom {
 }
 
 /**
- * Keep skill axes, distribution terms and replay domains independent.
+ * Check skill overrides and deterministic distribution replay.
  *
  * Scenarios:
  *
- * 1. A named overall level fills absent axes and preserves zero and one overrides.
- *    Overall and axis values outside the admitted interval fail.
- * 2. A quarter proficiency maps to 5/32 of the novice to elite span.
- * 3. Reusing a stream address replays an indexed draw. Changing any address field,
- *    or requesting a series, changes the deterministic stream key.
- * 4. A normal draw at U=1/2 and V=1/2 is -sqrt(log(4)). An ex-Gaussian draw at a
- *    different offset adds the independent log(2) exponential term.
- * 5. With zero normal draw, log-normal timing is the planned mean divided by
- *    sqrt(1 + variance / mean squared). A zero instant draws nothing.
+ * 1. Fill absent axes from the overall level, preserve explicit zero and one,
+ *    and refuse values outside the interval. Compare the prescribed
+ *    quarter-level blend and scatter.
+ * 2. Replay a keyed sample, then change each address field and the series
+ *    selection to obtain distinct stream keys.
+ * 3. Compare fixed-input normal, ex-Gaussian and log-normal values. A
+ *    zero-time scale takes no sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the skill fields, key domains, distribution inputs and zero-time behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification The skill functions use indexed deterministic streams and separate oracles for resolution, mapping and timing.
+ * @evidence contracts/development/testing.md#independent-expectations Literal fixed inputs give the interpolation and the standard normal transform, the independent exponential term and log-normal moment conversion.
  */
 export function test_motions_skill_human_skill(): void {
   const novice: IAutoMovieMotionHumanSkill = HumanSkill.resolve(

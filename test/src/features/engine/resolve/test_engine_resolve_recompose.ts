@@ -26,6 +26,10 @@ const move: (x: number, y: number, z: number) => IAutoMovieTransform = (
  *
  * 1. A child at (1, 2, 3) of an identity root lands at (1, 2, 3).
  * 2. A grandchild at (0, 1, 0) of that child lands at (1, 3, 3).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names world composition through a child and a grandchild under an identity root.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies a world map, typed local transforms, and a child index to `recompose`, then reads the updated child and grandchild translation entries.
+ * @evidence contracts/development/testing.md#independent-expectations Identity parent plus child offset (1, 2, 3) yields (1, 2, 3). Adding the grandchild's local (0, 1, 0) yields (1, 3, 3), where a traversal that skipped parent accumulation would give (0, 1, 0).
  */
 export function test_engine_resolve_recompose(): void {
   const world: Map<string, number[]> = new Map([["root", AutoMovieEngineMatrix4.identity()]]);

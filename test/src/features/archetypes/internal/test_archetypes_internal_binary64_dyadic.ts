@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. 3 is 3 * 2^51 times 2^-51, and -3 is its negation.
  * 3. The least subnormal, Number.MIN_VALUE, is 1 times 2^-1074.
  * 4. An infinite value is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the expected signed integer and exponent for normals, the least subnormal and an infinite refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual binary64 splitter on each value and checks both integer and exponent, plus refusal of infinity.
+ * @evidence contracts/development/testing.md#independent-expectations Binary64 supplies 52 stored fraction bits. The leading bit restores the normal significand, so 1 is `2^52 * 2^-52`. The least subnormal is `1 * 2^-1074`.
  */
 export function test_archetypes_internal_binary64_dyadic(): void {
   const parts: ReturnType<typeof ArchetypeBinary64> = ArchetypeBinary64();

@@ -57,6 +57,10 @@ const shot: IAutoMovieShot = {
  *
  * 1. A walk performance and a held performance both target hero; resolution throws
  *    an Error naming the duplicate node and both performance source positions.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenario identifies the duplicate hero performance pair and both source addresses expected in the error.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the public beat-end owner with a walk and a held performance targeting one node and checks the thrown Error and its distinct addresses.
+ * @evidence contracts/development/testing.md#independent-expectations The two declarations have the same hero node but occupy separate known positions in the input list. Both addresses identify the conflict without relying on a chosen motion result.
  */
 export function test_engine_film_beat_end_duplicate_performance_nodes(): void {
   let thrown: unknown = null;

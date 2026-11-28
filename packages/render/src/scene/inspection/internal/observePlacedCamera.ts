@@ -187,7 +187,7 @@ export function observePlacedCamera(
       );
     if (
       maxOcclusionRatio !== undefined &&
-      (maxOcclusionRatio < 0 || maxOcclusionRatio > 1)
+      (!Number.isFinite(maxOcclusionRatio) || maxOcclusionRatio < 0 || maxOcclusionRatio > 1)
     ) {
       coverage.push({
         ...occlusion,

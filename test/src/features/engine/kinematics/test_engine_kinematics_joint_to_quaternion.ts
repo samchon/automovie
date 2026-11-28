@@ -23,6 +23,10 @@ const HALF_ROOT_TWO: number = Math.SQRT1_2;
  *    0.5, -0.5, 0.5), a unit quaternion.
  * 6. Non-unit orthogonal custom axes are normalized: flexion 30 about (0, 2, 0) is
  *    (0, sin 15, 0, cos 15).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers clinical default axes, null angles, composition order and normalization of a custom axis.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls jointToQuaternion on independent flexion, twist and abduction cases and on a combined rotation.
+ * @evidence contracts/development/testing.md#independent-expectations Quarter turns give sin and cos of 45 degrees on the expected axis. Hamilton multiplication of Y90 times X90 gives (0.5, 0.5, -0.5, 0.5). The custom axis direction retains the 30-degree half-angle.
  */
 export function test_engine_kinematics_joint_to_quaternion(): void {
   const pose = (

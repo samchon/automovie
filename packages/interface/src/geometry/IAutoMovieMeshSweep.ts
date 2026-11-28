@@ -1,69 +1,49 @@
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 
-/** Ring placement, closure and wall shading for direct sweep triangulation. */
+/** Ring sampling and wall shading inputs for direct sweep triangulation. */
 export namespace IAutoMovieMeshSweep {
   /**
-   * Triangulate a sweep directly into a closed mesh, for hard-edged members
-   * such as profiles, rails, pipes and tapering piers that need no subdivision
-   * cage.
+   * Sweep geometry, ring sampling policy and wall shading for a directly
+   * triangulated mesh.
    *
-   * Rings sit at the given spine parameters, by default the chord-length shares
-   * of the spine's own points, so a sweep along a polyline gets one ring per
-   * corner and straight walls between them. Each ring is every loop of the
-   * sweep at that parameter: a polygon section under parameter correspondence
-   * gives exactly its corners, so corners stay corners; any other loop gives
-   * `columns` points at even parameters. Rings are laid out by
-   * `canonicalRegion`, outer loop counterclockwise and holes clockwise, so the
-   * walls between consecutive rings face out of the solid and the hole walls
-   * into the holes. Both ends are capped by triangulating the end rings as
-   * planar regions (`trianglesOf`) unless `caps` is false.
-   *
-   * `flat` shading gives every wall triangle its own corners and plane normal,
-   * so section corners and ring edges stay creases; `smooth` shares each ring
-   * point between its walls and takes area-weighted vertex normals (`meshOf`),
-   * so a polygon approximating a round section reads round. The atlas is
-   * metric: on the walls `u` is the distance round the ring and `v` the spine
-   * parameter times the spine's polygon length, the distance along a path of
-   * straight legs; caps take their section-plane coordinates. A smooth wall
-   * repeats each ring's first point at the end of the ring so the seam can
-   * carry both `u` 0 and the ring's length, and pools the two normals there.
-   *
-   * Whether the solid intersects itself is the author's: a spine turning
-   * tighter than the section is wide folds the walls through each other.
+   * The sweep joins sampled outer and hole rings with consistent winding
+   * between rows. A polygon under parameter correspondence preserves its
+   * authored corner count. The wall texture axes measure distance around the
+   * ring and polygonal spine station distance; end caps use planar section
+   * coordinates. Author a spine and sections whose swept walls stay separate.
    */
   export type IProps = {
     /**
-     * Authored sweep in model metres, borrowed for this synchronous meshing
-     * call and admitted by compileSweep. Self-intersection of the
-     * swept solid is not tested.
+     * Borrowed authored sweep in model metres. CompileSweep admits its authored
+     * geometry before the mesher samples it.
      */
     sweep: IAutoMovieSweep;
 
     /**
-     * Normalized spine coordinates of successive rings. The mesher copies and
-     * checks at least two finite strictly increasing values, exactly starting
-     * at 0 and ending at 1. Omitted uses the spine control points' polygonal
-     * chord-length shares.
+     * At least two finite strictly increasing normalized spine coordinates,
+     * exactly 0 first and 1 last. Omission uses the spine points' chord-length
+     * shares.
      */
     rows?: readonly number[];
 
     /**
-     * Safe integer samples per nonpolygon loop, at least three; omitted means
-     * 32. Parameter-correspondence polygons use their authored corner count
-     * instead, but this option is still validated.
+     * Samples per loop unless parameter correspondence supplies a polygon's
+     * corners. Supply a safe integer of at least three; the default is 32.
      */
     columns?: number;
 
     /**
-     * Whether to triangulate both end regions, including holes; omitted means
-     * true. False returns the open walls.
+     * Whether to close both ends by triangulating end regions and retaining
+     * their holes. Omission enables caps and false gives open walls.
      */
     caps?: boolean;
 
     /**
-     * Wall normal sharing: flat duplicates triangle corners, smooth shares ring
-     * vertices and pools seam normals. Omitted means flat; end caps keep
-     * separate planar normals in either case.
+     * Wall normal policy. Flat shading duplicates triangle corners. Smooth
+     * shading shares ring vertices and pools normals across duplicated UV seam
+     * corners. Omission uses flat shading.
+     *
+     * The capped end normals remain planar for either wall setting.
      */
     shading?: "flat" | "smooth";
   };

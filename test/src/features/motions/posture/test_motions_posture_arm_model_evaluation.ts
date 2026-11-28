@@ -36,6 +36,10 @@ const MERIT_ROUNDING_MM: number = 64 * 1000 * Number.EPSILON;
  *    clearance pairs and task points.
  * 2. Change only the fifth knot's wrist angle. The first interior edge keeps
  *    its endpoint chord, but the material encounter between them clears.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains timed hold and task misses, directed clearance masks and certification, and remote-knot material recomputation.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates one arm with and without a clearance mask and certificate, then changes only the distant wrist knot.
+ * @evidence contracts/development/testing.md#independent-expectations Independent miss magnitudes determine merit and the forward pair diagnostic. Reverse collision remains after forward certification and the later wrist turn removes only the material encounter.
  */
 export async function test_motions_posture_arm_model_evaluation(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

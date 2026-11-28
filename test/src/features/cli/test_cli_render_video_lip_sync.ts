@@ -21,11 +21,9 @@ import { CliRenderDeliveryFixture } from "../internal/CliRenderDeliveryFixture";
  * 2. A report with one inconclusive line and one envelope-driven line publishes
  *    and lists both, the second as unmeasured.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the report listing and the publication rule each case verifies.
- * @evidence contracts/development/testing.md#behavioral-verification Uses the CLI's render entry with Render's real composer and validators, a fake draw session and FFmpeg process boundary, and the host's own drawing with the mixed sound record a sound list would have produced handed to the encoder.
- * @evidence contracts/development/testing.md#independent-expectations Each measured entry's lag in milliseconds is its frame lag times the 250 ms frame of the 4 fps fixture; the verdicts and the unmeasured reason are the entries' literals.
- * @evidence contracts/development/testing.md#distinguishing-cases A failed line against an inconclusive and an unmeasured line; the lag itself belongs to test_engine_lip_sync_lag and every other delivery outcome to test_cli_render_video_delivery.
- * @evidence contracts/development/testing.md#execution-ownership Owns its isolated temporary directory and calls no FFmpeg, browser or device.
+ * @evidence contracts/development/common.md#meaningful-documentation Names failed, inconclusive and unmeasured dialogue observations and the verdict that blocks publication.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the normal CLI render with fixture draw, sound and encoder boundaries. Reads the actual report entries and publication result for a failed line and for an inconclusive line beside an unmeasured one.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal line verdicts and an envelope-driven unmeasured control. At 4 fps, converts each fixed frame lag using the independently known 250 ms frame duration.
  */
 export async function test_cli_render_video_lip_sync(): Promise<void> {
   const root: string = await fs.mkdtemp(

@@ -24,14 +24,21 @@ import { AutoMovieEngineLoftAdmissionError } from "./AutoMovieEngineLoftAdmissio
  */
 export namespace AutoMovieEngineConstructionProfileGrid {
   /**
-   * Derive grids from original Point0; malformed or unresolved requests produce
-   * no partial output.
+   * Derive loop grids from original surface points. The chord tolerance is a
+   * finite positive distance in millimetres. Each returned grid meets the
+   * sampled chord criterion within the refinement limits.
+   *
+   * @param prepared Original profile and its named surface charts.
+   * @param tolerance Chord distance in kernel millimetres.
+   * @returns One grid per prepared loop, in declaration order.
+   * @throws AutoMovieEngineLoftAdmissionError for an invalid tolerance or a
+   *   grid whose sampled criterion could not be met.
    */
   export function create(
     prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
     tolerance: number,
   ): IAutoMovieConstructionProfileGrid.IGrid[] {
-    if (!(tolerance > 0))
+    if (!(tolerance > 0) || !Number.isFinite(tolerance))
       fail(
         "Original profile tessellation needs a finite positive millimetre chord tolerance.",
       );

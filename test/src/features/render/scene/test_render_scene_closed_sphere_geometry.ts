@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    normal of the first, while their UVs differ.
  * 2. Every vertex lies at the radius.
  * 3. A radius of zero, a negative radius and one beyond Float32 are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names seam identity, differing UVs, radial placement and invalid inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds native sphere attributes through the scene geometry owner and reads every row's seam coordinates and normals, UV boundary and the vertex lengths. Calls the same owner with refused radii.
+ * @evidence contracts/development/testing.md#independent-expectations Eight by four segmentation has paired row endpoints at the same geometric position and normal. Texture coordinates span the seam, and the radial norm is the supplied constant. Zero, negative and unrepresentable Float32 radii refuse.
  */
 export function test_render_scene_closed_sphere_geometry(): void {
   const geometry = AutoMovieRenderSceneLayout.createClosedSphereGeometry({

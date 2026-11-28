@@ -31,6 +31,10 @@ import { createSkinnedTubeModel } from "../../internal/createSkinnedTubeModel";
  *    skinning of the same mesh moves them by more than 0.1 m), while the
  *    attribute the sample point reads is unchanged, so every vertex samples the
  *    same pattern value as in its bind pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names bind-pose shader sampling and the tested effect of moving the spine.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the typed skinned tube, compiles its material hook into shader source and inspects the sample splice. Applies native CPU skinning after rotating the spine and reads both the moved vertex and original attribute.
+ * @evidence contracts/development/testing.md#independent-expectations A quarter-turn of the spine visibly moves its upper vertices by over 0.1 m. The original bind position remains stable, and the procedural sample precedes the skinning and morph chunks that alter the presented vertex.
  */
 export function test_render_scene_build_model_procedural_skinned(): void {
   const surface: IAutoMovieProceduralSurface = {

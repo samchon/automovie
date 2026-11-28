@@ -17,7 +17,12 @@ import { throwsError } from "../../internal/predicates";
  * 3. A margin of 0 certifies nothing and returns at + 1; a read at the grid end
  *    returns at + 1.
  * 4. A bound that is undefined certifies nothing: the next index.
- * 5. A negative bound is refused.
+ * 5. From index 4 with margin 2.5 the first uncertified index is 7.
+ * 6. A negative bound is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the first uncertified index, the nonzero starting index, the exhausted grid and the zero, missing and negative bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Schedule.advanceGrid with a resident linear distance function and explicit callbacks that return an undefined or negative bound.
+ * @evidence contracts/development/testing.md#independent-expectations For a distance of j minus the read index, 5 is the first uncertified index at margin 5, and 7 is the first from index 4 at margin 2.5. Full coverage returns 11, and no certificate advances a single index.
  */
 export function test_engine_composition_advance_grid(): void {
   const linear = (from: number, to: number): number => to - from;

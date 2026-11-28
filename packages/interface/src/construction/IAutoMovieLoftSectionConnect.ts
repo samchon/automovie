@@ -7,15 +7,13 @@ import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource"
  */
 export namespace IAutoMovieLoftSectionConnect {
   /**
-   * Explicit native, mixed or basis law on a changed regular station span.
-   *
-   * Finish stores these records in the returned chain; active returns a
-   * borrowed law using inclusive bounds and validates finite increasing bounds
-   * and any retained mixed endpoint binding. Preserve all nested data while
-   * chain readers cache station preparations. An absent or empty span list
-   * leaves original ownership in effect; a basis span explicitly selects the
-   * chain's coefficient field. These laws grant no cap domain beyond their
-   * regular endpoints.
+   * Declared section-generating law on inclusive physical-station bounds in
+   * millimetres. Native uses one scalar bridge. Basis selects the existing
+   * periodic coefficient field. Mixed blends the native bridge and opposite
+   * endpoint's quadratic basis extension with a quintic station weight whose
+   * first two derivatives vanish at both ends. Keep the records unchanged while
+   * chain readers retain them. An omitted or empty list leaves original section
+   * ownership in effect.
    */
   export type ISpan =
     | {

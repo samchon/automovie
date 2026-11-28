@@ -12,6 +12,10 @@ const DIGEST: string = `sha256:${"a".repeat(64)}`;
  *
  * 1. Two `sha256:` fingerprints of 64 hex digits are accepted.
  * 2. A 63-digit edit fingerprint is refused with the input-invalid code.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines compile and edit identity digest admission and error code for malformed identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies two prefixed 64-hex strings and changes only the edit identity to 63 digits.
+ * @evidence contracts/development/testing.md#independent-expectations SHA-256 identity syntax requires 64 digits after its prefix. The independently shortened edit fingerprint exposes invalid-input handling without a changed compile key.
  */
 export function test_engine_effect_runtime_validate_production_film_effect_identity(): void {
   AutoMovieEngineEffect.validateProductionFilmEffectIdentity({

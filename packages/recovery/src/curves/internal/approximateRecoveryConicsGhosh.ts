@@ -98,7 +98,7 @@ export function approximateRecoveryConicsGhosh(
     try {
       const p: Readonly<AutoMovieVector2Tuple> =
         order === 0 ? curve.evaluate(t) : curve.derivative(t, order, side);
-      if (p.length !== 2)
+      if (p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
         throw new Error(
           `Nonfinite source ${order === 0 ? "point" : "derivative"} at parameter ${t}.`,
         );
@@ -369,15 +369,22 @@ export function approximateRecoveryConicsGhosh(
    * Construct an immutable report, with omissions distinct from fit precision.
    */
   function result(): IAutoMovieConicApproximation.IResult {
+    const method: string =
+      "ghosh-petitjean-vegter-2007-numerical-equioscillation-boundary-extension";
+    const complete: boolean = omitted === 0 && errors.length === 0;
+    if (!complete && arcs.length === 0)
+      return {
+        method,
+        status: "refused",
+        arcs: [],
+        diagnostics: [...diagnostics],
+        maximumSampleErrorMm: 0,
+        certified: false,
+        queries,
+      };
     return {
-      method:
-        "ghosh-petitjean-vegter-2007-numerical-equioscillation-boundary-extension",
-      status:
-        omitted === 0 && errors.length === 0
-          ? "complete"
-          : arcs.length === 0
-            ? "refused"
-            : "partial",
+      method,
+      status: complete ? "complete" : "partial",
       arcs,
       diagnostics: [...diagnostics],
       maximumSampleErrorMm: arcs.reduce(

@@ -19,9 +19,7 @@ import type { IAutoMovieLoftViewFullSource } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production radial seed on a made host and on f1's stored nose and nostril sources.
  * @evidence contracts/development/testing.md#independent-expectations The made entries are the closed-form circle-line intersection; the f1 bound is the nose floor net's recorded largest height.
- * @evidence contracts/development/testing.md#distinguishing-cases Both half-planes of the phase, a missing line and a real relieved host, every finding collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made functions and stored family sources, with no loft, person or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and its expected seed.
+ * @evidence contracts/development/common.md#meaningful-documentation Two mirrored analytic ray entries, a deliberate miss and the stored nose-to-nostril seed exercise hit address, phase and refusal.
  */
 export function test_human_native_radial_contact(): void {
   const failures: string[] = [];

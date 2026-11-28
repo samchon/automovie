@@ -41,7 +41,10 @@ export function fitRigidMeshTransform(
     reference.length % 3 !== 0 ||
     vertices.length === 0 ||
     new Set(vertices).size !== vertices.length ||
-    vertices.some((v: number): boolean => v < 0 || v * 3 >= reference.length)
+    vertices.some(
+      (v: number): boolean =>
+        !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
+    )
   )
     throw new Error(
       "Rigid fitting needs aligned XYZ and distinct resident vertices.",
@@ -52,6 +55,8 @@ export function fitRigidMeshTransform(
     for (let k: number = 0; k < 3; k++) {
       const x: number = reference[3 * vertex + k];
       const y: number = target[3 * vertex + k];
+      if (!Number.isFinite(x) || !Number.isFinite(y))
+        throw new Error("Rigid fitting requires finite selected XYZ coordinates.");
       a[k] = representable(a[k] + representable(x / vertices.length));
       b[k] = representable(b[k] + representable(y / vertices.length));
     }

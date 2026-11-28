@@ -112,6 +112,10 @@ const observation: (
  *    runtime checks.
  * 5. Duplicate, non-finite, and negative report or renderer values stay unchecked
  *    instead of passing or manufacturing a breach.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Checks observed scene counts against report bounds. Missing or invalid facts cannot establish agreement.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes typed reports and observations with agreed counts, multiple breaches, preflight-only metrics, and malformed inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture gives literal counts and limits. Missing or invalid data cannot establish agreement, and two known breaches must both appear in canonical order.
  */
 export function test_render_root_audit_render_observation(): void {
   TestValidator.equals(

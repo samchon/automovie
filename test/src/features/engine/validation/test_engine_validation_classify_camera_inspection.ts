@@ -13,6 +13,12 @@ import { TestValidator } from "@nestia/e2e";
  *    occluded fraction 1/4. Valid pixels take precedence over witnesses.
  * 3. Negative or inconsistent counts fall back to available witnesses and an empty
  *    witness set leaves the occlusion unmeasured.
+ * 4. Invalid counts cannot establish a pixel fraction. A nonfinite threshold
+ *    keeps a valid observation without grading it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes excluded framing, accepted native counts, sparse witnesses and invalid numeric inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public classifier with literal counts, witnesses and thresholds. It reads the emitted outcome and starts no scene or renderer.
+ * @evidence contracts/development/testing.md#independent-expectations Six of eight pixels yield a fraction of one quarter. Noninteger and nonfinite counts cannot denote raster counts. A NaN tolerance cannot grade the valid quarter fraction.
  */
 export function test_engine_validation_classify_camera_inspection(): void {
   const witnesses: IAutoMovieCameraInspection.IWitnesses = {
@@ -85,4 +91,14 @@ export function test_engine_validation_classify_camera_inspection(): void {
       { status: "unmeasured" },
     ],
   );
+  const classify = AutoMovieEngineValidation.classifyAutoMovieCameraInspection;
+  TestValidator.equals("invalid pixel and ray counts establish no grade", [
+    classify({ framing: "possible", pixels: { isolated: Infinity, visible: 0 } }).occlusion.status,
+    classify({ framing: "possible", pixels: { isolated: 8, visible: 5.5 } }).occlusion.status,
+    classify({ framing: "possible", witnesses: { blocked: Infinity, clear: 0 } }).occlusion.status,
+    classify({ framing: "possible", witnesses: { blocked: -1, clear: 2 } }).occlusion.status,
+  ], ["unmeasured", "unmeasured", "unmeasured", "unmeasured"]);
+  TestValidator.equals("NaN cannot grade valid native counts", classify({
+    framing: "possible", pixels, maxOcclusionRatio: NaN,
+  }).occlusion, { status: "measured", pixels, ratio: 0.25 });
 }

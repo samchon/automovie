@@ -45,11 +45,9 @@ const READER: IAutoMovieCaptureBudget = {
  *    cells; the strip holds every line of the longest, and the sheet still
  *    stays within the longest edge with cells at least 200 px.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Computes layouts through the public planner and checks the sheet and cell sizes they imply; a layout with a fixed 320 px cell, a fixed column count, or one that let a sheet exceed the budget fails.
- * @evidence contracts/development/testing.md#independent-expectations The bounds are the budget's own numbers, from the Claude vision guide the issue cites; sheet extent is columns times cell width and rows times cell height plus strip, computed here; the 1280 by 720 case's 366 by 206 cells follow by hand: seven rows share 1568 px as 224 px each, and 206 px plus its 18 px strip (two font pixels per 90 cell pixels, nine strip pixels per font pixel) is the tallest cell that fits.
- * @evidence contracts/development/testing.md#distinguishing-cases Landscape against portrait, one sheet against many, a large still against a small one, grouped against ungrouped cells, the elongated still where the two bounds conflict, and the computed layout against a sheet actually filled with it. Sheet pixels are owned by `test_capture_sheet_nearest` and `test_capture_run_order`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_layout_budget`; it computes and fills a sheet in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public layout planner with typed sizes and groups, computes the implied sheet extents, fills a planned sheet and reads pixels across its picture and caption-strip boundaries.
+ * @evidence contracts/development/testing.md#independent-expectations The 1,568 px limit and prescribed caption geometry bound the computed sheet extents. Seven rows give 224 px each, so the 1,280 by 720 fixture fits 366 by 206 px cells with 18 px strips. Four columns occupy 1,464 px.
+ * @evidence contracts/development/common.md#meaningful-documentation Landscape, portrait, grouped, elongated and small stills check sheet capacity and scale. Filled-sheet pixels and long captions exercise the layout's actual output sizes.
  */
 export function test_capture_layout_budget(): void {
   const layout: (

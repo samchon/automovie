@@ -28,7 +28,9 @@ export function sampleClip(
   clip: IAutoMovieClip,
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> {
-  validateSampleTime(clip.duration);
+  validateClipDuration(clip.duration);
+  if (!Number.isFinite(seconds))
+    throw new Error(`sampleClip seconds must be finite, but was ${seconds}`);
   const time: number = normalizeClipTime(seconds, clip.duration, clip.loop);
   const out: Map<string, IAutoMovieSampledChannel> = new Map<
     string,
@@ -157,7 +159,7 @@ const normalizeQuatArray: (q: number[]) => number[] = (
  * (clipDurationFault), so the artifact gate that exists to spare a
  * consumer this throw refuses exactly what would reach it (#1353).
  */
-const validateSampleTime: (duration: number) => void = (
+const validateClipDuration: (duration: number) => void = (
   duration: number,
 ): void => {
   const fault: IAutoMovieClipShapeFault | null = clipDurationFault(duration);

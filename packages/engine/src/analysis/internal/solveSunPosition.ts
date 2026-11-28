@@ -41,7 +41,7 @@ export function solveSunPosition(
   const height: number = props.elevation ?? 0;
   const pressure: number = props.pressure ?? 1013.25;
   const temperature: number = props.temperature ?? 10;
-  assertSite(props, pressure, temperature);
+  assertSite(props, height, pressure, temperature);
 
   const jd: number = julianDay(props.utc);
   const t: number = (jd - 2451545) / 36525;
@@ -187,10 +187,12 @@ const julianDay: (utc: IAutoMovieSolveSunPosition.IUtc) => number = (
  */
 const assertSite: (
   props: IAutoMovieSolveSunPosition.IProps,
+  height: number,
   pressure: number,
   temperature: number,
 ) => void = (
   props: IAutoMovieSolveSunPosition.IProps,
+  height: number,
   pressure: number,
   temperature: number,
 ): void => {
@@ -211,9 +213,20 @@ const assertSite: (
       "latitude must be finite within [-90, 90] degrees",
     ],
 
-    [pressure > 0, "pressure must be finite and above zero"],
-    [temperature > -273.15, "temperature must be finite and above -273.15"],
-    [utc.year >= -4712, "utc.year must be an integer at or above -4712"],
+    [Number.isFinite(props.longitude), "longitude must be finite"],
+    [Number.isFinite(height), "elevation must be finite"],
+    [
+      Number.isFinite(pressure) && pressure > 0,
+      "pressure must be finite and above zero",
+    ],
+    [
+      Number.isFinite(temperature) && temperature > -273.15,
+      "temperature must be finite and above -273.15",
+    ],
+    [
+      Number.isInteger(utc.year) && utc.year >= -4712,
+      "utc.year must be an integer at or above -4712",
+    ],
     [integerWithin(utc.month, 1, 12), "utc.month must be an integer 1 to 12"],
     [
       integerWithin(utc.month, 1, 12) && integerWithin(utc.day, 1, length),
@@ -237,4 +250,4 @@ const integerWithin: (value: number, low: number, high: number) => boolean = (
   value: number,
   low: number,
   high: number,
-): boolean => value >= low && value <= high;
+): boolean => Number.isInteger(value) && value >= low && value <= high;

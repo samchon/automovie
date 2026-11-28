@@ -31,6 +31,10 @@ import { throwsError } from "../../internal/predicates";
  *    `through` above 20, and at 10 it embeds; bodies already separating
  *    `deflect` with no impulse; a slow, soft, non-penetrable scuff at 4
  *    `deflect`s inelastically, both leaving at 2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes signed closing speed, momentum transfer, material result kinds and refusal for invalid mass, normal or material values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the impulse resolver on equal bodies, high restitution, an arrow with different target penetrabilities, separating bodies and a slower scuff.
+ * @evidence contracts/development/testing.md#independent-expectations Equal masses in an inelastic 10 m/s collision share 5 m/s. Explicit speed ranges distinguish bounce, embed and penetration while separating motion gives zero impulse.
  */
 export function test_engine_physics_resolve_impact(): void {
   const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({

@@ -21,6 +21,10 @@ import { vclose } from "../../internal/vclose";
  *
  * 1. The socket lands at (1, 2, 3) plus its bone-local point, the subject and the
  *    second asked of the performance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines reading a declared body socket through the requested subject's displayed bone frame and time.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the socket helper with a stored grip socket and a controlled playback bone reader.
+ * @evidence contracts/development/testing.md#independent-expectations The controlled bone at (1, 2, 3) is unrotated, so the result is its position plus the authored local offset. The observed query retains subject and second.
  */
 export async function test_motions_executable_motion_case_socket(): Promise<void> {
   const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces = (

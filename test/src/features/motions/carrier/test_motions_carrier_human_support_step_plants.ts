@@ -14,25 +14,20 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `HumanSupportStepPlants` reads a support's declared surfaces where a foot
- * lands: each `surface` affordance carried by the support's frame at the step's
- * second, its width and depth unbounded when undeclared; a world point in a
- * surface's frame; and whether a surface bears a point, within its extent and
- * `BEARING` (0.1 m) of its plane.
+ * Check support-face readback and sole placement on moving material.
  *
- * Scenarios, a tread prop at (1, 0.2, 0) turned a quarter about +Y, its
- * `surface` affordance 0.5 m ahead in its own frame, 0.4 m wide and 1 m deep,
- * beside a `handle` affordance; the step starting at 3 s:
+ * Scenarios:
  *
- * 1. At 0.5 s of the step the prop's frame is read at 3.5 s, and its one surface
- *    lies at (1.5, 0.2, 0) turned a quarter.
- * 2. The point (1.5, 0.25, 0.3) lies at (-0.3, 0.05, 0) in its frame.
- * 3. That point is held; one 0.15 m above, or 0.3 m along its width, is not.
- * 4. A surface with no declared extent holds a point any distance along it.
- * 5. A moving face follows its own displayed site.
- * 6. A 0.10 m sole centred at 0.07 m on a 0.20 m deck needs 0.02 m of inward
- *    correction, including on a rotated deck. A sole wider than the face
- *    refuses.
+ * 1. Starting at 3 s, read the turned tread at 3.5 s and project a world
+ *    point into its local plane. Admit the near point, reject points too high
+ *    or laterally outside, and admit an unbounded face.
+ * 2. Read a moving face at its own displayed site.
+ * 3. On the yawed 0.20 m deck, correct a 0.10 m sole centred 0.07 m off
+ *    centre inward by 0.02 m. Refuse a sole wider than its face.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify the placed second, local frame and dimensions used to test bearing.
+ * @evidence contracts/development/testing.md#behavioral-verification The source clock, local support coordinates, finite-face tests and rotated-foot correction are checked directly.
+ * @evidence contracts/development/testing.md#independent-expectations Frame rotation gives the expected local coordinates, and centre offset plus sole half-width minus deck half-width gives the overhang.
  */
 export function test_motions_carrier_human_support_step_plants(): void {
   const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);

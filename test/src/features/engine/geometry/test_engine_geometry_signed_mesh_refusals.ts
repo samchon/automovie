@@ -21,14 +21,21 @@ import { throwsError } from "../../internal/predicates";
  *    refused with a message naming "Signed".
  * 2. The octahedron scaled by 1e100 and by 1e200, whose squares overflow, is
  *    refused likewise.
- * 3. Queries of zero, two and four components, and of x = 1e308, are refused with
- *    a message naming "Signed mesh".
+ * 3. Malformed query length, a nonfinite coordinate and finite distance
+ *    arithmetic overflow are refused.
+ * 4. A nonfinite unused vertex and a misspelled boundary mode are rejected.
+ *    Omitting the mode gives the same result as explicit closed mode.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names invalid topology, unusable numerical scales, malformed points and admitted boundary modes.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates queries on empty, collapsed, opposed, sliver and extreme inputs, then exercises point cardinality and overflow failures.
+ * @evidence contracts/development/testing.md#independent-expectations A signed distance needs complete oriented triangles and a finite XYZ query. The named scale products cannot produce representable distances for those cases.
  */
 export function test_engine_geometry_signed_mesh_refusals(): void {
   const source: IAutoMovieMesh = createSignedOctahedron();
   const invalid: IAutoMovieMesh[] = [
     { ...source, positions: [], indices: [] },
     { ...source, positions: [0] },
+    { ...source, positions: [...source.positions, NaN, 0, 0] },
     { ...source, indices: [0, 1] },
     { ...source, indices: [0, 1, 99] },
     { ...source, indices: [0, 0, 0] },
@@ -59,7 +66,19 @@ export function test_engine_geometry_signed_mesh_refusals(): void {
   });
   const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
     AutoMovieEngineGeometry.createSignedMeshQuery(source);
-  const queries: number[][] = [[], [0, 0], [0, 0, 0, 0], [1e308, 0, 0]];
+  const closed = AutoMovieEngineGeometry.createSignedMeshQuery(source, { boundary: "closed" });
+  TestValidator.equals("default and explicit closed", sample([0, 0, 0]), closed([0, 0, 0]));
+  TestValidator.predicate(
+    "unknown boundary mode",
+    throwsError(
+      () => AutoMovieEngineGeometry.createSignedMeshQuery(source, { boundary: "typo" as unknown as "open" }),
+      "boundary mode closed or open",
+    ),
+  );
+  const queries: number[][] = [
+    [], [0, 0], [0, 0, 0, 0], [1e308, 0, 0], [NaN, 0, 0], [0, Infinity, 0],
+    new Array<number>(3),
+  ];
   queries.forEach((point: number[], index: number): void => {
     TestValidator.predicate(
       `query ${index}`,

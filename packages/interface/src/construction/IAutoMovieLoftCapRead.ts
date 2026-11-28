@@ -3,14 +3,17 @@ import type { IAutoMovieLoftSectionJet } from "./IAutoMovieLoftSectionJet";
 /** Original-cap station preparation shared by the cap reader and loft jet cache. */
 export namespace IAutoMovieLoftCapRead {
   /**
-   * Prepared local and frame derivatives at one positive original-cap station.
+   * Prepared local section and actual frame derivatives at a station owned by
+   * an original cap. The native callback takes polar radians and returns fresh
+   * local vectors. The three copied frame rows are value, first and second
+   * physical-station derivatives, each packed as [origin.xyz, u.xyz, v.xyz].
+   * The origin uses mm, unitless and 1/mm. The axes use unitless, 1/mm and
+   * 1/mm².
    *
-   * Null means that no retained original cap owns this station. A collapsed tip
-   * or unavailable physical derivatives cause AutoMovieEngineLoftCapRead.jet to throw
-   * AutoMovieEngineLoftAdmissionError; axis callback and stale-binding errors
-   * propagate. Finite point evaluation alone does not qualify a station for
-   * this result. The receiving loft jet cache retains the closure and copied
-   * rows under its immutable chain key.
+   * A station outside original cap ownership returns null. The collapsed tip,
+   * unavailable scalar derivatives, absent axis derivative callback or a
+   * missing or malformed axis jet cause LoftCapRead.jet to throw. The loft jet
+   * cache retains the prepared callback and rows.
    */
   export type IJetResult = {
     /**

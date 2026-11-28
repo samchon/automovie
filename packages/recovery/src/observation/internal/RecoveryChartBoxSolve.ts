@@ -37,36 +37,54 @@ export function RecoveryChartBoxSolve(
     input.rhs.length !== width ||
     input.lower.length !== 3 ||
     input.upper.length !== 3 ||
-    input.lower.some(
-      (value: number, k: number): boolean => value > input.upper[k]!,
-    ) ||
+    !Number.isSafeInteger(input.maxIterations) ||
     input.maxIterations < 1 ||
-    !(input.gradientTolerance >= 0)
+    !Number.isFinite(input.gradientTolerance) ||
+    input.gradientTolerance < 0
   )
     throw new Error(
       "Box solve requires finite dimensions, bounds, RHS and explicit iteration/gradient budgets",
     );
+  for (let axis: number = 0; axis < 3; axis++) {
+    const lower: number = input.lower[axis]!,
+      upper: number = input.upper[axis]!;
+    if (!Number.isFinite(lower) || !Number.isFinite(upper) || lower > upper)
+      throw new Error("Box endpoints must be finite and ordered on each axis");
+  }
+  for (const value of input.rhs)
+    if (!Number.isFinite(value))
+      throw new Error("Box RHS requires three finite entries per control");
   if (
     input.initialValues !== undefined &&
     (input.initialValues.length !== width ||
       Array.from(input.initialValues).some(
         (value: number, i: number): boolean =>
-          value < input.lower[i % 3]! || value > input.upper[i % 3]!,
+          !Number.isFinite(value) ||
+          value < input.lower[i % 3]! ||
+          value > input.upper[i % 3]!,
       ))
   )
     throw new Error(
       "Initial values require exactly three finite feasible original coordinates per control",
     );
-  const rows: Map<number, number>[] = input.hessian.map(
+  const rows: Map<number, number>[] = Array.from(
+    input.hessian,
     (entries: readonly (readonly [number, number])[]): Map<number, number> => {
+      if (!entries) throw new Error("Every control requires a sparse Gram row");
       const row: Map<number, number> = new Map();
       for (const entry of entries) {
-        const [j, value]: readonly [number, number] = entry;
-        if (entry.length !== 2 || j < 0 || j >= count || row.has(j))
+        if (
+          entry?.length !== 2 ||
+          !Number.isSafeInteger(entry[0]) ||
+          entry[0] < 0 ||
+          entry[0] >= count ||
+          row.has(entry[0]) ||
+          !Number.isFinite(entry[1])
+        )
           throw new Error(
             "Sparse Gram entries need unique valid addresses and finite values",
           );
-        row.set(j, value);
+        row.set(entry[0], entry[1]);
       }
       return row;
     },
@@ -106,6 +124,8 @@ export function RecoveryChartBoxSolve(
     }
     originalLipschitz = Math.max(originalLipschitz, sum);
   }
+  if (!Number.isFinite(originalLipschitz))
+    throw new Error("Original Gram row norm is unrepresentable");
   const scaled: [number, number][][] = rows.map(
     (row: Map<number, number>, i: number): [number, number][] =>
       [...row].map(([j, value]: [number, number]): [number, number] => {
@@ -115,11 +135,7 @@ export function RecoveryChartBoxSolve(
           value *
           Math.max(scales[i]!, scales[j]!) *
           Math.min(scales[i]!, scales[j]!);
-        if (
-          (value !== 0 && coefficient === 0) ||
-          coefficient === Infinity ||
-          coefficient === -Infinity
-        )
+        if ((value !== 0 && coefficient === 0) || !Number.isFinite(coefficient))
           throw new Error("Scaled Gram entry is unrepresentable");
         return [j, coefficient];
       }),
@@ -130,6 +146,8 @@ export function RecoveryChartBoxSolve(
     for (const [, value] of row) sum += Math.abs(value);
     scaledLipschitz = Math.max(scaledLipschitz, sum);
   }
+  if (!Number.isFinite(scaledLipschitz))
+    throw new Error("Scaled Gram row norm is unrepresentable");
   const scaledRhs: Float64Array = Float64Array.from(
     input.rhs,
     (value: number, i: number): number => value * scales[Math.floor(i / 3)]!,
@@ -146,9 +164,7 @@ export function RecoveryChartBoxSolve(
   );
   if (
     [scaledRhs, lo, hi].some((vector: Float64Array): boolean =>
-      vector.some(
-        (value: number): boolean => value === Infinity || value === -Infinity,
-      ),
+      vector.some((value: number): boolean => !Number.isFinite(value)),
     ) ||
     scaledRhs.some(
       (value: number, i: number): boolean => value === 0 && input.rhs[i] !== 0,
@@ -169,11 +185,12 @@ export function RecoveryChartBoxSolve(
   ): number => {
     let result: number = 0;
     for (let i: number = 0; i < width; i++) {
-      const g: number = gradient[i]!,
-        available: number =
-          g > 0
-            ? values[i]! - input.lower[i % 3]!
-            : input.upper[i % 3]! - values[i]!;
+      const g: number = gradient[i]!;
+      if (g === 0) continue;
+      const available: number =
+        g > 0
+          ? values[i]! - input.lower[i % 3]!
+          : input.upper[i % 3]! - values[i]!;
       result = Math.max(
         result,
         Math.min(Math.abs(g), originalLipschitz * available),
@@ -195,10 +212,9 @@ export function RecoveryChartBoxSolve(
         gradient[at] = product - input.rhs[at]!;
         objective += values[at]! * (product / 2 - input.rhs[at]!);
         if (
-          [product, gradient[at]!, objective].some(
-            (value: number): boolean =>
-              value === Infinity || value === -Infinity,
-          )
+          !Number.isFinite(product) ||
+          !Number.isFinite(gradient[at]) ||
+          !Number.isFinite(objective)
         )
           throw new Error("Original quadratic evaluation is unrepresentable");
       }
@@ -210,10 +226,13 @@ export function RecoveryChartBoxSolve(
           Math.max(input.lower[i % 3]!, Math.min(input.upper[i % 3]!, 0)),
         )
       : Float64Array.from(input.initialValues);
-  let y: Float64Array = Float64Array.from(
-      current,
-      (value: number, i: number): number => value / scales[Math.floor(i / 3)]!,
-    ),
+  const scaledStart: Float64Array = Float64Array.from(
+    current,
+    (value: number, i: number): number => value / scales[Math.floor(i / 3)]!,
+  );
+  if (scaledStart.some((value: number): boolean => !Number.isFinite(value)))
+    throw new Error("Scaled starting coordinates are unrepresentable");
+  let y: Float64Array = scaledStart,
     search: Float64Array = y.slice(),
     momentum: number = 1;
   const originalGradient: Float64Array = new Float64Array(width),
@@ -248,7 +267,11 @@ export function RecoveryChartBoxSolve(
           : raw >= hi[i]!
             ? input.upper[i % 3]!
             : raw * scales[Math.floor(i / 3)]!;
-      if (next[i]! < input.lower[i % 3]! || next[i]! > input.upper[i % 3]!)
+      if (
+        !Number.isFinite(next[i]) ||
+        next[i]! < input.lower[i % 3]! ||
+        next[i]! > input.upper[i % 3]!
+      )
         throw new Error(
           "Scaled proposal cannot represent a feasible original control",
         );

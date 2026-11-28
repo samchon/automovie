@@ -22,6 +22,10 @@ import { nclose } from "../../internal/nclose";
  * 2. The graph y = exp(t) over [0, 0.8], broken at 0.3, is complete and no arc
  *    spans the break, and the source's break list is not changed.
  * 3. A zero arc budget is not complete.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the tested smooth charts, explicit break and zero-arc refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits ellipse, reversed circle and split exponential charts, evaluates their coefficients and checks the source list after each fit.
+ * @evidence contracts/development/testing.md#independent-expectations Quarter conics have weight cos(pi/4) and satisfy the known implicit ellipse. The exponential chart's authored break at 0.3 gives the no-crossing boundary.
  */
 export function test_recovery_curves_approximate_conics_ghosh(): void {
   const options: IAutoMovieConicApproximation.IOptions = {

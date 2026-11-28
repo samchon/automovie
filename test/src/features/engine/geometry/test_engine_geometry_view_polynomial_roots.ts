@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/throwsError";
  *    is at the only interior derivative zero, exactly t=1/2.
  * 5. With no sine it is the polynomial's roots inside the interval; a span past pi
  *    and a reversed interval are refused with the premise message.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names isolated and repeated polynomial roots, the bounded sine interval, tangent extremum and inadmissible search space.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the polynomial and mixed sine root owners on explicit coefficients and subintervals and measures returned roots or refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The written factored polynomial fixes its roots. Sine of πt equals one half at 1/6 and 5/6, while its interior maximum gives the tangent root at 1/2.
  */
 export function test_engine_geometry_view_polynomial_roots(): void {
   const near = (

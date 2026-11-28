@@ -51,6 +51,10 @@ const RADIUS: number = 0.5;
  *    and so are gridpoints that do not ascend.
  * 7. Half a metre per second at entry gives squared velocity 0.25, and the
  *    first forward ramp adds 2 Δ.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines controllable squared-speed sets, forward propagation, clock integration and refusal for unreachable or malformed limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Times straight and curved paths, reads sets and interval derivatives, then checks a custom grid, nonzero start and invalid ends.
+ * @evidence contracts/development/testing.md#independent-expectations The straight-path envelope min(1, 2s, 2(2−s)) integrates to 3 s. Arc derivatives and an exact custom map independently verify boxes and time propagation.
  */
 export function test_motions_posture_path_parameterization(): void {
   // 1. The straight path.

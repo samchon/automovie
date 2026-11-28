@@ -1,11 +1,12 @@
 import type {
   IAutoMovieLocateSurfaceVertices,
   IAutoMovieSubdivisionParameter,
-  IAutoMovieSurfaceCage,
   IAutoMovieSurfaceCoordinate,
   IAutoMovieSurfaceLocation,
   IAutoMovieSurfaceNetwork,
 } from "@automovie/interface";
+
+import { readSurfaceFaceCoordinates } from "./readSurfaceFaceCoordinates";
 
 /*
  * Locate every vertex of a subdivided surface network in the network's own
@@ -39,29 +40,35 @@ export const locateSurfaceVertices: (
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = props.network.patches;
   if (
     patches.length !== props.cage.patches.length ||
-    patches.some(
+    patches.findIndex(
       (p: IAutoMovieSurfaceNetwork.IPatch, k: number): boolean =>
-        p.name !== props.cage.patches[k]!.name,
-    )
+        !p || !props.cage.patches[k] || p.name !== props.cage.patches[k]!.name,
+    ) !== -1
   )
     throw new Error("the cage was not sampled from this network");
-  return props.parameters.map(
+  return Array.from(
+    props.parameters,
     (
       at: IAutoMovieSubdivisionParameter,
       index: number,
     ): IAutoMovieSurfaceLocation => {
-      const corners: IAutoMovieSurfaceCage["corners"][number] | undefined =
-        props.cage.corners[at.face];
-      if (corners === undefined)
-        throw new Error(
-          `vertex ${index} lies on face ${at.face}, which is out of range`,
-        );
+      if (!at)
+        throw new Error(`vertex ${index} has no incident-face parameter`);
+      const corners = readSurfaceFaceCoordinates(
+        props.cage,
+        at.face,
+        `vertex ${index}`,
+      );
       if (at.corner !== null)
         throw new Error(
           `vertex ${index} lies on face ${at.face}, which is not a quad`,
         );
       const { u, v }: typeof at = at;
-      if (!(u >= 0 && u <= 1 && v >= 0 && v <= 1))
+      if (
+        !Number.isFinite(u) ||
+        !Number.isFinite(v) ||
+        !(u >= 0 && u <= 1 && v >= 0 && v <= 1)
+      )
         throw new Error(`vertex ${index} has face coordinates outside 0 to 1`);
       const w0: number = (1 - u) * (1 - v);
       const w1: number = u * (1 - v);
@@ -69,33 +76,34 @@ export const locateSurfaceVertices: (
       const w3: number = (1 - u) * v;
       const coordinate: IAutoMovieSurfaceCoordinate = {
         patch: corners[0].patch,
-        s:
+        s: Math.min(
+          1,
           w0 * corners[0].s +
-          w1 * corners[1].s +
-          w2 * corners[2].s +
-          w3 * corners[3].s,
-        t:
+            w1 * corners[1].s +
+            w2 * corners[2].s +
+            w3 * corners[3].s,
+        ),
+        t: Math.min(
+          1,
           w0 * corners[0].t +
-          w1 * corners[1].t +
-          w2 * corners[2].t +
-          w3 * corners[3].t,
+            w1 * corners[1].t +
+            w2 * corners[2].t +
+            w3 * corners[3].t,
+        ),
       };
       const patch: IAutoMovieSurfaceNetwork.IPatch = patches[coordinate.patch]!;
+      if (patch.type !== "sweep" && patch.type !== "transition")
+        return { coordinate, name: patch.name, sweep: null };
+      const sweepU: number =
+          patch.u.start + coordinate.t * (patch.u.end - patch.u.start),
+        sweepV: number =
+          patch.v.start + coordinate.s * (patch.v.end - patch.v.start);
+      if (!Number.isFinite(sweepU) || !Number.isFinite(sweepV))
+        throw new Error(`vertex ${index} has a nonfinite sweep coordinate`);
       return {
         coordinate,
         name: patch.name,
-        sweep:
-          patch.type === "sweep" || patch.type === "transition"
-            ? {
-                name: patch.sweep,
-                u:
-                  patch.u.start +
-                  coordinate.t * (patch.u.end - patch.u.start),
-                v:
-                  patch.v.start +
-                  coordinate.s * (patch.v.end - patch.v.start),
-              }
-            : null,
+        sweep: { name: patch.sweep, u: sweepU, v: sweepV },
       };
     },
   );

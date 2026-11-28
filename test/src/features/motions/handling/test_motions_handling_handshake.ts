@@ -70,6 +70,10 @@ const ROUNDING: number = 1e-6;
  *
  * The body is built whole (`humanFixtureBody`): the meeting reads the palm
  * socket, and the clasp fits the arms and curls the digits on the whole body.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the rig reach, symmetric offer geometry, partner separation, digit closure and required bones for one side.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls geometry helpers on typed lengths and height offsets, then stages equal-size stored rigs for a meeting, clasp and too-distant partner.
+ * @evidence contracts/development/testing.md#independent-expectations Law-of-cosines reach and the asin height relation establish geometry; symmetry gives the midpoint in either order. The close result may change only the requested side's digits.
  */
 export async function test_motions_handling_handshake(): Promise<void> {
   // 1. Reaches.

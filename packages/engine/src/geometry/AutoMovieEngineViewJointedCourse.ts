@@ -14,8 +14,9 @@ import { AutoMovieEngineViewAxisJet } from "./AutoMovieEngineViewAxisJet";
 /** The admitted jointed course's Rodrigues transport and analytic frame jets. */
 export namespace AutoMovieEngineViewJointedCourse {
   /**
-   * Prepare the original centreline admission and setback integral shared by
-   * both consumers.
+   * Prepare finite segment lengths, unit directions and turns in physical
+   * millimetres for both straight-run placement and axis evaluation. A broken
+   * separation, turn or cumulative arclength returns its diagnostic.
    */
   export function prepare(
     centres: readonly AutoMovieVector3Tuple[],
@@ -30,7 +31,7 @@ export namespace AutoMovieEngineViewJointedCourse {
     for (let i: number = 0; i + 1 < m; i++) {
       const d: AutoMovieVector3Tuple = sub(centres[i + 1]!, centres[i]!);
       const l: number = Math.hypot(d[0], d[1], d[2]);
-      if (!(l > 0))
+      if (!Number.isFinite(l) || !(l > 0))
         return `centres ${i} and ${i + 1} have no finite positive separation`;
       directions.push(AutoMovieEngineAxisDirection.unit(d, l));
       lengths.push(l);
@@ -47,7 +48,7 @@ export namespace AutoMovieEngineViewJointedCourse {
       const angle: number = Math.atan2(ln, dot(a, b));
       if (!(angle < Math.PI - 1e-9))
         return `segments ${i - 1} and ${i} are opposite`;
-      if (!(h >= 0 && (angle === 0 || h > 0)))
+      if (!Number.isFinite(h) || !(h >= 0 && (angle === 0 || h > 0)))
         return `half length ${h} at centre ${i} must be finite and nonnegative, and positive for a nonzero turn`;
       const axis: AutoMovieVector3Tuple =
         ln > 0 ? AutoMovieEngineAxisDirection.unit(n, ln) : [0, 0, 0];
@@ -81,7 +82,13 @@ export namespace AutoMovieEngineViewJointedCourse {
       s += lengths[i]! - previous - t.setback;
       t.start = s;
       s += 2 * t.half;
+      if (!Number.isFinite(s))
+        return `course arclength through centre ${t.centre} exceeds the finite station range`;
     }
+    const tail: number =
+      lengths[lengths.length - 1]! - (turns[turns.length - 1]?.setback ?? 0);
+    if (!Number.isFinite(s + tail))
+      return `course arclength at the last centre ${m - 1} exceeds the finite station range`;
     return { directions, lengths, turns };
   }
 

@@ -17,9 +17,13 @@ const GROUND_ROUNDING: number = 0;
  * Scenarios:
  *
  * 1. A 1 m floor and a ramp climbing from 1 to 3 m over 4 m produce the analytic
- *    midpoint height 2 m and meet their authored endpoints.
- * 2. A nonwalkable upper panel overrides lower ground only within its own
- *    footprint. Elsewhere the ramp remains walkable, or yields fallback.
+ *    ramp midpoint height 2 m. The ramp wins where it rises above the floor.
+ * 2. A higher nonwalkable panel and a point beyond all footprints both return
+ *    the configured fallback.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the floor and ramp overlap, the ramp endpoints and midpoint, and the fallback for a covered no-go point or an uncovered point.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates the public `spaceGround` callback from a typed space and a fallback of -7 m, then queries seven XZ points without constructing a scene.
+ * @evidence contracts/development/testing.md#independent-expectations The ramp rises 2 m in 4 m from X 0, so X 0.5, 2, and 4 yield 1.25, 2, and 3 m. The 9 m panel covers (2, 0.5) but leaves (2, 0) walkable. X 5 lies outside all footprints. All compared heights are exact dyadic values.
  */
 export function test_engine_space_ground_height(): void {
   const rectangle = (

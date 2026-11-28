@@ -21,6 +21,10 @@ const FRAME: IAutoMovieAxisFrame = { sign: -1, neutral: 10 };
  * 1. Rig 30 under sign -1, neutral 10 is -30 + 10 = -20.
  * 2. No frame leaves the angle, and null stays null.
  * 3. The prepared reader answers the same on a repeated frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the reversed neutral frame, missing frame, null angle and prepared repeated reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both the direct rig-to-clinical conversion and its prepared reader with fixed clinical frame records.
+ * @evidence contracts/development/testing.md#independent-expectations Clinical angle is -rig plus 10 in the supplied frame. Rig 30 therefore maps to -20 and rig zero maps to 10. The unframed and null samples exercise identity cases.
  */
 export function test_engine_rom_to_clinical_angle(): void {
   TestValidator.predicate(

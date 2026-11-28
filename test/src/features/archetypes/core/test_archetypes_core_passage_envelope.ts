@@ -159,6 +159,10 @@ function corners(
  *    edges. Another extends the positive Z edge after the quarter turn. The
  *    negative X edge still comes from the posed carrier.
  * 3. A window containing no portable part or carried point refuses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the posed model, attached world points and the empty-window refusal in the carrier's frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual envelope operation on two carrier snapshots and optional per-sample world points. Reads the returned local corners and structured refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The authored translation, quarter turn and box half-extents yield the literal sampled corners. The separately placed points extend other sides and the empty carrier exercises refusal.
  */
 export function test_archetypes_core_passage_envelope(): void {
   const first: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0 };

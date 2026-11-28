@@ -10,24 +10,19 @@ const GAP: number = 0.65;
 const HEIGHT: number = 0.32;
 
 /**
- * Why `placeOverHeadStance` refuses the small woman setting a ribbon from in
- * front over the seated average man's head, her feet 0.3 m before his seat's
- * front edge: the layout is out of her reach for any stance, so the refusal is
- * the geometry's, not the adjustment step's.
- *
- * The hand's place at the loop's apex, as the stance reads it, lies 0.85 m
- * ahead of her standing shoulder and 0.32 m above it; his knees, at the seat's
- * front edge, keep her feet no nearer than 0.2 m on from where she enters, so
- * the place stays at least 0.65 m ahead. Her reach is her upper arm and forearm
- * (`placeOverHead`'s `reach`), her trunk the shoulder's height over the hip's.
+ * Check which body can reach the reconstructed over-head placement point.
  *
  * Scenarios:
  *
- * 1. Hinged at the hip by any angle from 0 to 90 degrees, her shoulder comes
- *    forward by `L sin θ` and down by `L (1 − cos θ)`, and its distance to the
- *    place never falls within her reach.
- * 2. The same layout is within the average man's own reach once he leans, so the
- *    bound is the small body's, not the layout's alone.
+ * 1. Over the allowed approach in the small body's fixture, the 0.85 m
+ *    forward and 0.32 m raised target remains beyond her arm even as she
+ *    leans.
+ * 2. Apply the same layout and minimum foot-to-seat spacing to an average
+ *    man's body. At some lean the target is within arm length.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases state the fixed clearance, target and differing body measurements.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compares the minimum target distance from the two measured bodies over the examined lean range.
+ * @evidence contracts/development/testing.md#independent-expectations Shoulder translation follows trunk length times sine and the vertical cosine loss. Upper arm and forearm lengths supply the reach.
  */
 export async function test_motions_dressing_place_over_head_reach(): Promise<void> {
   const nearest = (measure: IAutoMovieBodyMeasure): number => {

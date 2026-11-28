@@ -12,6 +12,10 @@ import * as THREE from "three";
  *    `hero/arm`, the root itself the empty path.
  * 2. An object outside the root is refused.
  * 3. Only meshes, lines, points and sprites are listed, in traversal order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe how unnamed groups affect paths and which drawable node types appear in a scene listing.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that named paths skip groups without names, listing includes only drawable nodes in scene order, and path resolution refuses an outside object.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the hand-built tree to specify the empty root path, `hero/arm`, and literal ordered drawable paths.
  */
 export function test_render_scene_inspection_path_of(): void {
   const root: THREE.Group = new THREE.Group();

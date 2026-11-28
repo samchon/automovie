@@ -1,47 +1,39 @@
 import type { IAutoMovieRecoveryEventRegion } from "./IAutoMovieRecoveryEventRegion";
 
-/** Prepare immutable source rank and incidence once for all scalar queries. */
+/** Callable source preparation for repeated clipped region queries. */
 
 export namespace IAutoMovieRecoveryEventRegionSource {
-  /** Prepare immutable source rank and incidence once for all scalar queries. */
+  /**
+   * Prepare source rank and original incidence once. Keep the source arrays
+   * unchanged during later queries. Return physical rank, duplicate and
+   * collapsed face witnesses, edge-use counts and selected address helpers.
+   */
 
   export type Operation = (
     source: Parameters<IAutoMovieRecoveryEventRegion.Operation>[0],
   ) => {
-    /**
-     * Returns the current registry population without mutating the retained
-     * observation state.
-     */
+    /** Original vertex population size. */
     size: number;
 
-    /** Exact affine rank (0, 1 or 2) of each original binary64 source triangle. */
+    /** Original physical rank per source face, encoded as zero, one or two. */
     ranks: Uint8Array;
 
-    /** Original face ordinals participating in repeated declared face incidence. */
+    /** Original triangle ordinals that repeat a declared face incidence. */
     duplicate: Set<number>;
 
     /**
-     * Original face ordinals whose selected incidence identifies fewer than
-     * three distinct vertices.
+     * Original triangle ordinals with fewer than three distinct declared
+     * corners.
      */
     collapsed: Set<number>;
 
-    /**
-     * Original source-edge incidence registry reused for cell and boundary
-     * qualification.
-     */
+    /** Declared original edge incidence key to original face-use count. */
     sourceEdges: Map<string, number>;
 
-    /**
-     * Maps one original vertex index to the selected raw or canonical
-     * connectivity index.
-     */
+    /** Maps original vertices into the selected raw or canonical address space. */
     address: (vertex: number) => number;
 
-    /**
-     * Canonical deterministic key for an undirected pair of incidence
-     * identities.
-     */
+    /** Forms a deterministic unordered vertex pair key. */
     pair: (a: number, b: number) => string;
   };
 }

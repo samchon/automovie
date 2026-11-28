@@ -46,6 +46,10 @@ const X: number[][][] = [
  *    knots stays banded.
  * 4. A two-second rest-to-rest unit move at its first quarter evaluates to
  *    0.103515625, 0.52734375 per second and 1.40625 per second squared.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines position, velocity and acceleration interpolation through each knot and two-knot basis support.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the same trajectory at knots and grid times and reconstructs grid values from its returned basis weights.
+ * @evidence contracts/development/testing.md#independent-expectations An independent rest-to-rest quintic gives quarter-point position 0.103515625, velocity 0.52734375 and acceleration 1.40625 over two seconds.
  */
 export function test_motions_posture_arm_knot_quintic(): void {
   const rates: HumanArmTrajectoryKnots.IRates = HumanArmTrajectoryKnots.rates(

@@ -13,11 +13,9 @@ const MM: number = 1e-3;
  * 2. A standing mirror is IKEA IKORNNES's 52 x 167 x 52 cm.
  * 3. Over 200 seeds each board is exactly one of its maker's standard sizes, height and width together, each drawn: Ghent M1's eleven, Claridge's eleven and Ghent 059's five. A whiteboard's base stands at the classroom standard's 915 mm, its tray 3 1/8 in out; a blackboard's and a notice board's bottoms lie on the floor's line, the notice board with no tray.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a mirror or a board off its sources, between two of its standard sizes or never drawn at one of them is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are the ADA's, Bobrick's, IKEA's, Ghent's, Claridge's and the design standard's restated here.
- * @evidence contracts/development/testing.md#distinguishing-cases A wall and a standing mirror; boards with and without a tray, mounted and not.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies wall- and floor-standing mirrors and each fitted board, including source sizes, lower edges and trays.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds every public fixture type, checks the observed whole catalogue sizes over the seed sweep and reads geometry and contacts. The mounted mirror's offset, the standing mirror's footprint and tray presence distinguish the branch results.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated Bobrick, IKEA, Ghent and Claridge sizes and the sourced ADA and classroom mounting heights. Height and width are paired for each model.
  */
 export function test_archetype_mirror_board(): void {
   const findings: string[] = [];

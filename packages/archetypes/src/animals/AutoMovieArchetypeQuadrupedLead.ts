@@ -2,19 +2,20 @@ import type { AutoMovieArchetypeBuilder } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedLeadPlan } from "./quadruped/QuadrupedLeadPlan";
 
-/** Authored shared collar/lead dimensions, without species or maker defaults. */
+/** Fits an authored collar and straight lead to a quadruped's neutral neck. */
 export namespace AutoMovieArchetypeQuadrupedLead {
   /**
-   * Lay an authored collar and straight lead on a quadruped neck.
+   * Fits an annular collar around the neutral neck and makes a straight lead
+   * extending across `+X` from the collar's middle.
    *
-   * @param builder The animal under construction.
-   * @param rig Its rest landmarks.
-   * @param id The producer's declared lead contact identity.
-   * @param tack Positive authored lengths in metres, including the whole straight
-   *   lead.
-   * @param archetype Producer identity used in refusals.
-   * @throws {AutoMovieArchetypeRefusal} For invalid lengths or a collar longer
-   *   than the neck.
+   * @param builder Model that will receive the shell, lead and contact.
+   * @param rig Neutral neck endpoints and radius in the animal's model frame.
+   * @param id Name for the rein affordance on the actual lead midpoint.
+   * @param tack Positive finite lengths in metres. Width must fit the neck.
+   * @param archetype Producer name used in admission reports.
+   * @throws {AutoMovieArchetypeRefusal} For nonpositive lengths, a collar
+   *   wider than the neck, or an unrepresentable lead aperture.
+   * @throws {RangeError} For degenerate neck geometry.
    */
   export function lay<
     Id extends string,
@@ -29,15 +30,28 @@ export namespace AutoMovieArchetypeQuadrupedLead {
     new QuadrupedLeadPlan(rig, tack, archetype).emit(builder, id);
   }
 
-  /** All four lengths are positive finite metres; width also fits the neck. */
+  /**
+   * Four positive finite metre dimensions of a collar and straight lead.
+   *
+   * Width must fit the neck. The complete lead extends from the collar and
+   * the aperture of its midpoint grip is twice its radius.
+   */
   export interface IParams {
-    /** Collar length along the neck, metres. */
+    /**
+     * Collar's along-neck length, metres. It must fit between neck and poll.
+     */
     width: number;
-    /** Collar radial thickness, metres. */
+    /** Material thickness outward from the neck's radius, in metres. */
     thickness: number;
-    /** Complete straight lead length, metres. */
+    /**
+     * Complete length of the straight lead measured from the collar, in
+     * metres.
+     */
     leadLength: number;
-    /** Circular lead radius, metres. */
+    /**
+     * Radius of the circular lead shaft, in metres. The grip aperture is
+     * twice this.
+     */
     leadRadius: number;
   }
 }

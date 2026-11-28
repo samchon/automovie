@@ -6,7 +6,7 @@ import { TestValidator } from "@nestia/e2e";
  * program: it solves only after an update, and each owner keeps its own.
  *
  * Fixture: minimize x0^2 + 4 x1^2 (diagonal 2, 8) subject to x0 + x1 = 3. Its
- * KKT system [[2 + c, 0, 1], [0, 8, 1], [1, 1, 0]] against (0, 0, 3), with the
+ * KKT system [[2, 0, 1], [0, 8, 1], [1, 1, -c]] against (0, 0, 3), with the
  * cone diagonal c, solves at c = 0 to x = (2.4, 0.6) with multiplier -4.8,
  * and at c = 1 to (12 / 13, 3 / 13, -24 / 13).
  *
@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  *    graph, so its factor keeps at most 4 x 2048 nonzeros.
  * 5. `addQuadraticProduct` keeps exact sums: (1 + 2^-27)(1 - 2^-27) - 1
  *    is -2^-54, 2^1000 x 2^-1000 is 1, and MIN_VALUE x 1 stays MIN_VALUE.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names setup refusal, owner isolation, sparse chain storage and exact product accumulation.
+ * @evidence contracts/development/testing.md#behavioral-verification Updates and solves two resident factors independently, modifies one returned vector, counts the chain factor's entries and evaluates hard products.
+ * @evidence contracts/development/testing.md#independent-expectations The small KKT equations give the two written solution vectors as the constraint diagonal changes. The chain graph is a tree. Multiplying the stated conjugate factors gives −2 to power −54.
  */
 export function test_engine_geometry_quadratic_factor(): void {
   const data: ReturnType<typeof AutoMovieEngineMath.createQuadraticConicProgram> =

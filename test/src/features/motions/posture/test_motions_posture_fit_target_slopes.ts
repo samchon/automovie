@@ -64,6 +64,10 @@ function twist(
  * 3. The goal normal +Y and the effector's local +Y turned 40 degrees about +Z:
  *    the slopes match central differences of the least turn.
  * 4. Agreeing normals give ω less its part along w; opposite normals are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the derivative of angular residuals for target rotation and normal, including agreeing and opposite directions.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares direct rotational and normal slopes with small central perturbations for compound and near-zero inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Lie-group log/exp differences independently predict each derivative. On the desired normal the parallel angular component vanishes and opposite normals refuse.
  */
 export function test_motions_posture_fit_target_slopes(): void {
   const motions: IAutoMovieMotionHumanJacobian.ITwist[] = [

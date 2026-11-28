@@ -12,6 +12,10 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenario: none at 0 and 360 degrees, half at 45 and 315, whole at 90, 180 and
  * 270.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the blend into and out of the authored cartwheel shape over the motion's rotation.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the shape share at the two endpoints, both quarter-blend midpoints and through the inverted portion.
+ * @evidence contracts/development/testing.md#independent-expectations Symmetry of the minimum-jerk shape gives half at 45° and 315°, full at 90–270° and zero at 0° and 360°.
  */
 export function test_motions_sport_cartwheel(): void {
   TestValidator.predicate(

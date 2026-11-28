@@ -1,4 +1,7 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -96,41 +99,44 @@ export function putDownPlan(
     tool === undefined
       ? undefined
       : StrikingHeld.goal(context, tool, frame, 0, bend);
-  // An authored resting attitude (a card laid face up) is the placement's
-  // outcome, so the hand holds it as hard task limits over the placement
-  // and the opening: the prop's origin and a point a hand's length along
-  // its up axis, each in the hand's frame, kept within the held-tool bound
-  // (`StrikingRoll.MISS`) of where the asked attitude puts them. A planned
-  // hold treats a bare attitude as an objective it may trade away; a task
-  // limit it may not.
-  const authoredLimits: IAutoMovieHumanEffectorPointLimit[] | undefined =
-    attitude === undefined || constraint !== undefined
-      ? undefined
-      : [
+  // The carried prop's origin is a hard task point throughout placement and
+  // opening. Keeping the wrist position alone lets a fitted rotation swing
+  // the offset origin off the mark. A requested attitude also holds a point a
+  // hand's length along the prop's up axis.
+  const placementLimits: IAutoMovieHumanEffectorPointLimit[] = [];
+  if (on === undefined && onto === undefined) {
+    placementLimits.push({
+      contact: offset.position,
+      bound: StrikingRoll.MISS,
+    });
+    if (attitude !== undefined)
+      placementLimits.push({
+        contact: AutoMovieEngineVector3.add(
           offset.position,
-          AutoMovieEngineVector3.add(
-            offset.position,
-            AutoMovieEngineQuaternion.rotateVector(offset.rotation, {
-              x: 0,
-              y: body.measure.hand,
-              z: 0,
-            }),
-          ),
-        ].map(
-          (contact: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit => ({
-            contact,
-            bound: StrikingRoll.MISS,
+          AutoMovieEngineQuaternion.rotateVector(offset.rotation, {
+            x: 0,
+            y: body.measure.hand,
+            z: 0,
           }),
-        );
+        ),
+        bound: StrikingRoll.MISS,
+      });
+  }
   const mouth: IAutoMovieVector3 | undefined =
-    aperture === undefined ? undefined : AutoMovieEngineVector3.add(place, aperture);
+    aperture === undefined
+      ? undefined
+      : AutoMovieEngineVector3.add(place, aperture);
   if (aperture !== undefined) {
     const targets: readonly IAutoMovieVector3[] =
       route === undefined
         ? [aperture]
         : [...route.approach, aperture, ...route.insertion];
     for (const target of targets) {
-      pickUp.reachable(context, side, AutoMovieEngineVector3.add(place, target));
+      pickUp.reachable(
+        context,
+        side,
+        AutoMovieEngineVector3.add(place, target),
+      );
       if (tool !== undefined)
         StrikingRoll.reachable(
           context,
@@ -196,7 +202,9 @@ export function putDownPlan(
   pickUp.reachable(
     context,
     side,
-    displacement === undefined ? place : AutoMovieEngineVector3.add(place, displacement(down)),
+    displacement === undefined
+      ? place
+      : AutoMovieEngineVector3.add(place, displacement(down)),
   );
   if (displacement !== undefined)
     pickUp.reachable(
@@ -320,7 +328,10 @@ export function putDownPlan(
               ? 1
               : 1 -
                 AutoMovieMotionInterval.progress(duration - back, duration, t);
-        wrist = AutoMovieEngineVector3.add(wrist, AutoMovieEngineVector3.scale(displacement(t), follow));
+        wrist = AutoMovieEngineVector3.add(
+          wrist,
+          AutoMovieEngineVector3.scale(displacement(t), follow),
+        );
       }
       return {
         ...held,
@@ -334,11 +345,11 @@ export function putDownPlan(
             reference,
             ...(constraint === undefined ||
             (displacement === undefined && t > down)
-              ? authoredLimits === undefined ||
+              ? placementLimits.length === 0 ||
                 t < down ||
                 t > down + putDown.OPEN
                 ? {}
-                : { limits: authoredLimits }
+                : { limits: placementLimits }
               : {
                   contact: constraint.contact,
                   limits: constraint.limits,

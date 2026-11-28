@@ -16,6 +16,7 @@ import { throwsError } from "../internal/predicates";
  * 1. Render with only `--module` takes the module, no props, the default folder
  *    and the software backend and leaves an empty request; with every listed
  *    option it takes each as given and leaves `subject` to the request.
+ *    Checkpoint directory and lowercase SHA-256 are accepted together.
  * 2. Render refuses an empty value of its own option, a missing `--module`, a
  *    backend other than software or gpu, and a background other than scene or
  *    transparent; a request key such as `--at` is left to the request, which
@@ -30,8 +31,6 @@ import { throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls both readers with literal option maps and reads the records or the refusals; a reader that ignored an unknown option, guessed a module, admitted a remote page or an unbounded duration fails.
  * @evidence contracts/development/testing.md#independent-expectations The accepted options are the commands' documented usage; the loopback rule keeps a review from driving a page elsewhere, as the delivery host's capture address rule did; a day is the documented upper bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Minimal against full option sets, listed against unlisted options, a loopback against a remote and a secure address, and seconds at and beyond each bound. The README's agreement with the lists is owned by `test_render_readme_keys`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_cli_render_review_options`; it reads literal maps and starts no browser or process.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_cli_render_review_options(): void {
@@ -54,6 +53,7 @@ export function test_cli_render_review_options(): void {
       timeout: 120000,
       request: [],
       background: "scene",
+      checkpoint: null,
     },
   );
   TestValidator.equals(
@@ -66,6 +66,8 @@ export function test_cli_render_review_options(): void {
       ["backend", "gpu"],
       ["timeout-ms", "600000"],
       ["background", "transparent"],
+      ["checkpoint-dir", "media/cache"],
+      ["checkpoint-identity", "1".repeat(64)],
     ]),
     {
       module: "src/subjects.ts",
@@ -75,6 +77,7 @@ export function test_cli_render_review_options(): void {
       timeout: 600000,
       request: [["subject", "starter"]],
       background: "transparent",
+      checkpoint: { directory: "media/cache", identity: "1".repeat(64) },
     },
   );
 
@@ -114,6 +117,9 @@ export function test_cli_render_review_options(): void {
       ],
       "not scene or transparent",
     ],
+    [[['module', 'm.ts'], ['checkpoint-dir', 'frames']], 'together'],
+    [[['module', 'm.ts'], ['checkpoint-identity', '1'.repeat(64)]], 'together'],
+    [[['module', 'm.ts'], ['checkpoint-dir', 'frames'], ['checkpoint-identity', 'other']], '64 lowercase SHA-256 digits'],
   ] as [string[][], string][])
     TestValidator.predicate(
       `render refuses ${JSON.stringify(values)}`,
@@ -212,24 +218,20 @@ export function test_cli_render_review_options(): void {
     );
 
   // 5. The lists and the readers agree.
+  const renderSamples: Record<string, [string, string][]> = {
+    backend: [["backend", "gpu"]],
+    "timeout-ms": [["timeout-ms", "600000"]],
+    background: [["background", "transparent"]],
+    "checkpoint-dir": [["checkpoint-dir", "frames"], ["checkpoint-identity", "1".repeat(64)]],
+    "checkpoint-identity": [["checkpoint-dir", "frames"], ["checkpoint-identity", "1".repeat(64)]],
+  };
   TestValidator.predicate(
     "every render option is admitted",
     AutoMovieCliRender.OPTIONS.every((option: string): boolean => {
       AutoMovieCliRender.readOptions(
         new Map([
           ["module", "m.ts"],
-          [
-            option,
-            option === "backend"
-              ? "gpu"
-              : option === "module"
-                ? "m.ts"
-                : option === "timeout-ms"
-                  ? "600000"
-                  : option === "background"
-                    ? "transparent"
-                    : "value",
-          ],
+          ...(renderSamples[option] ?? [[option, option === "module" ? "m.ts" : "value"]]),
         ]),
       );
       return true;

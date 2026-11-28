@@ -23,6 +23,10 @@ import { vclose } from "../../internal/vclose";
  * 3. A quarter turn about +Y is a 90 degree hinge about +Y, the same when its
  *    quaternion is negated; no rotation has none.
  * 4. Half the travel takes half the time.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes phase clamping, rigid segment lengths, rotation hinge equivalence and travel-time inversion.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads before, at and after a one-second span, blends two articulated keys and compares a quaternion with its negation.
+ * @evidence contracts/development/testing.md#independent-expectations Midpoint progress and travel inverse are both one half. Each blended segment stays 0.5 m, and the quarter-turn hinge is +Y at 90°.
  */
 export function test_motions_striking_kick_swing(): void {
   TestValidator.equals(

@@ -46,6 +46,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * 5. An object with openings carries them.
  * 6. An object without colliders, or with colliders that cover no area of the
  *    floor plan, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Object geometry covers placed and excluded apertures, rotated box extents, rounded sphere and capsule footprints, and missing plan area.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes authored shape and affordance records through the aperture and object owners. The test checks literal plan and elevation, radial limits, carried aperture identity, and shape refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The 1 by 0.5 m box centered at X 2 has X extents [1.5, 2.5] initially and [1.75, 2.25] after yaw 90. A 0.1 m sphere with allowed radial excess 0.001 needs ceil(π/acos(0.1/0.101)) = 23 sides. The horizontal capsule reaches 0.6 m at either end.
  */
 export function test_motions_perform_obstacle_object(): void {
   // 1. Openings.

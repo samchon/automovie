@@ -55,6 +55,10 @@ const table = (floats: readonly number[]): IAutoMovieRandom => ({
  * 4. A reaction drawn far past the band is held at its top.
  * 5. A novice drops the guard on a draw under 0.6, the depth and the seconds read
  *    from the next two draws; an elite, on a draw at 0.5, does not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines animation parameter interpolation, bounded reaction draws and deterministic guard choices by skill profile.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads novice, midpoint and elite presets, drives explicit draw sequences and compares lone and shared motion delivery.
+ * @evidence contracts/development/testing.md#independent-expectations The smoothstep fixes endpoint values and the arithmetic midpoint. The specified reaction law bounds an extreme draw, and the authored random thresholds distinguish the two guard choices.
  */
 export function test_motions_striking_skill(): void {
   const novice: IAutoMovieMotionHumanSkill = at(0);

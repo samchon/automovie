@@ -5,7 +5,11 @@ import type { IAutoMovieHumanFootPoseSchema } from "./IAutoMovieHumanFootPoseSch
 import type { IAutoMovieHumanHipPoseSchema } from "./IAutoMovieHumanHipPoseSchema";
 import type { IAutoMovieHumanKneePoseSchema } from "./IAutoMovieHumanKneePoseSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanLegPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Optional pose controls for one leg, in degrees from anatomical neutral.
+ * Supply hip, knee, ankle and foot records independently. The parent pose
+ * assigns the anatomical side.
+ */
 export type IAutoMovieHumanLegPoseSchema = IAutoMovieHumanLegPose & {
   /** Hip joint. */
   hip?: IAutoMovieHumanHipPoseSchema;

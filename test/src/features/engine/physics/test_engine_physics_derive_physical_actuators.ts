@@ -20,6 +20,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 2. Torque budget includes the downstream payload's mass.
  * 3. Active axial gains retain the transverse load bound for later bent poses.
  * 4. Passive damping is independent from active tracking gains.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies how downstream attached mass and inertia influence a joint's torque budget and gain axes.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives actuators from a short carrier and its payload, checking active and passive outputs at the owning solver entry.
+ * @evidence contracts/development/testing.md#independent-expectations The downstream sum uses Icom + mr² about the hinge. Independently declared mass and passive friction determine torque scale and damping, while an axial gain retains the transverse bound.
  */
 export function test_engine_physics_derive_physical_actuators(): void {
   const profile: P = PhysicalFixtures.sphere();

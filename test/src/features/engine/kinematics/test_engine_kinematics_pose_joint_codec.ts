@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  *    ball; the spine declaring a zero twist range is not.
  * 3. `prepare` returns one codec on every call.
  * 4. `index` keeps the last duplicate and reads null angles as 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers clinical angle conversion, free versus gated joints, prepared identity and duplicate indexing.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the codec with and without an authored rig, prepares it for repeated access and indexes a pose with repeated bones and null fields.
+ * @evidence contracts/development/testing.md#independent-expectations The input triple is the round-trip reference. A fully free box admits all three axes while zero twist does not. The later duplicate supplies the retained values and null fields map to zero.
  */
 export function test_engine_kinematics_pose_joint_codec(): void {
   // 1.

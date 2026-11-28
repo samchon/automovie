@@ -20,6 +20,10 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
  *    independent solver world.
  * 2. A failing controller clone is reported before a deliberately unusable
  *    snapshot can be restored.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States that a very large ordered frame prefix is restored before building the independent solver world.
+ * @evidence contracts/development/testing.md#behavioral-verification Restores a real snapshot with 200001 frame references and triggers a controller clone failure on a deliberately unusable solver snapshot.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture determines complete ordered reference identity and a separate world. The exact controller failure takes precedence over the unusable snapshot.
  */
 export async function test_engine_physics_restore_physical_simulation_checkpoint_prefix(): Promise<void> {
   const start: number = 200000;

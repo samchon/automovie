@@ -38,21 +38,19 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `logRollTurns` advances a log roll: `perimeter` is the chest's cross-section
- * perimeter by Ramanujan's approximation of its ellipse, `pi (3 (a + b) -
- * sqrt((3a + b)(a + 3b)))`, and `count` takes the asked half turns or as many
- * as bring the pelvis nearest the place, rounded to the end's parity.
+ * Check the turn count and displayed floor support of a log roll.
  *
- * Scenarios, a chest 0.32 m broad and 0.22 m deep, half turns of 0.4 m, the
- * roll toward +X from the origin on the back:
+ * Scenarios:
  *
- * 1. The perimeter of the 0.16 by 0.11 m half-axis ellipse.
- * 2. Three asked half turns are three; none asked is refused on `halfTurns`.
- * 3. A place 1 m along takes round(2.5) = 3; ending on the back, the even count
- *    nearer, 2.
- * 4. A place 0.1 m along, under half a half turn, is refused on `to`.
- * 5. The displayed colliders touch the floor both while the body straightens and
- *    after the unchanged shape starts its second half turn.
+ * 1. Compare the estimated torso perimeter and distance-to-turn conversions
+ *    with ellipse geometry, including an explicit count, short travel and a
+ *    return to the starting lying orientation.
+ * 2. Read a fitted two-half-turn route out of order on both sides of the
+ *    halfway point. The lowest exterior stays on the floor.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish turn selection from displayed contact with the floor.
+ * @evidence contracts/development/testing.md#behavioral-verification The test exercises analytical turn selection and floor contact on the posed exterior.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture computes an ellipse perimeter from its axes and measures floor height from displayed colliders after fitting.
  */
 export async function test_motions_floor_log_roll(): Promise<void> {
   const a: number = 0.16;

@@ -5,6 +5,7 @@ import { launchChromiumImplementation } from "./internal/launchChromiumImplement
 import { planChromiumLaunchImplementation } from "./internal/planChromiumLaunchImplementation";
 import { readCaptureHostOptions } from "./internal/readCaptureHostOptions";
 import { readVideoProbeImplementation } from "./internal/readVideoProbeImplementation";
+import { readRetainedFrames as readRetainedFramesImplementation } from "./internal/readRetainedFrames";
 
 /**
  * Public command and helper operations for deterministic AutoMovie capture. The
@@ -17,6 +18,19 @@ export namespace AutoMovieCliCapture {
     props: AutoMovieCliCaptureTypes.Props,
   ): Promise<number> {
     return captureProduction(props);
+  }
+
+  /**
+   * Read verified native PNGs from a complete capture without drawing or decoding.
+   * The expected record digest pins the source capture. Each picture must also
+   * match the requested view, pass and native source identity and retain its own
+   * byte digest. A missing or ambiguous frame returns its cause in the bounded
+   * result. An invalid request or record identity rejects the lookup.
+   */
+  export function readRetainedFrames(
+    props: AutoMovieCliCaptureTypes.IReadRetainedFramesProps,
+  ): Promise<AutoMovieCliCaptureTypes.IRetainedFrames> {
+    return readRetainedFramesImplementation(props);
   }
 
   /** Launch headless Chromium for the requested capture backend. */
@@ -41,7 +55,11 @@ export namespace AutoMovieCliCapture {
     return readCaptureHostOptions(values);
   }
 
-  /** Read a video file's clock and raster from FFmpeg's input log. */
+  /**
+   * Read the first video stream's absolute index, raster and nominal clock from
+   * FFmpeg's first-input log. The filter's rational rate wins when available.
+   * Actual picture PTS requires the later selected extraction.
+   */
   export function readVideoProbe(
     log: string,
   ): AutoMovieCliCaptureTypes.VideoProbe {

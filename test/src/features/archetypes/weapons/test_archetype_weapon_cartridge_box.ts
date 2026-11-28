@@ -20,11 +20,9 @@ const IN: number = 0.0254;
  * 3. Asking for 0 or 21 cartridges, or 2.5, is refused at `slots`.
  * 4. The `lid` hinge opens to its travel and back, each pose an admitted model, and the opened flap stands higher than the shut one; the box has a `strap` and a `belt` hook.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the box, measures its collider, reads its contacts and articulates its lid; a size off the manual's, a misplaced or missing slot, an unrefused count or a lid that does not open is caught.
- * @evidence contracts/development/testing.md#independent-expectations The sizes and the parts' cells are written here from the manual's page; the slot spacing is worked from them.
- * @evidence contracts/development/testing.md#distinguishing-cases The default and a partial fill, three refused counts, the lid's two ends.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines scenic box dimensions, slot count, contact positions, over-capacity refusal and opening lid pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the public scene prop and measures actual box colliders, the slot count and placement and the lid's articulated pose.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's literal box and cell sizes. Cell spacing and the measured box extent independently locate the slots.
  */
 export function test_archetype_weapon_cartridge_box(): void {
   const findings: string[] = [];

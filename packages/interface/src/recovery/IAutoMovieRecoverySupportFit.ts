@@ -6,42 +6,53 @@ import type {
 } from "..";
 
 /**
- * Fit evidence kept outside compact support-coefficient generation authority.
- * Pixel residuals include the implied intersection's support, not only each
- * independently fitted offset. Numerical event and mesh counts qualify the
- * selected representation; they do not observe hidden physical topology.
+ * Evidence emitted with a partial convex-support recipe. The fit reports
+ * common-row pixel discrepancies and the counts and numerical boundary defect
+ * measured by Engine during candidate generation.
  */
 export interface IAutoMovieRecoverySupportFit {
-  /** Independently generative coefficients and edit/coverage metadata. */
+  /**
+   * Finite-view convex-support generation recipe with dimension factors
+   * initially set to one.
+   */
   recipe: IAutoMovieRecoverySupportLoft;
 
-  /** Analytic, photographic and inconsistent-input evidence remain distinct. */
+  /** Acquisition class carried from the observation. */
   cohort: "analytic" | "photograph" | "inconsistent-stress";
 
   /**
-   * Every training source identity; camera charts remain in the observation
-   * artifact.
+   * Fixed capture IDs and recorded hashes in the original observation view
+   * order.
    */
   sources: IAutoMovieRecoveryImageSource[];
 
-  /** Maximum pixel residual of fitted offsets or their implied polygon supports. */
+  /**
+   * Largest pixel difference across fitted offsets and implied polygon supports
+   * against the common-domain silhouette edges.
+   */
   maximumResidualPx: number;
 
-  /** Selected unpivoted Householder diagonal ratio; not a certified condition. */
+  /**
+   * Smallest-to-largest unpivoted Householder QR diagonal magnitude for the
+   * selected longitudinal spline.
+   */
   splineRankRatio: number;
 
   /**
-   * Corresponding rows, longitudinal spans and fitted scalar spline
-   * coefficients.
+   * Common stations, spans, and independent spline coefficients across both
+   * oriented fields for each view.
    */
   counts: IAutoMovieRecoveryImageFitCounts;
 
-  /** Common measured row-centre interval, in millimetres. */
+  /**
+   * Lower and upper endpoints of the intersected physical row-centre domains,
+   * in millimetres.
+   */
   observedIntervalMm: [number, number];
 
   /**
-   * Actual selected engine event/interval/mesh counts and numerical boundary
-   * defect.
+   * Retained events, generated intervals and vertices, and the maximum
+   * numerical boundary defect in metres for the fitted candidate.
    */
   generation: IAutoMovieRecoverySupportGeneration;
 }

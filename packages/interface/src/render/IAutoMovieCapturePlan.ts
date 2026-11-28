@@ -1,4 +1,5 @@
 import type { IAutoMovieCaptureCell } from "./IAutoMovieCaptureCell";
+import type { IAutoMoviePlaybackEvent } from "../production/IAutoMoviePlaybackEvent";
 import type { IAutoMovieCaptureLayout } from "./IAutoMovieCaptureLayout";
 import type { IAutoMovieCapturePlanRequest } from "./IAutoMovieCapturePlanRequest";
 import type { IAutoMovieCaptureSubject } from "./IAutoMovieCaptureSubject";
@@ -26,6 +27,9 @@ export interface IAutoMovieCapturePlan {
 
   /** The frames drawn around each event and cut, in the order named. */
   windows: IAutoMovieCaptureWindow[];
+
+  /** The selected occurrence on both the source and output clocks. */
+  playedCue?: Readonly<IAutoMoviePlaybackEvent>;
 
   /**
    * Every still, in drawing order: by selection, then time, then view, then

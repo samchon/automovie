@@ -22,6 +22,10 @@ import { nclose } from "../../internal/nclose";
  * 4. Seed capacity refusal has no accepted geometry, aggregate exhaustion remains
  *    budget-exhausted, and numerical-looking callback errors escape with
  *    original identity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the accepted unit-baseline seed, admitted checkpoint, capacity refusals and preserved work ledger.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the camera-map operation on five calibrated synthetic views under the resident and fit limits, and checks the accepted pair and candidate receipts.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's known view population, seed pose gauge and explicit ceilings to check acceptance, rollback and refusal.
  */
 export function test_recovery_internal_create_camera_scene_feasible_routing(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =
@@ -45,19 +49,26 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
     pairs: fixture.pairs,
     poses: fixture.poses,
   });
-  const routed: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
-    AutoMovieRecoveryCameraMap.createCameraScene(
-      fixture.input,
-      fixture.features,
-      charts,
-      fixture.pairs,
-      fixture.comparisons,
-      (): void => {},
-      request(),
-    );
+  const routed: ReturnType<
+    typeof AutoMovieRecoveryCameraMap.createCameraScene
+  > = AutoMovieRecoveryCameraMap.createCameraScene(
+    fixture.input,
+    fixture.features,
+    charts,
+    fixture.pairs,
+    fixture.comparisons,
+    (): void => {},
+    request(),
+  );
   TestValidator.predicate(
     "explicit method uses both checkpoints without bypassing the original ceiling",
     routed.status === "accepted-sparse-component" &&
+      routed.seed.status === "accepted-relative-pose" &&
+      routed.seed.refusalReasons.length === 0 &&
+      routed.seed.consensus.inliers >=
+        fixture.input.seedPolicy.minimumInliers &&
+      routed.seed.pose.gauge === "first-camera-unit-baseline" &&
+      routed.seed.pose.metricScale === "unknown" &&
       routed.stopReason === "no-qualified-growth" &&
       routed.registeredViews.join(",") === "0,1,2" &&
       routed.landmarks.length === 48 &&
@@ -85,26 +96,27 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
     budget: { ...fixture.input.budget },
   };
   let mutated: boolean = false;
-  const bounded: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
-    AutoMovieRecoveryCameraMap.createCameraScene(
-      boundedInput,
-      fixture.features,
-      charts,
-      fixture.pairs,
-      fixture.comparisons,
-      (): void => {
-        if (!mutated) {
-          mutated = true;
-          boundedOptions.directionBudget.maxEntries = 1;
-          boundedOptions.maxResidentLinearEntries = 1;
-          boundedOptions.laggedLagrangianMetric = false;
-          boundedInput.budget.maxJointFits = 1;
-          boundedInput.budget.maxResidentLinearEntries = 1;
-          boundedInput.budget.maxLinearWork = 1;
-        }
-      },
-      boundedOptions,
-    );
+  const bounded: ReturnType<
+    typeof AutoMovieRecoveryCameraMap.createCameraScene
+  > = AutoMovieRecoveryCameraMap.createCameraScene(
+    boundedInput,
+    fixture.features,
+    charts,
+    fixture.pairs,
+    fixture.comparisons,
+    (): void => {
+      if (!mutated) {
+        mutated = true;
+        boundedOptions.directionBudget.maxEntries = 1;
+        boundedOptions.maxResidentLinearEntries = 1;
+        boundedOptions.laggedLagrangianMetric = false;
+        boundedInput.budget.maxJointFits = 1;
+        boundedInput.budget.maxResidentLinearEntries = 1;
+        boundedInput.budget.maxLinearWork = 1;
+      }
+    },
+    boundedOptions,
+  );
   TestValidator.predicate(
     "candidate capacity refuses the entire proposal and keeps the owned method",
     bounded.status === "seed-only" &&
@@ -175,26 +187,27 @@ export function test_recovery_internal_create_camera_scene_feasible_routing(): v
       tiny.work.triangulations === 24 &&
       tiny.work.linearWork > 256,
   );
-  const exhausted: ReturnType<typeof AutoMovieRecoveryCameraMap.createCameraScene> =
-    AutoMovieRecoveryCameraMap.createCameraScene(
-      {
-        ...fixture.input,
-        budget: { ...fixture.input.budget, maxLinearWork: 256 },
+  const exhausted: ReturnType<
+    typeof AutoMovieRecoveryCameraMap.createCameraScene
+  > = AutoMovieRecoveryCameraMap.createCameraScene(
+    {
+      ...fixture.input,
+      budget: { ...fixture.input.budget, maxLinearWork: 256 },
+    },
+    fixture.features,
+    charts,
+    fixture.pairs,
+    fixture.comparisons,
+    (): void => {},
+    {
+      ...request(),
+      directionBudget: {
+        maxIterations: 10000,
+        maxEntries: 25000,
+        maxWork: 256,
       },
-      fixture.features,
-      charts,
-      fixture.pairs,
-      fixture.comparisons,
-      (): void => {},
-      {
-        ...request(),
-        directionBudget: {
-          maxIterations: 10000,
-          maxEntries: 25000,
-          maxWork: 256,
-        },
-      },
-    );
+    },
+  );
   TestValidator.predicate(
     "aggregate exhaustion remains distinct from fit capacity",
     exhausted.stopReason === "budget-exhausted" &&

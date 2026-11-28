@@ -82,6 +82,10 @@ const SKELETON: IAutoMovieSkeleton = {
  *    names flexion, the chest first names abduction) and on an unconstrained
  *    joint are not admitted; an empty pose keeps its root reference and a null
  *    root stays null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names override, default and unconstrained cases, seeded idempotence, precedence, independent reads and ordered invalid-axis failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Clamps typed poses directly and through the prepared reader on synthetic skeletons. Checks angle records, preserved input identity, root values and exact failure paths.
+ * @evidence contracts/development/testing.md#independent-expectations The declared and default interval limits give literal clips such as 120 to 90 and -200 to -80. The first duplicate record supplies bounds [-10,20], so ordered duplicate pose joints retain their separate clipped records. Applying the result again tests idempotence against edited input.
  */
 export function test_engine_rom_clamp_pose(): void {
   duplicates();

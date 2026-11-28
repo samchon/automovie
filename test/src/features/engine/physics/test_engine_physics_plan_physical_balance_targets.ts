@@ -36,6 +36,10 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *    allowed value instead of claiming the relationship was satisfied.
  * 3. An elevated point that already matches its XYZ goal still has to meet the
  *    declared planted floor or report the outstanding floor error.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains how floor and contact fitting retain planted world goals and expose impossible projection and hover.
+ * @evidence contracts/development/testing.md#behavioral-verification Tilts two primitive patches before successive floor and coupled contact fits, and adds unreachable projection and elevated endpoint goals.
+ * @evidence contracts/development/testing.md#independent-expectations Authored tilt creates more than 10 mm separation against the 0.2 mm visible limit. Feasible flat poses meet the plane, while incompatible goals report their measured excess.
  */
 export async function test_engine_physics_plan_physical_balance_targets(): Promise<void> {
   const profile: IAutoMoviePhysicalProfile = PhysicalModelFixtures.quadrupod();

@@ -30,16 +30,19 @@ import { motionActionContext } from "../../internal/motionActionContext";
 import { nclose } from "../../internal/nclose";
 
 /**
- * `turnOverToward` is the target turn nearest the current one among the named
- * turn's whole-turn equivalents, a half turn away going over the named side.
+ * Check directed yaw choice and floor support during a turnover.
  *
  * Scenarios:
  *
- * 1. From 10 toward 90 the turn is 90; from 350 toward 0 it is 360.
- * 2. From 0 toward 180, a half turn, it goes over the left to 180 and over the
- *    right to -180.
- * 3. Requesting the side the body already lies on gives finite joint angles and
- *    keeps floor contact at out-of-order interior and endpoint readings.
+ * 1. Resolve a short turn, a wrap across 360 degrees and the two directions
+ *    of an exact half turn.
+ * 2. Fit a body already supine with a supine destination. Read 0.37 s, the
+ *    end, the start and 0.37 s again. Joints stay finite and the lowest
+ *    displayed collider stays at floor height.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the directed yaw cases and the out-of-order floor reads.
+ * @evidence contracts/development/testing.md#behavioral-verification The checks cover facing through the wrap and physical playback along the floor.
+ * @evidence contracts/development/testing.md#independent-expectations Expected target headings come from equivalent angles and the physical reader checks the collider minimum against y = 0.
  */
 export async function test_motions_floor_turn_over(): Promise<void> {
   TestValidator.equals(

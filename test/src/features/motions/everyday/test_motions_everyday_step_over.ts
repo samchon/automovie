@@ -68,6 +68,10 @@ const STRING: number = AutoMovieMotionHumanClearance.RADIUS / 2;
  * 4. Each swing starts at its foot's start and ends on its landing; along the lead
  *    swing every sole socket over the box stays within half the string's corner
  *    radius of the lead's clearance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The two soles clear an obstacle at separate heights and retain their floor support at the outer boundaries.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the step-over swing and envelope readers at takeoff, obstacle summit, and landing.
+ * @evidence contracts/development/testing.md#independent-expectations Obstacle height plus each stated margin fixes the summit. Known floor height and footprints determine the endpoint support and envelope.
  */
 export async function test_motions_everyday_step_over(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

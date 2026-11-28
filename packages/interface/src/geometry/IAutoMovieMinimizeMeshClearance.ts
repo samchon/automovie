@@ -12,18 +12,18 @@ export namespace IAutoMovieMinimizeMeshClearance {
    * The solved minimum joint forward travel of the front mesh's vertices along
    * one positive axis that restores a requested clearance over a back mesh.
    *
-   * `measureMeshClearance` supplies every affine overlap witness,
-   * already-clear ones included; each becomes the linear constraint that the
-   * barycentric blend of its front vertices' travel closes its deficit. The
-   * objective is half the sum of lumped mass times squared travel, each
-   * vertex's mass a third of every incident triangle's area, an approximation
-   * of the surface integral that infers no elasticity or tissue force. Each
-   * vertex travels between zero and its largest incident face deficit, so no
-   * point moves farther than the conservative per-triangle correction. Only
-   * vertices of triangles with a positive deficit get a variable; the result
-   * lists them in ascending vertex order with their travel in metres, and is
-   * empty when nothing needs to move. Both meshes share the caller's frame and
-   * are only read; this is directional ordering, not closed-volume collision or
+   * `measureMeshClearance` supplies every affine overlap witness, already-clear
+   * ones included; each becomes the linear constraint that the barycentric
+   * blend of its front vertices' travel closes its deficit. The objective is
+   * half the sum of lumped mass times squared travel, each vertex's mass a
+   * third of every incident triangle's area, an approximation of the surface
+   * integral that infers no elasticity or tissue force. Each vertex travels
+   * between zero and its largest incident face deficit, so no point moves
+   * farther than the conservative per-triangle correction. Only vertices of
+   * triangles with a positive deficit get a variable; the result lists them in
+   * ascending vertex order with their travel in metres, and is empty when
+   * nothing needs to move. Both meshes share the caller's frame and are only
+   * read; this is directional ordering, not closed-volume collision or
    * anatomy.
    *
    * Travel is normalized by the largest cap and masses by their mean, scalar
@@ -38,7 +38,10 @@ export namespace IAutoMovieMinimizeMeshClearance {
    * An empty list means no positive directional deficit was found;
    * zero-distance entries may remain for vertices included in the solve.
    */
-  export type IResult = {
+  export type IResult = IVertexTravel[];
+
+  /** Solved forward-axis travel for one original front mesh vertex. */
+  export type IVertexTravel = {
     /**
      * Original front vertex ordinal in ascending order; entries cover vertices
      * of positive-deficit triangles, including any solved zero travel.
@@ -51,5 +54,5 @@ export namespace IAutoMovieMinimizeMeshClearance {
      * applies it and rechecks downstream geometry.
      */
     distance: number;
-  }[];
+  };
 }

@@ -26,6 +26,10 @@ import { material } from "../../internal/renderFixtures";
  *    required environment products retain unknown bytes/cardinality.
  * 3. Framebuffer, depth, compressed and target families preserve their separate
  *    ownership boundary.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases distinguish observed manual-level dimensions, undecidable allocation history, and ownership of other texture families.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that manual level metadata retains the first extent while byte and count claims stay unknown across generation and filter settings, including both environment products.
+ * @evidence contracts/development/testing.md#independent-expectations Uses an 8-by-8 first level, a literal null byte and count pair, explicit background and CubeUV roles, and separate framebuffer, depth, compressed and target fixtures.
  */
 export async function test_render_scene_read_texture_source_texture_manual_layout_uncertainty(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

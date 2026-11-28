@@ -23,9 +23,7 @@ import type { IAutoMovieViewAxis } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the production site owner and calibration exports on f1's stored families and datums.
  * @evidence contracts/development/testing.md#independent-expectations The nearest-datum property is checked by direct distances on the course, the run share by its definition, and the export equality by identity with the owner.
- * @evidence contracts/development/testing.md#distinguishing-cases Definition and provisional sites on four courses, the identity carry and the exports, every finding collected with its station.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on stored module data; no person, reference body, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios name each property and the stored inputs it reads.
+ * @evidence contracts/development/common.md#meaningful-documentation Each site has a valid run address. Nearest-datum stations, same-source mappings, calibration export identity and anatomical order are tested separately.
  */
 export function test_human_f1_native_sites(): void {
   const failures: string[] = [];

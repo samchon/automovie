@@ -38,6 +38,10 @@ type Observation = Omit<
  * 5. Empty, single, collinear and NaN boundaries, and a missing or contradictory
  *    identity ("identity"), refuse before emitting anything; unique declared
  *    identities keep the ordinary strip.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the admissible minimum-area oracle, scaled identity cases, opposite normals and refusal or omission rows.
+ * @evidence contracts/development/testing.md#behavioral-verification Collects triangles and observations from the strip emitter, then checks area, incidence and retained identities or specific failures.
+ * @evidence contracts/development/testing.md#independent-expectations The oracle enumerates all elementary fixed-seam paths on the small fixtures. The independently admissible minimum fixes area, and n + m fixes triangle count for a nondegenerate full strip.
  */
 export function test_engine_geometry_contour_strip(): void {
   const strip = (

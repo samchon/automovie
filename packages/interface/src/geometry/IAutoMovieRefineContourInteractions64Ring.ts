@@ -1,9 +1,8 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 
 /**
- * Source-owned cyclic ring mutated by interaction refinement. Callers provide
- * finite admitted noncollapsed boundary samples in a common millimetre frame;
- * this structural view does not perform geometric admission.
+ * Source-owned cyclic ring refined in place. Supply admitted finite boundary
+ * samples from the same planar millimetre frame as the other selected rings.
  */
 export interface IAutoMovieRefineContourInteractions64Ring {
   /**
@@ -16,9 +15,6 @@ export interface IAutoMovieRefineContourInteractions64Ring {
    * share new source-derived knots across all consumers of this ring object.
    */
   points: AutoMovieVector3Tuple[];
-  /**
-   * Declared signed winding governing boundary order; this number is not
-   * inferred from a fresh polygon area computation.
-   */
+  /** Authored signed winding used when inserting knots into the cyclic order. */
   winding: number;
 }

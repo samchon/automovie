@@ -332,9 +332,11 @@ export namespace AutoMovieRenderInspection {
    *
    * Per trail, at path `<object path>/trail`: a polyline of kind `trail` through
    * the samples in time order, a points mark of the same kind with one tick per
-   * sample, and a points mark of kind `trail/now` at the sample whose second is
-   * nearest `seconds`, the earlier one on a tie. A stationary trail has no line
-   * and one tick. Both kinds are in world metres and unanchored.
+   * sample, and a points mark of kind `trail/now` while `seconds` lies in the
+   * sampled segment. Inside a segment the closest sample is highlighted,
+   * favoring the earlier one on a tie. A stationary sample sequence has one
+   * tick. The marks use world metres. At the exact drawn sample, its optional
+   * authored route is a separate `trail/route` polyline.
    *
    * | Kind        | Label                       | Colour               |
    * | ----------- | --------------------------- | -------------------- |
@@ -343,8 +345,8 @@ export namespace AutoMovieRenderInspection {
    *
    * @param trails The trails, as `AutoMovieRenderInspection.sampleTrails` returns them.
    * @param seconds The drawn film second.
-   * @returns For each trail its line, when it moves, then its ticks, then its
-   *   emphasised tick.
+   * @returns Each available authored route for the drawn sample, its observed
+   *   line and ticks, and the emphasized current tick.
    */
   export function markTrails(trails: readonly IAutoMovieInspectionTrail[], seconds: number): IAutoMovieMark[] {
     return markInspectionTrailsImplementation(trails, seconds);
@@ -458,10 +460,10 @@ export namespace AutoMovieRenderInspection {
     return renderWithInspectionDiagnosticsImplementation(props);
   }
   /**
-   * Return ascending sample seconds around the drawn second, clipped to the
-   * running interval. The drawn second is included when in range. Runtime
-   * predicates remain duration > 0, closed-interval seconds, and reach/ticks
-   * > 0 only; no finite check is added.
+   * Plan the drawn second and surrounding trail sample seconds in time order.
+   * The request's positive finite reach and ticks per second are clipped to
+   * the subject's finite running interval. A clipped request above 1,201
+   * samples rejects before any scene placement.
    */
   export function planTrailTimes(
     props: IAutoMoviePlanInspectionTrailTimesProps,
@@ -482,15 +484,25 @@ export namespace AutoMovieRenderInspection {
   }
 
   /**
-   * Sample shallowest selected object paths in scene order, awaiting sequential
-   * seeks. The scene remains at the final sample. Empty times, unmatched paths,
-   * and seek failures reject. The current nonempty-times predicate does not
-   * reject nonfinite entries.
+   * Sample world origins for the shallowest matching object paths.
+   * Await each seek in time order and leave the scene at the final sample.
+   * Missing, replaced or unmeasurable objects and changes in ancestor identity split segments.
+   * A segment can describe stationary sampled origins. An empty or invalid
+   * time set, more than 1,201 samples or 64 selected paths, an unmatched path or a failed seek
+   * rejects.
    */
   export function sampleTrails(
     props: ISampleTrailsProps,
   ): Promise<IAutoMovieInspectionTrail[]> {
-    return sampleInspectionTrailsImplementation(props);
+    return sampleInspectionTrailsImplementation({
+      scene: props.scene,
+      patterns: [props.pattern],
+      times: props.times,
+      seek: async (seconds: number): Promise<null> => {
+        await props.seek(seconds);
+        return null;
+      },
+    });
   }
 
   /** Explicit input for projected inspection labels. */
@@ -508,9 +520,10 @@ export namespace AutoMovieRenderInspection {
   }
 
   /**
-   * Place labels in input order and report out-of-picture, behind-camera or
-   * overlapping labels in dropped. Runtime checks dimensions and scale with
-   * > 0 only, preserving acceptance of fractional and positive-infinite values.
+   * Admit projected labels in input order against the box each stamp paints.
+   * Report labels behind the camera, outside the picture or overlapping an
+   * earlier paint box as dropped. Width, height and scale are positive safe
+   * integers. Returned coordinates identify the projected pixel anchors.
    */
   export function placeLabels(
     props: IPlaceLabelsProps,

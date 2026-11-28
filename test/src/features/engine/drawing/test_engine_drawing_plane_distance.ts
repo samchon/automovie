@@ -23,6 +23,10 @@ const FRAME: IAutoMovieDrawingFrame = {
  *
  * 1. A point 2 m along the normal is at +2 and one 3 m behind is at -3.
  * 2. A point in the plane, however far across it, is at 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names signed positions on both sides of the plane and an offset point within it.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.autoMovieDrawingPlaneDistance with the authored +Z frame and three explicit world points.
+ * @evidence contracts/development/testing.md#independent-expectations The plane is z = 0, so the signed normal offsets are the points' z components +2, -3 and 0. Nonzero tangential components cannot affect those values.
  */
 export function test_engine_drawing_plane_distance(): void {
   TestValidator.predicate(

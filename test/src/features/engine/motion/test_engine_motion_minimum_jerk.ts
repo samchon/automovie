@@ -24,7 +24,7 @@ const H: number = 1e-6;
  *
  * 1. The share and rate at −1, 0, ¼, ½, ¾, 1 and 2 are the closed form, the time
  *    clamped.
- * 2. No unit leaves the origin, as a new vector.
+ * 2. An empty unit list returns a fresh copy of the origin.
  * 3. A 2 m unit along +X over 0 to 1 s and a −1 m unit along Y over 1 to 2 s: at
  *    0.5 s x = 4 moving at 15/8 · 2 = 3.75; at 1 s x = 5 at rest; from 2 s y =
  *    1.
@@ -33,6 +33,10 @@ const H: number = 1e-6;
  *    acceleration carry, each changing by no more than its next derivative's
  *    peak over the step.
  * 5. A unit of no duration is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names clamped rest-to-rest easing, fresh output with no units, consecutive and overlapping units, and zero duration refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the scalar basis directly and the trajectory superposition with typed displacement units. Values and derivatives are checked at interior times and across the start and end of concurrent units.
+ * @evidence contracts/development/testing.md#independent-expectations The polynomial u³(10 - 15u + 6u²) and its derivatives give the selected shares and rates. The overlapping Y unit contributes -53/512 m at 0.5 s. Near each seam, the next derivative's peak bounds the change in position, velocity, and acceleration.
  */
 export function test_engine_motion_minimum_jerk(): void {
   // 1. The normalised unit.

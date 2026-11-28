@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A beat under a scene takes the scene's slug; a beat directly under an act
  *    takes none; captions are carried as written.
  * 2. A script with no tree, or a null one, gives an empty index.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names scene grouping, exact caption text and the missing-tree cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the caption indexing function with a typed script containing nested and unnested beats and then reads the index for both absent tree representations.
+ * @evidence contracts/development/testing.md#independent-expectations The literal scene slug belongs only to its nested beat. The beat directly under the act has no enclosing scene, and each supplied caption is preserved. Either absent tree yields an empty index.
  */
 export function test_render_scene_beat_captions(): void {
   const base: Pick<IAutoMovieScriptNode, "temporal" | "interactsWith"> = {

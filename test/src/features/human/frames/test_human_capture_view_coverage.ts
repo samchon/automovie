@@ -11,9 +11,7 @@ import { FamilyConicCaptureContext as Capture } from "../../../reference-conics/
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the existing public Capture.views with portable requested-view data and checks the actual shared plan consumed by Figure and Deviation; no file arrangement is inspected.
  * @evidence contracts/development/testing.md#independent-expectations The existing Deviation contract requires five directions for eight named regions. Six sparse three-view requests and one sparse shoulder request expose thirteen missing view cells, corresponding to the existing deviation and owner consumers' twenty-six output demands. This fixture proves plan coverage, not PNG completion or visual acceptance.
- * @evidence contracts/development/testing.md#distinguishing-cases Sparse three/four-view input, complete five-view input, the special nose plan, an unrelated elbow and its twin distinguish compatibility union from a global view expansion.
- * @evidence contracts/development/testing.md#execution-ownership The selected fixture calls only a pure list planner with literal strings; no assembly, realization, reference file, host, renderer or viewer is invoked.
- * @evidence contracts/development/common.md#meaningful-documentation Four scenarios name the required comparison coverage, unchanged neighbours and opposite-side convention.
+ * @evidence contracts/development/common.md#meaningful-documentation The required Deviation directions are checked alongside complete and special requests, direction uniqueness, an unrelated elbow and its opposite-side counterpart.
  */
 export function test_human_capture_view_coverage(): void {
   const failures: string[] = [];

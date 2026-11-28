@@ -18,24 +18,23 @@ import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
  */
 export namespace IAutoMovieLoftSectionNative {
   /**
-   * Reusable point and phase readers over one owned numeric station
-   * preparation.
-   *
-   * Keeping the capability alive retains its fixed conic or chain records.
-   * Releasing the capability releases that preparation; it owns no native
-   * handle. Neither method mutates a prior result or requests physical station
-   * partials.
+   * Reusable local point and phase capability for one prepared native station.
+   * Both methods share the same conic or split-chain preparation, evaluate
+   * polar radians and return fresh local vectors. Physical-station derivatives
+   * require a separate station preparation.
    */
   export interface ICurve {
     /**
-     * Read the finite local point in millimetres at phi radians; numerical
-     * rejection throws from the native reader.
+     * Read the local [u, v] point in millimetres at polar phase phi in radians.
+     * The native reader throws when the requested point cannot be admitted.
      */
     point(phi: number): AutoMovieVector2Tuple;
 
     /**
-     * Read that same point and its first two phase partials at phi radians;
-     * numerical rejection throws from the native reader.
+     * Read the same point plus first and second phase derivatives at polar
+     * phase phi in radians. The starting arc supplies the sided second
+     * derivative at a split-chain join. The native reader throws when it cannot
+     * admit the requested phase.
      */
     phase(phi: number): IAutoMovieLoftSectionPhase;
   }

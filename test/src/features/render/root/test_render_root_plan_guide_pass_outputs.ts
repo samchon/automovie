@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    frames 0 and 9 and the pass patterns.
  * 2. No passes plan nothing.
  * 3. A zero frame count and an unknown pass throw.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Plans each distinct pass in request order with its first frame, last frame and encoder pattern.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls pass output planning with depth followed by beauty, an empty request, and invalid pass or frame count.
+ * @evidence contracts/development/testing.md#independent-expectations A ten-frame request has exact indices 0 and 9. The literal names and patterns retain depth first and use the base beauty path.
  */
 export function test_render_root_plan_guide_pass_outputs(): void {
   TestValidator.equals(

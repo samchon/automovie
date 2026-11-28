@@ -21,6 +21,10 @@ const BASIS: IAutoMovieJointAxes = {
  * 1. Axes of length 2, 3, 4 along X, Y, Z become the unit axes, and the placement
  *    is kept.
  * 2. A zero axis throws, naming its path.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers unit normalization with preserved frame metadata and refusal of a zero joint axis.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes literal scaled cardinal axes and rotation metadata to normalizeJointAxes, then calls it on a zero-axis variant.
+ * @evidence contracts/development/testing.md#independent-expectations The three axis directions stay cardinal while their lengths become one. The placement and order are named choices, while a zero axis has no normalized direction.
  */
 export function test_engine_kinematics_normalize_joint_axes(): void {
   TestValidator.equals("unit axes", AutoMovieEngineKinematics.normalizeJointAxes(BASIS, "joint"), {

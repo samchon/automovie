@@ -19,6 +19,10 @@ import { namedFacts, throwsError } from "../../internal/predicates";
  *    fabricated size findings.
  * 3. Duplicate shot/subject ids, invalid thresholds and malformed observation
  *    scalar/vector/reference/style fields receive the field's own refusal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify valid thresholds and framing classes, behind-camera behavior and separately malformed geometry, references and style inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test reads film grammar and its shot-size classifier for prepared positive extrema and ordinary observations, then submits each malformed observation and compares its field-addressed refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The selected occupancies are the reciprocal adopted full, medium and close visible fractions, and positive finite numeric extrema remain valid. Behind-camera data provides no valid width or height locating a subject. Each malformed ID or vector is authored at a known source position.
  */
 export function test_engine_film_grammar_admission(): void {
   const {

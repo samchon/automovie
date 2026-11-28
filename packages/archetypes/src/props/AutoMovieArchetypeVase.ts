@@ -2,17 +2,22 @@ import type { AutoMovieArchetype } from "../core";
 import { VesselConstruction } from "./internal/VesselConstruction";
 import type { AutoMovieArchetypeVessel } from "./AutoMovieArchetypeVessel";
 
-/** Canonical producer and authoring contract for Vase. */
+/**
+ * Constructs an upright glass vase with a body grasp and supported interior.
+ */
 export namespace AutoMovieArchetypeVase {
   /**
-   * An upright vase with an open interior and a grip around its body.
+   * Build an open glass vase with its bottom at model Y zero.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The round `body` grip faces `-X` at half height. Both opening
+   * `rim` and the supported inside floor point toward `+Y`.
+   *
+   * @param params Optional scene ID and finite outside span and height
+   *   in metres or mass in kilograms. The ID defaults to `vessel`.
+   * @param seed Numeric seed for omitted values. The seedless vase is
+   *   0.1375 metres across and 0.3 metres high.
+   * @returns The glass vase with opening, floor surface and mid-body grasp.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypeVase.IParams = {},
@@ -21,15 +26,16 @@ export namespace AutoMovieArchetypeVase {
     return VesselConstruction.vase(params, seed);
   }
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Outside width and rim height in metres, and recorded packed mass in kilograms.
    */
   export type Dimension = "diameter" | "height" | "mass";
 
-  /** The contact IDs declared by this producer. */
+  /** Upward `rim` and floor `inside`, plus a lateral mid-body `body` grasp. */
   export type Affordance = "body" | "inside" | "rim";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional scene ID and finite width, height or mass admitted by the vase bands.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeVessel.IParams,
     "id" | "diameter" | "height" | "mass"

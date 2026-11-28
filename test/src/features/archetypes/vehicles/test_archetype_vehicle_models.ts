@@ -47,11 +47,9 @@ const figures = (
  * 4. Fixing a dimension the picked model supplies, a hatchback's length, is
  *    refused at that dimension, never dropped.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each vehicle for 200 seeds and compares the figures it was built at with every read model's; a draw that mixes two models, or a model that never appears, is caught.
- * @evidence contracts/development/testing.md#independent-expectations The models' figures are written here from their sources (Honda UK's pages, the Toyota infoboxes, Ford's Transit Custom and Ranger specifications and a dealer's L2 guide, Yamaha's MT-07 factsheet, the boat designers' and canoe makers' pages), the tyres' diameters worked from their sizes here.
- * @evidence contracts/development/testing.md#distinguishing-cases Every car class, both motorcycle kinds, and the rowboats and canoes with every layup.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the automobile, motorcycle and boat catalogue sweeps and the refusal for fixing a model-owned length.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds each vehicle for 200 seeds and measures its assembled body, wheels or hull and mass. Each tuple must match one complete entry and the sweep must reach the allowed catalogue entries.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the stated manufacturer and designer model dimensions as literal tuples. Nominal tyre sizes determine their diameters, and the selected catalogue entry supplies the hatchback length.
  */
 export function test_archetype_vehicle_models(): void {
   const car =

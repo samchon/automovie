@@ -31,11 +31,9 @@ import { nclose } from "../../internal/nclose";
  * 6. A negative request outside0->MAX, truly overflowing span/rate, or an event
  *    with no representable interior film second is refused explicitly.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Derives native polynomial, affine, clock residual, cube-root and derivative expectations with representability limits.
- * @evidence contracts/development/testing.md#behavioral-verification Reads public ease.travel and launch on a real unbounded crank, including travel at the actual returned crossing instant; catches zero/infinite motion, outside requests accepted as negative zero, late clock collapse and incorrect finite crossing rates.
- * @evidence contracts/development/testing.md#independent-expectations Quintic coefficients give exact quarter fractions. MAX=(1-2^-53)*2^1024, so leading10u^3 gives10*2^-176 at2^-400 and10*2^862 at2^-54 within1e-12 relative. At the tiny crossing the fourth/fifth powers are below representable relative precision; independently factored cube roots and3*distance/root therefore pin the event/rate. Opposite-sign start=-(2^1021+3*2^970), durationMAX has rounding residual-2^970 by nearest-even.
- * @evidence contracts/development/testing.md#distinguishing-cases Exact endpoints/quarters, large positive origin, early/late phase, subnormal distance and rate scaling, both time anchors, compensated opposite-sign clock and genuine out-of-domain requests/spans/rates.
- * @evidence contracts/development/testing.md#execution-ownership One portable discovered in-memory unit owns its authored crank; it starts no process, compiler, renderer or host and replaces no runtime implementation.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the normalized quintic expectations, compensated clock residual and tiny launch rates and lists the representability cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads `travel` and `launch` on a real unbounded crank. It checks endpoints and quarters, both time anchors, tiny and large phases and admission of spans and rates. It samples travel at the returned launch time to distinguish correct inverse timing from a merely plausible event.
+ * @evidence contracts/development/testing.md#independent-expectations The quintic gives exact quarter fractions. Its leading `10*u^3` term gives `10*2^-176` at phase `2^-400` and `10*2^862` at phase `2^-54` within `1e-12` relative error for the selected full span. Factored cube roots give the tiny launch time and rate. Nearest-even arithmetic gives a residual of `-2^970` in the opposite-sign clock fixture.
  */
 export function test_archetype_track_profile_numeric(): void {
   const findings: string[] = [];

@@ -1,43 +1,43 @@
-/** Data and callback contracts shared by the SweepRotation operations. */
+/** Caller-managed numeric destinations for packed quaternion operations. */
 export namespace IAutoMovieSweepRotation {
   /**
-   * Caller-owned output for four x/y/z/w Hamilton-product components at the
-   * operation's scalar offset; a*b applies b first. Inputs may alias this
-   * output.
+   * Caller-owned four-component quaternion product destination beginning at a
+   * scalar offset.
+   *
+   * Input and output may share the same storage.
    */
   export type IMultiplyOut = { [index: number]: number };
 
   /**
-   * Caller-owned x/y/z/w quaternion storage normalized in place at the supplied
-   * scalar offset. Zero norm becomes identity; the caller supplies four
-   * writable slots.
+   * Writable four-component quaternion storage normalized in place at the
+   * supplied offset.
    */
   export type INormalizeQ = { [index: number]: number };
 
-  /**
-   * Caller-owned four-slot x/y/z/w output for a unit quaternion's conjugate, at
-   * the supplied scalar offset. Input and output may share storage.
-   */
+  /** Caller-owned x, y, z, w destination for a unit quaternion conjugate. */
   export type IConjugateOut = { [index: number]: number };
 
   /**
-   * Caller-owned four-slot x/y/z/w output for the rotation taking +X,+Y,+Z to
-   * an admitted orthonormal basis. The kernel writes at the supplied scalar
-   * offset and normalizes the result.
+   * Caller-owned four-component rotation destination for an orthonormal
+   * right-handed basis.
    */
   export type IFromBasisOut = { [index: number]: number };
 
   /**
-   * Caller-owned three-slot XYZ output at a scalar offset, retaining the input
-   * vector's length unit. A unit quaternion rotates the vector, and
-   * input/output storage may alias.
+   * Caller-owned three-component XYZ destination for one quaternion-rotated
+   * vector.
+   *
+   * Supply three writable consecutive scalar positions beginning at the
+   * operation's offset.
    */
   export type IRotateOut = { [index: number]: number };
 
   /**
-   * Caller-owned four-slot x/y/z/w output for shortest-arc interpolation of
-   * unit quaternions at dimensionless t. The output offset is scalar, and t is
-   * not clamped by the kernel.
+   * Caller-owned four-component destination for shortest-arc quaternion
+   * interpolation.
+   *
+   * The kernel evaluates the supplied parameter directly, including
+   * extrapolation.
    */
   export type ISlerpOut = { [index: number]: number };
 }

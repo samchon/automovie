@@ -132,6 +132,10 @@ const run: (
  *    axis, a missing or unusable transform scale, a primitive part, a mesh with
  *    no or degenerate texture coordinates, an unbound part, and a part naming a
  *    material the model does not define.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers normalized UV span, measured tile size, axis sign and texture bindings with no measurable claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateTextureScale on typed material and mesh variations with measured normalized or surface-metre coordinates and multiple texture bindings.
+ * @evidence contracts/development/testing.md#independent-expectations A normalized span of exactly one is the boundary. A one-metre tile is larger than a 0.1-metre post, while equal or smaller tiles fit. Tile magnitude ignores axis sign, and unmeasurable geometry supplies no size oracle.
  */
 export function test_engine_validation_texture_scale(): void {
   //----

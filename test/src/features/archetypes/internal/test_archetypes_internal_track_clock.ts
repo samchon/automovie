@@ -13,6 +13,10 @@ import { strict as assert } from "node:assert";
  *    finite samples on either side hold their nearest endpoints.
  * 2. An infinite duration, an unrepresentable end and samples that cannot
  *    locate a film second refuse on the fields that own them.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names finite held interval samples and the axes for unsupported duration, represented endpoint and film second.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the actual prepared clock at both finite extremes and exercises structured admission errors for invalid duration, endpoint and sample inputs.
+ * @evidence contracts/development/testing.md#independent-expectations A start of -2 plus duration 3 gives an end at 1. All earlier and later finite times hold their respective nearest endpoints.
  */
 export function test_archetypes_internal_track_clock(): void {
   const start: number = -2;

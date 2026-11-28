@@ -28,6 +28,10 @@ import { nclose } from "../../internal/nclose";
  *    leg's and decides, −0.112228805 m at 41 degrees.
  * 3. Ankles 0.2 m up with straight knees: the leg's 0.88 m clears the drop, so the
  *    root is not raised (0).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes downward root adjustment from both legs' posed flexion and horizontal offsets without upward motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries two fixed joint angles with feet below the hip and one forward foot, then checks already sufficient height.
+ * @evidence contracts/development/testing.md#independent-expectations Law of cosines gives spans 0.871440346 and 0.824301284 m. A 0.3 m horizontal offset shortens the vertical part, so that leg sets the larger drop.
  */
 export function test_motions_striking_stance_sink(): void {
   const body: Parameters<typeof StrikingStance.sink>[0] = {

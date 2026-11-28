@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. With every corner drawn, the bottom-left corner is kept as the first choice
  *    among equals.
  * 6. An empty legend paints nothing and returns nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Chooses the least covered corner for a legend and leaves an empty legend unpainted.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the legend stamper on a fixed raster with successively occupied corners and an empty legend.
+ * @evidence contracts/development/testing.md#independent-expectations Independent raster edits identify which corner stays clear. Exact swatch rows, unchanged content pixels and the first tie position pin ordering.
  */
 export function test_render_draw_stamp_draw_legend(): void {
   const legend: { label: string; color: number; count: number }[] = [

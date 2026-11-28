@@ -17,9 +17,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual support owner and reads its chain and existing frame/reflection consumers; ignored breadth and silent invalid input both fail.
  * @evidence contracts/development/testing.md#independent-expectations A symmetric separation B gives signed coordinates plus/minus B/2; the literal translated root and support offset independently give world [13,24,40].
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps the unchanged B60 counterpart beside changed B80, independent AP/Y/rotation records, a descendant and five invalid values, collecting every finding.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on three made joint records, no person, reference, loft or realization, with no process or shared cache.
- * @evidence contracts/development/common.md#meaningful-documentation Names the supplied field's precise geometric effect, preserved inputs and two numbered scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Reference breadth retains the made chain. Broader support changes the signed half span through world placement and reflection, while invalid breadth has a named refusal.
  */
 export function test_human_hip_support_placement(): void {
   const chain: IAutoMovieHumanSegmentJoint[] = [

@@ -18,11 +18,9 @@ const PLATTERS: string =
  * 1. Over 200 seeds, inside the band and spanning at least 80 % of it: a round plate 20 to 27 cm across its colliders and 2 to 3 cm high at its face; a platter 27 to 33.8 cm long along `X`, 15 to 24 cm wide along `Z`, its face 3 to 3.8 cm up, over IKEA's, Rosenthal's and Thomas's platters; a saucer 12 cm across and 1.4 cm high.
  * 2. A plate's two rim pinches are on its two edges along `X`, the plate's measured diameter apart, and their aperture is the plate's measured height.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each plate for 200 seeds and measures colliders, contact frames and grip widths; a band other than the citation's, a plate drawn at another size than its band, a seed that does not vary it, or a pinch off the plate's edge is caught.
- * @evidence contracts/development/testing.md#independent-expectations The values are written here from IKEA's pages: the 365+ side plate's 20 cm and 2 cm, the plate's 27 cm and 3 cm, the 27 by 15 cm serving plate, the 36 by 20 cm one stating no height; Rosenthal's Sonetto saucer's 12 cm and 1.4 cm.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds; masses from packed weights only bound a plate from above and are left to the producer's provisional marks; frames' orthonormality and grip widths against colliders belong to the contract tests, stacking to `test_archetype_props_stacking`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States each plate form's footprint and face height and identifies opposite rim pinches and their aperture.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds plates, platters and saucers across the seed sweep and measures their colliders and named frames. The rim sites must straddle the measured width and fit the measured vertical extent.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's manufacturer sizing measurements and geometric constraints. Opposite pinches along X are one measured diameter apart and their aperture is the measured plate height.
  */
 export function test_archetype_props_tableware_bands(): void {
   const row = (

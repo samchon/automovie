@@ -15,11 +15,9 @@ const MM: number = 1e-3;
  * 4. A lamp post's shaft stands Wave's 12 ft on a 9 1/4 in base under Sternberg's 21 in by 40 in luminaire, its post a bar from the base's top to the shaft's top.
  * 5. A sign post holds a STOP sign, over 200 seeds exactly 30 or 36 in, each drawn, with its bottom edge at the MUTCD's 7 ft on Atkore's 2 in post, the post below the sign a bar.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a fixture off its source's size, between two of its read models or never drawn at one, a bollard's pipe with another's mass, or a contact off its part is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations Every figure is the MUTCD's or the makers' restated here in metres.
- * @evidence contracts/development/testing.md#distinguishing-cases Five kinds with different contacts: a handle, a post with a top, a knob, a post on a base, a post under a sign.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies five street fixtures and their distinct handle, knob, top and sign contacts.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures public fixture models across seeded dimensions and whole catalogue entries. It reads actual contact placement and rejects conflating a bollard's size with another entry's mass.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's MUTCD and maker figures in metres and paired bollard sizes and masses. Measured component faces locate each corresponding contact.
  */
 export function test_archetype_street_fixtures(): void {
     const findings: string[] = [];

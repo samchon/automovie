@@ -50,6 +50,10 @@ const reader = (
  * 1. A fixed drum's level `head` is admitted.
  * 2. The same drum loose, its head tilted 10 degrees, or asked for an `edge` it
  *    lacks, is not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a named upward stationary contact on a fixed percussion prop.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a level fixed drum, then tries a loose prop, its tilted face and a missing requested site.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's horizontal `head` is valid. A 10° tilt, moving support or absent identifier violates a distinct prerequisite.
  */
 export function test_motions_tasks_struck_surface(): void {
   const level: IAutoMovieAffordance = surface("head", {

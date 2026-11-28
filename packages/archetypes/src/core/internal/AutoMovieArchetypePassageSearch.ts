@@ -1,12 +1,14 @@
 import { AutoMovieEngineQuaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
+  IAutoMovieProfilePoint,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeCourse } from "../AutoMovieArchetypeCourse";
 import type { AutoMovieArchetypePassage } from "../AutoMovieArchetypePassage";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
+import { offsetPlanarMiter } from "./offsetPlanarMiter";
 
 /*
  * Admission, footprint distances and interval search for passage conflicts.
@@ -441,30 +443,26 @@ export namespace AutoMovieArchetypePassageSearch {
       ];
     }
     // Each edge's outward normal is its direction turned clockwise, the side away from a counter-clockwise interior.
-    const normal: (k: number) => IAutoMovieVector3 = (
+    const normal: (k: number) => IAutoMovieProfilePoint = (
       k: number,
-    ): IAutoMovieVector3 => {
+    ): IAutoMovieProfilePoint => {
       const from: IAutoMovieVector3 = hull[k]!;
       const to: IAutoMovieVector3 = hull[(k + 1) % hull.length]!;
       const length: number = Math.hypot(to.x - from.x, to.z - from.z);
       return {
         x: (to.z - from.z) / length,
-        y: 0,
-        z: -(to.x - from.x) / length,
+        y: -(to.x - from.x) / length,
       };
     };
     return hull.map(
       (vertex: IAutoMovieVector3, k: number): IAutoMovieVector3 => {
-        const a: IAutoMovieVector3 = normal(
-          (k + hull.length - 1) % hull.length,
+        const corner: IAutoMovieProfilePoint = offsetPlanarMiter(
+          { x: vertex.x, y: vertex.z },
+          normal((k + hull.length - 1) % hull.length),
+          normal(k),
+          distance,
         );
-        const b: IAutoMovieVector3 = normal(k);
-        const scale: number = distance / (1 + a.x * b.x + a.z * b.z);
-        return {
-          x: vertex.x + (a.x + b.x) * scale,
-          y: 0,
-          z: vertex.z + (a.z + b.z) * scale,
-        };
+        return { x: corner.x, y: 0, z: corner.y };
       },
     );
   }

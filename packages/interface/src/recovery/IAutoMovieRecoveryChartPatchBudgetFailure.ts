@@ -1,15 +1,18 @@
 /**
- * Explicit chart compilation refusal when the local knot partition exceeds its
- * patch budget.
+ * Refused chart compilation when its local tensor partition needs more patches
+ * than the configured limit.
  */
 
 export interface IAutoMovieRecoveryChartPatchBudgetFailure {
-  /** Discriminates a refused chart compilation. */
+  /** False for this local chart-compilation refusal. */
   complete: false;
 
-  /** The local tensor partition exceeds maxPatches. */
+  /** Discriminator for exceeding the configured chart patch budget. */
   reason: "chart-patch-budget";
 
-  /** Product of the actual local U and V interval counts. */
+  /**
+   * Number of patches requested by the product of the local U and V interval
+   * counts.
+   */
   requiredPatches: number;
 }

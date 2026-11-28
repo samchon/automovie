@@ -19,6 +19,10 @@ import { throwsError } from "../../internal/throwsError";
  *    on the aim halfway through it.
  * 2. Twice as slow, the squeeze starts at 1 s.
  * 3. No sweep, or a span of a half turn, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual nozzle sweep timing, retiming and admission of sweep count and range.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the stage motion through aim, first quarter and midpoint, release and return, then doubles tempo and tries invalid declarations.
+ * @evidence contracts/development/testing.md#independent-expectations The authored 0.5 s aim and two 1.2 s sweeps yield release at 2.9 s. A 60° span peaks at its half-range and the slower clip doubles the first cue.
  */
 export function test_motions_tasks_extinguish(): void {
   const sweep: extinguishSweep.ISweep = extinguishSweep(2, 60, 1);

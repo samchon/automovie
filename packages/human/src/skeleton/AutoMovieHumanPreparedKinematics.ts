@@ -20,11 +20,11 @@ import { AutoMovieHumanSkeletonMath as M } from "./AutoMovieHumanSkeletonMath";
 /** One body's clinical FK law, shared by complete snapshots and fixed-bone projections. */
 export namespace AutoMovieHumanPreparedKinematics {
   /**
-   * Compile neutral anatomy once. Projections only omit unused output and branch
-   * work: the channel/clamp law and quaternion operation order are identical.
-   * Private local/world records are bounded by this body's joint count. Every
-   * escaping placement and clamp owns its arrays; neither accepted solver state
-   * nor earlier public snapshots can be overwritten by subsequent trials.
+   * Prepare forward kinematics for fixed neutral joints and their body scale.
+   * Supply the fixed neutral frame data, calibration-to-metre scale and
+   * dimensionless body scale. The returned evaluator can project selected
+   * bones and their ancestors. Pose evaluations return placements and clamp
+   * records with owned arrays.
    */
   export function prepare(
     joints: IAutoMovieHumanJointCentres.IJoint[],

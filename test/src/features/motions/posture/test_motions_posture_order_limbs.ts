@@ -29,6 +29,10 @@ function goal(on?: IAutoMovieHumanLimbGoal["on"]): IAutoMovieHumanLimbGoal {
  *    leg.
  * 4. A goal on the chest, or on the limb's own hand, orders nothing.
  * 5. The two arms each on the other's forearm are refused, naming both.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines default leg-before-arm order, dependencies on another limb's bones and cycle refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Orders free goals, cross-limb forearm and finger attachments, shared and own bones, and one mutual cycle.
+ * @evidence contracts/development/testing.md#independent-expectations The authored graph forces the owning limb ahead of its dependent, while shared and own targets add no edge. A two-arm cycle must identify both participants.
  */
 export function test_motions_posture_order_limbs(): void {
   // 1. Free.

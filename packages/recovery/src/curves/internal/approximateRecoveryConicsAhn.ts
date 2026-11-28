@@ -52,26 +52,33 @@ export function approximateRecoveryConicsAhn(
   /*
    * Assemble evidence without retaining callback closures or observed samples.
    */
-  const result: (
+  function result(
     status: IAutoMovieConicApproximation.IResult["status"],
-  ) => IAutoMovieConicApproximation.IResult = (
-    status: IAutoMovieConicApproximation.IResult["status"],
-  ): IAutoMovieConicApproximation.IResult => ({
-    method,
-    status,
-    arcs: status === "refused" ? [] : arcs,
-    diagnostics,
-    maximumSampleErrorMm:
-      status === "refused"
-        ? 0
-        : arcs.reduce(
-            (maximum: number, arc: IAutoMovieRegisteredConicArc): number =>
-              Math.max(maximum, arc.maximumSampleErrorMm),
-            0,
-          ),
-    certified: false,
-    queries,
-  });
+  ): IAutoMovieConicApproximation.IResult {
+    if (status === "refused")
+      return {
+        method,
+        status,
+        arcs: [],
+        diagnostics,
+        maximumSampleErrorMm: 0,
+        certified: false,
+        queries,
+      };
+    return {
+      method,
+      status,
+      arcs,
+      diagnostics,
+      maximumSampleErrorMm: arcs.reduce(
+        (maximum: number, arc: IAutoMovieRegisteredConicArc): number =>
+          Math.max(maximum, arc.maximumSampleErrorMm),
+        0,
+      ),
+      certified: false,
+      queries,
+    };
+  }
   if (diagnostics.length !== 0) return result("refused");
   diagnostics.push(
     "Numerical adaptation: Ahn's full characterization theorem/error function was unavailable; radial-correspondence samples do not certify Hausdorff distance or global minimality.",
@@ -94,7 +101,7 @@ export function approximateRecoveryConicsAhn(
       order === undefined
         ? curve.evaluate(t)
         : curve.derivative(t, order, side);
-    if (p.length !== 2)
+    if (p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
       throw new Error(
         `Nonfinite source ${order === undefined ? "point" : "derivative"} at parameter ${t}.`,
       );

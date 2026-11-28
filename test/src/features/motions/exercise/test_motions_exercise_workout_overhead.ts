@@ -29,7 +29,13 @@ const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
 ]);
 const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head", "neck"]);
 
-/** An unloaded two-arm lift keeps each grip outboard through the turnover. */
+/**
+ * An unloaded two-arm lift keeps each grip outboard through the turnover.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Unloaded snatch and clean-and-jerk turnovers keep hands outboard and clear of the head across three bodies.
+ * @evidence contracts/development/testing.md#behavioral-verification Plays both exercises with three stock sizes and headings and measures hand span, head clearance, and wrist speed through turnover.
+ * @evidence contracts/development/testing.md#independent-expectations Hand spans are measured against each displayed shoulder width. The fixed clearance, speed and grip-width bounds distinguish crossed or erratic paths from the intended motion.
+ */
 export function test_motions_exercise_workout_overhead(): void {
   for (const [id, yaw] of [
     ["m-average", 0],

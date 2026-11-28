@@ -37,7 +37,10 @@ export function prepareBicubicAtlasBoundary64(
       Array.from(
         { length: 4 },
         (_: unknown, k: number): number => authority.controlIds[k]!,
-      ).some((id: number): boolean => id < 0 || id >= input.controlsMm.length)
+      ).some(
+        (id: number): boolean =>
+          !Number.isSafeInteger(id) || id < 0 || id >= input.controlsMm.length,
+      )
     )
       throw new Error(
         "A canonical cubic requires one name and four valid controls",

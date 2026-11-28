@@ -9,17 +9,20 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Read editing cues from an in-memory film schedule with three staged exchanges
- * and an unrelated action.
+ * Check editing cues in a played stage exchange.
  *
  * Scenarios:
  *
- * 1. The first opening and block meet at 2.25 seconds. Keep their order on that
- *    tie and read the reply's start at 2.5, before its own contact.
- * 2. The second opening is cut before contact, but the block's stroke is exactly
- *    at its own cut. Keep the block at 4.5 with no reply.
- * 3. The last opening is cut before contact and its block is cut before the
- *    stroke. Return an empty track. Refuse a different, absent cue id.
+ * 1. Keep the opening and block tie at 2.25 s in declaration order. Read the
+ *    reply's entry at 2.5 s.
+ * 2. When an opening is cut before contact and the block reaches its stroke
+ *    exactly at the cut, emit the block alone at 4.5 s.
+ * 3. When both cues fall beyond the cut, return an empty track. Reject an
+ *    absent exchange identifier.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify event timing, same-instant order, clip inclusion and missing identity.
+ * @evidence contracts/development/testing.md#behavioral-verification The cue reader consumes a complete typed schedule with separate opening, reply, block and unrelated rows.
+ * @evidence contracts/development/testing.md#independent-expectations The placed starts and authored event shares determine each second, and inclusive cut endpoints distinguish the two truncation cases.
  */
 export function test_motions_next_stage_fight_exchange_cues(): void {
   const entry = (

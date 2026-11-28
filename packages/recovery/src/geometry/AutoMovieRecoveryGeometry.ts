@@ -18,7 +18,10 @@ import { prepareCutExact as prepareCutExactImplementation } from "../internal/me
 
 /** Pure vector and planar-coordinate operations for Recovery geometry. */
 export namespace AutoMovieRecoveryGeometry {
-  /** Compute the right-handed cross product in a shared Cartesian frame. */
+  /**
+   * Return the right-handed cross product of two vectors in the same Cartesian
+   * frame. Reversing the argument order reverses the direction.
+   */
   export function cross(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -26,7 +29,10 @@ export namespace AutoMovieRecoveryGeometry {
     return crossOperation(a, b);
   }
 
-  /** Measure Euclidean distance in the points' common frame and units. */
+  /**
+   * Measure Euclidean distance between two points in the same frame. The
+   * result uses their coordinate units.
+   */
   export function dist(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -34,7 +40,9 @@ export namespace AutoMovieRecoveryGeometry {
     return distOperation(a, b);
   }
 
-  /** Compute the Euclidean inner product of two vectors. */
+  /**
+   * Return the Euclidean inner product of two vectors in the same frame.
+   */
   export function dot(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -42,12 +50,17 @@ export namespace AutoMovieRecoveryGeometry {
     return dotOperation(a, b);
   }
 
-  /** Measure Euclidean vector magnitude, retaining its units. */
+  /**
+   * Measure the Euclidean magnitude in the vector's coordinate units.
+   */
   export function len(a: AutoMovieVector3Tuple): number {
     return lenOperation(a);
   }
 
-  /** Scale a vector without changing its coordinate frame. */
+  /**
+   * Scale a Cartesian vector by the supplied multiplier. Return a new tuple in
+   * its original frame.
+   */
   export function mul(
     a: AutoMovieVector3Tuple,
     scale: number,
@@ -55,17 +68,27 @@ export namespace AutoMovieRecoveryGeometry {
     return mulOperation(a, scale);
   }
 
-  /** Normalize a vector; zero remains zero for explicit degeneracy handling. */
+  /**
+   * Normalize a nonzero Cartesian vector to a unit direction. A zero vector
+   * returns zero.
+   */
   export function norm(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     return normOperation(a);
   }
 
-  /** Measure signed planar area; counter-clockwise contours are positive. */
+  /**
+   * Measure a polygon's signed area in its planar coordinate units squared.
+   * Counterclockwise order is positive. A contour with fewer than three
+   * vertices has zero area.
+   */
   export function signedArea(points: AutoMovieVector2Tuple[]): number {
     return signedAreaOperation(points);
   }
 
-  /** Subtract vectors expressed in the same frame and units. */
+  /**
+   * Subtract the second Cartesian tuple from the first. Both use the same
+   * frame and units.
+   */
   export function sub(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -73,7 +96,10 @@ export namespace AutoMovieRecoveryGeometry {
     return subOperation(a, b);
   }
 
-  /** Project a point into a plane's physical u/v coordinates. */
+  /**
+   * Project a point onto a cutting plane's `u` and `v` directions from its
+   * origin. Return physical coordinates in the point's units.
+   */
   export function to2(
     plane: IAutoMoviePlaneFrame,
     point: AutoMovieVector3Tuple,
@@ -82,15 +108,11 @@ export namespace AutoMovieRecoveryGeometry {
   }
 
   /**
-   * Intersect a triangle surface with a plane without epsilon displacement or
-   * branch loss. Equal signed zero vertices retain exact source positions.
-   * Coplanar triangles contribute only qualified patch-boundary edges; binary64
-   * signs are not exact predicates. Every graph edge is visited once in maximal
-   * degree-two chains, so junctions terminate separate open chains. Isolated
-   * tangent contacts return one-point open polylines instead of disappearing. A
-   * supplied scalar chart shares the exact height samples used for PL topology;
-   * its signs and edge fractions use height minus level without reprojecting an
-   * origin.
+   * Intersect indexed triangles with a physical plane using binary64 cut
+   * predicates. An optional supplied scalar chart determines signs and edge
+   * fractions from height minus level. Keep isolated tangent contacts as
+   * one-point open contours and split at graph junctions. An optional filter
+   * receives original face IDs.
    */
   export function cutExact(
     skin: Parameters<IAutoMovieMeshPlaneCut.Operation>[0],
@@ -102,21 +124,12 @@ export namespace AutoMovieRecoveryGeometry {
   }
 
   /**
-   * Reusable admission for deterministic source-plane observations. Prepared
-   * queries consume one immutable source and scalar chart, with optional complete
-   * face candidates.
-   *
-   * Admit immutable source positions, incidence and scalar heights once. The
-   * caller keeps every supplied array unchanged until all queries finish. Each
-   * query accepts original face IDs in strictly increasing order; candidates
-   * must include every face whose scalar interval contains level, including
-   * ties. Omitting candidates scans every face. The optional filter sees
-   * original IDs. The supplied plane retains the physical chart, while heights
-   * minus level own predicates. retainSourceFaces copies actual emitting faces,
-   * excluding endpoint-star neighbors. retainOrderedSource additionally
-   * preserves directed segments and original edge alias witnesses. Both default
-   * false; omitted mode retains original properties and numeric paths. Binary64
-   * predicates are not certified exact arithmetic.
+   * Prepare reusable triangle cut queries. Keep source positions, incidence
+   * and scalar heights unchanged while querying. Omit candidates to scan every
+   * face. An explicit strictly increasing candidate list must include all
+   * faces covering the level, including exact endpoints. Both provenance
+   * switches default false. Enable them to retain exact emitting faces or
+   * ordered edge ancestry.
    */
   export function prepareCutExact(
     skin: Parameters<IAutoMovieMeshPlaneCut.Prepare>[0],
@@ -132,36 +145,31 @@ export namespace AutoMovieRecoveryGeometry {
     );
   }
   /**
-   * Classifies generic PL height vertices by connected lower and upper links.
-   * Equal heights use a private symbolic address order without perturbing
-   * physical coordinates. Bremer et al. 2004, sections II.C and III.A:
-   * https://web.cs.ucdavis.edu/~hamann/BremerEdelsbrunnerHamannPascucci2004TVCG.pdf
-   * The returned manifold flag denotes one cycle; other links remain legacy
-   * unresolved observations. The default legacy-link-cycle-v1 policy preserves
-   * that classification. Opt-in boundary-regular-path-v1 additionally omits a
-   * strict regular boundary fan: a connected simple path, qualified incident
-   * faces and radial edge incidence, no tied neighbor height, connected nonempty
-   * lower/upper links and opposite boundary-end signs. This is a sufficient local
-   * half-disk chart condition, not an embedding certificate. Turner, Robins and
-   * Morgan 2024, Definition 4.6: https://doi.org/10.1007/s41468-024-00175-8
+   * Classify critical vertices of a piecewise-linear height function. The
+   * default `legacy-link-cycle-v1` qualifies a single cycle. Select
+   * `boundary-regular-path-v1` to also recognize a qualifying regular boundary
+   * fan. Equal heights are ordered by original vertex identity and physical
+   * levels stay unchanged.
    */
   export function critical(skin: Parameters<IAutoMovieMeshCriticalPoints.Operation>[0], axis?: Parameters<IAutoMovieMeshCriticalPoints.Operation>[1], scalarHeights?: Parameters<IAutoMovieMeshCriticalPoints.Operation>[2], policy?: Parameters<IAutoMovieMeshCriticalPoints.Operation>[3]): ReturnType<IAutoMovieMeshCriticalPoints.Operation> {
     return criticalImplementation(skin, axis, scalarHeights, policy);
   }
 
   /**
-   * Builds an orthonormal cutting frame whose v follows the projected reference
-   * and u cross v = n.
+   * Build a right-handed orthonormal cutting frame from finite Cartesian
+   * tuples. The supplied origin is retained by reference. The normal sets
+   * `n`, and `v` follows the projected reference. A zero normal or projected
+   * reference length below 1e-6 throws.
    */
   export function planeFrame(origin: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[0], normal: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[1], reference: Parameters<IAutoMoviePlaneFrameConstruction.Operation>[2]): ReturnType<IAutoMoviePlaneFrameConstruction.Operation> {
     return planeFrameImplementation(origin, normal, reference);
   }
 
   /**
-   * Builds a private supporting-face orientation witness; its result
-   * distinguishes outer from cavity contours. An explicit registered sign
-   * bypasses global-volume inference and retains the supplied material-side
-   * convention for open or independently oriented source shells.
+   * Prepare a supporting-face orientation witness for classifying section
+   * contours. Supply the registered material-side sign when known. Omit it to
+   * infer orientation from the source's signed volume. Zero inferred volume
+   * throws.
    */
   export function sourceOrientation(skin: Parameters<IAutoMovieMeshSectionOrientation.Operation>[0], orientation?: Parameters<IAutoMovieMeshSectionOrientation.Operation>[1]): ReturnType<IAutoMovieMeshSectionOrientation.Operation> {
     return sourceOrientationImplementation(skin, orientation);

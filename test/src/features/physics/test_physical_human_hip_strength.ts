@@ -20,10 +20,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    several times a hip's measured strength.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the measured strengths, their source and the placeholder they replace.
- * @evidence contracts/development/testing.md#behavioral-verification Builds the canonical provider's profile and reads its hip joints' axis bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the canonical provider's profile and reads its hip joints' axis bounds. The in-memory body supplies both hips, with separate axis signs for abduction and adduction and for external and internal rotation.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the published per-kilogram means times the subject's mass, and the placeholder's rate times the leg's own segment masses.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates abduction from adduction and external from internal rotation by each axis's coordinate sign, and both hips.
- * @evidence contracts/development/testing.md#execution-ownership The portable unit test prepares the installed canonical body in memory; no native world, viewer or file host.
  */
 export function test_physical_human_hip_strength(): void {
   const profile: IAutoMoviePhysicalProfile =

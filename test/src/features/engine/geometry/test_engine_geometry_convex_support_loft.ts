@@ -12,6 +12,10 @@ import { nclose } from "../../internal/nclose";
  * 1. Four constant XZ half-planes and Y from 1 to 4 m enclose a 3 by 2 m section.
  *    The result has the authored bounds, two triangles per side, eight physical
  *    corners, one interval and no interior events.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the fixed support planes, interval, known bounds and expected open lateral topology.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a one-span support field and checks its actual XYZ bounds, side triangles, physical corners and event count.
+ * @evidence contracts/development/testing.md#independent-expectations Four constant half-planes give four unchanged rectangle sides across heights 1 to 4. The two end rings supply eight physical corners, and only the four sides contribute triangles.
  */
 export function test_engine_geometry_convex_support_loft(): void {
   const result: IAutoMovieRealizeConvexSupportLoft.IResult =

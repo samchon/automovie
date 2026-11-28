@@ -14,6 +14,10 @@ import { nclose } from "../../internal/predicates";
  *    produce the independently derived affine matrix at registration.
  * 2. Changing the caller's translation and repeat leaves the captured matrix
  *    unchanged and distinct from the texture's current matrix.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the captured transform, borrowed texture and later caller mutation.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates a real texture, registers its detail-normal patch and invokes its material callback to read the captured UV transform. Mutates the source texture before comparing it with the retained uniform.
+ * @evidence contracts/development/testing.md#independent-expectations With zero rotation and center, repeat 2 by 3 gives the diagonal and offset (0.25, 0.5) gives the affine translation. Later changes distinguish an owned matrix from the caller's live one.
  */
 export function test_render_scene_create_detail_normal_shader_patch(): void {
   const texture: THREE.Texture = new THREE.Texture();

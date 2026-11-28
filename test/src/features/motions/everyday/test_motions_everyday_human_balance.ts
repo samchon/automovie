@@ -334,6 +334,10 @@ namespace part_prepare_bearing_trunk_balance {
  *   difference over 1/240 s, metres:
  * - `prepare_bearing_trunk_balance`: `prepareBearingTrunkBalance` prepares a
  *   lumbar balance over the contacts that bear inside its window:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The balance readers place the mass center, extrapolate horizontal travel, and sample a prepared bearing support.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls direction, center, extrapolation, and prepared trunk-balance readers on explicit support and pose fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Known support edges, transforms, and constant motion establish the directional and extrapolated readings. Instrumented readers expose sampling beyond the prepared window.
  */
 export async function test_motions_everyday_human_balance(): Promise<void> {
   part_human_balance_along.verify();

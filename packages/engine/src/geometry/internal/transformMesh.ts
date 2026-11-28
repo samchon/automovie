@@ -8,6 +8,7 @@ import {
 
 import { AutoMovieEngineQuaternion } from "../../math/AutoMovieEngineQuaternion";
 import { AutoMovieEngineVector3 } from "../../math/AutoMovieEngineVector3";
+import { decomposeFiniteBinary64 } from "../../math/internal/decomposeFiniteBinary64";
 import { resolveMeshPhysicalVertices } from "../../math/internal/resolveMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
@@ -67,8 +68,7 @@ export const transformMesh: (
   if (mesh.skin !== null)
     throw new Error("procedural mesh transform does not accept skinning");
   const triangles: number[] = triangleIndicesOf(mesh, "mesh transform");
-  if (mesh.physicalVertices !== undefined)
-    resolveMeshPhysicalVertices(mesh);
+  if (mesh.physicalVertices !== undefined) resolveMeshPhysicalVertices(mesh);
   const translation: IAutoMovieVector3 = transform.translation ?? {
     x: 0,
     y: 0,
@@ -80,37 +80,83 @@ export const transformMesh: (
     z: 0,
     w: 1,
   };
+  const rotationLength: number = Math.hypot(
+    rotation.x,
+    rotation.y,
+    rotation.z,
+    rotation.w,
+  );
   if (
-    Math.abs(Math.hypot(rotation.x, rotation.y, rotation.z, rotation.w) - 1) >
-    UNIT_QUATERNION_EPSILON
+    !Number.isFinite(rotationLength) ||
+    Math.abs(rotationLength - 1) > UNIT_QUATERNION_EPSILON
   )
     throw new Error("mesh transform rotation must be a unit quaternion");
   const scale: IAutoMovieVector3 = transform.scale ?? { x: 1, y: 1, z: 1 };
+  if (
+    !AutoMovieEngineVector3.isFinite(translation) ||
+    !AutoMovieEngineVector3.isFinite(scale)
+  )
+    throw new Error("mesh transform translation and scale must be finite");
   if (scale.x === 0 || scale.y === 0 || scale.z === 0)
     throw new Error("mesh transform scale may not collapse an axis");
   const positions: number[] = [];
   for (let index: number = 0; index < mesh.positions.length; index += 3) {
-    const placed: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(rotation, {
-      x: mesh.positions[index]! * scale.x,
-      y: mesh.positions[index + 1]! * scale.y,
-      z: mesh.positions[index + 2]! * scale.z,
-    });
-    positions.push(
-      placed.x + translation.x,
-      placed.y + translation.y,
-      placed.z + translation.z,
+    const position: IAutoMovieVector3 = {
+      x: mesh.positions[index]!,
+      y: mesh.positions[index + 1]!,
+      z: mesh.positions[index + 2]!,
+    };
+    if (!AutoMovieEngineVector3.isFinite(position))
+      throw new Error("mesh transform positions must be finite");
+    const placed: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+      rotation,
+      {
+        x: position.x * scale.x,
+        y: position.y * scale.y,
+        z: position.z * scale.z,
+      },
     );
+    const x: number = placed.x + translation.x,
+      y: number = placed.y + translation.y,
+      z: number = placed.z + translation.z;
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
+      throw new Error("mesh transform positions must remain finite");
+    positions.push(x, y, z);
   }
   const source: readonly number[] = mesh.normals ?? [];
   const normals: number[] = [];
   for (let index: number = 0; index < source.length; index += 3) {
-    const turned: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
-      AutoMovieEngineQuaternion.rotateVector(rotation, {
-        x: source[index]! / scale.x,
-        y: source[index + 1]! / scale.y,
-        z: source[index + 2]! / scale.z,
-      }),
+    const normal: IAutoMovieVector3 = {
+      x: source[index]!,
+      y: source[index + 1]!,
+      z: source[index + 2]!,
+    };
+    if (!AutoMovieEngineVector3.isFinite(normal))
+      throw new Error("mesh transform normals must be complete finite triples");
+    let inverse: IAutoMovieVector3 = {
+      x: normal.x / scale.x,
+      y: normal.y / scale.y,
+      z: normal.z / scale.z,
+    };
+    if (
+      !AutoMovieEngineVector3.isFinite(inverse) ||
+      (normal.x !== 0 && Math.abs(inverse.x) < MINIMUM_NORMAL) ||
+      (normal.y !== 0 && Math.abs(inverse.y) < MINIMUM_NORMAL) ||
+      (normal.z !== 0 && Math.abs(inverse.z) < MINIMUM_NORMAL)
+    )
+      inverse = inverseScaleDirection(normal, scale);
+    let turned: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      AutoMovieEngineQuaternion.rotateVector(rotation, inverse),
     );
+    if (!AutoMovieEngineVector3.isFinite(turned))
+      turned = AutoMovieEngineVector3.normalize(
+        AutoMovieEngineQuaternion.rotateVector(
+          rotation,
+          AutoMovieEngineVector3.normalize(inverse),
+        ),
+      );
+    if (!AutoMovieEngineVector3.isFinite(turned))
+      throw new Error("mesh transform normals must remain finite");
     normals.push(turned.x, turned.y, turned.z);
   }
   const mirrored: boolean =
@@ -156,3 +202,31 @@ export const transformMesh: (
  * Largest admitted distance of a placement rotation's norm from one.
  */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
+
+/* Keep the normal's direction when a reciprocal scale loses magnitude. */
+function inverseScaleDirection(
+  normal: IAutoMovieVector3,
+  scale: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const ratios = (["x", "y", "z"] as const).map((axis) => {
+    const numerator = decomposeFiniteBinary64(normal[axis]);
+    const denominator = decomposeFiniteBinary64(scale[axis]);
+    return {
+      value: Number(numerator.significand) / Number(denominator.significand),
+      exponent: numerator.exponent - denominator.exponent,
+    };
+  });
+  let common: number = -Infinity;
+  for (const ratio of ratios)
+    if (ratio.value !== 0) common = Math.max(common, ratio.exponent);
+  const read = ({ value, exponent }: (typeof ratios)[number]): number => {
+    if (value === 0) return value;
+    const power: number = exponent - common;
+    return power < -1022
+      ? value * 2 ** -1022 * 2 ** (power + 1022)
+      : value * 2 ** power;
+  };
+  return { x: read(ratios[0]!), y: read(ratios[1]!), z: read(ratios[2]!) };
+}
+
+const MINIMUM_NORMAL: number = 2 ** -1022;

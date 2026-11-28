@@ -6,7 +6,19 @@ import {
 } from "../../../../../packages/motions/src/touch/internal/requireOtherPerformer";
 import { strict as assert } from "node:assert";
 
-/** Each partner-only contact requires two distinct performers. */
+/**
+ * Check performer identity before composing a partner-only touch.
+ *
+ * Scenarios:
+ *
+ * 1. Admit performer `a` touching performer `b` .
+ * 2. For `a` touching `a` , report a parameter refusal on `partner` with
+ *    identity `a` and the supplied explanation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases state the identity rule and the refusal fields.
+ * @evidence contracts/development/testing.md#behavioral-verification The exact partner gate receives a distinct pair and a self pair.
+ * @evidence contracts/development/testing.md#independent-expectations Only the second identity changes between the fixed test pairs.
+ */
 export function test_motions_touch_partner_touch(): void {
   const reason: string = "a performer embraces another performer";
   requireOtherPerformer("a", "b", reason);

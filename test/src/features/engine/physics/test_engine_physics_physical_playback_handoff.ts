@@ -59,6 +59,10 @@ const TURN_RATE: number = 0.01;
  *    ownership, recomputing 36 steps; the ownership survives an archive encode
  *    and decode and reads the same at any second; the child rejoins its
  *    authored pose exactly at 1 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes an authored parent and dynamic child switching through return, reactivation, checkpoint restore and archived replay.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes the moving pair, restores at interval 48, resumes its solve and compares frame and ownership reads against the uninterrupted run.
+ * @evidence contracts/development/testing.md#independent-expectations The intervals determine return at 0.4 s, dynamic again at 0.5 s and authored by 1 s. Analytic parent turn rate, anchor continuity and exact resumed frames check the joins.
  */
 export async function test_engine_physics_physical_playback_handoff(): Promise<void> {
   const body: IAutoMoviePhysicalSimulationInput.IBody = physicalMovingPair(1);

@@ -19,16 +19,16 @@ const OVERRIDE: IAutoMovieJointConstraint = {
  *
  * 1. An override wins over the table.
  * 2. Without one, the table entry for the bone is answered.
- * 3. A bone with no table entry gives null.
+ * 3. Hips give null while the default table has no entry for them.
  * 4. The table read through it pins the elbow flexion 0..150 with no abduction,
  *    the knee flexion minimum 0 with neither abduction nor twist, the
  *    shoulder's 180 degree swing cap whose maximal flexion corner stays inside
  *    it, and the hip's 120 degree cone, which pure flexion 120 reaches and the
- *    corner of maximal flexion and abduction (120, 45) exceeds. The values are
- *    the table's own (see AutoMovieEngineDefaultHumanoidRom), whose hip abduction of 45
- *    rising to 60 with the hip flexed 90 is the AAOS 1965 norm tabulated by
- *    Cejudo, Sainz de Baranda, Santonja and Ayala (2016, SporTK 5(1):35-46,
- *    Table 1).
+ *    corner of maximal flexion and abduction exceeds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names override and table identity, conditional absence and the tested hinge and cone limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads constraints through the public Kinematics resolver and checks the selected record, bilateral caps and sampled cone bounds.
+ * @evidence contracts/development/testing.md#independent-expectations Literal elbow and knee bounds fix the hinge checks. One axis reaches the 180-degree or 120-degree cap at the tested flexion. Adding the hip corner's second axis produces a larger composed angle.
  */
 export function test_engine_rom_get_constraint(): void {
   TestValidator.predicate(

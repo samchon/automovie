@@ -12,6 +12,10 @@ import { AutoMovieCliScaffold } from "automovie";
  * 2. "_draft." becomes "draft".
  * 3. A basename of only separators, "---", falls back to the default, which "---"
  *    itself is not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines basename normalization, trimming and default naming when nothing remains.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives names for a title with spaces and punctuation, an underscored and dotted draft and a separators-only basename.
+ * @evidence contracts/development/testing.md#independent-expectations The authored normalization yields `my-film-2026` and `draft`. Separators-only input independently triggers the known default name.
  */
 export function test_cli_root_derive_project_name(): void {
   TestValidator.equals(

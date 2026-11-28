@@ -23,6 +23,10 @@ const K_HALF: number = 1.8540746773013719;
  *    flat, by sn(K) = 1 and sn(0) = 0.
  * 4. The ratio cannot reach the chord of the most bent parameter `HIGHEST`: that
  *    ratio itself is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers straight and bent pinned rods, the parameter inverse, tangent landmarks and the fully bent refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the chord, slope, curvature and inverse functions with explicit parameters and a two-metre length. The inverse also reads the actual chord at one half.
+ * @evidence contracts/development/testing.md#independent-expectations The straight case gives ratio one and zero slope and curvature. The fixed value of K(1/2), the end sine value of one and the midpoint value of zero give independent bent curvature and slope references. The inverse round trip checks consistency.
  */
 export function test_engine_math_pinned_elastica(): void {
   TestValidator.predicate(

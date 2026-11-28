@@ -15,6 +15,10 @@ import { nclose } from "../../internal/nclose";
  *    4, reads g(0)^2 at the centre, where g(k) = exp(-k^2 / 2) / sum of the
  *    nine samples, and the x derivative one pixel to its right reads -g(0) *
  *    g(1).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the finite radius, reflection and derivative responses for one chart.
+ * @evidence contracts/development/testing.md#behavioral-verification Filters a constant and a centered impulse and checks the zero derivative and adjacent impulse derivative.
+ * @evidence contracts/development/testing.md#independent-expectations Normalization preserves constants. At sigma one the finite kernel's center is g(0)^2 and its adjacent x derivative is -g(0)g(1).
  */
 export function test_recovery_internal_filter_image_gaussian(): void {
   const constant: Float64Array = new Float64Array(12).fill(5);

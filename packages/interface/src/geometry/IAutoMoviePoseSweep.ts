@@ -2,73 +2,44 @@ import type { IAutoMovieResolvedBone } from "../pose/IAutoMovieResolvedBone";
 import type { IAutoMovieSweep } from "./IAutoMovieSweep";
 import type { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
 
-/**
- * Rest sweep and bone transforms required to rebuild its posed spine and
- * section planes.
- */
+/** Authored sweep and resolved pose inputs for bone-driven regeneration. */
 export namespace IAutoMoviePoseSweep {
   /**
-   * Re-sweep a sweep in a pose: move its spine and section planes with the
-   * bones they ride and rebuild the surface from them, sweep-based deformation
-   * after Hyun, Yoon, Chang, Seong, Kim and Juttler (2005, "Sweep-based human
-   * deformation", The Visual Computer 21(8-10):542-550).
+   * Rest sweep, authored bone binding and two resolved poses for rebuilding a
+   * sweep in model space.
    *
-   * Each spine point moves rigidly with its bone, and the spine's starting
-   * direction and any declared end tangents turn with the first or last point's
-   * bone. Each station's rest plane, its own rotation or the rest sweep's frame
-   * at its `at`, turns with its bone; a station on two bones takes the
-   * spherical midpoint of the two turned planes. The posed sweep carries those
-   * planes as station rotations, so between stations the turn relative to the
-   * posed spine's rotation-minimizing frame is interpolated by normalized
-   * linear quaternion interpolation: a twist at one station spreads evenly to
-   * the next instead of wringing the surface beside one joint, and sections at
-   * a bent joint stay across the tube rather than collapsing into it. Sections,
-   * guides, scale and features are kept as they are, so the surface keeps its
-   * shape in each section plane.
-   *
-   * With `preserveVolume`, the sections of stations on two bones are scaled
-   * together by one factor until the posed volume, by
-   * `measureSweepVolume`, equals the rest volume: the scale profile
-   * gains a knot at every station, the factor at joint stations and 1 at the
-   * others, multiplied into any existing profile, and the factor is found by
-   * secant steps, as the paper first rescales the key section at the bent joint
-   * (Section 4.4), by `settleSweepVolume`. Without joint stations the
-   * sweep is returned unscaled. The scale applies after features, so the
-   * section's shape is unchanged and only its size at the joints moves.
+   * Departure direction and any end tangents turn with the corresponding
+   * endpoint bones. Pose compilation computes the rotated station planes, then
+   * interpolates their turns relative to the posed spine.
    */
   export type IProps = {
     /**
-     * Rest sweep in the same model-metre frame as resolved bones.
-     * compileSweep validates its section and spine data; the returned
-     * sweep shares unchanged section/guide/feature data.
+     * Rest sweep in the resolved bones' model metre frame. The output can share
+     * unchanged section, guide and feature records.
      */
     sweep: IAutoMovieSweep;
 
     /**
-     * Bone identities aligned with spine points and stations.
-     * poseSweep checks both array lengths and resolves every named
-     * bone; each station tuple supplies one bone or a two-bone spherical
-     * midpoint.
+     * Authored bone identities aligned with rest spine controls and stations.
+     * Station tuples choose one bone or a two-bone rotation midpoint.
      */
     binding: IAutoMovieSweepBinding;
 
     /**
-     * Resolved rest transforms, indexed by bone identity, whose
-     * worldPosition/worldRotation are in the sweep's model frame. Only read
-     * during this call.
+     * Borrowed resolved rest transforms, identified by their bone IDs and
+     * expressed in model coordinates.
      */
     rest: readonly IAutoMovieResolvedBone[];
 
     /**
-     * Corresponding posed transforms in the same frame. A bound identity
-     * missing from either resolved list throws when its motion is requested.
+     * Borrowed resolved current transforms in the same coordinate frame. Every
+     * referenced identity must resolve in both poses.
      */
     posed: readonly IAutoMovieResolvedBone[];
 
     /**
-     * Omitted means false. True settles one joint-station scale factor against
-     * the authored rest volume; sweeps without two-bone stations skip
-     * compensation. Volume measurement or settlement failures propagate.
+     * True settles one joint-based scale factor against the authored rest
+     * volume for two-bone stations. Omission disables settlement.
      */
     preserveVolume?: boolean;
   };

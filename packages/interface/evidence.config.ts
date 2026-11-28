@@ -1,3 +1,3 @@
 import { createEvidenceConfig } from "@automovie/config";
 
-export default createEvidenceConfig("types");
+export default createEvidenceConfig(__dirname, "types");

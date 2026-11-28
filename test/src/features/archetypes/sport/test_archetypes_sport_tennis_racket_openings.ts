@@ -19,6 +19,10 @@ const INTERSECTION_ROUNDING: number = 1e-9;
  * 2. The centre crossing lies on the front face. Midway to the next cross
  *    string, the central ray passes between the two nearest main strings.
  * 3. The split throat leaves the centre clear where either branch is solid.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the rim edges, string crossing and split-throat sites with blocked and clear probes.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual racket and ray-tests its rim, string bed and throat. The clear centre between strings and throat branches distinguishes a genuine opening from a solid face.
+ * @evidence contracts/development/testing.md#independent-expectations The authored rim edges are 139 and 150 mm. The string crossing lies at the specified front depth, and midpoints between authored strands or branches give clear probes.
  */
 export function test_archetypes_sport_tennis_racket_openings(): void {
   const width: number = 0.3;

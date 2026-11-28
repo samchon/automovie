@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenario: a material binding base colour, normal and emissive, with one
  * overlay binding base colour and no normal, lists exactly those four.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers bound base-color, normal, emissive and overlay texture slots and their reading spaces.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls materialTextureSlots on a literal material binding the three base slots and only the overlay's color slot.
+ * @evidence contracts/development/testing.md#independent-expectations The three color slots carry sRGB and the normal slot is linear. The unbound overlay normal is absent. The ordered list is derived from the declared slot definitions.
  */
 export function test_engine_validation_material_texture_slots(): void {
   const material: IAutoMovieMaterial = {

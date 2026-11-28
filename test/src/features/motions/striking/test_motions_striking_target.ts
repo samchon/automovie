@@ -54,6 +54,10 @@ const M = {
  * 5. Unaimed low, a strike goes 0.3 thighs below the hips; high, half a head
  *    radius below the head's top; at the chest otherwise; at the range read for
  *    that height, or the range given.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines lead selection, planar target and stance direction, translated foot pose and default animated goal placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls targeting with equal and staggered feet, changed heading, an off-axis and coincident target, and three unaimed height bands.
+ * @evidence contracts/development/testing.md#independent-expectations Normalizing (3, 0, 4) gives (0.6, 0, 0.8); coincident position uses heading. The staggered stance starts at the feet's arithmetic midpoint.
  */
 export function test_motions_striking_target(): void {
   const o: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

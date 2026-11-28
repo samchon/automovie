@@ -1,18 +1,27 @@
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * Requested placement of a rigid surface sample in one metre coordinate frame.
- * The origin places the sample centroid. The normal fixes its plane; forward is
- * projected into that plane before normalization, so neither vector scales the
- * sample. Zero or parallel directions refuse during placement.
+ * Metre centroid and orienting directions for one rigid surface sample.
+ *
+ * The direction magnitudes leave the prepared triangle's size unchanged. A zero
+ * or represented parallel basis is refused.
  */
 export interface IAutoMovieSurfaceFrame {
-  /** Sample centroid in the caller's source or destination metre frame. */
+  /**
+   * Finite centroid in the caller's metre frame. Placement puts the prepared
+   * sample's centre here.
+   */
   readonly origin: Readonly<IAutoMovieVector3>;
 
-  /** Nonzero in-plane heading, after projection along the supplied normal. */
+  /**
+   * Finite nonzero heading direction. Its projection into the normal's plane
+   * defines the first axis and must remain nonzero.
+   */
   readonly forward: Readonly<IAutoMovieVector3>;
 
-  /** Nonzero oriented plane normal, independent of forward. */
+  /**
+   * Finite nonzero oriented plane normal. Its magnitude has no effect on
+   * placement scale.
+   */
   readonly normal: Readonly<IAutoMovieVector3>;
 }

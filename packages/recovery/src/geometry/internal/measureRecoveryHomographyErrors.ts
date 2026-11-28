@@ -32,7 +32,7 @@ export function measureRecoveryHomographyErrors(
           backward[0] / backward[2] - point[0],
           backward[1] / backward[2] - point[1],
         ) / Math.SQRT2;
-      return distance !== Infinity ? distance : null;
+      return Number.isFinite(distance) ? distance : null;
     },
   );
 }

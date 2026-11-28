@@ -26,6 +26,10 @@ import { createPhysicalMesh } from "../../internal/createPhysicalMesh";
  * 4. Two coincident vertices of domains "instance/1" (id 23) and "instance/12" (id
  *    3) stay distinct: 0, 1.
  * 5. An empty explicit population resolves to empty labels and vertices.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names grid identity, declared lineage, null cohort separation, distinct domain IDs and output ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves the same position buffer both by coincidence and with explicit mappings, then tests independent domains and returned array freshness.
+ * @evidence contracts/development/testing.md#independent-expectations Signed zero lies in one grid cell. Explicit source equality defines the authored alias, while unrelated domain/source tuples and the separate null cohort remain distinct.
  */
 export function test_engine_geometry_physical_vertices(): void {
   const positions: number[] = [0, 0, 0, -0, 0, 0, 0, 0, 0, 1, 0, 0];

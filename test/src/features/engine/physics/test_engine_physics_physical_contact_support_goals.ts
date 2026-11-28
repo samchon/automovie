@@ -23,6 +23,10 @@ import { vclose } from "../../internal/vclose";
  *    claiming planted contact.
  * 3. Independent policies on the same bone retain different local endpoints; no
  *    fitted output is rebound as a goal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies when a stationary support declares a plane, how original local endpoints are retained, and how recovery translation adjusts them.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds goals for planted, reserved, moving and elevated endpoints and fits distinct policies on one bone.
+ * @evidence contracts/development/testing.md#independent-expectations Authored endpoint and accepted translation determine the final goal independently of the fitted pose. The unplanted cases retain their path without gaining a plane.
  */
 export function test_engine_physics_physical_contact_support_goals(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();

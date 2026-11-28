@@ -43,8 +43,8 @@ const ROLL: IAutoMovieQuaternion = {
  * Scenarios:
  *
  * 1. A crate turned 90 degrees about `+Y` at the origin has a tag at (1, 0, 0)
- *    rolled a quarter about `+Z`: the site is at (0, 0, -1), and its turn, the
- *    crate's then the tag's, takes `+Y` to `+Z`.
+ *    rolled a quarter about `+Z`. The site is at (0, 0, -1). Applying the
+ *    tag's local roll and then the crate's yaw takes `+Y` to `+Z`.
  * 2. A cart whose contacts the cart itself places reads the placed point and its
  *    turn.
  * 3. A door whose hinge an action drives to 10 degrees by 2 s has its handle at
@@ -52,6 +52,10 @@ const ROLL: IAutoMovieQuaternion = {
  * 4. An unknown prop is refused on `support`, an unknown point on `point`.
  * 5. A staged prop frame places the ordinary named point on that frame. A point
  *    the prop explicitly positions in world space keeps its own frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names rigid frame composition, an object's explicit moving point, an articulated point, unknown site refusals, and a caller-supplied frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanPerformanceSite` on crate, cart and door fixtures with authored rotations, points and drive. It compares keys of the actual world transforms and checks distinct typed refusal axes.
+ * @evidence contracts/development/testing.md#independent-expectations A +Y quarter turn sends crate-local +X to world -Z. The tag's local +Z roll sends +Y to -X, which crate yaw sends to +Z. The cart callback yields (6, 0.3, 0) at 1 s. The override at (4, 2, 0.5) adds one metre in X for the crate tag.
  */
 export async function test_motions_perform_site(): Promise<void> {
   const crate: IAutoMovieMotionHumanProp = AutoMovieMotionHumanObject.prop(

@@ -42,9 +42,7 @@ const clipped: (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Real growth output catches changed cut distance, closed envelope membership, child emergence filtering, pruned flags and empty bounds; roomy and missed envelopes distinguish actual cutting from merely declaring an envelope.
  * @evidence contracts/development/testing.md#independent-expectations A one-metre +Y trunk crosses an authored ceiling/radius at .75; children emerge at .5 and 1, so only the former survives. Digest comparisons are auxiliary 32-bit diagnostics and cannot independently prove geometry identity.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserve none, cutting box/sphere, outside base, roomy box/sphere and repeat/changed diagnostic cases; scaled visible canopy clearance belongs to installation validation rather than this branch-centreline test.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_planting_pruning_envelope; the exported test owns every envelope case and reads emitted geometry without a renderer or sampled clipping host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: With no envelope the trunk reaches its full length and nothing is marked).
+ * @evidence contracts/development/common.md#meaningful-documentation Box and sphere envelopes clip at the same authored height, unrestricted and large envelopes retain growth, and an exterior branch base suppresses growth. Digests exercise repeat and difference.
  */
 export function test_planting_pruning_envelope(): void {
   const free: IAutoMoviePlantingState = clipped({ kind: "none" });

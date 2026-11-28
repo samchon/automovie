@@ -1,12 +1,21 @@
 import type { AutoMovieHumanHairStyle as AutoMovieHumanHairStyleContract } from "@automovie/interface";
 
-/** Closed hair style choices; serialized values are unchanged. */
+/**
+ * Cut labels for the scalp-hair record.
+ *
+ * The style describes the intended cut. The record supplies the longest
+ * straightened fiber length in millimeters.
+ */
 export namespace AutoMovieHumanHairStyle {
-  /** Cropped scalp-hair style category; this label does not itself specify fibre length. */
+  /**
+   * A close cut over the scalp, with hair directed away from the crown whorl.
+   */
   export const Crop: "crop" = "crop" satisfies AutoMovieHumanHairStyleContract;
-  /** Short scalp-hair style category; numerical dimensions remain producer controls. */
+  /** A short cut with tapered back and sides and a longer top. */
   export const Short: "short" = "short" satisfies
     AutoMovieHumanHairStyleContract;
-  /** Bob-cut scalp-hair style category with a lower cut line around the head. */
+  /**
+   * A center-parted cut with a level lower edge, at most shoulder length.
+   */
   export const Bob: "bob" = "bob" satisfies AutoMovieHumanHairStyleContract;
 }

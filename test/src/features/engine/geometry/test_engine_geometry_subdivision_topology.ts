@@ -24,6 +24,10 @@ import { throwsError } from "../../internal/throwsError";
  *    same way ("traverse edge 0-1 in the same direction"), an unused vertex 3
  *    ("belongs to no face") and two triangles meeting only at vertex 0 ("joins
  *    more than one fan") are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names first edge appearance, boundary and interior sharpness, oriented fans and invalid adjacency.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds topology on two explicit quads and checks the edge, corner and vertex relationships, then changes one malformed incidence at a time.
+ * @evidence contracts/development/testing.md#independent-expectations The written corner order fixes all seven edge identities, the shared edge and the open fan start. Boundary edges have one incidence and the two shared traversals are opposite.
  */
 export function test_engine_geometry_subdivision_topology(): void {
   const rows = (faces: number[][]): [number[], number[]] => {

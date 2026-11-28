@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. No diagnostic; at stations 10, 35, 50, 65 and 90 and phases -0.5, 0, 0.3, 2
  *    and 4, inside and outside the window, the realized point equals the
  *    composed chain's within 1e-9 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the declared relief window, lifted centre, outside-window samples and source leaf comparison.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the view leaf and samples its positions against an independently assembled loft chain with the same authored relief.
+ * @evidence contracts/development/testing.md#independent-expectations The composed chain is an explicit routing benchmark. Its centre rises more than 1 mm relative to the bare chain, so silently dropping the relief fails the comparison.
  */
 export function test_engine_geometry_construction_view_reliefs(): void {
   const relief: IAutoMovieLoftRelief = {

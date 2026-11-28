@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. The interior vertex 4's row annihilates the linear fields x and y.
  * 3. The squared entries sum to 9.
  * 4. A quad with a repeated position is refused ("degenerate triangle").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names cotangent stiffness, barycentric mass normalization, affine fields and malformed mesh refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Admits a quad cage and observes the frozen rows' sums, response to x and y, squared population and degenerate-triangle rejection.
+ * @evidence contracts/development/testing.md#independent-expectations A constant field gives zero bending. The regular Cartesian interior has cancelling linear coordinate differences, and the prescribed squared row norm equals nine vertices.
  */
 export function test_engine_geometry_subdivision_bending_rows(): void {
   const positions: number[] = Array.from(

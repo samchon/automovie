@@ -20,11 +20,9 @@ const MM: number = 1e-3;
  * 1. The steel drum is Pipeline Packaging's 22.5 in across and, over 200 seeds, exactly its DWG20459, 34.75 in high and 38.4 lb, or its DWG20443, 35 1/4 in high and 43 lb, height and mass together, each drawn; the keg KegLand's 50 L DIN keg, 381 +/- 2 mm across and 600 +/- 3 mm high.
  * 2. Each barrel's `left` and `right` lie on the top rim at the `+X` and `-X` ends of its diameter, `+Y` pointing out, and its `top` outline lies inside the rim at the top.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced collider and contact frames over the seeds; a barrel off its source's size or a hand off its rim is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The expected sizes are the drum sheets' and the keg drawing's figures restated in metres; the rim places follow from the measured collider, not from the producer's code.
- * @evidence contracts/development/testing.md#distinguishing-cases Both kinds, a fixed and a ranging diameter; both hands on opposite ends.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two correlated drum models, the keg measurement interval and each rim-contact frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the collider of each barrel and the contact position and normal in the built models. The seed sweep distinguishes paired drum variants from independently picked height and mass.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the drum sheets' paired heights and masses and the published DIN keg diameter and height intervals. The two rim hand positions follow from the measured diameter and top plane.
  */
 export function test_archetype_barrel(): void {
   const findings: string[] = [];

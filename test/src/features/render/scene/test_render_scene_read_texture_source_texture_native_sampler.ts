@@ -16,6 +16,10 @@ import { material } from "../../internal/renderFixtures";
  *    independently calculated 84-byte chains; identical state shares one.
  * 2. Native-filter changes invalidate the upload digest.
  * 3. Distinct native anisotropy keys remain distinct and keep two bounds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe native nearest-mipmap filters, allocation sharing after equalizing state, upload digest change, and anisotropy.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that distinct native filter and anisotropy states split source allocations, identical state shares one, and a filter change invalidates the digest.
+ * @evidence contracts/development/testing.md#independent-expectations Derives each RGBA8 chain as `4 × (16 + 4 + 1) = 84` bytes and uses known one-chain and two-chain outcomes for the fixture's state changes.
  */
 export async function test_render_scene_read_texture_source_texture_native_sampler(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

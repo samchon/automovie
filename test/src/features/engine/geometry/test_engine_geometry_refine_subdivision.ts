@@ -23,6 +23,10 @@ import { TestValidator } from "@nestia/e2e";
  *    edge 0 is 1/2 on vertices 0 and 1, vertex 0 is 3/4, 1/8, 1/8.
  * 4. On the grid, stencils applied to the positions equal the refined points
  *    within 1e-15.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names point and stencil order, boundary crease masks and a raised interior grid witness.
+ * @evidence contracts/development/testing.md#behavioral-verification Refines the square and grid through both point and stencil routes, then applies the generated sparse rows to actual source positions.
+ * @evidence contracts/development/testing.md#independent-expectations Crease corners use weights 3/4, 1/8 and 1/8. Face and edge averages determine the explicit square rows, and the raised centre gives 0.5625.
  */
 export function test_engine_geometry_refine_subdivision(): void {
   const square: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({

@@ -52,9 +52,7 @@ const spillway: (open: boolean) => IAutoMovieFluidDomain = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Simulates the same basin with open versus walled east rim, requiring sampled outflow and lower remaining volume only for the open twin, nonnegative depths and complete ledger balance.
  * @evidence contracts/development/testing.md#independent-expectations Sixteen quarter-square-metre cells at half-metre depth give two cubic metres; volume plus outflow closes that total with no sources/drains, and the wall twin independently forbids boundary loss.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves sampled steps 1, 40, 200 and 600, the identical walled twin at 600 and no phantom source/drain terms; the assertion does not independently count limiter activations or certify all steps.
- * @evidence contracts/development/testing.md#execution-ownership This named portable unit owns absolute CPU field/ledger comparisons using existing basin data and starts no incremental simulation host, renderer or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The open basin loses water: its volume at step 600 is far below the authored).
+ * @evidence contracts/development/common.md#meaningful-documentation An open east rim loses water and records that loss; the wall twin holds its original depth and books zero outflow. Sampled depths stay nonnegative and the open ledger balances.
  */
 export function test_fluid_open_outflow(): void {
   const open: ReturnType<typeof spillway> = spillway(true);

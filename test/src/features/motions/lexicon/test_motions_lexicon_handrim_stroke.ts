@@ -15,6 +15,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. A 0.2 s approach, 0.5 s push and 0.3 s recovery release at 0.7 s of a 1 s
  *    stroke, cued `catch` at 0.2 and `release` at 0.7.
  * 2. A push of no length is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines approach, push and recovery timing and refusal of a zero-span push.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares an authored rim stroke with three explicit durations and another whose push duration is zero.
+ * @evidence contracts/development/testing.md#independent-expectations Timing sums put catch at 0.2 and release at 0.7 on a 1 s stroke. A zero push has no admissible interval.
  */
 export function test_motions_lexicon_handrim_stroke(): void {
   const phases: humanHandrimStrokePhases.IPhases = humanHandrimStrokePhases({

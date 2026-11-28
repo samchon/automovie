@@ -16,6 +16,10 @@ import { createFormationCycleLiteral } from "../../internal/createFormationCycle
  * 2. A draw for b selects identity 1 and asks the drawn material to update; a draw
  *    for a returns both keys to identity 0, the identity a keeps however often
  *    the palette repeats it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names depth and distance keys, native update on palette change and repeated palette identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Creates native shadow materials for a literal cycle and a palette of two repeated object identities. Simulates the native draw callbacks for each material and reads both program keys and the version change.
+ * @evidence contracts/development/testing.md#independent-expectations Palette [a, b, a] assigns the same identity to every a and a distinct identity to b. Both shadow keys start at 0, change to 1 for b and return to 0 for a.
  */
 export function test_render_scene_create_formation_cycle_shadow_materials(): void {
   const a: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();

@@ -18,14 +18,18 @@ import { nclose } from "../../internal/nclose";
 const ROUNDING: number = 32 * Number.EPSILON;
 
 /**
- * Resolve a staged cue's latency on its declared clock.
+ * Check how skill, cue lead and input kind affect response latency.
  *
  * Scenarios:
  *
- * 1. A zero-quantile acoustic draw for an elite performer keeps its 0.18 s mean.
- *    An advance cue subtracts the elite's 0.05 s lead.
- * 2. Negative normal draws hit the distinct floor for reactions and authored
- *    delays, even with the same noise source.
+ * 1. With a centred acoustic draw, read the elite mean of 0.18 s and a
+ *    prepared response of 0.13 s.
+ * 2. Use the same early draw for a reaction and an authored wait. The
+ *    reaction floors at 0.1 s and the authored wait at zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify clock units, lead and both distinct latency floors.
+ * @evidence contracts/development/testing.md#behavioral-verification The latency resolver receives explicit fixture draws and the two supported input kinds.
+ * @evidence contracts/development/testing.md#independent-expectations A zero-centred draw leaves the stated mean and the 0.05 s lead subtracts directly. The lower bounds are supplied as literal expectations.
  */
 export function test_motions_skill_human_response(): void {
   const elite: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ p: 1 }, "cue");

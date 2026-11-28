@@ -17,6 +17,10 @@ import { vclose } from "../../internal/vclose";
  *
  * 1. Build the minimum and maximum allowed phone cases.
  * 2. Compare the screen placement and size to each collider and 94% of its face.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the two case size endpoints, front-face frame and screen coverage fraction.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds both actual phones and reads the case box and screen frame and extent. Checks glass centre and normal against the emitted case.
+ * @evidence contracts/development/testing.md#independent-expectations The measured case's front plane is half a thickness from its centre. The authored screen covers 94 percent of each corresponding face dimension.
  */
 export function test_archetypes_catalogue_phone_glass(): void {
   for (const [width, height, thickness] of [

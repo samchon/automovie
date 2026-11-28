@@ -110,6 +110,10 @@ const horizontal: (radius: number, aspect?: number) => number = (
  * 4. A wider delivery raster brings the same crowd closer, because the frame
  *    itself got wider; a raster that describes nothing (absent, zero) falls
  *    back to the square-frame assumption.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the one-figure baseline, width-dominant crowd, doubled extent, wider raster and square fallback.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles framing for authored extents and rasters and reads the resulting camera distance. It varies radius and raster independently while keeping the staged subject and aim fixed.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree vertical FOV sets distance to half the visible vertical span on a square frame. Under the authored wide factor four, a 1.7-metre figure needs 3.4 metres and a 40-metre width needs 80 metres. Doubling width doubles that fit, and widening the raster reduces it.
  */
 export function test_engine_film_camera_group_extent_framing(): void {
   TestValidator.equals(

@@ -21,9 +21,7 @@ import { FamilyConicClosure as K } from "../../../reference-conics/FamilyConicCl
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `FamilyConicClosure.continued`, the function the fit tool closes every opening round a course with, and reads its points and refusals. It catches a closure that leaves the tube, one that comes out through the neighbour, a corner at either end, and a missing refusal.
  * @evidence contracts/development/testing.md#independent-expectations A circle's radius, the distance to a second centre, and the distance of a point from a line through the skin's end are written here without the module's cubic.
- * @evidence contracts/development/testing.md#distinguishing-cases Skin on the tube, a pair of neighbours, skin off the tube with unequal ends and unequal directions, and two refusals with distinct causes.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_conic_closure`; made numbers only.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios with their inputs and bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation The round and neighbouring tubes give exact geometry for skin closure. A displaced skin tests both endpoint tangents, and reversed travel and zero radius exercise refusal.
  */
 export function test_human_conic_closure(): void {
   const failures: string[] = [];

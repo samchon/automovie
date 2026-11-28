@@ -28,6 +28,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  *
  * The body is built whole (`humanFixtureBody`): the reading places the body's
  * mass model and its soles on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names signed stability margins for a quiet stance, a forward lean and forward motion over planted feet.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditBalance.margin using displayed stored-body bones in three motion readers with the same planted support.
+ * @evidence contracts/development/testing.md#independent-expectations The quiet centre lies within the foot hull and no farther than half a foot length from an edge. Moving the upper body forward by 0.5 m puts it outside, and a forward velocity decreases the measured margin relative to stillness.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_balance_margin(): Promise<void> {
   // Reads the whole-body centre of mass (`body.massModel`, every segment's mass) and the soles.

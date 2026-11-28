@@ -170,32 +170,70 @@ export function resolveHumanoidRingModules(
   );
   add(spine, [lumbarRing, chestRing], UP, null, null);
 
-  // The neck runs between its own joints; the head widens to its girth and
-  // closes on its tip, two girth radii above the joint when it has none.
+  // The neck and head stay on their own rigid pivots. The lower head ring
+  // reaches the existing chin landmark and overlaps the neck behind the pivot.
   const crown: IAutoMovieVector3 =
     head.tip !== null
       ? vector(head.tip)
       : AutoMovieEngineVector3.add(at(head), { x: 0, y: 2 * head.radius, z: 0 });
+  const neckTop: number = neck.radius * 0.92;
   const neckRings: ISection[] = [
     section(at(neck), neck.radius, neck.radius),
-    section(at(head), neck.radius * 0.92, neck.radius * 0.92),
+    section(at(head), neckTop, neckTop),
   ];
+  const headCentre: IAutoMovieVector3 = at(head);
+  const jawTip: readonly [number, number, number] | null | undefined = byName.get("jaw")?.tip;
+  const behind: number = headCentre.x - neckTop;
+  let headAxis: IAutoMovieVector3 = UP;
+  let jawRing: ISection = neckRings[1]!;
+  const crownRingCentre: IAutoMovieVector3 = AutoMovieEngineVector3.lerp(
+    headCentre,
+    crown,
+    0.75,
+  );
+  if (
+    jawTip !== null && jawTip !== undefined &&
+    Number.isFinite(jawTip[0]) &&
+    Number.isFinite(jawTip[1]) &&
+    jawTip[0] > headCentre.x &&
+    jawTip[1] < headCentre.y
+  ) {
+    const backY: number = headCentre.y - neckTop * NECK_PITCH_TANGENT;
+    const slope: number = (jawTip[1] - backY) / (jawTip[0] - behind);
+    const frameScale: number = Math.hypot(1, slope);
+    headAxis = { x: -slope, y: 1, z: 0 };
+    jawRing = {
+      centre: {
+        x: (behind + jawTip[0]) / 2,
+        y: (backY + jawTip[1]) / 2,
+        z: headCentre.z,
+      },
+      depth: ((jawTip[0] - behind) / 2) * frameScale,
+      breadth: neckTop,
+    };
+    // Keep the existing crown as the highest vertex after pitching the rings.
+    crownRingCentre.y = Math.min(
+      crownRingCentre.y,
+      crown.y -
+        ((head.radius * 0.85 ** 2) / 0.8) * (Math.abs(slope) / frameScale),
+    );
+  }
   add(
     head,
     [
-      neckRings[1]!,
+      jawRing,
       section(
-        AutoMovieEngineVector3.lerp(at(head), crown, 0.35),
+        AutoMovieEngineVector3.lerp(headCentre, crown, 0.35),
         head.radius,
         head.radius * 0.92,
       ),
       section(
-        AutoMovieEngineVector3.lerp(at(head), crown, 0.75),
+        crownRingCentre,
         head.radius * 0.85,
         head.radius * 0.8,
       ),
     ],
-    UP,
+    headAxis,
     null,
     crown,
   );
@@ -212,6 +250,7 @@ export function resolveHumanoidRingModules(
   );
   add(neck, neckRings, UP, null, null);
 
+  const footAxes: Map<string, IAutoMovieVector3> = new Map();
   for (const side of ["left", "right"] as const) {
     const hand: IAutoMovieResolveHumanoidRingModules.IBone = boneAt(
       `${side}Hand`,
@@ -273,21 +312,47 @@ export function resolveHumanoidRingModules(
     const toes: IAutoMovieResolveHumanoidRingModules.IBone[] =
       children.get(midfoot.bone) ?? [];
     const toeCentre: IAutoMovieVector3 = average(toes);
+    const foot: IAutoMovieResolveHumanoidRingModules.IBone | undefined = byName.get(`${side}Foot`);
+    const tip: readonly [number, number, number] | null | undefined = byName.get(`${side}HalluxDistal`)?.tip;
+    const heel: IAutoMovieVector3 = at(subtalar);
+    let lateral: IAutoMovieVector3 = LEFT;
+    let footAxis: IAutoMovieVector3 | undefined;
+    if (foot?.heel !== undefined && tip !== null && tip !== undefined) {
+      const rear: IAutoMovieVector3 = vector(foot.heel);
+      const axis: IAutoMovieVector3 = { x: tip[0] - rear.x, y: 0, z: tip[2] - rear.z };
+      const length: number = AutoMovieEngineVector3.length(axis);
+      if (!(length > 0 && Number.isFinite(length)))
+        throw new Error(`Invalid polygon foot outline: ${foot.bone}`);
+      footAxis = AutoMovieEngineVector3.scale(axis, 1 / length);
+      footAxes.set(side, footAxis);
+      lateral = AutoMovieEngineVector3.cross(footAxis, UP);
+      const retreat: number = AutoMovieEngineVector3.dot(
+        AutoMovieEngineVector3.subtract(rear, heel),
+        footAxis,
+      );
+      heel.x += footAxis.x * retreat;
+      heel.z += footAxis.z * retreat;
+    }
     const footWidth: number = Math.max(
       subtalar.radius,
       ...toes.map(
         (toe: IAutoMovieResolveHumanoidRingModules.IBone): number =>
-          Math.abs(toe.position[2] - toeCentre.z) + toe.radius,
+          Math.abs(
+            AutoMovieEngineVector3.dot(
+              AutoMovieEngineVector3.subtract(at(toe), toeCentre),
+              lateral,
+            ),
+          ) + toe.radius,
       ),
     );
     add(
       subtalar,
       [
-        section(at(subtalar), subtalar.radius, subtalar.radius),
+        section(heel, subtalar.radius, subtalar.radius),
         section(at(midfoot), midfoot.radius, footWidth),
       ],
-      AutoMovieEngineVector3.subtract(at(midfoot), at(subtalar)),
-      LEFT,
+      footAxis ?? AutoMovieEngineVector3.subtract(at(midfoot), at(subtalar)),
+      lateral,
       null,
     );
     add(
@@ -296,8 +361,8 @@ export function resolveHumanoidRingModules(
         section(at(midfoot), midfoot.radius, footWidth),
         section(toeCentre, midfoot.radius, footWidth),
       ],
-      AutoMovieEngineVector3.subtract(toeCentre, at(midfoot)),
-      LEFT,
+      footAxis ?? AutoMovieEngineVector3.subtract(toeCentre, at(midfoot)),
+      lateral,
       null,
     );
   }
@@ -329,6 +394,9 @@ export function resolveHumanoidRingModules(
       bone.tip === null
         ? Math.min(bone.radius, next?.radius ?? bone.radius)
         : bone.radius * TIP_BEVEL;
+    const toe: RegExpExecArray | null = /^(left|right)(?:Hallux|Toe[2-5])/.exec(bone.bone);
+    const outlineAxis: IAutoMovieVector3 | undefined =
+      toe === null ? undefined : footAxes.get(toe[1]!);
     add(
       bone,
       [
@@ -340,8 +408,8 @@ export function resolveHumanoidRingModules(
         },
         { centre: finish, depth: distal, breadth: distal },
       ],
-      axis,
-      null,
+      outlineAxis ?? axis,
+      outlineAxis === undefined ? null : AutoMovieEngineVector3.cross(outlineAxis, UP),
       null,
     );
   }
@@ -397,6 +465,9 @@ const CHEST_SHARE: number = 0.85;
  * bevelled tip.
  */
 const TIP_BEVEL: number = 0.5;
+
+/* Rear overlap for the stock junction's qualified 25° pitch witness. */
+const NECK_PITCH_TANGENT: number = Math.tan((25 * Math.PI) / 180);
 
 /*
  * The upward axis of the Human frame.

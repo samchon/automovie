@@ -37,6 +37,10 @@ import { readMarkPolyline } from "../../internal/readMarkPolyline";
  *    vertex follow it.
  * 5. Only the asked kinds are measured: `defect/degenerate` on the same quad draws
  *    nothing and adds no legend entry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names construction curve kinds, their placement and flags, open edges and update on moving a vertex.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds construction marks through the engine owner and draws them through inspection on a placed mesh. Reads segments, colors, selected paths and legend. Repeats after changing a vertex and requests a different measured kind.
+ * @evidence contracts/development/testing.md#independent-expectations The authored section ring has four sides, and each guide or axis has one segment. Their known local coordinates translate with panel. The quad has four open boundary edges. A moved vertex changes its incident edges, while the same quad supplies no degenerate mark.
  */
 export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   // 1. The producer.

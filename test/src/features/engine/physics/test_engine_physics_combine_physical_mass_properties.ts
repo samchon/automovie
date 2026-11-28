@@ -18,6 +18,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    known entries at scales 1e-20, 1 and 1e20.
  * 4. A finite huge weighted centre does not overflow its mass-times-position
  *    numerator.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers displaced spheres, rotated anisotropic parts at three magnitudes, and a weighted center whose unnormalized products would overflow.
+ * @evidence contracts/development/testing.md#behavioral-verification Combines typed mass records and reconstructs each observed tensor entry from the returned diagonal moments and axes.
+ * @evidence contracts/development/testing.md#independent-expectations The parallel-axis result has moments (0.4, 4.4, 4.4). Independently specified rotation tensors and scaled center ratios catch lost small terms and overflow.
  */
 export function test_engine_physics_combine_physical_mass_properties(): void {
   const pair: IAutoMovieCombinePhysicalMassProperties.IPart = AutoMovieEnginePhysics.combineMassProperties(

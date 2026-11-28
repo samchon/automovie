@@ -1,44 +1,47 @@
-/** Completed robust third-camera registration evidence without a refused pose. */
+/**
+ * Completed 3D-to-2D registration diagnostics for a target camera. Retain the
+ * evidence for both successful and refused resection.
+ */
 export interface IAutoMovieRecoveryMapResection {
   /**
-   * Existing distinct landmarks having one third-view observation, before
-   * resection.
+   * Distinct existing landmark and target-feature pairs offered to
+   * registration.
    */
   candidates: number;
 
-  /** Positive-depth, in-threshold final 3D-to-2D pairs. */
+  /**
+   * Final scored pairs whose target projection has positive depth and residual
+   * within the pixel limit.
+   */
   inliers: number;
 
-  /** Actual unique-six proposals, including failed initializers. */
+  /** Six-point proposals evaluated, including failed numerical initializers. */
   trials: number;
 
   /**
-   * Recomputed final ideal all-inlier trial target, null when impossible or
-   * unrepresentable.
+   * Ideal all-inlier trial target at the final measured support, or null when a
+   * finite target is unavailable.
    */
   requiredTrials: number | null;
 
-  /** Eligible proposals locally refined in draw order. */
+  /** Number of eligible proposals admitted to local refinement in draw order. */
   localRefinements: number;
 
-  /**
-   * Declared failed numerical initializers/refinements, not unexpected program
-   * errors.
-   */
+  /** Recognized numerical fitting exceptions during proposal or refit work. */
   numericalRefusals: number;
 
-  /** Number of attempted final fixed-support refits. */
+  /** Number of fixed-support final refinement attempts. */
   finalRefits: number;
 
-  /** Final all-population reclassification retained identical inlier identities. */
+  /** Whether final reclassification preserved the exact inlier index set. */
   stable: boolean;
 
   /**
-   * Final fixed-support local fit converged; null when no such fit was
-   * attempted.
+   * Convergence of the returned final refinement report, or null if no report
+   * is available.
    */
   converged: boolean | null;
 
-  /** Complete observed resection qualification failures. */
+  /** Reasons the completed resection withheld a qualified camera. */
   refusalReasons: string[];
 }

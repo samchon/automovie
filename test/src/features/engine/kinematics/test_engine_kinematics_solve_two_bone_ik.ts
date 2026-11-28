@@ -20,6 +20,10 @@ const ROUNDING: number = 1e-9;
  * 3. Reaching 10 clamps to 7, flagged clamped.
  * 4. Fully folded at 1: bend 0, lift 180.
  * 5. A non-positive bone length is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers interior, stretched, clamped and folded triangles and refusal of zero upper length.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls solveTwoBoneIK with literal lengths and requested endpoint distances, and checks degree outputs or the specific error.
+ * @evidence contracts/development/testing.md#independent-expectations The 3-4-5 triangle gives bend 90 and lift acos(3/5). The feasible distance endpoints are one and seven, where folded and straight angles follow the collinear geometry.
  */
 export function test_engine_kinematics_solve_two_bone_ik(): void {
   const right: IAutoMovieTwoBoneIK = AutoMovieEngineKinematics.solveTwoBoneIK(3, 4, 5);

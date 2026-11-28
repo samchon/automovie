@@ -24,6 +24,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  * 2. An authored curved seam without `compose` (one knot 6 mm deep, 12 mm along
  *    the chord, on the roomier host) leaves the two bands' own interpolations
  *    apart by more than 1e-7 mm there.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names shared positions, reversed derivatives and comparison with independently interpolated authored seams.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples both neighbouring composed bands at mid-column clocks, then repeats for an ordinary authored curved seam.
+ * @evidence contracts/development/testing.md#independent-expectations A single shared seam traces identical points from both bands and reverses the derivative under opposite traversal. The non-composed fixture supplies a distinct independent interpolation.
  */
 export function test_engine_geometry_split_compose_shared_seam(): void {
   const n: number = C.COLUMNS;

@@ -61,6 +61,10 @@ function sameSample(
  * 3. Admit a full-overlap dissolve and preserve incoming authority at equal
  *    starts.
  * 4. Sweep 200 one-second shots at 4 Hz with runtime and visitation checks.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios explain the sequential versus random-access comparison, exact starts, equal-start precedence and the independent long-edit size.
+ * @evidence contracts/development/testing.md#behavioral-verification The test walks the public cursor over real timelines and compares the sample's shot, local time and blend fields with random access. Separate cases start exactly at each entry and traverse a 200-shot edit.
+ * @evidence contracts/development/testing.md#independent-expectations Random access provides an independent traversal of the same admitted clock for cursor equivalence. The authored overlap expects incoming authority at a tie, and 200 one-second entries provide a known runtime and visitation count.
  */
 export function test_engine_film_playback_cursor(): void {
   // Hand-laid sequence with a trim and a dissolve: entry starts 0 / 3 / 4.5,

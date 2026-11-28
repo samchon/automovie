@@ -5,23 +5,15 @@ import {
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/**
- * How a quadruped's swinging foot and its head move through a stride: the foot
- * brought to its next landing by the minimum-jerk path, and the head's nod
- * timed to the footfalls as its species' gait states.
- *
- * Public only so the package's specs can reach it: it is not part of the
- * authoring surface, and it moves to an internal subpath when one exists.
- */
+/** Evaluates normalized foot swing and the stride's authored head pitch. */
 export namespace AutoMovieArchetypeQuadrupedMotion {
   /**
-   * A swinging foot's progress at a share of its swing: along, from where it
-   * lifted to where it lands next, and up, from the ground to the swing's
-   * clearance and back.
+   * Evaluates a foot's normalized progress between lift-off and landing.
    *
-   * @param u The swing's share done, 0 to 1.
-   * @returns The share of the way along and the share of the clearance up.
-   * @throws {RangeError} When the share lies outside the swing interval.
+   * @param u Elapsed share of the swing, in [0, 1].
+   * @returns Minimum-jerk forward progress and a clearance share that reaches
+   *   one at mid-swing and returns to zero at landing.
+   * @throws {RangeError} If `u` falls outside the closed interval.
    */
   export function swing(u: number): { along: number; rise: number } {
     if (!(u >= 0 && u <= 1))
@@ -33,16 +25,18 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
   }
 
   /**
-   * The head's pitch at a phase of a stride, degrees, positive nose-down, by
-   * half the gait's pitch range either side, timed as the gait's `nod.timing`
-   * states.
+   * Evaluates head pitch in degrees, positive nose-down, around neutral.
    *
-   * @param species The species.
-   * @param stride The stride's gait and lead.
-   * @param phase The stride's phase, from the left fore's landing.
-   * @param duty The duty factor at the speed, the share of the stride a foot is
-   *   planted.
-   * @returns The pitch.
+   * Support timing peaks nose-up at lift-off. Bob timing peaks nose-up at
+   * left fore landing. Lead timing peaks nose-down at the selected fore's
+   * landing. Each travels within half of the gait's stated pitch range.
+   *
+   * @param species Gait table supplying pitch range and timing mode.
+   * @param stride Gait and lead for the stride being evaluated.
+   * @param phase Normalized phase from the left forefoot's landing.
+   * @param duty Planted share of the stride for support timing.
+   * @returns The signed pitch at that phase.
+   * @throws {AutoMovieArchetypeRefusal} If the species has no such gait.
    */
   export function nod(
     species: AutoMovieArchetypeQuadruped.ISpecies,

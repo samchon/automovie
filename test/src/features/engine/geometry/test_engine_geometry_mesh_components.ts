@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *    components.
  * 4. A fourth, unused vertex adds no component to one used triangle: one.
  * 5. No triangle: zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes shared-index connectivity, repeated positions, unused vertices and empty meshes.
+ * @evidence contracts/development/testing.md#behavioral-verification Counts components of explicit index buffers with shared, disjoint and geometrically coincident faces.
+ * @evidence contracts/development/testing.md#independent-expectations Connectivity follows the incident vertex indices of triangles. Unused vertices contribute no face component and coincident positions do not identify indices.
  */
 export function test_engine_geometry_mesh_components(): void {
   const count = (positions: number[], indices: number[]): number => {

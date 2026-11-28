@@ -41,12 +41,16 @@ const deep = (body: IAutoMovieMotionHumanBody): number =>
  * Scenarios, two average men in the quiet stance for 1 s:
  *
  * 1. Two metres apart, nothing passes: zero at `none` and no pairs.
- * 2. One walks into the other's place at 1 m/s from 1 m away: by the end they
+ * 2. One pose translates toward the other at 1 m/s from 1 m away. By the end they
  *    stand in one place and pass deeper than a quarter of the chest's depth,
  *    read within the last quarter second, with the deepest pair first.
  *
  * The bodies are built whole (`humanFixtureBody`): the reading places their
  * colliders and the tangle model's probes on the displayed bones.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names clearance at two metres and measured penetration when a translated stance reaches the other body.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditPartner.measure on two stored collider and probe sets with fixed and linearly closing bone positions, reading the worst finding and first pair.
+ * @evidence contracts/development/testing.md#independent-expectations Two metres exceeds the two stance widths. The closing offset reaches zero at second 1, so a positive depth exceeding one quarter chest depth belongs in the final quarter-second and must match the leading pair.
  */
 export async function test_motions_audit_auto_movie_motion_human_audit_partner_measure(): Promise<void> {
   // Reads every segment's colliders and tangle probes (`body.tangle`), a whole-body read.

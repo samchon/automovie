@@ -1,10 +1,9 @@
 /**
  * Refined indexed face-varying UV values with pinned chart boundaries.
  *
- * UVs keep the source chart's units and are not clamped to [0,1]; cornerUvs
- * indexes values in child-quad corner order. Cage admission establishes UV
- * indices and ownership; numeric equality does not join charts, because
- * continuity compares UV identities at both ends of an edge.
+ * UVs keep the source chart's range and units. Each child corner indexes the
+ * refined values. Continuity compares endpoint UV identities across an edge.
+ * Equal numeric values may still define a seam.
  */
 export namespace IAutoMovieRefineSubdivisionUvs {
   /**
@@ -25,9 +24,8 @@ export namespace IAutoMovieRefineSubdivisionUvs {
    * order, then one per face. Child corner `4 c + j` belongs to the child quad
    * of parent corner `c`, in the order vertex, out-edge, face, in-edge.
    *
-   * Both arrays are new and mutable. UV identities, array alignment and
-   * per-vertex ownership must already have passed cage admission; this step
-   * preserves that indexed chart topology without another gate.
+   * Both arrays are newly allocated and mutable. Supply admitted per-corner
+   * indices and UV ownership together with the matching geometry masks.
    */
   export type IResult = {
     /**

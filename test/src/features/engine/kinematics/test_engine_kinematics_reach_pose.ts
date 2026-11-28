@@ -31,6 +31,10 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * 4. Without the left hand bone, null.
  * 5. The prepared rig resolves the reach pose and the rest pose exactly as
  *    `resolvePose` does.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers reachable position, extended reach, hinge-only elbow motion, missing hand and prepared FK equivalence.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls reachPose on a stock rig and on a rig missing the effector. It resolves returned poses through direct and prepared forward kinematics.
+ * @evidence contracts/development/testing.md#independent-expectations Summing the measured fixture segment lengths fixes the shell for the distant target. The nearby target supplies its own endpoint, and a hinge leaves no abduction or twist in the asserted direction.
  */
 export async function test_engine_kinematics_reach_pose(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

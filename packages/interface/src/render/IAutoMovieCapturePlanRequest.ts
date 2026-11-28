@@ -27,6 +27,9 @@ export interface IAutoMovieCapturePlanRequest {
    */
   events: number[];
 
+  /** One played source event, replacing the ordinary time sampling when supplied. */
+  cue?: IAutoMovieCapturePlanRequest.ICue;
+
   /**
    * Frames drawn on each side of an event or cut, a whole number. Zero draws
    * only the frame nearest the instant.
@@ -88,4 +91,15 @@ export interface IAutoMovieCapturePlanRequest {
 
   /** What every still shows: selection, shade, marks, cut and stroke. */
   inspection: IAutoMovieInspectionRequest;
+}
+
+export namespace IAutoMovieCapturePlanRequest {
+  /** A source event and, for repeated plays, the sequence entry to capture. */
+  export interface ICue {
+    /** Exact id from the shot's source event. */
+    readonly id: string;
+
+    /** Zero-based sequence entry. Required when the id plays more than once. */
+    readonly entry?: number;
+  }
 }

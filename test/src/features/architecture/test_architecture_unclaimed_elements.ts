@@ -28,9 +28,7 @@ import { namedFacts } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Validates the authored environment and calls the actual unclaimed-element query, requiring exactly the namespaced garden root and excluding each claimed or parented neighbor. It catches listing unassigned descendants as detached roots or silently omitting an unassigned group root.
  * @evidence contracts/development/testing.md#independent-expectations Literal parent and space links leave garden-wall-root as the sole element with neither a parent nor a space assignment, while its building unit still owns it. The environment id supplies the expected namespace; expected ids do not come from lowered scene output or the query itself.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains claimed/unclaimed roots, a claimed child, an unassigned child of a drawn model and an unassigned child of a transform-only group in one validator-admitted graph. Invalid parent links, cycles, empty records and ordering across several unclaimed roots are outside this entry.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable test_architecture_unclaimed_elements entry owns its local cases and uses portable actual validation/query functions plus input builders; it starts no host, process, browser or GPU and builds no artifact.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A unit root no space claims is named even though its building unit owns it.).
+ * @evidence contracts/development/common.md#meaningful-documentation A legal work distinguishes an unclaimed unit root, a claimed root and a child element. Only the unclaimed root enters the list.
  */
 export function test_architecture_unclaimed_elements(): void {
   const record: IAutoMovieBuiltEnvironment = environment();

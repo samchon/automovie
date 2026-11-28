@@ -41,6 +41,10 @@ const BOX_FRICTION: number = 0.9;
  * 3. Every sample carries the pair's combined friction, the mean of 0.9 and 0.3.
  * 4. A sphere resting half the allowed error deep under an upward force that
  *    cancels gravity is collected unloaded; without the force it is loaded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes support acquisition from upward floor contact, pair friction and the distinction between touching and carrying positive impulse.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps native fixtures at 1/960 s with reversed collider order, a turning kinematic lifter and a sphere with or without upward load cancellation.
+ * @evidence contracts/development/testing.md#independent-expectations Top contacts qualify in either creation order and underside contacts fail. Material friction averages to 0.6 and only the positive-impulse sphere is loaded.
  */
 export async function test_engine_physics_collect_physical_supports(): Promise<void> {
   const findings: string[] = [];

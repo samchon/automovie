@@ -22,10 +22,8 @@ import {
  * 1. Upper-body and face layers author different expressions; the face layer owns the composite expression.
  * 2. A lower-body clip drops an arm and expression, while a root on an upper-body clip is separately reported.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Checks the returned masked records and the remaining pose and expression.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the returned masked records and the remaining pose and expression. The unit compiles short in-memory clips with each channel alone and with overlapping pose, expression and root channels.
  * @evidence contracts/development/testing.md#independent-expectations Face, arm, leg and root have explicitly different owners.
- * @evidence contracts/development/testing.md#distinguishing-cases Solitary and overlapping ownership produce distinct outputs.
- * @evidence contracts/development/testing.md#execution-ownership Compiles in-memory clips with synthetic channels.
  * @evidence contracts/development/common.md#meaningful-documentation States both sides of the mask.
  */
 export function test_perform_motion_channel_mask(): void {

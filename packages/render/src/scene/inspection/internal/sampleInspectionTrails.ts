@@ -1,129 +1,329 @@
-import type { IAutoMovieInspectionTrail } from "@automovie/interface";
+import type {
+  IAutoMovieInspectionTrail,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import { matchInspectionPath } from "./matchInspectionPath";
+import type { IAutoMovieRenderMotionTrailSource } from "../../../draw/IAutoMovieRenderMotionTrailSource";
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath";
+import { MAXIMUM_INSPECTION_TRAIL_SAMPLES } from "./MAXIMUM_INSPECTION_TRAIL_SAMPLES";
+import { matchInspectionPath } from "./matchInspectionPath";
+
+const MAXIMUM_TRACKS: number = 64;
+const STILL: number = 1e-6;
 
 /*
- * Sample where every object a path pattern selects is, at each of a window's
- * seconds, so a still can show the path it travels.
- *
- * The objects are the scene's objects of any kind, drawn or not, at the
- * shallowest paths the pattern matches: a matched path whose parent path also
- * matches is part of its parent's object. When several objects share a path,
- * the first in scene order stands for it. For each second in `times`, `seek`
- * places the subject and is awaited, so a subject that becomes ready only after
- * an await, such as one loading a texture or a pose, is read once it is placed;
- * then the world position of each object's origin is read, so any moving object
- * is sampled, whatever its kind: a body's root or bone, a prop, a vehicle, a
- * camera.
- *
- * Seconds are taken in ascending order, one seek at a time. The scene is left
- * as the last `seek` placed it, so the caller seeks the second it draws again
- * and awaits that seek before drawing. A trail whose every sample lies within a
- * micrometre of its first is stationary.
- *
- * It rejects when `times` is empty or holds a second that is not finite, when
- * the pattern matches no object, and with the seek's own rejection when a
- * second cannot be placed.
- *
- * ```ts
- * const trails = await sampleInspectionTrails({
- *   scene,
- *   pattern: "hero/*Hand",
- *   times,
- *   seek: subject.seek,
- * });
- * await subject.seek(seconds);
- * inspection.update([
- *   ...(production.marks?.(seconds) ?? []),
- *   ...markInspectionTrails(trails, seconds),
- * ]);
- * ```
+ * Read the selected paths after each awaited placement. The seek may return
+ * the actual playback occurrence. Occurrence, object and ancestor changes
+ * and missing samples end the current segment. An explicit supported remount
+ * can continue inside one uninterrupted occurrence.
  */
 export async function sampleInspectionTrails(props: {
-  /*
-   * The scene the subject is built into.
-   */
   scene: THREE.Scene;
-
-  /*
-   * Path pattern of the objects whose trails are sampled.
-   */
-  pattern: string;
-
-  /*
-   * The film seconds to sample.
-   */
+  patterns: readonly string[];
   times: readonly number[];
-
-  /*
-   * Place the subject at a film second; resolves once the subject is ready to
-   * be read there.
-   */
-  seek: (seconds: number) => Promise<void>;
+  seek: (seconds: number) => Promise<number | null>;
+  current?: () => boolean;
+  interrupted?: (before: number, after: number) => boolean;
+  inspect?: (
+    path: string,
+    object: THREE.Object3D,
+    origin: THREE.Vector3,
+  ) => sampleInspectionTrails.IRead;
 }): Promise<IAutoMovieInspectionTrail[]> {
-  if (props.times.length === 0)
-    throw new Error("Trail times must be one or more finite seconds");
-  const times: number[] = [...props.times].sort(
-    (a: number, b: number): number => a - b,
-  );
-
-  // The shallowest matched paths, each with its first object.
-  const first: Map<string, THREE.Object3D> = new Map<string, THREE.Object3D>();
-  props.scene.traverse((object: THREE.Object3D): void => {
-    const path: string = AutoMovieRenderInspectionPath.pathOf({ root: props.scene, object });
-    if (!first.has(path)) first.set(path, object);
-  });
-  const objects: [string, THREE.Object3D][] = [...first].filter(
-    ([path]: [string, THREE.Object3D]): boolean => {
-      if (!matchInspectionPath(path, props.pattern)) return false;
-      const names: string[] = path === "" ? [] : path.split("/");
-      for (let depth: number = 0; depth < names.length; depth++)
-        if (
-          matchInspectionPath(
-            names.slice(0, depth).join("/"),
-            props.pattern,
-          )
-        )
-          return false;
-      return true;
-    },
-  );
-  if (objects.length === 0)
-    throw new Error(`Trail pattern "${props.pattern}" matches no object`);
-
-  const positions: number[][] = objects.map((): number[] => []);
+  if (props.patterns.length === 0) return [];
+  if (
+    props.times.length === 0 ||
+    props.times.some((time) => !Number.isFinite(time) || time < 0)
+  )
+    throw new Error(
+      "Trail times must be one or more finite nonnegative seconds",
+    );
+  if (props.times.length > MAXIMUM_INSPECTION_TRAIL_SAMPLES)
+    throw new Error(
+      "A trail can request at most " +
+        MAXIMUM_INSPECTION_TRAIL_SAMPLES +
+        " samples",
+    );
+  const times: number[] = [...props.times].sort((a, b) => a - b);
+  const tracks: ITrack[] = selectTracks(props.scene, props.patterns);
   const at: THREE.Vector3 = new THREE.Vector3();
+  let scope: number | null = null;
+  let previousSecond: number | undefined;
   for (const seconds of times) {
-    await props.seek(seconds);
+    if (props.current?.() === false) return [];
+    const nextScope: number | null = await props.seek(seconds);
+    if (props.current?.() === false) return [];
     props.scene.updateMatrixWorld(true);
-    objects.forEach(([, object]: [string, THREE.Object3D], i: number): void => {
-      object.getWorldPosition(at);
-      positions[i]!.push(at.x, at.y, at.z);
-    });
+    const boundary: boolean =
+      scope !== nextScope ||
+      (previousSecond !== undefined &&
+        props.interrupted?.(previousSecond, seconds) === true);
+    let missing: Map<string, ITrack> | undefined;
+    for (const track of tracks) {
+      if (
+        track.object !== undefined &&
+        stillPlacedAtPath(props.scene, track.object, track.path)
+      )
+        continue;
+      track.object = undefined;
+      (missing ??= new Map()).set(track.path, track);
+    }
+    scope = nextScope;
+    previousSecond = seconds;
+    if (missing !== undefined)
+      props.scene.traverse((object: THREE.Object3D): void => {
+        if (missing.size === 0) return;
+        const path: string = AutoMovieRenderInspectionPath.pathOf({
+          root: props.scene,
+          object,
+        });
+        const track: ITrack | undefined = missing.get(path);
+        if (track === undefined) return;
+        track.object = object;
+        missing.delete(path);
+      });
+    for (const track of tracks) {
+      if (track.object === undefined) {
+        track.active = undefined;
+        track.previous = undefined;
+        track.placed = undefined;
+        continue;
+      }
+      at.setFromMatrixPosition(track.object.matrixWorld);
+      if (
+        !Number.isFinite(at.x) ||
+        !Number.isFinite(at.y) ||
+        !Number.isFinite(at.z)
+      ) {
+        track.active = undefined;
+        track.previous = undefined;
+        track.placed = undefined;
+        continue;
+      }
+      const reading: sampleInspectionTrails.IRead | undefined = props.inspect?.(
+        track.path,
+        track.object,
+        at,
+      );
+      const remounted: boolean =
+        track.placed !== track.object ||
+        !sameAncestors(track.object, track.parents);
+      if (
+        track.active !== undefined &&
+        (boundary ||
+          track.active.motion?.route?.id !== reading?.route?.id ||
+          track.previous?.supportFrame !== reading?.supportFrame ||
+          (remounted &&
+            (nextScope === null ||
+              !compatibleRemount(
+                track.active.positions,
+                at,
+                track.previous,
+                reading,
+              ))))
+      )
+        track.active = undefined;
+      if (track.active === undefined) {
+        track.active = {
+          times: [],
+          positions: [],
+          ...(reading === undefined
+            ? {}
+            : {
+                motion: {
+                  ...(reading.route === undefined
+                    ? {}
+                    : { route: reading.route }),
+                  samples: [],
+                },
+              }),
+        };
+        track.segments.push(track.active);
+      }
+      if (remounted) track.parents = ancestors(track.object);
+      track.placed = track.object;
+      track.previous = reading;
+      track.active.times.push(seconds);
+      track.active.positions.push(at.x, at.y, at.z);
+      if (reading !== undefined)
+        track.active.motion?.samples.push(reading.sample);
+    }
   }
-  return objects.map(
-    (
-      [path]: [string, THREE.Object3D],
-      i: number,
-    ): IAutoMovieInspectionTrail => {
-      const samples: number[] = positions[i]!;
-      let stationary: boolean = true;
-      for (let k: number = 3; k < samples.length && stationary; k += 3)
-        stationary =
+  return tracks.flatMap(({ path, segments }) =>
+    segments.map(({ times, positions, motion }): IAutoMovieInspectionTrail => {
+      const source = motion === undefined ? {} : { motion };
+      for (let k: number = 3; k < positions.length; k += 3)
+        if (
           Math.hypot(
-            samples[k]! - samples[0]!,
-            samples[k + 1]! - samples[1]!,
-            samples[k + 2]! - samples[2]!,
-          ) <= STILL;
-      return { path, times: [...times], positions: samples, stationary };
-    },
+            positions[k]! - positions[0]!,
+            positions[k + 1]! - positions[1]!,
+            positions[k + 2]! - positions[2]!,
+          ) > STILL
+        )
+          return { path, times, positions, stationary: false, ...source };
+      return { path, times, positions, stationary: true, ...source };
+    }),
   );
 }
 
-/*
- * Distance in metres within which every sample of a trail counts as one place:
- * a micrometre, far below anything a picture shows.
- */
-const STILL: number = 1e-6;
+/* Both sampled nodes must occupy the same supported anchor at this handoff. */
+function compatibleRemount(
+  positions: readonly number[],
+  origin: THREE.Vector3,
+  previous: sampleInspectionTrails.IRead | undefined,
+  current: sampleInspectionTrails.IRead | undefined,
+): boolean {
+  const k: number = positions.length - 3;
+  const before = previous?.sample.support;
+  const after = current?.sample.support;
+  return (
+    previous?.compatibleRemount !== undefined &&
+    previous.compatibleRemount === current?.compatibleRemount &&
+    previous.route === current.route &&
+    previous.supportFrame !== undefined &&
+    previous.supportFrame === current.supportFrame &&
+    before?.status === "observed" &&
+    after?.status === "observed" &&
+    before.path === after.path &&
+    before.gap === 0 &&
+    after.gap === 0 &&
+    before.slip === 0 &&
+    after.slip === 0 &&
+    samePoint(previous.supportAnchor, current.supportAnchor) &&
+    samePoint(before.local, after.local) &&
+    positions[k] === origin.x &&
+    positions[k + 1] === origin.y &&
+    positions[k + 2] === origin.z
+  );
+}
+
+function samePoint(
+  left: IAutoMovieVector3 | undefined,
+  right: IAutoMovieVector3 | undefined,
+): boolean {
+  return (
+    left !== undefined &&
+    right !== undefined &&
+    left.x === right.x &&
+    left.y === right.y &&
+    left.z === right.z
+  );
+}
+
+/* Resolve the shallowest match of each pattern and share overlapping paths. */
+function selectTracks(
+  scene: THREE.Scene,
+  patterns: readonly string[],
+): ITrack[] {
+  const first: Map<string, THREE.Object3D> = new Map();
+  scene.traverse((object: THREE.Object3D): void => {
+    const path: string = AutoMovieRenderInspectionPath.pathOf({
+      root: scene,
+      object,
+    });
+    if (!first.has(path)) first.set(path, object);
+  });
+  const selected: Map<string, ITrack> = new Map();
+  for (const pattern of patterns) {
+    let matches: boolean = false;
+    for (const [path, object] of first) {
+      if (!matchInspectionPath(path, pattern)) continue;
+      matches = true;
+      const names: string[] = path === "" ? [] : path.split("/");
+      if (
+        names.some((_name, depth) =>
+          matchInspectionPath(names.slice(0, depth).join("/"), pattern),
+        )
+      )
+        continue;
+      if (!selected.has(path))
+        selected.set(path, {
+          path,
+          object,
+          active: undefined,
+          parents: [],
+          placed: undefined,
+          previous: undefined,
+          segments: [],
+        });
+      if (selected.size > MAXIMUM_TRACKS)
+        throw new Error(
+          "A trail can select at most " + MAXIMUM_TRACKS + " scene paths",
+        );
+    }
+    if (!matches)
+      throw new Error('Trail pattern "' + pattern + '" matches no object');
+  }
+  return [...selected.values()];
+}
+
+interface ITrack {
+  path: string;
+  object: THREE.Object3D | undefined;
+  active: ISegment | undefined;
+  parents: readonly THREE.Object3D[];
+  placed: THREE.Object3D | undefined;
+  previous: sampleInspectionTrails.IRead | undefined;
+  segments: ISegment[];
+}
+
+interface ISegment {
+  times: number[];
+  positions: number[];
+  motion?: {
+    route?: IAutoMovieInspectionTrail.IAuthoredRoute;
+    samples: IAutoMovieInspectionTrail.ISample[];
+  };
+}
+
+export namespace sampleInspectionTrails {
+  /* The result owns numeric evidence and borrows the current support identity. */
+  export interface IRead {
+    route: IAutoMovieInspectionTrail.IAuthoredRoute | undefined;
+    supportFrame: THREE.Object3D | undefined;
+    supportAnchor?: IAutoMovieVector3;
+    compatibleRemount?: IAutoMovieRenderMotionTrailSource.ICompatibleRemount;
+    sample: IAutoMovieInspectionTrail.ISample;
+  }
+}
+
+function stillPlacedAtPath(
+  scene: THREE.Scene,
+  object: THREE.Object3D,
+  path: string,
+): boolean {
+  for (
+    let next: THREE.Object3D | null = object;
+    next !== null;
+    next = next.parent
+  )
+    if (next === scene)
+      return (
+        AutoMovieRenderInspectionPath.pathOf({ root: scene, object }) === path
+      );
+  return false;
+}
+
+function ancestors(object: THREE.Object3D): THREE.Object3D[] {
+  const parents: THREE.Object3D[] = [];
+  for (
+    let parent: THREE.Object3D | null = object.parent;
+    parent !== null;
+    parent = parent.parent
+  )
+    parents.push(parent);
+  return parents;
+}
+
+function sameAncestors(
+  object: THREE.Object3D,
+  parents: readonly THREE.Object3D[],
+): boolean {
+  let parent: THREE.Object3D | null = object.parent;
+  for (const expected of parents) {
+    if (parent !== expected) return false;
+    parent = parent.parent;
+  }
+  return parent === null;
+}

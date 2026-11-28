@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. 1600 scene, 4096 fit, 0 reports: 512 reserved, 1088 scene, 1088 fit.
  * 3. 2048 scene, 3 reports reserve all 2048: a resident capacity error.
  * 4. A zero scene is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States independent caps for reporting and retained local fit work.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses both tighter-scene and tighter-fit budgets, then checks an exhausted and a zero scene budget.
+ * @evidence contracts/development/testing.md#independent-expectations Two 512-entry reports reserve 1,024 of 4,096 scene entries. The independent 2,048 fit cap leaves 1,536 after its own reserve.
  */
 export function test_recovery_internal_prepare_feasible_report_capacity(): void {
   TestValidator.equals(

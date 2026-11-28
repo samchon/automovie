@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Three edges at 10: the vertex kept, weight 1.
  * 4. Two edges at 0.5 turn smooth: blend weight 0.5 gives 0.625, edges [0.09375,
  *    0.03125, 0.09375, 0.03125], faces 0.03125.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names smooth, dart, crease, corner and semi-sharp blending cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the vertex-mask owner on authored edge sharpness lists and compares vertex, edge and face weights.
+ * @evidence contracts/development/testing.md#independent-expectations Valence four gives 1/2 and 1/16 smooth weights. A crease assigns 3/4 and two eighths. Averaging the specified smooth and crease masks at 0.5 gives the blended values.
  */
 export function test_engine_geometry_subdivision_vertex_mask(): void {
   const s: number = 1 / 16;

@@ -25,6 +25,10 @@ const SPHERE_ROUNDING: number = 4 * Number.EPSILON;
  * along the original normal. From the far point positive ordinary distance
  * conceals an outward ray through the sphere. The site held 1/8 metre above
  * the surface is 2.375 metres ahead, within the model's spatial resolution.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes outward-sided palm clearance on a convex surface, including the false clear on its opposite side.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries an offset point, a tangent-disc point and an opposite-side ray against a unit sphere.
+ * @evidence contracts/development/testing.md#independent-expectations The sphere's 3–4–5 point has zero lift, and the opposite ray intersects the authored face despite positive ordinary distance.
  */
 export function test_motions_posture_arm_surface_lift(): void {
   const centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

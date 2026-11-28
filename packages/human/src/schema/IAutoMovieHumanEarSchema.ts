@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanEar } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanEar. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * One external ear's measurements for typia validation, in millimetres.
+ * Measure length along the auricle, breadth across that axis and protrusion
+ * from the scalp at tragus height.
+ */
 export type IAutoMovieHumanEarSchema = IAutoMovieHumanEar & {
   /**
    * Ear length: superaurale, the highest point of the helix, to subaurale, the lowest point of the lobule, millimetres. This line is the auricle's long axis.

@@ -21,6 +21,10 @@ const PLANE_TOLERANCE: number = 16 * Number.EPSILON;
  *    (0, 2 - sqrt 5, 0.5). Solved points at drop 0 and half the span map to
  *    (0, 2, z) and (0.5, 1, z), and the last is the ankle.
  * 2. A root at the ankle is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains the planar solve request, rigid mapping back into three dimensions and degenerate root refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual support-plane adaptor with an authored planar-solver witness. Checks the target passed to the witness, reconstructed points and the final ankle.
+ * @evidence contracts/development/testing.md#independent-expectations The horizontal and vertical offsets of one and two form a span of `sqrt(5)`. Half its drop gives X 0.5 and Y 1. A coincident root and ankle leave no span.
  */
 export function test_archetypes_internal_support_plane(): void {
   const root: IAutoMovieVector3 = { x: 0, y: 2, z: 0 };

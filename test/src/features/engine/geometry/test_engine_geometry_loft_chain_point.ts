@@ -25,6 +25,10 @@ type V3 = [number, number, number];
  *    coordinate of `point` is `Object.is` the sampler's.
  * 2. The quintic chain with one control of layer 2 moved by 1e-9 mm reads a
  *    different point beside that layer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names bitwise point/sampler agreement across phase and station variation, with changed-control sensitivity.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public point and sampler routes on fixed seeded chains repeatedly and compares exact components. Moves one nearby quintic control in a negative control.
+ * @evidence contracts/development/testing.md#independent-expectations A station point and that station's sampler evaluate the same spline and chart at the same phase. The perturbed control provides a distinct source surface to catch frozen or ignored inputs.
  */
 export function test_engine_geometry_loft_chain_point(): void {
   const made = (

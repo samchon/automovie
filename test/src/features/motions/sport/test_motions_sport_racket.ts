@@ -27,6 +27,10 @@ import { nclose } from "../../internal/nclose";
  *    `SUPPORT_SHARE` (0.65) of the way, 0.13 m, toward the first foot as it
  *    swings, centred between the swings and 0.13 m toward the second as it
  *    swings; the window's ends belong to the bearing phases.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the retimed solo phrase and support transfer across independent swing windows.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds split-step and golf-address clocks under one manner, then reads stance support and pelvis positions throughout a one-second shift.
+ * @evidence contracts/development/testing.md#independent-expectations The unslowed 0.3 s hop ends at 1.5 s after readiness, and authored swing windows fix support. A 0.65 share of 0.2 m gives 0.13 m of pelvis shift.
  */
 export function test_motions_sport_racket(): void {
   const manner: IAutoMovieMotionManner.IModifiers = {

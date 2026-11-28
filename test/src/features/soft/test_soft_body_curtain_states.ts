@@ -124,8 +124,6 @@ const hemSpan: (positions: number[], axis: 0 | 1 | 2) => number = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Solves the same pleated curtain with rest and gathered anchor targets; exact rings, sag/strain, hem widths/depths and final closed-state floor containment expose ignored named states or inert integration.
  * @evidence contracts/development/testing.md#independent-expectations Authored dyadic ring positions use Object.is, while geometric inequalities require sag below -.9, closed strain between zero/.1, narrower gathered width and more than triple depth; these witnesses are qualitative contract bounds rather than an independent full cloth trajectory.
- * @evidence contracts/development/testing.md#distinguishing-cases Closed/open states, floor removal and an exact repeated open solve distinguish boundary choice, contacts and reproducibility; floor assertions cover the final closed result only, and no intermediate continuous contact or universal inextensibility is proved.
- * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable CPU unit owns all five scenarios without dynamic cases, viewer, browser or GPU; a named state supplies static targets throughout each absolute replay.
  *
  * Scenarios:
  *
@@ -145,7 +143,7 @@ const hemSpan: (positions: number[], axis: 0 | 1 | 2) => number = (
  * 5. The two states have different hem depths, and a repeated open solve
  *    reproduces every position exactly.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Under either state every ring holds its stated position exactly, so the).
+ * @evidence contracts/development/common.md#meaningful-documentation Open and gathered curtains check held rings, sag, width and depth. The gathered state checks floor contact, and the repeated open solve checks its positions.
  */
 export function test_soft_body_curtain_states(): void {
   const domain: IAutoMovieSoftBodyDomain = curtain();

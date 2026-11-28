@@ -26,6 +26,10 @@ import { syntheticTrueTypeFont } from "../../internal/syntheticTrueTypeFont";
  * 4. An asset source without an asset reader, an asset whose read fails (refused
  *    naming the source, the asset and the reader's error) and a duplicate id
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Decodes embedded and asset fonts by identity and refuses digest, font, source and duplicate-ID defects before rendering.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls font-source decoding with embedded and asset-backed TrueType fixtures, a malformed font and separately invalid source records.
+ * @evidence contracts/development/testing.md#independent-expectations Direct decoder output checks the composed ID-to-font mapping. Explicit digest, malformed data, and IO failures isolate the acquisition diagnostics.
  */
 export async function test_render_typography_decode_font_sources(): Promise<void> {
   const bytes: Uint8Array = syntheticTrueTypeFont();

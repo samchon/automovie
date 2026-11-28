@@ -17,9 +17,7 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls real room-response derivation for same/different/outdoor/unresolved/adopted and zero-absorption inputs, observing path/status distinctions, expected Sabine T60/transmission gain and a positive direct/diffuse ratio.
  * @evidence contracts/development/testing.md#independent-expectations V=100, area=100 and alpha=.5 independently imply T60=.322 seconds; 20 dB partition loss implies amplitude .1. The fixture declares revision metadata without proving a physical geometry digest, and positive ratio is only a sign witness rather than its exact acoustic value.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all original room-binding/adopted/outdoor/gap twins and default nclose tolerances; absent adopted bytes remain not-run and a perfect reflector remains unsupported. PCM application, finite-domain admission and playback have separate owners.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh requests and response records through the existing canonical fixture; it opens no file, adopted-response decoder, native solver/audio device, renderer, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Same and different rooms consume the Sabine basis: T60 is0.322 s and20 dB transmission has gain 0.1.).
+ * @evidence contracts/development/common.md#meaningful-documentation Same-room and different-room responses use the hand Sabine basis. Outdoor, unresolved and adopted records have distinct results, including the tested zero absorption case.
  */
 export function test_engine_interior_acoustic_response(): void {
   const {

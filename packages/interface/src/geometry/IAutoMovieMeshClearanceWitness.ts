@@ -1,15 +1,12 @@
 /**
- * An affine contact condition at one clipped overlap vertex, delivered to the
- * optional visitor of `measureMeshClearance`.
+ * One signed depth condition at a clipped projected-overlap vertex, delivered
+ * to the optional measureMeshClearance visitor.
  *
- * Barycentric weights belong to the original front triangle, including small
- * negative roundoff; clipping or renormalizing them would change the measured
- * plane. Advancing the three front vertices by distances `d` along the measured
- * axis changes this signed gap by `weights` dot `d`, which is how
- * `minimizeMeshClearance` turns witnesses into displacement
- * constraints. Clear witnesses are delivered too, because a coupled
- * displacement must keep them clear. Arrays are fresh per witness, independent
- * of the resident mesh, and may be retained by the visitor.
+ * The three barycentric weights match the original front triangle's vertex
+ * order. Keep any small negative roundoff. Moving those vertices along the
+ * measured axis changes the gap by the weighted sum of their travels. The
+ * solver keeps already-clear witnesses in the constraint population. Each
+ * callback owns independent vertex and weight arrays.
  */
 export interface IAutoMovieMeshClearanceWitness {
   /** Front triangle ordinal, before any spatial indexing. */

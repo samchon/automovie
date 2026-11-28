@@ -18,6 +18,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    request can still name the exact end.
  * 5. Mixed or incomplete requests, out-of-film seconds and invalid intervals are
  *    refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Schedules still capture on the encoded grid or at explicit film seconds and refuses invalid requests.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the planner with a frame stride, second stride, off-grid range, explicit samples and invalid mixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Known 30 fps frame indices fix the interval results. Explicit seconds keep their off-grid values and exact end while the range follows the encoded frame list.
  */
 export function test_render_root_plan_frame_times(): void {
   const film: { fps: number; durationSeconds: number } = {

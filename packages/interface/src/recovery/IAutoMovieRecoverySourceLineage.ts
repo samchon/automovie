@@ -1,84 +1,58 @@
 /**
- * Source incidence witnessed while one section contour is fitted. This
- * acquisition-only record stays outside the source-free coefficient bundle.
- * Face IDs address the original observation input's triangle array; they
- * include every face incident to a contour vertex or crossed edge, so they may
- * include adjacent faces and do not identify an anatomical region or an exact
- * generating patch.
+ * Source face provenance and publication state for one original raw contour at
+ * a physical station.
  */
 export interface IAutoMovieRecoverySourceLineage {
-  /** Signed station coordinate in millimetres along the input's section axis. */
+  /** Signed registered plane coordinate of the observation, in millimetres. */
   readonly coordinateMm: number;
 
   /**
-   * Zero-based raw contour ordinal at this station, before fitting or
-   * rejection.
+   * Original ordinal in the raw cut population, before fitting succeeds or
+   * fails.
    */
   readonly contourIndex: number;
 
   /**
-   * Copied original input.triangles ordinals in deterministic incidence
-   * traversal order.
+   * Broad original source face IDs supporting the cut points by edge or vertex
+   * incidence.
    */
   readonly sourceTriangleIds: readonly number[];
 
-  /**
-   * Present only when exact cutter provenance was requested: original faces
-   * that emitted the visited cut segments or isolated contact. This differs
-   * from the broader incident-face witness above.
-   */
+  /** Optional original triangles that actually emitted contour segments. */
   readonly exactSourceTriangleIds?: readonly number[];
 
   /**
-   * Closed and open indices address loft.sections[].loops and reports[].open at
-   * this station; failed and degenerate contours publish no fitted curve.
+   * Outcome selecting a saved closed loop, saved open fit, degenerate
+   * observation or failed fit.
    */
   readonly publication:
     | {
-        /**
-         * Closed representation discriminator selecting the corresponding
-         * observation or result arm.
-         */
+        /** Fitter published a closed loop in the associated section. */
         kind: "closed";
-        /** Closed-loop ordinal within the saved section's admitted loop array. */
+        /** Index of the published closed loop in the section's loop array. */
         loopIndex: number;
-        /**
-         * Stable saved coefficient identity, retained without inferring
-         * anatomical or material correspondence.
-         */
+        /** Stored name of the published closed cubic curve. */
         curveName: string;
       }
     | {
-        /**
-         * Closed representation discriminator selecting the corresponding
-         * observation or result arm.
-         */
+        /** Fitter published an open fit in the station report. */
         kind: "open";
-        /** Ordinal in the saved section's open-fit report array. */
+        /** Index of this fit in the report's open array. */
         reportIndex: number;
-        /**
-         * Stable saved coefficient identity, retained without inferring
-         * anatomical or material correspondence.
-         */
+        /** Stored name of the published open cubic curve. */
         curveName: string;
       }
     | {
         /**
-         * Closed representation discriminator selecting the corresponding
-         * observation or result arm.
+         * The raw observation had insufficient points for its corresponding
+         * curve.
          */
         kind: "degenerate";
       }
     | {
-        /**
-         * Closed representation discriminator selecting the corresponding
-         * observation or result arm.
-         */
+        /** The raw contour's fit was attempted and failed. */
         kind: "failed";
-        /**
-         * Reason this particular result is unavailable or qualified only within
-         * a stated numerical scope.
-         */
+        /** Observed cause of the contour fit failure. */
         diagnostic: string;
       };
 }

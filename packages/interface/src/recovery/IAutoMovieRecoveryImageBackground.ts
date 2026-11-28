@@ -1,12 +1,15 @@
 /**
- * Fixed-background foreground classification for resident sRGB images. A pixel
- * is foreground when its maximum absolute channel distance reaches the
- * threshold.
+ * Classify foreground by comparing each resident sRGB channel with a fixed
+ * byte reference. A pixel is foreground when any absolute difference reaches
+ * the supplied threshold.
  */
 export interface IAutoMovieRecoveryImageBackground {
-  /** Fixed sRGB reference channels, each an integer in [0, 255]. */
+  /**
+   * Reference red, green and blue values in channel order, each an integer from
+   * 0 through 255.
+   */
   rgb: [number, number, number];
 
-  /** Positive channel-distance threshold at most 255; equality marks foreground. */
+  /** Finite channel distance in (0, 255]. Equality counts as foreground. */
   threshold: number;
 }

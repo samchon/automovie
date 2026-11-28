@@ -7,13 +7,19 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A two-step transfer admits the bounded interval and independent supports.
+ * Check the duration and distinct-support requirements of a two-step
+ * transfer.
  *
  * Scenarios:
  *
- * 1. Both duration limits admit distinct props, even with equal surface ids.
- * 2. Values just outside either limit fail first, and two differently named
- *    surfaces of the same prop fail even during an admitted interval.
+ * 1. Admit 1.2 and 3 s between different props that each name the surface
+ *    `deck` .
+ * 2. At 1.199 and 3.001 s refuse on `seconds` . At 2 s refuse on `to` when
+ *    two surface names belong to the same prop.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify inclusive durations, refusals and the support identity rule.
+ * @evidence contracts/development/testing.md#behavioral-verification The fixture tests inclusive timing and verifies that duration is checked before same-prop identity.
+ * @evidence contracts/development/testing.md#independent-expectations The duration values are fixed around the stated 1.2 to 3 s interval, and independent prop and surface names form the identity controls.
  */
 export function test_motions_carrier_support_transfer_admission(): void {
   const from: supportTransfer.IAdmission["from"] = {

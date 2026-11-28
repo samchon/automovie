@@ -22,11 +22,9 @@ import { vclose } from "../../internal/vclose";
  *    marker remain addressable in the prop's local frame.
  * 3. Repeat one seed and refuse a pole height that would bury the grips.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the dimensions, collider measurements and two motion sites.
- * @evidence contracts/development/testing.md#behavioral-verification Reads physical collider extents and checks the sites through the motion prop adapter.
- * @evidence contracts/development/testing.md#independent-expectations Uses authored dimensions and measured collider edges as the geometry and grip oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Opposite panel edges distinguish the grips. Same-seed and invalid-dimension cases pin draw behavior.
- * @evidence contracts/development/testing.md#execution-ownership One in-memory specification discovered with the archetype tests.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the panel and pole dimensions, both grip sites, forward face, repeatable seed and invalid pole height.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures public collider extents and both grip sites through the motion prop adapter. A repeat checks free dimensions and the shorter authored pole must refuse when it buries the grip sites.
+ * @evidence contracts/development/testing.md#independent-expectations The authored dimensions set the panel and pole extents. Opposite panel edges distinguish the two poles and measured collider centres locate their grips.
  */
 export function test_archetype_scenic_parade_banner(): void {
   /** Compare positioned contacts within the stage's millimetre tolerance. */

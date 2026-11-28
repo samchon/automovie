@@ -4,16 +4,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `clinch.regions` names a clinch's two grips: a plum clinch cups the nape with
- * both hands spread `clinch.SPREAD` either way; a collar-and-sleeve grip takes
- * the opposite side of the neck with the collar hand and the facing elbow with
- * the other.
+ * Check the target regions selected for each clinch grip.
  *
  * Scenarios:
  *
- * 1. The plum's hands lie 0.35 m either side of the nape.
- * 2. A right collar takes the left neck and the right elbow; a left collar the
- *    mirror.
+ * 1. A plum clinch uses both hands around the nape with 0.35 m offsets to
+ *    either side.
+ * 2. A right collar selects the left neck and right elbow. A left collar
+ *    mirrors the pair.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify both grip styles and both collar sides.
+ * @evidence contracts/development/testing.md#behavioral-verification The region helper returns exact hand, offset and body-region records.
+ * @evidence contracts/development/testing.md#independent-expectations The expected records enumerate the two sides from the authored partner-relative choice.
  */
 export function test_motions_grappling_clinch(): void {
   TestValidator.equals(

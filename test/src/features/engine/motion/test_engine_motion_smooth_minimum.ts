@@ -17,6 +17,10 @@ const ROUNDING: number = 1e-12;
  * 2. A = 1, b = 0.5, width 1 give h = 0.5: 0.5 - 0.25 / 4 = 0.4375.
  * 3. Inputs further apart than the width give the plain minimum.
  * 4. A zero width is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the equal-input, blended, unblended, and invalid-width cases of the quadratic smooth minimum.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `smoothMinimum` with three scalar pairs and explicitly exercises a zero-width error.
+ * @evidence contracts/development/testing.md#independent-expectations At width 1 the squared correction is 1/4 for equal zero inputs and 1/16 when the inputs differ by 0.5, giving -0.25 and 0.4375. A gap of 4 at width 2 applies no correction and leaves 1.
  */
 export function test_engine_motion_smooth_minimum(): void {
   TestValidator.predicate(

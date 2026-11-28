@@ -63,6 +63,10 @@ const ENDED: HumanSegmentCut.IBefore = { end: 2 };
  * 6. A sprint of the run family at 0.8 s takes the run's row.
  * 7. A kneel that accepts walks by phase, at 0.8 s, takes its own row before the
  *    walk's `any`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names cut-row selection by exact action, family, entered acceptance, or fallback, plus an outside-window refusal and natural handoffs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanSegmentCut.row` with authored interrupt tables, a prepared plan event, and explicit schedule entry cases. It checks exact row identity or the two diagnostic fragments.
+ * @evidence contracts/development/testing.md#independent-expectations The two-second walk converts 0.8, 1, and 1.5 s to shares 0.4, 0.5, and 0.75. Only the first two lie in the redirect's [0.25, contact] window. A 1.9 s sit falls in the last tenth and an explicitly cut end has share 1.
  */
 export function test_motions_perform_segment_cut(): void {
   const row = (

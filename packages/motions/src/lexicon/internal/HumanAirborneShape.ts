@@ -143,7 +143,7 @@ export namespace HumanAirborneShape {
   ) => IAutoMovieMotionHumanPosture;
 
   /*
-   * The definition returned by the native shape function Object() { [native code] }.
+   * The limb channels and posture blend for one airborne shape.
    */
   interface IDefinition {
     channels: AutoMovieHumanLimb[];

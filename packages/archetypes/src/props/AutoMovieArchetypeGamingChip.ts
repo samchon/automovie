@@ -2,43 +2,41 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createGamingChip as createGamingChipImplementation } from "./internal/createGamingChip";
 import { TabletopStack } from "./internal/TabletopStack";
 
-/** Public operations for Auto Movie Archetype Gaming Chip. */
+/** Constructs a flat plastic gaming chip with centered stacking sockets. */
 export namespace AutoMovieArchetypeGamingChip {
   /**
-   * One gaming chip lying flat.
+   * Build one plastic chip lying flat in the XZ plane.
    *
-   * The chip is a disc in the `XZ` plane, its origin the centre of its underside.
-   * Chips stack by the shared tabletop contacts (`TabletopStack`): one chip's
-   * `base` mounted on the next one's `top`, so a stack moves with the chip at its
-   * bottom.
+   * The disc is 0.039 metres across and 0.0033 metres thick. Its
+   * diameter sets the upper precision pinch aperture.
    *
-   * @param params The optional scene id.
-   * @returns The inert chip and its contact frames, metres.
+   * @param params Optional scene ID, defaulting to `gamingChip`.
+   * @returns The disc with centered `base` and `top` sockets and an upper grip.
    */
   export function create(params?: AutoMovieArchetypeGamingChip.IParams): AutoMovieArchetype<AutoMovieArchetypeGamingChip.Affordance, AutoMovieArchetypeGamingChip.Dimension> {
     return createGamingChipImplementation(params);
   }
 
-  /** The shared pinch, underside and upper sockets. */
+  /** Upper `grip` and `top` socket, and centered underside `base` socket. */
   export type Affordance = TabletopStack.Contact;
 
-  /** The chip's diameter, thickness and mass. */
+  /** Disc diameter and thickness in metres, and whole mass in kilograms. */
   export type Dimension = "diameter" | "thickness" | "mass";
 
-  /** The scene id. */
+  /** Optional scene ID for the fixed-size chip. */
   export interface IParams {
-    /** The model's id, unique in a scene; `gamingChip` when absent. */
+    /** Scene object ID, defaulting to `gamingChip`. */
     id?: string;
   }
 
-  /** The chip's size, metres and kilograms. */
+  /** The fixed chip cross-section and mass. */
   export interface IChip {
-    /** The disc's diameter, estimated. */
+    /** Estimated disc diameter, 0.039 metres. */
     diameter: number;
 
-    /** The disc's thickness, estimated. */
+    /** Estimated disc height, 0.0033 metres. */
     thickness: number;
 
-    /** The chip's mass, read. */
+    /** Recorded whole-chip mass, 0.01 kilograms. */
     mass: number;
   }}

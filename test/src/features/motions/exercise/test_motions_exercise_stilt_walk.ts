@@ -17,6 +17,10 @@ import { throwsError } from "../../internal/throwsError";
  *    s in all.
  * 2. No way still takes two steps in place, 2 s.
  * 3. 2.5 steps asked round to three; a count rounding to none is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Stilt walking covers distance with its default step count and settles even in place.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the pacing function for two metres, zero distance, and authored fractional or insufficient counts.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.35 m natural step determines seven steps over two metres. The 0.8-second period and half-step settle determine duration separately from distance.
  */
 export function test_motions_exercise_stilt_walk(): void {
   const walk: stiltWalk.IPacing = stiltWalk.pacing(2, 1, undefined);

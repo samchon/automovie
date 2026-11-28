@@ -76,9 +76,7 @@ const TINY: number = (0.05 * Math.PI) / 180;
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the actual world-driver aim pass on composed owner/target matrices and reads the rotated local aim axis, checking small-angle tracking and both deterministic antiparallel branches.
  * @evidence contracts/development/testing.md#independent-expectations Sine/cosine of the authored 0.05-degree offset and literal opposite unit vectors supply direction oracles with 1e-9 tolerance; the 1e-4 x threshold independently distinguishes an identity snap.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers one offset inside the former identity deadzone and antiparallel aim axes below and above the 0.9 x-axis branch split; it does not establish all-angle accuracy, roll behavior or malformed-input admission.
- * @evidence contracts/development/testing.md#execution-ownership Owns synchronous portable matrix maps and calls engine numerics directly through the runner; no scene renderer, camera pan, browser or native process is executed.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A target 0.05° off the aim axis (inside the old deadzone) now aims EXACTLY at).
+ * @evidence contracts/development/common.md#meaningful-documentation A target just off-axis exercises the old deadzone. Exactly opposite targets on two authored axes exercise both perpendicular fallback branches.
  */
 export function test_resolve_aim_precision(): void {
   const dir: IAutoMovieVector3 = {

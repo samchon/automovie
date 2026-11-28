@@ -28,6 +28,10 @@ const PITCH_ROUNDING_DEGREES: number = 64 * Number.EPSILON * 180 / Math.PI;
  * 2. A distant hip requires the heel to rise. A hand-transformed rest toe
  *    offset lands at the translated hinge, and foot pitch plus toe flexion is
  *    zero. The result uses the left foot's own socket.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains a virtual foot rocker that retains its translated toe hinge and compensates free-toe pitch.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the same foot with upright and distant hip positions and reads the left rig socket.
+ * @evidence contracts/development/testing.md#independent-expectations A manually transformed toe offset reconstructs the translated hinge. In the raised case compensating pitch and toe flexion sum to zero.
  */
 export async function test_motions_striking_kick_rocker(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

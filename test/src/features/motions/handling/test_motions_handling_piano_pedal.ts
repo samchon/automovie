@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  *    the release, where the minimum-jerk share of 1/2 is 1/2.
  * 2. No stroke is refused on `duration`; a stroke starting before the previous one
  *    ends, and one ending at the duration, are refused on `presses`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines timed depression, hold and release phases and nonoverlapping interior stroke admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads two different strokes before, during and after motion, then tries empty, overlapping and terminal-ending schedules.
+ * @evidence contracts/development/testing.md#independent-expectations Minimum-jerk midpoints give half travel. The authored bounded intervals define zeros between strokes and a full pedal during the explicit hold.
  */
 export function test_motions_handling_piano_pedal(): void {
   const presses: IAutoMovieMotionHumanPianoPedal.IPress[] = [

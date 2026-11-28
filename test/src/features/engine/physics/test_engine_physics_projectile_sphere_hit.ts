@@ -21,6 +21,10 @@ const SURFACE: number = 1e-3;
  *    0, 0) at 1 s; a unit sphere there is entered after 0.8 s and by 1 s, at a
  *    point on its surface; a sphere 50 m up is never hit.
  * 2. A zero window, zero steps, or a sphere of radius -1 is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the first sampled segment's surface entry and refusal for invalid window, sample count and radius.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sphereHit on a fixed parabolic launch with a sphere in its path, one 50 m above it and invalid scan settings.
+ * @evidence contracts/development/testing.md#independent-expectations Constant acceleration puts the projectile at the target center at 1 s, so the crossing must occur after 0.8 s and by 1 s at the unit surface.
  */
 export function test_engine_physics_projectile_sphere_hit(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

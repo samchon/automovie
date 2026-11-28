@@ -199,7 +199,7 @@ export namespace prepareJumpPosture {
     settled: number;
   }
   /*
-   * Existing plan members produced by the actual dispatcher function Object() { [native code] }.
+   * The posture dispatcher, airborne declarations and display source for one jump.
    */
   export interface IConstruction {
     /*

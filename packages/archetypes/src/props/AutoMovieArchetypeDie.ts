@@ -2,39 +2,42 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createDie as createDieImplementation } from "./internal/createDie";
 import { TabletopStack } from "./internal/TabletopStack";
 
-/** Public operations for Auto Movie Archetype Die. */
+/**
+ * Constructs a plain plastic die cube with upper pinch and stacking sockets.
+ */
 export namespace AutoMovieArchetypeDie {
   /**
-   * One six-sided die resting on a face.
+   * Build a six-sided plastic die resting on its lower face at Y zero.
    *
-   * The die is a cube, its origin the centre of the face it rests on, `+Y` up. It
-   * is picked up, rolled and placed by the shared tabletop contacts
-   * (`TabletopStack`).
+   * The cube spans 0.016 metres on each axis. Its full side sets the
+   * grip aperture at the upper face.
    *
-   * @param params The optional scene id.
-   * @returns The inert die and its contact frames, metres.
+   * @param params Optional scene ID, defaulting to `die`.
+   * @returns The unmarked cube with its upper pinch and two stacking sockets.
    */
   export function create(params?: AutoMovieArchetypeDie.IParams): AutoMovieArchetype<AutoMovieArchetypeDie.Affordance, AutoMovieArchetypeDie.Dimension> {
     return createDieImplementation(params);
   }
 
-  /** The shared pinch, underside and upper sockets. */
+  /**
+   * Upper precision `grip` and `top` socket, with a `base` socket on the resting face.
+   */
   export type Affordance = TabletopStack.Contact;
 
-  /** The side and the mass. */
+  /** Cube side in metres and estimated whole mass in kilograms. */
   export type Dimension = "side" | "mass";
 
-  /** The scene id. */
+  /** Optional scene ID for the fixed-size die. */
   export interface IParams {
-    /** The model's id, unique in a scene; `die` when absent. */
+    /** Scene object ID, defaulting to `die`. */
     id?: string;
   }
 
-  /** The die's size, metres and kilograms. */
+  /** The fixed cube side and estimated mass. */
   export interface IDie {
-    /** The cube's side, read. */
+    /** Cube side, 0.016 metres. */
     side: number;
 
-    /** The die's mass, estimated. */
+    /** Estimated whole die mass, 0.005 kilograms. */
     mass: number;
   }}

@@ -1,5 +1,7 @@
 import type { IAutoMoviePlanVideoSceneCutsProps } from "@automovie/interface";
 
+import { videoStreamMap } from "./videoStreamMap";
+
 /*
  * Plan the FFmpeg arguments that detect a video file's scene cuts with the
  * `scdet` filter and write each cut to a report, which
@@ -41,6 +43,8 @@ export function planVideoSceneCuts(
     "-nostats",
     "-i",
     props.file,
+    "-map",
+    videoStreamMap(props.streamIndex),
     "-an",
     "-vf",
     `scdet=threshold=${props.threshold},metadata=mode=select:key=lavfi.scd.time,metadata=mode=print:file=${graph}`,

@@ -26,6 +26,10 @@ import { throwsError } from "../../internal/throwsError";
  *    period 4 average the wrap secant 0.5 with 1 to 0.75 at knot 0.
  * 6. One knot is constant; no knot, a missing value, knots not increasing and a
  *    knot at the period are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names secants, slope limiting, open and periodic reads, peak preservation and malformed input.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares slope arrays and interpolation functions from authored knots and queries their knot, midpoint, wrap and exterior values.
+ * @evidence contracts/development/testing.md#independent-expectations The Fritsch-Carlson limiter scales the normalized slope pair to radius 3. The stated Hermite midpoint gives 2.1875, and a zero peak slope prevents overshoot.
  */
 export function test_engine_geometry_monotone_interpolation(): void {
   const near = (a: number, b: number, e: number = 1e-12): boolean =>

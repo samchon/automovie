@@ -1,34 +1,35 @@
 import type { AutoMovieHumanHairColor as AutoMovieHumanHairColorContract } from "@automovie/interface";
 
 /**
- * Colour of scalp hair, brows or lashes, as a closed choice.
+ * Appearance categories shared by scalp hair, brows and lashes.
  *
- * Natural hair colour follows the amounts of eumelanin (brown to black) and pheomelanin (red to yellow) in the cortex, and grey and white follow their loss with age. The choice is a colour category, not a measured pigment concentration. Hair, brows and lashes each take their own choice, because dyed hair and natural brows differ.
+ * Each appearance record chooses its own color. Use the string label as that
+ * record's `color`.
  */
 export namespace AutoMovieHumanHairColor {
-  /** Very much eumelanin. */
+  /** The black hair color category. */
   export const Black: "black" = "black" satisfies
     AutoMovieHumanHairColorContract;
-  /** Much eumelanin. */
+  /** The dark brown hair color category. */
   export const DarkBrown: "darkBrown" = "darkBrown" satisfies
     AutoMovieHumanHairColorContract;
-  /** Moderate eumelanin. */
+  /** The unqualified brown hair color category. */
   export const Brown: "brown" = "brown" satisfies
     AutoMovieHumanHairColorContract;
-  /** Little eumelanin. */
+  /** The light brown hair color category. */
   export const LightBrown: "lightBrown" = "lightBrown" satisfies
     AutoMovieHumanHairColorContract;
-  /** Very little melanin of either kind. */
+  /** The blond hair color category. */
   export const Blond: "blond" = "blond" satisfies
     AutoMovieHumanHairColorContract;
-  /** Eumelanin with much pheomelanin. */
+  /** The auburn hair color category. */
   export const Auburn: "auburn" = "auburn" satisfies
     AutoMovieHumanHairColorContract;
-  /** Mostly pheomelanin. */
+  /** The red hair color category. */
   export const Red: "red" = "red" satisfies AutoMovieHumanHairColorContract;
-  /** A mix of pigmented and unpigmented strands. */
+  /** The gray hair color category. */
   export const Gray: "gray" = "gray" satisfies AutoMovieHumanHairColorContract;
-  /** Unpigmented strands. */
+  /** The white hair color category. */
   export const White: "white" = "white" satisfies
     AutoMovieHumanHairColorContract;
 }

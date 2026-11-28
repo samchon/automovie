@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  *    overflowing the right edge point to their own fields.
  * 3. A font may neither be blank nor absent from the registry. A feed's camera
  *    must exist and differ from the shot's own view.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers per-layer graphic bounds, emitter luminance, optional fonts, registered feeds and their reported order.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls appendSurfaceGraphicArtifact with typed text and feed layers and explicit font and camera sets. It reads exact ordered layer paths.
+ * @evidence contracts/development/testing.md#independent-expectations The valid text uses the system font and a different staged camera. A negative corner, overflowing width, missing font or feed aimed at the shot's own view violates a distinct field. The authored row order fixes the expected diagnostics.
  */
 export function test_engine_validation_surface_graphic_artifact(): void {
   const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

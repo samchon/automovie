@@ -8,7 +8,13 @@ import { nclose } from "../../internal/nclose";
 /** Angle-to-height arithmetic at the fixture's metre scale. */
 const OAR_ROUNDING: number = 128 * Number.EPSILON;
 
-/** The upper blade root sets the rest angle and the lower tip sets lift. */
+/**
+ * The upper blade root sets the rest angle and the lower tip sets lift.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States beam, leverage, waterline rest and the distinct touch and clear blade positions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual oar geometry owner and checks span and lever dimensions. Independently measures two corners at rest, touch and recovery angles.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture gives 0.29 metre pivot height and the stated handle and tip lengths. Projecting the blade's upper root or lower far corner through each angle must reach the respective waterline or 0.1 metre clearance.
+ */
 export function test_archetypes_vehicles_oar_geometry(): void {
   const oar = BoatOars.geometry({
     beam: 1.4,

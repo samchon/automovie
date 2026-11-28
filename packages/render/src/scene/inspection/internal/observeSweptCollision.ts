@@ -26,7 +26,9 @@ export function observeSweptCollision(
   if (sweeps === undefined) {
     // Disclosure of motion no source certified, not an obligation the layer
     // declared, so it never holds a required layer back.
-    report(key("sweeps"), "unsupported", "no-certified-motion-cells", false);
+    report(key("sweeps"), "unsupported", "no-certified-motion-cells", false, {
+      basis: "swept",
+    });
     for (const group of new Set(
       [...groups.values()]
         .filter(
@@ -40,6 +42,7 @@ export function observeSweptCollision(
         "unsupported",
         "uncertified-cord-motion",
         false,
+        { basis: "swept" },
       );
     return;
   }
@@ -55,6 +58,7 @@ export function observeSweptCollision(
     const identity: string = key("sweep", ...paths, String(startSeconds));
     if (cells.has(identity)) throw new Error("Repeated collision motion cell");
     cells.add(identity);
+    const location = { paths, basis: "swept" as const };
     const group: Collision.IGroup | undefined = groups.get(paths[0]);
     const other: Collision.IGroup | undefined = groups.get(paths[1]);
     if (
@@ -63,7 +67,7 @@ export function observeSweptCollision(
       group.id === other.id &&
       group.kind === other.kind
     ) {
-      report(identity, "excluded", group.kind);
+      report(identity, "excluded", group.kind, undefined, location);
       continue;
     }
     const allowance: number | "split" = cellAllowance(
@@ -73,23 +77,36 @@ export function observeSweptCollision(
       endSeconds,
     );
     if (allowance === "split") {
-      report(identity, "deferred", "allowance-boundary-inside-cell");
+      report(
+        identity,
+        "deferred",
+        "allowance-boundary-inside-cell",
+        undefined,
+        location,
+      );
       continue;
     }
-    const sweep: Sweep.IResult = AutoMovieEngineValidation.measureSweptCapsuleCollision({
-      ...interval.props,
-      maxPenetration: allowance,
-      maxIntervals: Math.min(interval.props.maxIntervals, budget.sweptCells),
-    });
+    const sweep: Sweep.IResult =
+      AutoMovieEngineValidation.measureSweptCapsuleCollision({
+        ...interval.props,
+        maxPenetration: allowance,
+        maxIntervals: Math.min(interval.props.maxIntervals, budget.sweptCells),
+      });
     budget.sweptCells -= sweep.compared;
     if (sweep.status === "deferred") {
-      report(identity, "deferred", sweep.reason);
+      report(identity, "deferred", sweep.reason, undefined, location);
       continue;
     }
     const proxy: boolean =
       sweep.status === "proxy" ||
       (sweep.status === "clear" && sweep.basis === "proxy");
-    report(identity, proxy ? "deferred" : "checked", "proxy-motion-only");
+    report(
+      identity,
+      proxy ? "deferred" : "checked",
+      "proxy-motion-only",
+      undefined,
+      location,
+    );
     if (sweep.status === "clear") continue;
     findings.push(
       createCollisionFinding(
@@ -171,6 +188,7 @@ export namespace observeSweptCollision {
       status: Diagnostic.ICoverage["status"],
       reason: string,
       required?: boolean,
+      location?: Pick<Diagnostic.ICoverage, "paths" | "basis">,
     ) => void;
     /*
      * The frame's finding sink.

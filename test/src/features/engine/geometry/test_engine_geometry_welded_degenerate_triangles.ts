@@ -17,6 +17,10 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Triangles (0,1,2), (0,0,2), (1,3,2) and (2,1,0): [1, 2], repeating an index
  *    and a welded position respectively.
  * 2. An index past the vertices ("does not carry") is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names repeated index and coincident-position weld degeneracy, retained ordinals and invalid index rejection.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual welded mesh diagnostic on a four-vertex explicit index run and on a broken address.
+ * @evidence contracts/development/testing.md#independent-expectations The second and third triangles each have two corners in one grid cell, once by duplicate index and once by equal positions. Reversing a nondegenerate face does not duplicate a corner.
  */
 export function test_engine_geometry_welded_degenerate_triangles(): void {
   const mesh: IAutoMovieMesh = {

@@ -24,6 +24,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The four stances name their contacts in order, the left foot stepping.
  * 2. Three treads step over step from the right: right 1, left 2, right 3, left 3;
  *    step by step from the left: left 1, right 1, left 2, right 2.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines staged palm and foot supports throughout a vault and two stair foot order strategies.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans a right-hand vault with named ledge and entrance and exit fixtures, then reads alternating and both-feet tread schedules.
+ * @evidence contracts/development/testing.md#independent-expectations The right-hand-side foot passes through and the left steps. Three alternating treads end right 3 then left 3, while step-by-step pairs both feet at every tread.
  */
 export function test_motions_terrain_step_vault_support(): void {
   const point: (z: number) => IAutoMovieMotionHumanStepVault.Target = (

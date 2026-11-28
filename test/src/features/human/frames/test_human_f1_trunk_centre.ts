@@ -40,9 +40,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production centroid, centre line and re-expression, and reads sections through the production resolver and the engine's chain.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's centre, the half ellipse's centroid, a constant's average, the centred ellipse's polar equation, world-point equality between two representations, reflection in the median plane, the natural cubic's continuity and end conditions, and a centroid's translation are closed forms.
- * @evidence contracts/development/testing.md#distinguishing-cases An off-centre and an asymmetric section, a constant and a moving centre, smoothed and unsmoothed, stations on and between knots in all four quadrants, and the stored trunk beside made families, every finding collected.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made families and one stored family's fields; no person, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and expectation.
+ * @evidence contracts/development/common.md#meaningful-documentation Analytic centroids, a constant centre line, world-point equality after re-expression and the stored trunk's median and derivative conditions give independent checks.
  */
 export function test_human_f1_trunk_centre(): void {
   const failures: string[] = [];

@@ -31,6 +31,10 @@ import { throwsError } from "../../internal/throwsError";
  * 4. Coinciding points, a reversal, a normal along the first tangent, one point
  *    and a frame read without frames are refused.
  * 5. The authored spine reads the same frames as the transport.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names straight, bent, planar and helical frame readings, source binding and invalid spine controls.
+ * @evidence contracts/development/testing.md#behavioral-verification Transports frames along several literal paths and compares their origin, axes and angular rate with the authored-spine reader.
+ * @evidence contracts/development/testing.md#independent-expectations Exact collinear points yield chord length 2 and the written axes. Planar transport keeps its normal and frame twist vanishes under the rotation-minimizing rule.
  */
 export function test_engine_geometry_sweep_spine_transport(): void {
   const build = (

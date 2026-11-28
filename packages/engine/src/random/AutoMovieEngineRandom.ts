@@ -80,42 +80,45 @@ export namespace AutoMovieEngineRandom {
   }
 
   /**
-   * Create an indexed counter-based stream implementing IAutoMovieRandom.
+   * Create a deterministic stream from sixteen hexadecimal seed digits.
    *
-   * @param seed Sixteen hexadecimal digits, as deriveSeed returns.
-   * @returns A stream whose values depend on the seed and index alone.
+   * Read any nonnegative safe integer index in any order. The block gives four
+   * unsigned words, uint32 gives its first word and float uses its first two
+   * words for a result in [0, 1). The stream stores the seed in lowercase and
+   * derives child streams from that text and the supplied ordered IDs.
    */
   export function createRandom(seed: string): IAutoMovieRandom {
     return createRandomImplementation(seed);
   }
 
   /**
-   * Derive a 64-bit seed from a film seed and ordered stable ids.
+   * Derive a 64-bit seed from the film seed and ordered stable IDs.
    *
-   * @param filmSeed The production's seed text.
-   * @param ids Stable ids of the drawing stream, outermost first.
-   * @returns Sixteen lowercase hexadecimal digits.
+   * Hash UTF-8 bytes with FNV-1a. A 0xff byte follows the film seed and each
+   * ID, including empty fields. Pass IDs from the outermost owner inward.
+   * The result contains sixteen lowercase hexadecimal digits.
    */
   export function deriveSeed(filmSeed: string, ...ids: string[]): string {
     return deriveSeedValue(filmSeed, ...ids);
   }
 
   /**
-   * Hash byte values with 64-bit FNV-1a.
+   * Hash a byte iterable with 64-bit FNV-1a.
    *
-   * @param bytes The byte sequence.
-   * @returns Sixteen lowercase hexadecimal digits.
+   * Read each value's low eight bits after integer conversion. The result
+   * contains sixteen lowercase hexadecimal digits. An empty iterable returns
+   * the FNV-1a offset basis.
    */
   export function hashFnv1a64(bytes: Iterable<number>): string {
     return hashFnv1a64Implementation(bytes);
   }
 
   /**
-   * Produce a Philox4x32-10 counter block.
+   * Produce a Philox4x32-10 block from four counter words and two key words.
    *
-   * @param counter Four unsigned 32-bit counter words, least significant first.
-   * @param key Two unsigned 32-bit key words.
-   * @returns Four unsigned 32-bit output words.
+   * Supply the counter least-significant word first. Each input word is
+   * converted to an unsigned 32-bit integer. The returned four words depend
+   * only on the supplied counter and key.
    */
   export function philox4x32(
     counter: readonly [number, number, number, number],

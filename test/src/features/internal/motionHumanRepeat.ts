@@ -5,28 +5,24 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditMotion
-} from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditMotion";
 
+import { AutoMovieMotionHumanAuditMotion } from "../../../../packages/motions/src/audit/internal/AutoMovieMotionHumanAuditMotion";
 import { motionHumanFrame } from "./motionHumanFrame";
 
 /**
- * Compare independently built performances at the same instants, including bone
- * orientations that leave their joint centres unchanged.
+ * Compare independently built performances on the shared portion of their
+ * display clocks. Compare bone positions in metres and orientations as unit
+ * quaternion chords, with a 1e-9 tolerance for each.
  *
- * @param first The first real performance's film.
- * @param second An independently resolved film with the same input values.
- * @param subject The person compared.
- * @param rate Samples per second; the caller's existing determinism rate.
- * @returns Every differing bone channel and duration, with its film second.
- * @evidence contracts/development/common.md#meaningful-documentation States the independent-state precondition and channels compared.
- * @evidence contracts/development/implementation.md#principled-implementation A pure deterministic performance has the same displayed positions and unit orientations; q and -q represent the same orientation. Both the metre and quaternion-chord bounds are 1e-9, the existing determinism bound.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks duration, then both directions of bone membership and the two displayed channels on the caller's grid.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads both actual films and rejects nonfinite frames before arithmetic; no expected pose is copied from implementation bookkeeping.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in grid frames times bones, stopping neither film at its first finding.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses each owning film's frame cache without sharing resolution between the two films.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only complaint text for the comparison; the films own their frames.
+ * @param first First film.
+ * @param second Independently built second film.
+ * @param subject Person to compare in both films.
+ * @param rate Finite positive samples per second.
+ * @returns Duration, bone count, missing bone and channel differences.
+ * @throws If timing is nonfinite or a sampled frame is empty or invalid.
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies the shared sampled clock, both compared channels and tolerances, and the finite timing and admitted-frame prerequisites.
+ * @evidence contracts/development/implementation.md#principled-implementation Checks finite timing before building the shared grid. At each time it validates both frames, checks count and first-film bone membership, and admits only distances and chords within tolerance. The smaller chord treats q and −q as the same orientation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reads a frame from each film once per grid time and walks the first map with direct second-map lookup. Its stored work is the sampling grid and complaint text. Each film owns its own frames.
  */
 export function motionHumanRepeat(
   first: IAutoMovieMotionHumanAuditMotion,
@@ -34,6 +30,13 @@ export function motionHumanRepeat(
   subject: string,
   rate: number,
 ): string[] {
+  if (!Number.isFinite(first.duration) || !Number.isFinite(second.duration))
+    throw new Error("A repeated motion comparison needs finite durations");
+  if (!Number.isFinite(rate) || rate <= 0)
+    throw new Error(
+      "A repeated motion comparison needs a finite positive sample rate",
+    );
+
   const complaints: string[] = [];
   if (Math.abs(first.duration - second.duration) > 1e-9)
     complaints.push(
@@ -69,7 +72,7 @@ export function motionHumanRepeat(
         Math.hypot(x.x - y.x, x.y - y.y, x.z - y.z, x.w - y.w),
         Math.hypot(x.x + y.x, x.y + y.y, x.z + y.z, x.w + y.w),
       );
-      if (position > 1e-9 || rotation > 1e-9)
+      if (!(position <= 1e-9 && rotation <= 1e-9))
         complaints.push(
           `${subject} ${bone} at ${seconds} s: position ${position} m, rotation chord ${rotation}`,
         );

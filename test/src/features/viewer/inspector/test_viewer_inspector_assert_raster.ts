@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A subject of 2 s, 24 fps and 64 by 32 passes.
  * 2. A zero duration, rate, width or height is refused with the subject's name
  *    and the field in the message.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the admitted raster and independent refusal fields.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the raster guard on a valid subject and then sets one field at a time to zero, checking the diagnostic for the subject and field.
+ * @evidence contracts/development/testing.md#independent-expectations The literal two-second, 24 Hz, 64 by 32 subject admits positive values. Zero independently violates each clock or size boundary.
  */
 export function test_viewer_inspector_assert_raster(): void {
   const scene = (

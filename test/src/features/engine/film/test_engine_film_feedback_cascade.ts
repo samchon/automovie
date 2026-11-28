@@ -18,6 +18,10 @@ import { validationHasWarningCount } from "../../internal/predicates";
  * 2. Locating it on beat-1 stamps b1, whose nearest-first ancestors are grp,
  *    scene1, act1 and root.
  * 3. The same warning remains unstamped when the tree is absent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the outside-support warning, its nearest-first screenplay ancestry and the unlocated control.
+ * @evidence contracts/development/testing.md#behavioral-verification The test measures support of a prepared point, locates the resulting warning through the beat owner and walks its graph ancestors. It repeats location without a tree and checks the untouched outcome.
+ * @evidence contracts/development/testing.md#independent-expectations The authored point lies outside the known square and produces one support warning. The supplied parent links place b1 under grp, scene1, act1 and root in that order. Without the input tree no beat node identity can be introduced.
  */
 export function test_engine_film_feedback_cascade(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

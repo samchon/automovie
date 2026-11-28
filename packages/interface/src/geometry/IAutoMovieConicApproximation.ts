@@ -1,14 +1,12 @@
 import type { IAutoMovieRegisteredConicArc } from "./IAutoMovieRegisteredConicArc";
 
 /**
- * Shared planar, millimetre-valued contract for experimental conic recovery.
- * Rational quadratics use endpoint weights one and a positive middle weight; a
- * collinear control triple with weight one is the admitted line primitive. The
- * contract does not imply a Hausdorff certificate or a globally minimal net.
+ * Work limits and results for planar conic fitting in millimetres. Each arc
+ * uses endpoint weights of one and a positive middle weight. Collinear controls
+ * with a middle weight of one represent a line.
  */
-
 export namespace IAutoMovieConicApproximation {
-  /** Physical fit tolerance and explicit work limits, with no implicit defaults. */
+  /** Required sampled fit tolerance and subdivision limits. */
   export interface IOptions {
     /** Requested sampled geometric tolerance, in millimetres. */
     toleranceMm: number;
@@ -21,30 +19,51 @@ export namespace IAutoMovieConicApproximation {
   }
 
   /**
-   * Fitted coefficients and explicit limits of the supporting evidence. Partial
-   * results may omit unresolved intervals and must not be mistaken for a
-   * complete reconstruction; refused results have no admitted coefficients.
+   * Outcome of fitting the supplied source intervals. A partial result carries
+   * only the admitted arcs. A refusal carries diagnostics and an empty arc
+   * list.
    */
-  export interface IResult {
-    /** Honest algorithm/provenance label, including adaptation where applicable. */
+  export type IResult = IFitted | IRefused;
+
+  /** Observations retained for every outcome. */
+  export interface IObservation {
+    /** Algorithm or adaptation that performed the fit. */
     method: string;
 
-    /** Completeness of admitted source coverage. */
-    status: "complete" | "partial" | "refused";
-
-    /** Ordered coefficients; no source samples are retained. */
-    arcs: readonly IAutoMovieRegisteredConicArc[];
-
-    /** Admission failures, approximation limits and provenance qualifications. */
+    /** Admission failures, unresolved intervals and method qualifications. */
     diagnostics: readonly string[];
 
-    /** Maximum of accepted arcs' sampled error; zero for an empty result. */
+    /** Number of source evaluation and derivative calls. */
+    queries: number;
+  }
+
+  /** Fitted arcs for all or part of the supplied source domain. */
+  export interface IFitted extends IObservation {
+    /** `complete` covers the domain. `partial` omits unresolved intervals. */
+    status: "complete" | "partial";
+
+    /** Arc coefficients in source interval order. */
+    arcs: readonly IAutoMovieRegisteredConicArc[];
+
+    /** Maximum sampled error of the admitted arcs in millimetres. */
     maximumSampleErrorMm: number;
 
-    /** True only with a proven continuous error bound, never mere sampling. */
+    /** True only when the method proves a continuous error bound. */
     certified: boolean;
+  }
 
-    /** Number of source evaluate/derivative callback invocations. */
-    queries: number;
+  /** The method admitted no arc coefficients. */
+  export interface IRefused extends IObservation {
+    /** The method refused the input or could not retain any arcs. */
+    status: "refused";
+
+    /** Empty arc list. */
+    arcs: readonly [];
+
+    /** Sentinel value for a result without measured arc errors. */
+    maximumSampleErrorMm: 0;
+
+    /** A refusal carries no continuous fit certificate. */
+    certified: false;
   }
 }

@@ -17,6 +17,10 @@ import { qclose, vclose } from "../../internal/predicates";
  * 2. A root 1 m along node +X with its own 90 degree yaw lands at (3, 0, -3), 1 m
  *    along world -Z, and its yaw adds to 180 degrees.
  * 3. A root scale of 2 leaves the staged unit scale and the same position.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify staged and local coordinates, the combined yaw and holding staged scale.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls foldRoot with absent, translated and scaled root state on one staged transform and compares resulting world placement, yaw and scale.
+ * @evidence contracts/development/testing.md#independent-expectations A positive Y quarter-turn maps 1 m along local +X to 1 m along world -Z. Combined with staged (3, 0, -2) it reaches (3, 0, -3). The two 90-degree rotations yield 180 degrees while root scale stays outside staged scale.
  */
 export function test_engine_film_fold_root(): void {
   const base: IAutoMovieTransform = {

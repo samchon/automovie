@@ -15,6 +15,10 @@ import { throwsError } from "../../internal/throwsError";
  *    source indices [3, 2, 1, 0], area 1, triangles [3, 0, 1, 1, 2, 3].
  * 2. A two-point ring labelled "wall" is refused as "wall outer ring needs at
  *    least three points".
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names canonical winding and indices, area and deterministic ears, and named short-ring refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Triangulates an explicit clockwise square and a malformed wall ring and examines full emitted indices or diagnostic text.
+ * @evidence contracts/development/testing.md#independent-expectations The square reverses to the stated counterclockwise order without changing area 1. A two-corner ring has no polygon interior and must be refused.
  */
 export function test_engine_geometry_triangulate_region(): void {
   const ring = (...xy: number[]): IAutoMovieProfilePoint[] =>

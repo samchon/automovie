@@ -42,6 +42,10 @@ const ARM: IAutoMovieMotionHumanStrikingReach.IChain = {
  * 5. A point at the root or a bend along the reach is refused.
  * 6. The hint steps 0.1 m up from the elbow; the advance closes 0.2 m within 0.1
  *    m, and backs off 0.05 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes two-segment virtual reach, short and jammed outcomes, hint offset and bounded body advance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the reach helpers on fixed 0.3 and 0.25 m links with targets inside, outside and below the range and degenerate directions.
+ * @evidence contracts/development/testing.md#independent-expectations The law of cosines gives straight 0.55 m and folded 0.05 m. A 0.8 m target leaves exactly 0.25 m shortfall and a closer jam distinguishes the two handling modes.
  */
 export function test_motions_striking_reach(): void {
   TestValidator.predicate(

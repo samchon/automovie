@@ -49,6 +49,10 @@ const UNIT: IAutoMoviePrimitiveShape = {
  *    and 8, balance at x = 24 / 9, as does a unit box scaled 2 at x = 3; a cone
  *    of height 4 at y = 5 has its centroid a quarter of its height up, at y =
  *    6.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the explicit-center override and the derived center for scaled solid parts, with no center for zero-volume or mesh-only models.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the center entry with explicit, null and omitted body centers, then derives centers directly from positioned primitives.
+ * @evidence contracts/development/testing.md#independent-expectations Unit and 2 m cubes supply weights 1 and 8 and yield x = 24/9. Equal opposite boxes center at zero and a 4 m cone places its centroid 1 m above its base.
  */
 export function test_engine_physics_center_of_mass(): void {
   // 1. The entry.

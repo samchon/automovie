@@ -21,6 +21,10 @@ import { nclose } from "../../internal/nclose";
  *    an owner refuses before evaluation.
  * 4. Wrapper charge and callback marker errors propagate before a second model or
  *    committed notification can occur.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States conditional affine estimate delivery, callback arity and precommit errors.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the refinement with and without requested measurements across tie, exhaustion, initial-KKT and callback-failure states.
+ * @evidence contracts/development/testing.md#independent-expectations An inactive affine inequality gives an empty qualified estimate. An intentionally omitted measurement and a one-trial cap give distinct unavailable outcomes.
  */
 export function test_recovery_internal_refine_feasible_state_feasible_estimate(): void {
   let argumentsCount: number = 0,

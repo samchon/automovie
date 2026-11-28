@@ -1,18 +1,20 @@
 /**
- * One measured foreground-support interval in a supplied camera chart. The
- * limits are pixel-cell edges, not corresponding material points between
- * views.
+ * One occupied silhouette row in the supplied camera. Store its center Y and
+ * the two outer foreground pixel-cell edges in millimetres.
  */
 export interface IAutoMovieRecoveryImageObservationRow {
-  /** Finite common-frame Y of the occupied pixel-row centre, millimetres. */
+  /** Finite Y coordinate of the occupied pixel-row center, in millimetres. */
   yMm: number;
 
-  /** Finite lower foreground cell edge along positive image U, millimetres. */
+  /**
+   * Finite lower occupied pixel-cell edge along positive image U, in
+   * millimetres.
+   */
   lowerMm: number;
 
   /**
-   * Finite upper foreground cell edge along positive image U, strictly greater
-   * than lowerMm, millimetres.
+   * Finite upper occupied pixel-cell edge along positive image U, in
+   * millimetres. Greater than lowerMm.
    */
   upperMm: number;
 }

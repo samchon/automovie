@@ -32,10 +32,8 @@ import { armourActual } from "../../internal/armourActual";
  *    structurally instead of erasing sleeves or introducing a zero wall.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual cavity/identity witnesses, all-record coverage, partial-artifact expectations, equivalent mail limits and independent model ownership.
- * @evidence contracts/development/testing.md#behavioral-verification Calls real public producers and actual collider queries; filled primitives, omitted cells, absent openings/thumb/sleeves, invented source visor, wrong volume/mass or cross-model buffer aliasing fail.
- * @evidence contracts/development/testing.md#independent-expectations Literal museum dimensions/masses come from ARMOUR_RECORDS; shape containment/volumes come from actual engine hull owners and explicit function-of-envelope ray witnesses, without the producer profile or expected generated cells.
- * @evidence contracts/development/testing.md#distinguishing-cases All eight kinds/all nineteen records, actual open versus surviving visor state, neck/arm/hem/guard ends, thumb/fingertip, mail steel-equivalent volume and repeated-call mutation.
- * @evidence contracts/development/testing.md#execution-ownership One portable in-memory producer/geometry unit; no Human, renderer, capture, file or external process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public producers and checks their actual collider queries in memory. Reads the openings, shell, mass, mail volume and repeated-call model independence.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the literal catalogue records and separate hull and ray witnesses across all eight kinds and nineteen records. The cases distinguish source visor states, openings, mail equivalent volume and shared buffers.
  */
 export function test_archetype_armour_form(): void {
   const findings: string[] = [];

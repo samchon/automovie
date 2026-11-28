@@ -1,11 +1,16 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceHold,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanSharedCarry,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
@@ -58,13 +63,14 @@ export namespace HumanPerformanceHold {
     seconds: number,
   ): Pick<IAutoMovieMotionHumanProp.IMounted, MountResult> | undefined {
     if (self.props.get(subject)?.motion !== undefined) return undefined;
-    const { active, since }: HumanPerformanceCustody.ICustody =
-      HumanPerformanceCustody(
-        HumanPerformanceRead.grips(self, subject),
-        seconds,
-        false,
-      );
+    const custody: HumanPerformanceCustody.ICustody = HumanPerformanceCustody(
+      HumanPerformanceRead.grips(self, subject),
+      seconds,
+      false,
+    );
+    const { active, since } = custody;
     return active?.mount !== undefined &&
+      guided(self, subject, seconds, custody) === undefined &&
       HumanPropFlight.active(self, subject, seconds, since) === undefined
       ? active.mount
       : undefined;
@@ -85,12 +91,32 @@ export namespace HumanPerformanceHold {
     seconds: number,
   ): IAutoMovieMotionHumanPropReader.IHolder | undefined {
     if (self.props.get(subject)?.motion !== undefined) return undefined;
-    const { active, since }: HumanPerformanceCustody.ICustody =
-      HumanPerformanceCustody(
-        HumanPerformanceRead.grips(self, subject),
-        seconds,
-        false,
-      );
+    const custody: HumanPerformanceCustody.ICustody = HumanPerformanceCustody(
+      HumanPerformanceRead.grips(self, subject),
+      seconds,
+      false,
+    );
+    const { active, since } = custody;
+    const episode: Episode | undefined = guided(
+      self,
+      subject,
+      seconds,
+      custody,
+    );
+    if (episode !== undefined) {
+      let primary: IAutoMovieMotionHumanSharedCarry.IPreparedRole | undefined;
+      for (const role of episode.roles)
+        if (
+          role.from < seconds &&
+          seconds <= role.to &&
+          (primary === undefined || primary.from <= role.from)
+        )
+          primary = role;
+      return primary === undefined ||
+        HumanPropFlight.active(self, subject, seconds, since) !== undefined
+        ? undefined
+        : { subject: primary.subject, side: primary.hand };
+    }
     return active === undefined ||
       active.bone !== undefined ||
       active.mount !== undefined ||
@@ -172,16 +198,12 @@ export namespace HumanPerformanceHold {
     if (prop.motion !== undefined) return prop.motion(seconds);
     const grips: IAutoMovieMotionHumanPerformanceState.IGrip[] =
       HumanPerformanceRead.grips(self, subject);
-    const {
-      active,
-      steady,
-      released,
-      since,
-    }: HumanPerformanceCustody.ICustody = HumanPerformanceCustody(
+    const custody: HumanPerformanceCustody.ICustody = HumanPerformanceCustody(
       grips,
       seconds,
       own !== undefined,
     );
+    const { active, steady, released, since } = custody;
 
     // A launch after the latest grip's start sets the prop flying, and it
     // flies until a later grip takes it (a grip, then a worn bone,
@@ -193,6 +215,13 @@ export namespace HumanPerformanceHold {
       since,
     );
     if (flown !== undefined) return flown;
+    const episode: Episode | undefined = guided(
+      self,
+      subject,
+      seconds,
+      custody,
+    );
+    if (episode !== undefined) return episode.frame(seconds);
     const window: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
       active ?? released;
     if (window === undefined) return prop.frame;
@@ -266,7 +295,146 @@ export namespace HumanPerformanceHold {
       ),
     };
   }
+
+  /* Index independent paths before the placed actions read them. */
+  export function indexSharedCarry(
+    input: IAutoMovieMotionHumanPerformance.IInput,
+    props: ReadonlyMap<string, IAutoMovieMotionHumanProp>,
+  ): IAutoMovieMotionHumanPerformanceState["sharedCarry"] {
+    if ((input.sharedCarry?.length ?? 0) === 0) return undefined;
+    const cast: Set<string> = new Set(
+      input.performers.map(({ subject }) => subject),
+    );
+    const indexed: Map<string, Episode[]> = new Map();
+    for (const episode of input.sharedCarry!) {
+      const prop: IAutoMovieMotionHumanProp | undefined = props.get(
+        episode.prop,
+      );
+      if (
+        prop === undefined ||
+        prop.fixed ||
+        prop.motion !== undefined ||
+        prop.soft !== undefined
+      )
+        HumanPerformanceHoldKit.sharedRefusal(
+          episode,
+          "name a movable rigid prop with no independent motion callback",
+        );
+      const [first, second] = episode.roles;
+      if (
+        episode.roles.length !== 2 ||
+        first.subject === second.subject ||
+        first.handle === second.handle ||
+        first.anchor === second.anchor ||
+        episode.roles.some(
+          (role) =>
+            !cast.has(role.subject) ||
+            !prop.affordances?.some(
+              (site) => site.id === role.handle && site.kind === "handle",
+            ),
+        )
+      )
+        HumanPerformanceHoldKit.sharedRefusal(
+          episode,
+          "name two performers, different handles and separate played anchors",
+        );
+      if (
+        ![episode.from, episode.settled, episode.to].every(Number.isFinite) ||
+        episode.from < 0 ||
+        episode.from !== Math.min(first.from, second.from) ||
+        episode.to !== Math.max(first.to, second.to) ||
+        episode.roles.some(
+          (role) =>
+            ![role.from, role.to].every(Number.isFinite) ||
+            role.from > episode.settled ||
+            role.to < episode.settled,
+        ) ||
+        Math.max(first.from, second.from) >= Math.min(first.to, second.to)
+      )
+        HumanPerformanceHoldKit.sharedRefusal(
+          episode,
+          "give overlapping grip intervals through settling, with exact first and last seconds",
+        );
+      const rest: IAutoMovieRigidTransform = copySharedFrame(
+        episode,
+        episode.settled,
+      );
+      const settled: number = episode.settled;
+      const prepared: Episode = {
+        ...episode,
+        roles: [{ ...first }, { ...second }],
+        frame: (seconds): IAutoMovieRigidTransform =>
+          seconds >= settled
+            ? { position: { ...rest.position }, rotation: { ...rest.rotation } }
+            : copySharedFrame(episode, seconds),
+      };
+      const episodes: Episode[] = indexed.get(episode.prop) ?? [];
+      episodes.push(prepared);
+      indexed.set(episode.prop, episodes);
+    }
+    for (const episodes of indexed.values()) {
+      episodes.sort((a, b) => a.from - b.from);
+      for (let i: number = 1; i < episodes.length; ++i)
+        if (episodes[i - 1]!.to >= episodes[i]!.from)
+          HumanPerformanceHoldKit.sharedRefusal(
+            episodes[i]!,
+            "place nonoverlapping episodes on separate intervals",
+          );
+    }
+    return indexed;
+  }
 }
+
+/* The first closure itself still reads the preceding carrier. After release,
+ * a later ordinary custody operation supersedes the settled shared path. */
+function guided(
+  self: IAutoMovieMotionHumanPerformanceState,
+  subject: string,
+  seconds: number,
+  custody: HumanPerformanceCustody.ICustody,
+): Episode | undefined {
+  const episodes: readonly Episode[] | undefined =
+    self.sharedCarry?.get(subject);
+  if (episodes === undefined) return undefined;
+  for (let i: number = episodes.length - 1; i >= 0; --i) {
+    const episode: Episode = episodes[i]!;
+    if (!(episode.from < seconds)) continue;
+    return seconds <= episode.to ||
+      (custody.since < episode.to &&
+        (custody.active === undefined || custody.active.from < episode.to))
+      ? episode
+      : undefined;
+  }
+  return undefined;
+}
+
+/* A fresh reader result cannot change the stored settled frame. */
+function copySharedFrame(
+  episode: Episode,
+  seconds: number,
+): IAutoMovieRigidTransform {
+  const { position, rotation } = episode.frame(seconds);
+  if (
+    ![
+      position.x,
+      position.y,
+      position.z,
+      rotation.x,
+      rotation.y,
+      rotation.z,
+      rotation.w,
+    ].every(Number.isFinite) ||
+    Math.abs(Math.hypot(rotation.x, rotation.y, rotation.z, rotation.w) - 1) >
+      1e-8
+  )
+    HumanPerformanceHoldKit.sharedRefusal(
+      episode,
+      "supply finite world coordinates and a unit rotation",
+    );
+  return { position: { ...position }, rotation: { ...rotation } };
+}
+
+type Episode = IAutoMovieMotionHumanSharedCarry.IPreparedEpisode;
 
 /*
  * The alternatives of `MountResult`'s site.

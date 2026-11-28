@@ -18,6 +18,10 @@ type Critical = Parameters<typeof AutoMovieRecoveryShape.prepareCriticalBrackets
  *    critical level 1.5 leaves the set and the vertex stays supported.
  * 2. A flat critical at the same level is bracketed too, but its vertex is
  *    unsupported and a "plateau" diagnostic and a topology gap are recorded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names bounded physical brackets and unsupported plateau reports.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies the helper to a simple link and flat critical at the same level and checks swapped levels and diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations One hundredth of the unit step is smaller than either quarter-neighbor distance. The bracket around 1.5 is therefore [1.49, 1.51].
  */
 export function test_recovery_internal_prepare_critical_brackets(): void {
   const event = (flat: boolean): Critical => ({

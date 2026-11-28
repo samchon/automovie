@@ -25,11 +25,9 @@ const MM: number = 0.001;
  *    rails.
  * 4. Check the physical seat and console contacts in a tight cabin.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the set's staging behavior across the aperture, hull, and crew station.
- * @evidence contracts/development/testing.md#behavioral-verification Checks the public producer's replay, admission, refusals, collider extents, support contacts and posed hinge and handle. Checks that the rails describe solid, fixed cabin grips.
- * @evidence contracts/development/testing.md#independent-expectations Measures emitted solids against independently selected author dimensions, the ±X clearance of a rear gate, and the geometry of a quarter turn. The numerical expectations do not read the builder's bands or generating ratios.
- * @evidence contracts/development/testing.md#distinguishing-cases Compares identical and different seeds, fixed nominal dimensions, a refused hatch width, an open and a shut hatch, and a seeded set at the tight limit for cabin clearance.
- * @evidence contracts/development/testing.md#execution-ownership A discovered in-memory test using the public archetype entry point and engine model validator.
+ * @evidence contracts/development/common.md#meaningful-documentation States seeded replay, authored hull and aperture, hatch quarter-turn, clearance, fixed deck and rails and cabin contact checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures actual public hull and contact geometry, then articulates the hatch. The leaf and carried grip must move while the deck and rail supports keep their original poses. It checks the narrow-hatch refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The explicitly chosen hull and gate dimensions give the expected extents and lateral clearance. A quarter turn about the authored hinge supplies the opened leaf position.
  */
 export function test_archetype_spacecraft(): void {
   const params: AutoMovieArchetypeSpacecraft.IParams = {

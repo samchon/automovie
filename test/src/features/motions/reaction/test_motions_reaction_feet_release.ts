@@ -26,10 +26,20 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING_METRES: number = 32 * Number.EPSILON;
 
 /**
- * The release leaves the held footprint and rejoins the authored shape over
- * 0.2 s. A translation of that shape translates its direct foot by the same
- * amount. The prepared heel at release is read exactly once from the base
- * before any out-of-order playback.
+ * Check how a planted foot releases into the authored posture.
+ *
+ * Scenarios:
+ *
+ * 1. Prepare a 0.5 s release from one base read. The foot stays planted at
+ *    release and at the earlier 0.49 s read.
+ * 2. At 0.6 s the unplanted goal is halfway between the heel plant and the
+ *    direct foot shifted 0.1 m by the root. At 0.7 s the extra goal is gone.
+ * 3. Read the release and its midpoint out of order. The midpoint repeats and
+ *    the base reads follow the asserted order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify the release seconds, plant state and base observation order.
+ * @evidence contracts/development/testing.md#behavioral-verification Preparation captures one heel and playback blends toward the moving direct pose through the release window.
+ * @evidence contracts/development/testing.md#independent-expectations The test reconstructs the midpoint from a separately posed direct foot, literal root displacement and a half-weight average.
  */
 export async function test_motions_reaction_feet_release(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

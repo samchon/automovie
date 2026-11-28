@@ -2,17 +2,17 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createPlatformBed as createPlatformBedImplementation } from "./internal/createPlatformBed";
 import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
-/** Public operations for Auto Movie Archetype Platform Bed. */
+/** Constructs raised single and double beds with a headboard. */
 export namespace AutoMovieArchetypePlatformBed {
   /**
-   * A single or double household bed with a lying surface and opposed side seats.
+   * Build a platform bed with a mattress, base and headboard at `-Z`.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * @param params Single or double kind, optional ID and fixed dimensions
+   *   in its bands. The ID defaults to `bed`.
+   * @param seed Numeric seed for omitted values. Without it the mattress
+   *   top is 0.51 metres high.
+   * @returns The bed with a mattress `surface` and two long-edge seats.
+   * @throws {AutoMovieArchetypeRefusal} If a setting is inadmissible.
    */
   export function create(params: AutoMovieArchetypePlatformBed.IParams, seed?: number): AutoMovieArchetype<
   AutoMovieArchetypePlatformBed.Affordance,
@@ -21,26 +21,29 @@ export namespace AutoMovieArchetypePlatformBed {
     return createPlatformBedImplementation(params, seed);
   }
 
-  /** The `kind` choices this producer admits. */
+  /**
+   * Platform size with a 1.90 metre mattress length and width of 0.90 or 1.35 metres.
+   */
   export type Kind = "single" | "double";
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Mattress width, length, thickness and top height in metres, and empty bed mass in kilograms.
    */
   export type Dimension = "height" | "length" | "mass" | "thickness" | "width";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * The mattress `surface`, left-edge seat on `+X` and right-edge seat on `-X`.
+   */
   export type Affordance = "leftSide" | "rightSide" | "surface";
 
-  /** The admitted settings and optional model ID. */
+  /** Required bed size and optional scene ID and fixed band dimensions. */
   export interface IParams extends Pick<
     AutoMovieArchetypeBed.IParams,
     "id" | "width" | "length" | "height" | "thickness" | "mass"
   > {
-    /** The household bed size. */
+    /** Selects the single or double platform width and mass interval. */
     kind: Kind;
   }
 
-  /** Legacy selectors for this construction, in gallery order. */
+  /** Platform size selectors admitted by `create`. */
   export const KINDS: readonly IParams["kind"][] = ["single", "double"];}

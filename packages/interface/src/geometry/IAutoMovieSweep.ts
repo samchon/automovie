@@ -3,198 +3,194 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import type { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
 
 /**
- * A lofted sweep surface: a family of closed sections travelling along a spine,
- * shaped between them by silhouette guides and pinned by feature curves.
+ * Authored closed section family carried along a spine in model metres.
+ * Stations set its shape, optional guides and features modify it, and the scale
+ * profile applies last.
  *
- * The surface is a function of two parameters: `u` along the spine by chord
- * length from 0 to 1, and `v` around it from 0 to 1, the polar angle `2 pi v`
- * in the section plane from its first axis. `compileSweep` evaluates
- * it in four ordered layers:
- *
- * 1. Sections: every station's radius by direction, interpolated along `u` by a C2
- *    spline under tension, selected by its sampled overshoot policy, so
- *    curvature is continuous at interior stations. The sampled bound is not a
- *    strict extremum bound; non-positive queried radii are refused.
- * 2. Guides: each guide is a curve on the surface at one direction, giving the
- *    radius there at every `u`; stations and guides are joined as a sampled
- *    Gordon surface: guide constraints are exact at its angular grid, with
- *    linear angular reconstruction between samples, so a few stations plus
- *    guides control breadth and depth everywhere between them.
- * 3. Features: each feature curve in the `(u, v)` domain carries the radius the
- *    surface targets along it, with compact falloff in a cylindrical metric
- *    approximation. Dense-seeded local course search and overlapping bands
- *    limit exact passage and global smoothness.
- * 4. Scale: an optional profile along `u` multiplies the whole section, features
- *    included, the size control that volume preservation and local bulges use.
- *
- * Positions are metres. The section plane at `u` is the spine's
- * rotation-minimizing frame, or under the `fixed` orientation the spine's start
- * frame carried along without turning, in either case turned by the stations'
- * rotations where they give one.
+ * Direction correspondence samples a C2 tension spline along station profiles,
+ * applies corrections from silhouette guides at angular grid directions and
+ * reconstructs radii linearly between samples. Compact feature fields modify
+ * those radii, then the scale profile multiplies the result. The spline tension
+ * policy samples overshoot and can miss between-probe extrema.
  */
 export interface IAutoMovieSweep {
-  /** The path the sections travel along. */
+  /**
+   * Authored path and starting plane direction in model metres. Its control
+   * polygon sets the normalized chord-length coordinate.
+   */
   spine: IAutoMovieSweepSpine;
 
-  /** Key sections, at least one, with strictly increasing `at`. */
+  /**
+   * Key sections in strictly increasing finite station order, with at least one
+   * entry.
+   */
   stations: IAutoMovieSweep.IStation[];
 
   /**
-   * How stations correspond: `direction` pairs the points of neighbouring
-   * stations along each polar angle about the spine point, so every section
-   * must be star-shaped about it; `parameter` pairs points at equal curve
-   * parameters, corner `k` with corner `k` for polygons, so sections may be
-   * concave and may carry holes, while guides and features, which are read by
-   * direction, are not available. Omitted, `direction`.
+   * Direction pairs polar rays and requires star-shaped sections. Parameter
+   * pairs curve parameters and permits simple concave sections and
+   * corresponding holes. Omission selects direction.
+   *
+   * Only direction correspondence uses guides and feature radii. Under
+   * parameter correspondence, a polygon's corner addresses are carried between
+   * compatible section loops.
    */
   correspondence?: "direction" | "parameter";
 
   /**
-   * How the section plane follows the spine: `transported` turns it with the
-   * spine's rotation-minimizing frame, so sections stay normal to a bending
-   * path, as a tube needs; `fixed` keeps the start frame's axes at every `u`, a
-   * translational sweep whose sections stay parallel however the path bends, as
-   * a body measured in level planes needs. Station rotations turn the plane
-   * relative to this frame in both cases, so stations that all give one
-   * rotation keep that exact plane between them too. Under `fixed` the path
-   * must stay out of the plane it carries, or sections there collapse onto it.
-   * Omitted, `transported`.
+   * Transported planes follow the rotation-minimizing frame. Fixed planes carry
+   * the initial axes along the spine. Omission selects transported.
+   *
+   * A station rotation applies relative to the carried basis in either mode.
+   * For a fixed basis, choose a spine that advances out of the carried plane so
+   * successive sections span a volume.
    */
   orientation?: "transported" | "fixed";
 
-  /** Silhouette guides; omitted or empty, the stations alone set the form. */
+  /**
+   * Optional silhouette radius profiles at distinct polar directions under
+   * direction correspondence.
+   */
   guides?: IAutoMovieSweep.IGuide[];
 
   /**
-   * Section scale by `u`, applied last, to the section with its guides and
-   * features: knots as for a guide, values positive, interpolated by the same
-   * spline; omitted, 1 everywhere.
+   * Optional positive dimensionless scale profile held in chord-length
+   * coordinates and applied after section, guide and feature evaluation.
+   * Omission gives unit scale.
+   *
+   * Provide at least two finite positive samples spanning 0 to 1, with strictly
+   * increasing coordinates. Query the resulting profile only where its positive
+   * scale remains representable.
    */
   scale?: IAutoMovieSweep.IKnot[];
 
-  /** Feature curves targeted by compact radius fields; omitted or empty, none. */
+  /**
+   * Optional compact radius correction bands for direction correspondence.
+   * Bands are applied before scale and add where they overlap.
+   */
   features?: IAutoMovieSweep.IFeature[];
 }
 
-/** Data and callback contracts shared by the Sweep operations. */
+/** Authored station, profile and feature records for a sweep's section family. */
 export namespace IAutoMovieSweep {
-  /** One key section and where it sits on the spine. */
+  /**
+   * One authored cross-section, chord-length station label and optional plane
+   * rotation.
+   */
   export interface IStation {
-    /** Chord-length parameter of the station on the spine, from 0 to 1. */
+    /**
+     * Finite normalized chord-length coordinate in [0, 1], increasing across
+     * stations.
+     */
     at: number;
 
     /**
-     * The section, in the station's plane: star-shaped about the spine point
-     * under direction correspondence, any simple curve under parameter
-     * correspondence.
+     * Outer section in its local metre plane. Supply a star-shaped section for
+     * direction correspondence or a simple curve for parameter correspondence.
      */
     section: IAutoMovieSweepSection;
 
     /**
-     * Curves removed from the section, inside it and apart from each other,
-     * each corresponding to the same hole of every other station; only under
-     * parameter correspondence. Omitted, a solid section.
+     * Interior section loops in matching order at every station under parameter
+     * correspondence. Keep holes inside the outer loop and separate from each
+     * other.
      */
     holes?: IAutoMovieSweepSection[];
 
     /**
-     * Orientation of the station's plane in the model frame: its first axis is
-     * this rotation applied to `+X`, its second to `+Y` and its normal to `+Z`.
-     * Omitted, the plane is the sweep's own frame at `at` (see `orientation`).
-     * Between stations the turn relative to that frame is interpolated by
-     * normalized linear quaternion interpolation, so a twist given at two
-     * stations spreads evenly between them.
+     * Optional finite nonzero model-frame quaternion taking the three
+     * coordinate axes to the station plane basis. The compiled relative turn is
+     * interpolated along the carried frame.
+     *
+     * A missing rotation gives no relative turn at this station. The carried
+     * frame is turned between stations through normalized linear
+     * interpolation.
      */
     rotation?: IAutoMovieQuaternion;
   }
 
-  /**
-   * A guide curve: the radius the surface has in one direction of the section
-   * plane along the whole spine, a curve on the surface across the stations.
-   *
-   * Guides and stations form a curve network, and the surface is its Gordon
-   * surface: it passes exactly through every guide, and between guide
-   * directions the guides' corrections to the stations are interpolated round
-   * the turn. A guide at a direction where sections are symmetric, such as the
-   * front, back or sides of a rounded section, is that view's silhouette.
-   */
+  /** An authored polar direction and its radius profile along the sweep. */
   export interface IGuide {
     /**
-     * Direction in the section plane, radians counterclockwise from the first
-     * axis; guides of one sweep have distinct directions.
+     * Finite counterclockwise angle in radians from the section's first axis.
+     * Guide directions must be distinct after wrapping.
      */
     angle: number;
 
     /**
-     * The radius by `u`: at least two knots, the first at `u` 0 and the last at
-     * 1, strictly increasing, interpolated by the same spline.
+     * Positive finite metre radii at strictly increasing normalized spine
+     * coordinates from 0 through 1, with at least two knots.
      */
     radii: IAutoMovieSweep.IKnot[];
   }
 
-  /** One knot of a guide's profile. */
+  /**
+   * An authored chord-coordinate profile sample with a scalar radius or scale
+   * value.
+   */
   export interface IKnot {
-    /** Chord-length parameter on the spine. */
+    /**
+     * Finite normalized chord-length coordinate in [0, 1], ordered within its
+     * profile.
+     */
     at: number;
 
     /**
-     * The profile's value: a guide's radius from the spine point in metres, or
-     * a scale factor; positive.
+     * Positive finite authored profile value. A guide interprets it in metres
+     * and a scale profile interprets it as dimensionless.
      */
     value: number;
   }
 
   /**
-   * A feature curve: a line on the surface the section family must pass
-   * through, such as a ridge or a groove, with the radius it has along it or
-   * its offset from the surface the other layers make.
+   * Radius target or signed offset along a course, fading across a compact band
+   * before final sweep scale.
    *
-   * The course is the centripetal Catmull-Rom spline through its points in the
-   * `(u, angle)` domain, with knots spaced in the sweep's mean cylindrical
-   * scale; its radius or offset follows `interpolateSpline` over those
-   * same knots. The field uses a dense-seeded local Newton search in a
-   * cylindrical metric approximation, not a guaranteed global nearest point or
-   * an exact noncircular surface metric. A nearest-branch change inside a tight
-   * bend can still crease the band. The surface moves by the difference between
-   * that radius and its own, or by the offset at full weight on the curve and
-   * fading over `width` metres across it by the cube of `1 - (d / width)^2`,
-   * distances approximated with `u` scaled by spine length and angle by the
-   * query's local radius before scale. Features apply after guides, before the
-   * scale profile, and add up where their bands overlap.
+   * A centripetal cubic course in chord and angle coordinates uses compact
+   * falloff `(1 - (d / width)^2)^3` within the band. The local search is
+   * approximate. Nearest-branch changes and overlapping bands can alter exact
+   * guide passage or introduce a crease.
    */
   export interface IFeature {
     /**
-     * Points of the curve, at least two, each with the radius the surface takes
-     * there.
+     * At least two authored course points. Choose absolute radius for every
+     * point or signed offset for every point.
      */
     points: IAutoMovieSweep.IFeaturePoint[];
 
-    /** Half-width of the band the feature reshapes, metres, positive. */
+    /**
+     * Positive finite half-width in metres for the compact radial correction
+     * band.
+     */
     width: number;
   }
 
-  /** One point of a feature curve. */
+  /**
+   * One chord and polar coordinate with an absolute target radius or a signed
+   * radial displacement.
+   */
   export interface IFeaturePoint {
-    /** Chord-length parameter on the spine, from 0 to 1. */
+    /**
+     * Finite normalized chord coordinate in [0, 1]. Feature order follows the
+     * authored course.
+     */
     at: number;
 
     /**
-     * Direction in the section plane, radians counterclockwise from the first
-     * axis; consecutive points take the shorter way round.
+     * Finite counterclockwise angle in radians from the first section axis.
+     * Adjacent samples take the shorter wrap.
      */
     angle: number;
 
     /**
-     * Radius the surface has here, metres from the spine point, positive; give
-     * either this or `offset` on every point of a feature.
+     * Positive finite target radius in metres from the spine point,
+     * consistently chosen across the feature when present.
      */
     radius?: number;
 
     /**
-     * Distance the surface moves here along its radius, metres, outward
-     * positive, from where stations and guides put it, before the scale profile
-     * multiplies both; a feature whose end points have offset 0 fades into the
-     * surface along its length too.
+     * Finite signed radial change in metres before scale. Positive moves
+     * outward. Use the same value mode across all feature points.
      */
     offset?: number;
   }

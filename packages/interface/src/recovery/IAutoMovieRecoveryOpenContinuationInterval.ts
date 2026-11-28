@@ -3,17 +3,20 @@ import type {
   IAutoMovieRecoveryOpenCurvePair,
 } from "..";
 
-/** Open-curve incidence between two adjacent published section reports. */
+/**
+ * Saved open-arc transport and unresolved incidence for one adjacent station
+ * pair.
+ */
 export interface IAutoMovieRecoveryOpenContinuationInterval {
-  /** Preceding section ordinal in the saved publication. */
+  /** Index of the earlier saved section and aligned report. */
   beforeSection: number;
 
-  /** Following adjacent section ordinal in the saved publication. */
+  /** Index of the later saved section and aligned report. */
   afterSection: number;
 
-  /** Qualified ordinary open-curve pairs using local curve ordinals. */
+  /** Ordinary one-to-one saved open-arc endpoints with admitted direction. */
   pairs: IAutoMovieRecoveryOpenCurvePair[];
 
-  /** Unsupported or unrepresented curve components. */
+  /** Retained unsupported arc incidences and their diagnoses. */
   unresolved: IAutoMovieRecoveryOpenCurveGroup[];
 }

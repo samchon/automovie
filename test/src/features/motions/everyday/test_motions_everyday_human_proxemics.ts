@@ -32,6 +32,10 @@ const ROUNDING: number = 1e-12;
  * 3. Approaching (0, 0, 3) from the origin with a 1 m gap and a 0.12 m chest stops
  *    at (0, 0, 1.88) facing 0; toward (3, 0, 0) it faces 90; a target where the
  *    performer stands is refused on `target`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Handing reach limits, approach gap bands, and unavailable paths follow the actor and route geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the reach, gap, and stopping readers with known segment lengths, named bands, and invalid inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The law of cosines fixes the reach chord. Named gap distances and the checked negative and blocked cases distinguish unreachable stops.
  */
 export function test_motions_everyday_human_proxemics(): void {
   const measure: Parameters<typeof HumanProxemics.gap>[1] = {

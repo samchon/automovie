@@ -6,6 +6,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { AutoMovieEngineAffordanceArticulation } from "../AutoMovieEngineAffordanceArticulation";
 import { appendSurfaceGraphicArtifact } from "./appendSurfaceGraphicArtifact";
 
 /*
@@ -16,9 +17,8 @@ import { appendSurfaceGraphicArtifact } from "./appendSurfaceGraphicArtifact";
  * surface pair repeats, its keys open at zero and strictly increase inside [0,
  * duration), and every graphic is in range. When the model registry is
  * supplied, each surface must also be a `surface` affordance of the node's
- * registered model with positive finite `width` and `depth`, and must not ride
- * an articulation, because a graphic is parented to the prop's built object and
- * would not follow the articulated part. An omitted registry is the structural
+ * registered model with positive finite `width` and `depth`. An articulated
+ * surface must resolve to one rigid carrier. An omitted registry is the structural
  * shot artifact boundary. When `fonts` is supplied, every text layer must name
  * one of its ids; when `cameras` is supplied, every feed layer must name one of
  * its ids other than the shot's own camera.
@@ -149,12 +149,13 @@ export function appendSurfaceGraphicsArtifact(
 /*
  * Model fields that resolve a placed graphic to a surface.
  */
-type SurfaceGraphicModel = Pick<IAutoMovieModel, "id" | "affordances">;
+type SurfaceGraphicModel = Pick<IAutoMovieModel, "id" | "affordances"> &
+  Partial<Pick<IAutoMovieModel, "parts">>;
 /*
  * Resolve a track's surface on its node's registered model: an unregistered
  * model, an id that is not a `surface` affordance, a surface without positive
- * finite `width` and `depth`, and a surface that rides an articulation each
- * raise their own finding.
+ * finite `width` and `depth`, and an articulated surface without a rigid
+ * carrier each raise their own finding.
  */
 function appendSurface(
   model: SurfaceGraphicModel | undefined,
@@ -193,11 +194,18 @@ function appendSurface(
       affordance[extent],
       `surface "${surface}" ${extent} (m)`,
     );
-  if (affordance.rides !== undefined)
+  if (
+    affordance.rides !== undefined &&
+    AutoMovieEngineAffordanceArticulation.surfaceCarrier(
+      affordance,
+      model.affordances,
+      model.parts,
+    ) === undefined
+  )
     collector.push(
       "type",
       path,
-      `surface "${surface}" rides articulation "${affordance.rides}", and a graphic cannot follow an articulated surface`,
+      `surface "${surface}" must name one rigid carrier on articulation "${affordance.rides}"`,
       affordance.rides,
     );
 }

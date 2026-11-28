@@ -54,6 +54,10 @@ const SHIFT: IAutoMovieVector3 = { x: 0, y: 0.15, z: 0.2 };
  * prepared limb chains and limb reads, and the resolve its pose rig, topology,
  * ROM projection and settled bones, records only
  * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines two-bone limb fit, seed replay, mirrored goals and parity with full posture resolution.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits a prepared rig's left hand to a moved goal, replays the chosen seed and invokes the public posture path.
+ * @evidence contracts/development/testing.md#independent-expectations An authored displacement of 0.15 m up and 0.2 m forward sets the exact goal. The hand must lie within 1 mm and reflection negates lateral point and bend.
  */
 export async function test_motions_posture_limb_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -11,10 +11,8 @@ import type { NodeCanvasTypes as N } from "../../../reference-conics/render/Node
  * 3. Diagnostic evidence does not change rasterized triangle work or annotation-free PNG bytes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual raster boundary with literal diagnostic counts; pairwise PNG differences expose a dropped or invented diagnostic state.
- * @evidence contracts/development/testing.md#independent-expectations Unknown evidence and the known list lengths zero and two have distinct meanings under the capture contract. A fixed triangle/camera/label isolates annotation changes; this test does not use image snapshots or certify the wording by OCR.
- * @evidence contracts/development/testing.md#distinguishing-cases Null, zero and a positive count include the important adjacent boundary; equal-state repeats and disabled annotations are passing counterparts. The mode fixture owns displayed-stage and decoded-body checks.
- * @evidence contracts/development/testing.md#execution-ownership This selected in-memory Canvas fixture starts no process, viewer, browser, Human generation or realization and writes no files.
- * @evidence contracts/development/common.md#meaningful-documentation Three scenarios distinguish diagnostic knowledge from mesh presence and name the unchanged scene counterpart.
+ * @evidence contracts/development/testing.md#independent-expectations A literal triangle, camera and label isolate the three input states of unknown evidence, zero diagnostics and two diagnostics. Expected pairwise differences apply to the annotation, with equal-state repeats and unannotated PNG equality as controls.
+ * @evidence contracts/development/common.md#meaningful-documentation Unknown, zero and two diagnostics produce distinguishable annotations. Equal input repeats and annotation-free scene comparisons isolate those changes.
  */
 export function test_human_capture_annotation_diagnostics(): void {
   const failures: string[] = [];

@@ -173,6 +173,10 @@ namespace part_gesture_joints {
  *   moves:
  * - `gesture_joints`: `gestureJoints` sets the joints a gesture moves directly at
  *   a share of its stroke, scaled by its envelope and extent:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gesture hand admission, direct joint contributions, and row signals follow the selected gesture and envelope.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the distinct gesture readers on typed hand choices, authored rows, and fixed envelope shares.
+ * @evidence contracts/development/testing.md#independent-expectations Admitted hands and refused combinations come from each row. Known shares establish the sign and amplitude of joint motion at selected stroke instants.
  */
 export async function test_motions_everyday_gesture(): Promise<void> {
   part_gesture_admit.verify();

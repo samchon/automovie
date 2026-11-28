@@ -28,8 +28,13 @@ import { throwsError } from "../../internal/throwsError";
  *    represented resident vertices"), refuse; the same coordinates in binary64
  *    are admitted.
  * 3. A point 1 above the resident with gap 0.5 and one unit of work is certified;
- *    clearance -1 ("nonnegative finite"), budget -1 ("safe-integer"), an empty
- *    and a sparse query ("finite query") refuse.
+ *    negative or infinite clearance, noninteger or nonfinite budgets and
+ *    malformed query vertices refuse. At zero clearance, a positive gap still
+ *    certifies with the same one-unit charge. Invalid requests spend nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names arithmetic and work-limit refusal classes, float representation difference and positive and strict-zero controls, and validation before work spending.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds malformed point sets and resident data to the public bound and query owners and checks the reported causes and normal control.
+ * @evidence contracts/development/testing.md#independent-expectations Separating opposite maximum finite coordinates exceeds binary64 range, and 1e39 exceeds Float32 but fits binary64. A point one unit above the triangle exceeds the 0.5 target.
  */
 export function test_engine_geometry_separation_refusals(): void {
   const p = (x: number, y: number = 0, z: number = 0): IAutoMovieVector3 => ({
@@ -102,6 +107,13 @@ export function test_engine_geometry_separation_refusals(): void {
       AutoMovieEngineGeometry.createMeshSeparationQuery({ ...mesh, indices: new Array(3) }),
     "vertex",
   );
+  refused(
+    "nonfinite resident positions",
+    () => AutoMovieEngineGeometry.createMeshSeparationQuery({
+      ...mesh, positions: [...mesh.positions, NaN, 0, 0],
+    }),
+    "finite represented resident vertices",
+  );
   const beyond: IAutoMovieMesh = {
     ...mesh,
     positions: mesh.positions.map((v: number): number => v * 1e39),
@@ -131,6 +143,31 @@ export function test_engine_geometry_separation_refusals(): void {
     () => query([p(0, 0, 1)], { clearance: 0.5, budget: { remaining: -1 } }),
     "safe-integer",
   );
+  const validBudget = { remaining: 1 };
+  TestValidator.equals(
+    "positive gap certifies at zero clearance",
+    [query([p(0, 0, 1)], { clearance: 0, budget: validBudget }).certified, validBudget.remaining],
+    [true, 0],
+  );
+  for (const clearance of [NaN, Infinity]) {
+    const budget = { remaining: 5 };
+    refused("nonfinite clearance", () => query([p(0, 0, 1)], { clearance, budget }), "nonnegative finite");
+    TestValidator.equals("bad clearance leaves budget", budget.remaining, 5);
+  }
+  for (const remaining of [0.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
+    const budget = { remaining };
+    refused("invalid budget value", () => query([p(0, 0, 1)], { clearance: 0.5, budget }), "safe-integer");
+    TestValidator.predicate("invalid budget is untouched", Object.is(budget.remaining, remaining));
+  }
+  for (const z of [NaN, Infinity]) {
+    const budget = { remaining: 5 };
+    refused(
+      "nonfinite query coordinate",
+      () => query([p(0, 0, z)], { clearance: 0.5, budget }),
+      "finite query",
+    );
+    TestValidator.equals("bad query coordinates leave budget", budget.remaining, 5);
+  }
   refused(
     "empty query",
     () => query([], { clearance: 0.5, budget: { remaining: 10 } }),

@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Every word lies in [0, 2³²) and the same input hashes the same.
  * 2. −1 hashes as its two's complement 0xffffffff.
  * 3. Neighbouring lattice points (0,0,0) and (1,0,0) differ in every word.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineMaterial.pcg3d with authored integer triples and compares the range, repeat, unsigned-word conversion and selected neighbour outputs.
+ * @evidence contracts/development/testing.md#independent-expectations Unsigned conversion maps -1 and 0xffffffff to the same 32-bit word. Word bounds come from the 32-bit representation, and the two adjacent coordinates provide distinct witnesses.
+ * @evidence contracts/development/common.md#meaningful-documentation The three-word range and replay are checked. Two equivalent input words and two adjacent coordinates distinguish conversion from position sensitivity.
  */
 export function test_engine_material_pcg3d(): void {
   const words: [number, number, number] = AutoMovieEngineMaterial.pcg3d(

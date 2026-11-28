@@ -96,11 +96,11 @@ export function measureMeshDefects(
     throw new Error(
       `measureAutoMovieMeshDefects: ${cornerCount} triangle corners are not in threes`,
     );
-  if (!(weld > 0))
+  if (!Number.isFinite(weld) || weld <= 0)
     throw new Error(
       `measureAutoMovieMeshDefects: weld ${weld} is not a positive finite cell count`,
     );
-  if (sliver !== undefined && !(sliver > 0))
+  if (sliver !== undefined && (!Number.isFinite(sliver) || sliver <= 0))
     throw new Error(
       `measureAutoMovieMeshDefects: sliver limit ${sliver} is not a positive finite aspect`,
     );
@@ -173,7 +173,7 @@ export function measureMeshDefects(
        * buffer.
        */
       const vertex: number = vertexAt(3 * triangle + k);
-      if (!(vertex >= 0 && vertex < vertexCount))
+      if (!Number.isSafeInteger(vertex) || vertex < 0 || vertex >= vertexCount)
         throw new Error(
           `measureAutoMovieMeshDefects: index ${vertex} at corner ${3 * triangle + k} is not one of the ${vertexCount} vertices`,
         );
@@ -335,9 +335,12 @@ function weldCells(
       /*
        * Nearest whole cell along this axis.
        */
-      const lattice: number = Math.round(positions[3 * vertex + axis]! * weld);
-
-      // A NaN, an infinity, a hole in the buffer and a product past the binary64 range all have no cell.
+      const coordinate: number = positions[3 * vertex + axis]!;
+      const lattice: number = Math.round(coordinate * weld);
+      if (!Number.isFinite(coordinate) || !Number.isFinite(lattice))
+        throw new Error(
+          `measureAutoMovieMeshDefects: vertex ${vertex} has no finite lattice cell`,
+        );
       ordinal[axis] = intern(axes[axis]!, lattice);
     }
     cellOf[vertex] = intern(
@@ -411,6 +414,40 @@ function aspectOf(
     positions[3 * c + 2]! - positions[3 * a + 2]!,
   ];
 
+  const edgeRange = (): number =>
+    Math.max(
+      Math.abs(ab[0]),
+      Math.abs(ab[1]),
+      Math.abs(ab[2]),
+      Math.abs(ac[0]),
+      Math.abs(ac[1]),
+      Math.abs(ac[2]),
+    );
+  let range: number = edgeRange();
+  if (!Number.isFinite(range)) {
+    let maximum: number = 0;
+    for (const vertex of [a, b, c])
+      for (let axis: number = 0; axis < 3; ++axis)
+        maximum = Math.max(maximum, Math.abs(positions[3 * vertex + axis]!));
+    const divisor: number = 2 ** Math.min(1023, Math.floor(Math.log2(maximum)));
+    for (let axis: number = 0; axis < 3; ++axis) {
+      const origin: number = positions[3 * a + axis]! / divisor;
+      ab[axis] = positions[3 * b + axis]! / divisor - origin;
+      ac[axis] = positions[3 * c + axis]! / divisor - origin;
+    }
+    range = edgeRange();
+  }
+  if (
+    range > 0 &&
+    (range < MINIMUM_ASPECT_EDGE || range > MAXIMUM_ASPECT_EDGE)
+  ) {
+    const divisor: number = 2 ** Math.min(1023, Math.floor(Math.log2(range)));
+    for (let axis: number = 0; axis < 3; ++axis) {
+      ab[axis]! /= divisor;
+      ac[axis]! /= divisor;
+    }
+  }
+
   /*
    * Squared length of the longest of the three edges, the third being `ac -
    * ab`.
@@ -429,7 +466,7 @@ function aspectOf(
     ab[2] * ac[0] - ab[0] * ac[2],
     ab[0] * ac[1] - ab[1] * ac[0],
   );
-  return longest / twiceArea;
+  return twiceArea === 0 ? Infinity : longest / twiceArea;
 }
 
 /*
@@ -448,3 +485,7 @@ function edgeKindOf(
   if (uses > 2) return "non-manifold";
   return forward === 1 ? null : "inconsistent";
 }
+
+/* Within these edge magnitudes, squared lengths keep a finite working range. */
+const MINIMUM_ASPECT_EDGE: number = 2 ** -500;
+const MAXIMUM_ASPECT_EDGE: number = 2 ** 500;

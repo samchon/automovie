@@ -1,8 +1,11 @@
-/** Identity of one fixed image used by a fit. */
+/**
+ * Fixed capture identity copied from an admitted image observation into the
+ * fit. Both loft families keep these records in observation view order.
+ */
 export interface IAutoMovieRecoveryImageSource {
-  /** Fixed capture identity from the observation artifact. */
+  /** View ID copied from the observation. */
   id: string;
 
-  /** Recorded SHA-256 of the original encoded image bytes. */
+  /** SHA-256 of the original encoded image bytes, copied from the observation. */
   sha256: string;
 }

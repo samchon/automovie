@@ -29,6 +29,10 @@ const OUTSIDE: number = BOUNDARY + 2 ** -58;
  * 2. The same alignment with a separation just above 10 mm refuses on
  *    leadReach, naming the hand, lead and film second.
  * 3. Without a contact offset or radius, the wrist meets the lead point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the closed posed-hand distance boundary for gripping a lead and refusal details when it is exceeded.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks a rotated hand with palm offset, a near-over-limit grip and the zero-offset direct point case.
+ * @evidence contracts/development/testing.md#independent-expectations The lead radius and resolved contact align at x = 1/64 m, leaving exactly 10 mm in z. A greater separation refuses and identifies hand, lead and time.
  */
 export function test_motions_lexicon_admit_lead_reach(): void {
   const location: Parameters<typeof admitLeadReach>[3] = {

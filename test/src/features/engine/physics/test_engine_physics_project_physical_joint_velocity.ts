@@ -23,6 +23,10 @@ const PROJECTED: number = 1e-8;
  * 1. A bend at a transverse limit rejects outward coupled velocity, including
  *    quaternion sign equivalence.
  * 2. An interior velocity remains unchanged, and a full-turn axis remains free.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains coupled boundary projection for compound twist and equivalent quaternion signs, while interior and full-turn axes remain free.
+ * @evidence contracts/development/testing.md#behavioral-verification Projects an outward bend at a transverse limit and repeats with the quaternion negated, an interior fixture and a full-turn limit.
+ * @evidence contracts/development/testing.md#independent-expectations The independently perturbed compound coordinate goes outward before projection. The projected derivative stays tangent and the unconstrained command stays equal.
  */
 export function test_engine_physics_project_physical_joint_velocity(): void {
   const axis: IAutoMoviePhysicalJointAxis = {

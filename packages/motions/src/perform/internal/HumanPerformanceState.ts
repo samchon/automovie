@@ -1,4 +1,7 @@
-import { AutoMovieEngineMotionAirborneRotation, AutoMovieEngineSchedule } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionAirborneRotation,
+  AutoMovieEngineSchedule,
+} from "@automovie/engine";
 import type {
   IAutoMovieCheckLegality,
   IAutoMovieComposition,
@@ -25,10 +28,13 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanActions } from "../../actions/AutoMovieMotionHumanActions";
+import { motionPrepared } from "../../compose/internal/motionPrepared";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
+import { HumanPerformanceHold } from "./HumanPerformanceHold";
+import { HumanPerformanceHoldKit } from "./HumanPerformanceHoldKit";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
@@ -37,7 +43,9 @@ import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { anchorHumanPerformanceLayers } from "./anchorHumanPerformanceLayers";
+import { canTraceHumanPreparation } from "./canTraceHumanPreparation";
 import { createHumanPerformancePerson } from "./createHumanPerformancePerson";
+import { humanPreparationReads } from "./humanPreparationReads";
 import { prepareHumanPerformance } from "./prepareHumanPerformance";
 import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
@@ -45,7 +53,7 @@ import { validateInitialPropMounts } from "./validateInitialPropMounts";
 /*
  * Everything a performance resolves and its readers share: the people with
  * their placed actions, the props, the laws, the cue tracks and the schedule,
- * built once by the function Object() { [native code] }.
+ * built once by the constructor.
  *
  * `AutoMovieMotionHumanPerformance` is the public surface over it. The state's members are
  * public so the `AutoMovieMotionHumanPerformance*` namespaces, which hold the performance's
@@ -79,6 +87,9 @@ export class HumanPerformanceState {
    * The props, by subject.
    */
   public readonly props: Map<string, IAutoMovieMotionHumanProp>;
+
+  /* Prepared shared carries, available to prop reads during placement. */
+  public readonly sharedCarry: IAutoMovieMotionHumanPerformanceState["sharedCarry"];
 
   /*
    * The lines between props by the far prop each runs to, built once from the
@@ -290,7 +301,9 @@ export class HumanPerformanceState {
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
     flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]>,
-    observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
+    observation?: ReturnType<
+      typeof AutoMovieEngineMotionAirborneRotation.observe
+    >,
   ) {
     this.flight = flight;
     this.props = new Map(
@@ -302,6 +315,7 @@ export class HumanPerformanceState {
       ),
     );
     validateInitialPropMounts(this.props);
+    this.sharedCarry = HumanPerformanceHold.indexSharedCarry(input, this.props);
     this.tethered = HumanPerformanceTether.index(this.props);
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
@@ -361,7 +375,12 @@ export class HumanPerformanceState {
     // before anything is placed, so actions can be synced to them: they are
     // given to the resolver as one more cue track.
     anchorHumanPerformanceLayers(this, input);
-    this.schedule = HumanPerformanceSchedule.resolve(this, input);
+    const tracked: boolean = canTraceHumanPreparation(input);
+    if (tracked) humanPreparationReads.begin(this);
+    this.schedule = motionPrepared.evaluate(
+      (): IAutoMovieSchedule => HumanPerformanceSchedule.resolve(this, input),
+      tracked,
+    );
     for (const person of this.people.values())
       HumanPerformanceOverlays.validate(person);
     // A production's rules (a sport's fouls, a scene's constraints) judge the
@@ -407,14 +426,25 @@ export class HumanPerformanceState {
     // the contact resolution reads every plan as the whole placed performance
     // shows it, so every plan is solved on it first, and again whenever the
     // stops the resolution installs change.
-    prepareHumanPerformancePlans(this);
-    HumanPerformanceContacts.contacts(this);
+    const prepare: ReturnType<typeof prepareHumanPerformancePlans> =
+      prepareHumanPerformancePlans(this, tracked);
+    prepare();
+    const changed: Set<string> = HumanPerformanceContacts.contacts(
+      this,
+      prepare,
+    );
 
     // Authored turns use the selected staged/physical policy after contacts.
     // Given momentum remains physical. Handback changes displayed rotation,
-    // so every plan is solved again on it.
-    HumanPerformanceFlight.flights(this, this.people.values(), observation);
-    prepareHumanPerformancePlans(this);
+    // so each reader of the changed display is prepared again.
+    for (const subject of HumanPerformanceFlight.flights(
+      this,
+      this.people.values(),
+      observation,
+    ))
+      changed.add(subject);
+    prepare(changed);
+    if (tracked) humanPreparationReads.end(this);
     this.handovers.clear();
     this.resolving = false;
     for (const entry of this.schedule.entries) {
@@ -431,6 +461,7 @@ export class HumanPerformanceState {
     // Every action ends where it is placed, so the props' drives are known.
     HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
+    HumanPerformanceHoldKit.admitSharedCarry(this);
     for (const prop of this.props.values())
       if (prop.soft !== undefined)
         HumanPerformanceSoftBudget(prop.subject, prop.soft, this.duration);

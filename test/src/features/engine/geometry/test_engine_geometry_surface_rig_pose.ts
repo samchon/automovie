@@ -26,6 +26,10 @@ import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
  * 1. At the lowest and high tiers the rig's targets and controls equal the posed
  *    network's sample within 1e-9 m, and the pose moves the targets by more
  *    than 0.2 m.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names two tiers, authored articulation and agreement with independently sampled posed networks.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the rig update and the pose-then-sample route on the same skeleton, measuring controls, targets and actual movement.
+ * @evidence contracts/development/testing.md#independent-expectations Both routes represent the same authored geometry and joint pose at each tier. Their buffers should agree within one nanometre, and significant motion rules out an unposed comparison.
  */
 export function test_engine_geometry_surface_rig_pose(): void {
   const turn = (x: number, y: number, z: number, degrees: number): IAutoMovieQuaternion => {

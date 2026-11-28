@@ -85,8 +85,6 @@ const check: Parameters<
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual installation validation and lowering for valid, missing-reference, malformed-rule, aquatic, canopy and mismatched-pairing records; named diagnostics and derived/not-run geometry expose incorrect joins or unsafe nested derivation.
  * @evidence contracts/development/testing.md#independent-expectations Authored ids and type/range paths define reference/rule expectations, the pond surface is -1+1.5=.5, and an upright plant is tested against one/four-metre ceilings. Success assertions permit warnings; aquatic overshoot and exact canopy height are not numerically asserted.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all seven scenario groups including optional irrigation, each support kind, duplicate ids, water-grid edges/missing depth, semantic rooms, dormant canopy, leaf-cap refusal and pair mismatches; corner-based containment does not prove every point in a nonconvex room union.
- * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertPlantingInstallationGeometry for the original later cases in order; the helper registers no extra test, and no browser, GPU, fluid integration or physical load-bearing check runs.
  *
  * Scenarios:
  *
@@ -128,7 +126,7 @@ const check: Parameters<
  *    binding; distinct cluster ids validate successfully. No duplicate draw or
  *    render-budget measurement is asserted here.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete installation validates successfully, and so does one with no irrigation).
+ * @evidence contracts/development/common.md#meaningful-documentation Dry and irrigated installations exercise valid joins. Missing references, mismatched support, waterline and canopy cases exercise spatial and typed admission, including repeated cluster ownership.
  */
 export function test_planting_installation_binding(): void {
   TestValidator.equals(

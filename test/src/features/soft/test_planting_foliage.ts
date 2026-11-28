@@ -50,8 +50,6 @@ const PLAIN: IAutoMoviePlantingFoliage = {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives foliage-free, ordinary, trunk-bearing, inverted and jittered plants; counts, branch references, hand-computed TRS and unit rotations expose missing or misoriented blades.
  * @evidence contracts/development/testing.md#independent-expectations Floor-density counts, a quarter-branch offset and a half-angle quaternion derive from the authored geometry, with nclose/vclose/qunit tolerances; the inverted scalar additionally preserves Object.is positive-zero identity.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers absent foliage, minimum-level gating, equal X/Z versus taller Y, an antiparallel axis and scale/roll variation; only Y-scale bounds are checked, and pruning, caps and cross-host replay belong elsewhere.
- * @evidence contracts/development/testing.md#execution-ownership This discoverable named export runs portable growth semantics directly, owns all six scenarios and registers no host, GPU or dynamic cases.
  *
  * Scenarios:
  *
@@ -70,7 +68,7 @@ const PLAIN: IAutoMoviePlantingFoliage = {
  * 6. Seeded scale and roll vary the blades, Y scale stays within its declared
  *    jitter, and the rotations stay unit length.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A recipe with no foliage rule bears no leaves at all, and one with a rule).
+ * @evidence contracts/development/common.md#meaningful-documentation Foliage rule presence and minimum branch level govern leaf counts. Ordinary, inverted and jittered blades check geometry, normalized rotations and branch ownership.
  */
 export function test_planting_foliage(): void {
   const bare: IAutoMoviePlantingState = leafed(null);

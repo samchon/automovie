@@ -31,6 +31,10 @@ import { syntheticHumanPlan } from "../../internal/synthetic/syntheticHumanPlan"
  * 2. At and after release, the dropped posture has no material hand constraint. At
  *    touchdown the first sole actually bears on the floor.
  * 3. Shuffled time queries select the same hang, flight and landing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines prepared hang refresh, exact departure ownership, floor landing and deterministic seek order.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a drop from a displayed predecessor moved by 0.1 m and samples hang, release and landing in changed order.
+ * @evidence contracts/development/testing.md#independent-expectations The authored height edit changes the hang but its prepared event times stay fixed. Material hand constraint ends at release and a real foot goal bears at touchdown.
  */
 export async function test_motions_climbing_tree_climb_drop(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

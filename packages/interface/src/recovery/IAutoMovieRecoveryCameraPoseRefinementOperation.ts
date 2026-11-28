@@ -1,36 +1,24 @@
 import type { IAutoMovieRecoveryCameraChartCreationOperation } from "..";
 
-/**
- * Bounded local calibrated-pose least squares on a fixed correspondence subset.
- * Soft-L1 loss has caller-supplied pixel scale. A column-scaled original
- * Jacobian is rank-checked before a damped augmented least-squares step is
- * solved by SVD; damping cannot repair an unobservable local parameter
- * direction. Accepted steps update SO3 and the unit translation sphere.
- * Termination is local only.
- */
+/** Callable local refinement of a fixed calibrated pixel correspondence subset. */
 
 export namespace IAutoMovieRecoveryCameraPoseRefinementOperation {
   /**
-   * Bounded local calibrated-pose least squares on a fixed correspondence
-   * subset. Soft-L1 loss has caller-supplied pixel scale. A column-scaled
-   * original Jacobian is rank-checked before a damped augmented least-squares
-   * step is solved by SVD; damping cannot repair an unobservable local
-   * parameter direction. Accepted steps update SO3 and the unit translation
-   * sphere. Termination is local only.
+   * Refine rotation and the unit translation direction using signed Sampson
+   * residuals at the supplied pixel loss scale. Check the undamped local design
+   * before damping a trial step. Keep only strict decreases in the fixed-set
+   * objective. Report iteration exhaustion as incomplete.
    */
 
   export type Operation = (
     initial: {
       /**
-       * Row-major 3 by 3 camera rotation in the operation's declared
-       * source-to-camera convention.
+       * Nine row-major coefficients rotating first-camera axes into the second
+       * camera.
        */
       rotation: readonly number[];
 
-      /**
-       * Camera translation in the operation's admitted reconstruction scale;
-       * two-view direction alone has no metric length.
-       */
+      /** Initial unit translation direction in second-camera axes. */
       translation: readonly [number, number, number];
     },
     firstPoints: readonly (readonly [number, number])[],
@@ -38,82 +26,64 @@ export namespace IAutoMovieRecoveryCameraPoseRefinementOperation {
     first: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>,
     second: ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>,
     policy: {
-      /** Positive pixel scale of the declared robust residual loss. */
+      /** Positive soft-L1 scale for each signed Sampson residual, in pixels. */
       lossScalePx: number;
 
       /**
-       * Smallest accepted normalized design singular ratio; dimensionless and
-       * independent of residual magnitude.
+       * Positive lower bound on the dimensionless smallest-to-largest
+       * normalized original design ratio.
        */
       minimumDesignRatio: number;
 
-      /**
-       * Explicit positive numerical iteration ceiling; exhaustion remains a
-       * reported termination, not convergence.
-       */
+      /** Positive work cap for one fixed-subset nonlinear optimizer. */
       maxIterations: number;
 
-      /**
-       * Explicit ceiling on Jacobi factorization sweeps; unresolved rank
-       * remains a numerical refusal.
-       */
+      /** Positive Jacobi sweep limit for each singular decomposition. */
       maxSweeps: number;
     },
   ) => {
-    /**
-     * Row-major 3 by 3 camera rotation in the operation's declared
-     * source-to-camera convention.
-     */
+    /** Refined proper rotation from first-camera to second-camera coordinates. */
     rotation: number[];
 
-    /**
-     * Camera translation in the operation's admitted reconstruction scale;
-     * two-view direction alone has no metric length.
-     */
+    /** Refined unit translation direction in second-camera coordinates. */
     translation: [number, number, number];
 
-    /**
-     * Row-major 3 by 3 fundamental matrix in the declared pixel charts;
-     * homogeneous scale has no metric meaning.
-     */
+    /** Row-major calibrated pixel fundamental matrix of the selected pose. */
     fundamental: number[];
 
     /**
-     * True only when the stated numerical termination predicate was met; it
-     * does not certify scene geometry.
+     * True when the fixed-subset fit stops on gradient, accepted step size or
+     * cost improvement.
      */
     converged: boolean;
 
     /**
-     * Predicate ending refinement; iteration-budget is an incomplete solve
-     * rather than convergence.
+     * Recorded local stop reason. An iteration-budget stop reports unfinished
+     * work.
      */
     termination: "gradient" | "step" | "cost" | "iteration-budget";
 
-    /**
-     * Actual numerical iterations attempted, including iterations without an
-     * accepted update.
-     */
+    /** Count of local trial steps, including rejected steps. */
     iterations: number;
 
     /**
-     * Number of candidate updates actually accepted by the objective and
-     * feasibility checks.
+     * Number of selected trial steps that strictly lowered the robust
+     * objective.
      */
     acceptedSteps: number;
 
-    /**
-     * Robust objective evaluated at the supplied initial pose under the
-     * unchanged observation policy.
-     */
+    /** Initial fixed-subset soft-L1 objective, in squared pixels. */
     initialCost: number;
 
-    /** The same robust objective evaluated at the last accepted pose. */
+    /**
+     * Final value of the same objective at the last selected pose, in squared
+     * pixels.
+     */
     finalCost: number;
 
     /**
-     * Smallest admitted design singular ratio across attempted local pose
-     * updates.
+     * Smallest visited singular-value ratio of the weighted and column-scaled
+     * undamped Jacobian.
      */
     minimumLocalDesignRatio: number;
   };

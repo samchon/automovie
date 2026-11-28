@@ -32,6 +32,10 @@ import { throwsError } from "../../internal/throwsError";
  *    angle). The bisection over the guides only ever selects a sector of
  *    positive width from guides given in increasing order, so that refusal
  *    guards the angles themselves.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the periodic radial jet, C2 guide limits, fullness inversion, planar point lift and invalid guide layouts.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the radius, fullness and point operations across authored guide and sector cases, sampling both derivatives and both sides of the seam.
+ * @evidence contracts/development/testing.md#independent-expectations The written fullness basis is zero with its first two derivatives at each guide and equals one at midsector. Central differences verify interior derivatives. A constant radius gives the circle point jet.
  */
 export function test_engine_geometry_polar_sector(): void {
   const angles: number[] = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];

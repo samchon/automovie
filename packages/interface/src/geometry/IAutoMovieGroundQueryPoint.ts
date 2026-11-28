@@ -1,17 +1,11 @@
 /**
- * Horizontal world position used to select or sample declared ground surfaces.
- *
- * X and Z are metres in the same world frame as the terrain footprint and
- * heightfield grid. Height is deliberately absent: containment and terrain
- * interpolation determine the ground datum independently of a staged Y value.
- * The query helpers borrow this record without mutation. It has no default,
- * coordinate conversion or validation of its own; callers supply the intended
- * finite position and the owning ground operation defines absence behavior.
+ * Horizontal position in world metres for selecting a ground surface or
+ * sampling its height.
  */
 export interface IAutoMovieGroundQueryPoint {
-  /** World X coordinate in metres. */
+  /** Finite X in the world metre frame of the queried footprint or heightfield. */
   x: number;
 
-  /** World Z coordinate in metres. */
+  /** Finite Z in that same world metre frame. */
   z: number;
 }

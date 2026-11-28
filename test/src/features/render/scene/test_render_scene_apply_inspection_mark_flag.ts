@@ -17,6 +17,10 @@ import { InspectionScene } from "../../internal/InspectionScene";
  * 2. A kind whose only mark is flagged has only its flag entry, because its own
  *    colour is not in the picture.
  * 3. Without any flagged mark the legend has no flag entry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names colored and flagged strokes and the tallies when either category has no drawn marks.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies supplied marks with explicitly assigned flag state, then reads their stroke colors and legend rows for mixed, flagged-only and unflagged-only pictures.
+ * @evidence contracts/development/testing.md#independent-expectations Two unflagged axis marks and one flag require counts two and one, with cyan and the flag color respectively. A category with zero marks contributes no legend entry.
  */
 export function test_render_scene_apply_inspection_mark_flag(): void {
   const stage: THREE.Scene = InspectionScene.scene(

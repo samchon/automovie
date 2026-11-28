@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A given factor is carried by every view, and each call returns fresh
  *    records.
  * 3. A factor of zero or below is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the eight defaults, a caller-selected distance factor, fresh records, and inadmissible factors.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the named views' IDs, order, orientation, and shared distance factor, verifies fresh records, and refuses zero or negative factors.
+ * @evidence contracts/development/testing.md#independent-expectations Uses a literal list of eight view ID and angle records with factor 1.25, along with an explicit factor override.
  */
 export function test_render_scene_named_viewpoints(): void {
   const view = (

@@ -17,6 +17,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A lineage observer leaves the observation and the source arrays unchanged.
  * 4. A thrown callback fails the whole operation; callback-triggered and prior
  *    cancellation publish no value.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names closed and open contour lineage, refusal and callback effects.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes a tetrahedron and a triangle with lineage callbacks, contrasts source-free outputs, and exercises cancellation and failing callbacks.
+ * @evidence contracts/development/testing.md#independent-expectations The tetrahedron cut intersects three authored side faces and the triangle contributes one original face. Those known IDs determine expected lineage.
  */
 export function test_recovery_observation_observe(): void {
   const input: Parameters<typeof AutoMovieRecoveryObservation.observeMesh>[0] = {

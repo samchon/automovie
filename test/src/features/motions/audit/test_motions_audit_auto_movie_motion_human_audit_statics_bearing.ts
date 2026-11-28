@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
  *    does not; a grip that declares a load does.
  * 2. A plant from 1.5 s is not yet open.
  * 3. With no windows nothing bears.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names an ongoing plant, a seat at its closed end, loaded and unloaded grips and a future plant.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AuditStatics.bearing at second 1 on prepared windows and an empty list, then compares their retained action names.
+ * @evidence contracts/development/testing.md#independent-expectations The stand and seat contain second 1, including the seat's endpoint. Only the loaded grip joins them, and the plant from 1.5 s has not begun, producing the listed stand, sit and hang sequence.
  */
 export function test_motions_audit_auto_movie_motion_human_audit_statics_bearing(): void {
   const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] = [

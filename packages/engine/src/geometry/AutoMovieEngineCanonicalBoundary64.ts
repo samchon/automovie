@@ -4,11 +4,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Exact normalized boundary phases and atomic interval incidence in binary64.
- * Phase keys preserve the exact dyadic affine combination before display
- * rounding. Authority IDs belong to partition and its caller; phase/local carry
- * no such ID. No position, normal, source topology or generated geometry enters
- * this helper.
+ * Address exact normalized boundary phases and partition declared interval uses.
+ *
+ * Phase keys preserve the dyadic affine combination before binary64 rounding.
+ * The caller supplies exact authority IDs when partitioning uses.
  */
 export namespace AutoMovieEngineCanonicalBoundary64 {
   /**
@@ -109,9 +108,8 @@ export namespace AutoMovieEngineCanonicalBoundary64 {
    * ordered positive binary64 bits until an exact hit or adjacent representable
    * locals remain. An unattainable phase returns an interior bracketing local,
    * with its original canonical identity retained by the caller. No continuous
-   * inverse is certified. A reversed map, inconsistent anchor, out-of-range
-   * target or unrepresentable interior inverse throws rather than moving an
-   * authored local coordinate.
+   * inverse is certified. A reversal within the map, inconsistent anchor,
+   * out-of-range target or unrepresentable interior inverse throws.
    */
   export function inverse(
     forward: (local: number) => IAutoMovieCanonicalBoundaryPhase64,
@@ -201,8 +199,10 @@ export namespace AutoMovieEngineCanonicalBoundary64 {
    * increasing canonical atom direction. Empty coverage and
    * conflicting/overfull incidence remain explicit diagnostics; they neither
    * throw nor certify source topology. Three global uses can describe
-   * coarse1+fine2 with exactly two uses per atom. Duplicate IDs and invalid
-   * intervals throw.
+   * a coarse interval and two finer intervals with two uses per atom.
+   * Authority and use IDs must be nonempty strings, and use IDs must be
+   * unique across all authorities. Invalid intervals or walks other than
+   * -1 and 1 throw.
    */
   export function partition(
     uses: IAutoMovieCanonicalBoundary64.IPartitionUses,
@@ -214,6 +214,15 @@ export namespace AutoMovieEngineCanonicalBoundary64 {
       > = new Map();
     for (const use of uses) {
       admit(use.start, use.end);
+      if (
+        typeof use.id !== "string" ||
+        use.id.length === 0 ||
+        typeof use.authority !== "string" ||
+        use.authority.length === 0
+      )
+        throw new Error("Boundary uses require nonempty IDs and authorities");
+      if (use.walk !== -1 && use.walk !== 1)
+        throw new Error("Boundary uses require a walk of -1 or 1");
       if (ids.has(use.id)) throw new Error("Boundary uses require unique IDs");
       ids.add(use.id);
       const events: Map<
@@ -227,7 +236,7 @@ export namespace AutoMovieEngineCanonicalBoundary64 {
         if (!events.has(value)) events.set(value, { add: [], remove: [] });
       events.get(lo)!.add.push({
         id: use.id,
-        walk: (use.walk * (use.end > use.start ? 1 : -1)) as 1 | -1,
+        walk: use.end > use.start ? use.walk : use.walk === 1 ? -1 : 1,
       });
       events.get(hi)!.remove.push(use.id);
     }
@@ -281,7 +290,7 @@ export namespace AutoMovieEngineCanonicalBoundary64 {
    * comparisons. Invalid values throw; no clamp or epsilon broadens admission.
    */
   function unit(value: number): void {
-    if (value < 0 || value > 1)
+    if (!Number.isFinite(value) || value < 0 || value > 1)
       throw new Error("Boundary phases must be finite in [0,1]");
   }
 

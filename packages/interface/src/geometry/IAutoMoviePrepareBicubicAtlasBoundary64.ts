@@ -8,19 +8,19 @@ import type { IAutoMoviePrepareBicubicAtlasBoundary64Binding } from "./IAutoMovi
  */
 export namespace IAutoMoviePrepareBicubicAtlasBoundary64 {
   /**
-   * Prepared canonical curves, coefficient identities and complete edge uses.
-   * Matching four-ID tuples transport one explicit oriented interval to unbound
-   * incident sides. Their legacy render-normal owner remains separate from
-   * explicit normal fans. Every constructed coefficient is shared by its
-   * declared ID before tessellation; independently evaluated conflicting
-   * assignments omit only incident patches. Exact positions validate existing
-   * relations and never create identities. Equal restricted nets with different
-   * named intervals retain their finite fields; inter-authority tessellation
-   * sharing remains an explicit unqualified relation. Inputs must remain
-   * immutable until the returned closures are released. Maps and cached tuples
-   * are shared implementation state; preserve them until the entire atlas run
-   * is complete. Conflicts are reported without a replacement assignment and
-   * cause incident patch omission in the planning consumer.
+   * Canonical curves, coefficient equivalences and complete edge uses. A side
+   * without an explicit binding can inherit one oriented interval from a
+   * complete-edge peer with the same four control IDs. Its legacy normal fan
+   * stays separate from explicitly authored fans.
+   *
+   * Identity comes from declared IDs and phase keys. Position comparisons
+   * qualify those relations. Consistent restricted nets on different named
+   * intervals retain their own fields with a conformity diagnostic. Planning
+   * omits patches incident on reported coefficient conflicts.
+   *
+   * Supply finite coefficient tuples. Authority control indices must be safe
+   * original ordinals. Keep borrowed controls, bindings and all returned caches
+   * stable while the atlas runs.
    */
   export type IResult = {
     /**
@@ -61,9 +61,8 @@ export namespace IAutoMoviePrepareBicubicAtlasBoundary64 {
     positions: Map<string, AutoMovieVector3Tuple>;
 
     /**
-     * Equivalence-root keys with nonfinite or exactly disagreeing constructed
-     * coefficient assignments; an existing cached value does not clear a
-     * conflict.
+     * Equivalence-root keys whose constructed coefficient assignments disagree.
+     * A cached representative remains available, but its conflict persists.
      */
     conflicts: Set<string>;
 

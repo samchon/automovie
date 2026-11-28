@@ -10,16 +10,19 @@ import { throwsError } from "../../internal/throwsError";
 const ROUNDING: number = 64 * Number.EPSILON * 6;
 
 /**
- * Place a cabin transfer on its push, coast and brake clock.
+ * Check travel and hand opening through a cabin push, coast and brake.
  *
  * Scenarios:
  *
- * 1. Six metres with two 1 s ramps and a 2 s coast travel 1 m on each ramp and 4 m
- *    in between. The half-second sample's squared progress is symmetric with
- *    braking. The hand opens in the coast alone.
- * 2. Sampling extra time stays at the nearest endpoint. A zero coast or zero ramp
- *    leaves no valid transfer.
- * 3. Finite phase inputs whose total overflows leave no valid transfer.
+ * 1. Move six metres with one-second ramps and a two-second coast. Allocate
+ *    one metre to each ramp and four to the coast, sampling progress and
+ *    opening through all phases.
+ * 2. Clamp samples outside the action. Refuse a zero coast or ramp, and a
+ *    summed duration overflowing from finite phases.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify phase lengths, hand opening, endpoint reads and invalid durations.
+ * @evidence contracts/development/testing.md#behavioral-verification Clock and course functions take fixed scalar timings and are checked together against sampled distance and openness.
+ * @evidence contracts/development/testing.md#independent-expectations Peak speed follows six metres divided by the effective three-second profile. Constant acceleration gives squared ramp progress and time fractions give the coast samples.
  */
 export function test_motions_spacecraft_glide_clock(): void {
   const clock: spacecraftGlideClock.IClock = spacecraftGlideClock({

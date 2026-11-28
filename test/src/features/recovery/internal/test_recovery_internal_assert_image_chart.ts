@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *    row; the next row y = 0.5 (r = 4) over columns 3 to 8 is connected to it.
  * 2. A lower limit of -3.3 is not a whole column and is refused.
  * 3. A row two pixels below the previous is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the chart pitch, center, row addresses and adjacency cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Moves the returned row checker through two occupied rows, a fractional column and a two-row gap.
+ * @evidence contracts/development/testing.md#independent-expectations At one millimetre per pixel and principal point (5, 5), y=1.5 maps to row three and the supplied x limits map to integer boundaries.
  */
 export function test_recovery_internal_assert_image_chart(): void {
   const chart = AutoMovieRecoveryShape.assertImageChart({

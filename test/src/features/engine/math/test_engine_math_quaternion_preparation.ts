@@ -24,6 +24,10 @@ const ROTATION_ROUNDING: number = 32 * Number.EPSILON;
  * 2. The shorter arc to an endpoint of opposite sign is also fixed in setup.
  *    Mutating both parameter records and a returned rotation cannot change the
  *    quarter or half reads along the original 120-degree arc.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers snapshots before the first prepared read, the short slerp arc and independent output records.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares the axis and the slerp endpoints, mutates the source records before reading, then mutates an output and reads again in a different order.
+ * @evidence contracts/development/testing.md#independent-expectations Half-angle values independently give the half and quarter turns around +Z, and an original 120-degree arc gives 30 and 60 degrees at quarter and half shares. The fixed rounding tolerance comes from the scalar operation budget.
  */
 export function test_engine_math_quaternion_preparation(): void {
   const axis: IAutoMovieVector3 = { x: 0, y: 0, z: 2 };

@@ -29,6 +29,10 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
  * 2. Pace is lateral, trot diagonal, and the rotary gallop changes both pairs
  *    when the lead reverses.
  * 3. Each distinct body binds its real solid terminals, links and lead once.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines measured and authored reference clocks, lateral and diagonal gait phase rules and solid attachment witnesses.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds reference ox, camel and deer, reads their supported clocks and phases and exercises attachment on posed bodies. Reversed leads must change the expected contact ordering.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's measured walking times and supplied faster timing rows. A full gait cycle with literal footfall fractions defines expected contact ordering and elapsed support durations.
  */
 export function test_archetypes_animals_reference_attachment_clock(): void {
   const findings: string[] = [];

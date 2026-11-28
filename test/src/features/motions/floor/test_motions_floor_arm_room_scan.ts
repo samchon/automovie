@@ -12,16 +12,19 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Bound the movement between arm-clearance checks by collider reach and angle.
+ * Check how floor arm clearance chooses its sample count from relative
+ * collider travel.
  *
  * Scenarios:
  *
- * 1. An otherwise static posture whose entire frame moves still uses the baseline
- *    count, because no collider moves relative to its neighbours.
- * 2. The farthest corner around a quarter-metre cubic half extent is √3/4 m from
- *    the joint. A 120 degree total turn has travel bound (2π/3)(√3/4) m.
- *    Dividing by twice the 10 mm allowance requires 46 intervals in either
- *    direction.
+ * 1. Translate and turn the entire pose with the arm and collider
+ *    relationship fixed. The scan stays at its 16-sample floor.
+ * 2. Apply lower-arm axis turns of 20, -40 and 60 degrees. The 120-degree
+ *    travel bound requires 46 samples in either endpoint order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give the relative motion, angular bound and required count.
+ * @evidence contracts/development/testing.md#behavioral-verification The scan responds to local arm travel, and its count is stable under reversed endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The cube's quarter-metre half extents give radius `sqrt(3) / 4`, and the bounded arc divided by the 20 mm spacing rounds up to 46.
  */
 export function test_motions_floor_arm_room_scan(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

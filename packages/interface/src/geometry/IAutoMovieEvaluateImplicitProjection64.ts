@@ -53,24 +53,7 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
      * query point. Exceptions propagate; failed continuation may query sixteen
      * additional ray intervals for diagnostics before throwing.
      */
-    field: (point: AutoMovieVector3Tuple) => {
-      /**
-       * Scalar field value at the supplied point, in the same unit as
-       * target.value.
-       */
-      value: number;
-      /**
-       * Cartesian first derivatives of the scalar field, field units per
-       * millimetre, in the seed frame.
-       */
-      gradient: AutoMovieVector3Tuple;
-      /**
-       * Three Cartesian Hessian rows, field units per squared millimetre, used
-       * directly for requested second-order chain rules; the caller owns
-       * dimension and derivative correctness.
-       */
-      hessian: readonly AutoMovieVector3Tuple[];
-    };
+    field: (point: AutoMovieVector3Tuple) => IFieldJet;
     /**
      * Finite positive absolute displacement bound along the normalized
      * direction, millimetres; trial offsets outside either signed bound are not
@@ -92,8 +75,8 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
      */
     partials: readonly number[];
     /**
-     * Finite square target-level second-derivative matrix when seed seconds
-     * are supplied; otherwise second-order propagation is omitted.
+     * Finite square target-level second-derivative matrix when seed seconds are
+     * supplied; otherwise second-order propagation is omitted.
      */
     seconds?: readonly (readonly number[])[];
   };
@@ -143,5 +126,25 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
      * reader rejects nonfinite magnitude or magnitude at most 1e-12.
      */
     directionalDerivative: number;
+  };
+
+  /** Scalar field value and Cartesian derivatives at one physical point. */
+  export type IFieldJet = {
+    /**
+     * Scalar field value at the supplied point, in the same unit as
+     * target.value.
+     */
+    value: number;
+    /**
+     * Cartesian first derivatives of the scalar field, field units per
+     * millimetre, in the seed frame.
+     */
+    gradient: AutoMovieVector3Tuple;
+    /**
+     * Three Cartesian Hessian rows, field units per squared millimetre, used
+     * directly for requested second-order chain rules; the caller owns
+     * dimension and derivative correctness.
+     */
+    hessian: readonly AutoMovieVector3Tuple[];
   };
 }

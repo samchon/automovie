@@ -72,6 +72,10 @@ const SHEET: IAutoMovieDrawing = {
  * 3. The note at (1, 0.5) is at (30, 20) and its text is escaped.
  * 4. A view of another sheet, a stroke weight of zero and a text height of zero
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names scaled sheet dimensions, cut and hidden line styles, escaped note coordinates, and the view and style refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Drawing.autoMovieDrawingToSvg with a literal two-line sheet and authored view, checks SVG content, then exercises mismatched view id and nonpositive style fields.
+ * @evidence contracts/development/testing.md#independent-expectations The 1:50 scale gives 20 mm/m. With 10 mm margins the page is 60 by 40 mm, the world y values 0 and 1 map to y = 30 and 10, and the midpoint note maps to (30, 20). The authored cut weight, dash and escaped less-than character give literal text expectations.
  */
 export function test_engine_drawing_to_svg(): void {
   const view: IAutoMovieDrawingView = drawingView();

@@ -18,8 +18,6 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation States the empty/omitted distinction and the identity preserved for a singleton table.
  * @evidence contracts/development/testing.md#behavioral-verification Calls public selectInstancePrototype and requires an Error for empty tables while observing real default fields and singleton object identity.
  * @evidence contracts/development/testing.md#independent-expectations An empty authored table contains no selectable member; absence has the documented base-model default of weight one, and a singleton has exactly one possible answer. No seeded output is copied into an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises empty, omitted and singleton tables with both weighted and explicit selection at slots zero and seven. Existing test_engine_prototype_selection owns multi-entry weighting and missing-name refusal; malformed weights remain outside this test.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit supplies in-memory instance-set records to the public engine selector without a compiled scene or host.
  */
 export function test_engine_prototype_empty_table(): void {
   const base: IAutoMovieSelectInstancePrototype.IInstanceSet<

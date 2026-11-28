@@ -8,24 +8,25 @@ import type {
   IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";
 
-import {
-  compileRecoveryImageLoft as compileImageLoftOperation,
-} from "./internal/compileRecoveryImageLoft";
-import {
-  compileRecoverySupportLoft as compileSupportLoftOperation,
-} from "./internal/compileRecoverySupportLoft";
+import { compileRecoveryImageLoft as compileImageLoftOperation } from "./internal/compileRecoveryImageLoft";
+import { compileRecoverySupportLoft as compileSupportLoftOperation } from "./internal/compileRecoverySupportLoft";
 
-/** Compile saved Recovery recipes into deterministic model geometry. */
+/** Compiles saved lateral loft recipes into AutoMovie models. */
 export namespace AutoMovieRecoveryCompilation {
   /**
-   * Generate an ordinary AutoMovie bicubic model and its actual construction from
-   * saved section coefficients alone. Positive axis scales preserve the other two
-   * coordinate extents; height edits anchor at the lowest saved station.
-   * Construction evaluates the generated atlas coefficients, including its
-   * declared circular-cubic approximation. The viewer and numerical mesh consumer
-   * use that same atlas. Partial describes unobserved caps/interior,
-   * independently of the engine's later tessellation completion or source/image
-   * fidelity.
+   * Compiles saved aligned-ellipse coefficients into a bicubic model and its
+   * construction curves, in metres.
+   *
+   * Width, depth and height factors are independently in [0.25, 4]. Height
+   * scales about the lowest saved station. The construction samples the same
+   * atlas as the model, including its circular-cubic arc approximation.
+   *
+   * The budget requires positive finite tolerance in metres, a positive safe
+   * cell cap, and a safe vertex cap of at least three. The atlas stores these
+   * controls for later realization.
+   *
+   * A valid recipe returns partial coverage with unobserved caps and interior.
+   * An invalid recipe or budget returns a refusal without model data.
    */
   export function compileImageLoft(
     recipe: IAutoMovieRecoveryImageLoft,
@@ -35,12 +36,17 @@ export namespace AutoMovieRecoveryCompilation {
   }
 
   /**
-   * Generate new geometry, normal fans and construction from saved support
-   * curves. Independent coordinate edits transform the support equations by the
-   * inverse diagonal map and renormalize each plane, preserving other axis
-   * extents. No source image, measurement row, source mesh or source normal is
-   * consulted. Partial denotes inferred finite-view coverage, regardless of
-   * completed emission.
+   * Compiles saved support curves into a lateral mesh, normal fans and
+   * construction curves in metres.
+   *
+   * Width, depth and height factors are independently in [0.25, 4]. Plane
+   * equations are transformed and renormalized in the edited horizontal chart.
+   * Height scales about the lowest saved station. The Engine controls bound
+   * topology events, cells and vertices during emission.
+   *
+   * Valid emission returns partial physical coverage. The finite-view model
+   * leaves unseen concavity, caps and interior unobserved. Invalid recipes or
+   * generation refusal return diagnostics without model data.
    */
   export function compileSupportLoft(
     recipe: IAutoMovieRecoverySupportLoft,

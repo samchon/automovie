@@ -32,6 +32,10 @@ import { nclose, vclose } from "../../internal/predicates";
  *    `prepareLerp` of (1,2,3)-(5,-2,7) gives (7,-4,9), (2,1,4), (-1,4,1),
  *    (3,0,5) at 1.5, 0.25, -0.5, 0.5 in any order, keeps the copied endpoints
  *    when the inputs change afterwards, and issues independent records.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers XYZ arithmetic, right-handed products, output aliasing, extreme norms and prepared interpolation ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineVector3 operations with typed literal vectors, extreme finite inputs and overlapping destinations. Prepared interpolation reads extrapolated and reordered progress after endpoint mutations.
+ * @evidence contracts/development/testing.md#independent-expectations Component arithmetic, the right-handed basis and 3-4-5 geometry give exact reference values. Axis and diagonal lengths set independent scale expectations, and explicit endpoint blends give the expected interpolation and extrapolation.
  */
 export function test_engine_math_vector3(): void {
   const a: IAutoMovieVector3 = AutoMovieEngineVector3.create(1, 2, 3);

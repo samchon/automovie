@@ -104,6 +104,10 @@ function identical(
  *    ascending and scrambled.
  * 3. AutoKnots, TOPP-RA and Brent's search run twice return equal knots, squared
  *    path velocities and minima.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines repeat and seek-order identity for timed and sampled posture curves and numerical primitives.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares each course twice, samples them at reordered times and repeats adaptive knots, path timing and Brent search.
+ * @evidence contracts/development/testing.md#independent-expectations Identical input and time must return byte-equivalent numerical results. Explicit holds and breaks expose retained query history across the two read orders.
  */
 export function test_motions_posture_determinism(): void {
   // 1. The knot course.

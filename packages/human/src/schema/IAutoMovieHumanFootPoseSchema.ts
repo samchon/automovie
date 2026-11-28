@@ -4,7 +4,11 @@ import type { tags } from "typia";
 import type { IAutoMovieHumanHalluxPoseSchema } from "./IAutoMovieHumanHalluxPoseSchema";
 import type { IAutoMovieHumanToePoseSchema } from "./IAutoMovieHumanToePoseSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanFootPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Hindfoot, midfoot and toe angles for one foot, in degrees from anatomical
+ * neutral. The two foot angles are positive for subtalar inversion and midfoot
+ * supination. Each toe can be supplied independently.
+ */
 export type IAutoMovieHumanFootPoseSchema = IAutoMovieHumanFootPose & {
   /** Subtalar inversion (sole turned inward) 5, eversion 5 (recalled, Greene and Heckman 1994 hindfoot). */
   subtalarInversion?: number & tags.Minimum<-5> & tags.Maximum<5>;

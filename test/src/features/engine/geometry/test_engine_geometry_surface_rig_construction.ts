@@ -28,6 +28,10 @@ import { sweepBranchedSkeleton } from "../../internal/sweepBranchedSkeleton";
  *    volume correction is active (targets differ from the unpreserved rig's by
  *    more than 1e-5); the arm moves by more than 0.05 m; the construction
  *    stays at rest.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names neutral construction ownership, posed cage equality and active volume-preserving control.
+ * @evidence contracts/development/testing.md#behavioral-verification Poses observed and plain surface rigs on the same body and arm, comparing control and target arrays and the saved construction.
+ * @evidence contracts/development/testing.md#independent-expectations An observer should not affect geometry, so the plain rig supplies a separate reference. The authored joint angles must move targets, and the construction snapshot remains at its saved rest positions.
  */
 export function test_engine_geometry_surface_rig_construction(): void {
   const network: IAutoMovieSurfaceNetwork = sweepBranchedBody();

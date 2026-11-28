@@ -3,60 +3,94 @@ import type { IAutoMovieConicHermite } from "./IAutoMovieConicHermite";
 
 /** Data and callback contracts shared by the ViewConic operations. */
 export namespace IAutoMovieViewConic {
-  /** Selected quarter location, preserving the source's actual numeric clock. */
+  /**
+   * Native rational piece selected for one polar ray. The result preserves its
+   * quarter, piece kind, quarter-local phase and evaluation angle in that
+   * piece's own orientation.
+   */
   export interface IRay extends IAutoMovieConicArc.IRay {
-    /** Original quarter index in[0,3]. */
+    /** Zero-based index of the originating quarter, from zero through three. */
     quarter: number;
 
-    /** Actual selected source piece. */
+    /**
+     * Selected original quadratic, initial correction or final reflected
+     * correction.
+     */
     kind: "conic" | "start" | "end";
 
-    /** Original quarter-local polar angle, radians. */
+    /** Polar radians in the original quarter, increasing from its first guide. */
     angle: number;
 
-    /** Small angular distance in the selected end chart, radians. */
+    /**
+     * Polar radians from the selected orientation's starting guide. A reflected
+     * end reads distance from the original quarter's final guide.
+     */
     distance: number;
   }
 
-  /** One source quarter and its disjoint initial/final C2 supports. */
+  /**
+   * Original rational conic quarter and its endpoint guide corrections. The
+   * adjacent positive extents are in chart millimetres. The dimensionless
+   * shoulder controls the quadratic; a correction occupies only its prepared
+   * endpoint support.
+   */
   export interface IQuarter<T = number> {
-    /** First and second positive half extents, millimetres. */
+    /**
+     * Two positive support half-extents in chart millimetres, in quarter
+     * start/end order.
+     */
     extents: readonly [T, T];
 
-    /** Original conic shoulder in (0,1). */
+    /**
+     * Dimensionless source shoulder between zero and one for the quarter's
+     * rational quadratic.
+     */
     shoulder: T;
 
-    /** Optional initial convex G2 end; null preserves the exact quadratic. */
+    /**
+     * Initial guide's admitted G2 correction, or null when the original
+     * quadratic extends to the guide.
+     */
     start: IAutoMovieConicHermite.IPatch<T> | null;
 
-    /** Optional reflected final convex G2 end, with the same ownership. */
+    /**
+     * Final guide's reflected G2 correction, or null when the original
+     * quadratic extends to the guide.
+     */
     end: IAutoMovieConicHermite.IPatch<T> | null;
 
     /**
-     * Original quadratic native-turn partition in create; empty in
-     * geometry-only prepareGeometry.
+     * Native quadratic partition parameters added by create for observations.
+     * Geometry-only preparation leaves this array empty.
      */
     parameters: readonly number[];
 
     /**
-     * Shared radial second derivatives at the two zero-slope main guides,
-     * millimetres.
+     * Radial second derivatives at both cardinal guides in millimetres per
+     * squared radian. First radial derivatives are zero there.
      */
     guides: readonly [T, T];
 
     /**
-     * Shared geometric guide curvatures; auxiliary branch jets at a tie are not
-     * derivatives of min.
+     * Shared geometric guide curvatures in inverse millimetres, in quarter
+     * start/end order. A branch selected at a tie carries its own scalar
+     * derivatives.
      */
     curvatures: readonly [T, T];
   }
 
-  /** Prepared closed source with an explicit admission failure state. */
+  /**
+   * Prepared four-quarter conic source. Success retains its cyclic quarters.
+   * Failure carries the violated premise with an empty quarter array.
+   */
   export interface ICurve<T = number> {
-    /** Four source quarters on success; empty on admission failure. */
+    /** Prepared quarters in cyclic cardinal order, empty on a failure. */
     quarters: readonly IAutoMovieViewConic.IQuarter<T>[];
 
-    /** Original admission rule and numbers, or null. */
+    /**
+     * Original preparation premise and numeric diagnostic, or null when the
+     * source was admitted.
+     */
     failure: string | null;
   }
 }

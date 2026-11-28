@@ -23,6 +23,10 @@ import { nclose } from "../../internal/nclose";
  *    is half risen at 1.5 s.
  * 4. A look back peaking at 2 s over a 1 s turn has turned fully at 2 s and not
  *    at 2.5 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines gait phase, asymmetric canter roll, jumping seat and look-back on the animation clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a supplied stride track, samples trot and right-lead canter and evaluates the approach, flight and look-back phases.
+ * @evidence contracts/development/testing.md#independent-expectations At 1.5 s the stride progress is 1/2. The stated harmonic gives trot pitch, right-lead quarter canter gives −1° roll and the look-back peaks at its authored time.
  */
 export function test_motions_lexicon_equestrian_rhythm(): void {
   TestValidator.predicate(

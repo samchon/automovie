@@ -1,4 +1,7 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -14,6 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
+import { AutoMovieMotionHumanObject } from "../../perform/AutoMovieMotionHumanObject";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
@@ -81,18 +85,34 @@ export namespace AquaticProp {
       carrier.state?.(seconds) ?? {};
     const articulated: boolean =
       Object.keys(state).length > 0 || driven !== undefined;
-    const affordances: readonly IAutoMovieAffordance[] =
-      (articulated
-        ? carrier.prop.articulate?.({ ...state, ...driven }).affordances
-        : undefined) ??
-      carrier.prop.affordances ??
-      [];
+    const posed: Readonly<Record<string, number>> | undefined = articulated
+      ? { ...state, ...driven }
+      : undefined;
+    const site = articulated
+      ? AutoMovieMotionHumanObject.articulateSite(carrier.prop)
+      : undefined;
+    let affordances: readonly IAutoMovieAffordance[] | undefined;
+    // A projected contact needs only its own moving frame. Read the full
+    // posed contacts once for an opaque provider or to explain a refusal.
+    const all = (): readonly IAutoMovieAffordance[] =>
+      (affordances ??=
+        (posed === undefined
+          ? undefined
+          : carrier.prop.articulate?.(posed).affordances) ??
+        carrier.prop.affordances ??
+        []);
     return {
       frame,
       require(id: string, kind: IAutoMovieAffordance["kind"]): IContact {
-        const affordance: IAutoMovieAffordance | undefined = affordances.find(
-          (candidate: IAutoMovieAffordance): boolean => candidate.id === id,
-        );
+        const projected: IAutoMovieAffordance | undefined =
+          posed === undefined ? undefined : site?.call(carrier.prop, id, posed);
+        const affordance: IAutoMovieAffordance | undefined =
+          projected?.id === id && projected.kind === kind
+            ? projected
+            : all().find(
+                (candidate: IAutoMovieAffordance): boolean =>
+                  candidate.id === id,
+              );
         if (affordance?.kind !== kind)
           throw new AutoMovieMotionHumanRefusal({
             kind: "affordance",
@@ -100,7 +120,7 @@ export namespace AquaticProp {
             value: `${carrier.prop.subject}.${id}`,
             feasible: {
               kind: "alternatives",
-              values: affordances
+              values: all()
                 .filter((a) => a.kind === kind)
                 .map((a) => a.id),
             },
@@ -124,7 +144,10 @@ export namespace AquaticProp {
               ),
             rotation:
               placed?.rotation ??
-              AutoMovieEngineQuaternion.multiply(frame.rotation, affordance.frame.rotation),
+              AutoMovieEngineQuaternion.multiply(
+                frame.rotation,
+                affordance.frame.rotation,
+              ),
           },
         };
       },
@@ -143,14 +166,41 @@ export namespace AquaticProp {
     handle: IContact["world"],
     reach?: IReach,
   ): IAutoMovieHumanLimbGoal {
+    const wrist: IWrist = AquaticProp.wrist(body, side, handle, reach);
+    return {
+      ...wrist,
+      bend: AutoMovieEngineVector3.add(
+        wrist.point,
+        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), {
+          x: side === "left" ? 0.24 : -0.24,
+          y: -0.22,
+          z: -0.14,
+        }),
+      ),
+    };
+  }
+
+  /*
+   * Place the wrist so the body's grip socket meets the handle in world space.
+   * A long handle can also supply the shoulder and section the hand may slide on.
+   */
+  export function wrist(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    handle: IContact["world"],
+    reach?: IReach,
+  ): IWrist {
     // A hand may take a long round handle anywhere along it: it slides to
     // the point of the handle nearest the shoulder.
     if (reach !== undefined) {
-      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(handle.rotation, {
-        x: 1,
-        y: 0,
-        z: 0,
-      });
+      const axis: IAutoMovieVector3 = AutoMovieEngineQuaternion.rotateVector(
+        handle.rotation,
+        {
+          x: 1,
+          y: 0,
+          z: 0,
+        },
+      );
       const along: number = Math.max(
         -reach.length / 2,
         Math.min(
@@ -175,8 +225,16 @@ export namespace AquaticProp {
       "grip",
     );
     const rotation: IAutoMovieQuaternion = HumanHand.align(grip, {
-      normal: AutoMovieEngineQuaternion.rotateVector(handle.rotation, { x: 0, y: -1, z: 0 }),
-      forward: AutoMovieEngineQuaternion.rotateVector(handle.rotation, { x: 1, y: 0, z: 0 }),
+      normal: AutoMovieEngineQuaternion.rotateVector(handle.rotation, {
+        x: 0,
+        y: -1,
+        z: 0,
+      }),
+      forward: AutoMovieEngineQuaternion.rotateVector(handle.rotation, {
+        x: 1,
+        y: 0,
+        z: 0,
+      }),
     });
     const point: IAutoMovieVector3 = AutoMovieEngineVector3.subtract(
       handle.translation,
@@ -186,16 +244,17 @@ export namespace AquaticProp {
       point,
       rotation,
       contact: grip.point,
-      bend: AutoMovieEngineVector3.add(
-        point,
-        AutoMovieEngineQuaternion.rotateVector(humanPostureHeading(posture), {
-          x: side === "left" ? 0.24 : -0.24,
-          y: -0.22,
-          z: -0.14,
-        }),
-      ),
     };
   }
+}
+
+/*
+ * The wrist's world target and its grip socket in hand space.
+ */
+interface IWrist {
+  point: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  contact: IAutoMovieVector3;
 }
 
 /*

@@ -101,14 +101,15 @@ export function validateWetZones(
         `unknown wet grade "${String(zone.grade)}"`,
         zone.grade,
       );
-    if (zone.upturn < 0)
+    if (!Number.isFinite(zone.upturn) || zone.upturn < 0)
       out.push(
         "range",
         `${path}.upturn`,
         `membrane upturn must be a finite number >= 0, but was ${zone.upturn}`,
         zone.upturn,
       );
-    if (zone.slope < 0)
+    const slopeAdmitted: boolean = Number.isFinite(zone.slope) && zone.slope >= 0;
+    if (!slopeAdmitted)
       out.push(
         "range",
         `${path}.slope`,
@@ -237,7 +238,7 @@ export function validateWetZones(
         `a "${zone.grade}" zone must fall to at least one drain`,
         zone.drains,
       );
-    if (zone.slope <= 0)
+    if (slopeAdmitted && zone.slope === 0)
       out.push(
         "range",
         `${path}.slope`,

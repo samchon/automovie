@@ -16,6 +16,10 @@ import { vclose } from "../../internal/vclose";
  * Scenario: against a strike coming along -Z (so forward is +Z) from the left,
  * the hip at (0, 1, 0), a 0.45 m thigh and 0.4 m shank lay the knee and ankle
  * on those directions, and the segments keep their lengths.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains construction of a virtual leg goal and its knee hint in the facing frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the pose goal with a fixed hip, direction, 0.45 m thigh and 0.4 m shank.
+ * @evidence contracts/development/testing.md#independent-expectations Directions normalized independently give the two endpoints. Distances must preserve 0.45 and 0.4 m along the rig chain.
  */
 export function test_motions_striking_defend_goals(): void {
   const hip = { x: 0, y: 1, z: 0 };

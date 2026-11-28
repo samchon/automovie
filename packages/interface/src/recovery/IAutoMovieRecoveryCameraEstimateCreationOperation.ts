@@ -7,20 +7,17 @@ import type {
 } from "..";
 
 /**
- * Qualify completed automatic observations and assemble owned camera evidence.
- * Every independent final gate runs when its required observations exist. A
- * completed observation artifact may refuse its camera; only a candidate
- * passing all gates exposes a relative transform. No shape reconstruction is
- * performed.
+ * Callable qualification of observed calibrated pair features and tentative
+ * matches into pair evidence.
  */
 
 export namespace IAutoMovieRecoveryCameraEstimateCreationOperation {
   /**
-   * Qualify completed automatic observations and assemble owned camera
-   * evidence. Every independent final gate runs when its required observations
-   * exist. A completed observation artifact may refuse its camera; only a
-   * candidate passing all gates exposes a relative transform. No shape
-   * reconstruction is performed.
+   * Use the admitted ordered charts, measured features and matches to build
+   * pair evidence. Evaluate the available epipolar, pose and planar
+   * qualification gates. The completed record retains a refused result's
+   * diagnostics and carries a relative transform only after the pair
+   * qualifies.
    */
 
   export type Operation = (

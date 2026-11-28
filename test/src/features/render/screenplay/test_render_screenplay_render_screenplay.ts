@@ -17,6 +17,10 @@ import { TREE_SCRIPT } from "../../internal/TREE_SCRIPT";
  *    line carries `[t=1.5s]`, an unanchored one does not.
  * 3. A present caption renders bracketed; the caption-less beat renders none.
  * 4. Determinism: rendering twice yields byte-identical text.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Renders the screenplay hierarchy in order with dialogue, anchors and available captions in plain text.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls screenplay rendering on a five-kind tree with both timed and untimed dialogue and a caption-less beat, then repeats the same input.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit ordered fragments pin the hierarchy and bracketed time/caption formatting. Absence of a caption is checked and a second render must match the first bytes.
  */
 export function test_render_screenplay_render_screenplay(): void {
   const text: string = AutoMovieRenderScreenplay.render(TREE_SCRIPT);

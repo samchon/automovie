@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
+import { AutoMovieEngineLoftAdmissionError } from "../../AutoMovieEngineLoftAdmissionError";
 
 /*
  * Apply the existing frame product rule to a complete local total2.
@@ -75,6 +76,19 @@ export function loftWorldJet(
     );
     dtt[k] = total(times(u0, local.tt[0]), times(w0, local.tt[1]));
   }
+  // Use the complete output so the established input-read and overflow order
+  // still decides which failure propagates.
+  if (
+    p.some(Number.isNaN) ||
+    ds.some(Number.isNaN) ||
+    dt.some(Number.isNaN) ||
+    dss.some(Number.isNaN) ||
+    dst.some(Number.isNaN) ||
+    dtt.some(Number.isNaN)
+  )
+    throw new AutoMovieEngineLoftAdmissionError(
+      "The world total2 has a nonfinite coordinate or derivative.",
+    );
   const out: IAutoMovieLoftWorldJetWorld = {
     p,
     s: ds,

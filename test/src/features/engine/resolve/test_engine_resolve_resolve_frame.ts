@@ -60,6 +60,10 @@ const at: (result: IAutoMovieResolveOutput, id: string) => IAutoMovieVector3 = (
  *    tip to (0, 2, 0).
  * 5. A spring driver is deferred when no spring state is threaded.
  * 6. A clip addressing a node that is not in the scene is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names static, clipped, clamped, aimed, and spring-deferred frames plus an invalid clip target.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `resolveFrame` on the same small typed arm scene with prepared clips, limits, and drivers. It compares world node positions, the whole limit violation, and the deferred spring when no state is threaded.
+ * @evidence contracts/development/testing.md#independent-expectations Two unit links along +X put the tip at (2, 0, 0). Halfway through the slide the ball reaches X 2, then a cap at 1 both moves it to X 1 and records actual 2. Aiming at +Y rotates the unit links to (0, 1, 0) and (0, 2, 0).
  */
 export function test_engine_resolve_resolve_frame(): void {
   const still: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({

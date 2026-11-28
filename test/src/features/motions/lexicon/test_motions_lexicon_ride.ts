@@ -47,6 +47,10 @@ import { throwsError } from "../../internal/throwsError";
  *    knee pole through a translating and turning site. A pedal or a support
  *    without the exact named ball plant keeps the ordinary ride path.
  * 5. A newly acquired foot drops the entry fit and plants on its moving tread.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines rising trot, exact support-window authority and animation of acquired stirrups and seat rest.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples posting and authored stride tracks, builds seated and rising contact windows and reads moving stirrup and ordinary pedal goals.
+ * @evidence contracts/development/testing.md#independent-expectations The specified 0.1 m post peaks midway through a 0.8 s stride. Only an exact incoming ball plant retains its seed and acquisition advances the new moving tread goal.
  */
 export function test_motions_lexicon_ride(): void {
   // 1. Posting.

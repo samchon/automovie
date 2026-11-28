@@ -4,19 +4,14 @@ import type {
   IAutoMovieRecoveryIndexedMesh,
 } from "..";
 
-/**
- * Builds a private supporting-face orientation witness; its result
- * distinguishes outer from cavity contours. An explicit registered sign
- * bypasses global-volume inference and retains the supplied material-side
- * convention for open or independently oriented source shells.
- */
+/** Callable material-side witness for a closed observed cut. */
 
 export namespace IAutoMovieMeshSectionOrientation {
   /**
-   * Builds a private supporting-face orientation witness; its result
-   * distinguishes outer from cavity contours. An explicit registered sign
-   * bypasses global-volume inference and retains the supplied material-side
-   * convention for open or independently oriented source shells.
+   * Prepare source edge-to-face incidence and a material orientation sign.
+   * Supply a sign explicitly or infer it from nonzero signed source volume. The
+   * returned callable compares a closed cut's observed segment and its
+   * supporting face in the plane.
    */
 
   export type Operation = (

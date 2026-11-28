@@ -85,6 +85,10 @@ const {
  *
  * Every box is compared as a whole record with its coordinates snapped to a
  * micrometre, so a field beside the two corners is a difference.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios trace the rest and world boxes through width-driven framing, frustum probes, grading and the unmeasured and thin geometry controls.
+ * @evidence contracts/development/testing.md#behavioral-verification The test measures authored primitives and mesh vertices, frames their node extents, and compares required body positions against the generated cameras. It exercises staged orientations, moved geometry and missing or degenerate extents.
+ * @evidence contracts/development/testing.md#independent-expectations The authored facade is 60 metres wide, two deep and 24 high. A quarter turn about Y exchanges X and Z magnitudes, and the independent 1.15-span pinhole fit is determined by the larger projected extent. Height-only and offset geometry controls lose the documented probes.
  */
 export function test_engine_film_camera_node_subject_width(): void {
   const model: IAutoMovieModel = facade("facade-model", WIDTH / 2);

@@ -29,7 +29,8 @@ const pose: (flexion: number, twist: number) => IAutoMovieJointPose = (
 });
 
 /**
- * `clampJointRom` moves each angle to the nearest bound of its interval.
+ * `clampJointRom` clamps angles to declared intervals and an optional swing
+ * cone.
  *
  * Scenarios:
  *
@@ -44,6 +45,10 @@ const pose: (flexion: number, twist: number) => IAutoMovieJointPose = (
  *    10..90 with abduction 90 under a 20 degree cap stays at or above 10, and
  *    the result validates, as does the mirrored max < 0 box.
  * 6. An immobile axis is forced to 0 and the lone flexion is pulled to 100.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names both interval ends, unchanged interior, cone projection, null and immobile axes, and boxes excluding neutral.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public Kinematics.clampJointRom with authored bounds and joint records, comparing interval results directly and checking gated box feasibility.
+ * @evidence contracts/development/testing.md#independent-expectations Clipping each scalar gives the literal bounds. At an equal-angle cone corner, the half-angle quaternion equation gives 2 acos(sqrt(cos 50 degrees)). Lone flexion lands at 100, and each neutral-excluding box retains its signed limit.
  */
 export function test_engine_rom_clamp_joint_rom(): void {
   TestValidator.equals(

@@ -23,6 +23,10 @@ const FOG_ROUNDING: number = 32 * Number.EPSILON;
  * 2. A direct density is borrowed. A second competing fog form is refused.
  * 3. Nonpositive depth, out-of-domain transmission and arithmetic overflow each
  *    identify their own field.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the squared-depth estimate, unchanged direct density, competing inputs and separate field errors.
+ * @evidence contracts/development/testing.md#behavioral-verification The test lowers an explicit fog reference and reads its color and density, evaluates transmission at a new depth, checks the direct density identity and verifies all addressed violations.
+ * @evidence contracts/development/testing.md#independent-expectations Solving exp(-(density times depth)^2) at 16 metres and 0.25 transmission gives sqrt(2 ln 2)/16. Doubling depth raises transmission to the fourth power, giving 1/256. Unit transmission gives density zero. The invalid references independently violate domain or finite arithmetic.
  */
 export function test_engine_film_resolve_staged_fog(): void {
   const out: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();

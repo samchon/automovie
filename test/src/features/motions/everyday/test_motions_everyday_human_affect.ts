@@ -403,6 +403,10 @@ namespace part_affect_held_hands {
  *   and its ±30 % seeded range, seconds.
  * - `affect_held_hands`: `affectHeldHands` keeps the hands an action holds by
  *   contact on their contacts while a trunk layer moves the body under them.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The affect layer writes joint pulses, repeats seeded breathing intervals, and preserves hands on held contacts.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls angle, breathing, and held-hand readers on explicit times, seeds, intensities, and stock hand contacts.
+ * @evidence contracts/development/testing.md#independent-expectations Pulse endpoints are zero and paired amplitudes scale with intensity. The scripted random draws and fixed ground contact distinguish periodicity and contact preservation from coincident poses.
  */
 export async function test_motions_everyday_human_affect(): Promise<void> {
   part_human_affect_angles.verify();

@@ -13,6 +13,8 @@ Choose the smallest implementation that performs those details.
 3. Register a row to reuse a fitted set of parameters with a name.
 4. Register a law with [effector goals](../laws/authoring.md) for channels or times with new mechanics.
 
+Use [scene recipes](scene-recipes.md) to find staged examples that combine supported roles and actions.
+
 For example, a startled retreat needs the abrupt reactions and steps observed for that person. A kickboxing backstep carries its own stance and rhythm. A wuxia scene's style comes from the studied performance, including how its cast moves before and after contact. Use a shipped action only where its displayed movement fits that style.
 
 Keep fitted phases around a custom interval and join at admitted events or cuts. Overlay when the carrier yields the required channels and retains root motion and held contacts.

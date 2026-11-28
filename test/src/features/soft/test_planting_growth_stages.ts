@@ -47,8 +47,6 @@ const span: (start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Derives the recipe at dormant, quarter, half, full and eleven sampled stages plus a single-level boundary; counts, endpoints, radii and ancestry expose incorrect extension or branching.
  * @evidence contracts/development/testing.md#independent-expectations The documented clamped extension law and authored ratios yield expected coordinates independently; vclose/nclose compare geometric values, while Object.is retains exact dyadic radii and their continuity witness.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers empty bounds, level-emergence boundaries, full depth, sampled monotonicity and zero-onset single-level growth; monotonicity is checked only at eleven samples, and foliage/pruning/seed behavior belongs to separate tests.
- * @evidence contracts/development/testing.md#execution-ownership The named discoverable export directly exercises portable growPlanting semantics and owns all six scenarios without a native consumer, browser, GPU or dynamic registration.
  *
  * Scenarios:
  *
@@ -66,7 +64,7 @@ const span: (start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (
  * 6. A recipe with a single level and no onset delay is the boundary case where
  *    the span is exactly one, so extension equals the stage itself.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: At `stage = 0` nothing has emerged: no branch, no leaf, and `null` bounds).
+ * @evidence contracts/development/common.md#meaningful-documentation Dormant, quarter, half and full growth distinguish trunk extension and order emergence. A monotone stage sweep and a one-level recipe exercise the growth boundaries.
  */
 export function test_planting_growth_stages(): void {
   const dormant: IAutoMoviePlantingState = at(0);

@@ -1,7 +1,10 @@
 import type { IAutoMovieHumanHipPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanHipPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Hip flexion, abduction and rotation in degrees from neutral. Positive values
+ * lift the thigh forward, lift it away from the body or turn it externally.
+ */
 export type IAutoMovieHumanHipPoseSchema = IAutoMovieHumanHipPose & {
   /** Flexion 132.1, extension 17.75 (measured). */
   flexion?: number & tags.Minimum<-17.75> & tags.Maximum<132.1>;

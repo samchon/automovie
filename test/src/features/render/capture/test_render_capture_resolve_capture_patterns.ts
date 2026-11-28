@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The `parts`, `color` and focus patterns resolve in that order; a path
  *    whose ancestor matched too is counted but not listed.
  * 2. A pattern that matches nothing resolves to no path and a count of 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines resolution order for subject, color and focus patterns and suppression of descendant duplicates.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves a known set of scene paths against request and view patterns, including an unmatched request.
+ * @evidence contracts/development/testing.md#independent-expectations The declared ancestry makes a matching child count but leaves the listed parent's path as representative. An absent match gives empty paths and zero.
  */
 export function test_render_capture_resolve_capture_patterns(): void {
   const values: Map<string, string> = new Map<string, string>([

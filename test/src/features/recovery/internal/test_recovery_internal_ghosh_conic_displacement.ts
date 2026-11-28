@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  * 2. The coordinate (1, 0, 0) is already on the conic (a double root at 0), so
  *    the displacement is 0.
  * 3. A zero normal has no displacement.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the normal root and tangent double-root conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates positive, double and unresolved intersection cases on simple barycentric rows.
+ * @evidence contracts/development/testing.md#independent-expectations At weight one half the admissible solution of (t+2)^2/4=4 is t=2. The boundary point has a double root at zero.
  */
 export function test_recovery_internal_ghosh_conic_displacement(): void {
   const found = AutoMovieRecoveryConicApproximation.displaceGhoshApproximation({ value: [1, 2, 4], normal: [0, 1, 0] }, 0.5);

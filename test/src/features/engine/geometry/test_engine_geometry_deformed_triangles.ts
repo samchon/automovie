@@ -35,6 +35,10 @@ import { throwsError } from "../../internal/throwsError";
  *    components are about 1.48e308 (finite, norm overflowing) is admitted; an
  *    infinite cofactor is refused by name ("triangle 0 cannot transport its
  *    source orientation through vertex 0").
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names triangle topology and orientation admission, half-turn and extreme arithmetic, and malformed fields and mesh data.
+ * @evidence contracts/development/testing.md#behavioral-verification Deforms actual indexed and implicit faces, reads their area and normals, and calls the triangle guard on explicit transported-orientation cases.
+ * @evidence contracts/development/testing.md#independent-expectations Moving only the origin by (d, d, 0) gives signed twice-area 1−2d. A half turn preserves orientation under transport. These distinguish a collapse, a reversal and a legitimate rotating face.
  */
 export function test_engine_geometry_deformed_triangles(): void {
   const mesh: IAutoMovieMesh = {

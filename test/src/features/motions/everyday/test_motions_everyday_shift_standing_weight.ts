@@ -21,6 +21,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Turned 0.4 degrees it keeps its plant; turned 0.6 it does not.
  * 3. A held shift of 0.8 s is `shifted` at 0.8 s; one that holds 0.5 s and returns
  *    over 0.6 s releases at 1.3 s and returns at 1.9 s.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The weight-shift clock reaches and releases its transfer while a planted ankle stays within its translation and turn tolerances.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the planted-foot validator and phase clock with explicit pose changes and duration.
+ * @evidence contracts/development/testing.md#independent-expectations Offsets of 3 mm and 0.5 degrees define independent geometric limits, and the given transfer and hold durations fix the named instants.
  */
 export async function test_motions_everyday_shift_standing_weight(): Promise<void> {
   const ankle: IAutoMovieVector3 = { x: 0.1, y: 0.08, z: 0 };

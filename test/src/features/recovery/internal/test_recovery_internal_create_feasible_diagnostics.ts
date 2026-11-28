@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    remain unchanged; no state, array or invented age crosses the projection.
  * 3. Null baseline/auxiliary reports stay null, while an older auxiliary reason
  *    and trial failure remain unchanged beside a terminal baseline.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Specifies fixed observation values, JSON number encodings and report ownership.
+ * @evidence contracts/development/testing.md#behavioral-verification Projects the complete authored report and checks both populated and unavailable nested diagnostics against frozen source records.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies a separately authored projection for all 67 fields. A computed NaN stationarity is the string NaN after JSON round trip, while absent stationarity remains null.
  */
 export function test_recovery_internal_create_feasible_diagnostics(): void {
   const fit: IAutoMovieRecoveryFeasibleFit<readonly number[]> = {
@@ -213,6 +217,11 @@ export function test_recovery_internal_create_feasible_diagnostics(): void {
       lastDirection: null,
       lastSqp: null,
     });
+  const undetermined: IAutoMovieRecoveryFeasibleDiagnostics =
+    AutoMovieRecoveryCameraMap.createFeasibleDiagnostics({
+      ...fit,
+      stationarity: NaN,
+    });
   TestValidator.predicate(
     "unavailable values remain distinct from computed nonfinite values",
     unavailable.objectiveMultiplier === null &&
@@ -221,6 +230,7 @@ export function test_recovery_internal_create_feasible_diagnostics(): void {
       unavailable.complementarity === null &&
       unavailable.lastDirection === null &&
       unavailable.lastSqp === null &&
-      unavailable.trials.lastFailure === "armijo",
+      unavailable.trials.lastFailure === "armijo" &&
+      JSON.parse(JSON.stringify(undetermined)).stationarity === "NaN",
   );
 }

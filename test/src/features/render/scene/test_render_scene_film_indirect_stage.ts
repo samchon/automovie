@@ -32,6 +32,10 @@ import { compileMaterialShaderSource } from "../../internal/compileMaterialShade
  *
  * Pixels of a directional-lit scene drawn with and without occlusion are
  * compared on a real GPU under the visual-debugging skill.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names selected lit-material patching, shader insertion, temporary gate and absence.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives the indirect stage through a typed renderer port and actual standard and basic materials. Reads compile hook source, program key and gate state before, inside and after beauty, plus empty and absent settings.
+ * @evidence contracts/development/testing.md#independent-expectations The retained shader changes only indirect diffuse and specular after the ambient-occlusion chunk. A basic material stays unpatched. Gate state belongs only to the beauty callback. Empty or absent shading uses beauty alone.
  */
 export function test_render_scene_film_indirect_stage(): void {
   const lit: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();

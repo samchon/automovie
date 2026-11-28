@@ -5,10 +5,11 @@ import type { IAutoMoviePrepareBicubicAtlasBoundary64 } from "./IAutoMoviePrepar
 /** Admitted atlas preparation and shared per-invocation vertex accounting. */
 export namespace IAutoMovieBicubicAtlasPlan64 {
   /**
-   * Prepared canonical coefficients, adaptive leaves and shared
-   * arithmetic/cache services for one atlas invocation. Input controls and
-   * bindings remain borrowed by boundary closures; keep them unchanged
-   * throughout registry and emission.
+   * Prepared boundary authorities, patch plans and render-vertex accounting for
+   * one millimetre atlas invocation. Keep borrowed control and binding data
+   * stable from planning through emission. Invalid control ordinals cause
+   * structural refusal. An arithmetic omission still retains its patch's plan
+   * slot.
    */
   export type IResult = {
     /**
@@ -24,8 +25,8 @@ export namespace IAutoMovieBicubicAtlasPlan64 {
      */
     fanVertices: Map<string, Map<string, IAutoMovieBicubicAtlas64.Vertex>>;
     /**
-     * Euclidean norm of the supplied three components, preserving their units;
-     * no direction normalization or finite-value admission is implied.
+     * Euclidean norm of three components in their original unit. This
+     * arithmetic helper assumes its caller owns numeric admission.
      */
     norm: (p: AutoMovieVector3Tuple) => number;
     /**

@@ -45,6 +45,10 @@ const ROUNDING: number = 1e-9;
  * 2. A goal past the arm's reach is placed at the line, the arm straight.
  * 3. The pole lies `POLE` of the elbow-to-wrist length from the elbow, against the
  *    hand's travel as the elbow flexes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names placement on the pole side, straight-arm behavior beyond reach and the elbow pole's distance and direction.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses stored rig measures and synthetic wrist and pole targets to call motionHumanElbowPlace and motionHumanElbowPole. Measures the resulting joint and pole.
+ * @evidence contracts/development/testing.md#independent-expectations Distance to shoulder and wrist must match the two segment lengths. The projected elbow radius points toward +Y, and at full extension that radius vanishes. The pole is the declared forearm-length share in the direction opposing the flexed wrist.
  */
 export async function test_motions_compose_elbow_place(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

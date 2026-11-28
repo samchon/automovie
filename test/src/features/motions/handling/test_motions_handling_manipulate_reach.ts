@@ -33,6 +33,10 @@ const HOVER: number = 0.015;
  * 3. An explicit index sequence prepares that digit before reading any key. Both
  *    the established three-argument preparation and the one-press entry agree
  *    with the explicit sequence for the same site and depth.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines prepared per-digit geometry, key-depth and rounded chord for a pressed pose, including the saturation limit.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a quarter-turned hand and aligned normal with two press depths, counts digit preparation and compares the three public entry paths.
+ * @evidence contracts/development/testing.md#independent-expectations At half-radius drop the offset is (1 − √3/2) times radius and twice radius consumes the chord. The aligned press subtracts the authored key depth and rotated tip.
  */
 export async function test_motions_handling_manipulate_reach(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

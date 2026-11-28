@@ -5,360 +5,264 @@ import type {
   IAutoMovieRecoverySourceTopology,
 } from "..";
 
-/**
- * Acquisition-only source incidence for a finite observed slab. Input face
- * ordinals and slab-local occurrence identities bind measured ports and source
- * topology; this record is not engine generation input. Source positions,
- * triangle arrays and normals are absent except for measured critical
- * positions. Critical brackets identify source intervals rather than fitted
- * curves at those brackets.
- */
+/** Source geometry and incidence witnessed within one registered physical slab. */
 export interface IAutoMovieRecoverySlabObservation {
-  /** Spatial and scalar coordinate unit for this acquisition record. */
+  /** Physical unit of scalar and Cartesian positions. Always mm. */
   unit: "mm";
 
-  /**
-   * Actual normalized source projection direction, shared with the cutter and
-   * PL classifier.
-   */
+  /** Unit cutting normal used for physical source scalar heights. */
   axis: Readonly<AutoMovieVector3Tuple>;
 
-  /**
-   * Maintained conservative boundary-link classifier used for event
-   * qualification.
-   */
+  /** Versioned boundary regular-path rule used to classify PL events. */
   criticalPolicy: "boundary-regular-path-v1";
 
-  /**
-   * Signed lower and upper bounds along the fixed observation's normalized
-   * axis, millimetres.
-   */
+  /** Requested [before, after] station coordinates in millimetres. */
   boundsMm: [number, number];
 
   /**
-   * Copied source-address registries from this slab's actual clipped-cell
-   * observation. IDs are opaque and local to this slab; they must not be parsed
-   * or reused across observations. This metadata supplies address joins, not
-   * curve phase, surface coefficients or generation geometry.
+   * Published source scalar nodes, exact aliases and oriented occurrences in
+   * original address spaces.
    */
   sourceIncidence: {
-    /** Actual declared source-incidence policy used for this observation. */
+    /**
+     * Whether clipping preserved raw topology or used exact-position canonical
+     * vertex incidence.
+     */
     incidence: "raw" | "canonical";
 
-    /**
-     * All face addresses in this record index the supplied triangles array. A
-     * selected mesh retains its selected local ordinals; the caller owns any
-     * map to an external original mesh.
-     */
+    /** Literal address space for original input triangle ordinals. */
     triangleOrdinalSpace: "input-triangles";
 
-    /**
-     * Node vertex memberships index the supplied verticesMm array,
-     * independently of any face selection or external vertex numbering.
-     */
+    /** Literal address space for original input vertex ordinals. */
     vertexOrdinalSpace: "input-vertices";
 
     /**
-     * Every observed raw node, including contacts and aliases. Scalar values
-     * are signed millimetres on axis; memberships retain original input vertex
-     * addresses without coordinates.
+     * Raw clipping nodes with their join identities and source scalar
+     * coordinates.
      */
     nodes: Array<{
-      /** Raw endpoint address referenced by occurrence from/to. */
+      /**
+       * Raw clipping-node ID naming one original vertex or a cut-edge
+       * intersection.
+       */
       id: string;
 
       /**
-       * Declared incidence address referenced by cycle nodes; multiple raw
-       * nodes may share it.
+       * Joining ID formed with raw or canonical vertex addresses under the
+       * selected incidence policy.
        */
       incidenceId: string;
 
       /**
-       * Original input vertex memberships: one source vertex or the two
-       * endpoints of a clipped source edge.
+       * One original vertex ordinal for a vertex node. Two original ordinals
+       * identify the edge of a cut intersection.
        */
       vertices: number[];
 
-      /** Actual source projection or clipping-plane coordinate, millimetres. */
+      /**
+       * Physical scalar height of the raw vertex or cut intersection in
+       * millimetres.
+       */
       scalar: number;
     }>;
 
-    /**
-     * Existing raw-node to incidence-address aliases, copied without merging
-     * their memberships. Unlisted raw nodes have identical raw and incidence
-     * addresses.
-     */
+    /** Raw node identities associated with the selected incidence IDs. */
     aliases: Array<{
-      /** Raw node address in nodes. */
+      /** Original clipping-node identity before canonical incidence is applied. */
       rawNode: string;
 
-      /** Shared declared incidence address of that raw node. */
+      /** Incidence identity used to join this raw node in the clipped source. */
       incidenceId: string;
     }>;
 
-    /**
-     * Every observed two-cell halfedge occurrence, including interior edges.
-     * Cycle and port occurrence IDs join here. Side names describe scalar
-     * strata; physicalBoundary separately records an actual source boundary
-     * edge.
-     */
+    /** Oriented original halfedge occurrences from the clipped source region. */
     occurrences: IAutoMovieRecoverySourceHalfedge[];
   };
 
   /**
-   * Every edge-connected two-dimensional source component, including
-   * unrepresented or unsupported components.
+   * Clipped source components with support, observed topology, boundary cycles
+   * and issue codes.
    */
   components: Array<{
-    /**
-     * Zero-based ordinal in this record's owning cell, component or control
-     * registry; it is not a source coordinate.
-     */
+    /** Component ID within the reported clipped region. */
     id: number;
 
-    /**
-     * Original input triangle ordinals retained as acquisition provenance; they
-     * are not generated mesh indices.
-     */
+    /** Original source triangle IDs contributing to this clipped component. */
     sourceTriangleIds: number[];
 
     /**
-     * Observed relative-sheet incidence counts and independently qualified
-     * manifold/orientation invariants; no embedding claim follows.
+     * Manifold, orientability and other observed topology qualifications for
+     * the component.
      */
     topology: IAutoMovieRecoverySourceTopology;
 
     /**
-     * Ordered incidence-node addresses and occurrence traversal words from the
-     * same observed boundary walk. Nodes use sourceIncidence.nodes incidenceId,
-     * while occurrence endpoints use raw id.
+     * Boundary cycles of the clipped component with source orientation and port
+     * incidence.
      */
     cycles: Array<{
       /**
-       * Source-boundary role: before or after scalar plane, or an actual
-       * physical source boundary.
+       * Before, after or physical for a cycle with one occurrence side. Mixed
+       * for multi-side cycles.
        */
       side: "before" | "after" | "physical" | "mixed";
 
       /**
-       * Whether traversal follows a qualified coherent sheet orientation or
-       * remains explicitly unqualified.
+       * Whether the directed cycle directions are supported by coherent source
+       * occurrence orientation.
        */
       orientation: "coherent" | "unqualified";
 
-      /**
-       * Declared observation-port identities participating in this component or
-       * diagnostic.
-       */
+      /** IDs of published cut ports sharing an occurrence with this cycle. */
       portIds: string[];
 
-      /**
-       * Number of directed halfedge occurrences included in this boundary
-       * observation.
-       */
+      /** Number of directed occurrences in the observed boundary cycle. */
       occurrenceCount: number;
 
-      /**
-       * Observed boundary-node identities in traversal order; repeated physical
-       * positions retain separate incidence when declared.
-       */
+      /** Ordered clipped-incidence node IDs around the boundary cycle. */
       nodes: string[];
 
-      /**
-       * Directed halfedge occurrences retained in actual source-cell traversal
-       * order.
-       */
+      /** Ordered source occurrence IDs and traversal directions for the cycle. */
       occurrences: Array<{
-        /**
-         * Stable identity within the owning chart, boundary or occurrence
-         * registry; equal coordinates do not create identity.
-         */
+        /** ID into the sourceIncidence occurrences population. */
         id: string;
         /**
-         * Traversal orientation relative to the stored occurrence: +1 forward
-         * and -1 backward.
+         * Cycle traversal direction relative to the occurrence's stored
+         * direction.
          */
         direction: 1 | -1;
       }>;
     }>;
 
-    /**
-     * Topology/admission categories affecting the current observed sheet; an
-     * empty list is not a surface-fit certificate.
-     */
+    /** Source region issue codes assigned to this component. */
     issueCodes: string[];
   }>;
 
   /**
-   * Exact cutter provenance and published closed/open curve or
-   * unsupported-contour identity for every boundary contour. Occurrence IDs
-   * address this slab's private incidence word.
+   * Per-cut observable contour addresses, incidence attachments and explicit
+   * status.
    */
   ports: Array<{
-    /**
-     * Stable identity within the owning chart, boundary or occurrence registry;
-     * equal coordinates do not create identity.
-     */
+    /** Bound-side section and raw contour address used as the port ID. */
     id: string;
 
-    /**
-     * Source-boundary role: before or after scalar plane, or an actual physical
-     * source boundary.
-     */
+    /** Whether this contour belongs to the lower or upper requested cut. */
     side: "before" | "after";
 
-    /**
-     * Signed section-plane coordinate along the registered unit sweep axis, in
-     * millimetres.
-     */
+    /** Signed physical coordinate of the port's observed section in millimetres. */
     coordinateMm: number;
 
-    /**
-     * Raw contour ordinal within its physical plane, before fitting or
-     * rejection.
-     */
+    /** Ordinal of the original raw contour at the observed section. */
     contourIndex: number;
 
     /**
-     * Original closed/open/failed/contact publication outcome, retained
-     * independently of this later observation.
+     * Saved publication status and, when present, its closed loop or open
+     * report address.
      */
     publication: IAutoMovieRecoverySourceLineage["publication"];
 
-    /**
-     * Original faces that emitted the observed cut contribution, excluding
-     * unrelated endpoint-star neighbours.
-     */
+    /** Original source triangle IDs that actually emitted the cut contour. */
     exactSourceTriangleIds: number[];
 
-    /**
-     * Observed two-cell components or their query-local ordinals;
-     * lower-dimensional contacts do not merge them.
-     */
+    /** Clipped component IDs incident to the published cut support. */
     components: number[];
 
-    /**
-     * Directed halfedge occurrences retained in actual source-cell traversal
-     * order.
-     */
+    /** Source occurrence IDs binding the supported boundary of this port. */
     occurrences: string[];
 
-    /**
-     * Closed outcome discriminator; unavailable or ambiguous arms retain
-     * diagnostics instead of fabricated successful data.
-     */
+    /** Whether the source binding is unique, contact only, ambiguous or missing. */
     status: "unique-component" | "contact-only" | "ambiguous" | "missing";
 
     /**
-     * Contour-identity-only explicitly withholds a pointwise or transverse
-     * material-parameter correspondence.
+     * Literal evidence level establishing contour identity without a fitted
+     * parameter correspondence.
      */
     parameterCorrespondence: "contour-identity-only";
   }>;
 
   /**
-   * Every PL critical source vertex in the closed slab. Qualified means a
-   * nonflat regular link, representable brackets and one incident orientable
-   * manifold component without recorded issues; this does not certify embedding
-   * or physical jets.
+   * Physical critical observations in the requested interval, including
+   * unresolved event links.
    */
   events: Array<{
     /**
-     * Stable identity within the owning chart, boundary or occurrence registry;
-     * equal coordinates do not create identity.
+     * Source critical identity assembled from its original critical vertex
+     * address.
      */
     id: string;
 
     /**
-     * Signed section-plane coordinate along the registered unit sweep axis, in
+     * Signed physical scalar position of the source critical event in
      * millimetres.
      */
     coordinateMm: number;
 
-    /**
-     * Physical position in the registered millimetre frame; no coordinate
-     * matching or source repair is implied.
-     */
+    /** Registered Cartesian source critical point in millimetres. */
     pointMm: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * Connected-component count in the lower link of the critical source
-     * vertex.
-     */
+    /** Number of observed components in the source event's lower link. */
     lowerComponents: number;
 
-    /**
-     * Connected-component count in the upper link of the critical source
-     * vertex.
-     */
+    /** Number of observed components in the source event's upper link. */
     upperComponents: number;
 
-    /**
-     * Whether the observed local incidence meets the owning operation's
-     * manifold checks; no embedding claim follows.
-     */
+    /** Manifold finding for the original critical link. */
     manifold: boolean;
 
-    /** Whether exact scalar ties occur in the critical vertex neighbourhood. */
+    /**
+     * Whether the original critical event is associated with a flat source
+     * level.
+     */
     flat: boolean;
 
     /**
-     * Whether the owning operation's explicit numerical/topological admission
-     * predicates passed; no stronger surface or fidelity claim follows.
+     * Whether source link and bracket admission support a unique incident
+     * manifold orientable component without reported issues.
      */
     qualified: boolean;
 
     /**
-     * Lower physical sweep coordinate in registered millimetres; paired with
-     * the strictly greater afterMm.
+     * Measured lower physical event bracket in millimetres, or null if
+     * unavailable.
      */
     beforeMm: number | null;
 
     /**
-     * Upper physical sweep coordinate in registered millimetres; paired with
-     * the strictly smaller beforeMm.
+     * Measured upper physical event bracket in millimetres, or null if
+     * unavailable.
      */
     afterMm: number | null;
 
     /**
-     * Observed two-cell components or their query-local ordinals;
-     * lower-dimensional contacts do not merge them.
+     * IDs of clipped components touched by original faces in the critical
+     * source star.
      */
     components: number[];
 
     /**
-     * Observed admission failures and qualification limits in production order;
-     * an empty array adds no extra certificate.
+     * Reasons source event incidence, link or bracket qualification remained
+     * unresolved.
      */
     diagnostics: string[];
   }>;
 
   /**
-   * All reported source-incidence issues; unsupported contacts and
-   * unrepresented boundaries remain visible.
+   * Local source incidence issues with affected original triangles, components
+   * and observed ports.
    */
   issues: Array<{
-    /**
-     * Diagnostic category produced by the topology observer; it carries no
-     * automatic repair instruction.
-     */
+    /** Source region issue category. */
     code: string;
 
-    /**
-     * Original input triangle ordinals retained as acquisition provenance; they
-     * are not generated mesh indices.
-     */
+    /** Original source triangle ordinals associated with the issue. */
     sourceTriangleIds: number[];
 
-    /**
-     * Observed two-cell components or their query-local ordinals;
-     * lower-dimensional contacts do not merge them.
-     */
+    /** IDs of clipped components whose issue references include this finding. */
     components: number[];
 
     /**
-     * Declared observation-port identities participating in this component or
-     * diagnostic.
+     * IDs of published cuts incident to the issue as reported by the source
+     * region.
      */
     portIds: string[];
   }>;

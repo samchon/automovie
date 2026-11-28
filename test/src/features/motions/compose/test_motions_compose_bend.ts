@@ -47,6 +47,10 @@ const LENGTH: number = 1e-6;
  * rig, topology, rest and hanging arms, and the shoulder it is checked against
  * is read by forward kinematics on the whole body, records only
  * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the reachable elbow, segment length preservation, two neighbouring strain comparisons, turning radius and fallback.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls HumanBend.solve, strain and turn with a target relative to the stored rig's shoulder and a separate far target.
+ * @evidence contracts/development/testing.md#independent-expectations The authored rig lengths bound both segments. Rotation about the reach line preserves shoulder distance. Strain comparisons at plus and minus 30 degrees test the local choice, and a target beyond arm length exercises refusal and fallback.
  */
 export async function test_motions_compose_bend(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

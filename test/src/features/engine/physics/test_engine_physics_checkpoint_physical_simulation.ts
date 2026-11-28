@@ -100,6 +100,10 @@ function previous(
  * 3. With a snapshot at every interval an edit at 25 resumes from 24, and so does
  *    a push stated at 25.
  * 4. A film twice as long over the same first 30 intervals resumes from 30.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States checkpoint selection before the first edited interval, plus restart when identity or substeps change.
+ * @evidence contracts/development/testing.md#behavioral-verification Edits one body's tracking strength and adds a push at known ticks in a 30-interval fixture with cadence 10 or 1.
+ * @evidence contracts/development/testing.md#independent-expectations With cadence 10, edits at 25, 20 and 0 resume at 20, 10 and 0. Cadence 1 resumes at 24, and a pure extension reuses the unchanged prefix through 30.
  */
 export function test_engine_physics_checkpoint_physical_simulation(): void {
   const original: IAutoMoviePhysicalSimulationInput.IInput = workload(COUNT);

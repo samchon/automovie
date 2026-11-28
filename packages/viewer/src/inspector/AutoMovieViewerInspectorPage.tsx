@@ -1,8 +1,9 @@
 import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
+  IAutoMovieInspectionTrail,
 } from "@automovie/interface";
-import { type IAutoMovieRenderDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieRenderDrawSubject, AutoMovieRenderDraw, AutoMovieRenderInspectionMarks } from "@automovie/render";
 import {
   type ChangeEvent,
   type Dispatch,
@@ -11,6 +12,7 @@ import {
   type ReactNode,
   type RefObject,
   type SetStateAction,
+  useCallback,
   useEffect,
   useReducer,
   useRef,
@@ -19,6 +21,7 @@ import {
 
 import { InspectorDiagnosticsPanel } from "./internal/panels/InspectorDiagnosticsPanel";
 import { InspectorMarksPanel } from "./internal/panels/InspectorMarksPanel";
+import { InspectorMotionTrailPanel } from "./internal/panels/InspectorMotionTrailPanel";
 import { AutoMovieViewerInspectorPlayhead } from "./AutoMovieViewerInspectorPlayhead";
 import { InspectorRequestPanel } from "./internal/panels/InspectorRequestPanel";
 import { InspectorSelectionPanel } from "./internal/panels/InspectorSelectionPanel";
@@ -54,7 +57,10 @@ import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector";
  * shows the picture and how it is drawn, and Diagnostics opens once the mount
  * reports a confirmed error. Diagnostics keeps the newest incidents the mount
  * reports, which the console also receives, and moves the picture to a chosen
- * witness through an ordinary request edit; hiding its witnesses hides the
+ * witness through an ordinary request edit. Selecting a diagnostic path also
+ * displays checker-supplied coverage for the latest painted sample. Marks
+ * displays source-backed motion trail numbers for the sample actually painted,
+ * when the drawn selection supplies them. Hiding diagnostic witnesses hides the
  * cubes and the status line, not the checks. While focus is inside the
  * inspector, the playback keys of `AutoMovieViewerInspector.handleKey` drive the
  * playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a
@@ -98,10 +104,27 @@ export function AutoMovieViewerInspectorPage(
   const [legend, setLegend] = useState<IAutoMovieInspectionLegendEntry[]>([]);
   const [labels, setLabels] =
     useState<IAutoMovieViewerInspectorScene.ILabels>(UNLABELLED);
+  const [motionTrails, setMotionTrails] = useState<{
+    readonly trails: readonly IAutoMovieInspectionTrail[];
+    readonly seconds: number;
+  } | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [diagnosticMessage, setDiagnosticMessage] = useState<string | null>(
     null,
   );
+  const latestDiagnostics = useRef<IAutoMovieInspectionDiagnostics | null>(null);
+  const selectedPath = useRef<string>("");
+  const [coveragePath, setCoveragePath] = useState<string>("");
+  const [selectedCoverage, setSelectedCoverage] =
+    useState<AutoMovieRenderInspectionMarks.ISelectedDiagnostics | null>(null);
+  const showCoverage = useCallback((path: string): void => {
+    const packet = latestDiagnostics.current;
+    setSelectedCoverage(path === "" || packet === null ? null :
+      AutoMovieRenderInspectionMarks.selectDiagnostics({
+        observations: AutoMovieRenderInspectionMarks.reduceEpisodes([packet]),
+        paths: [path],
+      }));
+  }, []);
   const [incidents, setIncidents] = useState<
     IAutoMovieViewerInspectorScene.IIncident[]
   >([]);
@@ -139,9 +162,14 @@ export function AutoMovieViewerInspectorPage(
         ready: setFacts,
         legend: setLegend,
         labels: setLabels,
+        motionTrails: (trails, seconds): void =>
+          setMotionTrails(trails.length === 0 ? null : { trails, seconds }),
         error: setFailure,
-        diagnostics: (packet: IAutoMovieInspectionDiagnostics): void =>
-          setDiagnosticMessage(describeDiagnostics(packet)),
+        diagnostics: (packet: IAutoMovieInspectionDiagnostics): void => {
+          latestDiagnostics.current = packet;
+          setDiagnosticMessage(describeDiagnostics(packet));
+          if (selectedPath.current !== "") showCoverage(selectedPath.current);
+        },
         diagnosticIncident: (
           entry: IAutoMovieViewerInspectorScene.IIncident,
         ): void => {
@@ -174,11 +202,14 @@ export function AutoMovieViewerInspectorPage(
       scene.current = null;
       setFacts(null);
       setLabels(UNLABELLED);
+      setMotionTrails(null);
+      latestDiagnostics.current = null;
+      setSelectedCoverage(null);
       setDiagnosticMessage(null);
       setIncidents([]);
       mounted.dispose();
     };
-  }, [subject, name, playhead]);
+  }, [subject, name, playhead, showCoverage]);
 
   // Witness visibility is a display choice the mount reads on its next frame.
   useEffect((): void => {
@@ -267,17 +298,21 @@ export function AutoMovieViewerInspectorPage(
             ): JSX.Element => (
               <span
                 key={label.path}
+                aria-label={label.path || "(root)"}
                 style={{
                   position: "absolute",
                   left: label.left,
                   top: label.top,
+                  width: label.width,
                   height: labels.lineHeight,
-                  fontSize: labels.lineHeight * 0.8,
+                  fontSize: labels.lineHeight * (2 / 3),
                   lineHeight: `${labels.lineHeight}px`,
                   fontFamily: "monospace",
                   background: "#000",
                   color: "#fff",
                   whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                   pointerEvents: "none",
                 }}
               >
@@ -286,6 +321,16 @@ export function AutoMovieViewerInspectorPage(
             ),
           )}
         </div>
+        {labels.dropped > 0 && (
+          <details>
+            <summary>{labels.dropped} requested labels omitted from the picture</summary>
+            <ul>
+              {labels.droppedPaths?.map((path) => (
+                <li key={path}>{path || "(root)"}</li>
+              ))}
+            </ul>
+          </details>
+        )}
         {witnesses && diagnosticMessage !== null && (
           <p role="status" style={{ margin: "4px 0" }}>
             {diagnosticMessage}
@@ -367,6 +412,9 @@ export function AutoMovieViewerInspectorPage(
             legend={legend}
             dispatch={dispatch}
           />
+          {motionTrails === null || inspection.trail.length === 0 ? null : (
+            <InspectorMotionTrailPanel {...motionTrails} />
+          )}
         </Section>
         <Section
           title="Selection"
@@ -397,6 +445,13 @@ export function AutoMovieViewerInspectorPage(
         >
           <InspectorDiagnosticsPanel
             incidents={incidents}
+            coveragePath={coveragePath}
+            selectedCoverage={selectedCoverage}
+            onCoveragePath={(value): void => {
+              selectedPath.current = value.trim();
+              setCoveragePath(value);
+              showCoverage(selectedPath.current);
+            }}
             paths={facts?.paths ?? []}
             witnesses={witnesses}
             onWitnesses={setWitnesses}

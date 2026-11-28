@@ -149,6 +149,10 @@ const blocked: (bounds: IAutoMoviePropBox) => string[] = (
  *    against the same route blocks it the moment a section is stated, and
  *    validation refuses the undeclared record at the field that is missing.
  * 5. A probe clear of every corridor blocks nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify taper, interior width station, undeclared section and a fully clear control, including the owning validation field.
+ * @evidence contracts/development/testing.md#behavioral-verification The test passes authored corridor descriptions and prepared bounds to propBlockedPassages and observes returned connector IDs. A separate environment validation call checks the missing section address.
+ * @evidence contracts/development/testing.md#independent-expectations At 1.5 metres from the center, the probe overlaps a four-metre width and clears a two-metre width. An independent interior station can widen a segment without changing either end width. A wholly unspecified section supplies no sweep width to intersect.
  */
 export function test_engine_film_prop_passage_section(): void {
   TestValidator.equals(

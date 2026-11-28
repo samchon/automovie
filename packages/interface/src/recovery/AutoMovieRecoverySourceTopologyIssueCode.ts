@@ -1,7 +1,6 @@
 /**
- * Finite categories emitted by scalar source-cell topology and port admission.
- * String literals distinguish degeneracy, nonmanifold incidence, orientation
- * and ownership failures; no units or numeric sentinel are involved.
+ * Closed vocabulary for observed source cell, boundary, orientation and port
+ * issues.
  */
 export type AutoMovieRecoverySourceTopologyIssueCode =
   | "collapsed-declared-incidence"

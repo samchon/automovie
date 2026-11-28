@@ -10,6 +10,10 @@ import * as THREE from "three";
  * 1. A unit cube has 12 edges and 6 face diagonals, 18 sides of 2 points each:
  *    one `edge` mark of 108 coordinates at the mesh's path.
  * 2. A mesh with no triangles has no mark.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases describe the mesh path and derive the coordinate count for a cube's unique triangle sides.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that cube edge measurement emits a single path-qualified mark and a mesh without triangles emits none.
+ * @evidence contracts/development/testing.md#independent-expectations Counts 12 cube edges and 6 face diagonals, each with two three-coordinate endpoints, to expect 108 coordinates.
  */
 export function test_render_scene_measure_inspection_edges(): void {
   const cube: THREE.Mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));

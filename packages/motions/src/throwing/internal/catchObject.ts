@@ -24,15 +24,15 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { HumanBall } from "../../ballStrike/internal/HumanBall";
-import { motionClock } from "../../compose/internal/motionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
-import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
 import { courseArmAtPace } from "../../compose/internal/courseArmAtPace";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
@@ -42,6 +42,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanGlove } from "./HumanGlove";
 import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
+import { catchObjectThumbCarry } from "./catchObjectThumbCarry";
 
 /*
  * Catching an object thrown by another action: the hands meet it where its path
@@ -78,6 +79,38 @@ import { catchObjectFingers } from "./catchObjectFingers";
  * chest, and a held prop handed from the throw.
  */
 export namespace catchObject {
+  /*
+   * Place the catch phases around the flight's contact, on the action clock.
+   * Scale the moving spans by the effective tempo. Keep the anticipatory
+   * lead and final hold in seconds.
+   */
+  export function clock(
+    contact: number,
+    travel: number,
+    tempo: number,
+    anchor: string,
+  ): IAutoMovieMotionClock {
+    const precontact: number = contact - 0.1;
+    if (precontact < 0)
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "base",
+        axis: "partner",
+        value: anchor,
+        reason: `the catch starts ${(-precontact).toFixed(2)} s too late to prepare`,
+        fix: "start the catch at least 0.1 s before the object arrives: with the throw, or cut from the thrower's own throw at its release",
+      });
+    const reach: number = Math.max(0, contact - travel * tempo);
+    const secured: number = contact + GIVE_TIME * tempo;
+    const held: number = secured + 0.4 * tempo;
+    return motionClock(held + 0.6, [
+      { name: "reach", seconds: reach },
+      { name: "prepare", seconds: Math.max(reach, precontact) },
+      { name: "contact", seconds: contact },
+      { name: "secured", seconds: secured },
+      { name: "held", seconds: held },
+    ]);
+  }
+
   /*
    * The action's name.
    */
@@ -218,7 +251,9 @@ export namespace catchObject {
         ? neutral
         : (context.carrier?.posture(contact) ?? neutral);
     const meet: IAutoMovieVector3 = timing.before(contact);
-    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(timing.speed);
+    const along: IAutoMovieVector3 = AutoMovieEngineVector3.normalize(
+      timing.speed,
+    );
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
       "leftUpperArm",
       "rightUpperArm",
@@ -242,7 +277,9 @@ export namespace catchObject {
       0.5,
     );
     if (
-      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(meet, shoulders)) >
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(meet, shoulders),
+      ) >
       arm + m.hand + m.shoulderHalfWidth
     )
       throw new AutoMovieMotionHumanRefusal({
@@ -253,29 +290,20 @@ export namespace catchObject {
         fix: "stand on the throw's path, or aim the throw at the catcher",
       });
 
-    // The clock on the catcher's own time, contact at the path's instant.
     const travel: number = motionHumanTiming.aimed(
-      AutoMovieEngineVector3.length(AutoMovieEngineVector3.subtract(meet, shoulders)),
+      AutoMovieEngineVector3.length(
+        AutoMovieEngineVector3.subtract(meet, shoulders),
+      ),
       2 * radius,
     );
-    const reach: number = Math.max(0, contact - travel);
-    if (contact - 0.1 < 0)
-      throw new AutoMovieMotionHumanRefusal({
-        kind: "base",
-        axis: "partner",
-        value: context.params.partner,
-        reason: `the catch starts ${(-contact + 0.1).toFixed(2)} s too late to prepare`,
-        fix: "start the catch at least 0.1 s before the object arrives: with the throw, or cut from the thrower's own throw at its release",
-      });
-    const secured: number = contact + GIVE_TIME;
-    const held: number = secured + 0.4;
-    const clock: IAutoMovieMotionClock = motionClock(held + 0.6, [
-      { name: "reach", seconds: reach },
-      { name: "prepare", seconds: Math.max(reach, contact - 0.1) },
-      { name: "contact", seconds: contact },
-      { name: "secured", seconds: secured },
-      { name: "held", seconds: held },
-    ]);
+    const clock: IAutoMovieMotionClock = catchObject.clock(
+      contact,
+      travel,
+      context.tempo ?? 1,
+      context.params.partner,
+    );
+    const reach: number = clock.at("reach");
+    const secured: number = clock.at("secured");
     const duration: number = clock.duration;
 
     // The object: on its path before contact, given with after it, then
@@ -353,7 +381,10 @@ export namespace catchObject {
     ): IAutoMovieVector3 =>
       pocket === undefined
         ? back
-        : AutoMovieEngineVector3.subtract(back, AutoMovieEngineQuaternion.rotateVector(rotation, pocket));
+        : AutoMovieEngineVector3.subtract(
+            back,
+            AutoMovieEngineQuaternion.rotateVector(rotation, pocket),
+          );
     const hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive => {
@@ -492,8 +523,18 @@ export namespace catchObject {
         resolution,
       );
     };
+    const carrier = context.carrier;
+    const movingPalms =
+      interception !== undefined &&
+      sides.length === 2 &&
+      pocket === undefined &&
+      (carrier?.name === "walk" || carrier?.name === "run") &&
+      carrier.support === undefined;
     return {
       ...composed,
+      ...(movingPalms
+        ? { posture: catchObjectThumbCarry(composed.posture, clock) }
+        : {}),
       object: path,
       offers: { family: "catchObject", object: path },
     };

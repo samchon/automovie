@@ -1,7 +1,7 @@
 import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../../internal/nclose";
+import { nclose, throwsError } from "../../internal/predicates";
 
 /**
  * `projectRecoveryMapPoint` projects a world point through a row-major
@@ -10,32 +10,36 @@ import { nclose } from "../../internal/nclose";
  *
  * Scenarios:
  *
- * 1. The identity pose at t = (0, 0, 2), the point (1, 2, 0) and the intrinsics
- *    fx = 100, cx = 50, fy = 200, cy = 60 give camera coordinates (1, 2, 2),
- *    pixel (100, 260) and depth 2. The point rows are the chart rows (50, 0,
- *    -25) and (0, 100, -100); the camera rows lay the rotation part -chart *
- *    skew((1, 2, 0)) before the translation part, which is the chart.
+ * 1. The identity pose at t = (0, 0, 2), the point (1, 2, 0) and the intrinsics fx
+ *    = 100, cx = 50, fy = 200, cy = 60 give camera coordinates (1, 2, 2), pixel
+ *    (100, 260) and depth 2. The point rows are the chart rows (50, 0, -25) and
+ *    (0, 100, -100); the camera rows lay the rotation part -chart * skew((1, 2,
+ *    0)) before the translation part, which is the chart.
  * 2. A point behind the camera has no projection.
+ * 3. NaN intrinsics and camera coordinates produce unrepresentable input
+ *    errors instead of a result containing NaN.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names positive-depth projection, left-rotation and point derivatives, and the behind-camera outcome.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public map projection with a typed pose and intrinsics. Observes pixels, depth, both Jacobian arrays and null behind the camera.
+ * @evidence contracts/development/testing.md#independent-expectations For (1, 2, 2) in the camera frame, perspective division gives (100, 260) pixels with the declared intrinsics. The closed-form quotient rule and left-rotation skew supply the literal Jacobian entries.
  */
 export function test_recovery_internal_project_map_point(): void {
   const intrinsic: number[] = [100, 0, 50, 0, 200, 60, 0, 0, 1];
   const identity: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-  const projection: ReturnType<typeof AutoMovieRecoveryCameraMap.projectMapPoint> =
-    AutoMovieRecoveryCameraMap.projectMapPoint(
-      { rotation: identity, translation: [0, 0, 2] },
-      [1, 2, 0],
-      intrinsic,
-    );
+  const projection: ReturnType<
+    typeof AutoMovieRecoveryCameraMap.projectMapPoint
+  > = AutoMovieRecoveryCameraMap.projectMapPoint(
+    { rotation: identity, translation: [0, 0, 2] },
+    [1, 2, 0],
+    intrinsic,
+  );
   const close = (actual: readonly number[], expected: number[]): boolean =>
     actual.length === expected.length &&
     actual.every((value: number, at: number): boolean =>
       nclose(value, expected[at]!, 1e-12),
     );
   TestValidator.predicate("a projection exists", projection !== null);
-  TestValidator.predicate(
-    "the pixel",
-    close(projection!.pixel, [100, 260]),
-  );
+  TestValidator.predicate("the pixel", close(projection!.pixel, [100, 260]));
   TestValidator.equals("the depth", projection!.depth, 2);
   TestValidator.predicate(
     "the point rows",
@@ -55,5 +59,28 @@ export function test_recovery_internal_project_map_point(): void {
       intrinsic,
     ),
     null,
+  );
+  const invalid: [() => unknown, string][] = [
+    [
+      (): unknown => AutoMovieRecoveryCameraMap.projectMapPoint(
+        { rotation: identity, translation: [0, 0, 2] },
+        [1, 2, 0],
+        [NaN, ...intrinsic.slice(1)],
+      ),
+      "camera-map: nonrepresentable projection derivative",
+    ],
+    [
+      (): unknown => AutoMovieRecoveryCameraMap.projectMapPoint(
+        { rotation: identity, translation: [NaN, 0, 2] },
+        [1, 2, 0],
+        intrinsic,
+      ),
+      "camera-map: nonrepresentable camera coordinates",
+    ],
+  ];
+  TestValidator.equals(
+    "invalid projections refuse before publishing results",
+    invalid.map(([call, diagnostic]): boolean => throwsError(call, diagnostic)),
+    [true, true],
   );
 }

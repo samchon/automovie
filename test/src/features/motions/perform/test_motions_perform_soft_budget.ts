@@ -22,6 +22,10 @@ import { softPanel } from "../../internal/softPanel";
  * 3. 15.625 s is exactly the budget's 1000 steps and is admitted; one step more
  *    is refused naming the subject's `soft.solver.maxSteps`, the count and the
  *    budget as the range's maximum.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The panel budget includes zero steps, an upward-floating quotient near an integer, exact capacity and one step beyond it.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the soft budget owner with explicit fixed steps and maximum. It compares returned counts and checks the over-budget exception's kind, axis, offending count and feasible endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations One second divided by 1/64 s is 64, and 1.01 seconds rounds up to 65 steps. A mathematical quotient 1.1/0.1 is 11 despite binary rounding above it. At 15.625 s exactly 1,000 steps fit, and another 1/64 s takes 1,001.
  */
 export function test_motions_perform_soft_budget(): void {
   const domain: IAutoMovieSoftBodyDomain = softPanel({ columns: 2, rows: 2 });

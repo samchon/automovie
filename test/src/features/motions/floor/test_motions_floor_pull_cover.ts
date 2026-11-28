@@ -10,14 +10,19 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `pullCoverWay` is the point a share of the way along a polyline, measured
- * along its pieces and clamped to the way.
+ * Check how a cover moves along a piecewise linear route by travelled
+ * distance.
  *
- * Scenarios, the way (0, 0, 0), (1, 0, 0), (1, 2, 0), 3 m long:
+ * Scenarios:
  *
- * 1. Shares 0, 1/3, 2/3 and 1 are the start, the corner, half way up the second
- *    piece and the end.
- * 2. Shares below 0 and above 1 hold the ends.
+ * 1. Traverse sections of 1 m and 2 m. One third of the total reaches their
+ *    corner, and two thirds reaches the midpoint of the second section.
+ * 2. Clamp progress before the start and after the end to the authored
+ *    endpoints.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios give distance shares at the route's corner and endpoints.
+ * @evidence contracts/development/testing.md#behavioral-verification The route uses distance shares across unequal pieces and holds its endpoints outside the range.
+ * @evidence contracts/development/testing.md#independent-expectations Cumulative lengths of 1 and 3 m determine the corner and midpoint without invoking the route sampler.
  */
 export async function test_motions_floor_pull_cover(): Promise<void> {
   const p = (x: number, y: number): IAutoMovieVector3 => ({ x, y, z: 0 });

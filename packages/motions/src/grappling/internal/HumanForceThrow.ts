@@ -167,8 +167,8 @@ export namespace HumanForceThrow {
       rate,
     );
 
-    // This authored geometry is held for the entire rigid flight. Its copied
-    // native function Object() { [native code] } proves that fact without inspecting callback samples.
+    // The rigid flight holds this geometry. Each history read uses the same
+    // resolved bone frames.
     const end: number = Math.max(fall, AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep());
     const fixed: AutoMovieEngineMotionAirborneRotation.ICachedHistory | undefined =
       end < Infinity

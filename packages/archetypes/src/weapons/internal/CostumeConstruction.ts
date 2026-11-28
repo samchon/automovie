@@ -131,7 +131,7 @@ function admitMeasure(
   };
   for (const field of required[kind]) {
     const value: number | undefined = measure[field];
-    if (!(value !== undefined && value > 0))
+    if (!(value !== undefined && Number.isFinite(value) && value > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "armour",

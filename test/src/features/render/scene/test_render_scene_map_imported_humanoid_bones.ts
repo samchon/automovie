@@ -14,6 +14,10 @@ import * as THREE from "three";
  *    `leftLowerArm`.
  * 3. Only requested slots are returned, and the first node found for a slot
  *    keeps it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The rig scenario identifies the direct names, normalized names, aliases, and candidate order used to select requested bone slots.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that direct names and aliases resolve requested slots and that a second candidate for one slot leaves the first node selected.
+ * @evidence contracts/development/testing.md#independent-expectations Compares the exact requested slot list and the selected identities of the original hips, upper arm, and forearm fixtures.
  */
 export function test_render_scene_map_imported_humanoid_bones(): void {
   const named = (name: string): THREE.Object3D => {

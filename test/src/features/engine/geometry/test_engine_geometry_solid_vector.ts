@@ -19,6 +19,10 @@ import { TestValidator } from "@nestia/e2e";
  *    3]] x = (3, 10) gives (-0.5, 4); [[1, 2], [2, 4]] null.
  * 4. A 4 x 4 system whose first pivot is 0 (needs a row swap) is solved to its
  *    known x = (1, -2, 3, 0.5); a dependent system gives null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names vector operations, zero-unit refusal, explicit linear systems and pivot or singular outcomes.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses vector and solve operations on written 2 by 2, 3 by 3 and 4 by 4 systems and checks exact or bounded known answers.
+ * @evidence contracts/development/testing.md#independent-expectations Components come from the written integer arithmetic. Back substitution gives the triangular result, and the general system is constructed for the stated solution with one required row swap.
  */
 export function test_engine_geometry_solid_vector(): void {
   const V = AutoMovieEngineSolidVector;

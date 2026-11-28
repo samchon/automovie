@@ -1,10 +1,10 @@
 /**
  * Weights that place one refined vertex point from its parent neighbourhood.
  *
- * The point is `vertex` times the parent vertex, plus `edges[i]` times the far
- * end of the vertex's fan edge `i`, plus `faces[i]` times the new face point of
- * its fan face `i`, in the order of `ISubdivisionTopology`'s fans. The weights
- * sum to one.
+ * For an admitted fan, sum the parent position, the far ends of its fan edges
+ * and its new face points with their respective weights. Edge and face arrays
+ * follow the order in IAutoMovieSubdivisionTopology. The weights sum to one
+ * before rounding.
  */
 export interface IAutoMovieSubdivisionVertexMask {
   /** Weight of the parent vertex. */

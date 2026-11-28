@@ -60,6 +60,10 @@ const SEEK_SHOT: NonNullable<
  * 5. Without `seekShot`, the dissolve's midpoint and the fade's first quarter are
  *    refused naming the subject, the entry and `seekShot`; the fade's third
  *    quarter, which draws only the live shot, is planned.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Plans overlapping dissolve layers, single-layer fade halves and ordinary pictures outside transitions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls layer planning at named transition samples, outside the transition, and with or without shot-local placement.
+ * @evidence contracts/development/testing.md#independent-expectations At midpoint a dissolve uses two 0.5 weights. A quarter-fade has one half-weight layer, and only an outgoing layer needs shot-local placement.
  */
 export function test_render_draw_plan_draw_layers(): void {
   const placed: (

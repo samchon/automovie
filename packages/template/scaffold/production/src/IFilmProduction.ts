@@ -12,6 +12,7 @@ import type {
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSupportWrench,
   IAutoMovieRenderSoftPropFrame,
+  IAutoMovieShot,
 } from "@automovie/interface";
 import type {
   IAutoMovieRenderDrawScene,
@@ -202,12 +203,17 @@ export interface IFilmProduction {
    * The film's cut, layout and declared breaks, so motion is never examined
    * across a cut or break, and whose sequence's transitions every film picture
    * draws through `seekShot`, as it places a shutter sample before an entry's
-   * start. Absent treats the whole film as one continuous shot.
+   * start. Supply the shots used to approve the cut when played interaction
+   * cues are available. A playback without shots still draws its sequence.
+   * Absent playback treats the whole film as one continuous shot.
    */
   playback?: Pick<
     IAutoMovieRenderSelectPlacedChecksContinuity,
     "sequence" | "timeline" | "discontinuities"
-  >;
+  > & {
+    /** The shots used to approve the cut and place cues on its output clock. */
+    readonly shots?: readonly IAutoMovieShot[];
+  };
 
   /**
    * Inspection mark kinds that may first appear after second zero; `marks`

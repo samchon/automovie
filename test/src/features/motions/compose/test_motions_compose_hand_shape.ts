@@ -42,6 +42,10 @@ const HELD: IAutoMovieMotionHumanPosture = {
  *    degrees at the index base, its weight clamped into [0, 1].
  * 4. Formed on a clock, the fist is reached at the rise's end and released at the
  *    fall's end, the primitive's window its rise's start to its fall's end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names zero, half and full weights, curl ownership, a posture-held finger and formation over the clock's rise and fall.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the direct and prepared finger writers and samples the hand primitive on fixed posture and clock inputs.
+ * @evidence contracts/development/testing.md#independent-expectations At half weight, the index starts at its supplied flexion and moves halfway to the target plus 10 degrees. The thumb halfway value omits curl. The posture's 30-degree joint sets its own interpolation start and final release.
  */
 export function test_motions_compose_hand_shape(): void {
   const fist: ReturnType<typeof HumanHand.shape> = HumanHand.shape(

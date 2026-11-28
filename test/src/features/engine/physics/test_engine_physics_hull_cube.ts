@@ -15,6 +15,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 2. The segment from (-1, 1/2, 1/2) to (2, 1/2, 1/2) is deepest at its middle,
  *    parameter 1/2.
  * 3. Four coplanar points span no volume and are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the unit cube mass and segment-read contracts and includes the refusal for a coplanar hull.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies cube corners directly to mass and segment operations and checks a flat four-corner set through mass admission.
+ * @evidence contracts/development/testing.md#independent-expectations The unit cube has volume 1, center (1/2, 1/2, 1/2) and moments 1/6. Its centered crossing gives segment parameter 1/2.
  */
 export function test_engine_physics_hull_cube(): void {
   const corners: IAutoMovieVector3[] = [];

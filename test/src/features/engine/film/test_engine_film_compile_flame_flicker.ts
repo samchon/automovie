@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *    is inside [start, end), so its own area equals the exact mean.
  * 2. Without a switch interval all fixed clock keys, including the shot tail,
  *    contribute to the mean.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the exact sub-tick switch edges, the half-open on window and the unswitched default mean.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls compileFlameFlicker for one bound flame with and without switch times, then checks the actual key clock, ownership mask and areas used for the mean.
+ * @evidence contracts/development/testing.md#independent-expectations The authored edges 1/480 and 3/480 precede the first 1/120-second tick. Only the opening edge lies inside the half-open window, so its area is the exact mean. Without the interval, the final shot instant is the third admitted sample.
  */
 export function test_engine_film_compile_flame_flicker(): void {
   const cue: Pick<IAutoMovieFlameCue, "id" | "seed" | "size"> = {

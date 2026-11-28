@@ -31,6 +31,30 @@ export const layoutSurfacePatches: (
   const uvFaces: number[][] = [];
   const grids: IAutoMovieSurfaceCage.IPatch[] = [];
   const total: number = network.patches.length;
+  function patchAt(index: number): IAutoMovieSurfaceNetwork.IPatch {
+    const patch =
+      Number.isSafeInteger(index) && index >= 0
+        ? network.patches[index]
+        : undefined;
+    if (!patch) throw new Error(`surface layout lacks patch ${index}`);
+    return patch;
+  }
+  function rectFor(
+    patch: IAutoMovieSurfaceNetwork.IPatch,
+    index: number,
+  ): IAutoMovieSurfaceNetwork.IUvRect {
+    const rect = patch.uv ?? {
+      s: { atZero: 0, atOne: 1 },
+      t: { atZero: index / total, atOne: (index + 1) / total },
+    };
+    if (
+      ![rect.s.atZero, rect.s.atOne, rect.t.atZero, rect.t.atOne].every(
+        Number.isFinite,
+      )
+    )
+      throw new Error("surface layout UV endpoints must be finite");
+    return rect;
+  }
   function emit(
     p: number,
     grid: number[][],
@@ -38,23 +62,36 @@ export const layoutSurfacePatches: (
     rows: number,
     wrap: boolean,
   ): void {
-    const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
-    const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
-      s: { atZero: 0, atOne: 1 },
-      t: { atZero: p / total, atOne: (p + 1) / total },
-    };
+    const patch: IAutoMovieSurfaceNetwork.IPatch = patchAt(p);
+    if (
+      !Number.isSafeInteger(columns) ||
+      columns <= 0 ||
+      !Number.isSafeInteger(rows) ||
+      rows <= 0 ||
+      !Number.isSafeInteger((columns + 1) * (rows + 1))
+    )
+      throw new Error(
+        "surface layout grid counts must be positive safe integers",
+      );
+    const used: number = wrap ? columns : columns + 1;
+    for (let j: number = 0; j <= rows; j++) {
+      const row: number[] | undefined = grid[j];
+      if (!row || row.length < used)
+        throw new Error(`surface layout grid row ${j} is incomplete`);
+      for (let i: number = 0; i < used; i++)
+        if (!Number.isSafeInteger(row[i]) || row[i]! < 0)
+          throw new Error(
+            `surface layout grid vertex ${i},${j} is not a safe ordinal`,
+          );
+    }
+    const rect: IAutoMovieSurfaceNetwork.IUvRect = rectFor(patch, p);
     const uv: number[][] = Array.from(
       { length: rows + 1 },
       (_: unknown, j: number): number[] =>
         Array.from(
           { length: columns + 1 },
           (__: unknown, i: number): number => {
-            uvs.push(
-              rect.s.atZero +
-                ((rect.s.atOne - rect.s.atZero) * i) / columns,
-              rect.t.atZero +
-                ((rect.t.atOne - rect.t.atZero) * j) / rows,
-            );
+            uvs.push(blendUv(rect.s, i, columns), blendUv(rect.t, j, rows));
             return uvs.length / 2 - 1;
           },
         ),
@@ -94,20 +131,47 @@ export const layoutSurfacePatches: (
     columns: number,
     rows: number,
   ): void {
-    const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
-    const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
-      s: { atZero: 0, atOne: 1 },
-      t: { atZero: p / total, atOne: (p + 1) / total },
-    };
+    const patch: IAutoMovieSurfaceNetwork.IPatch = patchAt(p);
+    if (
+      !Number.isSafeInteger(columns) ||
+      columns < 0 ||
+      !Number.isSafeInteger(rows) ||
+      rows < 0
+    )
+      throw new Error(
+        "surface layout counts must be nonnegative safe integers",
+      );
+    for (const quad of quads) {
+      if (!quad || quad.length !== 4)
+        throw new Error("surface layout requires four chart corners per quad");
+      for (const corner of quad) {
+        if (!corner || corner.length !== 3)
+          throw new Error(
+            "surface layout requires complete ordinal, s and t triples",
+          );
+        const [vertex, s, t] = corner;
+        if (
+          !Number.isSafeInteger(vertex) ||
+          vertex < 0 ||
+          !Number.isFinite(s) ||
+          s < 0 ||
+          s > 1 ||
+          !Number.isFinite(t) ||
+          t < 0 ||
+          t > 1
+        )
+          throw new Error(
+            "surface layout requires a safe vertex and finite chart coordinates in 0 to 1",
+          );
+      }
+    }
+    const rect: IAutoMovieSurfaceNetwork.IUvRect = rectFor(patch, p);
     const shared: Map<string, number> = new Map();
     function uv(s: number, t: number): number {
       const key: string = `${s},${t}`;
       let i: number | undefined = shared.get(key);
       if (i === undefined) {
-        uvs.push(
-          rect.s.atZero + (rect.s.atOne - rect.s.atZero) * s,
-          rect.t.atZero + (rect.t.atOne - rect.t.atZero) * t,
-        );
+        uvs.push(blendUv(rect.s, s, 1), blendUv(rect.t, t, 1));
         shared.set(key, (i = uvs.length / 2 - 1));
       }
       return i;
@@ -153,3 +217,21 @@ export const layoutSurfacePatches: (
   }
   return { faces, uvs, uvFaces, corners, grids, emit, emitFaces, check };
 };
+
+/* Keep the ordinary directed UV interpolation and recover finite convex values. */
+function blendUv(
+  axis: IAutoMovieSurfaceNetwork.IUvAxisMapping,
+  numerator: number,
+  denominator: number,
+): number {
+  if (numerator === 0) return axis.atZero;
+  if (numerator === denominator) return axis.atOne;
+  const difference: number = axis.atOne - axis.atZero;
+  const ordinary: number = axis.atZero + (difference * numerator) / denominator;
+  if (Number.isFinite(ordinary)) return ordinary;
+  const fraction: number = numerator / denominator;
+  const reordered: number = axis.atZero + difference * fraction;
+  return Number.isFinite(reordered)
+    ? reordered
+    : axis.atZero * (1 - fraction) + axis.atOne * fraction;
+}

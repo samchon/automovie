@@ -13,6 +13,10 @@ import { throwsError } from "../../internal/predicates";
  * 1. Unit exponent boundaries carry and borrow on positive and negative encodings.
  * 2. Signed zero and the smallest subnormal step to each other exactly.
  * 3. Stepping past the largest finite double is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers neighbouring encodings around unit magnitude and zero, including signed zero and finite-range exhaustion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls adjacentFloat64 directly for both directions and identifies exact results with Object.is. Calls beyond the largest magnitude require an overflow error.
+ * @evidence contracts/development/testing.md#independent-expectations IEEE 754 binary64 spacing is 2^-52 above one and 2^-53 below it. The subnormal spacing is Number.MIN_VALUE. Reversing sign reverses direction, and Object.is distinguishes the two zeros.
  */
 export function test_engine_math_adjacent_float64(): void {
   // 1-2. The independent binary64 neighbours.

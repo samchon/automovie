@@ -24,6 +24,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    tenth at every reading.
  * 2. Every joint's anchor gap stays under a micron and no larger at the finer
  *    substep.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains substep convergence for a driven arm and light finger with the actual shoulder chart.
+ * @evidence contracts/development/testing.md#behavioral-verification Reconfigures and steps the arm and three phalanges at 32 and 64 substeps per frame, observing eight matched times.
+ * @evidence contracts/development/testing.md#independent-expectations Phalange speed readings agree within a tenth across resolutions. Every anchor gap stays below a micron and the finer solve does not increase it.
  */
 export function test_engine_physics_xpbd_light_chain(): void {
   const coarse: IReading = frame(32);

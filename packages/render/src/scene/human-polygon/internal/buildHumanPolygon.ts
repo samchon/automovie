@@ -12,6 +12,7 @@ import { buildHumanPolygonModule } from "./buildHumanPolygonModule";
 import { buildHumanPolygonParts } from "./buildHumanPolygonParts";
 import { createHumanPolygonPalette } from "./createHumanPolygonPalette";
 import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentation";
+import { resolveHumanPolygonFaceAnchors } from "./resolveHumanPolygonFaceAnchors";
 
 /*
  * Draw a rigid polygon blockout from the generated skeleton, in metres.
@@ -261,12 +262,14 @@ export function buildHumanPolygon(
   let headObject: THREE.Group;
   let headMesh: THREE.Mesh;
   let headBox: THREE.Box3;
+  let headAnchors: AutoMovieRenderHumanPolygon.IDrawingHead["anchors"];
   try {
     ({ headObject, headMesh, headBox } = buildHumanPolygonParts(
       output,
       boneAt,
       add,
     ));
+    headAnchors = resolveHumanPolygonFaceAnchors(bones, headMesh.geometry, headBox);
     // Non-emitted driving joints remain real scene nodes for attachments and
     // world-space inspection, using the same admitted evaluator placements.
     for (const bone of output.bones) {
@@ -312,6 +315,7 @@ export function buildHumanPolygon(
       max: [headBox.max.x, headBox.max.y, headBox.max.z],
       frontAt: (y: number, z: number): number | undefined =>
         buildHumanPolygonModule.frontAt(headMesh.geometry, headBox, y, z),
+      ...(headAnchors === undefined ? {} : { anchors: headAnchors }),
     },
     dispose,
   };

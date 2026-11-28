@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. `next` after `with` nests: the parallel group becomes the sequence's first
  *    part rather than being flattened into it.
  * 3. A subclass adding its own verb keeps that verb after `next` and `with`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes persistent chain extension, flattening by matching group type, the retained parallel subtree and the subclass verb.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds chains from typed intents, reads their returned composition nodes and invokes a subclass verb after both forms of extension.
+ * @evidence contracts/development/testing.md#independent-expectations Literal intent, sequence and parallel trees fix order and grouping. Reading the original reach after extension detects mutation, and applying turn twice makes both subclass calls observable in the final tree.
  */
 export function test_engine_composition_chain(): void {
   const act = (capability: string): IAutoMovieIntent => ({

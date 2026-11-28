@@ -32,8 +32,9 @@ export namespace AutoMovieEnginePopulationFormation {
    * @param design The admitted formation design that owns the named slots.
    * @param sets Chronological assignments in shot-local seconds.
    * @returns Fresh member cue records in set and mark order.
-   * @throws {RangeError} For conflicting intervals or identity, missing or
-   *   promoted slots, and nonfinite marks or offsets.
+   * @throws {RangeError} If the sets have conflicting intervals or IDs, a set
+   *   is empty, a slot is repeated, promoted, or outside the safe integer
+   *   range `[0, design.count)`, or a mark needs a non-finite offset or turn.
    */
   export function compileFormationStageMarks(design: IAutoMovieFormationDesign, sets: readonly IAutoMovieFormationStageMarkSet[]): IAutoMovieFormationSlotMotion[] {
     return compileFormationStageMarksImplementation(design, sets);
@@ -164,7 +165,8 @@ export namespace AutoMovieEnginePopulationFormation {
    * before the same heading and relief; a re-form reads the one layout and is not
    * applied to blocks.
    *
-   * Throws a `RangeError` for a slot that is not a safe integer in `[0, count)`.
+   * The slot must be a safe integer in `[0, formation.count)`. An invalid
+   * index throws a `RangeError` before layout or terrain is read.
    */
   export function formationSlotPosition(formation: IAutoMovieFormationPlacement, slot: number, reform?: IAutoMovieFormationReform | null): IAutoMovieVector3 {
     return formationSlotPositionImplementation(formation, slot, reform);

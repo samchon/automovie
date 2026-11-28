@@ -40,6 +40,10 @@ import { vclose } from "../../internal/vclose";
  * 5. A clinical-space parent pose resolves through the supplied engine rest-frame
  *    table, so its attachment matches the numerical framed hand rather than raw
  *    rig-space FK. No displayed hand is observed by this CPU case.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers rest and rotated attachments, offset and scale ownership, missing bones and clinical frame conversion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAttachment with a named skeleton joint, offset transforms and parent poses. It edits one returned scale and compares clinical and raw rig-space paths.
+ * @evidence contracts/development/testing.md#independent-expectations The stacked neutral offsets sum to 1.4 metres. A +Y quarter turn carries a +Z offset to +X, whose sign distinguishes the frame convention. The framed FK comparison is a numerical reference for the clinical attachment.
  */
 export function test_engine_kinematics_resolve_attachment(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

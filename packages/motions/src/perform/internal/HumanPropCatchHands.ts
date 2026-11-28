@@ -1,4 +1,7 @@
-import { AutoMovieEngineQuaternion, AutoMovieEngineVector3 } from "@automovie/engine";
+﻿import {
+  AutoMovieEngineQuaternion,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -98,18 +101,29 @@ export namespace HumanPropCatchHands {
     if (sphere === undefined || capture?.handContactFrom === undefined)
       return true;
 
+    return touches(self, grip.subject, grip.side, grip.from, frame, sphere);
+  }
+
+  /*
+   * Compare the physical hand displayed at the film second to the sphere.
+   */
+  export function touches(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    side: AutoMovieHumanSide,
+    seconds: number,
+    frame: IAutoMovieRigidTransform,
+    sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]>,
+  ): boolean {
     const body: ReturnType<
       typeof HumanPerformanceRead.person
-    >["performer"]["body"] = HumanPerformanceRead.person(self, grip.subject)
+    >["performer"]["body"] = HumanPerformanceRead.person(self, subject)
       .performer.body;
-    const hand: AutoMovieHumanoidBone = `${grip.side}Hand`;
+    const hand: AutoMovieHumanoidBone = `${side}Hand`;
     const fitted: IAutoMovieResolvedBone | undefined =
-      HumanPerformanceRead.bones(
-        self,
-        grip.subject,
-        grip.from,
-        new Set([hand]),
-      ).get(hand);
+      HumanPerformanceRead.bones(self, subject, seconds, new Set([hand])).get(
+        hand,
+      );
     if (fitted === undefined || !HumanColliders.bones(body).has(hand))
       return false;
 

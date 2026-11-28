@@ -3,47 +3,41 @@ import type { IAutoMovieRecoveryCameraPolicy } from "./IAutoMovieRecoveryCameraP
 import type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraView";
 
 /**
- * Two fixed RGB observations with supplied pinhole intrinsics and unknown pose.
- * Integer (column,row) denotes a pixel centre in the supplied calibration
- * chart. This differs from the orthographic support observer's pixel-edge
- * convention. Intrinsics, correction history and rigidity are caller
- * assertions; this record neither calibrates a lens nor establishes a static
- * scene from image bytes.
+ * Two ordered resident RGB8 images of an asserted fixed scene with supplied
+ * corrected pinhole charts. Integer positions locate pixel centers. Keep both
+ * borrowed rasters unchanged until synchronous estimation returns.
  */
 export interface IAutoMovieRecoveryCameraPairInput {
-  /** Version of the estimated-extrinsics resident image pair. */
+  /** Resident schema for a calibrated camera pair. */
   schema: "automovie-recovery-camera-pair-v1";
 
-  /**
-   * Common fixed object/scene identity; consistency is asserted rather than
-   * proved.
-   */
+  /** Nonblank identity of the asserted common scene. */
   objectId: string;
 
   /**
-   * The observed scene, including any retained background features, is asserted
-   * static.
+   * Caller assertion that both views show one fixed scene, including retained
+   * background features.
    */
   rigidity: "asserted-fixed-scene";
 
-  /**
-   * Keep real photographic measurements distinct from analytic and inconsistent
-   * controls.
-   */
+  /** Acquisition class carried into the resulting pair evidence. */
   cohort: "analytic" | "photograph" | "inconsistent-stress";
 
   /**
-   * Exactly two unique views, in the order defining the returned first-camera
-   * gauge.
+   * Exactly two unique calibrated views, ordered with the reference camera
+   * first.
    */
   views: IAutoMovieRecoveryCameraView[];
 
-  /** Current classical method and explicit experimental operating point. */
+  /**
+   * Feature, matching, consensus and relative-pose thresholds used for this
+   * pair.
+   */
   policy: IAutoMovieRecoveryCameraPolicy;
 
   /**
-   * Positive integer work limits checked before the corresponding allocation or
-   * traversal.
+   * Positive safe work ceilings for pixel population, feature extraction,
+   * matching and numerical fitting.
    */
   budget: IAutoMovieRecoveryCameraBudget;
 }

@@ -26,11 +26,9 @@ import { nclose } from "../../internal/predicates";
  * 4. The face's outline is the same octagon in the face's XZ plane: eight points
  *    on the blank's radius at 22.5° + k·45°.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the octagon's vertex, flat and face checks for both models.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the built blank's mesh positions and the face contact from the public producer.
- * @evidence contracts/development/testing.md#independent-expectations The R1-1 sign is a regular octagon whose across-flats size is the model's 30 in or 36 in, as the FHWA Standard Highway Signs book draws it.
- * @evidence contracts/development/testing.md#distinguishing-cases A square blank has four front vertices, a rotated octagon has corners where the flats belong and an across-corners size gives a wider extent; each fails.
- * @evidence contracts/development/testing.md#execution-ownership Runs in memory against the produced model, with no host.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the front vertices, across-flats dimensions and surface frame and outline for both octagonal blanks.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual mesh vertices and the public producer's face contact. The front plane, eight vertices and ordered outline distinguish a square blank, an incorrectly rotated octagon and a radius based on corner spacing.
+ * @evidence contracts/development/testing.md#independent-expectations The FHWA R1-1 blank is a regular octagon whose across-flats dimension equals the nominal 30 or 36 inch size. Its straight flats and eight front points constrain orientation and outline.
  */
 export function test_archetype_sign_post_face(): void {
   for (const [model, inches] of [

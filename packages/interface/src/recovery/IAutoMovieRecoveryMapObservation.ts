@@ -1,11 +1,18 @@
-/** One automatically linked, geometrically retained landmark observation. */
+/**
+ * A measured feature location and its identity in one calibrated camera view.
+ * The enclosing operation defines whether the view index addresses the full
+ * source list or a compact active view list.
+ */
 export interface IAutoMovieRecoveryMapObservation {
-  /** Index in the owning operation's source array; zero and one are the seed. */
+  /** Index of the measuring view in the enclosing source or active-view array. */
   viewIndex: number;
 
-  /** Index in this image's once-observed feature population. */
+  /** Index of the detected feature in that image's retained feature population. */
   featureIndex: number;
 
-  /** Measured [x,y] image pixel centre, with +X right and +Y down. */
+  /**
+   * Measured pixel-center coordinates [column, row], with columns increasing
+   * rightward and rows downward.
+   */
   pixel: [number, number];
 }

@@ -1,31 +1,17 @@
 import type { IAutoMovieRecoveryCameraPairInput } from "..";
 
 /**
- * Observe bounded multiscale Harris points and oriented gradient histograms.
- * Harris derivative sigma 1, integration 1.5 and average-gradient orientation
- * sigma 4.5 follow Brown, Szeliski and Winder (2005):
- * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/06/cvpr05.pdf
- * A 4_4_8 trilinear histogram, unit normalization and .2 clipping follow Lowe's
- * descriptor construction, while this remains a Harris detector, not full SIFT:
- * https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf The 35-pixel oriented window,
- * 10-pixel bins and Gaussian sigma 20 define the declared experimental
- * descriptor chart. All positions return in original integer-pixel-centre
- * coordinates; no point is a verified material identity.
+ * Callable observation of one admitted RGB8 chart as localized features and
+ * gradient descriptors.
  */
 
 export namespace IAutoMovieRecoveryImageFeaturesExtractionOperation {
   /**
-   * Observe bounded multiscale Harris points and oriented gradient histograms.
-   * Harris derivative sigma 1, integration 1.5 and average-gradient orientation
-   * sigma 4.5 follow Brown, Szeliski and Winder (2005):
-   * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/06/cvpr05.pdf
-   * A 4_4_8 trilinear histogram, unit normalization and .2 clipping follow
-   * Lowe's descriptor construction, while this remains a Harris detector, not
-   * full SIFT: https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf The 35-pixel
-   * oriented window, 10-pixel bins and Gaussian sigma 20 define the declared
-   * experimental descriptor chart. All positions return in original
-   * integer-pixel-centre coordinates; no point is a verified material
-   * identity.
+   * Build Gaussian pyramid levels from the stable raster. Localize interior
+   * Harris maxima, require orientation and a supported descriptor window, and
+   * apply adaptive spatial suppression. Return normalized descriptors and
+   * original-chart feature positions, with separate detector and rejection
+   * counts.
    */
 
   export type Operation = (
@@ -34,54 +20,48 @@ export namespace IAutoMovieRecoveryImageFeaturesExtractionOperation {
     budget: IAutoMovieRecoveryCameraPairInput["budget"],
   ) => {
     /**
-     * Selected image features with owned descriptors, in deterministic response
-     * order.
+     * Retained features in deterministic spatial-selection order, with owned
+     * descriptor arrays.
      */
     points: {
-      /** Image observation [x,y] in the original pixel-centre chart. */
+      /** Original pixel-center position [column, row], potentially subpixel. */
       point: [number, number];
 
-      /**
-       * Image-feature support scale in pixels under the declared descriptor
-       * convention.
-       */
+      /** Original pixels per pixel at the selected pyramid level. */
       scale: number;
 
-      /** Measured local image-feature orientation in radians. */
+      /** Local average-gradient orientation in radians. */
       orientationRadians: number;
 
-      /**
-       * Detector response used for deterministic candidate ordering; its scale
-       * is detector-specific.
-       */
+      /** Harris response at detection, in squared grayscale-byte units. */
       response: number;
 
-      /**
-       * Owned normalized descriptor components; matching reads them without
-       * modifying the feature.
-       */
+      /** Owned 128-component normalized oriented gradient histogram. */
       descriptor: Float64Array;
     }[];
 
-    /** Raw detector corner population before support and descriptor admission. */
+    /** Interior response maxima before localization and support admission. */
     rawCorners: number;
 
-    /**
-     * Detected candidates whose image support satisfies the declared extraction
-     * policy.
-     */
+    /** Localized and oriented window-valid candidates before adaptive selection. */
     validCandidates: number;
 
     /**
-     * Candidates retained by spatial/response selection before descriptor
-     * generation.
+     * Selected candidate count under the feature ceiling, before descriptor
+     * construction.
      */
     selectedBeforeDescriptor: number;
 
-    /** Rejected descriptors with zero usable norm. */
+    /**
+     * Selected candidates withheld because their descriptor norm failed its
+     * positive floor.
+     */
     zeroDescriptors: number;
 
-    /** Descriptors rejected because the required image support is unavailable. */
+    /**
+     * Selected candidates withheld when sampled descriptor coordinates cross
+     * the admitted image support.
+     */
     invalidSupportDescriptors: number;
   };
 }

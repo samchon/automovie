@@ -28,6 +28,10 @@ const P = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
  * 3. A 2 m line from the origin pulls a far end at (3, 1, 4) level to `sqrt(4 − 1)
  *    = √3` along the run, at its height; one straight over the near end stays
  *    over it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The geometry checks cover a symmetric catenary, vertical fold, horizontal projection to fixed length, and a vertical reach that stays in place.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies three typed endpoint configurations to the catenary and reach owners. It compares literal endpoints and fold position, checks the returned sag against the catenary length equation, and checks projected coordinates.
+ * @evidence contracts/development/testing.md#independent-expectations For symmetric chord 2 m, the midpoint X is 1 m and the measured sag determines the catenary parameter, whose arc must be 3 m. The vertical 2 m line folds at Y 0.5 m. At fixed height 1 m and radius 2 m, horizontal reach is √3 m in direction (3/5, 4/5).
  */
 export function test_motions_perform_tether_line(): void {
   const points: IAutoMovieVector3[] = humanTetherCatenary(

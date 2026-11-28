@@ -27,6 +27,10 @@ const REACH: number = 0.01;
  *    centimetre, the hand's surface on the frozen point.
  * 2. At 2.5 s, past the window, the goal is inactive, has no point, and the
  *    targets are `a`'s prior pose.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes frozen and tracked reads of a named body region, the centimetre reach limit and inactive restoration of the prior pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls CompositionPose.relationalGoal on posed stick figures, checks the named region returned by both lock modes and measures the frozen hand's transformed contact point.
+ * @evidence contracts/development/testing.md#independent-expectations The target translates as -0.4 - 0.1t metres in Z, giving -0.5 m at the window start and -0.55 m at observation. The transformed hand position must be within the authored 0.01 m tolerance, and after 2 s the fixture's prior pose is returned.
  */
 export function test_engine_composition_resolve_relational_goal(): void {
   const { profile } = PhysicalModelFixtures.stickman();

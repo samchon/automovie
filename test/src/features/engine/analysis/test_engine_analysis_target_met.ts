@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. 300 lx against at-least 300 meets; 299 misses.
  * 2. 0.6 s against at-most 0.6 meets; 0.61 misses.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines inclusive thresholds for at-least and at-most analysis targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares a measured lux pair and a measured duration pair to corresponding declared targets.
+ * @evidence contracts/development/testing.md#independent-expectations At-least 300 includes 300 and misses 299. At-most 0.6 s includes 0.6 and misses 0.61, distinguishing strict and reversed comparisons.
  */
 export function test_engine_analysis_target_met(): void {
   TestValidator.equals(

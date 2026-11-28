@@ -6,116 +6,72 @@ import type {
 } from "..";
 
 /**
- * Publish source-free canonical intervals for a fitted rectangular leaf atlas.
- * Internal master edges retain their fitted coefficient owners. Outer edges use
- * the original shared fitted boundary span and oriented restriction metadata.
- * Each chart owns a separate analytic normal fan; positional sharing never
- * averages the transverse derivatives of a crease or claims G1 continuity.
+ * Callable assembly of fitted rectangular leaves and their canonical boundary
+ * authorities.
  */
 
 export namespace IAutoMovieRecoveryChartLeafAssembly {
   /**
-   * Publish source-free canonical intervals for a fitted rectangular leaf
-   * atlas. Internal master edges retain their fitted coefficient owners. Outer
-   * edges use the original shared fitted boundary span and oriented restriction
-   * metadata. Each chart owns a separate analytic normal fan; positional
-   * sharing never averages the transverse derivatives of a crease or claims G1
-   * continuity.
+   * Combine fitted leaf nets and bind interior intervals to their master
+   * coefficients. Retain original oriented boundary spans for exterior
+   * restrictions. Report unmatched spans and restriction differences, and
+   * retain each chart's distinct normal fans.
    */
 
   export type Operation = (
     charts: readonly {
-      /**
-       * Caller-assigned stable semantic identity retained in generated
-       * coefficient and observation records.
-       */
+      /** Source chart name used to scope generated patch ids. */
       name: string;
 
-      /**
-       * Bernstein control positions in the common registered millimetre frame,
-       * ordered by control registry ID.
-       */
+      /** Fitted chart-local coefficients in registered millimetres. */
       controlsMm: readonly Readonly<AutoMovieVector3Tuple>[];
 
-      /**
-       * Bicubic coefficient patches indexed by the shared control registry,
-       * with u varying fastest within each v row.
-       */
+      /** Leaf patch control nets in their chart's fitted registry. */
       patches: readonly {
-        /**
-         * Stable identity within the owning chart, boundary or occurrence
-         * registry; equal coordinates do not create identity.
-         */
+        /** Identifier addressing a leaf patch within the source chart. */
         id: string;
-        /**
-         * Indices into the shared control registry; bicubic nets use sixteen
-         * IDs with u varying fastest.
-         */
+        /** Sixteen local U-fastest Bernstein control ids. */
         controlIds: readonly number[];
       }[];
 
       /**
-       * Oriented fitted boundary results used by this chart; each refers back
-       * to a shared canonical coefficient authority.
+       * Declared original exterior curve authority and its oriented restriction
+       * metadata.
        */
       boundaries: readonly ReturnType<
         ReturnType<IAutoMovieRecoveryChartBoundary.Operation>["get"]
       >[];
 
-      /**
-       * Conforming refined leaf rectangles with shared-edge/control bindings;
-       * omission means the tensor partition is used.
-       */
+      /** Fitted leaf layout with interior master edges and local range bindings. */
       leafLayout: ReturnType<IAutoMovieRecoveryChartLeafFit.Operation>["leafLayout"];
     }[],
   ) => {
-    /**
-     * Bernstein control positions in the common registered millimetre frame,
-     * ordered by control registry ID.
-     */
+    /** Combined registered millimetre control positions. */
     controlsMm: Readonly<AutoMovieVector3Tuple>[];
 
-    /**
-     * Bicubic coefficient patches indexed by the shared control registry, with
-     * u varying fastest within each v row.
-     */
+    /** Combined patched geometry records referencing the generated registry. */
     patches: IAutoMovieBicubicAtlasGeometry["patches"];
 
-    /**
-     * Canonical shared-boundary coefficient authorities consumed by engine
-     * atlas admission.
-     */
+    /** Canonical master and exterior curve authorities retained by assembly. */
     boundaryAuthorities: NonNullable<
       IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
     >;
 
-    /**
-     * Chart-side intervals referring to the canonical boundary authorities,
-     * retaining direction and phase bounds.
-     */
+    /** Oriented patch-side parameter maps into each retained authority. */
     boundaryBindings: NonNullable<
       IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
     >;
 
-    /**
-     * Observed admission failures and qualification limits in production order;
-     * an empty array adds no extra certificate.
-     */
+    /** Numerical restriction and unresolved sharing findings. */
     diagnostics: string[];
 
-    /**
-     * Largest discrepancy from canonical shared-boundary restriction, in
-     * millimetres.
-     */
+    /** Largest measured restriction difference, in millimetres. */
     maximumCanonicalRestrictionDifferenceMm: number;
 
-    /**
-     * Count of coefficient spans participating in admitted shared boundary
-     * authorities.
-     */
+    /** Number of retained shared boundary spans. */
     sharedBoundarySpans: number;
 
-    /** Count of supplied boundary spans without a matching chart binding. */
+    /** Number of boundary spans without a retained matching partner. */
     unmatchedBoundarySpans: number;
   };
 }

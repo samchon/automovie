@@ -14,9 +14,7 @@ import type {
  * Error when representation, finiteness, phase partition or supported
  * denominator conditions fail.
  */
-export function assertCurve64(
-  curve: IAutoMovieCurvePrimitive64,
-): void {
+export function assertCurve64(curve: IAutoMovieCurvePrimitive64): void {
   const dense: (a: readonly unknown[], count?: number) => void = (
     a: readonly unknown[],
     count?: number,
@@ -27,7 +25,9 @@ export function assertCurve64(
       if (!Object.hasOwn(a, i))
         throw new Error("Sparse coefficients are not a complete primitive");
   };
-  const vector: (v: readonly number[]) => void = (v: readonly number[]): void => {
+  const vector: (v: readonly number[]) => void = (
+    v: readonly number[],
+  ): void => {
     dense(v, 3);
     if (v.some((x: number): boolean => !Number.isFinite(x)))
       throw new Error("Finite curve coefficients required");
@@ -83,7 +83,12 @@ export function assertCurve64(
   let cumulative: number = 0;
   for (const width of curve.phaseIntervals) {
     const next: number = cumulative + width;
-    if (!(width > 0) || !Number.isFinite(width) || !Number.isFinite(next) || next <= cumulative)
+    if (
+      !(width > 0) ||
+      !Number.isFinite(width) ||
+      !Number.isFinite(next) ||
+      next <= cumulative
+    )
       throw new Error("Unresolved parameter partition");
     cumulative = next;
   }
@@ -98,6 +103,7 @@ export function assertCurve64(
         "rationalBezier",
         "rationalXZPolynomialYBezier",
       ].includes(piece.primitive) ||
+      !Number.isSafeInteger(piece.degree) ||
       piece.degree < 0
     )
       throw new Error("Invalid actual Bernstein degree");
@@ -109,7 +115,9 @@ export function assertCurve64(
     if (piece.parameterDomain !== undefined) {
       dense(piece.parameterDomain, 2);
       if (
-        piece.parameterDomain.some((x: number): boolean => !Number.isFinite(x)) ||
+        piece.parameterDomain.some(
+          (x: number): boolean => !Number.isFinite(x),
+        ) ||
         piece.parameterDomain[0] !== 0 ||
         piece.parameterDomain[1] !== 1
       )
@@ -134,7 +142,10 @@ export function assertCurve64(
       for (let i: number = 0; i < coefficients.length; i++)
         for (let k: number = 0; k < 3; k++) {
           const quotient: number = coefficients[i]![k]! / piece.weights[i]!;
-          if (coefficients[i]![k] !== 0 && quotient === 0)
+          if (
+            !Number.isFinite(quotient) ||
+            (coefficients[i]![k] !== 0 && quotient === 0)
+          )
             throw new Error("Unresolved rational cache quotient");
           const alias: number = piece.controls[i]![k]!;
           if (
@@ -148,7 +159,11 @@ export function assertCurve64(
     }
     if (piece.primitive === "rationalXZPolynomialYBezier") {
       dense(piece.polynomialYControls);
-      if (piece.polynomialYControls.some((x: number): boolean => !Number.isFinite(x)))
+      if (
+        piece.polynomialYControls.some(
+          (x: number): boolean => !Number.isFinite(x),
+        )
+      )
         throw new Error("Finite polynomial longitudinal coefficients required");
     }
   }

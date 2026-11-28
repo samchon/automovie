@@ -11,6 +11,10 @@ import { nclose } from "../../internal/nclose";
  * Scenarios:
  * 1. Its work surface is 1.067 m above the floor.
  * 2. Its 0.305 m overhang is on +Z and the back of the base is flush.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the raised work surface, forward seated knee clearance and flush rear base.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual kitchen bar and compares the top and base box extents in Y and Z. Confirms clearance on the seated side and no rear overhang.
+ * @evidence contracts/development/testing.md#independent-expectations The authored fixture uses a surface 1.067 metres above its floor and 0.305 metres of knee space. The difference between actual front faces must equal the latter within one millimetre.
  */
 export function test_archetypes_furniture_bar_knee_space(): void {
   const item: ReturnType<typeof AutoMovieArchetypeTable.create> = AutoMovieArchetypeTable.create({ kind: "bar" });

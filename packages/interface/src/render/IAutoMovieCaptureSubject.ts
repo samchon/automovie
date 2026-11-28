@@ -1,4 +1,5 @@
 import type { IAutoMoviePlaybackTimeline } from "../production/IAutoMoviePlaybackTimeline";
+import type { IAutoMoviePlaybackEvent } from "../production/IAutoMoviePlaybackEvent";
 import type { IAutoMovieFilmSound } from "../production/IAutoMovieFilmSound";
 import type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit";
 import type { IAutoMovieInspectionDrawable } from "./IAutoMovieInspectionDrawable";
@@ -79,4 +80,7 @@ export interface IAutoMovieCaptureSubject {
    * its caption and its record row. Absent names none.
    */
   instants?: IAutoMovieCaptureInstant[];
+
+  /** Source events projected through the subject's actual played sequence. */
+  playedCues?: readonly IAutoMoviePlaybackEvent[];
 }

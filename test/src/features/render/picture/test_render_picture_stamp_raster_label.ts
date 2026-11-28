@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  *    picture, against those edges.
  * 3. Without an anchor the box starts at the top-left corner.
  * 4. A scale that is not positive is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Stamps the label box and glyphs at the requested or default anchor, clamping the box at the raster edge.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls label stamping on a black raster with interior, off-edge and default anchors and invalid scales.
+ * @evidence contracts/development/testing.md#independent-expectations Scale two gives a 14 × 18 box for one character. Bounds, glyph pixels and the surrounding black pixels pin placement independently of the stamper.
  */
 export function test_render_picture_stamp_raster_label(): void {
   const picture = (): IAutoMovieRasterImage => {

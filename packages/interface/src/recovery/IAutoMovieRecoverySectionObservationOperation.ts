@@ -9,163 +9,124 @@ import type {
 } from "..";
 
 /**
- * Observe and fit every contour on one fixed private section. An optional
- * collection name prefixes curve identities; an optional acquisition observer
- * receives copied original face incidence after local fitting, including
- * rejected contours. Observer exceptions escape the fitting catch.
+ * Callable boundary for observing and fitting all contours on one admitted
+ * physical plane.
  */
 
 export namespace IAutoMovieRecoverySectionObservationOperation {
   /**
-   * Observe and fit every contour on one fixed private section. An optional
-   * collection name prefixes curve identities; an optional acquisition observer
-   * receives copied original face incidence after local fitting, including
-   * rejected contours. Observer exceptions escape the fitting catch.
+   * Observe a prepared plane cut, fit each usable open or closed contour in
+   * millimetres and retain local contact and fit diagnostics. Source-lineage
+   * and accepted-fit callbacks use original contour ordinals.
    */
 
   export type Operation = (input: {
-    /**
-     * Signed section-plane coordinate along the registered unit sweep axis, in
-     * millimetres.
-     */
+    /** Signed millimetre station along the registered source's cutting normal. */
     coordinateMm: number;
 
-    /**
-     * Registered right-handed cutting frame; positions and scalar levels use
-     * its common physical millimetre chart.
-     */
+    /** Registered plane frame already translated to this station. */
     plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation>;
 
     /**
-     * Every raw plane-cut contour, including open paths, contacts and
-     * unsupported junction chains.
+     * Raw cut contours and any exact source provenance from the prepared
+     * slicer.
      */
     contours: ReturnType<ReturnType<IAutoMovieMeshPlaneCut.Prepare>>;
 
-    /** Canonical undirected edge identity to original incident-face set. */
+    /**
+     * Original source-face sets keyed by the source incidence's unordered edge
+     * addresses.
+     */
     faceEdges: ReadonlyMap<string, ReadonlySet<number>>;
 
-    /**
-     * Original vertex index to incident original-face set; borrowed for this
-     * observation pass.
-     */
+    /** Original source-face sets keyed by source vertex address. */
     vertexFaces: ReadonlyMap<number, ReadonlySet<number>>;
 
     /**
-     * Prepared source-material side observer in the registered plane; it
-     * supplies no generated normal field.
+     * Admitted material orientation and source geometry evidence for closed
+     * winding.
      */
     orientation: ReturnType<IAutoMovieMeshSectionOrientation.Operation>;
 
     /**
-     * Borrowed explicit fitting thresholds and work bounds; this operation
-     * introduces no inferred numerical policy.
+     * Physical fit tolerance, per-curve span budget and corner threshold in
+     * degrees.
      */
     policy: Pick<
       IAutoMovieRecoveryInput,
       "cornerDegrees" | "toleranceMm" | "maxSpans"
     >;
 
-    /**
-     * Caller-assigned stable semantic identity retained in generated
-     * coefficient and observation records.
-     */
+    /** Optional curve name prefix, with section used when omitted. */
     name?: string;
 
     /**
-     * Optional synchronous acquisition observer; copied records belong to the
-     * caller and callback exceptions escape fitting.
+     * Callback for each raw contour's observed source support and eventual
+     * publication outcome.
      */
     onSourceLineage?: (observation: IAutoMovieRecoverySourceLineage) => void;
 
     /**
-     * Acquisition-only copied accepted trace, delivered outside the fitter
-     * failure catch. Observer exceptions escape. Acceptance does not itself
-     * imply the original fit met tolerance, and no historical accepted trace is
-     * asserted.
+     * Callback for the internal accepted-span witness of a successfully fitted
+     * contour.
      */
     onAcceptedFit?: (trace: {
-      /**
-       * Ordinal in this call's input.contours before fitting/rejection; a
-       * one-contour replay reports zero, not its saved outer contour ordinal.
-       */
+      /** Original raw contour ordinal, including any contours whose fits failed. */
       contourIndex: number;
 
       /**
-       * True only when a closed contour's negative signed plane area caused its
-       * input point order to reverse before fitting; open paths are not
-       * reversed.
+       * Whether the observer reversed the fit sample order to align the contour
+       * winding.
        */
       reversed: boolean;
 
       /**
-       * Accepted spans in this contour's current fit order; adjacent spans
-       * retain their shared observation separately.
+       * Accepted cubic span indices and their corresponding fitted sample
+       * positions.
        */
       spans: Array<{
-        /**
-         * Zero-based ordinal within this contour's accepted fit, independent of
-         * source contour, section or publication ordinals.
-         */
+        /** Original accepted cubic span index within the fitted curve. */
         span: number;
 
-        /**
-         * Inclusive first index in the fitting point list after any reversal;
-         * closed input appends its reordered first point at index N, where N is
-         * the raw point count.
-         */
+        /** Index of the first sample used for this span in fitted point order. */
         first: number;
 
-        /**
-         * Inclusive last index in the same fitting list; N denotes the repeated
-         * closed start, and a shared knot may be both one span's last and the
-         * next span's first.
-         */
+        /** Index of the last sample used for this span in fitted point order. */
         last: number;
 
         /**
-         * One accepted dimensionless local t in [0,1] per inclusive point, from
-         * initial chord parameters or accepted safeguarded Newton refinement;
-         * neither raw cumulative mm h nor fitted physical phase.
+         * Local fitted parameter values reported by the accepted-span callback
+         * in sample order.
          */
         parameters: number[];
       }>;
     }) => void;
   }) => {
-    /** Saved-section ordinal in the input observation sequence. */
+    /** Physical section and its fitted closed-loop coefficients. */
     section: IAutoMovieContourLoft64.ISection;
 
     /**
-     * This section's coefficient-fit reports and unsupported observations,
-     * preserving original contour order.
+     * Station report with closed quality, open fits, contact points and
+     * diagnostics.
      */
     report: IAutoMovieRecoveryMeshSections["reports"][number];
 
-    /**
-     * Original source-incidence support assigned to the corresponding boundary
-     * observations.
-     */
+    /** Original source vertex support sets aligned with successful closed loops. */
     supports: Set<number>[];
 
-    /**
-     * Original source-face indices retained as incidence support; these never
-     * become generated mesh indices.
-     */
+    /** Original source face support sets aligned with successful closed loops. */
     faces: Set<number>[];
 
     /**
-     * Original face supports of unsupported open, isolated or unrepresented
-     * source contours.
+     * Original face support sets for open, degenerate or failed source
+     * observations.
      */
     defects: Set<number>[];
 
-    /** Actual raw observation population processed by this operation. */
+    /** Count of physical point observations incorporated by successful fits. */
     observations: number;
 
-    /**
-     * Actual retained cubic-span population, separate from original observation
-     * count.
-     */
+    /** Count of cubic spans across the successful open and closed fits. */
     spans: number;
   };
 }

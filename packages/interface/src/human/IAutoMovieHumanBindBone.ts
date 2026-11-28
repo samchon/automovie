@@ -22,4 +22,7 @@ export interface IAutoMovieHumanBindBone {
 
   /** Skin girth radius of the segment leaving the joint, metres. */
   radius: number;
+
+  /** A point on the longitudinal heel plane of a foot joint, in bind metres. */
+  heel?: AutoMovieVector3Tuple;
 }

@@ -12,6 +12,10 @@ import { throwsError } from "../../internal/throwsError";
  *
  * 1. (3, 4, 5) is 3 above it, (0, -1, 7) is 2 below, and (9, 1, 9) is on it.
  * 2. A zero normal is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios specify signed distance on both sides and on the plane, with a non-unit and a zero normal.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls the plane-distance owner with the authored plane and three points and compares exact signed values, then calls it with a zero normal.
+ * @evidence contracts/development/testing.md#independent-expectations The plane is y = 1 and its normalized positive Y normal leaves distances 4 minus 1, -1 minus 1 and 1 minus 1. The magnitude two cancels when normalizing. The zero vector cannot define a direction.
  */
 export function test_engine_film_section_plane_distance(): void {
   const plane = { point: { x: 0, y: 1, z: 0 }, normal: { x: 0, y: 2, z: 0 } };

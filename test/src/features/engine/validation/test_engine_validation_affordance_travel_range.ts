@@ -18,6 +18,10 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A hinge with travel 90 and reverse 30 spans -30 to 90; a slider without
  *    reverse spans 0 to its travel 0.25.
  * 4. A button's reverse is ignored: 0 to 0.01; a pedal without travel is 0 to 0.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers travel intervals for cranks, wheels, hinges, sliders, buttons and pedals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls affordanceTravelRange with typed articulations that vary kind, travel and reverse permissions.
+ * @evidence contracts/development/testing.md#independent-expectations A free crank has no finite stop, the wheel permits both signs, and the hinge has the stated negative reverse extent. The slider uses zero without reverse, the button ignores reverse, and the pedal has zero travel.
  */
 export function test_engine_validation_affordance_travel_range(): void {
   const affordance = (

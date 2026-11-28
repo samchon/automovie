@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanJump,
@@ -17,6 +18,7 @@ import "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { JumpData } from "./JumpData";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpCapture } from "./jumpCapture";
 import { jumpEndpoints } from "./jumpEndpoints";
@@ -29,7 +31,6 @@ import type { jumpPushEnd } from "./jumpPushEnd";
 import type { jumpState } from "./jumpState";
 import { jumpTakeoff } from "./jumpTakeoff";
 import { standUpright } from "./standUpright";
-import { JumpData } from "./JumpData";
 
 /*
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
@@ -192,14 +193,7 @@ export namespace jump {
     const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
       (s: AutoMovieHumanSide): boolean => entry.feet[s].planted,
     );
-    if (planted.length === 0)
-      throw new AutoMovieMotionHumanRefusal({
-        kind: "base",
-        axis: "base",
-        value: null,
-        reason: `a jump takes off from a planted foot, and neither is planted`,
-        fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
-      });
+    if (planted.length === 0) throw takeoffSupportRefusal(entry);
     if (supportFoot !== undefined && !entry.feet[supportFoot].planted)
       throw new AutoMovieMotionHumanRefusal({
         kind: "base",
@@ -383,6 +377,72 @@ export namespace jump {
       T,
       launch,
       land,
+    });
+  }
+
+  /*
+   * On an unsupported cut, read the nearest actual plant or pivot interval
+   * from the predecessor's full ground plan. The range answers support at
+   * the cut; the remaining take-off and landing checks still run on retry.
+   */
+  function takeoffSupportRefusal(
+    entry: IAutoMovieMotionHumanEntryState,
+  ): AutoMovieMotionHumanRefusal {
+    const previous = entry.from;
+    if (previous !== undefined) {
+      const elapsed = previous.share * previous.plan.duration;
+      let nearest:
+        | {
+            side: AutoMovieHumanSide;
+            from: number;
+            to: number;
+            distance: number;
+          }
+        | undefined;
+      for (const window of previous.plan.contacts) {
+        if (
+          (window.part !== "leftFoot" && window.part !== "rightFoot") ||
+          (window.kind !== "plant" && window.kind !== "pivot") ||
+          window.support.kind !== "ground"
+        )
+          continue;
+        const from = window.from * previous.plan.duration;
+        const to = window.to * previous.plan.duration;
+        if (!(from < to)) continue;
+        const distance = Math.max(from - elapsed, elapsed - to, 0);
+        if (
+          nearest === undefined ||
+          distance < nearest.distance ||
+          (distance === nearest.distance && from < nearest.from)
+        )
+          nearest = {
+            side: window.part === "leftFoot" ? "left" : "right",
+            from,
+            to,
+            distance,
+          };
+      }
+      if (nearest !== undefined)
+        return new AutoMovieMotionHumanRefusal({
+          kind: "base",
+          axis: "base",
+          value: elapsed,
+          feasible: {
+            kind: "range",
+            minimum: nearest.from,
+            maximum: nearest.to,
+            unit: "s",
+          },
+          reason: `a jump takes off from a planted foot, and neither is planted at ${elapsed.toFixed(3)} s of ${previous.name}. Its nearest declared ground support is the ${nearest.side} foot`,
+          fix: `move the ${previous.name} cut into that support interval and re-evaluate the jump`,
+        });
+    }
+    return new AutoMovieMotionHumanRefusal({
+      kind: "base",
+      axis: "base",
+      value: null,
+      reason: "a jump takes off from a planted foot, and neither is planted",
+      fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
     });
   }
 }

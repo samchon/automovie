@@ -8,16 +8,20 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A cut enters the next action on the support displayed at the cut.
+ * Check the entry base carried through a cut or a completed action.
  *
  * Scenarios:
  *
- * 1. A seat takes precedence over a lying or kneeling support, and carries
- *    declared seat placement once the seat is displayed.
- * 2. Without a seat, a lying support wins over a shin bearing. A shin alone means
- *    kneeling. A body whose previous seat is gone stands on its feet.
- * 3. A foot contact preserves an otherwise unspecified crouch. The declared ending
- *    base is handed through when the full action is reached.
+ * 1. At a cut, prefer a displayed seat with its placement over lying and shin
+ *    supports. Without a seat prefer lying to kneeling, and infer kneeling
+ *    from a shin alone.
+ * 2. When a previous seat is gone and feet bear, infer standing. Preserve an
+ *    otherwise unspecified crouch with foot support and return the declared
+ *    full-action ending base at completion.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases name support precedence, carried placement and the full-action exception.
+ * @evidence contracts/development/testing.md#behavioral-verification The base selection owner receives explicit support windows and cut or completion context.
+ * @evidence contracts/development/testing.md#independent-expectations The expected bases follow the fixed support records, selection precedence and supplied action end value.
  */
 export function test_motions_law_human_base_after(): void {
   const grounded: IAutoMovieMotionHumanEntryState.ISupport = {

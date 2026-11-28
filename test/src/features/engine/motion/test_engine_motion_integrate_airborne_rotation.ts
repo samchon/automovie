@@ -76,6 +76,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * 8. A rigid body of moments (1, 2, 3) with momentum 0.01 rad off the intermediate
  *    axis flips past 90 degrees before 2 ln(4 / eps) / lambda, returns within
  *    20 degrees and keeps its world momentum within 1e-3 (Yeadon 1993 Part I).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names constant and shape-dependent inertia, relative spin, fixed and adaptive stepping, conserved momentum, sensitivities, and intermediate-axis instability.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds synthetic inertia and momentum histories to the airborne integrator and reads orientation, angular rate, spin sensitivities, and conservation. It also tracks history reads after completion and compares fixed and adaptive playback across equivalent inertia frames.
+ * @evidence contracts/development/testing.md#independent-expectations The gyrostat admits Rx(0.01t)Ry(t), and its body rate restores 0.01 X world momentum. Isotropic and principal-axis cases follow rate L/I with analytic sensitivity and inverse inertia scaling. The tuck checks inverse-inertia speedup. The intermediate-axis case uses the instability bound and conservation limits described above.
  */
 export function test_engine_motion_integrate_airborne_rotation(): void {
   const spin: IAutoMovieIntegrateAirborneRotation.IInstant = {

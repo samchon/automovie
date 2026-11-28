@@ -27,6 +27,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  * 1. No diagnostic, and every knot station's guide points stand on the box sides
  *    square to their guides (`ConstructionChecks.touch`), at both sizes.
  * 2. The ellipsoid's surface read 20 degrees round its axis misses its box.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes knot-guide contact for cylinder and ellipsoid at two scales, and the rotated negative control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes both view outlines and checks point positions and angular slopes at the four guides of every knot station.
+ * @evidence contracts/development/testing.md#independent-expectations The closed shapes supply the expected half extents. At the axial spline knots the surface touches the corresponding side with zero angular slope. A 20-degree turn misaligns the ellipsoid.
  */
 export function test_engine_geometry_construction_view_touch(): void {
   const frame: ConstructionShapes.IFrame = ConstructionShapes.DOWN;

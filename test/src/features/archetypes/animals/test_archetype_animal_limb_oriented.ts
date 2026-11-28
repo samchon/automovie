@@ -20,11 +20,9 @@ import { nclose } from "../../internal/nclose";
  * 4. Axis input and returned target/range/point mutations cannot rewrite the
  *    prepared oriented solver or the caller's exact root and foot records.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines independent metre lengths, degree fold, normalized actual terminal direction, ankle-versus-foot semantics, strict boundary refusals and snapshot ownership.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises actual prepare/oriented/range/target/solve and inspects all five returned points, four Euclidean lengths, fixed terminal direction and signed carpus fold. A solver that satisfies only the foot point while rotating its solid sole incorrectly cannot pass.
- * @evidence contracts/development/testing.md#independent-expectations The last length is five, so a downward terminal gives ankle=foot+(0,5,0). Remaining lower lengths three and four sum to seven, are a 3-4-5 triangle at ninety degrees and differ by one at 180 degrees; triangle inequality with upper two gives the three literal bands. Observed coordinates use 1e-10 m precision and raw two-ULP outside distances remain refused.
- * @evidence contracts/development/testing.md#distinguishing-cases Both bend signs, nonunit input axis, off-axis endpoint, all fold modes, inner/outer tangencies, near outside, invalid/zero direction and prepared replay distinguish endpoint-only IK from the complete rigid effector. Point-only triangle and whole-body root intersection have separate independent units.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous portable unit owns literal controls and inputs and calls the real exported geometric seam, without a process, compiler, renderer, wall-clock assertion or foreign-method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation States the terminal direction, geometry of three folds, tangent admission and ownership of inputs and results.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls preparation, orientation, target, range and solve and reads actual returned points. Measures all four lengths, signed fold and final direction, including exact tangencies and adjacent invalid goals.
+ * @evidence contracts/development/testing.md#independent-expectations A downward terminal of length five puts the ankle five metres above the foot. Lower lengths three and four give spans seven, five and one before adding the upper length of two. These imply the three stated triangle bounds.
  */
 export function test_archetype_animal_limb_oriented(): void {
   const findings: string[] = [];

@@ -35,6 +35,10 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  *    every bone participates.
  * 3. The capture accepts a sphere within hand reach and refuses one far away.
  *    A grip without a fitted approach does not request a hand collision test.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The capture cases cover eligible reservation, inclusive collider omission and reach, alongside the ordinary noncapture path.
+ * @evidence contracts/development/testing.md#behavioral-verification Direct calls exercise launch-to-grip matching, filter actual named bones with the resulting approach, and invoke the close gate with near and far sphere samples.
+ * @evidence contracts/development/testing.md#independent-expectations The declared approach reserves only the left hand and fingers from 0.75 through 1 s inclusive. The left forearm and right hand remain. A missing sphere or capture time has no reservation, and a fitted grip's far sphere fails its reach check.
  */
 export async function test_motions_perform_catch_hands(): Promise<void> {
   const ball: IAutoMovieMotionPropLaunch = {

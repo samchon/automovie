@@ -18,6 +18,10 @@ import { nclose } from "../../internal/predicates";
  * 2. The linear velocity is the displacement times the rate: (20, 0, 0).
  * 3. The angular velocity is the quarter turn times the rate about z: 5 pi.
  * 4. With equal rotations the angular velocity is zero.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes fractional goal position and shortest-arc rotation with world linear and angular velocities.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples midway between an identity pose and a translated quarter turn, then repeats with rotation held constant.
+ * @evidence contracts/development/testing.md#independent-expectations Linear interpolation gives x = 1 and velocity x = 20 at 10 Hz. Half a quarter turn gives quaternion z = sin 22.5°, while angular speed is 5π or zero.
  */
 export function test_engine_physics_sample_target(): void {
   const h: number = Math.SQRT1_2;

@@ -2,35 +2,57 @@ import type { IAutoMovieViewConic } from "./IAutoMovieViewConic";
 
 /** Data and callback contracts shared by the LoftPhaseSource operations. */
 export namespace IAutoMovieLoftPhaseSource {
-  /** Explicit native functions and their natural-coordinate cardinal jets. */
+  /**
+   * Prepared natural-coordinate interpolation of native conic section
+   * functions. The arrays index the same coordinates in increasing order. The
+   * cardinal matrices carry derivatives with respect to the chosen coordinate q
+   * and allow the section reader to blend radii and their phase derivatives
+   * directly.
+   */
   export interface ISource {
     /**
-     * Increasing coordinates q: station mm, signed sqrt(mm), or radians as
-     * chosen by the caller.
+     * Increasing interpolation coordinates q ordered with the source curves.
+     * Choose station millimetres, signed square-root millimetres or radians
+     * according to the requested map.
      */
     coordinates: readonly number[];
 
     /**
-     * Native sections in the same order, with millimetre radii and polar-radian
-     * phase.
+     * Native polar conic sections in the same order as coordinates. Radii are
+     * in millimetres and phase is in radians.
      */
     curves: readonly IAutoMovieViewConic.ICurve[];
 
-    /** Cardinal first derivatives in q at every source coordinate. */
+    /**
+     * First derivatives in q of the natural cardinal functions. Row i is
+     * evaluated at coordinate i and column j weights source curve j.
+     */
     slopes: readonly (readonly number[])[];
 
-    /** Cardinal second derivatives in q at the same coordinates. */
+    /**
+     * Second derivatives in q using the same coordinate-row and
+     * source-curve-column order as slopes.
+     */
     curvatures: readonly (readonly number[])[];
   }
 
-  /** One station's explicit linear combinations of native source functions. */
+  /**
+   * Prepared value and derivative weights for one coordinate on a retained
+   * native conic source. Supply physical change-of-coordinate derivatives to
+   * the station reader when the returned weights will be used as station
+   * derivatives.
+   */
   export interface IStation {
-    /** Explicit immutable native source. */
+    /**
+     * Prepared conic functions and cardinal basis shared by every phase read at
+     * this coordinate.
+     */
     source: IAutoMovieLoftPhaseSource.ISource;
 
     /**
-     * Value, first and second derivative weights, in q unless station supplied
-     * a physical change of coordinate.
+     * Rows for value, first derivative and second derivative, with one
+     * coefficient for each source curve. The derivatives use q by default and
+     * physical station after a supplied change of coordinate.
      */
     weights: readonly (readonly number[])[];
   }

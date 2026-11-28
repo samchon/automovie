@@ -367,16 +367,20 @@ namespace part_human_crowd_group_formation {
 }
 
 /**
- * `HumanCrowd`'s unit contract: its desired velocity and group formation.
+ * Check speed, shoulder clearance and group slots for walking members.
  *
- * Its parts, each documented with its own scenarios:
+ * Scenarios:
  *
- * - `human_crowd_desired`: `HumanCrowd.desired` is a member's desired speed, its
- *   gait's Froude speed `sqrt(Fr g l)` at its hip height scaled by its keyed
- *   normal draw and by fatigue, and `half` its half breadth at the shoulders,
- *   the shoulder joint's half width and the upper arm's radius.
- * - `human_crowd_group_formation`: Reads pedestrian group slots on their shared
- *   course.
+ * 1. Compare fourfold hip height, gait and fatigue changes against the same
+ *    draw. With no latency start at once, and obtain a 0.24 m half breadth.
+ * 2. Compare pair, trio and four-member layouts, field densities, wider
+ *    shoulders and a slot entering a footprint beyond the centroid.
+ * 3. Transport the layout through a quarter-turn in reordered reads. Reject
+ *    singleton, unsupported group size, negative density and zero breadth.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify speed, breadth, field layout and invalid geometry separately.
+ * @evidence contracts/development/testing.md#behavioral-verification The group fixture tests the gait speed operation and slot geometry before and after course movement.
+ * @evidence contracts/development/testing.md#independent-expectations Froude scaling and the given shoulder dimensions determine speed ratios and half breadth. Field distances and a rigid turn provide slot expectations.
  */
 export async function test_motions_ensemble_human_crowd(): Promise<void> {
   part_human_crowd_desired.verify();

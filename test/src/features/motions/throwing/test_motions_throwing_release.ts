@@ -10,11 +10,16 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * The `release` law's timetable (`release.timetable`): the grip held a brief
- * pause, then opened over another.
+ * Check the cue times for a hand release.
  *
- * Scenario: the hold opens the release, the hand opens one brief pause in, and
- * the release ends two in.
+ * Scenarios:
+ *
+ * 1. The hold cue starts at entry. The hand opens after one brief interval
+ *    and the clock ends after two.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The case specifies the entry, open cue and terminal phase in local seconds.
+ * @evidence contracts/development/testing.md#behavioral-verification The release timetable supplies the cues and duration to the same three assertions.
+ * @evidence contracts/development/testing.md#independent-expectations The stated brief interval sets one elapsed unit at `open` and two at the end.
  */
 export function test_motions_throwing_release(): void {
   const brief: number = motionHumanTiming.PAUSES.brief;

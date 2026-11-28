@@ -4,70 +4,63 @@ import type {
 } from "..";
 import type { IAutoMovieRecoveryChartFit as IAutoMovieRecoveryChartFit_2 } from "./IAutoMovieRecoveryChartFit";
 
-/** Admit and normalize one chart before sparse observation assembly. */
+/** Callable preparation of one constrained chart fit in normalized coordinates. */
 
 export namespace IAutoMovieRecoveryChartFitPrepare {
-  /** Admit and normalize one chart before sparse observation assembly. */
+  /**
+   * Prepare the physical enclosure, finite control registry and reduced affine
+   * identities. Use the enclosure midpoint and its largest extent to normalize
+   * positions. Assign one slot per independent control and choose the reduced
+   * row cap before assembly.
+   */
 
   export type Operation = (input: IAutoMovieRecoveryChartFit_2.Input) => {
-    /** Checks finite Cartesian coordinates without repairing or clamping values. */
+    /** Dense finite XYZ check used by observation, warm-start and report stages. */
     finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean;
 
-    /** Lower componentwise physical control bound in registered millimetres. */
+    /** Original lower physical control bound in millimetres. */
     lower: Readonly<AutoMovieVector3Tuple>;
 
-    /** Upper componentwise physical control bound in registered millimetres. */
+    /** Original upper physical control bound in millimetres. */
     upper: Readonly<AutoMovieVector3Tuple>;
 
-    /**
-     * Physical millimetre origin subtracted from coefficient positions before
-     * normalization.
-     */
+    /** Registered physical midpoint used as the normalization origin. */
     origin: number[];
 
     /**
-     * Positive common millimetre scale used to normalize the physical
-     * coefficient box.
+     * Common millimetre normalization length derived from the largest enclosure
+     * extent.
      */
     scale: number;
 
-    /**
-     * Original control index to independent solver slot; fixed or dependent
-     * entries retain the owner's sentinel.
-     */
+    /** Original-to-independent slot mapping, with -1 for eliminated controls. */
     slots: Int32Array;
 
-    /** Admitted ceiling on sparse stencil entries after affine substitution. */
+    /**
+     * Maximum reduced observation stencil size under the admitted relation
+     * policy.
+     */
     maximumRowBudget: number;
 
     /**
-     * Admitted acyclic affine substitution, preserving fixed values and
-     * independent control identities.
+     * Prepared fixed and independent affine expressions in original registry
+     * order.
      */
     reduced: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation>;
 
-    /**
-     * Number of independent vector controls after fixed and affine dependent
-     * controls are eliminated.
-     */
+    /** Number of independent three-axis control slots. */
     unknowns: number;
 
     /**
-     * Fixed affine contributions after subtracting the admitted origin and
-     * dividing by the common scale.
+     * Affine constants adjusted by physical origin, coordinate scale and
+     * surviving independent weight mass.
      */
     normalizedConstants: Readonly<AutoMovieVector3Tuple>[];
 
-    /**
-     * Sum of positive observation weights used to normalize the assembled
-     * objective.
-     */
+    /** Sum of original positive observation weights before normalized assembly. */
     totalWeight: number;
 
-    /**
-     * Evaluates the normalized cubic Bernstein basis at the supplied local
-     * parameter.
-     */
+    /** Local cubic Bernstein basis evaluator used by residual measurement. */
     basis: (t: number) => number[];
   };
 }

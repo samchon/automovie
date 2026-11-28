@@ -22,6 +22,10 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Untwisting around positive x changes the carried axis angle from s to s + r
  *    in this chart, so its forward zero occurs at r = -s. For [0, 30] this
  *    admits -20 and refuses +20 and -45.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers swivel admission, range breakpoints, miss bounds and the sign of the forward twist.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineDistalTwistSwivelRange.of on a rotating carried axis and queries its results at explicit angles and intervals.
+ * @evidence contracts/development/testing.md#independent-expectations The carried axis is (0, sin s, cos s), giving breakpoints at 30 and 330 for the symmetric range. The directed chart zeros at r = -s, so the asymmetric range separates -20 from +20 and -45.
  */
 export function test_engine_kinematics_distal_twist_swivel_range(): void {
   const D: number = Math.PI / 180;

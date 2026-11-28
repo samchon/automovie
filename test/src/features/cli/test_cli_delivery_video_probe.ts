@@ -38,11 +38,9 @@ type Probed = IAutoMovieCliDeliveryProbe;
  *    entry, priming edit and clocks; a file without one reads `null`; a file
  *    with no movie box is refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Writes real MP4 header bytes to disk and runs the exported probe, then the exported profile asserter on its result; a probe that read a field at the wrong offset, ignored `ctts`, the edit list or `colr`, or misread the AudioSpecificConfig fails a field comparison.
- * @evidence contracts/development/testing.md#independent-expectations Every expected value is the literal the header was written with under ISO/IEC 14496-12, 14496-1 and 14496-3 layouts; 241 frames at 24 fps run 241/24 s; the rotation matrix is the standard 90-degree 16.16 matrix; the profile refusals are its documented field names.
- * @evidence contracts/development/testing.md#distinguishing-cases A conforming file against one changed field each (colour, matrix, edit start, composition offset), present and absent audio, and an unreadable file. Publishing on a refusal is owned by test_cli_render_video_delivery and the AAC profile by test_render_delivery_audio_profile.
- * @evidence contracts/development/testing.md#execution-ownership Writes and removes its own temporary files and runs no FFmpeg; the real encoder's output is checked by hand.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the MP4 picture and audio fields read from the temporary files and the altered headers expected to fail profile checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Writes fixture MP4 boxes and calls the public probe and delivery profile validation. Checks fields and refusals for color, rotation, edit start, composition offset, pixel aspect, AAC and an unreadable movie.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the literal written header fields and `241 / 24` seconds, the fixed 90-degree matrix, and the specified AAC layout. Each changed header has its own expected field or refusal.
  */
 export async function test_cli_delivery_video_probe(): Promise<void> {
   const root: string = await fs.mkdtemp(

@@ -1,10 +1,10 @@
 import type {
-  IAutoMovieCameraInspection,
   IAutoMovieSemanticMaskBinding,
   IAutoMovieSemanticMaskEntry,
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import type { AutoMovieRenderInspectionCamera } from "../../AutoMovieRenderInspectionCamera";
 import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind";
 import { semanticMaskOf } from "../../semanticMask/internal/semanticMaskOf";
 import { maskRoots } from "../../semanticMask/internal/maskRoots";
@@ -46,7 +46,7 @@ export function measureCameraOcclusionPixels(
   if (
     (factor !== 1 && factor !== 2) ||
     ![width, height, sampleWidth * sampleHeight * 4].every(
-      (value: number): boolean => value > 0,
+      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
     )
   )
     return unsupported("invalid delivery pixel audit request");
@@ -230,38 +230,7 @@ export function measureCameraOcclusionPixels(
  * Outcomes of one delivery pixel audit.
  */
 export namespace measureCameraOcclusionPixels {
-  /*
-   * An exact matched count, or the reason the frame cannot be audited.
-   */
-  export type IResult =
-    | {
-        /*
-         * The subject's pixels were counted.
-         */
-        status: "measured";
-
-        /*
-         * Delivered pixels of the subject alone, and the subset still visible
-         * in the composite.
-         */
-        pixels: IAutoMovieCameraInspection.IPixels;
-
-        /*
-         * Passes rendered: zero when the subject's box misses the raster.
-         */
-        passes: 0 | 1 | 2;
-      }
-    | {
-        /*
-         * The scene, renderer or subject cannot be audited with binary masks.
-         */
-        status: "unsupported";
-
-        /*
-         * Why the audit refused.
-         */
-        reason: string;
-      };
+  export type IResult = AutoMovieRenderInspectionCamera.PlacedPixelMeasurement;
 }
 
 /*
@@ -327,12 +296,14 @@ function nativeOpaqueMaterial(material: THREE.Material): boolean {
     !(
       AutoMovieRenderThreeKind.isMeshBasicMaterial(material) ||
       AutoMovieRenderThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieRenderThreeKind.isMeshPhysicalMaterial(material) ||
       AutoMovieRenderThreeKind.isMeshLambertMaterial(material) ||
       AutoMovieRenderThreeKind.isMeshPhongMaterial(material)
     ) ||
     ![
       THREE.MeshBasicMaterial,
       THREE.MeshStandardMaterial,
+      THREE.MeshPhysicalMaterial,
       THREE.MeshLambertMaterial,
       THREE.MeshPhongMaterial,
     ].some((type: unknown): boolean => material.constructor === type)
@@ -343,6 +314,8 @@ function nativeOpaqueMaterial(material: THREE.Material): boolean {
     material.onBeforeRender === THREE.Material.prototype.onBeforeRender &&
     material.precision === null &&
     material.side === THREE.FrontSide &&
+    (!AutoMovieRenderThreeKind.isMeshPhysicalMaterial(material) ||
+      material.transmission === 0) &&
     !material.transparent &&
     material.opacity === 1 &&
     (material.blending === THREE.NormalBlending ||
@@ -378,12 +351,61 @@ function projectRange(
     for (const y of [bounds.min.y, bounds.max.y])
       for (const z of [bounds.min.z, bounds.max.z]) {
         clip.set(x, y, z, 1).applyMatrix4(projection);
-        if (!(clip.w > 0)) return undefined;
+        if (!Number.isFinite(clip.w)) return undefined;
+        if (clip.w <= 0) return projectNearClippedRange(bounds, projection);
         point.set(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w);
         if (!isFloat32Point(point)) return undefined;
         min.min(point);
         max.max(point);
       }
+  return { min, max };
+}
+
+/*
+ * Clip a box crossing the eye against the WebGL near plane z + w = 0.
+ * Each projected coordinate is a ratio with positive denominator on the
+ * surviving box. Its extrema are at surviving corners or clipped edge ends.
+ */
+function projectNearClippedRange(
+  bounds: THREE.Box3,
+  projection: THREE.Matrix4,
+): renderCameraOcclusionMasks.IRange | undefined {
+  const corners: THREE.Vector4[] = [];
+  const distances: number[] = [];
+  for (const x of [bounds.min.x, bounds.max.x])
+    for (const y of [bounds.min.y, bounds.max.y])
+      for (const z of [bounds.min.z, bounds.max.z]) {
+        const corner: THREE.Vector4 = new THREE.Vector4(x, y, z, 1).applyMatrix4(projection);
+        const distance: number = corner.z + corner.w;
+        if (!corner.toArray().every(Number.isFinite) || !Number.isFinite(distance))
+          return undefined;
+        corners.push(corner);
+        distances.push(distance);
+      }
+
+  const vertices: THREE.Vector4[] = [];
+  for (const [index, corner] of corners.entries()) {
+    const a: number = distances[index]!;
+    if (a >= 0) vertices.push(corner);
+    for (const axis of [1, 2, 4]) {
+      const other: number = index ^ axis;
+      const b: number = distances[other]!;
+      if (other <= index || a === 0 || b === 0 || (a < 0) === (b < 0)) continue;
+      const span: number = a - b;
+      if (!Number.isFinite(span)) return undefined;
+      vertices.push(corner.clone().lerp(corners[other]!, a / span));
+    }
+  }
+  const min: THREE.Vector3 = new THREE.Vector3(Infinity, Infinity, Infinity);
+  const max: THREE.Vector3 = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+  const point: THREE.Vector3 = new THREE.Vector3();
+  for (const vertex of vertices) {
+    if (!(vertex.w > 0)) return undefined;
+    point.set(vertex.x / vertex.w, vertex.y / vertex.w, vertex.z / vertex.w);
+    if (!isFloat32Point(point)) return undefined;
+    min.min(point);
+    max.max(point);
+  }
   return { min, max };
 }
 

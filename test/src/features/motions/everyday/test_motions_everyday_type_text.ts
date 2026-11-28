@@ -29,6 +29,10 @@ const ROUNDING: number = 1e-12;
  * 3. The next reach starts where the lift ends, at 1.06 s, hovering over the first
  *    key, and after its last press the hand hovers over its last key.
  * 4. The left fingertip is on its key at its press.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Typing presses descend through the key travel and rebound according to each hand's neighboring key times.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls fingertip press timing with explicit right and left key sequences and hover heights.
+ * @evidence contracts/development/testing.md#independent-expectations A 40 percent approach and 60 percent release, bounded by each hand's neighboring gaps, fix the expected key travel at the queried times.
  */
 export async function test_motions_everyday_type_text(): Promise<void> {
   const key: (

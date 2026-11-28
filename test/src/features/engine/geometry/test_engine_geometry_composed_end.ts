@@ -46,6 +46,10 @@ type V3 = [number, number, number];
  * 7. Distances to the outline in the end plane: its own points 0 within 1e-9; the
  *    point (0, 23) is 14 off, (+-23, 0) is 0, (-7, 8) above a valley is
  *    hypot(7, 8) - 9, the origin 9.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes fork, lobe, seam, outline and distance checks with changed section geometry and invalid join premises.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a composed end from three sampled section functions and measures the returned forks, phases, plane frames, pieces and distances before varying a radius or axis.
+ * @evidence contracts/development/testing.md#independent-expectations The radical lines of equal radius-9 circles at spacing 14 lie halfway between their centres, with crossing ordinates ±√32. Section angles and half-angle axis bisectors independently determine phases and seam frames.
  */
 export function test_engine_geometry_composed_end(): void {
   const turn: number = 2 * Math.PI;

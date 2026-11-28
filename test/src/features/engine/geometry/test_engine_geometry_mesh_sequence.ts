@@ -23,6 +23,10 @@ import { throwsError } from "../../internal/throwsError";
  *    finite member at 1e200 already clear needs no area arithmetic.
  * 4. Gap -1 ("clearance"), a malformed member ("triangle buffers"), travel
  *    overflow ("translation") and position overflow ("positions") refuse.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names axial rigid offsets, pairwise clearance across a gap, ownership and failure conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Separates authored ordered triangles on all axes and checks actual depth, transverse data, identity, malformed members and unrepresentable travel.
+ * @evidence contracts/development/testing.md#independent-expectations Pairwise depth bounds imply consecutive overlap gaps of at least 0.2. Fixed transverse offsets identify disjoint pairs and leave the nonadjacent overlap constrained.
  */
 export function test_engine_geometry_mesh_sequence(): void {
   const plane = (z: number, x: number = 0): IAutoMovieMesh => ({

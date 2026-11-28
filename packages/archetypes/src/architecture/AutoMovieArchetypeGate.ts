@@ -13,31 +13,23 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeGateData } from "./internal/AutoMovieArchetypeGateData";
 
-/** Constructs the gate archetype from its recipe. */
+/**
+ * Constructs a static turnstile or speed-gate proxy with an alignment aperture.
+ */
 export namespace AutoMovieArchetypeGate {
 /**
- * A pedestrian gate a person passes through: a tripod turnstile or a swing
- * speed gate.
+ * Build a turnstile with one cabinet and an arm, or a speed gate with
+ * opposed cabinets and two wings.
  *
- * The lane runs along `Z` through the origin, one of its maker's read passage
- * widths between its cabinets, given or drawn from the seed, and is walked
- * toward `-Z`. A turnstile has one cabinet on the lane's `-X` side with its
- * barrier arm reaching across the lane at the maker's barrier height; a speed
- * gate has a cabinet on each side, each with a wing closing half the lane at
- * the maker's wing height. `passage` is the lane's opening, an aperture as high
- * as the cabinets; `top` is the `-X` cabinet's top, leaned on or vaulted.
+ * The floor-level `passage` records the nominal lane span. The `top`
+ * surface occupies the `-X` cabinet at its measured height.
  *
- * The arm and the wings are drawn at their cabinet's middle and declared as no
- * contact, since no source read places them along the cabinet; turning an arm
- * or swinging a wing has no motion law yet (#3468 N7), so the gate is built for
- * static use.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The gate.
- * @throws {AutoMovieArchetypeRefusal} For a passage the kind's maker does not
- *   list, a fixed dimension outside its band, or one only another kind has.
+ * @param params Required gate kind, optional lane selection and scene ID,
+ *   and applicable finite dimensions. The default ID is `gate`.
+ * @param seed Numeric seed for omitted settings. Omission uses lane `457`
+ *   for a turnstile or `615` for a speed gate and the band midpoints.
+ * @returns The static barrier, nominal aperture and cabinet top surface.
+ * @throws {AutoMovieArchetypeRefusal} If a kind, lane or fixed value is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeGate.IParams,
@@ -134,21 +126,19 @@ export function create(
   return builder.build(d.mass!);
 }
 
-  /** The kinds of gate. */
+  /** Selects a one-cabinet `turnstile` or two-cabinet `speedGate`. */
   export type Kind = "turnstile" | "speedGate";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** The admitted gate kinds in turnstile then speed-gate order. */
   export const KINDS: readonly Kind[] = ["turnstile", "speedGate"];
 
   /**
-   * The passage widths read, millimetres: the Trilock 60's 457, 508 and 559 mm
-   * and the Speedlane Swing's 615 and 915 mm.
+   * Width labels in millimetres. Turnstiles use `457`, `508` or `559` and speed gates use `615` or `915`.
    */
   export type Passage = "457" | "508" | "559" | "615" | "915";
 
   /**
-   * Each kind's passages with the clear width each gives, metres, its default
-   * first.
+   * Catalogue nominal lane spans recorded in metres by kind and width label.
    */
   export const PASSAGES: Readonly<
     Record<
@@ -167,21 +157,13 @@ export function create(
   };
 
   /**
-   * The affordance ids:
-   *
-   * - `passage`: the lane's opening between the cabinets, an aperture.
-   * - `top`: the `-X` cabinet's top.
+   * Floor-level nominal `passage` aperture and `top` of the cabinet at `-X`.
    */
   export type Affordance = "passage" | "top";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `passage`: the lane's clear width, its model's.
-   * - `width`, `height`, `length`: a cabinet across the lane, high and along it.
-   * - `barrier`: a turnstile arm's height or a wing's height.
-   * - `reach`, `arm`: a turnstile arm's reach into the lane and its diameter.
-   * - `mass`: kilograms.
+   * Lane span, cabinet width, height and length, barrier height and
+   * turnstile arm reach and diameter in metres. Mass is in kilograms.
    */
   export type Dimension =
     | "passage"
@@ -193,7 +175,7 @@ export function create(
     | "arm"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for physical gate dimensions and kilograms for mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -208,26 +190,26 @@ export function create(
   };
 
   /**
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+   * Required gate kind, optional lane and scene ID, and finite dimensions applicable to that kind.
    */
   export interface IParams extends Partial<
     Record<Exclude<Dimension, "passage">, number>
   > {
-    /** Which gate. */
+    /**
+     * Selects the cabinet and barrier arrangement and its measurement bands.
+     */
     kind: Kind;
 
-    /**
-     * The lane's clear width, one the kind's maker lists; drawn from the seed
-     * when absent.
-     */
+    /** Selects a nominal lane width from the chosen kind's catalogue. */
     lane?: Passage;
 
-    /** The model's id, unique in a scene; `gate` when absent. */
+    /** Scene object ID, defaulting to `gate`. */
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * Free dimensions by gate kind. The lane width comes from the catalogue selection.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {

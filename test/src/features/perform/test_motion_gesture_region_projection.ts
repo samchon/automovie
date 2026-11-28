@@ -56,10 +56,8 @@ const gesture: (
  * - A nod and wave retain their separate tracks at the nod stop.
  * - A crouch retains both knees and the spine; the upper-body projection only retains the spine.
  * - A facial overlay preserves the jump's vertical root at its apex.
- * @evidence contracts/development/testing.md#behavioral-verification Samples real compiled gesture keyframes.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples real compiled gesture keyframes. The same crouch uses full and restricted regions. Synthetic face keys exercise overlapping limb and root motion on the same actor.
  * @evidence contracts/development/testing.md#independent-expectations Authored stops give the joint angles and the jump height in metres.
- * @evidence contracts/development/testing.md#distinguishing-cases The same crouch is compiled with a full and a restricted region.
- * @evidence contracts/development/testing.md#execution-ownership One actor and synthetic facial keys.
  * @evidence contracts/development/common.md#meaningful-documentation Names the mask and the surviving channels.
  */
 export function test_motion_gesture_region_projection(): void {

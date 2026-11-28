@@ -1,57 +1,42 @@
 import type { IAutoMovieRecoveryMeshSections } from "..";
 
-/**
- * Gather saved open-run metadata without preempting its local numerical
- * refusal. Known names and confirmed fit misses remain literal observations.
- * Missing fit fields are counted separately; an incomplete estimate inventory
- * has no maximum.
- */
+/** Callable read of saved fit and span information for one open run. */
 
 export namespace IAutoMovieRecoveryOpenRunDescriptionOperation {
   /**
-   * Gather saved open-run metadata without preempting its local numerical
-   * refusal. Known names and confirmed fit misses remain literal observations.
-   * Missing fit fields are counted separately; an incomplete estimate inventory
-   * has no maximum.
+   * Read the named saved open curves in supplied run order. Report actual cubic
+   * span count, explicit fit target misses and unavailable residual
+   * qualification; a negative saved estimate suppresses the maximum estimate.
    */
 
   export type Operation = (
     bundle: IAutoMovieRecoveryMeshSections,
     nodes: readonly {
-      /** Saved-section ordinal in the input observation sequence. */
+      /** Saved station index in run order. */
       section: number;
-      /** Open-arc ordinal in the addressed saved section's report. */
+      /** Original open fit index within the addressed saved report. */
       arc: number;
     }[],
   ) => {
-    /** Ordered saved coefficient identities used by this continuation run. */
+    /** Saved curve names in the supplied node order. */
     curves: string[];
 
-    /**
-     * Observed admission failures and qualification limits in production order;
-     * an empty array adds no extra certificate.
-     */
+    /** Diagnostics for unavailable saved upper-estimate qualification. */
     diagnostics: string[];
 
-    /** Saved course fits whose recorded positional tolerance was not met. */
+    /** Count of saved fits explicitly marked as missing their tolerance target. */
     fitTargetMisses: number;
 
-    /**
-     * Saved fits lacking a qualified finite nonnegative source-polyline
-     * estimate.
-     */
+    /** Count of saved curves with a negative, unavailable upper estimate. */
     unqualifiedFitMetadata: number;
 
     /**
-     * Maximum saved finite-polyline upper estimate in millimetres; null if any
-     * required estimate is unavailable.
+     * Largest saved nonnegative polyline upper estimate in millimetres, or null
+     * if any estimate is unavailable.
      */
     fitPolylineUpperEstimateMaximumMm: number | null;
 
-    /**
-     * Recorded source cubic-span population, or null when the required metadata
-     * is unavailable.
-     */
+    /** Total saved cubic span count over the described open run. */
     sourceSpans: number | null;
   };
 }

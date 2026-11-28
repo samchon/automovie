@@ -1,24 +1,27 @@
 /**
- * Physical coverage limits of a finite-view convex-support reconstruction. The
- * generated convex sections neither prove physical convexity nor certify
- * enclosure.
+ * Coverage metadata required for finite-view convex-support generation.
+ * Observed silhouettes constrain the approximation over the shared row domain,
+ * while physical coverage retains its unresolved regions.
  */
 export interface IAutoMovieRecoverySupportLoftCoverage {
-  /** Lateral shape is inferred from finite-view convex supports. */
+  /** The lateral surface is inferred from a finite set of convex supports. */
   lateralSurface: "inferred-finite-view-convex-support";
 
-  /** End caps were not observed. */
+  /** The generated lateral surface omits both end caps. */
   endCaps: "unobserved";
 
-  /** Interior geometry was not observed. */
+  /** Interior geometry is unobserved. */
   interior: "unobserved";
 
-  /** Hidden concavities are outside the finite convex-support hypothesis. */
+  /** The available convex supports leave hidden concavities unobserved. */
   hiddenConcavities: "unobserved";
 
-  /** Camera calibration was supplied, not recovered. */
+  /** Camera calibration was supplied to observation and fitting. */
   cameras: "supplied";
 
-  /** Pixel and fitting uncertainty prevent a certified outer-enclosure claim. */
+  /**
+   * The recipe carries no certificate that the physical object stays inside the
+   * inferred hull.
+   */
   enclosure: "not-certified";
 }

@@ -25,6 +25,10 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *    the beam's chain alone, and skin owners, positions and indices identical
  *    to the beam's realized alone.
  * 2. The post at y0 = 0 meets the beam and its skin's indices differ.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the rejected join's diagnostic, host preservation, subtree omission and successful-join contrast.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes the beam alone and with separated or intersecting posts, then compares diagnostic IDs, chains, positions, owners and indices.
+ * @evidence contracts/development/testing.md#independent-expectations The offset post is disjoint from the beam, so its failed join adds only a diagnostic. An intersecting post changes the host's skin topology.
  */
 export function test_engine_geometry_construction_rollback(): void {
   const beam = (): IAutoMovieConstructionView =>

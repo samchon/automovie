@@ -14,6 +14,10 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  * 1. Caller edits to height and exposed step records do not change queries.
  * 2. Zero declared pitch stays zero; a supplied peak is retained exactly.
  * 3. Reordered reads preserve both planted and swinging samples.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains planning ownership of public steps and policy, optional authored peak pitch and consistent seek order.
+ * @evidence contracts/development/testing.md#behavioral-verification Edits caller height and returned step records after constructing schedules, then reads turns, planted states and swings in a changed order.
+ * @evidence contracts/development/testing.md#independent-expectations Zero pitch remains zero and the specified peak stays exact. Earlier observations establish identical samples after both edits and reordered reads.
  */
 export function test_engine_physics_step_planner_ownership(): void {
   const pattern: IAutoMovieStepPlanner.IInput["pattern"] =

@@ -27,6 +27,10 @@ import * as THREE from "three";
  *    every host, never deferred.
  * 4. A required pixel ratio stays deferred in a delivery sample whose host
  *    supplies no renderer audit, the case only a portable caller produces.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify camera hosts, scene sizes, triangle thresholds, unsupported geometry, and the absent renderer audit control.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the Viewer defers expensive near-plane, surface-edge and occlusion checks, that capture and delivery complete them, and that unsupported data and missing renderer receipts remain distinguishable.
+ * @evidence contracts/development/testing.md#independent-expectations Uses fixture triangle counts 262,144 and 32,768 against the stated caps, plus a line and a missing renderer audit to expect distinct coverage statuses.
  */
 export function test_render_scene_observe_placed_camera(): void {
   const scene: THREE.Scene = new THREE.Scene();

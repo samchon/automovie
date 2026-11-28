@@ -27,6 +27,10 @@ const DURATION: number = 0.1;
  * 4. Real colliders exercise both argument orders of the world's pair filter,
  *    which serves contact response and sensor overlaps alike, and the public
  *    lookup reads a later mutable declaration.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents exclusion of declared overlapping neighbors across response, sensor queries and checkpoint replay.
+ * @evidence contracts/development/testing.md#behavioral-verification Steps equal overlapping spheres with and without exclusion, compares an impulse resume to continuous frames, and probes both collider orders and mutable declarations.
+ * @evidence contracts/development/testing.md#independent-expectations An excluded unloaded fixture stays at rest, an admitted overlap supplies physical displacement, and resumed motion matches continuous frames bit for bit.
  */
 export async function test_engine_physics_xpbd_collision_exclusions(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere();

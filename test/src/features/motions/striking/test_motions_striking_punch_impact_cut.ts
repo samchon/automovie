@@ -30,6 +30,10 @@ import { vclose } from "../../internal/vclose";
  * 2. Feet and elbows stay continuous on both sides of the cut. The landed and
  *    airborne feet keep their rates and only the landed foot bears.
  * 3. Seeking to a time again yields the same placements.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains contact-cut continuity of the visible motion, contact roles and repeated seeking.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the existing jab and cross clip rows, cuts at the emitted event and samples displayed feet and elbows on each side.
+ * @evidence contracts/development/testing.md#independent-expectations The exact event time fixes the join. Left and right placement and velocity remain continuous, the landed foot keeps support, and repeated seeks return the same pose.
  */
 export async function test_motions_striking_punch_impact_cut(): Promise<void> {
   const fixture: Awaited<ReturnType<typeof humanFixture>> =

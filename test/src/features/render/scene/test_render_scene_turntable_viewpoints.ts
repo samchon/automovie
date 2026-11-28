@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A given factor is carried.
  * 3. No azimuth, no ring, a factor of zero and two rings that round to one
  *    label are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases define elevation rings, azimuth count, example labels, distance factor and invalid inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that sampling orders four evenly spaced views on each ring, carries the requested factor, and refuses empty or conflicting plans.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal azimuths 0, 90, 180 and 270 on rings at 0 and -15 degrees with the expected IDs and factor.
  */
 export function test_render_scene_turntable_viewpoints(): void {
   const views: IAutoMovieRenderViewerViewpoint[] =

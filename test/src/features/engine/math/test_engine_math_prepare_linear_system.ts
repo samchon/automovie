@@ -18,6 +18,10 @@ import { nclose } from "../../internal/nclose";
  * 4. Diag(1e-20, 2e-20) is not singular, its pivots tested against its own largest
  *    entry: (1e-20, 4e-20) solves to (1, 2).
  * 5. The empty system solves to the empty vector.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers reusing a factored matrix, pivoting, singular refusal, scale-aware pivots and the empty system.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls prepareLinearSystem and solveLinearSystem directly. The prepared solver reads two right-hand sides for the same matrix.
+ * @evidence contracts/development/testing.md#independent-expectations Substitution gives (0.8, 1.4) and (0, 1) for the two systems. The swap matrix exchanges the components. Dependent rows are singular, and dividing by the small diagonal pivots yields (1, 2).
  */
 export function test_engine_math_prepare_linear_system(): void {
   const close = (

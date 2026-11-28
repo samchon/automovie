@@ -13,6 +13,10 @@ import { softPanel } from "../../internal/softFixtures";
  *
  * 1. Dt = 1/64 s, speed 4 m/s, edges 0.25 m: (1/64)(4)/0.25 = 0.25.
  * 2. A single particle: 0.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieEngineSoftBody.softBodyTravelNumber on an authored 2-by-2 rest panel and on a single-particle lattice, checking the latter's zero exactly.
+ * @evidence contracts/development/testing.md#independent-expectations At 4 m/s for 1/64 second the particle travels 1/16 m, a quarter of the 0.25 m edge. One particle has no edge to cross.
+ * @evidence contracts/development/common.md#meaningful-documentation The rest panel exercises the dimensionless travel ratio. The edge-free fixture exercises its zero convention.
  */
 export function test_engine_soft_body_travel_number(): void {
   TestValidator.predicate(

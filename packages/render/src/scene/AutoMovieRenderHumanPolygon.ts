@@ -62,8 +62,7 @@ export namespace AutoMovieRenderHumanPolygon {
     parts: ReadonlyMap<string, THREE.Mesh>;
 
   /**
-     * Actual surface group by emitted bone identity; owns that bone-local
-     * frame.
+     * Posed groups by original bone identity, including non-emitting joints.
      */
     bones: ReadonlyMap<string, THREE.Group>;
 
@@ -98,20 +97,11 @@ export namespace AutoMovieRenderHumanPolygon {
     dispose: () => void;
   }
 
-  /** The head object of {@link IDrawing}. */
-  export type IDrawingHead = {
-    /** Attach a separately owned face or equipment in head-local metres. */
+  /** The unposed head front and posed attachment object of {@link IDrawing}. */
+  export interface IDrawingHead extends AutoMovieRenderHumanCartoon.IHeadBounds {
+    /** Attach separately owned geometry in head-local metres. */
     object: THREE.Group;
-
-    /** Minimum actual local polygon coordinate, metres. */
-    min: [number, number, number];
-
-    /** Maximum actual local polygon coordinate, metres. */
-    max: [number, number, number];
-
-    /** Frontmost local triangle X at Y/Z, undefined outside the silhouette. */
-    frontAt: (y: number, z: number) => number | undefined;
-  };
+  }
 
   /** Display colours and optional source-clock pose presentation. */
   export interface IBuildOptions {
@@ -176,7 +166,7 @@ export namespace AutoMovieRenderHumanPolygon {
   }
 
   /**
-   * Draw a rigid polygon blockout from the generated skeleton, in metres.
+   * Build a rigid polygon drawing from Human-frame rest bones and placements.
    *
    * Every module is procedural and comes from the skeleton alone: joint
    * positions, tips and skin girth radii, never the Human's skin surfaces, so the
@@ -184,8 +174,8 @@ export namespace AutoMovieRenderHumanPolygon {
    * engine's `resolveHumanoidRingModules` owns the rings and their
    * points, which the physical profile also takes its colliders from. Modules use
    * eight-sided sections at their selected levels. Joint spans set torso, palm
-   * and foot breadth; girth radii set thickness; the neck runs from the neck
-   * joint to the head joint and the head closes on the head's tip. Each
+   * and foot breadth; girth radii set thickness. Stock chin and heel landmarks
+   * shape their existing modules without changing the joint transforms. Each
    * rest-space module is moved once by its bone's world placement. Adjacent rigid
    * modules can overlap or separate when posed; this is not skin binding or a
    * watertight skin.
@@ -206,6 +196,9 @@ export namespace AutoMovieRenderHumanPolygon {
    *   generating sections, head attachment and cleanup. Local probe points use
    *   registered rest point minus the corresponding rest joint; actor-root
    *   placement belongs to the parent.
+   *   For a stock head with both rest eye joints, the attachment includes
+   *   facial sites for the optional cartoon marks.
+   * @throws {Error} When required bones, placements or dimensions are invalid.
    */
   export function build(
     output: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,

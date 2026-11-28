@@ -15,11 +15,9 @@ const MM: number = 1e-3;
  * 1. Over 200 seeds the opening is exactly one of the maker's 30, 32 and 36 in, each drawn, each leaf half of it, 40 in high and 3/4 in thick, its foot 18 to 24 in up (the unbranded sheet, provisional).
  * 2. Each hinge opens the standard hinge's 125 degrees each way; at a quarter turn a leaf stands out toward `+Z` by its own width from its hinge axis at mid-thickness, its push face with it, and at a quarter turn back toward `-Z` as far, less the thickness its hinge stands in front of.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds and articulates the leaves; a leaf off its size or swinging the wrong way is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The figures are the maker's and the sheet's restated here; a leaf of width w turned square about its hinge at mid-thickness reaches w out from that axis.
- * @evidence contracts/development/testing.md#distinguishing-cases Both leaves, at rest and turned.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the catalogue openings, leaf dimensions, hinge travel in either direction and both moving push faces.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures colliders and contact frames across the seeded opening widths and at the rest and turned hinge poses. It checks both leaves and both signs of travel.
+ * @evidence contracts/development/testing.md#independent-expectations Uses 30, 32 and 36 inch openings and the stated maker's leaf dimensions and hinge range. A quarter turn places the broad edge one leaf width from its hinge axis, adjusted by the authored hinge plane and thickness.
  */
 export function test_archetype_saloon_door(): void {
   const findings: string[] = [];

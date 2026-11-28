@@ -2,36 +2,51 @@ import type { IAutoMovieMeasureFeatureEdges } from "./IAutoMovieMeasureFeatureEd
 import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
 
 /**
- * Input and result of `featureEdgeDistance`, the CPU reference of the
- * per-fragment distances a worn material's shader computes.
+ * Input and output for the CPU reference of a worn material's per-fragment
+ * feature-edge distances.
  */
 export namespace IAutoMovieFeatureEdgeDistance {
-  /** A point on one triangle of a measured mesh. */
+  /**
+   * A query point on one source triangle with the feature edge lists measured
+   * in the same object-space metre frame.
+   */
   export interface IProps {
-    /** The mesh's measured feature edges. */
+    /**
+     * Borrowed feature edge receipt for the mesh carrying the queried triangle.
+     * It supplies the stored reach and referenced endpoints.
+     */
     edges: IAutoMovieMeasureFeatureEdges.IResult;
 
-    /** Index of the input triangle the point lies on. */
+    /**
+     * Zero-based source triangle ordinal in the measured list array. An ordinal
+     * without a list throws.
+     */
     triangle: number;
 
-    /** The point in the mesh's object space, metres. */
+    /**
+     * Finite point on the selected triangle in object-space metres. For a
+     * skinned mesh, use the measured bind pose coordinates.
+     */
     point: IAutoMovieVector3;
   }
 
   /**
-   * Distances from the point to the nearest listed segment of each sign, capped
-   * at `reach`.
+   * Capped distances to the nearest listed convex and concave segments in
+   * object-space metres.
+   *
+   * A triangle's proximity list can be truncated to sixteen candidates. Treat
+   * these values as distances to the listed segments.
    */
   export interface IResult {
     /**
-     * Metres to the nearest convex segment in the triangle's list, at most
-     * `reach`; `reach` when none is nearer.
+     * Smallest listed distance to a convex segment, capped at measured reach. A
+     * list with no nearer convex segment yields reach.
      */
     convex: number;
 
     /**
-     * Metres to the nearest concave segment in the triangle's list, at most
-     * `reach`; `reach` when none is nearer.
+     * Smallest listed distance to a concave segment, capped at measured reach.
+     * A list with no nearer concave segment yields reach.
      */
     concave: number;
   }

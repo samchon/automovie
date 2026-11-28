@@ -32,11 +32,9 @@ const KONE: Readonly<{ car: readonly number[]; door: readonly number[] }> = {
  * 3. At rest the leaves fill the opening, meeting at the middle; at full travel each has slid out by half the clear width, leaving the opening free.
  * 4. The landing call button lies within ADA 308's 15 to 48 in reach, on the `+X` front return beside the opening, facing the landing.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts and articulates the leaves; a car of the wrong size, a height between KONE's or a door at or above its car, an entrance off its opening or a leaf that slides into the opening is caught with the numbers.
- * @evidence contracts/development/testing.md#independent-expectations The sizes are ADA Table 407.4.1's and KONE's figures restated here; the open leaves' places follow from half the clear width.
- * @evidence contracts/development/testing.md#distinguishing-cases Closed and open leaves on both sides, a ranging width and the guide's height pairs.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes car and door catalogue heights, clear opening, closed and fully open leaves and call-button reach.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures generated car space and contact frames across sampled models. Articulating both door leaves checks that each slides clear of the opening, and the button frame must lie on the landing-side return.
+ * @evidence contracts/development/testing.md#independent-expectations Uses ADA Table 407.4.1 and the stated KONE height combinations. Each door leaf moves by half the clear opening's width. Section 308 gives the stated 15 to 48 inch call-button reach.
  */
 export function test_archetype_elevator(): void {
   const findings: string[] = [];

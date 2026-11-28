@@ -15,15 +15,22 @@ export function RecoveryChartFitPrepare(
 ): ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> {
   const finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean = (
     p: Readonly<AutoMovieVector3Tuple>,
-  ): boolean => p.length === 3;
+  ): boolean =>
+    p?.length === 3 &&
+    Number.isFinite(p[0]) &&
+    Number.isFinite(p[1]) &&
+    Number.isFinite(p[2]);
   const lower: Readonly<AutoMovieVector3Tuple> = input.enclosureMm.lower,
     upper: Readonly<AutoMovieVector3Tuple> = input.enclosureMm.upper;
   if (
     !finite(lower) ||
     !finite(upper) ||
     lower.some((x: number, k: number): boolean => x > upper[k]!) ||
+    !Number.isFinite(input.toleranceMm) ||
     !(input.toleranceMm > 0) ||
+    !Number.isFinite(input.gradientTolerance) ||
     !(input.gradientTolerance > 0) ||
+    !Number.isSafeInteger(input.maxIterations) ||
     input.maxIterations < 1 ||
     !input.controls.length ||
     !input.patches.length ||
@@ -39,15 +46,13 @@ export function RecoveryChartFitPrepare(
     ...upper.map((x: number, k: number): number => x - lower[k]!),
   );
   if (
-    extent === Infinity ||
-    origin.some(
-      (value: number): boolean => value === Infinity || value === -Infinity,
-    )
+    !Number.isFinite(extent) ||
+    origin.some((value: number): boolean => !Number.isFinite(value))
   )
     throw new Error("Chart enclosure is not representable");
   const scale: number = extent || 1;
   const slots: Int32Array = new Int32Array(input.controls.length).fill(-1);
-  input.controls.forEach((p: Readonly<AutoMovieVector3Tuple> | null): void => {
+  for (const p of input.controls)
     if (
       p !== null &&
       (!finite(p) ||
@@ -58,17 +63,89 @@ export function RecoveryChartFitPrepare(
       throw new Error(
         "Fixed curve controls must lie in the declared enclosure",
       );
-  });
   if (input.relations && !input.relationBudget)
     throw new Error(
       "Affine coefficient substitution requires explicit term and depth budgets",
     );
   const maximumRowBudget: number =
     input.relationBudget?.maxRowTerms ?? (input.relations ? 128 : 16);
-  if (maximumRowBudget < 1)
+  if (!Number.isSafeInteger(maximumRowBudget) || maximumRowBudget < 1)
     throw new Error(
       "An explicit positive reduced observation-stencil budget is required",
     );
+  if (
+    input.relationBudget &&
+    (!Number.isSafeInteger(input.relationBudget.maxTerms) ||
+      input.relationBudget.maxTerms < 1 ||
+      !Number.isSafeInteger(input.relationBudget.maxDepth) ||
+      input.relationBudget.maxDepth < 0)
+  )
+    throw new Error("Affine coefficient term and depth budgets are invalid");
+  for (const patch of input.patches) {
+    if (patch?.controlIds?.length !== 16)
+      throw new Error("Bicubic patches need sixteen valid control identities");
+    for (const id of patch.controlIds)
+      if (!Number.isSafeInteger(id) || id < 0 || id >= slots.length)
+        throw new Error(
+          "Bicubic patches need sixteen valid control identities",
+        );
+    const bounds: typeof patch.parameterBounds = patch.parameterBounds;
+    if (bounds !== undefined) {
+      if (bounds?.length !== 4)
+        throw new Error(
+          "Chart patch bounds require ordered normalized U and V intervals",
+        );
+      const [uMin, uMax, vMin, vMax] = bounds;
+      if (
+        ![uMin, uMax, vMin, vMax].every(
+          (value: number): boolean =>
+            Number.isFinite(value) && value >= 0 && value <= 1,
+        ) ||
+        uMin > uMax ||
+        vMin > vMax
+      )
+        throw new Error(
+          "Chart patch bounds require ordered normalized U and V intervals",
+        );
+    }
+  }
+  const validSample = (
+    sample:
+      | IAutoMovieRecoveryChartFit.Input["observations"][number]
+      | NonNullable<IAutoMovieRecoveryChartFit.Input["validation"]>[number],
+  ): boolean =>
+    !!sample &&
+    Number.isSafeInteger(sample.patch) &&
+    sample.patch >= 0 &&
+    sample.patch < input.patches.length &&
+    Number.isFinite(sample.u) &&
+    sample.u >= 0 &&
+    sample.u <= 1 &&
+    Number.isFinite(sample.v) &&
+    sample.v >= 0 &&
+    sample.v <= 1 &&
+    finite(sample.pointMm);
+  let totalWeight: number = 0;
+  for (const sample of input.observations) {
+    if (
+      !validSample(sample) ||
+      !Number.isFinite(sample.weight) ||
+      sample.weight <= 0 ||
+      sample.pointMm.some(
+        (value: number, axis: number): boolean =>
+          value < lower[axis]! || value > upper[axis]!,
+      )
+    )
+      throw new Error("Finite chart-local point correspondences are required");
+    totalWeight += sample.weight;
+  }
+  for (const sample of input.validation ?? [])
+    if (!validSample(sample))
+      throw new Error(
+        "Finite chart-local validation correspondences are required",
+      );
+  if (!Number.isFinite(totalWeight))
+    throw new Error("Chart observation weights are not representable");
   const reduced: ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> =
     R({
       controls: input.controls.length,
@@ -104,23 +181,6 @@ export function RecoveryChartFitPrepare(
         ];
       },
     );
-  for (const patch of input.patches)
-    if (
-      patch.controlIds.length !== 16 ||
-      patch.controlIds.some(
-        (id: number): boolean => id < 0 || id >= slots.length,
-      )
-    )
-      throw new Error("Bicubic patches need sixteen valid control identities");
-  const totalWeight: number = input.observations.reduce(
-    (
-      sum: number,
-      row: IAutoMovieRecoveryChartFit.Input["observations"][number],
-    ): number => sum + row.weight,
-    0,
-  );
-  if (!(totalWeight > 0) || totalWeight === Infinity)
-    throw new Error("Chart observation weights are not representable");
   const basis: (t: number) => number[] = (t: number): number[] => [
     (1 - t) ** 3,
     3 * t * (1 - t) ** 2,

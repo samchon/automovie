@@ -1,12 +1,41 @@
-import { AutoMovieEngineVector3, AutoMovieEngineKinematics } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStagger, IAutoMovieMotionTarget, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineVector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanActionName,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanForce,
+  IAutoMovieMotionHumanImpulse,
+  IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPerturb,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStagger,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolveBalanceOutcome,
+  IAutoMovieResolveCenterOfMass,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
-import { motionClock } from "../../compose/internal/motionClock";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
-import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
+import { motionClock } from "../../compose/internal/motionClock";
+import { motionHumanTiming } from "../../compose/internal/motionHumanTiming";
 import { HumanForceResponse } from "../../grappling/internal/HumanForceResponse";
 import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
@@ -44,9 +73,9 @@ import { staggerRecovery } from "./staggerRecovery";
  *   a forward `collapse`, one from a side a sideways `collapse` away from it,
  *   and one from ahead the `knockdown`, from the side it comes from.
  *
- * An author's outcome the impulse cannot produce is refused with the impulse
- * range that would produce it, never clamped; with no impulse on the performer
- * the outcome is an absorb of nothing, a still stance.
+ * A prop-backed reaction reads velocity relative to its bearing frame. The
+ * acceleration of that frame contributes an inertial load at the cue.
+ * An unforced quiet stance continues on its current support.
  *
  * First pass: the step outcome lays one capture step, `stagger`'s; the engine's
  * outcome may ask for more, which this law refuses naming the fall instead
@@ -124,12 +153,23 @@ export namespace perturb {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPerturb.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const entry: IAutoMovieMotionHumanEntryState = context.entry;
+    const material: IAutoMovieMotionHumanContactWindow.Support =
+      HumanSupportFrame(context);
+    const frame =
+      material.kind === "prop"
+        ? HumanSupportFrame.at(context, context.entry.seconds, material)
+        : undefined;
+    const entry: IAutoMovieMotionHumanEntryState =
+      frame === undefined
+        ? context.entry
+        : HumanSupportCarry.entry(context, frame);
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
-    const length: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(
-      body.measure.hipHeight,
-    );
-    const w0: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(length);
+    const length: number =
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(
+        body.measure.hipHeight,
+      );
+    const w0: number =
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(length);
 
     // The impulses within one pendulum time constant before the start.
     const impulses: IAutoMovieMotionHumanImpulse[] = (
@@ -138,13 +178,24 @@ export namespace perturb {
       (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanImpulse =>
         f.kind === "impulse",
     );
-    const impulse: IAutoMovieVector3 = impulses.reduce(
+    const applied: IAutoMovieVector3 = impulses.reduce(
       (
         sum: IAutoMovieVector3,
         f: IAutoMovieMotionHumanImpulse,
       ): IAutoMovieVector3 => AutoMovieEngineVector3.add(sum, f.impulse),
       { x: 0, y: 0, z: 0 },
     );
+    // In the accelerating bearing frame the body feels the inertial load
+    // -mass * acceleration. Apply its onset value for the same pendulum time
+    // constant as the explicit impulse window. Uniform travel contributes no
+    // load, and the entry velocity has already removed that travel.
+    const impulse: IAutoMovieVector3 =
+      frame === undefined
+        ? applied
+        : AutoMovieEngineVector3.add(
+            applied,
+            AutoMovieEngineVector3.scale(frame.acceleration, -model.mass / w0),
+          );
     const requestedBones: Set<AutoMovieHumanoidBone> = new Set(
       HumanColliders.bones(body),
     );
@@ -162,10 +213,8 @@ export namespace perturb {
       undefined,
       requestedBones,
     );
-    const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
-      model,
-      bones,
-    );
+    const centre: IAutoMovieVector3 =
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones);
     const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
       (side: AutoMovieHumanSide): boolean => entry.feet[side].planted,
     );
@@ -219,6 +268,7 @@ export namespace perturb {
     const staggered: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams> =
       {
         ...context,
+        entry,
         params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
       };
     const admitted: staggerRecovery.IAdmitted | null =
@@ -271,10 +321,16 @@ export namespace perturb {
                 : null,
           unit: "N s",
         },
-        reason: `an impulse of ${magnitude.toFixed(1)} N s on ${model.mass.toFixed(1)} kg ends in ${outcome.outcome}, not ${asked}`,
+        reason: `${frame === undefined ? "an impulse" : "a net balance impulse"} of ${magnitude.toFixed(1)} N s on ${model.mass.toFixed(1)} kg ends in ${outcome.outcome}, not ${asked}`,
         fix: `give an impulse in the feasible range, or the outcome ${outcome.outcome}`,
       });
 
+    const carry = (
+      plan: IAutoMovieMotionHumanActionPlan,
+    ): IAutoMovieMotionHumanActionPlan =>
+      material.kind === "prop"
+        ? HumanSupportCarry.on(context, plan, material.subject, material.point)
+        : plan;
     if (chosen === "step") {
       if (outcome.steps.length > 1)
         throw new AutoMovieMotionHumanRefusal({
@@ -285,7 +341,7 @@ export namespace perturb {
           reason: `the impulse needs ${outcome.steps.length} capture steps; this first pass lays one`,
           fix: "give a smaller impulse, or the outcome fall",
         });
-      return caught!;
+      return carry(caught!);
     }
     // A fall goes the way the push goes in the body's frame: a push from
     // behind pitches it forward, one from the side topples it to the other
@@ -306,7 +362,7 @@ export namespace perturb {
         });
       return knockdown.plan({ ...context, params: { target: from } });
     }
-    return absorb(context, outcome, push);
+    return carry(absorb(context, outcome, push));
   }
 
   /*
@@ -325,9 +381,12 @@ export namespace perturb {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const w0: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
-      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
-    );
+    const w0: number =
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(
+          body.measure.hipHeight,
+        ),
+      );
     const speed: number = AutoMovieEngineVector3.dot(outcome.velocity, push);
 
     // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
@@ -346,46 +405,48 @@ export namespace perturb {
     > = StrikingTarget.feet(context.entry);
     const legsAt: ReturnType<typeof StrikingStance.prepareLegs> =
       StrikingStance.prepareLegs(body, feet);
-    const composed: IAutoMovieMotionHumanActionPlan =
-      composeMotionHumanAction({
-        base: AutoMovieMotionHumanBase.still(duration, {
-          root: entry.root,
-          yaw: entry.yaw,
-          pitch: entry.pitch,
-          roll: entry.roll,
-          joints: entry.joints,
-          limbs: {},
-        }),
-        clock,
-        primitives: [
-          AutoMovieMotionHumanLean.sway({
-            body,
-            from: 0,
-            to: duration,
-            angles: (): IAutoMovieMotionHumanLean.IAngles => ({
-              pitch: 0,
-              roll: 0,
-            }),
-            shift: (seconds: number): IAutoMovieVector3 =>
-              AutoMovieEngineVector3.scale(local, speed * seconds * Math.exp(-w0 * seconds)),
-            legs: legsAt,
+    const composed: IAutoMovieMotionHumanActionPlan = composeMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(duration, {
+        root: entry.root,
+        yaw: entry.yaw,
+        pitch: entry.pitch,
+        roll: entry.roll,
+        joints: entry.joints,
+        limbs: {},
+      }),
+      clock,
+      primitives: [
+        AutoMovieMotionHumanLean.sway({
+          body,
+          from: 0,
+          to: duration,
+          angles: (): IAutoMovieMotionHumanLean.IAngles => ({
+            pitch: 0,
+            roll: 0,
           }),
+          shift: (seconds: number): IAutoMovieVector3 =>
+            AutoMovieEngineVector3.scale(
+              local,
+              speed * seconds * Math.exp(-w0 * seconds),
+            ),
+          legs: legsAt,
+        }),
 
-          // The sway reads the legs for the hips' height only; the legs stand
-          // on the entry's feet through their own channels.
-          {
-            channels: ["leftLeg", "rightLeg"],
-            from: 0,
-            to: duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-            ): IAutoMovieMotionHumanPosture => ({
-              ...posture,
-              limbs: { ...posture.limbs, ...legsAt() },
-            }),
-          },
-        ],
-      });
+        // The sway reads the legs for the hips' height only; the legs stand
+        // on the entry's feet through their own channels.
+        {
+          channels: ["leftLeg", "rightLeg"],
+          from: 0,
+          to: duration,
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+          ): IAutoMovieMotionHumanPosture => ({
+            ...posture,
+            limbs: { ...posture.limbs, ...legsAt() },
+          }),
+        },
+      ],
+    });
 
     // Both feet stay planted through the absorb.
     const plant: (

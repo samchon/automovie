@@ -31,6 +31,10 @@ const SEGMENTS: number = 16;
  * 4. Normals are unit; the cone's side normals carry the slant -0.3 / hypot(1,
  *    0.3) in y.
  * 5. The plane encloses zero volume.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names closed welded incidence, positive signed volumes, normal agreement, capsule axis distance and zero-volume plane.
+ * @evidence contracts/development/testing.md#behavioral-verification Collects meshes from the actual primitive tessellator and examines indexed edges, signed volumes, winding and emitted normals.
+ * @evidence contracts/development/testing.md#independent-expectations The fixed 16-gon and twelve latitude bands determine prism, cone and frustum volumes independently. Only the plane has zero volume, and cone normals follow the radial slant.
  */
 export function test_engine_geometry_tessellate_closure(): void {
   const ngon = (r: number): number =>

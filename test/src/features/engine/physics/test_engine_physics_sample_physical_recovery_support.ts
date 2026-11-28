@@ -13,6 +13,10 @@ import { TestValidator } from "@nestia/e2e";
  *    remain distinct.
  * 3. An authored handoff ends endpoint ownership, and a failed attempt has a
  *    measured end.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines actual landing, authored ownership handoff and timeout on the physical rather than planned clock.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples support before and after a later confirmed landing, then reads separate adopted offsets, authored takeover and failed recovery.
+ * @evidence contracts/development/testing.md#independent-expectations The declared arrival instant controls support transition. Body and endpoint offsets remain distinct, and future receipts cannot retroactively move a prior goal.
  */
 export function test_engine_physics_sample_physical_recovery_support(): void {
   const state: IAutoMoviePhysicalRecoveryState = {

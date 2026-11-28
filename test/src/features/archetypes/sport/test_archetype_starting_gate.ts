@@ -27,11 +27,9 @@ const PITCH: number = (65 * 0.3048) / 20;
  * 5. A seed rebuilds the same gate, and no stalls, more than twenty or a fraction
  *    refuse on `stalls`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the gate's stall layout, the shared door release, the loading doors, the fit and the refusals the test checks.
- * @evidence contracts/development/testing.md#behavioral-verification Builds and articulates the public producer and reads its contacts and posed parts.
- * @evidence contracts/development/testing.md#independent-expectations Stall middles follow from the read 65 ft over 20 stalls. A leaf hinged at its partition and half the clear width long has its middle a quarter of the clear width ahead of the front at 90 degrees, by its length alone. The clear width is the stall's contact width.
- * @evidence contracts/development/testing.md#distinguishing-cases Default and small gates, closed and open fronts, a follower leaf far from the leader, an independent rear door, the boundary counts 1 and 20 admitted beside 0, 21 and 2.5 refused, and same versus varied seeds.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only spec over the producer's model; drawing is left to review.
+ * @evidence contracts/development/common.md#meaningful-documentation Names default and small stall groups, the common front release, an independent loading door, real saddle clearance and stall-count bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and articulates the public gate and reads both near and distant leaf poses. It checks independent rear movement, a real saddled model's fit, seed replay and adjacent count admissions and refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Derives stall pitch from 65 feet over 20 stalls. A half-opening leaf turned 90 degrees has its centre one quarter of the full clear width beyond the front plane.
  */
 export function test_archetype_starting_gate(): void {
   // 1. Stall layout.

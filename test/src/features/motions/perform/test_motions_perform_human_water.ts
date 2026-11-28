@@ -100,6 +100,10 @@ const WATER: IAutoMovieMotionHumanWater = { surface: 0 };
  *    m, to a micrometre; one heavier than its volume of water sinks.
  * 4. A submerged glide from 2 m/s slows as quadratic drag does, `v0 / (1 + k v0
  *    t)` with `k = ½ ρ C_d π r² / m`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The immersed sphere fixes measurable force and float conditions, with direction-dependent fins and a drag trajectory.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the water force, float and glide owners on a one-sphere model and literal water, fin and pose records. It checks force vectors, the solved height or null, and final trajectory speed and distance.
+ * @evidence contracts/development/testing.md#independent-expectations At the surface half the sphere's volume and projected area contribute to buoyancy and drag. The downward fin case adds 0.5·1000·1.17·0.02·2² N. The fully immersed solution after one second has speed 2/(1 + 2k) and distance ln(1 + 2k)/k.
  */
 export function test_motions_perform_human_water(): void {
   const g: number = AutoMovieEngineGravity.STANDARD;

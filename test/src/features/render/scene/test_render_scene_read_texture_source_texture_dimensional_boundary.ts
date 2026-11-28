@@ -14,6 +14,10 @@ import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
  * 2. Volume image and target attachment metadata refuse ordinary source
  *    representation while preserving diagnostic extents.
  * 3. Changing owned depth wrapping changes the upload-state key.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify ordinary decoded data, array, volume and compressed images, and target attachments with owned depth.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that unsupported dimensional families lose ordinary source authority while their extents remain available, and that changed owned depth wrapping changes its upload key.
+ * @evidence contracts/development/testing.md#independent-expectations Compares explicit family fixtures at equal base dimensions and at one or two layers, with an independent wrap-mode change on the target depth attachment.
  */
 export async function test_render_scene_read_texture_source_texture_dimensional_boundary(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

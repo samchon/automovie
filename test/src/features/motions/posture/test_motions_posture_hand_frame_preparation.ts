@@ -25,6 +25,10 @@ import { throwsError } from "../../internal/throwsError";
  *    quaternion operations in the quarter turn.
  * 3. An explicit forward parallel to the fixed normal is refused during
  *    preparation, before any posture is sampled.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a prepared palmar offset with fixed normal, declared forward or live yaw and owned rotations.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads a fixed frame under two roots, mutates an observed rotation, samples missing-forward fallbacks and tries parallel requested axes.
+ * @evidence contracts/development/testing.md#independent-expectations Matched axes preserve the palm offset and a quarter turn maps +Y to +Z. A specified parallel forward fails before sampling and the fallback retains +Y.
  */
 export async function test_motions_posture_hand_frame_preparation(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

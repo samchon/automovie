@@ -15,6 +15,10 @@ import { recoveryPrismOracle as prism } from "../../internal/recoveryPrismOracle
  * 3. A disjoint unsupported domain retains the valid surface and reports partial.
  * 4. Explicit prefix coverage remains partial even with successful retained
  *    geometry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names saved prism geometry, open ends, an omitted independent domain and incomplete observation-prefix coverage.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes source-free reconstruction for complete, disjoint-unsupported and incomplete-prefix inputs. The independent prism measurement reads positions, indices, and edge incidence on retained output.
+ * @evidence contracts/development/testing.md#independent-expectations The two 3 mm square rings are 2 mm apart, so side area is 24 square millimetres with two known boundary perimeters. Unsupported coverage must retain the same prism and the original input snapshot.
  */
 export function test_recovery_reconstruction_reconstruct_model(): void {
   type Input = prism.Input;

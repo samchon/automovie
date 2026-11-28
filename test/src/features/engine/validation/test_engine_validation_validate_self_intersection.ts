@@ -34,6 +34,10 @@ import {
  * 3. A collapsed capsule (two bones at one point) through the other segment warns
  *    too.
  * 4. Sample rate 0 fails with a range finding at `.sampleRate`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers centreline crossing, separation and a collapsed capsule, including intent and rate variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateSelfIntersection on a typed static clip and authored capsule pairs under several sampling or intent choices.
+ * @evidence contracts/development/testing.md#independent-expectations The perpendicular segments cross at zero distance, so their 0.1-metre radii sum to overshoot 0.2. The shifted segment cannot cross, and a point on the other segment retains zero centreline distance.
  */
 export function test_engine_validation_validate_self_intersection(): void {
   const at = (x: number, y: number, z: number): IAutoMovieTransform => ({

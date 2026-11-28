@@ -28,6 +28,10 @@ const CHANNEL_TOLERANCE: number = 0;
  *    parent. An absent object and a pointer cannot write a node field.
  * 2. The same morph sample writes mesh, line and point descendants. It truncates
  *    at a short target and preserves the unused tail of a longer target.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names separate transform writes, unresolved object and pointer behavior, and short and long morph targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds typed sampled channels to the renderer with Three.js objects under a moved parent. Records resolver requests and reads local transforms and morph influences of mesh, line and point descendants.
+ * @evidence contracts/development/testing.md#independent-expectations Literal transform components belong to the named object's own local frame. Pointer and unresolved channels lack a native node field. A morph sample covers available entries in order, leaves an extra target entry unchanged and truncates for a short target.
  */
 export function test_render_scene_apply_sampled_object_motion(): void {
   const parent: Group = new Group();

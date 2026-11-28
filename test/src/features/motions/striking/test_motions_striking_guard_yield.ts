@@ -22,6 +22,10 @@ const HALF_CLEARANCE_METRES: number = 0.0001 / 2 + 4 * Number.EPSILON;
  * 1. Already clear or exactly touching bodies retain their position.
  * 2. A gap of `(step - 0.3) / 3` requires twice expanding the initial 0.1 m
  *    bracket. The first body moves 0.15 m opposite a diagonal unit axis.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes symmetric clearance of two animated bodies from a supplied signed gap.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls clearance with already clear, exactly tangent and initially overlapping pairs on a diagonal unit axis.
+ * @evidence contracts/development/testing.md#independent-expectations The affine gap (step − 0.3)/3 reaches zero at 0.3 m. Equal sharing moves the first body 0.15 m against the axis and leaves clear cases fixed.
  */
 export function test_motions_striking_guard_yield(): void {
   const axis: IAutoMovieVector3 = { x: 0.6, y: 0, z: 0.8 };

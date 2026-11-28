@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The empty request is the empty address.
  * 2. A subject "a&b c" escapes to "a%26b%20c"; "parts=hero/**,prop" and
  *    "color=hero/arm=ff8800" stay readable; the address reads back.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists empty, escaped and readable addresses plus the round trip.
+ * @evidence contracts/development/testing.md#behavioral-verification Formats typed requests, checks literal escaped text or the empty result, and parses the full formatted address back to its request.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit request determines the escaped query pieces and decoded values. The empty request has zero query items.
  */
 export function test_viewer_inspector_format_address(): void {
   TestValidator.equals(

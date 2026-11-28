@@ -4,21 +4,16 @@ import type {
 } from "..";
 
 /**
- * Project one point in the pose's reconstruction frame through a row-major 3 by
- * 3 pixel intrinsic matrix. The camera pose maps that frame into camera
- * coordinates. Return null only for nonpositive depth. Nonrepresentable camera
- * coordinates, pixels or derivatives throw. A valid projection returns pixel
- * coordinates, positive depth and Jacobians in the original physical parameter
- * units. No observation residual or scene acceptance is inferred.
+ * Callable contract for calibrated point projection and analytic local
+ * derivatives in the supplied reconstruction gauge.
  */
 export namespace IAutoMovieRecoveryMapPointProjectionOperation {
   /**
-   * Project one point in the pose's reconstruction frame through a row-major 3
-   * by 3 pixel intrinsic matrix. The camera pose maps that frame into camera
-   * coordinates. Return null only for nonpositive depth. Nonrepresentable
-   * camera coordinates, pixels or derivatives throw. A valid projection returns
-   * pixel coordinates, positive depth and Jacobians in the original physical
-   * parameter units. No observation residual or scene acceptance is inferred.
+   * Project `point` using camera transform `R ? point + t` and the row-major
+   * upper-triangular pinhole chart. A finite point at nonpositive depth returns
+   * null. Nonrepresentable camera coordinates, projected pixels or derivatives
+   * raise an error. Successful output contains both pixel Jacobians in the
+   * supplied coordinates.
    */
   export type Operation = (
     pose: IAutoMovieRecoveryMapPose,

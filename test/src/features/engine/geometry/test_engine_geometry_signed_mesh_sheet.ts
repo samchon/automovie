@@ -27,6 +27,10 @@ import { nclose, throwsError } from "../../internal/predicates";
  *    or oppositely paired").
  * 3. The whole octahedron read as a sheet answers as it does closed, and never
  *    on a rim.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names sheet-side signs, rim versus interior features, closed-contract failure and wrong face incidence.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures an open half-octahedron in open and closed modes, checking actual edge and vertex results and trying invalid adjacency.
+ * @evidence contracts/development/testing.md#independent-expectations The authored rim lies in y = 0 and the apex is its non-rim extremum. The face plane gives the stated normal and projection distance.
  */
 export function test_engine_geometry_signed_mesh_sheet(): void {
   const solid: IAutoMovieMesh = createSignedOctahedron();

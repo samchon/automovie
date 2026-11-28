@@ -14,23 +14,22 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { AutoMovieArchetypeLoadData } from "./internal/AutoMovieArchetypeLoadData";
 
-/** Constructs the load archetype from its recipe. */
+/**
+ * Constructs a crate or sack proxy with paired end grips and a stacking surface.
+ */
 export namespace AutoMovieArchetypeLoad {
 /**
- * A heavy load moved by hand: a crate with two grip holes, or a sack.
+ * Build a floor-standing rectangular load with its length along X.
  *
- * The load lies on the floor at the origin, its length along `+X`. A crate is
- * held by the grip holes in the middle of its two short ends, a sack by a hand
- * closed on each end at half its thickness; both have a top another load rests
- * on.
+ * Crate grip frames lie 0.03 metres below the top at each short end.
+ * Sack grip frames use half height. `top` describes the solid upper face.
  *
- * @param params The kind, the crate's contents and any dimension the author
- *   fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The load.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
- *   contents heavier than `createLoad.CONTENTS`, or any contents in a sack.
+ * @param params Kind, optional scene ID, finite dimensions and optional
+ *   crate contents in kilograms. The ID defaults to `load`.
+ * @param seed Numeric seed for omitted dimensions. Omit it for band midpoints.
+ * @returns The load's geometry, local contacts and total modeled mass.
+ * @throws {AutoMovieArchetypeRefusal} If a kind, fixed dimension or
+ *   contents mass is inadmissible.
  */
 export function create(
   params: AutoMovieArchetypeLoad.IParams,
@@ -55,7 +54,8 @@ export function create(
   );
   const load: number = params.load ?? 0;
   const most: number = kind === "sack" ? 0 : AutoMovieArchetypeLoad.CONTENTS;
-  if (!(load >= 0 && load <= most))
+  const finite: boolean = Number.isFinite(load);
+  if (!(finite && load >= 0 && load <= most))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "load",
@@ -68,10 +68,15 @@ export function create(
         unit: "kg",
       },
       reason:
+        !finite
+          ? "contents mass must be a finite number"
+          : kind === "sack"
+            ? "a sack already represents its full mass"
+            : `contents mass must be between 0 and ${most} kg`,
+      fix:
         kind === "sack"
-          ? "a sack's mass is its own; it takes no contents"
-          : `contents of ${load} kg could take a crate above ${AutoMovieArchetypeLoad.LIMIT} kg`,
-      fix: "give contents that keep the load within what a person lifts",
+          ? "omit load or set it to zero"
+          : `set load to a number between 0 and ${most} kg`,
     });
   const { length, height, depth }: Record<AutoMovieArchetypeLoad.Dimension, number> = d;
   const builder: AutoMovieArchetypeBuilder<
@@ -123,42 +128,35 @@ export function create(
   return builder.build(d.mass + load);
 }
 
-  /** The kinds of load. */
+  /** Selects crate or sack geometry, grip height and mass rules. */
   export type Kind = "crate" | "sack";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /** Load kinds accepted by `create`. */
   export const KINDS: readonly Kind[] = ["crate", "sack"];
 
   /**
-   * The greatest mass with contents, kilograms: HSE INDG143 Figure 1
-   * (https://www.hse.gov.uk/pubns/indg143.pdf).
+   * Maximum total mass of the modeled load, in kilograms.
+   *
+   * @see https://www.hse.gov.uk/pubns/indg143.pdf
    */
   export const LIMIT: number = 25;
 
   /**
-   * The greatest contents of a crate, kilograms: the limit less the heaviest
-   * empty crate, so the bound does not depend on the seed.
+   * Maximum crate contents in kilograms. Adding 22.5 kilograms to the heaviest 2.5 kilogram crate gives the modeled total limit.
    */
   export const CONTENTS: number = 22.5;
 
   /**
-   * The affordance ids:
-   *
-   * - `left`, `right`: where the two hands hold the load, at its `+X` and `-X`
-   *   ends.
-   * - `top`: the upper face, on which another load rests.
+   * `left` and `right` are the `+X` and `-X` end grips. `top` covers the rectangular upper face.
    */
   export type Affordance = "left" | "right" | "top";
 
   /**
-   * The free dimensions, metres unless stated:
-   *
-   * - `length`, `height`, `depth`: along `+X`, `+Y` and `+Z`.
-   * - `mass`: the empty crate or the whole sack, kilograms.
+   * Length along X, height along Y and depth along Z in metres. `mass` is the base crate or whole sack mass in kilograms.
    */
   export type Dimension = "length" | "height" | "depth" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /** Metres for model extents and kilograms for base load mass. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -168,25 +166,23 @@ export function create(
     mass: "kg",
   };
 
-  /**
-   * The parameters: the kind, the contents, and any free dimension fixed to a
-   * value inside its band.
-   */
+  /** Load kind, optional scene ID, fixed band dimensions and contents mass. */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** Which load. */
+    /** Chooses crate or sack dimensions and extra contents admission. */
     kind: Kind;
 
-    /** The model's id, unique in a scene; `load` when absent. */
+    /** Scene object ID, defaulting to `load`. */
     id?: string;
 
     /**
-     * The mass of a crate's contents, kilograms, up to `CONTENTS`; empty when
-     * absent. A sack takes none.
+     * Finite extra mass between 0 and 22.5 kilograms for a crate. A sack admits only zero. Defaults to zero.
      */
     load?: number;
   }
 
-  /** The band of each free dimension, by kind. */
+  /**
+   * Shape and base mass intervals per load kind. Extra contents contribute to body mass separately.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {

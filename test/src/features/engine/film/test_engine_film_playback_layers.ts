@@ -93,6 +93,10 @@ function layered(
  *    exactly 1.
  * 7. Every layer's shot and time equal `playbackCursor`'s sample in a 50 Hz sweep,
  *    the live layer the sample's shot and the outgoing layer its blend.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the plain layer, fade quarter and midpoint, dissolve weights and agreement with the playback cursor.
+ * @evidence contracts/development/testing.md#behavioral-verification The test reads playbackLayersAt through the declared transitions, then compares layer names and times with independently traversed cursor samples at 50 Hz.
+ * @evidence contracts/development/testing.md#independent-expectations The authored one-second fade reaches black halfway and uses a single layer on each half. The dissolve's quarter has complementary 0.75 and 0.25 weights and its midpoint has two weights of 0.5. The cursor comparison separately checks placement across the full sweep.
  */
 export function test_engine_film_playback_layers(): void {
   const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(

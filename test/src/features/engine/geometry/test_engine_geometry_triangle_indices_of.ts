@@ -15,6 +15,10 @@ import { throwsError } from "../../internal/throwsError";
  * 3. Four coordinates ("whole xyz triples"), two indices ("in threes"), index 3 of
  *    three vertices, index -1 and a sparse run ("does not carry") are refused
  *    under the label.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names implicit and borrowed index runs, cardinality and range or sparse refusals with a label.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads mesh indices for indexed and implicit triangle inputs, then calls the same owner on incomplete and invalid buffers.
+ * @evidence contracts/development/testing.md#independent-expectations Three XYZ triples define one implicit triangle [0,1,2]. The supplied explicit buffer retains identity. Index 3 is outside a three-vertex mesh.
  */
 export function test_engine_geometry_triangle_indices_of(): void {
   const mesh: IAutoMovieMesh = {

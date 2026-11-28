@@ -19,6 +19,10 @@ import { recoveryStereoChart as chart } from "./recoveryStereoChart";
  *    coordinates are in that original gauge.
  * 2. Repeated view indices fail as indistinct. A missing pose fails as
  *    unregistered. A parallax policy above the ray angle refuses the point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names preserved registered world gauge, distinct-view and parallax gates.
+ * @evidence contracts/development/testing.md#behavioral-verification Triangulates with a known doubled baseline and submits repeated, missing and insufficient-angle observations.
+ * @evidence contracts/development/testing.md#independent-expectations Constructing observations from the explicit doubled baseline fixes the required world point and the ray angle used for refusal.
  */
 export function test_recovery_internal_triangulate_scene_track(): void {
   const observations: IAutoMovieRecoveryMapObservation[] = [

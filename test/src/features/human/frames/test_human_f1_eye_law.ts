@@ -18,9 +18,7 @@ import { AutoMovieHumanF1EyeLaw as E, AutoMovieHumanF1FacePriors as P } from "@a
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `margin`, `point`, `canthi` and `radius` of `AutoMovieHumanF1EyeLaw`. It catches a profile scaled by the wrong sample, a direction read off its neighbour, a canthus at the wrong height or side, a tilt that does not come back, a blink that does not reach the lower margin and an unpublished direction that is given a value.
  * @evidence contracts/development/testing.md#independent-expectations The expected distances are the published samples written in the scenario list times the made eye's own two distances; the canthi follow from the made length and tilt by sine and cosine; no value comes from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases Both margins, published and interpolated directions, both canthi, three blinks and one refused direction. No reference eye is read here: the comparison with the f1 reference is the instrument's and is in the technique note.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_f1_eye_law`; pure arithmetic.
- * @evidence contracts/development/common.md#meaningful-documentation States the made eye and the eight scenarios with their closed forms.
+ * @evidence contracts/development/common.md#meaningful-documentation The fixtures cover measured vertical margins, sampled and interpolated directions, margin point and canthal placement, blinking and unpublished directions.
  */
 export function test_human_f1_eye_law(): void {
   const failures: string[] = [];

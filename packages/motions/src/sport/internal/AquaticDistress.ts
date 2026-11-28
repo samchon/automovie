@@ -8,24 +8,34 @@ import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AquaticPosture } from "./AquaticPosture";
 
-/*
- * The instinctive drowning response (Pia 1974, as summarised by Vittone and
- * Pia, "It Doesn't Look Like They're Drowning", US Coast Guard On Scene, Fall
- * 2006): upright in the water, head tilted back with the mouth at the surface,
- * the arms extended to the sides pressing down on the water, and no supportive
- * kick. The mouth bobs within `BAND` of the surface, going under at each
- * press's low, for the authored seconds; then the head goes under (`submerge`,
- * `under`). The root stays where the swimmer entered.
+/**
+ * Stages upright aquatic distress and submersion.
+ *
+ * The lateral arm press and unsupported legs follow the behavior described by
+ * Pia (1974), as summarized by Vittone and Pia in "It Doesn't Look Like They're
+ * Drowning", US Coast Guard On Scene, Fall 2006. The press cycle and descent
+ * timing are staging estimates.
  */
 export namespace AquaticDistress {
-  /*
-   * Mouth excursion about the surface, metres: provisional, the head bobbing at
-   * the surface.
+  /**
+   * Vertical amplitude in metres of the staged distress bob.
    */
   export const BAND: number = 0.05;
 
-  /*
-   * Plan the struggle and the submersion.
+  /**
+   * Stage an upright distress press followed by submersion.
+   *
+   * The root stays at the entered horizontal position. The mouth bobs at the
+   * water plane while both arms press laterally. The press lasts 20 to 60
+   * seconds and defaults to 30. Submersion then lowers the body over two
+   * seconds.
+   *
+   * @param context Entered body and posture, with an optional press duration.
+   * @param water World height of the water plane in metres.
+   * @returns The elapsed-time posture, opening `distress` and `relax` cues,
+   *   the `submerge` cue at the end of the press, and the final `under` cue.
+   * @throws {AutoMovieMotionHumanRefusal} For a press duration outside 20 to
+   *   60 seconds.
    */
   export function plan(
     context: AquaticPosture.Context,

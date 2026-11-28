@@ -46,6 +46,10 @@ const segment: (
  *    multiply realized seconds.
  * 4. Compare ownership and runtime samples when cue bounds fall between simulation
  *    steps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios describe repeated shot intervals, floating boundary witnesses, missing or multiply realized source seconds and a cue boundary between simulation steps.
+ * @evidence contracts/development/testing.md#behavioral-verification The test projects actual authored shot intervals and local-second queries onto film frames. It also samples the affected effect around a fractional simulation boundary and compares ownership with its own runtime state.
+ * @evidence contracts/development/testing.md#independent-expectations The known rational edit clock supplies frame-zero and neighboring boundaries. Intersecting source and play intervals independently retains only the overlapping region of each occurrence, while a shot-local second with two realized plays cannot name one unique frame.
  */
 export function test_engine_film_effect_shot_frame_projection(): void {
   const clock: IAutoMovieFilmEffectClock = {

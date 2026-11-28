@@ -20,6 +20,10 @@ const value = (f: fixedSeatHarmonic.IHarmonic, t: number): number =>
  * 2. Two copies of `2 + cos t`, largest at the centre, are least at the first end
  *    tried, −1.
  * 3. `1 + sin t` and `1 − sin t` are least where they cross, at the centre.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines recovery of a sinusoidal distance function and minimization of the greater of two distance curves.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies independent values at −1, 0 and 1 and exercises endpoint and interior crossing choices.
+ * @evidence contracts/development/testing.md#independent-expectations The source coefficients are (2, 1, 0.5). Equal cosine curves pick the first tied endpoint and opposite sine curves minimize their maximum at zero.
  */
 export function test_motions_lexicon_fixed_seat_harmonic(): void {
   const f: fixedSeatHarmonic.IHarmonic = {

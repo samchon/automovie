@@ -21,6 +21,7 @@ import { frameTimes } from "../../internal/frameTimes";
 import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture";
 import { reduceInspectionEpisodes } from "../../scene/inspection/internal/reduceInspectionEpisodes";
 import type { IAutoMovieRenderDrawnVideoProps } from "../IAutoMovieRenderDrawnVideoProps";
+import { observeDrawActivity } from "./observeDrawActivity";
 
 /*
  * Render a drawn subject into one video: draw every frame of its clock through
@@ -183,42 +184,69 @@ export async function renderDrawnVideo(props: IAutoMovieRenderDrawnVideoProps): 
   }[] = [];
   const packets: IAutoMovieInspectionDiagnostics[] = [];
   const mouths: (IAutoMovieDrawnMouth[] | undefined)[] = [];
-  for (const [index, seconds] of times.entries()) {
-    // The film and its control channels in one call, so every pass shares
-    // the frame's seek and camera.
-    const pictures: IAutoMovieDrawnPass[] = await props.session.frame(
-      seconds,
-      ["beauty", ...passes],
-      "delivery",
-      transparent ? "transparent" : undefined,
-    );
-    const { picture, diagnostics }: IAutoMovieDrawnPass = pictures[0]!;
-    mouths.push(pictures[0]!.mouths);
-    await channels?.add(index, seconds, pictures.slice(1));
-    if (diagnostics !== undefined) {
-      const { time } = diagnostics;
-      if (
-        time.filmSeconds !== seconds ||
-        (time.outputFrame !== undefined && time.outputFrame !== index)
-      )
-        throw new Error(
-          `Inspection diagnostics do not match output frame ${index} at ${seconds} s.`,
-        );
-      packets.push({ ...diagnostics, time: { ...time, outputFrame: index } });
+  try {
+    for (const [index, seconds] of times.entries()) {
+      const clock = { frame: index, seconds, frameCount: times.length };
+      // One frame request ties every pass to the same seek and camera.
+      const pictures: IAutoMovieDrawnPass[] = await observeDrawActivity(
+        props.observe,
+        { ...clock, stage: "draw-frame" },
+        () =>
+          props.session.frame(
+            seconds,
+            ["beauty", ...passes],
+            "delivery",
+            transparent ? "transparent" : undefined,
+          ),
+      );
+      const { picture, diagnostics }: IAutoMovieDrawnPass = pictures[0]!;
+      mouths.push(pictures[0]!.mouths);
+      if (diagnostics !== undefined) {
+        const { time } = diagnostics;
+        if (
+          time.filmSeconds !== seconds ||
+          (time.outputFrame !== undefined && time.outputFrame !== index)
+        )
+          throw new Error(
+            `Inspection diagnostics do not match output frame ${index} at ${seconds} s.`,
+          );
+        packets.push({ ...diagnostics, time: { ...time, outputFrame: index } });
+      }
+      const file: string = `${props.frameDir}/${frameName(index)}`;
+      await observeDrawActivity(
+        props.observe,
+        { ...clock, stage: "write-frame" },
+        async (): Promise<void> => {
+          await channels?.add(index, seconds, pictures.slice(1));
+          await props.write(
+            file,
+            await AutoMovieRenderPicture.encodeRasterPng(picture, {
+              alpha: transparent,
+            }),
+          );
+        },
+      );
+      const receipt: IAutoMovieDrawnVideoResult["frames"][number] = {
+        index,
+        seconds,
+        file,
+        hash: AutoMovieRenderPicture.hashRasterImage(picture),
+      };
+      frames.push(receipt);
+      props.frameWritten?.(receipt);
     }
-    const file: string = `${props.frameDir}/${frameName(index)}`;
-    await props.write(
-      file,
-      await AutoMovieRenderPicture.encodeRasterPng(picture, {
-        alpha: transparent,
-      }),
-    );
-    frames.push({
-      index,
-      seconds,
-      file,
-      hash: AutoMovieRenderPicture.hashRasterImage(picture),
-    });
+  } catch (cause) {
+    if (props.incompleteAudit !== undefined && packets.length !== 0) {
+      try {
+        props.incompleteAudit(reduceInspectionEpisodes(packets, times.length));
+      } catch (auditFailure) {
+        throw new AggregateError(
+          [cause, auditFailure],
+          cause instanceof Error ? cause.message : String(cause),
+        );
+      }
+    }
+    throw cause;
   }
 
   const diagnostics: IAutoMovieInspectionDiagnostics.IAudit | undefined =

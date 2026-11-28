@@ -2,8 +2,8 @@ import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `parseLightPointer` reads `/lights/<id>/<property>` and returns null for
- * every other shape, decoding `~1` to `/` and `~0` to `~`.
+ * Parse canonical light pointers, decoding `~1` to `/` and `~0` to `~`.
+ * Refuse the malformed addresses below.
  *
  * Scenarios:
  *
@@ -11,6 +11,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An escaped id decodes.
  * 3. A wrong segment count, root, property, empty id or noncanonical escape gives
  *    null.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names canonical and escaped addresses and the malformed path forms the parser rejects.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `parseLightPointer` for two valid addresses and six malformed strings, comparing both valid result fields and null for each invalid input.
+ * @evidence contracts/development/testing.md#independent-expectations The plain address names lamp/intensity. RFC 6901 decodes a~1b~0c to a/b~c with property range. Missing segments or leading slash, a different root, an unsupported property, empty ID, and ~2 all produce null.
  */
 export function test_engine_resolve_parse_light_pointer(): void {
   TestValidator.equals(

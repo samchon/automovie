@@ -33,11 +33,23 @@ export interface IAutoMovieSweepSpine {
    * point along; each replaces the spline's own end direction and keeps its
    * speed, so only the end segment's shape changes. Omitted, the spline's own.
    */
-  tangents?: {
-    /** Direction at the first point, not zero; omitted, the spline's own. */
+  tangents?: IAutoMovieSweepSpine.IEndpointTangents;
+}
+
+/** Named inputs extending the authored spine. */
+export namespace IAutoMovieSweepSpine {
+  /** Optional directions at the first and last spine points. */
+  export type IEndpointTangents = {
+    /**
+     * Direction at the first point. Supply a finite nonzero direction, or omit
+     * it to use the spline's own.
+     */
     start?: IAutoMovieVector3;
 
-    /** Direction at the last point, not zero; omitted, the spline's own. */
+    /**
+     * Direction at the last point. Supply a finite nonzero direction, or omit
+     * it to use the spline's own.
+     */
     end?: IAutoMovieVector3;
   };
 }

@@ -12,6 +12,10 @@ import * as THREE from "three";
  *    marks are grouped by the object they follow, `null` for none.
  * 2. A mark that follows a hidden or invisible object is dropped.
  * 3. A mark that follows an object the scene does not have is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names kind and path filtering, grouping, hidden and invisible suppression and missing-anchor refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public chooser with typed marks, stable paths and named scene nodes. Reads the resulting marks and anchor grouping and exercises an unavailable anchor.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's one world mark and one visible anchored match are retained. A hidden or invisible anchor prevents retention even when a mark's own path is selected, and an unknown anchor must refuse.
  */
 export function test_render_scene_choose_inspection_marks(): void {
   const mark = (path: string, kind: string, anchor: string | null): IAutoMovieMark => ({

@@ -14,7 +14,9 @@ import { AutoMovieRenderInspectionKinds } from "../../AutoMovieRenderInspectionK
  * the samples in time order, a points mark of the same kind with one tick per
  * sample, and a points mark of kind `trail/now` at the sample whose second is
  * nearest `seconds`, the earlier one on a tie. A stationary trail has no line
- * and one tick. Both kinds are in world metres and unanchored.
+ * and one tick. When the drawn second belongs to a segment with an authored
+ * route, that route is a separate world polyline of kind trail/route. The
+ * route comes from the source, while ticks come from placed origins.
  *
  * | Kind        | Label                       | Colour               |
  * | ----------- | --------------------------- | -------------------- |
@@ -37,6 +39,21 @@ export function markInspectionTrails(
       if (Math.abs(time - seconds) < Math.abs(trail.times[nearest]! - seconds))
         nearest = i;
     });
+    const route = trail.motion?.route;
+    if (route !== undefined && trail.times[nearest] === seconds)
+      marks.push({
+        path: path + "/route",
+        kind: "trail/route",
+        label: ROUTE.label,
+        color: ROUTE.color,
+        shape: {
+          type: "polyline",
+          points: route.points.flatMap(({ x, y, z }) => [x, y, z]),
+          closed: false,
+        },
+        flagged: false,
+        anchor: null,
+      });
     if (!trail.stationary)
       marks.push({
         path,
@@ -47,22 +64,25 @@ export function markInspectionTrails(
         flagged: false,
         anchor: null,
       });
-    marks.push(
-      {
-        path,
-        kind: "trail",
-        label: TRAIL.label,
-        color: TRAIL.color,
-        shape: {
-          type: "points",
-          points: trail.stationary
-            ? trail.positions.slice(0, 3)
-            : trail.positions,
-        },
-        flagged: false,
-        anchor: null,
+    marks.push({
+      path,
+      kind: "trail",
+      label: TRAIL.label,
+      color: TRAIL.color,
+      shape: {
+        type: "points",
+        points: trail.stationary
+          ? trail.positions.slice(0, 3)
+          : trail.positions,
       },
-      {
+      flagged: false,
+      anchor: null,
+    });
+    if (
+      seconds >= trail.times[0]! &&
+      seconds <= trail.times[trail.times.length - 1]!
+    )
+      marks.push({
         path,
         kind: "trail/now",
         label: NOW.label,
@@ -73,8 +93,7 @@ export function markInspectionTrails(
         },
         flagged: false,
         anchor: null,
-      },
-    );
+      });
   }
   return marks;
 }
@@ -90,3 +109,6 @@ const TRAIL: { readonly label: string; readonly color: number } =
  */
 const NOW: { readonly label: string; readonly color: number } =
   AutoMovieRenderInspectionKinds["trail/now"]!;
+
+const ROUTE: { readonly label: string; readonly color: number } =
+  AutoMovieRenderInspectionKinds["trail/route"]!;

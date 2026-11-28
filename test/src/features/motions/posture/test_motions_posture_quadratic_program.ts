@@ -29,6 +29,10 @@ const AGREEMENT: number = 1e-3;
  * 4. Rows x₀ ≥ 1 and x₀ ≤ 0 together are infeasible.
  * 5. A soft row x ≥ 1 of weight ½ with P = 1, q = 0: below the row the merit is
  *    `½x² + ½(1 − x)`, least at x = ½, and its value there 0.375.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines quadratic minimization with hard and soft rows, objective readback and infeasibility.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves free, hard inequality, equality, contradictory and penalized fixtures and compares the alternative hard-row solver.
+ * @evidence contracts/development/testing.md#independent-expectations Stationarity gives (1, 2) and value −9 before constraints. Projection gives (1, 1) for the hard row and the soft optimum x = 0.5 with value 0.375.
  */
 export function test_motions_posture_quadratic_program(): void {
   const band = (

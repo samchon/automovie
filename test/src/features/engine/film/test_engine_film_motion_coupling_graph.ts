@@ -68,12 +68,20 @@ function point(actual: readonly number[], expected: readonly number[]): void {
   );
 }
 /**
+ * Coupled attachments resolve nested, persistent and explicit motion in order.
+ *
+ * Scenarios:
+ *
  * 1. Carry a marker three levels deep and exercise a parent that first follows its
  *    staged position and then a moving rig.
  * 2. Contrast persistent, overridden and absent mounts. Validate cycles, missing
  *    rigs and missing mount bones.
  * 3. Supply clinical rest frames to both an explicit and a persistent hand
  *    attachment.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The numbered cases describe nested followers, delayed parent authority, distinct mount branches and admission of clinical frame inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification The test couples prepared motion objects, samples resulting clips and reads reported violations. It varies staged and moving parents, persistent and explicit mounts, cycles and missing geometry.
+ * @evidence contracts/development/testing.md#independent-expectations The authored chain and attachment offsets establish the three-level marker position. Staged placement holds until its motion starts. The declared absent rig or mount bone cannot supply a valid attachment target, and the fixture's explicit versus persistent hand options choose their own resting frames.
  */
 export function test_engine_film_motion_coupling_graph(): void {
   const rig: IAutoMovieSkeleton = createSkeleton();

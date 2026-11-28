@@ -2,16 +2,20 @@ import type { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
 import type { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 
 /**
- * Prepared footprint for one surface. Build once when checking many points
- * against the same static polygon.
+ * Prepared outer and hole footprint for repeated XZ containment of one authored
+ * surface.
+ *
+ * An outer ring and its holes preserve the authored contour rather than fitting
+ * a hull. Source height evaluation is independent of that prepared horizontal
+ * containment.
  */
 export interface IAutoMoviePreparedSurface {
-  /** The source surface whose height/identity remains authoritative. */
+  /** Original surface reference used for its ID and current height rule. */
   readonly surface: IAutoMovieSurface;
 
   /**
-   * The authored rings of {@link IAutoMovieSurface.polygon} and its holes, with
-   * planar copies and signed areas prepared for repeated queries.
+   * Prepared planar outer and hole rings with signed areas. Concavity and holes
+   * participate in later containment.
    */
   readonly footprint: IAutoMovieFootprint;
 }

@@ -144,20 +144,20 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
    */
   toeTouch: Omit<IAutoMovieMotionHumanBend.IParams, "target" | "hold">;
 
-  /** Treading water. */
-  treadWater: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;
+  /** Stay upright at one place on the declared water plane. */
+  treadWater: Omit<IAutoMovieMotionHumanSwim.IParams, "kind" | "turn">;
 
-  /** Swimming the front crawl. */
-  frontCrawl: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;
+  /** Travel prone along the entry heading with alternating arm strokes and a breathing cue each cycle. */
+  frontCrawl: Omit<IAutoMovieMotionHumanSwim.IParams, "kind" | "turn">;
 
-  /** Swimming the breaststroke. */
-  breaststroke: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;
+  /** Travel prone along the entry heading through the pull, recovery, kick and glide. */
+  breaststroke: Omit<IAutoMovieMotionHumanSwim.IParams, "kind" | "turn">;
 
-  /** Swimming the backstroke, head first the way the back faced. */
-  backstroke: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;
+  /** Travel on the back, head first opposite the entry heading. */
+  backstroke: Omit<IAutoMovieMotionHumanSwim.IParams, "kind" | "turn">;
 
-  /** Floating on the back. */
-  floating: Omit<IAutoMovieMotionHumanSwim.IParams, "kind">;
+  /** Stay in place on the back at the declared water plane. */
+  floating: Omit<IAutoMovieMotionHumanSwim.IParams, "kind" | "turn">;
 
   /** Swim immersed in a staged water volume. */
   swimImmersed: IAutoMovieMotionHumanSwimImmersed;

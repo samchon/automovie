@@ -4,12 +4,14 @@ import type {
 } from "..";
 import type { IAutoMovieRecoveryOpenContinuationEdge } from "./IAutoMovieRecoveryOpenContinuationEdge";
 
-/** Admit saved open continuation and prepare one-to-one ordinary run ownership. */
+/** Callable preparation of ordinary open-run connectivity. */
 
 export namespace IAutoMovieRecoveryOpenRunsPreparationOperation {
   /**
-   * Admit saved open continuation and prepare one-to-one ordinary run
-   * ownership.
+   * Select quadratic or ruled interpolation with a positive recorded physical
+   * tolerance, then verify that every saved open arc is accounted for in each
+   * adjacent interval. Return directional maps and exact unsupported group
+   * counts.
    */
 
   export type Operation = (
@@ -17,31 +19,22 @@ export namespace IAutoMovieRecoveryOpenRunsPreparationOperation {
     graph: IAutoMovieRecoveryOpenContinuation,
     operator: "quadratic" | "ruled",
   ) => {
-    /**
-     * Saved open-arc identity to its unique outgoing continuation edge;
-     * branching remains unsupported.
-     */
+    /** Ordinary links keyed by earlier saved station and open arc. */
     outgoing: Map<string, IAutoMovieRecoveryOpenContinuationEdge>;
 
-    /**
-     * Saved open-arc identity to its unique incoming continuation edge;
-     * branching remains unsupported.
-     */
+    /** Ordinary links keyed by later saved station and open arc. */
     incoming: Map<string, IAutoMovieRecoveryOpenContinuationEdge>;
 
-    /**
-     * Admitted saved-section pair records or their counted population,
-     * preserving the caller's pair order.
-     */
+    /** Number of ordinary saved links admitted into both maps. */
     pairs: number;
 
-    /**
-     * Observed continuation components that cannot authorize a supported
-     * surface bridge.
-     */
+    /** Total unresolved groups preserved across the verified adjacent intervals. */
     unsupportedGroups: number;
 
-    /** Unsupported continuation groups containing at least one saved open arc. */
+    /**
+     * Unresolved group count restricted to groups with at least one saved open
+     * arc.
+     */
     unsupportedGroupsWithOpenArcs: number;
   };
 }

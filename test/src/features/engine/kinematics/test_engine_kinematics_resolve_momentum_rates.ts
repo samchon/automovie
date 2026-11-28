@@ -31,6 +31,10 @@ import { vclose } from "../../internal/vclose";
  *    without changing the existing mass, COM or P.
  * 6. Missing bones/rates, nonfinite rates/COM, nonpositive total mass,
  *    inconsistent part counts/masses/total and finite-input overflow throw.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers instantaneous linear and angular momentum, frame shifts, anisotropic inertia, zero-mass spin and malformed quantities.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAutoMovieMomentumRates with named posed bodies and explicit SI bone-origin derivatives, then exercises invalid body and rates data.
+ * @evidence contracts/development/testing.md#independent-expectations The written cross products determine the lever-arm terms and the opposite point-mass motions give angular momentum 48 with zero net linear motion. Known translations, scale factors and inertia axes distinguish each independent contribution.
  */
 export function test_engine_kinematics_resolve_momentum_rates(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

@@ -26,8 +26,11 @@ export function createEllipticLoftAtlas(
   if (
     !input.loft.spans.length ||
     !input.topologyDomain.trim() ||
+    !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||
+    !Number.isSafeInteger(input.maxCells) ||
     input.maxCells <= 0 ||
+    !Number.isSafeInteger(input.maxVertices) ||
     input.maxVertices <= 0
   )
     throw new Error(
@@ -46,6 +49,9 @@ export function createEllipticLoftAtlas(
     const previous: IAutoMovieEllipticLoft["spans"][number] | undefined =
       input.loft.spans[index - 1];
     if (
+      !span?.interval ||
+      !Number.isFinite(span.interval.lowerY) ||
+      !Number.isFinite(span.interval.upperY) ||
       !(span.interval.lowerY < span.interval.upperY) ||
       (previous !== undefined &&
         previous.interval.upperY !== span.interval.lowerY)
@@ -54,11 +60,14 @@ export function createEllipticLoftAtlas(
         "Elliptic loft intervals must be finite, increasing and exactly adjacent",
       );
     for (const field of fields) {
-      if (span[field].length !== 4)
+      if (!Array.isArray(span[field]) || span[field].length !== 4)
         throw new Error("Every elliptic profile needs four Bernstein controls");
       for (let control: number = 0; control < 4; control++) {
         const value: number = span[field][control];
-        if ((field === "radiusX" || field === "radiusZ") && value <= 0)
+        if (
+          !Number.isFinite(value) ||
+          ((field === "radiusX" || field === "radiusZ") && value <= 0)
+        )
           throw new Error(
             "Elliptic radii need positive finite controls and centres need finite controls",
           );
@@ -91,15 +100,26 @@ export function createEllipticLoftAtlas(
   for (let index: number = 0; index < input.loft.spans.length; index++) {
     const span: IAutoMovieEllipticLoft["spans"][number] =
       input.loft.spans[index];
-    for (let row: number = index === 0 ? 0 : 1; row < 4; row++)
+    const { lowerY, upperY }: typeof span.interval = span.interval;
+    for (let row: number = index === 0 ? 0 : 1; row < 4; row++) {
+      const t: number = row / 3;
+      let y: number =
+        row === 0
+          ? lowerY
+          : row === 3
+            ? upperY
+            : lowerY + (upperY - lowerY) * t;
+      if (!Number.isFinite(y)) y = lowerY * (1 - t) + upperY * t;
       for (const angular of circle) {
         const x: number = span.centreX[row] + span.radiusX[row] * angular[0];
-        const y: number =
-          span.interval.lowerY +
-          (span.interval.upperY - span.interval.lowerY) * (row / 3);
         const z: number = span.centreZ[row] + span.radiusZ[row] * angular[1];
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
+          throw new Error(
+            "Elliptic loft coefficient is not representable in model metres",
+          );
         controls.push({ x, y, z });
       }
+    }
     for (let quarter: number = 0; quarter < 4; quarter++) {
       const controlIds: number[] = [];
       for (let row: number = 0; row < 4; row++)
@@ -160,6 +180,6 @@ export function createEllipticLoftAtlas(
       maxCells: input.maxCells,
       maxVertices: input.maxVertices,
     },
-    arcDeviationBound: 0.000273 * maximumRadius,
+    arcDeviationBound: Math.max(Number.MIN_VALUE, 0.000273 * maximumRadius),
   };
 }

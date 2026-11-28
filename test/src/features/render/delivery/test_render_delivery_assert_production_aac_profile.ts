@@ -12,6 +12,10 @@ import { createProductionAudioProbe } from "../../internal/createProductionAudio
  * 1. The production probe passes.
  * 2. A different object type, sample rate, channel count and an empty track are
  *    each refused, naming the field.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Requires AAC-LC with the commissioned sample rate, channel count and nonempty track.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls audio-profile admission on a valid typed probe and probes with independent object type, rate, channel or sample defects.
+ * @evidence contracts/development/testing.md#independent-expectations The literal 48 kHz stereo AAC-LC profile and the named failing fields distinguish all four mismatches.
  */
 export function test_render_delivery_assert_production_aac_profile(): void {
   AutoMovieRenderDelivery.assertAacProfile(createProductionAudioProbe());

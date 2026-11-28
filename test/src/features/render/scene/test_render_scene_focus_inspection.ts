@@ -14,6 +14,10 @@ import * as THREE from "three";
  *    (2, 4, 6) give that box.
  * 3. A pattern that matches nothing, and a flagged focus with no flagged mark,
  *    are refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names object-pattern and flagged-mark bounds and both empty-focus refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the inspection focus owner with typed native bounds and supplied marks. Reads resulting bounds and exercises missing pattern and missing flagged data.
+ * @evidence contracts/development/testing.md#independent-expectations A 2 m cube centered at X 5 spans X 4 to 6 and Y and Z −1 to 1. The two literal flagged points bound (0, 0, 0) through (2, 4, 6). Other marks do not expand that box.
  */
 export function test_render_scene_focus_inspection(): void {
   const cube = (x: number): THREE.Mesh => {

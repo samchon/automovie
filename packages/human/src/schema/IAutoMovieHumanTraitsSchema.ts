@@ -3,7 +3,12 @@ import type { tags } from "typia";
 
 import type { IAutoMovieHumanBuildTraitsSchema } from "./IAutoMovieHumanBuildTraitsSchema";
 
-/** Typia admission/schema metadata for IAutoMovieHumanTraits. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Introductory Human authoring input for typia validation. Supply a sex and
+ * reference population, age in years and normalized build offsets. Stature is
+ * measured in millimetres or null to request a reference median. Skin tone is
+ * optional.
+ */
 export type IAutoMovieHumanTraitsSchema = IAutoMovieHumanTraits & {
   /**
    * Age in years, fractional for infants. No upper limit or reference-survey coverage is implied by this field.
@@ -15,7 +20,7 @@ export type IAutoMovieHumanTraitsSchema = IAutoMovieHumanTraits & {
    */
   stature: (number & tags.Minimum<400> & tags.Maximum<2500>) | null;
 
-  /** Skin pigmentation independent of population: 0 is pale (melanin fraction 0.013), 1 is dark (0.43), interpolated logarithmically. Omitted, no pigmentation override is requested; detailed identities can additionally set eumelanin share and haemoglobin. This is a conventional authoring scale, not a clinical phototype. */
+  /** Skin tone request independent of population, from pale (0) to dark (1). Omission leaves the override unspecified. */
   skinTone?: number & tags.Minimum<0> & tags.Maximum<1>;
 
   /** Build offsets from the population mean. */

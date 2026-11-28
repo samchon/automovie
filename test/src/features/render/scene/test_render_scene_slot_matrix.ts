@@ -14,6 +14,10 @@ const MATRIX_TOLERANCE: number = 1e-9;
  *
  * 1. A slot at (3, 1, 5) facing 90 degrees about +Y, over an anchor at
  *    (1, 1, 1), translates by (2, 0, 4) and turns a quarter about +Y.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The case states the slot and formation anchor positions and a quarter turn about +Y.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that the slot matrix carries the relative translation and the requested rotation.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracts the anchor `(1, 1, 1)` from the slot `(3, 1, 5)` to expect `(2, 0, 4)` and supplies a 90 degree rotation about +Y.
  */
 export function test_render_scene_slot_matrix(): void {
   const matrix: THREE.Matrix4 = slotMatrix(

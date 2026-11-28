@@ -40,6 +40,10 @@ interface IRun {
  *    positive logarithm, indices -1 and past the field and a duplicate index
  *    refuse at `input-field` or `input-cap` with no certificate call.
  * 6. No call changes its field or caps.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the held versus candidate checks, exact attenuated factor, call order and field or underflow refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits explicit scale and cap arrays with counted certificates and checks accepted factors, limiting columns, returned failures and input preservation.
+ * @evidence contracts/development/testing.md#independent-expectations The predecessor of one half is one half minus 2 to the power −54. Its dyadic products and the MIN_VALUE underflow independently fix the accepted and refused stages.
  */
 export function test_engine_geometry_local_scale_boundary(): void {
   const run = (

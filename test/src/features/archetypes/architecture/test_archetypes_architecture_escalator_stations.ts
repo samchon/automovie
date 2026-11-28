@@ -9,7 +9,13 @@ import { vclose } from "../../internal/vclose";
 /** Allows the transition trigonometry and accumulated distances in metres. */
 const STATION_ROUNDING: number = 128 * Number.EPSILON;
 
-/** The tread band closes its rise between unequal circles and two flat combs. */
+/**
+ * The tread band closes its rise between unequal circles and two flat combs.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States upper and lower transition geometry, level combs, station samples and overlap refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual tread profile and reads seven stations from the lower under-turn to the upper under-turn. Tests refusal when the specified rise leaves no room for the transitions.
+ * @evidence contracts/development/testing.md#independent-expectations A 30 degree turn on radii two and three has total arc length `5*pi/6`. Its authored rise leaves two vertical metres for a four-metre inclined straight.
+ */
 export function test_archetypes_architecture_escalator_stations(): void {
   const rise: number = 7 - (5 * Math.sqrt(3)) / 2;
   const dimensions: Parameters<

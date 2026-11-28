@@ -18,6 +18,10 @@ import { throwsError } from "../../internal/throwsError";
  * 2. With a 0.3 m upper arm and a 0.26 m forearm the wrist stands `sqrt(0.09 +
  *    0.0676 + 0.078)` m from the shoulder.
  * 3. No swing, or a dally of half a turn, is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines virtual swing count, default path duration, integer turn admission and posed wrist distance.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks whole and fractional motion declarations and computes a pose using typed upper-arm and forearm lengths.
+ * @evidence contracts/development/testing.md#independent-expectations The default flight is 0.8 s and the 60° two-link geometry gives squared wrist distance 0.09 + 0.0676 + 0.078.
  */
 export function test_motions_lexicon_lasso(): void {
   TestValidator.predicate(

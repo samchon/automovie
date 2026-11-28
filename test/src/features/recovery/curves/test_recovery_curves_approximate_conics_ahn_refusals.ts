@@ -17,7 +17,13 @@ import { nclose } from "../../internal/nclose";
  * 1. Repeated calls give the same status, arcs, queries and weights, and leave the
  *    options and source breaks unchanged.
  * 2. Invalid budgets and a throwing callback refuse without default geometry.
- * 3. An unsplit inflection under a one-arc budget refuses as budget exhausted.
+ * 3. Ahn and Ghosh each stop at the first nonfinite source observation and return
+ *    no arc, sampled error or certificate.
+ * 4. An unsplit inflection under a one-arc budget refuses as budget exhausted.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names deterministic fits, admission refusal, numeric source failure and exhaustion.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the public fitting algorithms on a deterministic convex chart, malformed work limits, failing evaluations and an unresolved inflection.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture supplies the invalid budgets and nonfinite values. A refused result has no independently evaluable arc, sampled error or certificate.
  */
 export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
   const options: IAutoMovieConicApproximation.IOptions =
@@ -26,14 +32,10 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
   const before: string = JSON.stringify(options);
   const cubic: IAutoMoviePlanarCurveSource = RecoveryConicSources.cubic;
   const convex: IAutoMoviePlanarCurveSource = RecoveryConicSources.convex;
-  const fitted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
-    convex,
-    options,
-  );
-  const repeated: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
-    convex,
-    options,
-  );
+  const fitted: IAutoMovieConicApproximation.IResult =
+    AutoMovieRecoveryConicApproximation.approximateAhn(convex, options);
+  const repeated: IAutoMovieConicApproximation.IResult =
+    AutoMovieRecoveryConicApproximation.approximateAhn(convex, options);
   TestValidator.equals("deterministic status", repeated.status, fitted.status);
   TestValidator.equals(
     "deterministic count",
@@ -63,39 +65,75 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
     { ...options, toleranceMm: NaN },
     { ...options, toleranceMm: Infinity },
   ]) {
-    const refusal: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
-      convex,
-      invalid,
-    );
+    const refusal: IAutoMovieConicApproximation.IResult =
+      AutoMovieRecoveryConicApproximation.approximateAhn(convex, invalid);
     TestValidator.equals("invalid admission", refusal.status, "refused");
     TestValidator.equals("admission invokes no callbacks", refusal.queries, 0);
   }
-  const nonfiniteBreak: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
-    { ...convex, breaks: [NaN] },
-    options,
-  );
+  const nonfiniteBreak: IAutoMovieConicApproximation.IResult =
+    AutoMovieRecoveryConicApproximation.approximateAhn(
+      { ...convex, breaks: [NaN] },
+      options,
+    );
   TestValidator.predicate(
     "a nonfinite source break refuses before sampling",
     nonfiniteBreak.status === "refused" && nonfiniteBreak.queries === 0,
   );
-  const throwing: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
-    {
-      ...convex,
-      evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => {
-        throw new Error("Source acquisition failed");
+  const throwing: IAutoMovieConicApproximation.IResult =
+    AutoMovieRecoveryConicApproximation.approximateAhn(
+      {
+        ...convex,
+        evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => {
+          throw new Error("Source acquisition failed");
+        },
       },
-    },
-    options,
-  );
+      options,
+    );
   TestValidator.equals("throwing source refused", throwing.status, "refused");
   TestValidator.predicate(
     "callback failure explained",
     throwing.diagnostics.includes("Source acquisition failed"),
   );
-  const exhausted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
-    { ...cubic, breaks: [] },
-    { ...options, maximumArcs: 1 },
+  const acceptedInvalidObservations: string[] = [];
+  for (const approximate of [
+    AutoMovieRecoveryConicApproximation.approximateAhn,
+    AutoMovieRecoveryConicApproximation.approximateGhosh,
+  ]) {
+    let invalidObservations: number = 0;
+    const invalidPoint: IAutoMovieConicApproximation.IResult = approximate(
+      {
+        ...convex,
+        evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => {
+          ++invalidObservations;
+          return [NaN, 0];
+        },
+      },
+      options,
+    );
+    if (
+      !(
+        invalidObservations === 1 &&
+        invalidPoint.status === "refused" &&
+        invalidPoint.arcs.length === 0 &&
+        invalidPoint.maximumSampleErrorMm === 0 &&
+        invalidPoint.certified === false &&
+        invalidPoint.diagnostics.some((message: string): boolean =>
+          message.includes("Nonfinite source point"),
+        )
+      )
+    )
+      acceptedInvalidObservations.push(invalidPoint.method);
+  }
+  TestValidator.equals(
+    "both algorithms refuse the first nonfinite source point",
+    acceptedInvalidObservations,
+    [],
   );
+  const exhausted: IAutoMovieConicApproximation.IResult =
+    AutoMovieRecoveryConicApproximation.approximateAhn(
+      { ...cubic, breaks: [] },
+      { ...options, maximumArcs: 1 },
+    );
   TestValidator.equals(
     "unsplit inflection refused",
     exhausted.status,

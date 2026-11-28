@@ -28,6 +28,10 @@ function goal(planted: boolean): IAutoMovieHumanLimbGoal {
  * 1. No demand: none, the complete evaluation.
  * 2. A demand of the head over goals that are all free: the same set, not a copy.
  * 3. The same demand with one foot planted: none, so the full pose is evaluated.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Demand is preserved for free goals and widened for any planted goal, while an absent request already asks for the full pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the observation gate with typed limb goal maps and either no request or a head set. It checks returned object identity when goals are free and undefined when a plant requires the full path.
+ * @evidence contracts/development/testing.md#independent-expectations The two demanded cases share the same head set and differ only in the left leg's planted flag. The free case returns that exact set, while the planted case and absent demand each return undefined.
  */
 export function test_motions_perform_unplanted_observation(): void {
   const head: ReadonlySet<AutoMovieHumanoidBone> =

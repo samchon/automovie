@@ -31,6 +31,10 @@ const SPEC: IAutoMovieRenderSpec = {
  *    encodes. The result preserves capture paths and the encoded name.
  * 2. A subframe request refuses before calling any adapter. A frame refusal also
  *    leaves the encoder uncalled.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Awaits clip captures in index order, returns their actual paths, and preserves refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls clip rendering with recording capture and encode adapters on a two-frame clip, a subframe request and a failing capture.
+ * @evidence contracts/development/testing.md#independent-expectations A half-second at four fps gives samples 0 and 0.25. The event log fixes awaited order and verifies no encoding after either refusal.
  */
 export async function test_render_root_render_video(): Promise<void> {
   const events: string[] = [];

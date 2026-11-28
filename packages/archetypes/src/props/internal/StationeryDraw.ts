@@ -9,18 +9,16 @@ import {
 } from "../../core";
 import { StationeryDrawData } from "./StationeryDrawData";
 
-/*
- * The seeded recipes originally published as `createStationery`.
+/**
+ * Shared measurement records, geometry preparation and panel contacts for stationery producers.
  */
 export namespace StationeryDraw {
-  /*
-   * The kinds.
+  /**
+   * Saved selectors for the book, loose sheet, pen, clipboard and folded map.
    */
   export type Kind = "book" | "paper" | "pen" | "clipboard" | "map";
 
-  /*
-   * Every kind, for a caller that reads one at run time.
-   */
+  /** Saved selectors used by the stationery gallery and replay entry. */
   export const KINDS: readonly Kind[] = [
     "book",
     "paper",
@@ -29,26 +27,8 @@ export namespace StationeryDraw {
     "map",
   ];
 
-  /*
-   * The affordance ids:
-   *
-   * - `grip`: the hold: a book by the middle of its spine, the hand closing
-   *   across its thickness (the frame's `+Y` is up, out of the cover) along the
-   *   spine's length; a sheet pinched from above at its near edge, a clipboard
-   *   or a map pinched at its `+Z` edge, a pen pinched 30 mm from its tip (an
-   *   estimate).
-   * - `face`: the working face: a book's front cover, which rides the hinge; a
-   *   sheet's, a clipboard's or a map's upper side; a pen's tip, facing along
-   *   the pen.
-   * - `hinge` and `edge`: a book's cover hinge and its riding fore-edge.
-   * - `page` and `page-edge`: a book's single leaf hinge and its riding
-   *   fore-edge.
-   * - `fold` and `fold-edge`: a map's crease and its riding free edge.
-   * - `support-grip`: the `+Z` edge of the map's base panel, held across just
-   *   that panel while folding.
-   *
-   * Each hinge lifts its part with positive travel from the closed position
-   * through 180 degrees.
+  /**
+   * Available grip, face, cover, page and fold contact names across stationery models.
    */
   export type Affordance =
     | "grip"
@@ -61,19 +41,13 @@ export namespace StationeryDraw {
     | "fold-edge"
     | "support-grip";
 
-  /*
-   * The free dimensions, metres unless stated:
-   *
-   * - `width`: along `+X`; a pen has none.
-   * - `length`: along `+Z`.
-   * - `thickness`: along `+Y`; a pen's barrel diameter.
-   * - `mass`: kilograms.
+  /**
+   * Panel width along X, length along Z and thickness along Y in metres.
+   * A pen uses length and barrel diameter as `thickness`. Mass is in kilograms.
    */
   export type Dimension = "width" | "length" | "thickness" | "mass";
 
-  /*
-   * Each dimension's unit, which its band and any model's figure for it share.
-   */
+  /** Units shared by each kind's bands and catalogue measurements. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -83,42 +57,37 @@ export namespace StationeryDraw {
     mass: "kg",
   };
 
-  /*
-   * The parameters: the kind, and any free dimension fixed to a value inside
-   * its band.
+  /**
+   * Saved kind, optional scene ID and compatible fixed dimensions or clipboard model.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /*
-     * Which thing.
-     */
+    /** Selects the named construction and its measurement table. */
     kind: Kind;
 
-    /*
-     * A clipboard's model; drawn from the seed when absent.
+    /**
+     * Catalogue model for clipboard recipes. Other kinds have an empty model table.
      */
     model?: Model;
 
-    /*
-     * The model's id, unique in a scene; `stationery` when absent.
-     */
+    /** Scene object ID, defaulting to `stationery`. */
     id?: string;
   }
 
-  /*
-   * A model's read figures, by dimension.
+  /**
+   * One clipboard model's correlated numbers in the declared dimension units.
    */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
-  /*
-   * The clipboards read: Esselte's 56055 and 604037, both A4.
-   */
+  /** Esselte A4 model labels `56055` and `604037`. */
   export type Model = "56055" | "604037";
 
-  /*
-   * Each kind's models whole, the default first: Esselte's 232 x 3 x 349 mm
-   * clipboards (W x H x D), 168 g for the 56055 and 190 g for the 604037
-   * (https://docs.rs-online.com/6055/A700000015150044.pdf,
-   * https://docs.rs-online.com/86b9/A700000015142764.pdf).
+  /**
+   * Whole board dimensions and mass for the two Esselte clipboards.
+   * Both bodies share a 232 by 349 millimetre face and 3 millimetre
+   * thickness. `56055` comes first and has the seedless default mass.
+   *
+   * @see https://docs.rs-online.com/6055/A700000015150044.pdf
+   * @see https://docs.rs-online.com/86b9/A700000015142764.pdf
    */
   export const MODELS: Readonly<
     Partial<Record<Kind, Readonly<Record<Model, Figures>>>>
@@ -129,8 +98,8 @@ export namespace StationeryDraw {
     },
   };
 
-  /*
-   * The band of each free dimension, by kind; a clipboard's are its model's.
+  /**
+   * Free dimensions by saved kind. Clipboard geometry and mass come from the catalogue.
    */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
@@ -184,31 +153,25 @@ export namespace StationeryDraw {
     },
   };
 
-  /*
-   * What prepare prepares for its caller.
+  /**
+   * The applicable admitted dimensions and a builder carrying the same draw provenance.
    */
   export interface IPrepareResult<Id extends Affordance> {
-    /*
-     * The prepared `builder` this call returns.
-     */
+    /** Model builder initialized with the owner's recorded dimensions. */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /*
-     * The prepared `d` this call returns.
-     */
+    /** Admitted dimensions supplied by that kind's bands and selected model. */
     d: Partial<Record<Dimension, number>>;
   }
 
-  /*
-   * Prepare an empty builder and the previously recorded stationery dimensions.
-   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
-   * ID, and a model where the saved recipe has one.
-   * Parameter seed: The seed that draws the saved dimensions and model, or
-   * undefined for the original defaults.
-   * Parameter kind: The saved kind whose recipe is used.
-   * Returns: The builder and dimensions the named producer reads.
-   * When the model or a fixed parameter
-   * lies outside its admitted recipe.
+  /**
+   * Read the model's applicable band values and catalogue figures.
+   *
+   * @param kind Saved selector whose measurement record applies.
+   * @param params Optional ID and fixed dimensions or clipboard model.
+   * @param seed Numeric seed or undefined for the original defaults.
+   * @returns The selected dimensions and a builder using their provenance.
+   * @throws {AutoMovieArchetypeRefusal} If a setting or model is inadmissible.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
@@ -245,34 +208,25 @@ export namespace StationeryDraw {
     return { builder, d };
   }
 
-  /*
-   * A paper panel's size.
-   */
+  /** Panel dimensions in metres for a body lying in the model's XZ plane. */
   export interface IPanel {
-    /*
-     * Across the panel, metres.
-     */
+    /** Extent across the panel along X in metres. */
     width: number;
 
-    /*
-     * Along the panel, metres.
-     */
+    /** Extent from the head toward the near edge along Z in metres. */
     length: number;
 
-    /*
-     * The panel thickness, metres.
-     */
+    /** Height of the panel's upper face above its bottom plane, in metres. */
     thick: number;
   }
 
-  /*
-   * Register the edge pinch and working face of a writing surface. The grip
-   * lies on the near edge at `+Z`, so the face's top, its head or clip end, is
-   * toward `-Z`, the face frame's own `-Z`.
-   * Parameter builder: The prop under construction.
-   * Parameter dimensions: The panel width, length and thickness in metres.
-   * Parameter gripInset: How far the grip lies from the near edge, in metres.
-   * Parameter rides: The hinge that carries a folded panel's working face.
+  /**
+   * Place the near pinch and upper working face of a horizontal panel.
+   *
+   * @param builder The prop under construction.
+   * @param dimensions Model panel dimensions in metres.
+   * @param gripInset Distance in metres from the near `+Z` boundary toward centre.
+   * @param rides Optional `fold` mechanism carrying the face frame.
    */
   export function addPanelContacts(
     builder: AutoMovieArchetypeBuilder<Affordance, Dimension>,

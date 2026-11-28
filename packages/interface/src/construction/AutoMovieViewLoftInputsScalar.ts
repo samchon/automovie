@@ -1,7 +1,7 @@
 /**
- * Call-local reader of one original scalar outline at physical station in
- * millimetres. The containing field defines value units. It reuses its admitted
- * preparation; an outline read refusal reports its original source name and
- * returns NaN, while thrown getter exceptions propagate.
+ * Read one prepared outline at the requested physical station in millimetres.
+ * The containing field specifies the scalar units. If the outline returns a
+ * read failure, the reader reports its source name and returns NaN. Exceptions
+ * from reading or reporting propagate.
  */
 export type AutoMovieViewLoftInputsScalar = (station: number) => number;

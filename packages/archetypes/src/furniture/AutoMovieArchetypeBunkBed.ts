@@ -2,26 +2,25 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createBunkBed as createBunkBedImplementation } from "./internal/createBunkBed";
 import { type AutoMovieArchetypeBed } from "./AutoMovieArchetypeBed";
 
-/** Public operations for Auto Movie Archetype Bunk Bed. */
+/** Constructs two stacked mattress surfaces with fixed upper guards. */
 export namespace AutoMovieArchetypeBunkBed {
   /**
-   * A stacked pair of beds with lower side seats, an upper sleep surface and a
-   * guard bar.
+   * Build a bunk bed with two 0.90 by 2.00 metre mattresses.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * @param params Optional ID and fixed dimensions from the bunk bands.
+   *   The ID defaults to `bed`.
+   * @param seed Numeric seed for omitted settings. Without it the lower
+   *   and upper mattress tops are 0.345 and 1.255 metres above the floor.
+   * @returns The lower surface and side seats, the `upper` surface and
+   *   the continuous `-X` `guard` bar.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed setting is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeBunkBed.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeBunkBed.Affordance, AutoMovieArchetypeBunkBed.Dimension> {
     return createBunkBedImplementation(params, seed);
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Mattress and outer frame geometry in metres, including `gap` between supports and `clearance` to the lower support, plus mass in kilograms.
    */
   export type Dimension =
     | "clearance"
@@ -34,7 +33,9 @@ export namespace AutoMovieArchetypeBunkBed {
     | "thickness"
     | "width";
 
-  /** The contact IDs declared by this producer. */
+  /**
+   * Lower `surface` and side seats, `upper` mattress plane and `guard` at the continuous upper bar's centreline.
+   */
   export type Affordance =
     | "guard"
     | "leftSide"
@@ -42,7 +43,9 @@ export namespace AutoMovieArchetypeBunkBed {
     | "surface"
     | "upper";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional ID and fixed applicable bunk dimensions, including mattress thickness and empty bed mass.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeBed.IParams,
     | "id"

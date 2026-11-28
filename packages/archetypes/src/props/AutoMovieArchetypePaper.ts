@@ -9,44 +9,59 @@ import {
 } from "../core/internal/ArchetypeDraw";
 import { StationeryDraw } from "./internal/StationeryDraw";
 
-/** Constructs the paper sheet or folded map according to its recipe. */
+/** Constructs a loose sheet or a map with a hinged panel. */
 export namespace AutoMovieArchetypePaper {
   /**
-   * Loose paper sheet or folding map with a shared writing-surface contract.
+   * Build a loose sheet resting flat on its bottom face.
    *
-   * A flat sheet's grip edge lies toward model `+Z` and its head edge toward
-   * model `-Z`, so `face` reads with model `-Z` as its top. A folded map's `face`
-   * rides its `fold`.
+   * Its head lies toward model `-Z` and its near pinch is inset 0.02 metres
+   * from the `+Z` edge. The writing frame lies on the upper face.
    *
-   * @param params The optional scene ID, paper format and any fixed dimension in
-   *   metres or kilograms. The default format is a single sheet.
-   * @param seed The seed for the recorded recipe. Without a seed, the draw uses
-   *   the original defaults.
-   * @returns The model with its named contact frames in model space.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
-   *   outside its admitted recipe.
+   * @param params Optional scene ID and finite sheet dimensions in their bands.
+   * @param seed Numeric seed for omitted values. Omit it for the band midpoints.
+   * @returns The sheet with `grip` and `face`.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(
     params?: AutoMovieArchetypePaper.ISheetParams,
     seed?: number,
   ): AutoMovieArchetype<AutoMovieArchetypePaper.SheetAffordance, AutoMovieArchetypePaper.Dimension>;
 
-  /** The folded map adds a crease and separate grips for its two layers. */
+  /**
+   * Build a folded map with a stationary layer and one moving panel.
+   *
+   * The `fold` axis follows `-Z` at the `+X` crease and carries `face`
+   * and `fold-edge` through 180 degrees. The face follows the panel's
+   * orientation, including a downward normal at full opening.
+   *
+   * @param params The `foldedMap` format, optional ID and applicable band dimensions.
+   * @param seed Numeric seed for omitted values. Omit it for a 0.11 by 0.25
+   *   metre map with total folded thickness of 0.007 metres.
+   * @returns The map with moving panel and stationary support contacts.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
+   */
   export function create(
     params: AutoMovieArchetypePaper.IFoldedMapParams,
     seed?: number,
   ): AutoMovieArchetype<AutoMovieArchetypePaper.Affordance, AutoMovieArchetypePaper.Dimension>;
 
   /**
-   * A format selected by an authored scene resolves to one of the two paper
-   * models.
+   * Build a sheet or folded map from a caller-selected format.
+   *
+   * @param params Format plus the selected shape's optional ID and fixed values.
+   * @param seed Numeric seed for the selected format's free dimensions.
+   * @returns The chosen shape with the contact names applicable to that format.
+   * @throws {AutoMovieArchetypeRefusal} If the format or a fixed value is inadmissible.
    */
   export function create(
     params: AutoMovieArchetypePaper.IParams,
     seed?: number,
   ): AutoMovieArchetype<AutoMovieArchetypePaper.Affordance, AutoMovieArchetypePaper.Dimension>;
 
-  /** Produce the requested format according to the contact contract above. */
+  /**
+   * Build the selected paper format. The default sheet and folded map use
+   * their own dimension bands and contact geometry.
+   */
   export function create(
     params: AutoMovieArchetypePaper.IParams = {},
     seed?: number,
@@ -140,46 +155,51 @@ export namespace AutoMovieArchetypePaper {
   }
 
   /* Authorable settings, formats and contact types for the paper producer. */
-  /** A loose sheet or a map that opens at one crease. */
+  /** Selects a flat loose sheet or a two-layer map with one fold. */
   export type Format = "sheet" | "foldedMap";
 
-  /** The optional scene ID, format and fixed paper dimensions. */
+  /**
+   * Optional object ID and format with finite dimensions in its applicable bands.
+   */
   export interface IParams {
-    /** The model's id, unique in a scene; `stationery` when absent. */
+    /** Scene object ID, defaulting to `stationery` for both formats. */
     id?: string;
-    /** Fixed width along model +X, metres, within the format's band. */
+    /** Width along model X, in metres within the selected format's band. */
     width?: number;
-    /** Fixed length along model +Z, metres, within the format's band. */
+    /**
+     * Head-to-foot extent along model Z, in metres within the selected band.
+     */
     length?: number;
-    /** Fixed thickness along model +Y, metres, within the format's band. */
+    /** Closed thickness in metres, including both layers for a folded map. */
     thickness?: number;
-    /** Fixed mass in kilograms, within the format's band. */
+    /** Whole paper prop mass in kilograms within the selected band. */
     mass?: number;
-    /** The paper shape. Omit to produce a loose sheet. */
+    /** Chooses flat sheet or folded map. Defaults to `sheet`. */
     format?: Format;
   }
 
-  /** The parameters of a loose sheet, the default format. */
+  /** Options for the default loose paper sheet. */
   export interface ISheetParams extends IParams {
-    /** The loose sheet, or absent for it. */
+    /** Selects a loose sheet. Omission has the same effect. */
     format?: "sheet";
   }
 
-  /** The parameters of a map that opens at one crease. */
+  /** Options for a folded map with moving upper panel. */
   export interface IFoldedMapParams extends IParams {
-    /** The folded map. */
+    /** Selects the two-layer hinged map. */
     format: "foldedMap";
   }
 
-  /** The contacts of a loose sheet. */
+  /** The loose sheet's near-edge `grip` and upward `face`. */
   export type SheetAffordance = "grip" | "face";
 
-  /** The dimensions both formats draw, in metres and the mass in kilograms. */
+  /**
+   * Width, length and closed thickness in metres. Whole prop mass is in kilograms.
+   */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 
   /**
-   * Contacts present across both formats. Only the map has the crease and the
-   * layer grips.
+   * Common near `grip` and `face`, plus the map's `fold`, moving `fold-edge` and fixed `support-grip`.
    */
   export type Affordance =
     | "grip"
@@ -188,6 +208,6 @@ export namespace AutoMovieArchetypePaper {
     | "fold-edge"
     | "support-grip";
 
-  /** Formats in their gallery order. */
+  /** Format values accepted by `create`, in gallery order. */
   export const FORMATS: readonly Format[] = ["sheet", "foldedMap"];
 }

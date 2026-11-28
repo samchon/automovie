@@ -61,6 +61,10 @@ const frame: (
  * 7. Truck movement ends screen-left at fixed depth, keeps an animated subject's
  *    endpoint shift, and has a defined lateral fallback for a vertical staged
  *    bearing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios describe orbit and follow grids, degenerate static follow, abutting moves, bearing fallbacks, no-entry result and truck geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles the camera paths and checks sampled positions, bearings and counts. It changes subject motion, staged bearing and move adjacency to exercise the actual path branches.
+ * @evidence contracts/development/testing.md#independent-expectations A full view of height two at 90 degrees fixes distance 1.15, so a 45-degree two-second orbit stays on that circle with 49 native keys. The moving follow uses the fixture's X path over 25 one-second keys. Fixed depth and screen-left direction independently identify the truck.
  */
 export function test_engine_film_camera_move_paths(): void {
   const subject: IAutoMovieFramedSubject = {

@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanThumbPose } from "@automovie/interface";
 import type { tags } from "typia";
 
-/** Typia admission/schema metadata for IAutoMovieHumanThumbPose. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
+/**
+ * Thumb angles in degrees from neutral. Three carpometacarpal channels
+ * describe flexion, palmar abduction and opposition. The metacarpophalangeal
+ * and interphalangeal joints each have a flexion channel.
+ */
 export type IAutoMovieHumanThumbPoseSchema = IAutoMovieHumanThumbPose & {
   /** Carpometacarpal flexion across the palm 15, extension 20 (recalled, Greene and Heckman 1994). */
   cmcFlexion?: number & tags.Minimum<-20> & tags.Maximum<15>;

@@ -36,6 +36,10 @@ type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
  * 2. A common rotation preserves self distance while changing world-axis and
  *    fixed-world-start rows; omitted, partial and unrelated movement
  *    declarations retain their actual semantics.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Explains preserved published candidates, fixed anchors and which residuals depend on shared, partial or omitted native motion.
+ * @evidence contracts/development/testing.md#behavioral-verification Fits an articulated unit link while capturing trial poses, and probes distance, world-axis and fixed-origin rows after common and partial movement.
+ * @evidence contracts/development/testing.md#independent-expectations The unit link needs a 30-degree turn to reach the endpoint. A common rigid turn preserves its self distance but may change world-dependent residuals.
  */
 export function test_engine_physics_linearize_physical_target_rows(): void {
   const profile: P = PhysicalPointFixtures.profile();

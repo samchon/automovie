@@ -64,6 +64,10 @@ const BOX_ROUNDING: number = 1e-12 + 3 * Number.EPSILON;
  *    preserving their signed clearances and the prepared local extrema.
  *
  * @see https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf Boyd and Vandenberghe, §5.5.3, Eq. (5.49).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes time-travel screens, per-part conservative bounds, angular growth and signed closest-feature witnesses.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates typed travel chords, placed sphere and convex fixtures, signed allowances and endpoint-frame gradients.
+ * @evidence contracts/development/testing.md#independent-expectations Orthogonal motion gives 4.5 m over the stated interval and first noncertified time 2⅓ s. The cube planes balance at (3/8, 3/8, 0) with independent KKT weights 2/3 and 1/3.
  */
 export function test_motions_posture_arm_clearance_bounds(): void {
   const clock: Parameters<typeof HumanArmTrajectorySweepBound.chords>[0] = {

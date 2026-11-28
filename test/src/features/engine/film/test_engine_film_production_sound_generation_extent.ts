@@ -14,6 +14,10 @@ import { nclose } from "../../internal/predicates";
  * 1. A decoded generation ending one sample before its declared span preserves the
  *    last reached sample within 1e-6.
  * 2. Only the single unreached native tick becomes silent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish the last supplied sample from the single unreached output tick and name the admitted numeric tolerance.
+ * @evidence contracts/development/testing.md#behavioral-verification The test renders an unchanged plan with a decoded ramp cut one sample short. It reads the two neighboring native ticks in the mixer output.
+ * @evidence contracts/development/testing.md#independent-expectations The next-to-last output tick still reads its same-rate input multiplied by the cue gain within 1e-6. The adjacent final tick exceeds the resident generation and must be exactly zero.
  */
 export function test_engine_film_production_sound_generation_extent(): void {
   const {

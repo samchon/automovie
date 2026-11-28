@@ -12,6 +12,10 @@ import { throws } from "node:assert/strict";
  * 2. A refusal visits two resources in allocation order even when the first
  *    disposal fails. Repeated registration does not duplicate disposal, and the
  *    construction and disposal failures retain their original identity.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names successful transfer and retirement after construction and disposal failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the resource construction owner with controlled objects and callbacks. Checks the returned identity and collected disposal attempts, then captures the original construction and retirement causes.
+ * @evidence contracts/development/testing.md#independent-expectations A successful transfer retains the exact allocated object and no recorded disposal. A repeated registration adds no second release. On failure both distinct resources are tried in allocation order even though the first disposer throws.
  */
 export function test_render_scene_construct_owned_resources(): void {
   const released: string[] = [];

@@ -18,8 +18,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A missing anchor is a `participant` refusal on `of`, located at the
  *    performer, act and the instance the caller counts for them, offering the
  *    anchors and tracks there are.
- * 2. Without a subject or capability nothing is located and the counter is not
- *    asked.
+ * 2. A missing subject prevents location and leaves the counter uncalled.
  * 3. An empty hit track is a `hit` refusal with no alternatives; a hit track
  *    with instants, or another track, is an `event` refusal offering them.
  * 4. An occurrence past a name's instants is an `index` refusal whose whole range
@@ -27,6 +26,10 @@ import { TestValidator } from "@nestia/e2e";
  * 5. A taken anchor is an `anchor` refusal; a share outside the action is a
  *    `cut` refusal on `until` over [0, 1].
  * 6. A timing or law error is returned itself.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names actionable missing reference, event, index, duplicate and share cases, and errors returned by identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `HumanScheduleRefusal` directly with typed scheduler errors and a recording instance callback. It reads the refusal class, axis and feasible alternatives or bounds, and checks that timing and law errors survive unchanged.
+ * @evidence contracts/development/testing.md#independent-expectations Three occurrences admit whole indices 0 through 2, so index 5 offers that range. Share 1.25 is beyond [0, 1]. The authored anchor alternative gate and drum alternative beat remain literal, and the instance callback supplies 4 for a/wave.
  */
 export function test_motions_perform_schedule_refusal(): void {
   const asked: string[] = [];

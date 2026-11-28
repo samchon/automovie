@@ -1,47 +1,43 @@
 import type { AutoMovieVector3Tuple } from "..";
 
 /**
- * Source edge/plane intersection retained only in private observation
- * extraction.
+ * One registered mesh-plane intersection with a canonical point address and
+ * optional original edge witnesses.
  */
 export interface IAutoMovieMeshPlaneIntersection {
-  /** Physical intersection on a source edge in the declared source frame. */
+  /** Registered Cartesian point of the cut observation, in millimetres. */
   p: AutoMovieVector3Tuple;
 
-  /**
-   * Ordered canonical connectivity labels of the original supporting edge;
-   * representative positions need not reproduce p.
-   */
+  /** First canonical source endpoint address. */
   a: number;
 
-  /**
-   * Larger canonical connectivity label, retained privately without moving the
-   * original supporting edge.
-   */
+  /** Second canonical source endpoint address, equal to a for a source vertex. */
   b: number;
 
-  /**
-   * Fraction along the original supporting source edge, oriented to match the
-   * a/b labels; interpolating canonical representative positions can differ
-   * from p.
-   */
+  /** Dimensionless interpolation from a to b, or zero for a vertex hit. */
   t: number;
 
-  /** Opt-in original emitted-edge aliases; absent on the original default path. */
+  /**
+   * Optional original physical edge occurrences contributing to this canonical
+   * point.
+   */
   sourceEdges?: Array<{
-    /** First original input vertex, not a canonical representative. */
+    /**
+     * First original source vertex address of the emitting intersection
+     * witness.
+     */
     a: number;
 
-    /** Second original input vertex; equality retains an on-plane vertex. */
+    /**
+     * Second original source vertex address of the emitting intersection
+     * witness.
+     */
     b: number;
 
-    /** Dimensionless crossing fraction in this original edge direction. */
+    /** Dimensionless interpolation fraction from this occurrence's a to b. */
     t: number;
 
-    /**
-     * Actual original witness in registered mm, retained independently for
-     * aliases.
-     */
+    /** Registered measured point for this original occurrence, in millimetres. */
     pointMm: AutoMovieVector3Tuple;
   }>;
 }

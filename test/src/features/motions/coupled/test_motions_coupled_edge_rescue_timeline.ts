@@ -14,14 +14,19 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 64 * Number.EPSILON * 8;
 
 /**
- * Prepare a fall, arrest and haul for an authored catch point.
+ * Check the fall, arrest and haul allocated to an edge rescue.
  *
  * Scenarios:
  *
- * 1. A 0.65 m drop reaches the catch after sqrt(1.3/g) seconds. The missed outcome
- *    stops after arrest, while the caught outcome continues to kneel.
- * 2. The grip holds until the haul, then rises and travels behind the lip. At half
- *    time it has covered half the combined straight-line length.
+ * 1. A 0.65 m free drop reaches the catch after sqrt(1.3 / g) s. The missed
+ *    branch ends after arrest and the caught branch continues through haul
+ *    and kneel.
+ * 2. Hold the same grip through arrest and follow the two straight haul
+ *    segments. Mid-haul time covers half the combined length.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases specify both authored outcomes, cue times and the piecewise grip path.
+ * @evidence contracts/development/testing.md#behavioral-verification The timeline function is exercised with explicit grip geometry and both outcome flags.
+ * @evidence contracts/development/testing.md#independent-expectations The ballistic equation determines fall time. The authored hold and haul lengths fix cue offsets and straight-segment distance shares.
  */
 export function test_motions_coupled_edge_rescue_timeline(): void {
   const lip: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

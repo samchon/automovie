@@ -49,6 +49,9 @@ export const createMeshWindingQuery: (
   // Each kept triangle stores its corners and its unnormalized normal, so the
   // query loop reads one flat array and allocates nothing.
   const p: number[] = mesh.positions;
+  for (let i: number = 0; i < p.length; i++)
+    if (!Number.isFinite(p[i]))
+      throw new Error("Mesh winding queries require finite mesh positions.");
   const kept: number[] = [];
   for (let at: number = 0; at < indices.length; at += 3) {
     const a: number = indices[at]! * 3;
@@ -72,7 +75,12 @@ export const createMeshWindingQuery: (
   const triangles: Float64Array = Float64Array.from(kept);
 
   return (point: readonly number[]): IAutoMovieMeshWinding => {
-    if (point.length !== 3)
+    if (
+      point.length !== 3 ||
+      !Number.isFinite(point[0]) ||
+      !Number.isFinite(point[1]) ||
+      !Number.isFinite(point[2])
+    )
       throw new Error("Mesh winding queries require finite XYZ coordinates.");
     const px: number = point[0]!;
     const py: number = point[1]!;
@@ -126,6 +134,8 @@ export const createMeshWindingQuery: (
       angles += 2 * Math.atan2(triple, denominator);
     }
     const winding: number = angles / (4 * Math.PI);
+    if (!Number.isFinite(winding))
+      throw new Error("Mesh winding arithmetic must remain finite.");
     return {
       winding,
       surface,

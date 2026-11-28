@@ -4,6 +4,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisRun,
   IAutoMovieAnalysisSample,
   IAutoMovieAnalysisWarning,
   IAutoMovieValidation,
@@ -11,12 +12,15 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "./predicates";
+import { throwsError } from "./throwsError";
 
 /** Execute the next ordered assertions of test_analysis_run_contract.
  *
  * Scenarios:
  * 1. a field may only be drawn for a metric that produced a value.
  * 2. a warning must say something about something.
+ * 3. Metric building, target admission, sealing and validation refuse nonfinite
+ *    numbers. A finite archive keeps its digest.
  *
  * A sample must name a measured metric, have a distinct id; a warning requires nonblank code/detail and a null or nonblank subject. These authored schema requirements determine the exact type/range paths. The sample-limit case is relative to the published bound and does not independently pin its numeric value.
  * Two valid samples contrast with gapped/unknown metric keys, duplicate ids and one sample beyond the bound. Complete warnings with null/named subjects contrast with each blank field. This part returns the warning sink and metric-builder closure; later parts own builder target semantics and summary results.
@@ -209,5 +213,135 @@ export function assertAnalysisRunContractPart4(
       warnings,
       ...extra,
     });
+
+  const archiveMetric: IAutoMovieAnalysisMetric = {
+    key: "room.workplane",
+    unit: "lux",
+    value: 250,
+    target: null,
+    comparison: null,
+    status: "untargeted",
+    gap: null,
+  };
+  const archiveOutcome: Extract<IAutoMovieAnalysisRun["outcome"], { status: "solved" }> = {
+    status: "solved",
+    metrics: [archiveMetric],
+    samples: [],
+    warnings: [],
+  };
+  const sealInput: Parameters<typeof AutoMovieEngineAnalysis.sealAnalysisRun>[0] = {
+    id: "run",
+    domain: "daylight",
+    subject: "room",
+    inputRevision: "r1",
+    solver: { id: "toy", version: "1", model: "fixed" },
+    settings: "fixture",
+    outcome: archiveOutcome,
+  };
+  const archive: IAutoMovieAnalysisRun =
+    AutoMovieEngineAnalysis.sealAnalysisRun(sealInput);
+  TestValidator.equals(
+    "finite archive digest",
+    archive.digest,
+    "sha256:6d9d8af88e95e5027e8628aaf70f01b114fdc4019df8cf30bda3c53f00c686a1",
+  );
+  const sample: IAutoMovieAnalysisSample = {
+    id: "point",
+    key: archiveMetric.key,
+    position: { x: 0, y: 0, z: 0 },
+    value: 250,
+  };
+
+  for (const value of [NaN, Infinity, Number.NEGATIVE_INFINITY]) {
+    TestValidator.predicate(
+      `metric builder refuses ${value} before an incompatible target can warn`,
+      throwsError(
+        () =>
+          build(value, [
+            {
+              key: "room.reverberationTime",
+              unit: "lux",
+              value: 300,
+              comparison: "at-least",
+            },
+          ]),
+        "value must be finite",
+      ),
+    );
+    TestValidator.predicate(
+      `target admission refuses ${value}`,
+      throwsError(
+        () =>
+          AutoMovieEngineAnalysis.assertAnalysisTargets([
+            {
+              key: archiveMetric.key,
+              unit: archiveMetric.unit,
+              value,
+              comparison: "at-least",
+            },
+          ]),
+        "value must be finite",
+      ),
+    );
+
+    const invalid: [string, typeof archiveOutcome][] = [
+      [
+        "metrics[0].value",
+        { ...archiveOutcome, metrics: [{ ...archiveMetric, value }] },
+      ],
+      [
+        "metrics[0].target",
+        {
+          ...archiveOutcome,
+          metrics: [
+            {
+              ...archiveMetric,
+              target: value,
+              comparison: "at-most",
+              status: "meets",
+            },
+          ],
+        },
+      ],
+      [
+        "samples[0].value",
+        { ...archiveOutcome, samples: [{ ...sample, value }] },
+      ],
+    ];
+    for (const axis of ["x", "y", "z"] as const)
+      invalid.push([
+        `samples[0].position.${axis}`,
+        {
+          ...archiveOutcome,
+          samples: [{ ...sample, position: { ...sample.position, [axis]: value } }],
+        },
+      ]);
+    for (const [field, outcome] of invalid) {
+      const path: string = `$input.outcome.${field}`;
+      const candidate: IAutoMovieAnalysisRun = { ...archive, outcome };
+      const report: IAutoMovieValidation =
+        AutoMovieEngineAnalysis.validateAnalysisRun({
+          run: {
+            ...candidate,
+            digest: AutoMovieEngineAnalysis.analysisRunDigest(candidate),
+          },
+        });
+      TestValidator.equals(
+        `validation locates ${value} at ${field}`,
+        report.success
+          ? []
+          : report.violations.map((item) => [item.kind, item.path]),
+        [["range", path]],
+      );
+      TestValidator.predicate(
+        `sealing refuses ${value} at ${field}`,
+        throwsError(
+          () => AutoMovieEngineAnalysis.sealAnalysisRun({ ...sealInput, outcome }),
+          path,
+        ),
+      );
+    }
+  }
+  TestValidator.equals("refused values produce no target warnings", warnings.length, 0);
   return { warnings, build };
 }

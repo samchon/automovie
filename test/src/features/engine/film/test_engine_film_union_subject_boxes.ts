@@ -14,6 +14,10 @@ import { TestValidator } from "@nestia/e2e";
  *    (-5,-2,2)-(1,9,7); the first box is unchanged.
  * 4. 300000 unit boxes at x = 0, 1, 2, ... give (0,0,0)-(300000,1,1), past the
  *    argument limit of a spread `Math.min`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios state the empty result, detached single box, mixed per-axis extremes and a large input with known outer bounds.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls unionSubjectBoxes with explicit empty, single, mixed and 300,000-entry cases and compares resulting boxes and original input.
+ * @evidence contracts/development/testing.md#independent-expectations Taking each authored axis minimum and maximum gives mixed corners (-5, -2, 2) and (1, 9, 7). The sequence of unit boxes from x = 0 through x = 299999 gives the exact outer x edge 300000 without requiring an argument per box.
  */
 export function test_engine_film_union_subject_boxes(): void {
   TestValidator.equals("empty", AutoMovieEngineFilm.unionSubjectBoxes([]), null);

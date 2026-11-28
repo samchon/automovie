@@ -1,3 +1,4 @@
+import { decomposeFiniteBinary64 } from "./decomposeFiniteBinary64";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
 /*
@@ -12,6 +13,9 @@ import { overflowsBinary64 } from "./overflowsBinary64";
 export function determinantMatrix3(matrix: readonly number[]): number {
   if (matrix.length !== 9)
     throw new Error("A complete row-major 3 by 3 matrix is required");
+  for (const component of matrix)
+    if (!Number.isFinite(component))
+      throw new RangeError("Matrix determinant entries must be finite");
   let value: number = 0,
     permanent: number = 0;
   const minimumNormal: number = 2 ** -1022;
@@ -40,21 +44,6 @@ export function determinantMatrix3(matrix: readonly number[]): number {
     Math.abs(value) > 64 * Number.EPSILON * permanent
   )
     return value;
-  const view: DataView = new DataView(new ArrayBuffer(8));
-  const parts: (value: number) => { integer: bigint; exponent: number } = (
-    value: number,
-  ): { integer: bigint; exponent: number } => {
-    view.setFloat64(0, value, false);
-    const bits: bigint = view.getBigUint64(0, false);
-    const exponent: number = Number((bits >> 52n) & 2047n);
-    const fraction: bigint = bits & ((1n << 52n) - 1n);
-    return {
-      integer:
-        (bits >> 63n ? -1n : 1n) *
-        (exponent ? fraction + (1n << 52n) : fraction),
-      exponent: exponent ? exponent - 1075 : -1074,
-    };
-  };
   const exact: { integer: bigint; exponent: number }[] = [];
   for (const indices of PRODUCTS) {
     // A zero factor makes this exact product zero, even if another product
@@ -65,11 +54,12 @@ export function determinantMatrix3(matrix: readonly number[]): number {
       matrix[indices[2]] === 0
     )
       continue;
-    const a: { integer: bigint; exponent: number } = parts(matrix[indices[0]]);
-    const b: { integer: bigint; exponent: number } = parts(matrix[indices[1]]);
-    const c: { integer: bigint; exponent: number } = parts(matrix[indices[2]]);
+    const a = decomposeFiniteBinary64(matrix[indices[0]]);
+    const b = decomposeFiniteBinary64(matrix[indices[1]]);
+    const c = decomposeFiniteBinary64(matrix[indices[2]]);
     exact.push({
-      integer: BigInt(indices[3]) * a.integer * b.integer * c.integer,
+      integer:
+        BigInt(indices[3]) * a.significand * b.significand * c.significand,
       exponent: a.exponent + b.exponent + c.exponent,
     });
   }

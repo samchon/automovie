@@ -206,6 +206,10 @@ namespace part_climb_ladder_contacts {
  * - `climb_ladder_beats`: `climbLadderBeats` schedules a rung-ladder climb:
  * - `climb_ladder_contacts`: `climbLadderContacts` plants each limb on a ladder
  *   between its moves:
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines climb timing, rung support windows, mounted access and finite rung frame placement.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises recorded ladder beats, limb support tables and posed rung and access geometry on a shared authored fixture.
+ * @evidence contracts/development/testing.md#independent-expectations A 0.92 m rung center plus 0.02 m radius puts the crown at 0.94 m. A 0.28 m rung clamps reach at 0.14 m and shuffled reads retain its 30° frame.
  */
 export async function test_motions_climbing_climb_ladder(): Promise<void> {
   part_climb_ladder_beats.verify();

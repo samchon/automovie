@@ -35,9 +35,7 @@ import { throwsError } from "../internal/throwsError";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the exported meter and EV100 function on explicit lights and reads totals, per-light contributions and unmetered entries; a wrong cosine sign, a missing range window, a cone measured from the wrong axis, an ignored colour or a dropped image entry changes a value.
  * @evidence contracts/development/testing.md#independent-expectations Values are the issue's hand computations from the cosine law, the inverse square law, the renderer's documented range window and the ISO 2720 meter equation; the luma weights are Rec. 709's.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers each punctual kind inside and outside its reach, a coloured light, a back-facing light, both environment states and the refused inputs. The area panel belongs to test_engine_meter_area_panel and daylight to test_engine_meter_daylight.
- * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test discovered by its export name; no GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios with inputs and expected lux.
+ * @evidence contracts/development/common.md#meaningful-documentation Directional, point and spot sources exercise angle, range and cone rules. Luma, an unmetered environment image and EV100 conversion provide independent output cases.
  */
 export function test_engine_meter_illuminance(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

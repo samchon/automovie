@@ -28,6 +28,10 @@ import { ConstructionSplitFan as F } from "../../internal/construction/Construct
  *    for the band on the side x grows and (-1, 0, 0) for the other, within
  *    1e-9.
  * 4. Without its further seam the same tree has two bands, not three.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names host arcs, the two shared chords, their oriented departures and the two-band control.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes both seam populations and classifies each emitted band origin or derivative relative to the host chart.
+ * @evidence contracts/development/testing.md#independent-expectations The known end circle and fixed x = ±8 chords define every start point. The neighbouring bands depart on opposite x directions. A single seam partitions two loops.
  */
 export function test_engine_geometry_split_fan_loops(): void {
   const n: number = F.COLUMNS;

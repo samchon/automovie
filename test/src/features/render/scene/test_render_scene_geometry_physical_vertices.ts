@@ -31,6 +31,10 @@ function geometry(): BufferGeometry {
  * 2. Interleaved imported records ignore the neighbouring attribute. Word pair (1,
  *    0) denotes source 0, pair (0, 0) denotes a legacy vertex.
  * 3. The imported storage refuses writes and an orphan accessor refuses reads.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify the ownership checks, imported interleaved record layout, and refused accessor operations.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks that generated data detaches from input and read results, interleaved incidence reads its own fields, and writes to imported storage and orphan reads are refused.
+ * @evidence contracts/development/testing.md#independent-expectations Uses literal source rows and references, then checks the hand-written `(1, 0)` and `(0, 0)` pairs as source 0 and legacy absence.
  */
 export function test_render_scene_geometry_physical_vertices(): void {
   const generated: BufferGeometry = geometry();

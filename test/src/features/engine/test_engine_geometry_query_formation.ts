@@ -48,9 +48,7 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Materializes the actual compiled formation and queries representative ground contacts, bounds/centroid, identity motion, route clearance, analytic LOD/hero visibility and correction-bearing participation/time/camera/frame-format refusals.
  * @evidence contracts/development/testing.md#independent-expectations The authored ramp law, two-by-three layout, literal slots 0/2/5, route width and camera positions supply independent geometry/count expectations. The compiled digest comparison observes propagation, while visibility is the maintained CPU frustum/LOD classification rather than native rendered pixels or exhaustive member contact.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts grounded/raised/nonwalkable/removed representative members, front/back cameras, missing routes/world/banner, a selected second shot and performed hero, plus missing/inconsistent materialization and invalid query contexts. Former exact floating fields use zero tolerance and existing derived tolerances remain unchanged.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous entry owns caller-local formation runtimes, maps and query callbacks through the existing canonical fixtures; it opens no file, render host, browser or GPU and does not mutate installed consumers or replace foreign methods.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The unit staged on its ground compiles its rear rank at 6.5 m and reports no).
+ * @evidence contracts/development/common.md#meaningful-documentation Grounded and raised units exercise support findings and compiled extents. Route and world absence have distinct results, and unresolved formations or shots refuse.
  */
 export function test_engine_geometry_query_formation(): void {
   const grounded: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledFormation> =

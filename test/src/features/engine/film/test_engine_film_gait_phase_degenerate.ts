@@ -83,6 +83,10 @@ const phaseOf: (
  * 1. Preserve an in-range phase at zero and one whole period.
  * 2. Wrap the authored .7+.5 time over period .8 to .4.
  * 3. Return null for a zero or negative period.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify phase retention, wrapping of the supplied offset and null result for nonpositive periods.
+ * @evidence contracts/development/testing.md#behavioral-verification The test resolves actual beat-end samples for authored cycles with zero, full-period and shifted elapsed times and for invalid period values.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied carried phase returns after exactly one period. The literal elapsed sum 0.7 + 0.5 modulo 0.8 is 0.4. A path with zero or negative period has no valid phase interval.
  */
 export function test_engine_film_gait_phase_degenerate(): void {
   TestValidator.predicate(

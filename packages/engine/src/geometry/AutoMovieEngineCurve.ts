@@ -55,36 +55,54 @@ export namespace AutoMovieEngineCurve {
   }
 
   /**
-   * Reject malformed coefficient fields before evaluation or publication.
-   * Successful admission establishes finite dense represented data and a
-   * resolvable phase partition; it does not prove regularity, continuity,
-   * nonintersection or visibility.
+   * Admit a complete millimetre curve and its declared phase chart.
    *
-   * @param curve Complete caller-owned primitive; positions are millimetres.
-   * @throws Error when representation, finiteness, phase partition or supported
-   *   denominator conditions fail.
+   * Polynomial and rational Bernstein pieces have whole degrees and dense
+   * finite coefficient arrays. Rational weights are positive and finite.
+   * An optional control cache must agree with the finite represented
+   * numerator-to-denominator quotients. Piece phase widths increase the
+   * cumulative phase at each step. An analytic oval uses orthonormal axes
+   * and positive radii over one turn.
+   *
+   * @param curve The caller's generating coefficients and phase units.
+   * @throws Error when the representation fails admission.
    */
   export function assertCurve64(curve: IAutoMovieCurvePrimitive64): void {
     assertCurve64Implementation(curve);
   }
 
   /**
-   * Admit a named closed cubic section and its complete longitudinal
-   * first-variation control field. Section phase widths must sum exactly to one
-   * turn; fullJ is measured per longitudinal millimetre.
+   * Check a named cubic boundary and its longitudinal derivative field.
    *
-   * @param boundary Section positions in millimetres and matching mm-per-mm
-   *   first-variation controls.
-   * @throws Error on any missing coefficient, identity, topology or physical-unit
-   *   mismatch.
+   * The closed section's name equals the boundary ID, and its phase widths sum
+   * exactly to one turn. Positions use millimetres, and fullJ holds one
+   * four-control derivative span per section span in millimetres per
+   * longitudinal millimetre. Axis and derivative vectors must contain three
+   * finite components.
    */
   export function assertCurveBoundary64(boundary: IAutoMovieCurveBoundary64): void {
     assertCurveBoundary64Implementation(boundary);
   }
 
   /**
-   * Admit canonical atlas coefficients and plan adaptive leaves under the
-   * original shared cell budget.
+   * Plan bicubic atlas leaves within a shared cell budget.
+   *
+   * The estimate uses millimetre coefficients on a unit parameter cell.
+   * Unrepresentable estimates omit the affected cell with a diagnostic.
+   * The default budget policy omits unresolved cells. An explicit coarse
+   * policy can retain finite leaves that exceed tolerance.
+   *
+   * @param input Canonical atlas and finite positive tolerance. Cell and chunk
+   * limits are safe integers with minima of one and three, respectively.
+   * The first vertex index is a nonnegative safe integer and defaults to zero.
+   * Patch and authority coefficient IDs are safe in-range registry indices.
+   * Supply Boolean retention flags when requesting optional output buffers.
+   * @param SIDES Control slots for each oriented patch side.
+   * @param CORNERS Unit chart coordinates and control slot for each corner.
+   * @returns Prepared boundary data and retained plans with diagnostics.
+   * @throws Error for malformed global policy, registry addresses or boundary
+   * declarations. A nonfinite arithmetic estimate leaves an empty local
+   * plan with its diagnostic.
    */
   export function bicubicAtlasPlan64(input: IAutoMovieBicubicAtlasTessellation64.Input, SIDES: readonly (readonly number[])[], CORNERS: readonly (readonly [number, number, number])[]): IAutoMovieBicubicAtlasPlan64.IResult {
     return bicubicAtlasPlan64Implementation(input, SIDES, CORNERS);
@@ -127,32 +145,36 @@ export namespace AutoMovieEngineCurve {
   }
 
   /**
-   * Evaluate an admitted Bernstein piece at local t in [0,1], returning position
-   * in millimetres and its derivative per local t. De Casteljau evaluation
-   * preserves the supplied degree; rational coordinates use the quotient rule and
-   * hybrid Y uses its independent polynomial degree.
+   * Evaluate one Bernstein piece and its local derivative at t in [0,1].
    *
-   * @param piece Complete actual coefficient field; enclosing primitive admission
-   *   supplies dense-array guarantees.
-   * @param t Normalized local parameter, including both endpoints.
-   * @throws Error for inconsistent degree, domain or cache, nonpositive
-   *   denominator or unresolved underflow.
+   * The normalized parameter is finite and includes both endpoints.
+   * Position is in millimetres and the derivative is per unit local t.
+   * Polynomial and rational fields retain their declared degrees.
+   * A hybrid piece uses its separate polynomial degree on Y.
+   *
+   * @param piece Complete generating coefficients with finite controls and
+   *   positive finite weights for rational pieces.
+   * @param t Finite local parameter, including 0 and 1.
+   * @returns Owned position and local derivative triples.
+   * @throws Error for invalid coefficients or domain, inconsistent cache or
+   *   unrepresentable result arithmetic.
    */
   export function evaluateBernstein64(piece: IAutoMovieBernsteinCurvePiece64, t: number): IAutoMovieEvaluateBernstein64.IResult {
     return evaluateBernstein64Implementation(piece, t);
   }
 
   /**
-   * Evaluate a millimetre primitive in its declared phase chart. Piecewise
-   * derivatives are divided by the selected positive phase width; analytic oval
-   * derivatives are per turn. Interior seams choose the following piece, and the
-   * final endpoint chooses the final piece at local t=1.
+   * Evaluate a millimetre curve and its tangent in the declared phase chart.
    *
-   * @param curve Complete generating coefficients and their physical phase chart.
-   * @param parameter Value from 0 through the sum of phase widths, or through 1
-   *   turn for an oval.
-   * @throws Error when admission, domain selection or represented arithmetic is
-   *   unresolved.
+   * A finite nonnegative phase lies within the summed piece widths, or one
+   * turn for an analytic oval. Interior seams select the following piece.
+   * The final endpoint selects local 1 of the last piece. The tangent is
+   * millimetres per declared parameter unit.
+   *
+   * @param curve Complete curve coefficients and phase chart.
+   * @param parameter Finite phase on the curve's closed parameter interval.
+   * @returns Curve point and phase derivative.
+   * @throws Error for invalid input or unrepresentable point or tangent.
    */
   export function evaluateCurve64(curve: IAutoMovieCurvePrimitive64, parameter: number): IAutoMovieEvaluateCurve64.IResult {
     return evaluateCurve64Implementation(curve, parameter);
@@ -231,19 +253,20 @@ export namespace AutoMovieEngineCurve {
   }
 
   /**
-   * Generate a planar convex curve from a finite Fourier support function. For
-   * the outward normal n=(cos(theta),sin(theta)) and tangent t=(-sin,cos),
-   * X=h*n+h'*t and X'=(h+h'')*t. The support integral is the convex perimeter,
-   * not the arclength of a nonconvex source outline. See Antunes and Bogosel,
-   * https://arxiv.org/abs/1809.00254 . Coefficients and positions use
-   * millimetres.
+   * Approximate a convex Fourier support function as a closed X/Z Bézier curve.
    *
-   * The returned polynomial Hermite curve approximates that analytic equation.
-   * Its fourth-derivative remainder and positive-radius lower estimate are
-   * numerical evaluations of analytic inequalities, not outward-rounded binary64
-   * certificates. The polynomial's own perimeter is not silently equated to the
-   * support integral. Refusal concerns this representation, not the source
-   * object.
+   * Supply one through seventeen finite harmonic pairs in millimetres.
+   * The zeroth has positive cosine and zero sine. The common angular
+   * partition is a power of two from 4 through 4096, with phase in turns.
+   * The curve position is h times the outward normal plus h' times the
+   * tangent. Its sampled radius estimate must resolve positive h + h''.
+   *
+   * The analytic perimeter integrates the support function in millimetres.
+   * The radius and Hermite remainder are finite numerical estimates of
+   * analytic bounds. They qualify the chosen polynomial representation.
+   *
+   * @throws Error for invalid harmonics or partition size, unresolved
+   *   positive curvature radius or nonfinite qualifications and controls.
    */
   export function generateSupportCurve64(props: IAutoMovieGenerateSupportCurve64.IProps): IAutoMovieGenerateSupportCurve64.IResult {
     return generateSupportCurve64Implementation(props);
@@ -255,41 +278,38 @@ export namespace AutoMovieEngineCurve {
   }
 
   /**
-   * Integrate a cubic curve's physical speed with composite eight-point
-   * Gauss-Legendre quadrature. Controls use millimetres, so the returned length
-   * uses millimetres independently of the curve's phase unit or piece widths.
-   * Doubling the subdivisions supplies an observed difference, not an error
-   * bound. The original interior-only finite-final policy remains: endpoint-only
-   * speed overflow and underflowed contributions do not add admission failures
-   * here.
+   * Estimate the millimetre length of an admitted cubic curve.
+   *
+   * Use a whole panel count from 1 to 1024, with one by default. Integrate each
+   * span's local speed at eight interior Gauss–Legendre nodes per panel and
+   * repeat at twice the panel count. Return the finer length and the absolute
+   * difference of the two estimates. The comparison is a sampling diagnostic.
+   * Only interior nodes contribute to this cubic measurement. Nonfinite
+   * integrated length raises an error.
    */
   export function measureCubicCurveLength64(curve: IAutoMovieCubicBezierCurve64, subdivisions?: number): IAutoMovieCurveLengthMeasurement64 {
     return measureCubicCurveLength64Implementation(curve, subdivisions);
   }
 
   /**
-   * Measure original three-dimensional source derivatives by composite
-   * eight-point Gauss-Legendre quadrature, retaining each piece's parameter and
-   * millimetres. The derivative is dP/dparameter in mm per parameter unit; its
-   * domain supplies that parameter unit, so their product is mm. Pieces need not
-   * share a chart. Callbacks are pure and finite on their closed domains,
-   * including endpoints. The caller owns the original source, partition,
-   * world-frame chain rule and any continuity, closure or anatomical
-   * interpretation. Singular/improper endpoint derivatives are unsupported;
-   * finite zero speed is permitted.
+   * Measure curve length from the original world derivatives in millimetres.
    *
-   * The finer K*2 result and its absolute difference from K are observations, not
-   * an error bound or automatic convergence/regularity certificate. Narrow
-   * features can escape both rules, and errors of different pieces can cancel.
-   * This uses the existing cubic-length rule (NIST DLMF 3.5(v)); finite inputs
-   * also require representable widths, quadrature nodes and intermediate sums.
+   * Supply one or more finite increasing parameter charts, each with a
+   * representable width and a pure derivative yielding three finite
+   * coordinates. Each derivative uses millimetres per chart unit. The
+   * operation reads both endpoints, then the interior quadrature nodes.
+   * Zero speed is valid.
    *
-   * @param pieces Original derivative readers and finite increasing domains,
-   *   nonempty.
-   * @param subdivisions Equal panels per piece, an integer in [1,1024].
-   * @returns Finer length and the absolute coarse/fine difference, both mm.
-   * @throws Invalid data, nonfinite/underflowing arithmetic or collapsed nodes;
-   *   callback exceptions propagate unchanged.
+   * The panel count is a whole number from 1 through 1024, default 1.
+   * The eight-point Gauss-Legendre rule returns the finer estimate and the
+   * absolute difference from the coarser estimate. The caller owns any
+   * convergence criterion.
+   *
+   * @param pieces Original derivative readers with finite closed domains.
+   * @param subdivisions Panels per piece in the coarse estimate.
+   * @returns Finite finer length and observed difference, in millimetres.
+   * @throws Error for invalid charts or unresolved arithmetic. A derivative
+   *   callback's exception propagates unchanged.
    */
   export function measureCurveLength64(pieces: IAutoMovieMeasureCurveLength64.IPieces, subdivisions?: number): IAutoMovieCurveLengthMeasurement64 {
     return measureCurveLength64Implementation(pieces, subdivisions);
@@ -325,7 +345,20 @@ export namespace AutoMovieEngineCurve {
     return planContourWalks64Implementation<R>(owner, identity, inserted);
   }
 
-  /** Prepare bounded adaptive leaves for one immutable physical Hermite run. */
+  /**
+   * Prepare a physical-station Hermite field and its bounded interval planner.
+   *
+   * The field borrows the supplied millimetre courses. Keep them unchanged
+   * while reading or planning. A plan computes one interval on demand. An
+   * unrepresentable derivative estimate or exhausted cell budget explains
+   * why the interval has no retained leaves.
+   *
+   * @param input Named station run with finite positive tolerance, a positive
+   * safe integer cell cap and a safe integer chunk cap of at least three.
+   * The first vertex index is a nonnegative safe integer and defaults to zero.
+   * @returns The prepared field and its interval planner.
+   * @throws Error for inadmissible input or unsupported work limits.
+   */
   export function planLocalHermite64(input: IAutoMovieLocalHermiteStream64.Input): IAutoMoviePlanLocalHermite64.IResult {
     return planLocalHermite64Implementation(input);
   }
@@ -339,8 +372,10 @@ export namespace AutoMovieEngineCurve {
    * assignments omit only incident patches. Exact positions validate existing
    * relations and never create identities. Equal restricted nets with different
    * named intervals retain their finite fields; inter-authority tessellation
-   * sharing remains an explicit unqualified relation. Inputs must remain
-   * immutable until the returned closures are released.
+   * sharing remains an explicit unqualified relation. Authority control IDs
+   * are safe integer registry addresses, and the endpoints of each binding are
+   * distinct finite values in [0, 1]. Keep inputs immutable while using the
+   * returned closures.
    */
   export function prepareBicubicAtlasBoundary64(input: IAutoMovieBicubicAtlasTessellation64.Input, sides: readonly (readonly number[])[]): IAutoMoviePrepareBicubicAtlasBoundary64.IResult {
     return prepareBicubicAtlasBoundary64Implementation(input, sides);
@@ -436,29 +471,42 @@ export namespace AutoMovieEngineCurve {
   }
 
   /**
-   * Generate an indexed surface from saved physical polygon identities and P/Q
-   * paths. P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
-   * and increasing Y stations give outward winding on an ordinary exterior slab.
-   * This operation validates the path, not its optimization or geometric
-   * embedding. Finite positive-area faces survive incidence warnings; collapsed
-   * faces are counted.
+   * Build an indexed strip from saved contour rings and their declared walks.
+   *
+   * Each ring lies at a finite Y station in world millimetres and has positive
+   * projected XZ winding. Each pair advances both rings once with P and Q steps
+   * from in-range safe integer vertex ordinals and increasing stations. P
+   * emits (P_i,Q_j,P_next) and Q emits (Q_next,P_i,Q_j). An ordinary exterior
+   * slab winds outward with these orders.
+   *
+   * Mesh positions and closed construction rings are in metres. Each retained
+   * face has a finite positive area in square millimetres. The pair counts
+   * omitted faces and reports retained area and its absolute discrepancy from
+   * the finite nonnegative optimizer objective. Incidence warnings preserve
+   * retained faces. Unresolved vertex normals are zero with a diagnostic.
+   * The diagnostics qualify path arithmetic and incidence. The caller owns
+   * optimizer correctness, source fidelity and geometric embedding.
+   *
+   * @throws Error for invalid rings or walks, or if a pair's retained areas
+   *   cannot be summed to a finite value.
    */
-  export function tessellateContourPath64(input: IAutoMovieTessellateContourPath64.IInput): IAutoMovieTessellateContourPath64.IResult {
+  export function tessellateContourPath64(
+    input: IAutoMovieTessellateContourPath64.IInput,
+  ): IAutoMovieTessellateContourPath64.IResult {
     return tessellateContourPath64Implementation(input);
   }
 
   /**
-   * Finds a fixed-seam periodic tiling and reports sheet qualification separately
-   * from displayable geometry. The first seam lies on its exterior; the other
-   * starts at its nearest existing knot. This discrete dynamic-program optimum
-   * does not certify a global cyclic optimum or injectivity. Each walk may
-   * contain an explicitly doubled branch slit with distinct sheet ownership. If
-   * no qualified path exists, its finite positive-area candidate remains
-   * displayable with an unqualified observation. A zero-length slit retains
-   * distinct sheet identities; only its zero-area tiles are omitted, with
-   * explicit partial-output diagnostics. The optional observer receives input
-   * sizes, search work, qualification and diagnostics; elapsed time is measured
-   * only when requested.
+   * Emit a periodic triangle strip between two area-spanning walks.
+   *
+   * Choose the first seam on its exterior and the second at its nearest
+   * existing knot. Among fixed-seam candidates the search minimizes total
+   * triangle area. Separate identities can distinguish the two sides of a
+   * doubled branch slit. The observer reports sheet qualification independently
+   * from emitted geometry. If no candidate qualifies, finite positive-area
+   * tiles can remain available with diagnostics. Supply work observation to
+   * measure elapsed time. Slit identities remain separate even when their
+   * points coincide.
    */
   export function tessellateContourStrip64(rawA: AutoMovieVector3Tuple[], rawB: AutoMovieVector3Tuple[], emit: (
     a: AutoMovieVector3Tuple,
@@ -469,23 +517,21 @@ export namespace AutoMovieEngineCurve {
   }
 
   /**
-   * Sample finite parametric charts with declared boundary incidence. Fields and
-   * first partials use millimetres; output positions use metres. The four sides
-   * are bottom/right/top/left, each in its increasing local coordinate. Exact
-   * canonical phase requests are unioned across every incident restriction before
-   * emission. Extra exterior samples enter the containing cell's parameter
-   * polygon. Boundary owners supply positions; all conflicting incident charts
-   * are omitted before emission, while distinct chart normal fans remain
-   * separate. Callbacks and their input coefficients must remain immutable for
-   * the call's lifetime. This fixed lattice has no field-to-triangle error or
-   * G1/immersion certificate. A nonlinear restriction declares both parameterize
-   * and localize. Their values are checked on the finite schedule, not certified
-   * over the continuous domain. Original local addresses are retained for a
-   * restriction's own requests, so an approximate numerical inverse cannot
-   * replace an exact authored lattice point. A zero chart cross product may carry
-   * an authored analytic normalLimit. Its use is counted separately and does not
-   * remove the singular parameter sample or certify that the caller derived a
-   * unique continuous surface normal.
+   * Tessellate a fixed parametric atlas using shared canonical boundary
+   * samples.
+   *
+   * Supply integer lattice counts in [1, 128], finite chart positions and first
+   * partials in millimetres, and four directed edges in bottom, right, top and
+   * left order. Output positions use metres. Nonlinear restrictions supply
+   * paired parameterize and localize callbacks. Chart requests keep their exact
+   * phase keys and original local addresses.
+   *
+   * A callback failure omits its chart and releases its partial output and
+   * vertex budget. Boundary planning discards requests supplied only by failed
+   * charts. A conflict between finite boundary points omits the incident
+   * charts. Shared positions can carry separate chart normal fans. An authored
+   * finite limiting normal can resolve a zero cross product and is counted
+   * separately. Keep chart and boundary owners immutable during the call.
    */
   export function tessellateParametricAtlas64(props: IAutoMovieTessellateParametricAtlas64.IProps): IAutoMovieTessellateParametricAtlas64.IResult {
     return tessellateParametricAtlas64Implementation(props);
@@ -566,7 +612,8 @@ export namespace AutoMovieEngineCurve {
    * Equivalent nets under different authoritative intervals retain finite
    * geometry with an explicit inter-authority polygon-conformity limitation.
    * Exact zero or nonfinite normals remain zero with counts; finite positive-area
-   * geometry survives normal qualifications.
+   * geometry survives normal qualifications. Malformed global policy, retention
+   * flags or coefficient registry addresses throw before the first chunk.
    */
   export function* tessellateBicubicAtlas64(
     input: IAutoMovieBicubicAtlasTessellation64.Input,

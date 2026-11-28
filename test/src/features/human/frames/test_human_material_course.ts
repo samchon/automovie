@@ -27,9 +27,7 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production `create` and `map` and reads the frames and jets the returned course gives.
  * @evidence contracts/development/testing.md#independent-expectations Positions are the made courses' closed forms at the run ends; derivatives are the chain rule written out on a line and on a circle, whose own derivatives are known in closed form.
- * @evidence contracts/development/testing.md#distinguishing-cases A course that forgot the map's slope fails 1; one that dropped the `F' m''` term fails inside the window and passes outside it; one that mapped the chart directions but not their derivatives fails 2; an identity that rebuilt the course fails 3.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made courses, no person, reference, loft or realization.
- * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios name each made course, the map and the expected value.
+ * @evidence contracts/development/common.md#meaningful-documentation Straight and circular material maps check position and both jets, followed by identity, missing-jet and jointed-run endpoint controls.
  */
 export function test_human_material_course(): void {
   const failures: string[] = [];

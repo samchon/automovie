@@ -43,8 +43,8 @@ import { AutoMovieEngineConstructionViews } from "../../AutoMovieEngineConstruct
  * by chain in the realization's order: sections in layer order, guides 0 to 3,
  * then the axis.
  *
- * It throws a named `Error` for `phases` that is not a whole number of at least
- * 8 that four divides, for `steps` that is not a positive whole number, for a
+ * It throws an `Error` unless `phases` is a safe integer of at least 8 that
+ * four divides and `steps` is a positive safe integer. It also throws for a
  * chain with no surface of its name, and for a chain whose owned range is not
  * finite and ordered. An error thrown by the surface itself propagates.
  * Parameter realization: The chains, their surfaces and the diagnostics of one
@@ -72,13 +72,13 @@ export function sampleConstructionCurves(
   const steps: number = options?.steps ?? 8;
 
   // Four must divide the phase count so that every quarter phase is one of the ring's own samples.
-  if (!(phases >= 8 && phases % 4 === 0))
+  if (!(Number.isSafeInteger(phases) && phases >= 8 && phases % 4 === 0))
     throw new Error(
-      `sampleAutoMovieConstructionCurves: phases ${phases} is not a whole number of at least 8 that four divides`,
+      `sampleAutoMovieConstructionCurves: phases ${phases} is not a safe integer of at least 8 that four divides`,
     );
-  if (!(steps >= 1))
+  if (!Number.isSafeInteger(steps) || steps < 1)
     throw new Error(
-      `sampleAutoMovieConstructionCurves: steps ${steps} is not a positive whole number`,
+      `sampleAutoMovieConstructionCurves: steps ${steps} is not a positive safe integer`,
     );
 
   /*

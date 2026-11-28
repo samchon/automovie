@@ -19,6 +19,10 @@ import { InspectionScene } from "../../internal/InspectionScene";
  * 4. With `hero` made invisible, the mark is not drawn.
  * 5. With `parts` naming only the mark's path, the mark is drawn although its
  *    anchor is not selected and is taken off every layer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names selection of a mark separately from the visibility, request-hidden state and selection of its anchor.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs typed inspection requests with a contact mark anchored to one of two quads. Reads the drawn marks and selected paths with no hide, a hidden anchor, a hidden sibling, an invisible anchor and a mark-only selection.
+ * @evidence contracts/development/testing.md#independent-expectations The contact's own path does not share the anchor prefix. Hiding or disabling the anchor still suppresses it. Hiding the sibling keeps it visible, and naming the mark alone draws it even while the anchor is outside the selected surface layers.
  */
 export function test_render_scene_apply_inspection_mark_anchor_hidden(): void {
   const hero: THREE.Mesh = InspectionScene.quad("hero");

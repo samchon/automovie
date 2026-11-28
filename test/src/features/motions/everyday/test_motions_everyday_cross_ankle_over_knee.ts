@@ -14,7 +14,13 @@ import { strict as assert } from "node:assert";
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../internal/motionActionContext";
 
-/** An ankle crossing starts on a stationary chair with two grounded soles. */
+/**
+ * An ankle crossing starts on a stationary chair with two grounded soles.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Crossing an ankle over a knee requires a stationary chair and two grounded soles.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the crossing admission owner with the same stock body in a seated entry and a standing entry.
+ * @evidence contracts/development/testing.md#independent-expectations The seated entry must return its two explicit ground contacts. A standing entry must refuse on the base axis.
+ */
 export async function test_motions_everyday_cross_ankle_over_knee(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const standing: IAutoMovieMotionHumanActionContext = motionActionContext(body, {});

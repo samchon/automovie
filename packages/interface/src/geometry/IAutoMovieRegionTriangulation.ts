@@ -2,45 +2,44 @@ import type { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import type { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
 
 /**
- * A free-form planar region resolved into counter-clockwise triangles, as
- * `AutoMovieEnginePlanarRegion.triangulate` returns it.
- *
- * Canonical coordinates and topology are accompanied by their original input
- * identities, so callers can retain attached data without a coordinate lookup.
- * The triangulator returns newly owned arrays and copies every input point. Ear
- * clipping keeps every canonical point; a hole bridge repeats two indices in
- * `triangles` but adds no point.
+ * Canonical planar points, ring spans and counterclockwise triangles, with
+ * source correspondence and enclosed area.
  */
 export interface IAutoMovieRegionTriangulation {
   /**
-   * Every ring's points in one list, canonically wound: the outer ring
-   * counter-clockwise first, then each hole clockwise in declared order.
+   * Owned copy of all ring coordinates in local XY metres. The counterclockwise
+   * outer ring comes first, followed by clockwise holes in input order.
+   *
+   * Hole bridging reuses canonical corner indices and allocates no extra points
+   * in this list.
    */
   points: IAutoMovieProfilePoint[];
 
   /**
-   * Original input index for each canonical point. Flatten the authored outer
-   * ring followed by holes in their supplied order, keeping each original ring
-   * order. `sourceIndices[k]` addresses that flattened input for `points[k]`.
-   * This is an integer permutation, not a distance or a triangle index. No
-   * vertex is added or merged by winding normalization. It permits attachment
-   * IDs, exact coordinates in another unit and other attributes to follow the
-   * same permutation without reconstructing identity from floating-point XY.
+   * Source vertex permutation into the authored flattened rings. Each entry
+   * aligns with its canonical point, including when its ring was reversed.
+   *
+   * Flatten the authored outer ring followed by the authored holes, preserving
+   * each ring's supplied point order. Correspondence supports copying
+   * per-vertex data such as IDs or exact measurements from those records.
    */
   sourceIndices: number[];
 
-  /** Where each ring sits in {@link points}; `rings[0]` is the outer ring. */
+  /**
+   * Contiguous spans into canonical points, outer first and holes in declared
+   * order.
+   */
   rings: IAutoMovieRegionRing[];
 
   /**
-   * Corner indices into {@link points}, three per counter-clockwise triangle, so
-   * the region faces +Z.
+   * Zero-based canonical point ordinals in groups of three. Each emitted
+   * triangle winds counterclockwise and faces local +Z.
    */
   triangles: number[];
 
   /**
-   * Enclosed area in square metres: the outer ring less every hole, always
-   * positive for an admitted region.
+   * Canonical signed area sum in square metres, adding the outer ring and
+   * subtracting every hole. Use finite authored region coordinates.
    */
   area: number;
 }

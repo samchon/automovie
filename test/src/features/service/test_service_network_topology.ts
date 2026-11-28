@@ -55,12 +55,11 @@ import {
  * 9. Structural and declared boundary-face checks are supported, while missing
  *    faces and each discipline's unsolved performance remain unsupported;
  *    removing every space volume withdraws placement and crossing support.
+ *    The clash explanation specifies the entire shared-endpoint exemption.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Validates the existing building/network/wet zones, walks design and operating reach and reads schematic/support output; catches reversed drainage, ignored device isolation, incorrect plan totals and invented support for absent geometry or performance solvers.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates the building, service graph and wet zones, walks design and operating reach and reads schematic and support output. The support row exposes the complete scope of the shared-endpoint clash rule.
  * @evidence contracts/development/testing.md#independent-expectations Authored port/node/edge identities, directed graph reach and hand-summed 4.5+4.1 metre supply and 11 metre waste runs define expectations; demand totals use authored quantities and support labels describe represented checks, without establishing hydraulic/electrical performance or rendered installation.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers supply/drainage/undirected reach, open/closed valve and panel, missing roots and unknown systems, valid/broken schematic endpoints, declared/missing faces and volumeless spaces. Initial admission asserts no warnings, but closed-device cases assert success only; malformed record admission belongs to the defects unit.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous portable unit calls maintained Engine source through the existing service fixture and locally declared cases, acquiring no browser, renderer, process, native artifact or dynamic test registry.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The building itself validates as a building, and the multi-discipline network).
+ * @evidence contracts/development/common.md#meaningful-documentation Checks directed supply, drainage and undirected reach, including missing roots. Exercises closed valves and de-energized panels under design and operating queries, and verifies selected schematic totals and support labels.
  */
 export function test_service_network_topology(): void {
   const environment: ReturnType<typeof serviceEnvironment> =
@@ -421,6 +420,11 @@ export function test_service_network_topology(): void {
 
   const support: ReturnType<typeof AutoMovieEngineService.serviceAnalysisSupport> =
     AutoMovieEngineService.serviceAnalysisSupport({ network, environment });
+  TestValidator.equals(
+    "the clash explanation names the full shared-endpoint exemption",
+    support.find((entry: (typeof support)[number]): boolean => entry.check === "segment-clash")?.reason,
+    "runs are compared by radius-padded span boxes. Pairs sharing an endpoint node are exempt along their full routes",
+  );
   TestValidator.equals(
     "what cannot be answered is named rather than implied",
     namedFacts([

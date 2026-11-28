@@ -5,31 +5,21 @@ import type {
 
 import { AutoMovieEnginePrimitiveRadialSegments } from "../AutoMovieEnginePrimitiveRadialSegments";
 import { AutoMovieEnginePrimitiveSphereRings } from "../AutoMovieEnginePrimitiveSphereRings";
+import { invalidPrimitiveExtents } from "./invalidPrimitiveExtents";
 
 /*
- * Tessellate a AutoMoviePrimitiveShape into a triangle mesh.
- *
- * Lets the LLM-authored "named dimensions" path (a 0.4 m sphere, a capsule)
- * become concrete geometry a renderer can draw, without the model ever emitting
- * vertices. The engine owns this fixed primitive recipe independently of the
- * rendering host; renderer precision and appearance are separate observations.
- *
- * Coordinates are local metres, centred on the origin, and faces wind
- * counter-clockwise from outside. Dimensions must already have passed model
- * validation. Sphere, cylinder and cone use sixteen angular segments; the
- * sphere has twelve latitude rings. Planes retain the zero-height box topology.
- * Capsules share the sphere's latitude lattice, with two equator rings joined
- * by the authored cylindrical body height and hemispheres centred at its ends.
- * Each call returns fresh indexed position and normal arrays, without UVs.
- * Finite admitted dimensions can still overflow derived capsule height or
- * normal arithmetic; this producer does not refuse every extreme invalid mesh.
- * Error when the runtime primitive discriminator is unknown.
+ * Apply the model's dimension rule before allocating the standalone mesh.
  */
-export const tessellate: (
+export function tessellate(
   shape: IAutoMoviePrimitiveShape,
-) => IAutoMovieTessellation = (
-  shape: IAutoMoviePrimitiveShape,
-): IAutoMovieTessellation => {
+): IAutoMovieTessellation {
+  const invalid = invalidPrimitiveExtents(shape)[0];
+  if (invalid !== undefined) {
+    const [name, value] = invalid;
+    throw new RangeError(
+      `${name} must be a finite number > 0, but was ${value}`,
+    );
+  }
   switch (shape.type) {
     case "box":
       return box(shape.width, shape.height, shape.depth);
@@ -49,7 +39,12 @@ export const tessellate: (
         AutoMovieEnginePrimitiveRadialSegments,
       );
     case "cone":
-      return cylinder(shape.radius, 0, shape.height, AutoMovieEnginePrimitiveRadialSegments);
+      return cylinder(
+        shape.radius,
+        0,
+        shape.height,
+        AutoMovieEnginePrimitiveRadialSegments,
+      );
     case "capsule":
       return sphere(
         shape.radius,
@@ -58,7 +53,7 @@ export const tessellate: (
         shape.height,
       );
   }
-};
+}
 
 const box: (w: number, h: number, d: number) => IAutoMovieTessellation = (
   w: number,

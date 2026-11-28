@@ -1,28 +1,28 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createChessPiece as createChessPieceImplementation } from "./internal/createChessPiece";
 
-/** Public operations for Auto Movie Archetype Chess Piece. */
+/** Constructs an upright chess piece with a base socket and precision pinch. */
 export namespace AutoMovieArchetypeChessPiece {
   /**
-   * One chess piece standing on its base.
+   * Build a wooden chess piece standing on its base at Y zero.
    *
-   * The piece stands along `+Y` from the centre of its base at the origin. Its
-   * `base` socket is that origin, set on a board square's socket to place it; its
-   * `grip` is a precision pinch at the head, where a player takes a piece, as
-   * FIDE's laws have a move made with one hand.
+   * Each kind uses the fixed profile at its recorded height. Side selects
+   * a pale or dark finish for the same sized piece. Set `base` on a board
+   * square and grasp `grip` near the head.
    *
-   * @param params The piece's kind, side and optional scene id.
-   * @returns The inert piece and its contact frames, metres.
-   * @throws {AutoMovieArchetypeRefusal} For a kind or side outside the set.
+   * @param params Required piece kind, optional side and scene ID. The
+   *   defaults are `white` and `chessPiece`.
+   * @returns The scaled piece with its upward pinch and base socket.
+   * @throws {AutoMovieArchetypeRefusal} If the kind or side is inadmissible.
    */
   export function create(params: AutoMovieArchetypeChessPiece.IParams): AutoMovieArchetype<AutoMovieArchetypeChessPiece.Affordance, AutoMovieArchetypeChessPiece.Dimension> {
     return createChessPieceImplementation(params);
   }
 
-  /** The six kinds of piece. */
+  /** Selects the king, queen, bishop, knight, rook or pawn size. */
   export type Kind = "king" | "queen" | "bishop" | "knight" | "rook" | "pawn";
 
-  /** Every kind, tallest first. */
+  /** The six admitted piece kinds in descending model height. */
   export const KINDS: readonly Kind[] = [
     "king",
     "queen",
@@ -32,26 +32,30 @@ export namespace AutoMovieArchetypeChessPiece {
     "pawn",
   ];
 
-  /** The two sides. */
+  /** Selects the light `white` or dark `black` render finish. */
   export type Side = "white" | "black";
 
-  /** Both sides. */
+  /** The two accepted side labels, with `white` as the default. */
   export const SIDES: readonly Side[] = ["white", "black"];
 
-  /** The pinch at the head and the base set on a square. */
+  /** Upper precision `grip` and upright `base` at the bottom centre. */
   export type Affordance = "grip" | "base";
 
-  /** The height, the base diameter and the mass. */
+  /**
+   * Piece height and base diameter in metres, and estimated mass in kilograms.
+   */
   export type Dimension = "height" | "base" | "mass";
 
-  /** The kind, the side and the scene id. */
+  /** Required piece kind and optional render side and scene ID. */
   export interface IParams {
-    /** Which piece. */
+    /** Selects one of six fixed piece heights. */
     kind: Kind;
 
-    /** Whose piece; `white` when absent. */
+    /**
+     * Tints the same piece geometry for `white` or `black`. Defaults to `white`.
+     */
     side?: Side;
 
-    /** The model's id, unique in a scene; `chessPiece` when absent. */
+    /** Scene object ID, defaulting to `chessPiece`. */
     id?: string;
   }}

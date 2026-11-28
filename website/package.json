@@ -4,8 +4,10 @@
   "version": "0.4.3",
   "description": "The AutoMovie guide, reference, scene studies and 3D gallery at https://samchon.github.io/automovie/",
   "scripts": {
-    "build": "pnpm run build:prepare && next build && pnpm run build:finalize",
-    "build:prepare": "rimraf .next out && pnpm run check && pnpm run typedoc && pnpm run bake",
+    "build": "pnpm run build:prepare && pnpm run build:export",
+    "build:prepare": "pnpm run build:preflight && pnpm run bake",
+    "build:preflight": "rimraf .next out && pnpm run check && pnpm run typedoc",
+    "build:export": "next build && pnpm run build:finalize",
     "build:finalize": "pnpm run bundles && pnpm run build:pagefind",
     "build:pagefind": "pagefind --site .next/server/app --output-path out/_pagefind",
     "generate:archetype-family-exports": "node build/generateArchetypeFamilyExports.mjs",

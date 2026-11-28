@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *    stop after 10 frames, copy the video stream, drop audio and end at the
  *    output path.
  * 2. A frame count of zero is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Plans a silent MOV wrapper that copies the commissioned number of PNG video frames.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls alpha-wrap planning with a rate, frame pattern and output path, then with a zero count.
+ * @evidence contracts/development/testing.md#independent-expectations The selected FFmpeg argument values prove exact rate, ten-frame count, direct copy, excluded audio and final output position.
  */
 export function test_render_delivery_plan_auto_movie_alpha_wrap(): void {
   const args: string[] = AutoMovieRenderVideo.planAlphaWrap({

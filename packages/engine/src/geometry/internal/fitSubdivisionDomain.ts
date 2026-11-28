@@ -7,11 +7,11 @@ import type {
 } from "@automovie/interface";
 
 import { solveQuadraticProgram } from "../../math/internal/solveQuadraticProgram";
+import { stencilSubdivisionLimit } from "../sweep/internal/stencilSubdivisionLimit";
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 import { refineSubdivisionStencils } from "./refineSubdivisionStencils";
 import { subdivisionBendingRows } from "./subdivisionBendingRows";
-import { stencilSubdivisionLimit } from "../sweep/internal/stencilSubdivisionLimit";
 
 /*
  * Fit an explicitly refined generating domain to authored coarse limit points.
@@ -44,6 +44,9 @@ export function fitSubdivisionDomain(
   const old: number = level.topology.vertexCount;
   if (props.controlPositions.length !== 3 * old)
     throw new Error("fitting control positions must be source vertex triples");
+  for (const coordinate of props.controlPositions)
+    if (!Number.isFinite(coordinate))
+      throw new Error("fitting control positions must be finite");
   if (props.anchors.length !== old || props.limitTargets.length !== old)
     throw new Error("fitting constraints must match the source vertex count");
   for (let i: number = 0; i < old; i++)
@@ -55,8 +58,15 @@ export function fitSubdivisionDomain(
         "fitting constraints must be dense boolean anchors and target rows",
       );
   for (const target of props.limitTargets)
-    if (target !== null && target.length !== 3)
-      throw new Error("fitting limit target must be a metre triple");
+    if (
+      target !== null &&
+      (!Array.isArray(target) ||
+        target.length !== 3 ||
+        !Number.isFinite(target[0]) ||
+        !Number.isFinite(target[1]) ||
+        !Number.isFinite(target[2]))
+    )
+      throw new Error("fitting limit target must be a finite metre triple");
   for (let e: number = 0; e < level.topology.edgeSharpness.length; e++) {
     if (
       level.topology.edgeSharpness[e] === 0 ||
@@ -72,10 +82,16 @@ export function fitSubdivisionDomain(
     }
   }
   for (const face of props.regionFaces)
-    if (face < 0 || face >= props.cage.faces.length)
+    if (
+      !Number.isSafeInteger(face) ||
+      face < 0 ||
+      face >= props.cage.faces.length
+    )
       throw new Error("fitting region face is out of range");
-  const coarseStencil: IAutoMovieSubdivisionStencil =
-    stencilSubdivisionLimit(props.cage.faces, old);
+  const coarseStencil: IAutoMovieSubdivisionStencil = stencilSubdivisionLimit(
+    props.cage.faces,
+    old,
+  );
   let refinement: Array<Map<number, number>> = Array.from(
     { length: old },
     (_: unknown, i: number): Map<number, number> => new Map([[i, 1]]),
@@ -93,8 +109,10 @@ export function fitSubdivisionDomain(
         level.topology.faceOffsets[f + 1],
       ),
   );
-  const fineStencil: IAutoMovieSubdivisionStencil =
-    stencilSubdivisionLimit(fineFaces, count);
+  const fineStencil: IAutoMovieSubdivisionStencil = stencilSubdivisionLimit(
+    fineFaces,
+    count,
+  );
   const equalities: Array<{
     terms: Map<number, number>;
     target: readonly number[];
@@ -208,13 +226,19 @@ export function fitSubdivisionDomain(
       solveQuadraticProgram({ diagonal, linear, rows });
     if (solved.status !== 1)
       throw new Error(`subdivision fitting solve incomplete: ${solved.status}`);
+    if (!Number.isFinite(solved.maximumViolation))
+      throw new Error("Subdivision fitting residual must be finite");
     maximumEqualityError = Math.max(
       maximumEqualityError,
       solved.maximumViolation,
     );
     iterations.push(solved.iterations);
-    for (let i: number = 0; i < count; i++)
-      coordinates[3 * i + axis] = solved.primal[i]!;
+    for (let i: number = 0; i < count; i++) {
+      const value: number = solved.primal[i]!;
+      if (!Number.isFinite(value))
+        throw new Error("Subdivision fitted controls must be finite");
+      coordinates[3 * i + axis] = value;
+    }
   }
   const positions: number[] = new Array<number>(3 * count).fill(0);
   refinement.forEach((row: Map<number, number>, i: number): void => {
@@ -222,9 +246,13 @@ export function fitSubdivisionDomain(
       let value: number = i >= old ? coordinates[3 * i + axis]! : 0;
       for (const [j, weight] of row)
         value += weight * coordinates[3 * j + axis]!;
+      if (!Number.isFinite(value))
+        throw new Error("Subdivision fitted positions must be finite");
       positions[3 * i + axis] = value;
     }
   });
+  if (level.uvs?.some((value: number): boolean => !Number.isFinite(value)))
+    throw new Error("Subdivision fitted UVs must be finite");
   return {
     level: { ...level, positions },
     coarseControls: coordinates.slice(0, 3 * old),

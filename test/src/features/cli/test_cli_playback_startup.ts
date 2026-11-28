@@ -16,11 +16,9 @@ import * as path from "node:path";
  * 2. Controls are ready and pressing Play emits an error. The recording still
  *    returns its video and that error, closing both context and browser.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two phases, their distinct outcomes, cause identity and resource release.
- * @evidence contracts/development/testing.md#behavioral-verification Drives the real recording host with browser-event and control ports; reads rejection cause, returned errors and closure counts.
- * @evidence contracts/development/testing.md#independent-expectations An uncaught startup exception is the supplied Error instance; the playback result names the supplied recorded video and script message.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a script failure before controls exist with one after Play; the former cannot become a successful recording and the latter stays review evidence.
- * @evidence contracts/development/testing.md#execution-ownership Portable host unit selected as test_cli_playback_startup; browser and controls are ports, the one empty temporary output directory is removed, and actual SDK browser loading belongs to the scaffold E2E.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes how an uncaught error during navigation and an error during playback affect recording output and browser disposal.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives the recording host with in-memory navigation and Play event sources. Checks startup rejection and its original cause, verifies playback error and video output, and counts context and browser closures.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the supplied Error object as the cause oracle. The playback fixture independently names `recorded.webm`, its exact error text and one closure for each owned resource.
  */
 export async function test_cli_playback_startup(): Promise<void> {
   const out: string = await fs.mkdtemp(

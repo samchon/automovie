@@ -12,6 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    abduction and twist. A neutral clinical axis becomes numeric zero.
  * 2. The opposite hand and wrist are not grip channels. Moving the wrist
  *    before the next act does not change the retained finger angles.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines which side's clinical finger channels carry through a held pose and how null axes read.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads explicit right thumb and index joints from one pose, changes its wrist and reads the same held side again.
+ * @evidence contracts/development/testing.md#independent-expectations Typed input values yield index [35, −4, 0] and thumb [14, 8, −3]. Opposite hand and wrist are excluded independently of later wrist position.
  */
 export function test_motions_handling_grip_fingers(): void {
   const closed: IAutoMoviePose = {

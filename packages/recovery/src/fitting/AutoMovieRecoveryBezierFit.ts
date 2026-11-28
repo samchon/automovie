@@ -10,20 +10,27 @@ import type {
   IAutoMoviePolylineFitInput,
 } from "@automovie/interface";
 
-/**
- * Fits physical ordered observations with adaptive tangent-constrained cubics.
- * Schneider's original Graphics Gems implementation is the algorithmic
- * reference:
- * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c .
- */
+import { isRecoveryPositiveFinite } from "../internal/isRecoveryPositiveFinite";
+import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
+
+/** Fits ordered physical observations with adaptive tangent-constrained cubics. */
 export namespace AutoMovieRecoveryBezierFit {
   /**
-   * Solve endpoint handle lengths, refine monotone parameters and split the
-   * worst interval. Smooth adaptive joins are G1; physical phase widths do not
-   * enforce equal derivative magnitude. Declared corners retain independent
-   * one-sided tangents. Repeated adjacent points reject. An optional observer
-   * receives accepted span-local parameters and private input-point ranges
-   * without changing coefficients or adding source addresses to the result.
+   * Fits a millimetre polyline within a finite tolerance and safe-integer span
+   * budget.
+   *
+   * Supply at least two finite points for an open path or three for a closed
+   * path. Omit the repeated closing point. Consecutive points must differ, and
+   * each corner must address an observation by its integer index. Declared
+   * corners keep independent tangents. Adaptive joins share tangent direction,
+   * with derivative magnitude governed by their physical span widths.
+   *
+   * `polylineUpperEstimateMm` bounds the evaluated correspondence to the input
+   * chords in the fitted chart. A returned two-point span can exceed tolerance,
+   * which sets `toleranceMet` to false. Invalid or unresolved inputs and span
+   * exhaustion throw. The optional observer receives each accepted span's
+   * zero-based index, inclusive source range and copied local parameters as it
+   * is found, including accepted spans before a subsequent failure.
    */
   export function fit(
     input: IAutoMoviePolylineFitInput,
@@ -34,24 +41,36 @@ export namespace AutoMovieRecoveryBezierFit {
       parameters: readonly number[],
     ) => void,
   ): IAutoMoviePolylineFit {
-    const source: AutoMovieVector3Tuple[] = input.pointsMm.map(
-      (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p],
-    );
-    const n: number = source.length;
+    const n: number = input.pointsMm.length;
     if (
       n < (input.closed ? 3 : 2) ||
-      !source.every((p: AutoMovieVector3Tuple): boolean => p.length === 3)
+      !input.pointsMm.every(
+        (p: Readonly<AutoMovieVector3Tuple>): boolean =>
+          p.length === 3 &&
+          Number.isFinite(p[0]) &&
+          Number.isFinite(p[1]) &&
+          Number.isFinite(p[2]),
+      )
     )
       throw new Error("Fitting needs finite ordered physical observations");
-    if (!(input.toleranceMm > 0) || input.maxSpans < 1)
+    if (
+      !isRecoveryPositiveFinite(input.toleranceMm) ||
+      !isRecoveryPositiveSafeInteger(input.maxSpans)
+    )
       throw new Error(
-        "Fitting needs a positive tolerance and integer span budget",
+        "Fitting needs a positive finite tolerance and positive safe-integer span budget",
       );
     if (
       input.parameterization !== "chord" &&
       input.parameterization !== "centripetal"
     )
       throw new Error("Unknown fitting parameterization");
+    for (const corner of input.corners)
+      if (!Number.isSafeInteger(corner) || corner < 0 || corner >= n)
+        throw new Error("Corner index does not address an observation");
+    const source: AutoMovieVector3Tuple[] = input.pointsMm.map(
+      (p: Readonly<AutoMovieVector3Tuple>): AutoMovieVector3Tuple => [...p],
+    );
     const points: AutoMovieVector3Tuple[] = input.closed
       ? [...source, source[0]!]
       : source;
@@ -66,11 +85,7 @@ export namespace AutoMovieRecoveryBezierFit {
       cumulative.push(total);
     }
     const knots: Set<number> = new Set([0, points.length - 1]);
-    for (const corner of input.corners) {
-      if (corner < 0 || corner >= n)
-        throw new Error("Corner index does not address an observation");
-      knots.add(corner);
-    }
+    for (const corner of input.corners) knots.add(corner);
     if (input.closed && knots.size === 2) {
       const half: number = cumulative[cumulative.length - 1]! / 2;
       let split: number = 1;
@@ -242,7 +257,10 @@ export namespace AutoMovieRecoveryBezierFit {
   }
 
   /*
-   * Solve arclength-weighted two-handle normal equations in the physical chart.
+   * Solve arclength-weighted two-handle normal equations in the physical chart,
+   * following Schneider's tangent-constrained adaptive fit. The local weighted
+   * solve and the Bernstein chord estimate govern this implementation.
+   * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c
    */
   function solve(
     p: AutoMovieVector3Tuple[],
@@ -333,7 +351,7 @@ export namespace AutoMovieRecoveryBezierFit {
         split = i + 1;
       }
     }
-    if (sample + bound === Infinity)
+    if (!Number.isFinite(sample) || !Number.isFinite(bound))
       throw new Error("Curve fitting arithmetic is unresolved");
     return { sample, bound, split };
   }

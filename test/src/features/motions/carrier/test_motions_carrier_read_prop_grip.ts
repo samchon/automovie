@@ -18,20 +18,19 @@ import { vclose } from "../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `readPropGrip` reads a named point of a prop as a hand's grip at a film
- * second: the aimed point and normal as displayed, half the affordance's
- * aperture as the radius, and the handle's local +X carried by the prop's frame
- * and the affordance's own as the wrapped axis; with no affordance there is no
- * axis and no radius. A point the prop does not declare is refused on the
- * caller's axis.
+ * Check how a named prop point supplies the displayed hand grip.
  *
- * Scenarios, a bar prop turned a quarter about +Y, its `grip` affordance turned
- * another quarter, 0.04 m across:
+ * Scenarios:
  *
- * 1. The grip at 2 s takes the aimed point and normal at 2 s, radius 0.02, and the
- *    axis +X turned a half about +Y, -X.
- * 2. The `tip` point, with no affordance, takes radius 0 and no axis.
- * 3. A `knob` point is refused on `bar`.
+ * 1. At film second 2, read the grip's aimed point and normal. The 0.04 m
+ *    aperture gives a 0.02 m radius, and two quarter turns carry its +X axis
+ *    to -X.
+ * 2. The declared tip has a point and normal with zero radius and no wrapped
+ *    axis. An undeclared knob refuses on `bar` .
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios distinguish the timed handle axis and radius from a plain point and a missing point.
+ * @evidence contracts/development/testing.md#behavioral-verification The test separates material handle geometry from a plain aim point and a missing point.
+ * @evidence contracts/development/testing.md#independent-expectations Halving the declared aperture and composing the two given quarter turns supply the expected radius and axis.
  */
 export function test_motions_carrier_read_prop_grip(): void {
   const quarter = AutoMovieEngineQuaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);

@@ -24,6 +24,10 @@ const ROUNDING: number = 8 * 100 * Number.EPSILON;
  *    boxed coordinates use base 5 for the first arm and 43 for the second.
  * 2. Both arms keep locked coordinates fixed and the sampler delivers the
  *    promised number of deterministic starts.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes separate Halton bases per arm, chart mapping, locked joints and restart budget.
+ * @evidence contracts/development/testing.md#behavioral-verification Enumerates deterministic starts for two typed arms with chart discs, bounded coordinates and locks.
+ * @evidence contracts/development/testing.md#independent-expectations First radical inverses are 1/base for explicit bases 29/31 and 73/79; direct bounds and polar coordinates constrain every sample.
  */
 export function test_motions_posture_arm_seed_restarts(): void {
   const rest: number[] = [0, 0, 0, 7, 0, 0, 0, 0, 0];

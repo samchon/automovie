@@ -7,17 +7,17 @@ import type {
 } from "..";
 
 /**
- * Qualify one point against its actual retained registered measurements. At
- * least one observed camera pair must supply an acute ray angle above the point
- * threshold. A point need not be visible in either original seed image.
+ * Callable qualification for one reconstructed point against its retained
+ * registered observations.
  */
 
 export namespace IAutoMovieRecoveryScenePointEvaluationOperation {
   /**
-   * Qualify one point against its actual retained registered measurements. At
-   * least one observed camera pair must supply an acute ray angle above the
-   * point threshold. A point need not be visible in either original seed
-   * image.
+   * Project the common-gauge point through each retained camera's supplied
+   * chart. Require distinct registered observations, positive depth, bounded
+   * pixel residuals, and a sufficient strongest acute angle among their actual
+   * viewing rays. The optional synchronous observer receives each computed
+   * pixel residual and may interrupt by throwing.
    */
 
   export type Operation = (

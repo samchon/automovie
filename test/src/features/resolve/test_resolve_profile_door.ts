@@ -121,9 +121,7 @@ const basisX: (m: number[]) => [number, number, number] = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the real frame resolver with a door profile and boneMap, observing allowed swing, copy-driver world orientation and profile-tagged clamping of an excessive swing.
  * @evidence contracts/development/testing.md#independent-expectations Quarter-turn basis mapping gives (0,0,-1); authored quaternion bounds at sin55/cos55 produce the 110-degree corner, whose world X basis follows cosine110/negative sine110 independently of resolver output.
- * @evidence contracts/development/testing.md#distinguishing-cases In-range90 and over-limit150 swings contrast pass-through with two bound crossings, while the mirror checks binding/driver propagation; the corner example does not prove general component clamps preserve quaternion unit norm.
- * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_profile_door entry executes portable synchronous profile/frame semantics for the existing conventional door fixture, without rendering or claiming physically measured hinge constraints.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An in-range 90° swing passes: no violations, the hinge's world X basis lands).
+ * @evidence contracts/development/common.md#meaningful-documentation The in-range hinge swing and copied follower reach the expected world axes. A larger swing clamps to the authored 110-degree rotation.
  */
 export function test_resolve_profile_door(): void {
   const open: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({

@@ -33,6 +33,10 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *    the overlap, the lock kept.
  * 3. With every coordinate of legs 0 and 2 locked the targets and the penetration
  *    stay as they were.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes native self-contact fitting with fixed root, anchor and joint-lock constraints.
+ * @evidence contracts/development/testing.md#behavioral-verification Folds one branch of a quadrupod into another, repeats with boxes, capsules and spheres, and progressively locks the relevant joints.
+ * @evidence contracts/development/testing.md#independent-expectations Original native overlap exceeds 2 cm. Available coordinates must at least halve it; a fully locked pair keeps the original targets and penetration.
  */
 export async function test_engine_physics_plan_physical_contact_targets(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();

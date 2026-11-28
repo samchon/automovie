@@ -41,6 +41,10 @@ import { InspectorMountRecording } from "../../internal/InspectorMountRecording"
  * 7. A subject whose creation fails, and one whose duration is zero, report the
  *    reason, create no renderer that stays alive and dispose the instance they
  *    got.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names overlapping mounts, ownership of disposal and the ready scene facts.
+ * @evidence contracts/development/testing.md#behavioral-verification Settles two scene producers with a controlled renderer and frame queue, then inspects disposal, queued work and facts of the surviving mount.
+ * @evidence contracts/development/testing.md#independent-expectations The first producer resolves after its mount is disposed, so only the second instance can report. The second fixture declares contact, named paths and a front view regardless of the first instance.
  */
 export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): Promise<void> {
   const host: InspectorMountRecording.Host = new InspectorMountRecording.Host();

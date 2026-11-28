@@ -20,6 +20,10 @@ import { TestValidator } from "@nestia/e2e";
  *    finding with no drawn path clears the labels.
  * 3. The reducer accepts the located edit from a playing range: the request names
  *    one explicit second and only the located labels.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the owner-path resolution cases, including derived paths and absent targets.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the locator with explicit drawn roots and a diagnostic whose paths include derived and repeated owners.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied exact drawable roots establish which descendant or slot paths can be labeled. Repeated references to the same owner yield one label.
  */
 export function test_viewer_inspector_locate_inspector_finding(): void {
   const drawn: string[] = [

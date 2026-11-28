@@ -75,6 +75,10 @@ const SUBJECT: IAutoMovieFramedSubject = {
  * 3. `whip` from a 90°-yawed staged orientation → two keys 0.2 s apart, both at
  *    the STAGED position (a whip pans in place), rotating from the staged
  *    quaternion to the aim.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify a static framed camera, eased dolly and staged in-place pan, with known tracks, endpoints and times.
+ * @evidence contracts/development/testing.md#behavioral-verification The test compiles static, push-in and whip requests and evaluates their actual node track keys, sampled positions and forward direction.
+ * @evidence contracts/development/testing.md#independent-expectations For a 90-degree field of view the medium span 1.24 metres requires distance 0.62 and aim height 1.44. Applying the authored dolly multipliers gives 0.775 and 0.496 metres and the closed-form easing fixes the quarter key. A whip's authored pan changes orientation at the same position.
  */
 export function test_engine_film_camera_move_grammar(): void {
   const still: ReturnType<typeof AutoMovieEngineFilm.compileCameraMove> = AutoMovieEngineFilm.compileCameraMove({

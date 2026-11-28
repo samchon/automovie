@@ -1,28 +1,22 @@
 import type { IAutoMovieSurfaceGraphic } from "./IAutoMovieSurfaceGraphic";
 
 /**
- * A shot-local sequence of pictures shown on one `surface` affordance of a
- * placed prop: a phone's screen, a cash machine's display, a sign's face.
+ * Show successive pictures on a sized surface during one shot.
  *
- * The track names the scene node and the affordance, so the picture follows
- * every placement and object motion the prop takes. `render` lays each graphic
- * out in the affordance's reading frame (see `IAutoMovieAffordance.frame`):
- * read from the frame's `+Y` side, local `+X` runs to the reader's right and
- * local `-Z` toward the face's top, over the `width` by `depth` rectangle
- * centred on the frame.
+ * Name a placed node and one surface in its model. Read the picture from the
+ * affordance frame's +Y side. Its right is local +X and its top is local -Z.
+ * The frame centres the surface's width and depth in metres.
  *
  * `engine` admission refuses a node that is not staged, a surface id that is
  * not a `surface` affordance of the node's registered model, a surface without
  * positive `width` and `depth`, two tracks for one node and surface, keys out
  * of order or not opening at zero, and malformed graphics.
  *
- * A surface that rides an articulation is refused as well. Such a surface, the
- * book's `face` on its `hinge` or a folded sheet's `face` on its `fold`, moves
- * with the articulation's travel, so its picture would have to follow the
- * moving part rather than the prop's built object. Reopen when a production
- * needs a graphic on an articulated surface and `render` can parent a graphic
- * mesh to the moving part an articulation drives, so the graphic follows the
- * articulation's travel at every sample time.
+ * A fixed surface follows the prop. A surface that declares `rides` follows
+ * that articulation's single driven rigid part, or its explicitly named
+ * `materialPart` among those driven parts. An unresolved or deforming carrier
+ * is refused. The graphic keys still use the shot's clock when the surface
+ * moves.
  */
 export interface IAutoMovieSurfaceGraphicTrack {
   /** Stable id of the placed prop in the shot's scene. */
@@ -30,7 +24,8 @@ export interface IAutoMovieSurfaceGraphicTrack {
 
   /**
    * Id of a `surface` affordance on the prop's registered model, with positive
-   * `width` and `depth` and no `rides`.
+   * `width` and `depth`. When it rides an articulation, the model must identify
+   * its rigid carrier.
    */
   surface: string;
 

@@ -1,23 +1,20 @@
 import type { AutoMovieVector3Tuple } from "./AutoMovieVector3Tuple";
 import type { IAutoMoviePrepareContourDocument64Document } from "./IAutoMoviePrepareContourDocument64Document";
 
-/** Data and callback contracts shared by the ContourLoftWork64 operations. */
+/** Mutable rings and retained section relationships for one contour loft. */
 export namespace IAutoMovieContourLoftWork64 {
   /**
-   * One generated ring with explicit signed winding and inherited physical
-   * phase.
+   * One sampled generating ring, identified within the invocation and ordered
+   * by declared winding.
    */
   export interface Ring {
     /** Stable generated ring identity. */
     id: string;
-    /**
-     * Generated physical millimetre boundary points, not original source mesh
-     * vertices.
-     */
+    /** Sampled model-millimetre boundary points shared by subsequent stages. */
     points: AutoMovieVector3Tuple[];
     /** Declared signed material boundary orientation. */
     winding: number;
-    /** Complete saved generating phase period. */
+    /** Complete source phase period, or zero after a sampling refusal. */
     period: number;
     /** Local inability to represent this generating boundary, when present. */
     unsupported?: string;
@@ -29,7 +26,7 @@ export namespace IAutoMovieContourLoftWork64 {
     a: number[];
     /** Upper-section local ring ordinals. */
     b: number[];
-    /** Admitted generating event records owned by the prepared document. */
+    /** Borrowed prepared event records assigned to this incidence group. */
     critical: IAutoMoviePrepareContourDocument64Document["events"];
     /** Explicit local omission reason, when present. */
     unsupported?: string;
@@ -37,7 +34,7 @@ export namespace IAutoMovieContourLoftWork64 {
 
   /** One adjacent-cut work address and its independent local groups. */
   export interface Slab {
-    /** Lower saved-section ordinal. */
+    /** Upper retained section index. The lower section is at k - 1. */
     k: number;
     /** All declared local groups; unsupported groups are retained. */
     groups: IAutoMovieContourLoftWork64.Group[];

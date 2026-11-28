@@ -37,7 +37,7 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Constructing the history reads no shape and counts nothing; the first query
  *    reads the shape once at each of the 121 knots of a one-second span at
  *    1/120 s, and counts 121 numeric nodes.
- * 2. At nine seconds off the knots and at both ends the principal moments lie
+ * 2. At nine interior query times and both ends the principal moments lie
  *    within 1e-5 kg m^2 of the closed form and the relative momentum within
  *    1e-6 kg m^2/s: a nearest-knot answer misses the tensor by up to 8e-3 (half
  *    a step of its rate, 1.9) and a linear interpolant by up to 4e-5 (an eighth
@@ -56,6 +56,10 @@ import { throwsError } from "../../internal/throwsError";
  *    seconds and a turn beyond the table's capacity.
  * 7. A span that does not increase, and a step that is not positive, are refused
  *    at construction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names lazy construction, rounded knot count, memoization, interpolation, flight agreement, clearing, and table capacity refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the public tabulated history from moving ring poses and records reads, memo hits, and returned moments. It compares downstream orientation with a stencil-history flight and separately exercises malformed grids and capacity limits.
+ * @evidence contracts/development/testing.md#independent-expectations Parallel axes give diagonal moments (4, 2 + 2r², 2 + 2r²) and ring spin gives (1 + 0.8t) X. Off-knot budgets of 1e-5 for moments and 1e-6 for momentum distinguish nearest-knot reads. A 0.1 s span divided into intervals of at most 0.03 s requires five knots.
  */
 export function test_engine_motion_integrate_airborne_rotation_tabulated(): void {
   tabulatedGrid();

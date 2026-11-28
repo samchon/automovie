@@ -17,9 +17,8 @@ interface ICall {
  * `HumanPerformancePlaceCarrier` is the carrier an overlay rides: the action
  * carrying the body at the overlay's start, read at the carrier's own second
  * for an overlay second, `start + s − previous.start` held within the plan's
- * duration, every call passed straight to the plan with the caller's channels,
- * resolution and projection, nothing kept between calls; its support is the
- * carrier's first plant on something other than the ground.
+ * duration. The support is the carrier's first plant away from the ground.
+ * Repeated reads each forward the caller's channel selection.
  *
  * A carrying action from 2 s lasting 3 s, planted on the floor and on a box; an
  * overlay starting at 3.5 s.
@@ -31,6 +30,10 @@ interface ICall {
  * 3. Two reads of the same second each reach the plan with their own arguments:
  *    the channels the caller passed, or none.
  * 4. A carrying action planted on the ground alone gives no support.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The placed overlay carrier preserves action identity and prop support, clamps film-to-plan time, and forwards each call's channel selection.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the carrier constructor with a typed previous plan and a recording posture function. It compares returned local seconds through root X and inspects both repeated reads' channel arguments.
+ * @evidence contracts/development/testing.md#independent-expectations An overlay starting at 3.5 s on a plan starting at 2 s gives local 2 s for offset 0.5. Offsets -5 and 5 clamp to plan endpoints 0 and 3. A box plant supplies support, while a ground-only plant leaves it undefined.
  */
 export function test_motions_perform_place_carrier(): void {
   const calls: ICall[] = [];

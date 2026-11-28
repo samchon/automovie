@@ -9,6 +9,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. ["front-left", "front-right"] equals itself.
  * 2. Reordered labels, a shorter list, 1 against "1" and +0 against −0 differ.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Compares scalar lists in order using exact scalar type and signed-zero identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls list comparison on equal and reordered labels, different lengths, number versus text, and signed zeros.
+ * @evidence contracts/development/testing.md#independent-expectations Literal booleans for these inputs distinguish ordered Object.is semantics from coercion or simple numeric equality.
  */
 export function test_render_film_equal_ordered_scalars(): void {
   TestValidator.predicate(

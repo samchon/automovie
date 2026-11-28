@@ -47,18 +47,20 @@ export function observeRecoveryOrderedCuts(
     )
   )
     throw new Error("Ordered lineage requires a finite orthonormal frame");
-  if (
-    input.originalTriangleIds.length !== input.triangles.length ||
-    new Set(input.originalTriangleIds).size !== input.triangles.length ||
-    input.originalTriangleIds.some((v: number): boolean => v < 0)
-  )
+  if (input.originalTriangleIds.length !== input.triangles.length)
     throw new Error("Original face mapping is not a complete injection");
-  const inverse: Map<number, number> = new Map(
-    input.originalTriangleIds.map((id: number, i: number): [number, number] => [
-      id,
-      i,
-    ]),
-  );
+  const inverse: Map<number, number> = new Map();
+  for (let i: number = 0; i < input.originalTriangleIds.length; i++) {
+    const id: number | undefined = input.originalTriangleIds[i];
+    if (
+      typeof id !== "number" ||
+      !Number.isSafeInteger(id) ||
+      id < 0 ||
+      inverse.has(id)
+    )
+      throw new Error("Original face mapping is not a complete injection");
+    inverse.set(id, i);
+  }
   const local: (ids: readonly number[]) => number[] = (
     ids: readonly number[],
   ): number[] =>

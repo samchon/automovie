@@ -21,10 +21,8 @@ import type {
  *    family at the stations between them.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `featured`, `convert`, `resolve` and `AutoMovieHumanConicLoft.reader` and measures the drawn curves.
- * @evidence contracts/development/testing.md#independent-expectations Distances between two sampled curves; the rational quadratic's points are evaluated here from its controls, not by the code under test.
- * @evidence contracts/development/testing.md#distinguishing-cases Freed against kept medians; at a knot and between knots.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on made numbers, reached by `--include human_conic_featured`, with no reference body.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with its measure and bound.
+ * @evidence contracts/development/testing.md#independent-expectations The test samples the rational quadratic from its control points and computes nearest distances against the base curve. It checks both agreement within 0.01 mm and the retained median's distinct departure.
+ * @evidence contracts/development/common.md#meaningful-documentation Featured conversion compares sampled curves for freed and retained medians at knots and intermediate stations. The 0.01 mm bound separates shape-preserving conversion from the visible kept-median change.
  */
 export function test_human_conic_featured(): void {
   type P = [number, number];

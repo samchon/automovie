@@ -7,11 +7,11 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Physical balance behavior.
+ * Assesses a body over four fixed supports. Increasing forward speed from rest to 2 m/s and then 20 m/s passes through supported, recovery and unrecoverable states.
  *
- * Scenarios:
- *
- * 1. Exercise actual public inputs and compare physical quantities.
+ * @evidence contracts/development/common.md#meaningful-documentation Checks the supported, recovery and unrecoverable states for increasing forward velocity over four point supports.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls balance assessment directly at 0, 2 and 20 m/s using a rectangular stance, a 1 m center height and a 0.7 m step limit.
+ * @evidence contracts/development/testing.md#independent-expectations Zero speed leaves the capture point inside. The same geometry and finite reach admit recovery at 2 m/s and rule it out at 20 m/s.
  */
 export function test_engine_physics_physical_balance_layers(): void {
   const pattern: IAutoMovieFootfallPattern = supports(4);

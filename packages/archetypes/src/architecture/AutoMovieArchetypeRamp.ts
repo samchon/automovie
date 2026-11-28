@@ -10,21 +10,22 @@ import {
 } from "../core/index";
 import { AutoMovieArchetypeRampData } from "./internal/AutoMovieArchetypeRampData";
 
-/** Constructs the ramp archetype from its recipe. */
+/** Creates a straight incline with a level top landing. */
 export namespace AutoMovieArchetypeRamp {
 /**
- * A ramp with its top landing.
+ * Creates a straight ramp that rises along `+Z` from nominal floor level.
  *
- * The ramp rises along `+Z` from the floor at the origin to its `rise`, at the
- * drawn slope, then runs level for a landing. The `slope` is the walking
- * surface, its frame at the middle of the incline with `+Y` square to it; `top`
- * is the edge where the incline meets the landing.
+ * The `slope` contact spans the full staging plane to `top`, with its
+ * normal inclined. The slab begins above the nominal toe to keep its
+ * thickness above the floor.
+ * `landing` covers the level platform beyond `top`.
  *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The ramp.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @param params Scene ID and any fixed rise, slope, width or total mass.
+ * @param seed Draws omitted dimensions. Without a seed they take their band
+ *   midpoints, giving a rise of 0.455 m and a slope of 1:15.
+ * @returns The composite ramp, its support and its top landing.
+ * @throws {AutoMovieArchetypeRefusal} If a fixed dimension is nonfinite or
+ *   outside its band.
  */
 export function create(
   params: AutoMovieArchetypeRamp.IParams = {},
@@ -130,32 +131,29 @@ export function create(
   return builder.build(d.mass);
 }
 
-  /**
-   * The landing's length, metres: the 60 in (1525 mm) minimum of 2010 ADA
-   * Standards 405.7.3.
-   */
+  /** Fixed depth of the top landing along `+Z`, 1.525 m. */
   export const LANDING: number = 1.525;
 
   /**
-   * The affordance ids:
+   * Names three contacts for staging travel up the ramp.
    *
-   * - `slope`: the incline's walking surface.
-   * - `top`: the edge between the incline and the landing, facing down the ramp.
-   * - `landing`: the level landing at the top.
+   * `slope` is the full nominal inclined surface, `top` its uphill edge
+   * facing `-Z`, and `landing` the level surface beyond that edge.
    */
   export type Affordance = "slope" | "top" | "landing";
 
   /**
-   * The free dimensions, metres unless stated:
+   * Measurements of the flight and the full ramp body.
    *
-   * - `slope`: rise over run, a ratio.
-   * - `rise`: the landing above the floor.
-   * - `width`: the clear width.
-   * - `mass`: kilograms.
+   * `slope` is rise divided by horizontal run. `rise` is the landing height
+   * in metres, `width` the width across the run in metres, and `mass` the
+   * whole model's kilograms.
    */
   export type Dimension = "slope" | "rise" | "width" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /**
+   * A ratio for `slope`, metres for `rise` and `width`, and kilograms for `mass`.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -165,13 +163,21 @@ export function create(
     mass: "kg",
   };
 
-  /** The parameters: any free dimension fixed to a value inside its band. */
+  /**
+   * Sets optional fixed ramp dimensions and the scene ID.
+   *
+   * Supply finite values in `BANDS`. Omitted values use the seed draw or band
+   * midpoint. Landing depth comes from `LANDING`.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
-    /** The model's id, unique in a scene; `ramp` when absent. */
+    /** Scene-unique model ID. Defaults to `ramp`. */
     id?: string;
   }
 
-  /** The band of each free dimension. */
+  /**
+   * Accepts slope 1:20?1:12, rise 0.15?0.76 m, width 0.915?1.2 m and mass
+   * 200?600 kg, including both ends.
+   */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     slope: AutoMovieArchetypeBand.of(
       "",

@@ -13,7 +13,21 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 import { recoveryImageFixture } from "../../internal/recoveryImageFixture";
 
-/** Image fitters reject malformed count and numerical admission controls. */
+/**
+ * Checks Recovery fit admission and the shared Engine support generation
+ * controls at both entry points.
+ *
+ * Scenarios:
+ *
+ * 1. A four-plane rectangular loft realizes with a zero-event limit.
+ * 2. Valid observed supports retain the qualified partial fitting outcome.
+ * 3. Invalid policies and Engine controls refuse with their owning diagnostics.
+ * 4. An insufficient vertex budget transfers no geometry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names valid zero-event generation, partial fitted coverage, malformed control refusal and vertex exhaustion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the Engine generation owner and both Recovery fitters with direct typed controls. Observes geometry counts, fit outcomes and refusal diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations A four-sided open rectangular span has eight triangles and eight corners. An insufficient vertex count cannot emit those corners. Variations distinguish unsafe, fractional and nonfinite input from real budget exhaustion.
+ */
 export function test_recovery_fitting_image_admission(): void {
   const captured = AutoMovieRecoveryObservation.observeImages(
     recoveryImageFixture(),

@@ -18,6 +18,10 @@ const EXACT_DYADIC_TOLERANCE: number = 0;
  * 2. An absolute clock keeps reference speed and time at the larger height.
  *    Out-of-domain speed, tempo and height each refuse.
  * 3. Changing the lead mirrors the limbs and restarts phase at left fore.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names height-scaled and absolute clocks, duty preservation, phase rebasing and unsupported speed, tempo and height.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real clock and phase preparation with an authored gait table, comparing timing, step variability, contact phases and their lead-rebased counterparts.
+ * @evidence contracts/development/testing.md#independent-expectations Four times the body height gives twice the square-root similarity factor. Interpolating the stated midpoint rows produces the literal timing and fractions, and a change of lead permutes the paired phase offsets.
  */
 export function test_archetypes_internal_quadruped_gait_clock(): void {
   const source: gait.ClockSource = {

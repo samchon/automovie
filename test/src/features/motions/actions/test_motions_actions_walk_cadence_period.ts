@@ -20,6 +20,10 @@ const ROUNDING: number = 1e-12;
  *    neither the first, the last nor the middle one of the track's order.
  * 5. With an even number of intervals the period is one of the two middle ones, so
  *    it lies between them.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Walk cadence reads a median beat interval across regular, uneven, and short tracks.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls period estimation with one interval, a late beat, and odd and even interval lists.
+ * @evidence contracts/development/testing.md#independent-expectations The regular 120 BPM period is 0.5 s. Sorting the uneven intervals gives 0.6 s for the odd case and brackets the even case.
  */
 export function test_motions_actions_walk_cadence_period(): void {
   const period: (beats: readonly number[]) => number =

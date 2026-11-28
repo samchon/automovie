@@ -27,6 +27,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  *    so the inner seam plane is that line's plane through `f.0`'s axis and the
  *    inner forks stand where it meets `f.0`'s end ring: on the axis in the
  *    first section axis and 9 mm either side along the second, within 1e-6 mm.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names both split levels, outer fork invariance and the inner frame check.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes a split whose child hosts another split and checks lists of bands and the generated fork positions in each owner frame.
+ * @evidence contracts/development/testing.md#independent-expectations Symmetric outer children cross at x = 0. The inner mirrored pair crosses on U = 0, which intersects its host's radius-9 ring at ±9 on the second axis.
  */
 export function test_engine_geometry_split_compose_nested(): void {
   const b: number = C.LEAN;

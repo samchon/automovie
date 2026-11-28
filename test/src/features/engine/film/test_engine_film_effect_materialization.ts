@@ -43,6 +43,10 @@ const FRAME_SECONDS_TOLERANCE: number = 0;
  *    intervals/cues and missing zone/recipe.
  * 3. Distinguish same-zone overlap from touching intervals or different zones, and
  *    preserve only declared runtime fields.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify admitted clock and effect protocol, independently invalid fields and exclusive ownership within each zone.
+ * @evidence contracts/development/testing.md#behavioral-verification The test materializes the supplied world, edit and film cues, checks canonical runtime entries and runs the verifier on them. It varies one cross-reference, interval, identity or clock premise at a time.
+ * @evidence contracts/development/testing.md#independent-expectations The authored boundaries and rational rate determine seconds and frame ownership. Two intervals in one zone cannot overlap. A shared endpoint or separate zone gives a neighboring valid claim. The known selected protocol fields determine the canonical digest and clock values.
  */
 export function test_engine_film_effect_materialization(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline([

@@ -15,16 +15,18 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The dressing touches compose one `touch` each: adjusting a cuff squeezes the
- * cuff's wrist with the other hand's fingertips for 0.2 s; straightening one's
- * own tie rubs the sternum once upward with the fingertips; straightening a
- * partner's rubs the partner's sternum once upward with the palm.
+ * Check which touch each cuff and tie composer appends.
  *
- * Scenarios, on a chain for subject `a`:
+ * Scenarios:
  *
- * 1. Adjusting the left cuff touches the left wrist with the right hand.
- * 2. Straightening the tie with the right hand rubs the own sternum.
- * 3. Straightening `b`'s tie with the left hand rubs `b`'s sternum.
+ * 1. Adjust the left cuff with the right fingertips on the left wrist for a
+ *    0.2 s squeeze.
+ * 2. Use fingertips to rub one's own sternum upward when straightening a tie.
+ *    Use the left palm on partner `b` 's sternum for a partner's tie.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The cases identify subject, hand, surface, motion and cuff hold duration.
+ * @evidence contracts/development/testing.md#behavioral-verification The helper calls each append one touch, and the test inspects the complete appended request.
+ * @evidence contracts/development/testing.md#independent-expectations Each expected intent is written from the declared subject and hand and the composer-specific touch settings.
  */
 export function test_motions_dressing_compose_touches(): void {
   const intent: (node: IAutoMovieComposition) => IAutoMovieIntent = (

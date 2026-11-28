@@ -10,6 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *    stated xorshift-multiply steps.
  * 2. A different salt, a different seed, and a seed 2^32 apart each give a
  *    different state, since both words of the seed take part.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers repeatability, one exact 32-bit sample, and participation of the seed, salt and seed high word.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls mixSeed directly with one fixed pair twice and changes its seed, salt or high word individually.
+ * @evidence contracts/development/testing.md#independent-expectations The documented word shifts and products modulo 2^32 give 2856422185 for seed 12345 and salt 7. Comparing with the seed plus 2^32 catches a mix that truncates the high word.
  */
 export function test_engine_math_mix_seed(): void {
   const base: number = AutoMovieEngineMath.mixSeed(12345, 7);

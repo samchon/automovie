@@ -1,5 +1,7 @@
+import { AutoMovieEngineVector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -26,15 +28,16 @@ import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovie
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTouchContacts } from "../../compose/internal/AutoMovieMotionHumanTouchContacts";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
-import { motionManner } from "../../compose/internal/motionManner";
 import { composeMotionHumanAction } from "../../compose/internal/composeMotionHumanAction";
+import { motionManner } from "../../compose/internal/motionManner";
 import { HumanHeld } from "../../handling/internal/HumanHeld";
 import { HumanHeldUse } from "../../handling/internal/HumanHeldUse";
+import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
-import { AutoMovieMotionHumanRefusal } from "../../law/AutoMovieMotionHumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 import { touchBalance } from "./touchBalance";
 import { touchClock } from "./touchClock";
@@ -187,6 +190,20 @@ export namespace touch {
     repeated?: number,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanTouch.IParams = context.params;
+    if (
+      p.tracking !== undefined &&
+      (p.tracking !== "observed" ||
+        p.target.kind !== "prop" ||
+        p.other !== undefined ||
+        p.prop !== undefined)
+    )
+      throw new AutoMovieMotionHumanRefusal({
+        kind: "parameter",
+        axis: "tracking",
+        value: p.tracking,
+        reason: "an observed touch follows a prop with one bare hand",
+        fix: "name a prop target and one bare hand or omit tracking",
+      });
     // A person naming the performer is the performer's own body, touched as
     // a `self` target is: its regions ride the posture being solved.
     const own = (t: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
@@ -488,11 +505,61 @@ export namespace touch {
       }),
       ...HumanPhysics.declared(context.params, window),
     };
+    if (p.tracking === "observed") {
+      const stroke = plan.events.find((event) => event.name === "strokeEnd")!;
+      const seconds = stroke.share * plan.duration;
+      const film = context.start + seconds;
+      const read = region(p.target);
+      const pad =
+        standoff + AutoMovieMotionHumanTouchEffector.pad(body, first, effector);
+      const hand = new Set<AutoMovieHumanoidBone>([`${first}Hand`]);
+      plan.verifyDisplayed = (bones, interval): void => {
+        if (
+          interval !== undefined &&
+          (film < interval.entryTime || film > interval.end)
+        )
+          return;
+        const target = read(entry, seconds);
+        const expected = AutoMovieEngineVector3.add(
+          target.point,
+          AutoMovieEngineVector3.scale(
+            AutoMovieEngineVector3.normalize(target.normal),
+            pad,
+          ),
+        );
+        const actual = AutoMovieMotionHumanTouchEffector.point(
+          body,
+          bones(film, hand),
+          first,
+          effector,
+        );
+        const miss = AutoMovieEngineVector3.distance(actual, expected);
+        if (!(miss <= OBSERVED_CONTACT))
+          throw new AutoMovieMotionHumanRefusal({
+            kind: "reach",
+            performer: context.subject,
+            act: "touch",
+            axis: "region",
+            value: miss,
+            feasible: {
+              kind: "range",
+              minimum: 0,
+              maximum: OBSERVED_CONTACT,
+              unit: "m",
+            },
+            reason: `the displayed ${first} hand missed the moving target by ${(miss * 1000).toFixed(1)} mm at strokeEnd (${film.toFixed(3)} s)`,
+            fix: "let the hand reach the moving prop, give its stroke more time, or cut the attempt before contact",
+          });
+      };
+    }
     return p.prop === undefined
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
   }
 }
+
+/* Maximum displayed effector error at the played end of an observed stroke, metres. */
+const OBSERVED_CONTACT: number = 0.01;
 
 /*
  * The exact hand layouts and support admitted for one fingertip inclination.

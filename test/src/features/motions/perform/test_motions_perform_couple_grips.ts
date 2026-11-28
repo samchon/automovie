@@ -25,6 +25,10 @@ const grip = (
  * 3. At step 3, `c` released, `a` and `b` are left.
  * 4. At step 4 no mutual grip holds, so the step has no group; `d` is never in
  *    one.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Mutual tracking connects groups by simulation step. Release removes a member and unilateral grips leave their actor outside.
+ * @evidence contracts/development/testing.md#behavioral-verification The grouping owner receives typed directed grips with overlapping active ranges, and the test compares complete group maps for four consecutive steps.
+ * @evidence contracts/development/testing.md#independent-expectations At step 1 only a and b connect. Step 2 adds a path through b to c. After c releases, step 3 leaves a and b. The final step has no group because the remaining grips are unilateral or expired.
  */
 export function test_motions_perform_couple_grips(): void {
   const groups: Map<number, Map<string, string>> = coupleHumanSimulationGrips(

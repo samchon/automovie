@@ -13,6 +13,10 @@ import { qclose } from "../../internal/qclose";
  * 1. Straight, left, mirrored and reversed circular legs.
  * 2. Shuffled reads and the exact joint between turned and straight legs.
  * 3. A timed wheelchair's differential travel through its heading sweep.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names mirrored and reverse car turns, straight joins, shuffled frame reads and timed wheelchair differential rotation.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual wheel travels and displayed tyre transforms across shuffled seeks. Samples both wheelchair wheels and compares their differential with the observed heading sweep.
+ * @evidence contracts/development/testing.md#independent-expectations A wheel travels its own turning radius times arc angle plus the straight distance, divided by circumference for rotations. The difference between wheelchair wheel distances is track width times swept heading.
  */
 export function test_archetypes_vehicles_car_wheel_material(): void {
   const car: ReturnType<typeof AutoMovieArchetypeCar.create> =

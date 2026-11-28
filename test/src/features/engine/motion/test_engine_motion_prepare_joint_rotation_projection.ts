@@ -45,9 +45,13 @@ import { qclose } from "../../internal/qclose";
  * 5. Another unknown wrapper returns the actual clamp's values in one reused
  *    output record. Boundary and interior targets must retain the correct
  *    selected clinical joint/raw quaternion pair after later probes overwrite
- *    that callback scratch. The box path and a general-path90-degree swing cone
+ *    that callback scratch. The box path and a general 90-degree swing cone
  *    share these literal optima because the cone never binds flexion±30. No
  *    ownership after the callback's scope is assumed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two clamp ownership cases, independently known physical winners, retained inputs and edited results, and explicit rest variants.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the prepared joint projector with clinical demands and public clamp callbacks that either retain inputs or reuse an output object. It verifies preserved receiver, arguments and issued results across sequential queries and both the box and constrained projection paths.
+ * @evidence contracts/development/testing.md#independent-expectations A clinical flexion interval [-30, 30] about neutral 10 gives rig X limits [-40, 20]. Opposite 60-degree demands select those endpoints. With a 90-degree twist frame, explicit null rest and numeric zero have separate analytic optima, exercised with both signs of the demanded quaternion.
  */
 export function test_engine_motion_prepare_joint_rotation_projection(): void {
   nullAffineFrames();

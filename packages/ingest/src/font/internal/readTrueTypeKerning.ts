@@ -9,8 +9,7 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  * glyphs along a line. Their values add across subtables, as the format
  * specifies, unless a subtable's override bit replaces the accumulated value.
  * Subtables of other formats are skipped by their declared length.
- * Parameter reader: Bounds-checked reader over the font bytes.
- * Parameter offset: Byte offset of the `kern` table.
+ * Parameter reader: Bounds-checked reader over the `kern` table.
  * Returns: Adjustment in font units keyed by `left * 65536 + right` glyph
  * indices. An Apple-format table, whose 32-bit version is 1.0, contributes no
  * pairs.
@@ -18,30 +17,34 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  */
 export function readTrueTypeKerning(
   reader: TrueTypeByteReader,
-  offset: number,
 ): Map<number, number> {
   // The Apple-format table (a 32-bit version 1.0) is not the OpenType one and
   // contributes no pairs, like a font without kerning.
-  if (reader.u16(offset, "kern header") !== 0) return new Map();
-  const tables: number = reader.u16(offset + 2, "kern header");
+  if (reader.u16(0, "kern header") !== 0) return new Map();
+  const tables: number = reader.u16(2, "kern header");
   const pairs: Map<number, number> = new Map();
-  let cursor: number = offset + 4;
+  let cursor: number = 4;
   for (let table: number = 0; table < tables; ++table) {
     const length: number = reader.u16(cursor + 2, "kern subtable header");
-    const coverage: number = reader.u16(cursor + 4, "kern subtable header");
-    reader.require(cursor, length, "kern subtable");
+    const subtable: TrueTypeByteReader = reader.slice(
+      cursor,
+      length,
+      "kern subtable",
+    );
+    const coverage: number = subtable.u16(4, "kern subtable header");
     if (
       coverage >> 8 === 0 &&
       (coverage & HORIZONTAL) !== 0 &&
       (coverage & (MINIMUM | CROSS_STREAM)) === 0
     ) {
-      const count: number = reader.u16(cursor + 6, "kern format 0 header");
-      reader.require(cursor + 14, count * 6, "kern format 0 pairs");
+      const count: number = subtable.u16(6, "kern format 0 header");
+      subtable.require(14, count * 6, "kern format 0 pairs");
       for (let pair: number = 0; pair < count; ++pair) {
-        const at: number = cursor + 14 + pair * 6;
+        const at: number = 14 + pair * 6;
         const key: number =
-          reader.u16(at, "kern pair") * 65536 + reader.u16(at + 2, "kern pair");
-        const value: number = reader.i16(at + 4, "kern pair");
+          subtable.u16(at, "kern pair") * 65536 +
+          subtable.u16(at + 2, "kern pair");
+        const value: number = subtable.i16(at + 4, "kern pair");
         pairs.set(
           key,
           (coverage & OVERRIDE) !== 0 ? value : (pairs.get(key) ?? 0) + value,

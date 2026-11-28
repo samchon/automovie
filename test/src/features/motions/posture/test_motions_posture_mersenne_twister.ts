@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Seed 5489: the first two outputs and the 10000th.
  * 2. `uniform01` composes two outputs, the first the low word, over 2^64.
  * 3. `uniformInt` stays within its bounds.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines exact MT19937 seeded sequence, low/high-word double conversion and bounded integers.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads seed 5489 through output 10000, then checks direct floating-point and integer draws.
+ * @evidence contracts/development/testing.md#independent-expectations The published reference fixes 3499211612, 581869302 and 4123659995. Combining the first two words independently fixes the normalized double.
  */
 export function test_motions_posture_mersenne_twister(): void {
   // 1. The reference outputs.

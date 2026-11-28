@@ -14,11 +14,9 @@ import { archetypeExtent } from "../../internal/archetypeExtent";
  * 1. Over 200 seeds, at the maker's single figures: 30 in across its outside between opposite plates, 8 in high, 42 lb.
  * 2. Its wall is the 3/16 in plate between its outside and its inside along `+Z`; its `rim` is on the top edge at `+Z`, facing up; its `fire` on the ground at its centre, `+Y` up; its lowest point on the ground.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the ring and measures its plates, mass and contacts; a size or weight off the maker's, a wall of another thickness, a rim off the edge or a fire off the centre is caught.
- * @evidence contracts/development/testing.md#independent-expectations Belson's FR-30-GNG figures through the international inch and pound, written here as literals.
- * @evidence contracts/development/testing.md#distinguishing-cases The one built ring; its zero-width bands make it a fixed catalogue row.
- * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the ring's outer width, plate thickness, height, mass and rim and ground contacts.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the emitted plate colliders and reads the rim and fire frames. A wall with the wrong thickness, an elevated fire or a rim off its edge fails its own observation.
+ * @evidence contracts/development/testing.md#independent-expectations Uses Belson's 30 inch width, 8 inch height, 3/16 inch plate and 42 pound mass. The rim must coincide with the plate's top edge and the origin is on the ground at the centre.
  */
 export function test_archetype_nature_fire_ring(): void {
   const ring = (seed: number): ReturnType<typeof AutoMovieArchetypeFireRing.create> =>

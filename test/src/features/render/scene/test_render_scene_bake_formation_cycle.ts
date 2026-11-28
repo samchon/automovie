@@ -15,6 +15,10 @@ const MATRIX_TOLERANCE: number = 1e-5;
  *    and one part with one take, `walk`, and a 3 by 4 matrix per part and
  *    sample; every matrix is the identity, since the part stays at rest.
  * 2. A model without a skeleton and a bake with no take at all bake nothing.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names part matrix dimensions, sampled rest identity and the no-skeleton and no-take cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a one-part skinned mesh and reads its actual formation bake for four identical rest poses. Also runs the bake with absent skeleton and takes.
+ * @evidence contracts/development/testing.md#independent-expectations One part and four samples require four 3 by 4 matrices. The literal rest poses keep each matrix at identity. Removing the skeleton or every take means there is no cycle to bake.
  */
 export function test_render_scene_bake_formation_cycle(): void {
   const model = createSkinnedTubeModel();

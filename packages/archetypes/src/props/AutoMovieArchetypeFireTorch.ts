@@ -2,32 +2,39 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createFireTorch as createFireTorchImplementation } from "./internal/createFireTorch";
 import { type AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 
-/** Public operations for Auto Movie Archetype Fire Torch. */
+/**
+ * Constructs a period scene torch with a shaft hold and an upward tip socket.
+ */
 export namespace AutoMovieArchetypeFireTorch {
   /**
-   * A period torch prop with a power grasp and an animated light frame.
+   * Build a decorative period torch upright along model `+Y`.
    *
-   * @param params The optional identifier, the admitted settings and any fixed
-   *   dimensions in the inherited units.
-   * @param seed Draws remaining dimensions and any model choice. Omit it for the
-   *   first model and band midpoints.
-   * @returns The generated model and its named local contacts.
-   * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
+   * The power grip faces `-Z` at mid-shaft. An upward `light` socket
+   * at the top of the head supports a separate staged emitter.
+   *
+   * @param params Optional scene ID and finite length, shaft diameter, head diameter or mass
+   *   within their bands. The ID defaults to `light`.
+   * @param seed Numeric seed for omitted values. Omit it for
+   *   0.508 metres tall,
+   *   with a 0.035 metre shaft and 0.065 metre head diameter.
+   * @returns The shaft and head with their local `grip` and `light` contacts.
+   * @throws {AutoMovieArchetypeRefusal} If a fixed value is inadmissible.
    */
   export function create(params?: AutoMovieArchetypeFireTorch.IParams, seed?: number): AutoMovieArchetype<AutoMovieArchetypeFireTorch.Affordance, AutoMovieArchetypeFireTorch.Dimension> {
     return createFireTorchImplementation(params, seed);
   }
 
   /**
-   * The dimensions this producer draws or derives, in metres unless the draw
-   * records kilograms.
+   * Shaft and head diameters and overall axial length in metres. Mass is in kilograms.
    */
   export type Dimension = "diameter" | "headDiameter" | "length" | "mass";
 
-  /** The contact IDs declared by this producer. */
+  /** Power `grip` on the shaft and `light` pointing up at the head. */
   export type Affordance = "grip" | "light";
 
-  /** The admitted settings and optional model ID. */
+  /**
+   * Optional scene ID, finite length and shaft and head diameters in metres, and mass in kilograms.
+   */
   export type IParams = Pick<
     AutoMovieArchetypeLight.IParams,
     "id" | "length" | "diameter" | "headDiameter" | "mass"

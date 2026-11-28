@@ -2,31 +2,26 @@ import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";
 
 /**
- * How producers write their bands: one call per free dimension, with its unit,
- * its two ends and its source.
+ * Constructs a producer's finite measurement bands with shared units and provenance.
  */
 export namespace AutoMovieArchetypeBand {
   /**
-   * The source text of a mass that was not read at any source: a typical
-   * product mass, always provisional.
+   * Source label for a typical mass estimate. Pass `true` when recording its provisional band.
    */
   export const TYPICAL_MASS: string =
     "typical product mass, not read at a source";
 
   /**
-   * A band.
+   * Create an inclusive band of finite measurements.
    *
-   * @param unit The unit of both ends.
-   * @param minimum The least value.
-   * @param maximum The greatest value; equal to `minimum` for a dimension its
-   *   source fixes.
-   * @param source The standard's clause or the measurement, with the address it
-   *   was read at.
-   * @param provisional True when the value was not read at its primary source;
-   *   absent otherwise.
-   * @returns The band.
-   * @throws {Error} When the ends are not finite or are out of order, a
-   *   producer's defect.
+   * @param unit Unit shared by both endpoints.
+   * @param minimum Lower endpoint in `unit`.
+   * @param maximum Upper endpoint in `unit`. Equal endpoints fix a value.
+   * @param source Reference or measurement supporting the interval.
+   * @param provisional Pass `true` to record an estimate or a secondary
+   *   source. The marker is omitted otherwise.
+   * @returns The band record, ready for an applicable dimension.
+   * @throws {Error} If either endpoint is nonfinite or the endpoints are reversed.
    */
   export function of(
     unit: AutoMovieArchetypeBandUnit,
@@ -35,7 +30,9 @@ export namespace AutoMovieArchetypeBand {
     source: string,
     provisional?: boolean,
   ): IAutoMovieArchetypeBand {
-    if (!(minimum <= maximum))
+    if (!Number.isFinite(minimum) || !Number.isFinite(maximum))
+      throw new Error(`Band endpoints must be finite numbers (${source})`);
+    if (minimum > maximum)
       throw new Error(
         `A band runs from its least to its greatest value: ${minimum} to ${maximum} (${source})`,
       );
@@ -49,16 +46,14 @@ export namespace AutoMovieArchetypeBand {
   }
 
   /**
-   * A band in metres: {@link of} with the unit most dimensions have.
+   * Create a dimensional band measured in metres.
    *
-   * @param minimum The least value, metres.
-   * @param maximum The greatest value, metres.
-   * @param source The standard's clause or the measurement, with the address it
-   *   was read at.
-   * @param provisional True when the value was not read at its primary source;
-   *   absent otherwise.
-   * @returns The band.
-   * @throws {Error} As {@link of} does.
+   * @param minimum Lower endpoint in metres.
+   * @param maximum Upper endpoint in metres.
+   * @param source Reference or measurement supporting the interval.
+   * @param provisional Pass `true` to mark an estimate or secondary source.
+   * @returns The corresponding metre band.
+   * @throws {Error} If either endpoint is nonfinite or the endpoints are reversed.
    */
   export function metres(
     minimum: number,

@@ -16,6 +16,10 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A marker can end at the shot tail, and the returned record has its own
  *    identity.
  * 2. A duplicate id, blank label and invalid interval report all source fields.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios name the exact shot-tail boundary, detached marker record and multiple indexed field errors.
+ * @evidence contracts/development/testing.md#behavioral-verification The test admits a marker and compares its values and object identity. It separately submits an authored list with duplicate IDs, an empty label and invalid time bounds to inspect all errors.
+ * @evidence contracts/development/testing.md#independent-expectations The authored interval ends exactly at the shot duration, so its tail is legal. The duplicate, blank and inverted or out-of-range facts come from the supplied records and determine their reported field paths independently.
  */
 export function test_engine_film_admit_shot_editorial_markers(): void {
   const violations: IAutoMovieConstraintViolation[] = [];

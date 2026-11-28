@@ -16,6 +16,10 @@ type P = [number, number];
  *    gives a clockwise result of area 1.
  * 3. A disjoint boundary and a zero-area (collinear) boundary give [].
  * 4. [0, 1]^2 by [1, 2]^2 touch along x = 1: the zero-area outline [(1, 1)].
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names overlap corners and winding, disjoint and collapsed input and zero-area contact.
+ * @evidence contracts/development/testing.md#behavioral-verification Clips squares in both subject and boundary orders, then calls the same operation for disjoint, collinear and touching inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The coordinate interval overlap [1, 2] by [1, 2] fixes the four overlap corners. Changing the subject order reverses winding. The touching fixture has no positive area.
  */
 export function test_engine_geometry_intersect_convex_polygons(): void {
   const square = (lo: number, hi: number): P[] => [

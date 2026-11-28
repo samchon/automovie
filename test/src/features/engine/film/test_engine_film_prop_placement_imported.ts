@@ -186,6 +186,10 @@ const violated: (
  * 5. A chair whose sealed closure is broken does not forge, and is therefore not
  *    also measured: the forge violation is reported at the prop's own path and
  *    the geometric refusal it would otherwise have earned is not.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify successful chair support, its own placement and keep-out failures, its role as support host and the effect of failed forging on downstream geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification The test validates a prepared imported chair, lamp and stool and changes one pose or sealed closure at a time. It compares the measured proxy paths and confirms that a failed forge supplies no geometry to measure.
+ * @evidence contracts/development/testing.md#independent-expectations The chair's authored deterministic proxy, seat face and keep-out region set independent floor and support bounds. Moving a prop above, below or off a face changes its direction of fault. Closing over the wrong bytes denies the chair's model before a physical result exists.
  */
 export function test_engine_film_prop_placement_imported(): void {
   TestValidator.equals(

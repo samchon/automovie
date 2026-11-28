@@ -20,6 +20,10 @@ const ROUNDING: number = 0;
  * 1. The named surface keeps its shallow depth available to the stance fitter.
  * 2. A seat of the same size, missing depth or id, a non-fixture or an internally
  *    moving fixture has no valid landing surface.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a named rectangular fixed landing and refusal of absent dimensions or moving supports.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves an admitted shallow fixture and tries a seat, missing identifier and depth, wrong role, and in-place moving geometry.
+ * @evidence contracts/development/testing.md#independent-expectations The specified width and depth must survive preparation. Shape semantics and movement checks independently refuse plausible but invalid alternatives.
  */
 export function test_motions_climbing_ladder_access_surface(): void {
   const rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

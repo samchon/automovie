@@ -34,6 +34,10 @@ const GAP_ROUNDING_MM: number = 32 * 1000 * Number.EPSILON;
  * Crossing reads a different probe in each direction. It subtracts that
  * direction's rest and approach-grasp allowances from the depth, and excuses
  * the holding direction entirely once its grasp allowance is unbounded.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines signed obstruction per directed part pair, related-pair omission and directional grasp allowances.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries both directions of a fixture whose probe and corner depths differ, then tests allowed and unbounded grasp directions.
+ * @evidence contracts/development/testing.md#independent-expectations Independent sphere depths and declared allowance subtraction give different directed results. An unbounded allowance excuses only its own direction.
  */
 export async function test_motions_posture_arm_pairs_contract(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

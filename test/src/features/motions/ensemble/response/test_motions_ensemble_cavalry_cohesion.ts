@@ -41,8 +41,6 @@ const RUN: number = 10;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two squadrons, the trumpet and the three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Builds real ensembles from the shipped presets with `AutoMovieMotionHumanEnsemble.HumanEnsemble` and draws each member's warned reaction with `HumanResponse.latency` from its own skill, stream and attributes.
  * @evidence contracts/development/testing.md#independent-expectations The presets give the elite a higher, tighter discipline than the militia, and discipline replaces a member's reaction proficiency, so the elite's reactions vary less; one shared course makes arrival spread equal reaction spread.
- * @evidence contracts/development/testing.md#distinguishing-cases The two extreme presets and a replay. The ridden course from response to line is pinned by test_archetypes_cavalry_squadron and test_archetypes_mounted_cues.
- * @evidence contracts/development/testing.md#execution-ownership The composite feature `test_motions_ensemble_cavalry_cohesion` exercises member resolution and response latency together. The ensemble takes a complete body record, so its stored rig and profile build the quiet stance before the observations of the member draws.
  */
 export async function test_motions_ensemble_cavalry_cohesion(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

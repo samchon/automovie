@@ -49,6 +49,10 @@ const SHARES: readonly number[] = Array.from(
  *    length times the ROM tolerance in radians.
  * 3. Each knee lies within a millimetre of a cold fit's: the bend goal leaves one
  *    swivel.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes continued free-leg fitting across a phase and seek-order independence.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares a synthetic two-leg tuck and compares 25 phase reads in ascending and reversed order with individual cold fits.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic sine goal positions set each ankle, and leg length times angular ROM tolerance sets acceptance. Knee positions stay within 1 mm of cold fits.
  */
 export async function test_motions_posture_free_curve(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

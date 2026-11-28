@@ -22,6 +22,10 @@ import { throwsError } from "../../internal/predicates";
  * 4. A unit square at (1e8, 1e8) has nonzero area and passes admission.
  * 5. Extrusion depths NaN, either infinity and zero are refused; a finite positive
  *    depth still produces finite geometry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the default and explicit ring labels, first-failure ordering, hole relations, stable translation and depth policy.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries real polygon hygiene decisions and extrusion on valid regions, malformed outer rings, touching or nested holes and invalid depths.
+ * @evidence contracts/development/testing.md#independent-expectations The authored coordinates create the listed doubled or crossing edges. A translated unit square still encloses area 1. Valid extrusion requires finite positive depth.
  */
 export function test_engine_geometry_planar_region_failure(): void {
   const ring = (...xy: number[]): IAutoMoviePlanarPoint[] =>

@@ -18,6 +18,10 @@ const HALF_ROOT_TWO: number = Math.SQRT1_2;
  * 2. A direction onto itself is the identity, and lengths do not matter.
  * 3. +X onto -X is a half turn about a perpendicular axis, here +Z.
  * 4. The prepared form answers the same as the direct one.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers the shortest quarter turn, parallel identity, antiparallel half turn and prepared equivalence.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls aimRotation on concrete directions and reads prepareAimRotation with the same target direction.
+ * @evidence contracts/development/testing.md#independent-expectations The +X to +Y turn is 90 degrees about +Z. Equal directions need zero angle, and +X to -X needs 180 degrees about a perpendicular axis. Analytic half-angle components distinguish all three.
  */
 export function test_engine_kinematics_aim_rotation(): void {
   TestValidator.predicate(

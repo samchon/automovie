@@ -2,10 +2,9 @@
  * Limit position, sector normals and face-to-sector mapping of one vertex fan.
  *
  * Position uses the ring's local metres; normals are unit vectors in the same
- * frame and sectors are zero-based normal indices. The caller first exhausts
- * semi-sharp edges so sharpness is 0 or 10; undefined tangent planes and
- * vanishing or nonfinite normals refuse, while documented wide crease-sector
- * masks remain approximations.
+ * frame. Sector indices relate faces to their normals. Supply a ring whose edge
+ * sharpness is already 0 or 10. Vanishing or nonfinite computed normals cause
+ * evaluation to fail. Some sectors use the approximations in IResult.
  */
 export namespace IAutoMovieLimitSubdivisionRing {
   /**
@@ -30,8 +29,8 @@ export namespace IAutoMovieLimitSubdivisionRing {
    * of two faces this is the regular B-spline cross derivative, exact. A side
    * of three faces refines on its own as a boundary ring whose dominant tangent
    * eigenvalues, about 0.580 across and 0.5 along the crease, stand clear of
-   * the next, 0.410, so its exact tangents come from
-   * `subdivisionRingEigenbasis`. Other sides take OpenSubdiv's masks, Biermann,
+   * the next, 0.410. Its tangent directions are evaluated numerically by
+   * subdivisionRingEigenbasis. Other sides take OpenSubdiv's masks, Biermann,
    * Levin and Zorin's (2000) for four or more faces and the
    * vertex-to-mean-of-crease-neighbours mask for one face. Those are
    * approximations with no exact replacement: under the standard crease rules a

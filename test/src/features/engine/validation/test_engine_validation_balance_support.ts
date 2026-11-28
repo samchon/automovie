@@ -126,6 +126,10 @@ const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
  *    non-physics failures before sampling.
  * 7. Each nonfinite, reversed or empty support interval reports its own
  *    temporal violation before the shared grid reads it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Covers foot support margins, mass-weighted balance, intent suppression and refusal of invalid windows or settings.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateBalanceSupport on stock pose and support fixtures that vary the support hull, requested centre, limit and temporal input.
+ * @evidence contracts/development/testing.md#independent-expectations Projected line and polygon fixtures expose known interior, edge and outside positions. The leaned trunk moves the weighted centre past the feet while the pelvis stays within the segment. Invalid temporal windows retain their own paths.
  */
 export function test_engine_validation_balance_support(): void {
   const outsideLine: IAutoMovieSkeleton = skeleton(0.5, 0);

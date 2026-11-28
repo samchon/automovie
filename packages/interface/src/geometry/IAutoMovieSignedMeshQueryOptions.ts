@@ -1,11 +1,12 @@
 /**
  * Topology admission for a compiled oriented-distance query.
  *
- * An open sheet retains oriented interior features while reporting rim-feature
- * side as unknown. Both modes refuse an edge used by three or more triangles, a
- * paired edge whose two uses run the same direction, and a vertex whose
- * incident faces form disconnected fans; neither mode infers outward
- * orientation or absence of self-crossing.
+ * Both modes require connected vertex fans and opposing directions on paired
+ * edges. Each edge has at most two triangle uses. In open mode, one-use edges
+ * belong to the rim and receive a boundary flag when they support a hit.
+ * Outward orientation and a surface free of self-crossings remain caller
+ * premises for closed-volume interpretation. Unknown boundary modes throw
+ * before topology compilation.
  */
 export interface IAutoMovieSignedMeshQueryOptions {
   /**

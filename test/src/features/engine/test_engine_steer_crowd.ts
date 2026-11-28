@@ -37,9 +37,7 @@ import { vclose } from "../internal/vclose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the pass and reads its courses at every step: overlap, a wrong side, an agent that never arrives, an order-dependent sum, a moving obstacle entered, or a frame-dependent law is caught.
  * @evidence contracts/development/testing.md#independent-expectations Non-penetration and arrival are the requirement; the head-on side change and the order and frame invariances follow from the law's symmetry; the close-call comparison is the paper's qualitative finding against a non-interacting control, since the force scale is uncalibrated.
- * @evidence contracts/development/testing.md#distinguishing-cases Two agents, two flows, a random crowd with its control, a reversed listing, a moving obstacle and a moved frame; the human crowd built on it belongs to `test_motion_ensemble_crowd_parting`.
- * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the steering cases and the ownership and seek obligations of a course read.
+ * @evidence contracts/development/common.md#meaningful-documentation Head-on, crossing and random crowds exercise minimum separation. Reverse order, transformed inputs, a moving box and repeated off-grid samples exercise invariance and ownership.
  */
 export function test_engine_steer_crowd(): void {
   const findings: string[] = [];

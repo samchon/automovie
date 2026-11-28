@@ -27,9 +27,7 @@ const AT: IAutoMovieVector3 = { x: 1, y: 2.5, z: -3 };
  *
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the actual record owner and observes actor-or-padded-slot identity, carried model/position/heading and phase laws; wrong carrier fields, padding, actor override or seed/slot dependence changes the result.
  * @evidence contracts/development/testing.md#independent-expectations Literal node names and supplied record fields define the carrier oracle. The phase is read once from the owner to isolate carrier consistency, then checked by repeatability, selected seed/slot differences, unrelated-input invariance and interval bounds; this does not independently certify its exact seeded numeric value.
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps anonymous/promoted members, slot zero, six-digit padding, a seven-digit slot, adjacent-slot/seed twins and changed actor/position/model/heading; placement admission and malformed/out-of-range slots belong to the owning slot-placement suites.
- * @evidence contracts/development/testing.md#execution-ownership The named synchronous test_engine_formation_slot_record directly imports its portable source owner, owns every named fact and starts no renderer, process or native build.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An anonymous slot is named by the formation id and six-digit slot and carries the base model, heading, supplied position and phase...).
+ * @evidence contracts/development/common.md#meaningful-documentation Anonymous and hero slots carry their authored identity and share phase. Slot padding, a neighbouring slot, a changed seed and placement-only changes distinguish name construction from phase identity.
  */
 export function test_engine_formation_slot_record(): void {
   const phase: number = AutoMovieEnginePopulationFormation.formationSlotRecord(UNIT, 7, {

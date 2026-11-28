@@ -14,6 +14,10 @@ import { nclose } from "../../internal/nclose";
  * 2. Rings with fewer than three corners and a collinear ring have zero area.
  * 3. A thin rectangle spanning both binary64 extremes has finite area even when
  *    its width alone would overflow.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names winding, translation, degeneration and the finite thin rectangle across extreme coordinates.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures ordinary and translated area in both winding orders and queries short, collinear and extreme rings.
+ * @evidence contracts/development/testing.md#independent-expectations A unit square encloses one square metre regardless of offset, with sign determined by order. The thin rectangle's signed area is finite even though its width alone overflows.
  */
 export function test_engine_geometry_signed_area(): void {
   for (const offset of [0, 1e8, 1e12]) {

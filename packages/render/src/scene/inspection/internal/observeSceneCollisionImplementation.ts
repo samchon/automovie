@@ -2,12 +2,11 @@ import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieInspectionDiagnostics as Diagnostic,
-
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry";
 import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection";
+import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry";
 import { createCollisionFinding } from "./createCollisionFinding";
 import { findCollisionWitness } from "./findCollisionWitness";
 import { observeSweptCollision } from "./observeSweptCollision";
@@ -89,16 +88,24 @@ function observeLayer(
     status: Diagnostic.ICoverage["status"],
     reason: string,
     obligation: boolean = required,
+    location?: Pick<Diagnostic.ICoverage, "paths" | "basis">,
   ): void => {
     coverage.push(
       status === "checked"
-        ? { check: "collision", key: identity, required: obligation, status }
+        ? {
+            check: "collision",
+            key: identity,
+            required: obligation,
+            status,
+            ...location,
+          }
         : {
             check: "collision",
             key: identity,
             required: obligation,
             status,
             reason,
+            ...location,
           },
     );
   };
@@ -110,14 +117,15 @@ function observeLayer(
       part,
     ]),
   );
-  const result: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
-    parts: collected.parts,
-    geometry: props.geometry,
-    seconds: layer.localSeconds,
-    allowances: layer.allowances,
-    refinement: props.refinement,
-    maxComparisons: budget.comparisons,
-  });
+  const result: Collision.IResult =
+    AutoMovieEngineValidation.measureSceneCollision({
+      parts: collected.parts,
+      geometry: props.geometry,
+      seconds: layer.localSeconds,
+      allowances: layer.allowances,
+      refinement: props.refinement,
+      maxComparisons: budget.comparisons,
+    });
   budget.comparisons -= Object.values(result.compared).reduce(
     (a: number, b: number): number => a + b,
     0,
@@ -132,9 +140,17 @@ function observeLayer(
       key("part", id),
       "unsupported",
       collected.reasons.get(id) ?? "no-displayed-geometry",
+      required,
+      { paths: [id], basis: "static" },
     );
   for (const id of result.proxyParts)
-    report(key("part", id, "proxy"), "deferred", "proxy-geometry-only");
+    report(
+      key("part", id, "proxy"),
+      "deferred",
+      "proxy-geometry-only",
+      required,
+      { paths: [id], basis: "static" },
+    );
   for (const group of result.internalGroups)
     report(key("group", group.kind, group.id), "excluded", group.kind);
   for (const pair of result.unavailablePairs)
@@ -142,41 +158,45 @@ function observeLayer(
       key("frame", pair.first, pair.second),
       "deferred",
       "native-query-unavailable",
+      required,
+      { paths: [pair.first, pair.second], basis: "static" },
     );
-  const solids: Map<
-    string,
-    findCollisionWitness.ISolid | null | "budget"
-  > = new Map();
+  const solids: Map<string, findCollisionWitness.ISolid | null | "budget"> =
+    new Map();
   const solidOf = (
     id: string,
   ): findCollisionWitness.ISolid | null | "budget" => {
     if (!solids.has(id))
       solids.set(
         id,
-        findCollisionWitness.solid(
-          byId.get(id),
-          collected.surfaces.get(id),
-        ),
+        findCollisionWitness.solid(byId.get(id), collected.surfaces.get(id)),
       );
     return solids.get(id)!;
   };
   for (const hit of result.findings) {
-    const identity: string = key("frame", hit.first, hit.second);
-    const outcome: resolveCollisionHit.IResolution =
-      resolveCollisionHit({
-        hit,
-        surfaces: collected.surfaces,
-        solidOf,
-        allowances: layer.allowances ?? [],
-        seconds: layer.localSeconds,
-        budget,
-      });
+    const paths = [hit.first, hit.second];
+    const identity: string = key("frame", ...paths);
+    const location = { paths, basis: "static" as const };
+    const outcome: resolveCollisionHit.IResolution = resolveCollisionHit({
+      hit,
+      surfaces: collected.surfaces,
+      solidOf,
+      allowances: layer.allowances ?? [],
+      seconds: layer.localSeconds,
+      budget,
+    });
     if (outcome.kind === "permitted") {
-      report(identity, "excluded", "named-contact-allowance");
+      report(
+        identity,
+        "excluded",
+        "named-contact-allowance",
+        required,
+        location,
+      );
       continue;
     }
     if (outcome.kind === "clear") {
-      report(identity, "checked", "");
+      report(identity, "checked", "", required, location);
       continue;
     }
     const confirmed: boolean = outcome.kind === "witness";
@@ -188,6 +208,8 @@ function observeLayer(
         : hit.basis === "displayed"
           ? "surface-witness-incomplete"
           : `${hit.basis}-geometry-without-solid`,
+      required,
+      location,
     );
     const separation: number | null =
       outcome.kind === "witness" ? outcome.separation : hit.separation;
@@ -197,7 +219,7 @@ function observeLayer(
       findings.push(
         createCollisionFinding(
           identity,
-          [hit.first, hit.second],
+          paths,
           "frame",
           confirmed,
           separation,

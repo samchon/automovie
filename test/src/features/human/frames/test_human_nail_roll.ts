@@ -26,9 +26,7 @@ import type { IAutoMovieHumanNail } from "@automovie/interface";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanNail.create` on each made bar, with the prior and without, and reads the roll and the conditioning it reports. It catches a roll taken from a crossing of the levelling turn alone, a prior left out or weighed by another formula, and a round back turned to a far crossing.
  * @evidence contracts/development/testing.md#independent-expectations The levelling turn of an ellipse is derived above from its quadratic form; the objective is written out on that closed form in the test and its least found by the test's own scan; the breadth is the ellipse's support along the given lateral; the control's roll is the given turn undone. None is the law's reading of rings.
- * @evidence contracts/development/testing.md#distinguishing-cases A well held back, where the roll stays near the level roll, and a weakly held one, where it stays near the frame; the two differ only in the height of the section. Each has its negative, the same bar with the prior removed, which must be told from it. A back with two level rolls within a quarter turn and a twisting digit are not covered.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on two made skins, reached by `--include human_nail_roll`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation States the made bars, the closed form with its derivation's terms, the objective and each scenario's numbers.
+ * @evidence contracts/development/common.md#meaningful-documentation Two bars of different eccentricity and repeat reads with the prior removed check the chosen roll and its conditioning against explicit objectives.
  */
 export function test_human_nail_roll(): void {
   const failures: string[] = [];

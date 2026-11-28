@@ -15,6 +15,10 @@ import { ConstructionSplitCompose as C } from "../../internal/construction/Const
  * 1. Every edge of the skin is used by exactly two triangles, except the edges on
  *    the four free ends (the host's bottom at z = 0.06 m and each child's far
  *    end 60 mm along its axis from the end plane), and by none in more.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the 32-column skin, expected free ends and required edge incidence.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the actual composed skin and counts triangle incidences for each edge in relation to its free ends.
+ * @evidence contracts/development/testing.md#independent-expectations A watertight interior edge needs exactly two incident triangles. Only the four authored free ends permit an unmatched edge.
  */
 export function test_engine_geometry_split_compose_skin(): void {
   const real = C.realize({ ...C.split({ lean: C.LEAN }), count: 32 }, true);

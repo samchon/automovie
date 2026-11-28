@@ -44,6 +44,10 @@ const ROUNDING: number = 2 * 5_000 * Number.EPSILON;
  *    The same derivative serves the incoming interval.
  * 4. At 3/5 of the swing radius, a perpendicular second control can move 4/5 of
  *    that radius before reaching the circle.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes weighted range excess, projected knot derivatives and admissibility of the between-knot curve.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks a boxed coordinate and shoulder disc then projects outgoing and incoming controls at and within their limits.
+ * @evidence contracts/development/testing.md#independent-expectations Position 12 gives weighted excess 200 on [−10, 10]. An outgoing control 13 from position 9 must scale its derivative by 1/4 to reach the bound 10.
  */
 export function test_motions_posture_arm_trajectory_ranges(): void {
   const scale: number = HumanArmGeometry.SCALE;

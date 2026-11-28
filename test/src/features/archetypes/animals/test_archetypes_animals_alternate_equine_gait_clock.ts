@@ -16,6 +16,10 @@ const CLOCK_TOLERANCE: number = 32 * Number.EPSILON;
  *    tölt stride and leaves an aerial interval in flying pace.
  * 3. An ordinary horse lacks the two explicit gaits, flying pace refuses the
  *    wrong speed, and an explicit gait cannot also enter automatic order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the Icelandic horse's two alternate gaits, measured clock data, support intervals and inadmissible gait choices.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the catalogue-selected horse and admits a copied gait record. Checks both resulting timings and limb phases, then exercises unsupported speed and automatic order.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the fixture's stated periods, fore and hind durations and footfalls. Taking the union of dated stance intervals gives full support for tolt and an aerial gap for flying pace.
  */
 export function test_archetypes_animals_alternate_equine_gait_clock(): void {
   const horse: ReturnType<typeof AutoMovieArchetypeQuadruped.create> = AutoMovieArchetypeQuadruped.create(

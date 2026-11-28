@@ -4,78 +4,46 @@ import type {
 } from "..";
 
 /**
- * Observe actual distal extrema and PL critical brackets from existing
- * source-loop incidence. The open half-space is bounded above by the next
- * representable value beyond the source maximum. Private vertex-face probes let
- * the existing slab graph identify exactly the seeded indexed-source component;
- * original point positions are published only as measured extrema and critical
- * event observations. A one-tip result requires unique incidence, two-use
- * original edges, one nonflat manifold maximum and no other critical event;
- * branch and plateau observations remain explicit.
+ * Callable source terminal observation from physically registered closed-loop
+ * seeds.
  */
 
 export namespace IAutoMovieRecoverySourceTerminalsObservationOperation {
   /**
-   * Observe actual distal extrema and PL critical brackets from existing
-   * source-loop incidence. The open half-space is bounded above by the next
-   * representable value beyond the source maximum. Private vertex-face probes
-   * let the existing slab graph identify exactly the seeded indexed-source
-   * component; original point positions are published only as measured extrema
-   * and critical event observations. A one-tip result requires unique
-   * incidence, two-use original edges, one nonflat manifold maximum and no
-   * other critical event; branch and plateau observations remain explicit.
+   * Trace original face support toward increasing scalar heights from each
+   * closed-loop seed. Return source maxima, critical witnesses and available
+   * event brackets. Optional checkpoints run synchronously.
    */
 
   export type Operation = (input: {
     /**
-     * Source incidence or chart preparation shared by the operation; its
-     * borrowed arrays remain stable for the pass.
+     * Prepared registered source, canonical addresses and original face support
+     * maps.
      */
     prepared: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation>;
 
-    /**
-     * Finite scalar projections aligned with source vertices, in the same units
-     * as query levels.
-     */
+    /** Signed scalar heights for original source vertices in millimetres. */
     heights: readonly number[];
 
-    /**
-     * Registered unit sweep axis; its direction fixes signed section
-     * coordinates.
-     */
+    /** Unit cutting normal defining the positive traversal direction. */
     axis: [number, number, number];
 
-    /**
-     * Saved terminal-loop observations with their original plane and exact
-     * source-face support.
-     */
+    /** Closed-loop seeds with their original source-face support. */
     seeds: readonly {
-      /**
-       * Signed section-plane coordinate along the registered unit sweep axis,
-       * in millimetres.
-       */
+      /** Original signed physical station of this seed in millimetres. */
       coordinateMm: number;
 
-      /** Closed-loop ordinal within the saved section's admitted loop array. */
+      /** Published closed-loop index in the seed's saved section. */
       loopIndex: number;
 
-      /**
-       * Stable saved coefficient identity, retained without inferring
-       * anatomical or material correspondence.
-       */
+      /** Name of the selected saved closed cubic curve. */
       curveName: string;
 
-      /**
-       * Original source-face indices retained as incidence support; these never
-       * become generated mesh indices.
-       */
+      /** Original triangles supporting the selected closed source loop. */
       faces: ReadonlySet<number>;
     }[];
 
-    /**
-     * Synchronous cooperative cancellation/work checkpoint; a thrown exception
-     * aborts the current operation.
-     */
+    /** Optional synchronous checkpoint invoked before observing a seed. */
     checkpoint?: () => void;
   }) => IAutoMovieRecoverySourceTerminal[];
 }

@@ -19,11 +19,9 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  * 3. A repeated add preserves the file's bytes. Absent catalogs are filled and
  *    malformed settings fail.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the template API used by add and checks its returned YAML against the generated production manifest and the pre-existing workspace choices.
- * @evidence contracts/development/testing.md#independent-expectations The manifest supplies the required names. The fixture supplies the expected pins and links to real SDK package directories.
- * @evidence contracts/development/testing.md#distinguishing-cases Both SDK packages start missing. The same input with and without a linked SDK must produce different resolutions. Invalid input fails and a complete file survives byte-for-byte.
- * @evidence contracts/development/testing.md#execution-ownership The source and bundled runners invoke the template in-process with workspace YAML in memory and resolve the same repository SDK manifests.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the migration behavior and the cases that distinguish it.
+ * @evidence contracts/development/common.md#meaningful-documentation Names catalog completion, dependency provenance, retained YAML aliases and policy, repeatability and malformed-input refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public scaffold's workspace renderer with registry, catalog-link and override fixtures. Reads every catalog reference of a generated member, checks existing workspace data and comments, verifies byte preservation on a repeat call and asserts that malformed catalogs throw.
+ * @evidence contracts/development/testing.md#independent-expectations Requires a registry range or the literal local SDK path for each missing package according to the supplied provenance. Compares retained aliases, pins, workspace glob and build policy with their original fixture values, and compares the repeated CRLF file byte for byte.
  */
 export function test_template_workspace_catalogs(): void {
   const directory: string = path.join(repositoryRoot(), "sample-workspace");

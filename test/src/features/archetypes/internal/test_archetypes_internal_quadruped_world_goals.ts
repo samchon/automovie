@@ -14,7 +14,13 @@ import { vclose } from "../../internal/vclose";
 /** Allows frame decomposition and a rigid joint reconstruction. */
 const GOAL_ROUNDING: number = 128 * Number.EPSILON;
 
-/** World directions survive the carried parent and large finite magnitudes. */
+/**
+ * World directions survive the carried parent and large finite magnitudes.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines a carried neck's world direction, rotation goal, scaled finite input and zero-vector refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Lowers actual direction and rotation goals on a prepared two-bone rig with a 90 degree root yaw. Measures the emitted world neck direction at unit and maximum finite inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The normalized world diagonal is `(1/sqrt(2), 1/sqrt(2), 0)` at either scale. An identity rotation goal cancels the carried yaw, and a zero vector has no direction.
+ */
 export function test_archetypes_internal_quadruped_world_goals(): void {
   const neutral: IAutoMovieTransform = {
     translation: { x: 0, y: 0, z: 0 },

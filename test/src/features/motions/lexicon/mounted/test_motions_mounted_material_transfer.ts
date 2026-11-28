@@ -19,7 +19,13 @@ import {
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
-/** The mount's own prepared support order and settled boundary on the real tack. */
+/**
+ * The mount's own prepared support order and settled boundary on the real tack.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the timed support transfers and seated boundary for a mount on the actual tack geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans the mounted sit via the prop's posed affordances, reads near and far tread, ground and seat contact windows, and samples around seated arrival.
+ * @evidence contracts/development/testing.md#independent-expectations Near tread loads by far-foot release, and the seat arrives by far tread load. Across the seated boundary the root and pitch remain within 2 mm and 0.25°.
+ */
 export async function test_motions_mounted_material_transfer(): Promise<void> {
   const body = await humanFixtureBody("m-average");
   const horse = AutoMovieArchetypeHorse.create(
